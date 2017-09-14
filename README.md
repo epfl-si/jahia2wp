@@ -135,7 +135,7 @@ On peut supprimer les actions de la commande make install via :
 
 ## License
 
-[MIT license - Copyright (c) EPFL](./LICENSE.md)
+[MIT license - Copyright (c) EPFL](./LICENSE)
 
 ## Changelog
 
