@@ -1,0 +1,8 @@
+# Import Base Requirements
+-r _base.txt
+
+# Local Specific Requirements
+flake8==3.2.1
+pytest==3.0.7
+codecov
+pytest-cov

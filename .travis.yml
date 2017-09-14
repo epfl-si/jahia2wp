@@ -1,0 +1,14 @@
+# (c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017
+---
+language: python
+
+python:
+- '3.6'
+
+install:
+- pip install -r requirements/local.txt
+
+script:
+- bin/flake8.sh
+- pytest --cov=./ src
+- codecov -t $CODECOV_TOKEN
