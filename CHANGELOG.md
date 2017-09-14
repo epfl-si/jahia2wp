@@ -18,7 +18,9 @@ Table of releases
 
 ## [Unreleased]
 
-- added changelog
+- prettyfied README.md
+- added CHANGELOG.md
+- added LICENSE
 
 ## [0.1.0] - 2017-09-14
 
