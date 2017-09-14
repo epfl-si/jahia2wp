@@ -9,7 +9,7 @@
 </h1>
 
 <h4 align="center">
-  Migrate yourself *all* your content from Jahia to Wordpress
+  Control your migration from Jahia to Wordpress
 </h4>
 
 <p align="center">
@@ -42,6 +42,8 @@ Table of content
     - [Lancer le make install](#lancer-le-make-install)
     - [Lancer le make clean](#lancer-le-make-clean)
 - [Contribution](#contribution)
+- [License](#license)
+- [Changelog](#changelog)
 
 <!-- /TOC -->
 
@@ -129,3 +131,12 @@ On peut supprimer les actions de la commande make install via :
 
 
 ## Contribution
+
+
+## License
+
+[MIT license - Copyright (c) EPFL](./LICENSE.md)
+
+## Changelog
+
+All notable changes to this project are documented in [CHANGELOG.md](./CHANGELOG.md).
