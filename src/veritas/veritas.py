@@ -3,6 +3,7 @@
 import csv
 import re
 
+
 class VeritasValidor:
     """Validates a CSV file containing a list of WordPress metadata"""
 
