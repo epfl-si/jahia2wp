@@ -167,7 +167,7 @@ Big up to all the following people, without whom this project will not be
 
 ## License
 
-[MIT license - Copyright (c) EPFL](./LICENSE.md)
+[MIT license - Copyright (c) EPFL](./LICENSE)
 
 ## Changelog
 
