@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+
+  db:
+    container_name: db
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+
+  httpd:
+    container_name: httpd
+    image: camptocamp/httpd
+    volumes:
+      - /data/docker/os-wp/srv:/srv
+    links:
+      - db:db
+    environment:
+      - WP_ENV=test
+    ports:
+      - "80:80"
+      - "443:443"
+
+  mgmt:
+    container_name: mgmt
+    image: camptocamp/mgmt
+    volumes:
+      - /data/docker/os-wp/srv:/srv
+    ports:
+      - "2222:22"
