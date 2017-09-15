@@ -34,6 +34,8 @@ Table of content
 <!-- TOC -->
 
 - [Overview](#overview)
+    - [Purpose](#purpose)
+    - [Roadmap](#roadmap)
 - [Install](#install)
     - [Configuration des variables d'environnements](#configuration-des-variables-denvironnements)
     - [Modification des variables d'environnements](#modification-des-variables-denvironnements)
@@ -42,6 +44,9 @@ Table of content
     - [Lancer le make install](#lancer-le-make-install)
     - [Lancer le make clean](#lancer-le-make-clean)
 - [Contribution](#contribution)
+    - [Guidelines](#guidelines)
+    - [Code of Conduct](#code-of-conduct)
+    - [Contributor list](#contributor-list)
 - [License](#license)
 - [Changelog](#changelog)
 
@@ -49,6 +54,9 @@ Table of content
 
 ## Overview
 
+### Purpose
+
+### Roadmap
 
 ## Install
 
@@ -131,6 +139,30 @@ On peut supprimer les actions de la commande make install via :
 
 
 ## Contribution
+
+There are a few ways where you can help out:
+
+1. Submit [Github issues](https://github.com/epfl-idevelop/jahia2wp/issues) for any feature enhancements, bugs or documentation problems.
+1. Fix open issues by sending PRs (please make sure you respect [flake8](http://flake8.pycqa.org/en/latest/) conventions and that all tests pass) ::
+
+   make test
+
+1. Add documentation (written in [markdown](https://daringfireball.net/projects/markdown/))
+
+### Guidelines
+
+### Code of Conduct
+
+As detailed in [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md), we pledge to making participation in our project and our community a harassment-free experience for everyone
+
+### Contributor list
+
+Big up to all the following people, without whom this project will not be
+
+| | | |  |  |  | |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| [<img src="https://avatars0.githubusercontent.com/u/490665?v=4s=100" width="100px;"/><br /><sub>Manu B.</sub>](https://github.com/ebreton)<br /> | [<img src="https://avatars0.githubusercontent.com/u/2668031?v=4s=100" width="100px;"/><br /><sub>Manu J. Jaep</sub>](https://github.com/jaepetto)<br /> | [<img src="https://avatars0.githubusercontent.com/u/4997224?v=4s=100" width="100px;"/><br /><sub>Greg</sub>](https://github.com/GregLeBarbar)<br /> | [<img src="https://avatars0.githubusercontent.com/u/11942430?v=4s=100" width="100px;"/><br /><sub>Lulu</sub>](https://github.com/LuluTchab)<br /> | [<img src="https://avatars0.githubusercontent.com/u/25363740?v=4s=100" width="100px;"/><br /><sub>Laurent</sub>](https://github.com/lboatto)<br /> | [<img src="https://avatars0.githubusercontent.com/u/29034311?v=4s=100" width="100px;"/><br /><sub>Luc</sub>](https://github.com/lvenries)<br /> | [<img src="https://avatars0.githubusercontent.com/u/28109?v=4s=100" width="100px;"/><br /><sub>CampToCamp</sub>](https://github.com/camptocamp)<br /> | 
+
 
 
 ## License
