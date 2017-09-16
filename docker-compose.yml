@@ -6,7 +6,7 @@ services:
     container_name: db
     image: mysql:5.7
     environment:
-      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
       - ./data/db:/var/lib/mysql
 
@@ -18,7 +18,7 @@ services:
     links:
       - db:db
     environment:
-      - WP_ENV=test
+      - WP_ENV=${WP_ENV}
     ports:
       - "80:80"
       - "443:443"
