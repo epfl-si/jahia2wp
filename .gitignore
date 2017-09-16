@@ -5,6 +5,7 @@
 .vscode/
 .cache/
 htmlcov/
-data/
+data/db
+data/srv
 coverage.xml
 *.env
