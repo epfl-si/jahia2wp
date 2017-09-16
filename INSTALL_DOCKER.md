@@ -9,3 +9,4 @@ mkdir -p data/srv/.ssh
 docker-compose up
 
 blocked by https://github.com/camptocamp/epfl-os-wp/issues/2
+related to https://github.com/camptocamp/epfl-os-wp/pull/1
