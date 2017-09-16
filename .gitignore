@@ -7,5 +7,6 @@
 htmlcov/
 data/db
 data/srv
+etc/*.env
+.env
 coverage.xml
-*.env
