@@ -1,0 +1,1 @@
+Files should be uploaded here as described in [EPFL project documentation](https://confluence.epfl.ch:8443/x/4QA5Aw)
