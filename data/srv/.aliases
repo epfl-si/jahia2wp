@@ -4,7 +4,7 @@ alias ...="cd ../.."
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
 
-alias loc="cd /srv/${WP_ENV}/jahia2wp/local"
+alias gowp="cd /srv/${WP_ENV}/jahia2wp/local"
 
 # Shortcuts
 alias h="history"
