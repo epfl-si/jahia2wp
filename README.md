@@ -176,9 +176,9 @@ And move to your project directory
     www-data@mgmt-2-fffxv:~/your-env/jahia2wp/local$
 
 > **FIXME**: once [.bashrc sourced](https://github.com/camptocamp/epfl-os-wp/issues/4) at login, we can use the same alias as done locally
-
-    www-data@mgmt-2-fffxv:~$ gowp
-    www-data@mgmt-2-fffxv:~/your-env/jahia2wp/local$
+> 
+>     www-data@mgmt-2-fffxv:~$ gowp
+>     www-data@mgmt-2-fffxv:~/your-env/jahia2wp/local$
 
 You can now jump to the [usage](#usage) section.
 
