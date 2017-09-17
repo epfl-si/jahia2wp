@@ -1,6 +1,5 @@
 #!make
 include .env
-export
 
 vars:
 	@echo Env-related vars:
