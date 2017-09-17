@@ -86,12 +86,7 @@ We will secondly add support for migration of simple site
 
 And lastly we will extend the support to other Jahia boxes, mainly thanks to Wordpress shortcodes
 
-1. people
-1. faq
-1. actu
-1. memento
-1. infoscience
-1. and so on ...
+- people, faq, actu, memento, infoscience, and so on ...
 
 ## Install
 
@@ -108,10 +103,14 @@ Set your variable environments, by copying and adapting the provided sample file
 
 If you only work locally, all the default values should work for you: you are done and you can jump to the [usage section](#usage).
 
-Otherwise, adapt the value of `WP_ENV` to match the name of your environment on C2C infrastructure, as well as `MYSQL_SUPER_*` for the DB credentials :
+Otherwise, you want to modify a few default values : 
 
-    # when in C2C infra, modify your ./local/.env
+    $ vi local/.env
+
+You will first adapt the value of `WP_ENV` to match the name of your environment on C2C infrastructure, as well as `MYSQL_SUPER_*` for the DB credentials :
+
     WP_ENV?=your-env
+    MYSQL_DB_HOST?=db-host
     MYSQL_SUPER_USER?=db-super-user
     MYSQL_SUPER_PASSWORD?=db-secret
 
