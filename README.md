@@ -34,8 +34,7 @@ Table of content
 <!-- TOC -->
 
 - [Overview](#overview)
-    - [Purpose](#purpose)
-    - [Roadmap](#roadmap)
+- [License](#license)
 - [Install](#install)
     - [Install from Github](#install-from-github)
     - [Install locally](#install-locally)
@@ -49,14 +48,12 @@ Table of content
     - [Guidelines](#guidelines)
     - [Code of Conduct](#code-of-conduct)
     - [Contributor list](#contributor-list)
-- [License](#license)
+- [Roadmap](#roadmap)
 - [Changelog](#changelog)
 
 <!-- /TOC -->
 
 ## Overview
-
-### Purpose
 
 This repository will provide you with an amazing toolbox to migrate your old beloved Jahia website to a brand new Wordpress one.
 
@@ -71,23 +68,9 @@ In the process, not only shall you **not** loose your data, but you shall also b
 
 > TODO: add diagram ?
 
-### Roadmap
+## License
 
-We will first focus on automation and maintenance, with the objective of driving all the creation process from one shared spreadsheet (aka configuration source).
-
-1. installing a functionnal wordpress to any given URL
-1. configuring the website with supported plugins, EPFL theme
-1. applying those first two steps to every row of our configuration source
-1. maintening the website and the plugins
-
-We will secondly add support for migration of simple site
-
-1. Jahia text boxes, to wordpress pages
-1. translation, hierarchy, sidebar
-
-And lastly we will extend the support to other Jahia boxes, mainly thanks to Wordpress shortcodes
-
-- people, faq, actu, memento, infoscience, and so on ...
+[MIT license - Copyright (c) EPFL](./LICENSE)
 
 ## Install
 
@@ -257,11 +240,23 @@ Big up to all the following people, without whom this project will not be
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | [<img src="https://avatars0.githubusercontent.com/u/490665?v=4s=100" width="100px;"/><br /><sub>Manu B.</sub>](https://github.com/ebreton)<br /> | [<img src="https://avatars0.githubusercontent.com/u/2668031?v=4s=100" width="100px;"/><br /><sub>Manu J. </sub>](https://github.com/jaepetto)<br /> | [<img src="https://avatars0.githubusercontent.com/u/4997224?v=4s=100" width="100px;"/><br /><sub>Greg</sub>](https://github.com/GregLeBarbar)<br /> | [<img src="https://avatars0.githubusercontent.com/u/11942430?v=4s=100" width="100px;"/><br /><sub>Lulu</sub>](https://github.com/LuluTchab)<br /> | [<img src="https://avatars0.githubusercontent.com/u/25363740?v=4s=100" width="100px;"/><br /><sub>Laurent</sub>](https://github.com/lboatto)<br /> | [<img src="https://avatars0.githubusercontent.com/u/29034311?v=4s=100" width="100px;"/><br /><sub>Luc</sub>](https://github.com/lvenries)<br /> | [<img src="https://avatars0.githubusercontent.com/u/28109?v=4s=100" width="100px;"/><br /><sub>CampToCamp</sub>](https://github.com/camptocamp)<br /> | 
 
+## Roadmap
 
+We will first focus on automation and maintenance, with the objective of driving all the creation process from one shared spreadsheet (aka configuration source).
 
-## License
+1. installing a functionnal wordpress to any given URL
+1. configuring the website with supported plugins, EPFL theme
+1. applying those first two steps to every row of our configuration source
+1. maintening the website and the plugins
 
-[MIT license - Copyright (c) EPFL](./LICENSE)
+We will secondly add support for migration of simple site
+
+1. Jahia text boxes, to wordpress pages
+1. translation, hierarchy, sidebar
+
+And lastly we will extend the support to other Jahia boxes, mainly thanks to Wordpress shortcodes
+
+- people, faq, actu, memento, infoscience, and so on ...
 
 ## Changelog
 
