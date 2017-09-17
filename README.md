@@ -78,18 +78,18 @@ In the process, not only shall you **not** loose your data, but you shall also b
 
 Github is currently the only way to go :
 
-    $ git clone git@github.com:epfl-idevelop/jahia2wp.git
-    $ cd jahia2wp
+    you@host:~$ git clone git@github.com:epfl-idevelop/jahia2wp.git
+    you@host:~$ cd jahia2wp
 
 Set your variable environments, by copying and adapting the provided sample file :
 
-    $ cp local/.env.sample local/.env
+    you@host:~/jahia2wp$ cp local/.env.sample local/.env
 
 If you only work locally, all the default values should work for you: you are done and you can jump to the [usage section](#usage).
 
-Otherwise, you want to modify a few default values : 
+Otherwise (i.e if you work on C2C infra), you want to modify a few default values : 
 
-    $ vi local/.env
+    you@host:~/jahia2wp$ vi local/.env
 
 You will first adapt the value of `WP_ENV` to match the name of your environment on C2C infrastructure, as well as `MYSQL_SUPER_*` for the DB credentials :
 
@@ -113,22 +113,22 @@ In order to work locally, there are three pre-requisites:
 
 1. been through the [Github section](#install-from-github) above
 1. docker and docker-compose installed
-1. camptocamp images built locally
+1. camptocamp docker images built locally
 
 Head to [INSTALL_TOOLS.md](./docs/INSTALL_TOOLS.md) to get more details on docker setup.
 
 Start db, httpd containers and run your management container :
 
-    $ cd local
-    $ make up
+    you@host:~/jahia2wp$ cd local
+    you@host:~/jahia2wp/local$ make up
     Creating network "local_default" with the default driver
     ...
     Creating phpmyadmin ... done
     Creating db ... done
     Creating httpd ... done
-    $ make run
-    www-data@4b01c9e89705:~$
+    you@host:~/jahia2wp/local$ make run
 
+    www-data@4b01c9e89705:~$
     # cd to your project directory
     www-data@4b01c9e89705:~$ gowp
     www-data@99a062ae942a:~/test/jahia2wp/local$
@@ -139,7 +139,7 @@ You can now jump to the [usage](#usage) section.
 
 Login to the management container (within VPN) and go to your environment:
 
-    $ ssh -A www-data@exopgesrv55.epfl.ch -p 32222
+    you@host:~$ ssh -A www-data@exopgesrv55.epfl.ch -p 32222
     www-data@mgmt-2-fffxv:~$ export WP_ENV=your-env
     www-data@mgmt-2-fffxv:~$ cd $WP_ENV
     www-data@mgmt-2-fffxv:~/your-env$
@@ -147,7 +147,7 @@ Login to the management container (within VPN) and go to your environment:
 > **FIXME**: [issue for C2C](https://github.com/camptocamp/epfl-os-wp/issues/3) to AcceptEnv WP_ENV
 > we will then be able to simpy do
 > 
->     $ ssh -A -o SendEnv=WP_ENV www-data@exopgesrv55.epfl.ch -p 32222
+>     you@host:~$ ssh -A -o SendEnv=WP_ENV www-data@exopgesrv55.epfl.ch -p 32222
 >     www-data@mgmt-2-fffxv:~$ cd $WP_ENV
 >     www-data@mgmt-2-fffxv:~/your-env$
 
@@ -185,7 +185,7 @@ We will stick to the default values for the examples (which matches the locally 
 
 If you have been through the [usage pre-requisites](#pre-requisites). you only need to run `make install`. The default values will setup a site on localhost.
 
-    $ make install
+    .../local$ make install
     creating mySQL user
     mkdir -p /srv/test/localhost/htdocs
     wp core download --version=4.8 --path=/srv/test/localhost/htdocs
@@ -201,13 +201,11 @@ If you have been through the [usage pre-requisites](#pre-requisites). you only n
 
 You can check that a new Wordpress is running on [localhost](http://localhost)
 
-<pre><code>https://env-gc-os-exopge.epfl.ch/</code></pre>
-
 ### Delete wordpress site
 
 Onvce again, given you have been through the [usage pre-requisites](#pre-requisites), you only need to run `make clean`. The default values will dictate which site to delete (i.e localhost)
 
-    $ make clean
+    .../local$ make clean
     rm -rf /srv/test/localhost
     cleaning up user and DB
 
