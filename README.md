@@ -156,7 +156,7 @@ You can now jump to the [usage](#usage) section.
 
 Login to the management container (within VPN) and go to your environment:
 
-    $ ssh -A -o www-data@exopgesrv55.epfl.ch -p 32222
+    $ ssh -A www-data@exopgesrv55.epfl.ch -p 32222
     www-data@mgmt-2-fffxv:~$ export WP_ENV=your-env
     www-data@mgmt-2-fffxv:~$ cd $WP_ENV
     www-data@mgmt-2-fffxv:~/your-env$
