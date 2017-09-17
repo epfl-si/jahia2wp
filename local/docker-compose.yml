@@ -8,13 +8,13 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
-      - ./data/db:/var/lib/mysql
+      - ../data/db:/var/lib/mysql
 
   httpd:
     container_name: httpd
     image: camptocamp/httpd
     volumes:
-      - ./data/srv:/srv
+      - ../data/srv:/srv
     links:
       - db:db
     environment:
@@ -27,6 +27,10 @@ services:
     container_name: mgmt
     image: camptocamp/mgmt
     volumes:
-      - ./data/srv:/srv
+      - ../data/srv:/srv
+      - ../Makefile:/srv/${WP_ENV}/jahia2wp/Makefile
+      - ./:/srv/${WP_ENV}/jahia2wp/local
+      - ../src:/srv/${WP_ENV}/jahia2wp/src
+      - ../data/csv:/srv/${WP_ENV}/jahia2wp/data/csv
     ports:
       - "2222:22"

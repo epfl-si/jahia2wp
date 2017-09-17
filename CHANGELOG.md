@@ -11,19 +11,22 @@ Table of releases
 
 <!-- TOC depthFrom:2 depthTo:2 orderedList:false -->
 
-- [[Unreleased]](#unreleased)
+- [[Unreleased] - PR [#1](https://github.com/epfl-idevelop/jahia2wp/pull/1)](#unreleased---pr-1httpsgithubcomepfl-idevelopjahia2wppull1)
+- [[Unreleased] - PR [#5](https://github.com/epfl-idevelop/jahia2wp/pull/5)](#unreleased---pr-5httpsgithubcomepfl-idevelopjahia2wppull5)
 - [[0.1.0] - 2017-09-14](#010---2017-09-14)
 
 <!-- /TOC -->
 
-## [Unreleased]
+## [Unreleased] - PR [#1](https://github.com/epfl-idevelop/jahia2wp/pull/1)
 
-- prettyfied README.md
-- added CHANGELOG.md
-- added LICENSE
+- added validator "veritas"
+
+## [Unreleased] - PR [#5](https://github.com/epfl-idevelop/jahia2wp/pull/5)
+
+- created directory local with make, docker-compose
+- added .env(.sample) file to define all environment vars
+- modified docker-compose.yml and Makefile to make use of .env
 
 ## [0.1.0] - 2017-09-14
 
 - initial revision
-- added dummy test
-- added connection to travis & codcov

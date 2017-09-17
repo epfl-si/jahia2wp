@@ -1,7 +1,7 @@
 <!-- markdownlint-disable -->
 <h1 align="center" style="margin:1em">
   <a href="https://jahia2wp.readthedocs.org/">
-    <img src="https://github.com/epfl-idevelop/jahia2wp/raw/master/static/jahia2wp.png"
+    <img src="./docs/static/jahia2wp.png"
          alt="Markdownify"
          width="200"></a>
   <br />
@@ -153,7 +153,7 @@ There are a few ways where you can help out:
 
 ### Code of Conduct
 
-As detailed in [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md), we pledge to making participation in our project and our community a harassment-free experience for everyone
+As detailed in [CODE_OF_CONDUCT.md](./docs/CODE_OF_CONDUCT.md), we pledge to making participation in our project and our community a harassment-free experience for everyone
 
 ### Contributor list
 
