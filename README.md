@@ -131,7 +131,7 @@ In order to work locally, there are three pre-requisites:
 1. docker and docker-compose installed
 1. camptocamp images built locally
 
-Head to [INSTALL_DOCKER.md](./docs/INSTALL_DOCKER.md) to get more details on docker setup.
+Head to [INSTALL_TOOLS.md](./docs/INSTALL_TOOLS.md) to get more details on docker setup.
 
 Start db, httpd containers and run your management container :
 
