@@ -44,6 +44,7 @@ Table of content
     - [Pre-requisites](#pre-requisites)
     - [Create a new wordpress site](#create-a-new-wordpress-site)
     - [Delete wordpress site](#delete-wordpress-site)
+    - [phpMyAdmin (locally)](#phpmyadmin-locally)
 - [Contribution](#contribution)
     - [Guidelines](#guidelines)
     - [Code of Conduct](#code-of-conduct)
@@ -226,6 +227,10 @@ Onvce again, given you have been through the [usage pre-requisites](#pre-requisi
     $ make clean
     rm -rf /srv/test/localhost
     cleaning up user and DB
+
+### phpMyAdmin (locally)
+
+A phpMyAdmin is available locally at [localhost:8080](http://localhost:8080), with the server and credentials defined in your .env file
 
 ## Contribution
 
