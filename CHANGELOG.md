@@ -26,6 +26,7 @@ Table of releases
 - created directory local with make, docker-compose
 - added .env(.sample) file to define all environment vars
 - modified docker-compose.yml and Makefile to make use of .env
+- reviewed documentation
 
 ## [0.1.0] - 2017-09-14
 
