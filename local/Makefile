@@ -32,14 +32,14 @@ run:
 
 clean:
 	rm -rf /srv/${WP_ENV}/${SITE_PATH}
-	@echo cleaning up user and DB
-	@mysql -h ${MYSQL_DB_HOST} -u ${MYSQL_SUPER_USER} --password=${MYSQL_SUPER_PASSWORD} -e "DROP USER ${MYSQL_WP_USER};" 
-	@mysql -h ${MYSQL_DB_HOST} -u ${MYSQL_SUPER_USER} --password=${MYSQL_SUPER_PASSWORD} -e "DROP DATABASE ${WP_DB_NAME};" 
+	@echo cleaning up user *${MYSQL_WP_USER}* and DB *${WP_DB_NAME}*
+	@mysql -h ${MYSQL_DB_HOST} -u ${MYSQL_SUPER_USER} --password=${MYSQL_SUPER_PASSWORD} -e "DROP USER \`${MYSQL_WP_USER}\`;" 
+	@mysql -h ${MYSQL_DB_HOST} -u ${MYSQL_SUPER_USER} --password=${MYSQL_SUPER_PASSWORD} -e "DROP DATABASE \`${WP_DB_NAME}\`;" 
 
 install:
-	@echo creating mySQL user
+	@echo creating mySQL user *${MYSQL_WP_USER}*
 	@mysql -h ${MYSQL_DB_HOST} -u ${MYSQL_SUPER_USER} --password=${MYSQL_SUPER_PASSWORD} -e "CREATE USER '${MYSQL_WP_USER}' IDENTIFIED BY '${MYSQL_WP_PASSWORD}';"
-	@mysql -h ${MYSQL_DB_HOST} -u ${MYSQL_SUPER_USER} --password=${MYSQL_SUPER_PASSWORD} -e "GRANT ALL PRIVILEGES ON ${WP_DB_NAME}.* TO '${MYSQL_WP_USER}'@'%';"
+	@mysql -h ${MYSQL_DB_HOST} -u ${MYSQL_SUPER_USER} --password=${MYSQL_SUPER_PASSWORD} -e "GRANT ALL PRIVILEGES ON \`${WP_DB_NAME}\`.* TO \`${MYSQL_WP_USER}\`@'%';"
 	mkdir -p /srv/${WP_ENV}/${SITE_PATH}/htdocs
 
 	wp core download --version=4.8 --path=/srv/${WP_ENV}/${SITE_PATH}/htdocs
