@@ -10,6 +10,16 @@ services:
     volumes:
       - ../data/db:/var/lib/mysql
 
+  phpmyadmin:
+      image: phpmyadmin/phpmyadmin
+      container_name: phpmyadmin
+      environment:
+      - PMA_ARBITRARY=1
+      ports:
+      - 8080:80
+      volumes:
+      - /sessions
+      
   httpd:
     container_name: httpd
     image: camptocamp/httpd
