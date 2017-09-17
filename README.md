@@ -127,7 +127,7 @@ Note that you should keep the question mark in `?=`. That will allow you to over
 
 In order to work locally, there are three pre-requisites:
 
-1. been through the [Github section](#github) above
+1. been through the [Github section](#install-from-github) above
 1. docker and docker-compose installed
 1. camptocamp images built locally
 
@@ -161,7 +161,7 @@ Login to the management container (within VPN) and go to your environment:
 
 > TODO: issue for C2C to AcceptEnv WP_ENV
 
-Setup the project from github as described in [Github section](#github)
+Setup the project from github as described in [Github section](#install-from-github)
 
 And move to your project directory
 
