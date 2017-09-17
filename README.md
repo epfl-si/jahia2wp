@@ -204,7 +204,7 @@ If you have been through the [usage pre-requisites](#pre-requisites). you only n
     sh: 1: /usr/sbin/sendmail: not found
     Success: WordPress installed successfully.
 
-You can check that a new Wordpress is running on [localhost](https://localhost)
+You can check that a new Wordpress is running on [localhost](http://localhost)
 
 <pre><code>https://env-gc-os-exopge.epfl.ch/</code></pre>
 
