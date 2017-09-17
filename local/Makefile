@@ -21,31 +21,25 @@ vars:
 	@echo '  WP_ADMIN_EMAIL=${WP_ADMIN_EMAIL}'
 
 up:
-	WP_ENV=${WP_ENV} MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} docker-compose up -d
+	@WP_ENV=${WP_ENV} MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} docker-compose up -d
 
 run:
-	WP_ENV=${WP_ENV} MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} docker-compose run \
+	@WP_ENV=${WP_ENV} MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} docker-compose run \
 	  -e WP_ENV=${WP_ENV} \
 	  -e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
 	  -e MYSQL_DB_HOST=${MYSQL_DB_HOST} \
-	  -e SITE_PATH=${SITE_PATH} \
-	  -e WP_TITLE="${WP_TITLE}" \
-	  -e WP_DB_NAME=${WP_DB_NAME} \
-	  -e MYSQL_WP_USER=${MYSQL_WP_USER} \
-	  -e MYSQL_WP_PASSWORD=${MYSQL_WP_PASSWORD} \
-	  -e WP_ADMIN_USER=${WP_ADMIN_USER} \
-	  -e WP_ADMIN_PASSWORD=${WP_ADMIN_PASSWORD} \
-	  -e WP_ADMIN_EMAIL=${WP_ADMIN_EMAIL} \
 	  --rm mgmt
 
 clean:
 	rm -rf /srv/${WP_ENV}/${SITE_PATH}
-	mysql -h ${MYSQL_DB_HOST} -u ${MYSQL_SUPER_USER} --password=${MYSQL_SUPER_PASSWORD} -e "DROP USER ${MYSQL_WP_USER};" 
-	mysql -h ${MYSQL_DB_HOST} -u ${MYSQL_SUPER_USER} --password=${MYSQL_SUPER_PASSWORD} -e "DROP DATABASE ${WP_DB_NAME};" 
+	@echo cleaning up user and DB
+	@mysql -h ${MYSQL_DB_HOST} -u ${MYSQL_SUPER_USER} --password=${MYSQL_SUPER_PASSWORD} -e "DROP USER ${MYSQL_WP_USER};" 
+	@mysql -h ${MYSQL_DB_HOST} -u ${MYSQL_SUPER_USER} --password=${MYSQL_SUPER_PASSWORD} -e "DROP DATABASE ${WP_DB_NAME};" 
 
 install:
-	mysql -h ${MYSQL_DB_HOST} -u ${MYSQL_SUPER_USER} --password=${MYSQL_SUPER_PASSWORD} -e "CREATE USER '${MYSQL_WP_USER}' IDENTIFIED BY '${MYSQL_WP_PASSWORD}';"
-	mysql -h ${MYSQL_DB_HOST} -u ${MYSQL_SUPER_USER} --password=${MYSQL_SUPER_PASSWORD} -e "GRANT ALL PRIVILEGES ON ${WP_DB_NAME}.* TO '${MYSQL_WP_USER}'@'%';"
+	@echo creating mySQL user
+	@mysql -h ${MYSQL_DB_HOST} -u ${MYSQL_SUPER_USER} --password=${MYSQL_SUPER_PASSWORD} -e "CREATE USER '${MYSQL_WP_USER}' IDENTIFIED BY '${MYSQL_WP_PASSWORD}';"
+	@mysql -h ${MYSQL_DB_HOST} -u ${MYSQL_SUPER_USER} --password=${MYSQL_SUPER_PASSWORD} -e "GRANT ALL PRIVILEGES ON ${WP_DB_NAME}.* TO '${MYSQL_WP_USER}'@'%';"
 	mkdir -p /srv/${WP_ENV}/${SITE_PATH}/htdocs
 
 	wp core download --version=4.8 --path=/srv/${WP_ENV}/${SITE_PATH}/htdocs
