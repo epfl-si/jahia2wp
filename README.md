@@ -39,6 +39,7 @@ Table of content
     - [Install from Github](#install-from-github)
     - [Install locally](#install-locally)
     - [Install in C2C infra](#install-in-c2c-infra)
+    - [Tip to connect to C2C](#tip-to-connect-to-c2c)
 - [Usage](#usage)
     - [Pre-requisites](#pre-requisites)
     - [Create a new wordpress site](#create-a-new-wordpress-site)
@@ -137,39 +138,44 @@ You can now jump to the [usage](#usage) section.
 
 ### Install in C2C infra
 
+You first need to define your environment variable WP_ENV, with the name of the environment you will use on C2C infra
+
+    $ echo "
+    export WP_ENV=your-env" >> ~/.bashrc
+
 Login to the management container (within VPN) and go to your environment:
 
-    you@host:~$ ssh -A www-data@exopgesrv55.epfl.ch -p 32222
-    www-data@mgmt-2-fffxv:~$ export WP_ENV=your-env
-    www-data@mgmt-2-fffxv:~$ cd $WP_ENV
-    www-data@mgmt-2-fffxv:~/your-env$
-
-> **FIXME**: [issue for C2C](https://github.com/camptocamp/epfl-os-wp/issues/3) to AcceptEnv WP_ENV
-> we will then be able to simpy do
-> 
->     you@host:~$ ssh -A -o SendEnv=WP_ENV www-data@exopgesrv55.epfl.ch -p 32222
->     www-data@mgmt-2-fffxv:~$ cd $WP_ENV
->     www-data@mgmt-2-fffxv:~/your-env$
+    you@host:~$ ssh -A -o SendEnv=WP_ENV www-data@exopgesrv55.epfl.ch -p 32222
+    www-data@mgmt-2-fffxv:~$ cd /srv/$WP_ENV
+    www-data@mgmt-2-fffxv:/srv/your-env$
 
 Setup the project from github as described in [Github section](#install-from-github)
 
 And move to your project directory
 
-    www-data@mgmt-2-fffxv:~$ cd $WP_ENV/jahia2wp/local
-    www-data@mgmt-2-fffxv:~/your-env/jahia2wp/local$
-
-> **FIXME**: once [.bashrc sourced](https://github.com/camptocamp/epfl-os-wp/issues/4) at login, we can use the same alias as done locally
-> 
->     www-data@mgmt-2-fffxv:~$ gowp
->     www-data@mgmt-2-fffxv:~/your-env/jahia2wp/local$
+    www-data@mgmt-2-fffxv:where-ever-you-are$ gowp
+    www-data@mgmt-2-fffxv:/srv/your-env/jahia2wp/local$
 
 You can now jump to the [usage](#usage) section.
+
+### Tip to connect to C2C
+
+Set up an alias on your host:
+
+    $ echo "
+    alias managwp='echo ssh -A -o SendEnv=WP_ENV  www-data@exopgesrv55.epfl.ch -p 32222 && ssh -A -o SendEnv=WP_ENV www-data@exopgesrv55.epfl.ch -p 32222'" >> ~/.bashrc
+
+That will allow you to connect and move to your local dir in two commands:
+
+    you@host:~$ managwp
+    www-data@mgmt-2-fffxv:~$ gowp
+
 
 ## Usage
 
 ### Pre-requisites
 
-In this section, we assumed you have been throught all [installation steps](#install), and you now have a bash running in your management container
+In this section, we assumed you have been throught all [installation steps](#install), and you now have a bash running in your management container:
 
     # locally
     www-data@99a062ae942a:~/test/jahia2wp/local$
