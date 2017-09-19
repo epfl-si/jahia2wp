@@ -105,14 +105,12 @@ class VeritasValidor:
         unique = {}
 
         for row in self.rows:
-            value = row[column_name]
-
-            if value in unique:
+            if row[column_name] in unique:
                 self.add_error(line, column_name, "%s : %s" %
                                (message,
                                 row[column_name]))
 
-            unique[value] = value
+            unique[row[column_name]] = row[column_name]
 
             line += 1
 
