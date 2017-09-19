@@ -8,3 +8,4 @@ htmlcov/
 data/
 coverage.xml
 *.env
+log/

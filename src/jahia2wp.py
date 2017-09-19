@@ -2,27 +2,26 @@
 jahia2wp: an amazing tool !
 
 Usage:
-  jahia2wp.py helloworld
   jahia2wp.py generate <csv_file> [--output-dir=<OUTPUT_DIR>] [--debug | --quiet]
 
 Options:
   -h --help                     Show this screen.
   -v --version                  Show version.
 """
+
+import logging
+
 from docopt import docopt
+from docopt_dispatch import dispatch
 
+from generator.generator import Generator
 from settings import VERSION
+from utils import Utils
 
 
-def main(args):
-
-    if args.get("helloworld"):
-        print("Hello World")
-        return True
-
-    if args["generate"]:
-        print("Generate")
-        return True
+@dispatch.on('generate')
+def generate(csv_file, **kwargs):
+    Generator.run(csv_file)
 
 
 if __name__ == '__main__':
@@ -31,4 +30,9 @@ if __name__ == '__main__':
     # __doc__ contains package docstring
     args = docopt(__doc__, version=VERSION)
 
-    main(args)
+    # set logging config before anything else
+    Utils.set_logging_config(args)
+
+    logging.debug(args)
+
+    dispatch(__doc__)
