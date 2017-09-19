@@ -10,64 +10,33 @@ class VeritasValidor:
     # the csv delimiter
     DELIMITER = ","
 
-    # the CSV path
-    csv_path = ""
-
     # the regex used to validate the url
-    regex_url = re.compile("^[a-zA-Z0-9.\-/]+$")
+    REGEX_URL = re.compile("^[a-zA-Z0-9.\-/]+$")
 
     # the regex used to validate the admin email
-    regex_email = re.compile("(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
+    REGEX_EMAIL = re.compile("(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
 
     # the regex used to validate the db name
-    regex_db_name = re.compile("^[a-z0-9]{8,16}$")
-
-    # the rows
-    rows = []
-
-    # the errors
-    errors = []
-
-    # the VeritasColumns
-    columns = []
+    REGEX_DB_NAME = re.compile("^[a-z0-9]{8,16}$")
 
     def __init__(self, csv_path):
         """Constructor"""
 
         self.csv_path = csv_path
 
-    def define_columns(self):
-        """Define the columns"""
+        # the rows
+        self.rows = []
 
-        # url
-        self.columns.append(VeritasColumn(
-            column_index=0,
-            column_name="url",
-            column_label="url",
-            regex=self.regex_url,
-            is_unique=True))
+        # the errors
+        self.errors = []
 
-        # admin
-        self.columns.append(VeritasColumn(
-            column_index=1,
-            column_name="admin",
-            column_label="admin",
-            regex=self.regex_email,
-            is_unique=False))
+        # the VeritasColumns
+        self.columns = []
 
-        # db_name
-        self.columns.append(VeritasColumn(
-            column_index=2,
-            column_name="db_name",
-            column_label="db name",
-            regex=self.regex_db_name,
-            is_unique=True))
-
-    def validate(self):
-        """Validate the CSV file"""
-
+        # define the columns
         self.define_columns()
 
+        # load the CSV file
         with open(self.csv_path, 'r') as csvfile:
             reader = csv.reader(csvfile, delimiter=self.DELIMITER)
 
@@ -78,9 +47,34 @@ class VeritasValidor:
             # removes the first row containing the headers
             self.rows.pop(0)
 
-            self.validate_columns()
+    def define_columns(self):
+        """Define the columns"""
 
-    def validate_columns(self):
+        # url
+        self.columns.append(VeritasColumn(
+            column_index=0,
+            column_name="url",
+            column_label="url",
+            regex=self.REGEX_URL,
+            is_unique=True))
+
+        # admin
+        self.columns.append(VeritasColumn(
+            column_index=1,
+            column_name="admin",
+            column_label="admin",
+            regex=self.REGEX_EMAIL,
+            is_unique=False))
+
+        # db_name
+        self.columns.append(VeritasColumn(
+            column_index=2,
+            column_name="db_name",
+            column_label="db name",
+            regex=self.REGEX_DB_NAME,
+            is_unique=True))
+
+    def validate(self):
         """Validate the columns"""
 
         # check the regexp

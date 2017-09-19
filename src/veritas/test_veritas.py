@@ -4,7 +4,7 @@ from .veritas import VeritasValidor
 
 
 def test_validate():
-    validator = VeritasValidor('./test_veritas_data.csv')
+    validator = VeritasValidor('src/veritas/test_veritas_data.csv')
 
     validator.validate()
 
