@@ -36,6 +36,10 @@ services:
   mgmt:
     container_name: mgmt
     image: camptocamp/mgmt
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - WP_ENV=${WP_ENV}
+      - MYSQL_DB_HOST=${MYSQL_DB_HOST}
     volumes:
       - ../data/srv:/srv
       - ../Makefile:/srv/${WP_ENV}/jahia2wp/Makefile

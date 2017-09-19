@@ -21,14 +21,20 @@ vars:
 	@echo '  WP_ADMIN_EMAIL=${WP_ADMIN_EMAIL}'
 
 up:
-	@WP_ENV=${WP_ENV} MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} docker-compose up -d
+	@WP_ENV=${WP_ENV} \
+		MYSQL_DB_HOST=${MYSQL_DB_HOST} \
+		MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
+		docker-compose up -d
 
-run:
-	@WP_ENV=${WP_ENV} MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} docker-compose run \
+exec:
+	@docker exec --user www-data -it  \
 	  -e WP_ENV=${WP_ENV} \
 	  -e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
 	  -e MYSQL_DB_HOST=${MYSQL_DB_HOST} \
-	  --rm mgmt
+	  mgmt bash
+
+down:
+	docker-compose down
 
 clean:
 	rm -rf /srv/${WP_ENV}/${SITE_PATH}
