@@ -1,7 +1,8 @@
 """ All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017 """
 
-import csv
 import re
+
+from utils import Utils
 
 
 class VeritasValidor:
@@ -36,16 +37,8 @@ class VeritasValidor:
         # define the columns
         self.define_columns()
 
-        # load the CSV file
-        with open(self.csv_path, 'r') as csvfile:
-            reader = csv.DictReader(csvfile, delimiter=self.DELIMITER)
-
-            # load the rows
-            for row in reader:
-                self.rows.append(row)
-
-            # removes the first row containing the headers
-            self.rows.pop(0)
+        # load the rows
+        self.rows = Utils.csv_to_dict(file_path=self.csv_path, delimiter=self.DELIMITER)
 
     def define_columns(self):
         """Define the columns"""
