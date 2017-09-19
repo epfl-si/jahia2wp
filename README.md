@@ -188,7 +188,7 @@ You can now jump to the [usage](#usage) section.
 In this section, we assumed you have been throught all [installation steps](#install), and you now have a bash running in your management container:
 
     # locally
-    www-data@99a062ae942a:~/test/jahia2wp/local$
+    www-data@xxx:~/test/jahia2wp/local$
 
     # C2C infra
     www-data@mgmt-x-xxx:/srv/your-env/jahia2wp/local$
