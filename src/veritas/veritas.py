@@ -134,7 +134,6 @@ class VeritasValidor:
 class VeritasColumn:
     """A VeritasColumn represents a column in the CSV file"""
 
-    column_index = 0
     column_name = ""
     column_label = ""
     # the regex used to validate the values in the column
