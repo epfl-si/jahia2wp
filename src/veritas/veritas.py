@@ -38,7 +38,7 @@ class VeritasValidor:
 
         # load the CSV file
         with open(self.csv_path, 'r') as csvfile:
-            reader = csv.reader(csvfile, delimiter=self.DELIMITER)
+            reader = csv.DictReader(csvfile, delimiter=self.DELIMITER)
 
             # load the rows
             for row in reader:
@@ -52,7 +52,6 @@ class VeritasValidor:
 
         # url
         self.columns.append(VeritasColumn(
-            column_index=0,
             column_name="url",
             column_label="url",
             regex=self.REGEX_URL,
@@ -60,7 +59,6 @@ class VeritasValidor:
 
         # admin
         self.columns.append(VeritasColumn(
-            column_index=1,
             column_name="admin",
             column_label="admin",
             regex=self.REGEX_EMAIL,
@@ -68,7 +66,6 @@ class VeritasValidor:
 
         # db_name
         self.columns.append(VeritasColumn(
-            column_index=2,
             column_name="db_name",
             column_label="db name",
             regex=self.REGEX_DB_NAME,
@@ -81,7 +78,6 @@ class VeritasValidor:
         for column in self.columns:
             self.check_regex(
                 regex=column.regex,
-                column_index=column.column_index,
                 column_name=column.column_name,
                 message="invalid %s" % column.column_label)
 
@@ -89,27 +85,26 @@ class VeritasValidor:
         for column in self.columns:
             if column.is_unique:
                 self.check_unique(
-                    column_index=column.column_index,
                     column_name=column.column_name,
                     message="%s is not unique" % column.column_label)
 
         # sort the errors in the end to have them by line number
         self.errors.sort()
 
-    def check_regex(self, regex, column_index, column_name, message):
+    def check_regex(self, regex, column_name, message):
         """Check all the given column values with the given regex"""
 
         line = 1
 
         for row in self.rows:
-            if not regex.match(row[column_index]):
+            if not regex.match(row[column_name]):
                 self.add_error(line, column_name, "%s : %s" %
                                (message,
-                                row[column_index]))
+                                row[column_name]))
 
             line += 1
 
-    def check_unique(self, column_index, column_name, message):
+    def check_unique(self, column_name, message):
         """Check that all the values of the given column are unique"""
 
         line = 1
@@ -117,12 +112,12 @@ class VeritasValidor:
         unique = {}
 
         for row in self.rows:
-            value = row[column_index]
+            value = row[column_name]
 
             if value in unique:
                 self.add_error(line, column_name, "%s : %s" %
                                (message,
-                                row[column_index]))
+                                row[column_name]))
 
             unique[value] = value
 
@@ -154,10 +149,9 @@ class VeritasColumn:
     # should all the values be unique in the column?
     is_unique = False
 
-    def __init__(self, column_index, column_name, column_label, regex, is_unique):
+    def __init__(self, column_name, column_label, regex, is_unique):
         """Constructor"""
 
-        self.column_index = column_index
         self.column_name = column_name
         self.column_label = column_label
         self.regex = regex
