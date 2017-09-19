@@ -3,12 +3,14 @@ jahia2wp: an amazing tool !
 
 Usage:
   jahia2wp.py helloworld
+  jahia2wp.py generate <csv_file> [--output-dir=<OUTPUT_DIR>] [--debug | --quiet]
 
 Options:
   -h --help                     Show this screen.
   -v --version                  Show version.
 """
 from docopt import docopt
+
 from settings import VERSION
 
 
@@ -16,6 +18,10 @@ def main(args):
 
     if args.get("helloworld"):
         print("Hello World")
+        return True
+
+    if args["generate"]:
+        print("Generate")
         return True
 
 
