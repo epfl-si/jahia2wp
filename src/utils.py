@@ -28,6 +28,16 @@ class Utils:
         return os.environ.get(key, default)
 
     @staticmethod
+    def get_mandatory_env(key):
+
+        if not os.environ.get(key):
+            msg = "The mandatory environment variable {} is not set".format(key)
+            logging.error(msg)
+            raise Exception(msg)
+
+        return os.environ.get(key)
+
+    @staticmethod
     def set_logging_config(args):
         """
         Set logging with the 'good' level

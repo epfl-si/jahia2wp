@@ -10,4 +10,4 @@ data/srv/*/
 data/srv/.bash_history
 etc/*.env
 .env
-coverage.xml
+log/
