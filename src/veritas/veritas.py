@@ -87,32 +87,24 @@ class VeritasValidor:
     def check_regex(self, regex, column_name, message):
         """Check all the given column values with the given regex"""
 
-        line = 1
-
-        for row in self.rows:
+        for line, row in enumerate(self.rows, start=1):
             if not regex.match(row[column_name]):
                 self.add_error(line, column_name, "%s : %s" %
                                (message,
                                 row[column_name]))
 
-            line += 1
-
     def check_unique(self, column_name, message):
         """Check that all the values of the given column are unique"""
 
-        line = 1
-
         unique = {}
 
-        for row in self.rows:
+        for line, row in enumerate(self.rows, start=1):
             if row[column_name] in unique:
                 self.add_error(line, column_name, "%s : %s" %
                                (message,
                                 row[column_name]))
 
             unique[row[column_name]] = row[column_name]
-
-            line += 1
 
     def add_error(self, line, column_name, message):
         """Add the given error to the list of errors"""
