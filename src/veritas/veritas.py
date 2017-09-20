@@ -132,17 +132,12 @@ class VeritasValidor:
 class VeritasColumn:
     """A VeritasColumn represents a column in the CSV file"""
 
-    column_name = ""
-    column_label = ""
-    # the regex used to validate the values in the column
-    regex = ""
-    # should all the values be unique in the column?
-    is_unique = False
-
     def __init__(self, column_name, column_label, regex, is_unique):
         """Constructor"""
 
         self.column_name = column_name
         self.column_label = column_label
+        # the regex used to validate the values in the column
         self.regex = regex
+        # should all the values be unique in the column?
         self.is_unique = is_unique
