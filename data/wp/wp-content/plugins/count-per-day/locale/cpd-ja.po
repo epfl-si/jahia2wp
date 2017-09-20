@@ -1,0 +1,1122 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Count Per Day v3.2.10\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-07-14 21:55+0900\n"
+"PO-Revision-Date: 2014-05-08 08:55:51+0000\n"
+"Last-Translator: Juno Hayami <juno.hayami@gmail.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: CSL v1.x\n"
+"X-Poedit-Language: Japanese\n"
+"X-Poedit-Country: JAPAN\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;\n"
+"X-Poedit-Basepath: ../\n"
+"X-Poedit-Bookmarks: \n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Textdomain-Support: yes"
+
+#: counter-core.php:259
+#, php-format
+#@ cpd
+msgid "\"Count per Day\" updated to version %s."
+msgstr "\"Count per Day\" がバージョン %s にアップデートされました。"
+
+#: counter-core.php:652
+#: counter-options.php:401
+#: counter-options.php:740
+#@ default
+msgid "Settings"
+msgstr "設定"
+
+#: counter-core.php:1464
+#: counter-options.php:789
+#: counter.php:222
+#: counter.php:974
+#@ cpd
+msgid "Reads"
+msgstr "総購読数"
+
+#: counter-core.php:753
+#, php-format
+#@ cpd
+msgid "Time for Count per Day: <code>%s</code>."
+msgstr "Count per Dayでの日時: <code>%s</code>."
+
+#: counter-core.php:754
+#@ cpd
+msgid "Bug? Problem? Question? Hint? Praise?"
+msgstr "バグ？問題？質問？ヒント？評価？"
+
+#: counter-core.php:755
+#, php-format
+#@ cpd
+msgid "Write a comment on the <a href=\"%s\">plugin page</a>."
+msgstr "<a href=\"%s\">plugin page</a> にコメントする。"
+
+#: counter-core.php:756
+#@ default
+msgid "License"
+msgstr "ライセンス"
+
+#: counter-core.php:788
+#: counter.php:223
+#: counter.php:1167
+#: counter.php:1361
+#@ cpd
+msgid "Total visitors"
+msgstr "総訪問者数"
+
+#: counter-core.php:789
+#@ cpd
+msgid "Visitors online"
+msgstr "オンライン中の訪問者数"
+
+#: counter-core.php:790
+#: counter.php:1365
+#@ cpd
+msgid "Visitors per month"
+msgstr "月別訪問者数"
+
+#: counter-core.php:791
+#: counter.php:1360
+#@ cpd
+msgid "Reads per month"
+msgstr "月別閲覧数"
+
+#: counter-core.php:792
+#: counter-options.php:834
+#@ cpd
+msgid "Visitors per post"
+msgstr "記事別の訪問者数"
+
+#: counter-core.php:793
+#@ cpd
+msgid "Latest Counts"
+msgstr "最近のカウント"
+
+#: counter-core.php:794
+#: counter.php:229
+#: counter.php:328
+#: counter.php:1169
+#: counter.php:1366
+#: userperspan.php:46
+#@ cpd
+msgid "Visitors per day"
+msgstr "一日あたりの訪問者数"
+
+#: counter-core.php:795
+#: counter-options.php:864
+#: counter-options.php:868
+#@ cpd
+msgid "Search strings"
+msgstr "検索文字列"
+
+#: counter-core.php:796
+#@ default
+msgid "Plugin"
+msgstr "プラグイン"
+
+#: counter-core.php:799
+#: counter-options.php:860
+#@ cpd
+msgid "Browsers"
+msgstr "ブラウザ"
+
+#: counter-core.php:800
+#@ cpd
+msgid "Referrer"
+msgstr "リファラ"
+
+#: counter-core.php:804
+#@ cpd
+msgid "Reads per Country"
+msgstr "国ごとの閲覧数"
+
+#: counter-core.php:805
+#@ cpd
+msgid "Visitors per Country"
+msgstr "国ごとの訪問者数"
+
+#: counter-core.php:820
+#: counter.php:1283
+#@ cpd
+msgid "Statistics"
+msgstr "統計"
+
+#: counter-core.php:1000
+#@ cpd
+msgid "Backup failed! Cannot open file"
+msgstr "バックアップに失敗しました！ ファイルが開けません。"
+
+#: counter-core.php:1027
+#, php-format
+#@ cpd
+msgid "Backup of %s entries in progress. Every point complies %s entries."
+msgstr "%s 件の記録をバックアップ処理中。 %s 件の記録が完了しています。"
+
+#: counter-core.php:1114
+#@ cpd
+msgid "Your can download the backup files here and now."
+msgstr "今すぐにここからバックアップファイルをダウンロードできます。"
+
+#: counter-core.php:1118
+#: counter-core.php:1126
+#, php-format
+#@ cpd
+msgid "Backup of counter table saved in %s."
+msgstr "カウンターテーブルのバックアップを %s に保存しました。"
+
+#: counter-core.php:1120
+#: counter-core.php:1128
+#, php-format
+#@ cpd
+msgid "Backup of counter options and collection saved in %s."
+msgstr "カウンターオプションのバックアップと記録は %s に保存されました。"
+
+#: counter-core.php:1184
+#@ cpd
+msgid "Error while reading backup file!"
+msgstr "バックアップファイルの読み取り中にエラーが発生しました！"
+
+#: counter-core.php:1188
+#, php-format
+#@ cpd
+msgid "The backup was added to counter table %s."
+msgstr "カウンターテーブル %s にバックアップを追加しました。"
+
+#: counter-core.php:1190
+#, php-format
+#@ cpd
+msgid "The counter table %s was restored from backup."
+msgstr "カウンターテーブル %s をバックアップから復元しました。"
+
+#: counter-core.php:1207
+#@ cpd
+msgid "Options restored from backup."
+msgstr "オプションをバックアップから復元しました。"
+
+#: counter-options.php:52
+#@ cpd
+msgid "Options updated"
+msgstr "オプションを更新しました"
+
+#: counter-options.php:63
+#, php-format
+#@ cpd
+msgid "Countries updated. <b>%s</b> entries in %s without country left"
+msgstr "訪問者の国情報を更新。%s 上の <b>%s</b> 件がまだ国と関連付けられていません。"
+
+#: counter-options.php:66
+#@ cpd
+msgid "update next"
+msgstr "次を更新"
+
+#: counter-options.php:106
+#, php-format
+#@ cpd
+msgid "Mass Bots cleaned. %s counts deleted."
+msgstr "Botをクリーンアップしました。 %s 件が削除されました。"
+
+#: counter-options.php:113
+#, php-format
+#@ cpd
+msgid "Database cleaned. %s rows deleted."
+msgstr "データベースをクリーンアップしました。 %s 行削除されました。"
+
+#: counter-options.php:123
+#@ cpd
+msgid "Counter reseted."
+msgstr "カウンターがリセットされました。"
+
+#: counter-options.php:128
+#: counter-options.php:719
+#@ cpd
+msgid "UNINSTALL Count per Day"
+msgstr "Count per Day のアンインストール"
+
+#: counter-options.php:133
+#: counter-options.php:134
+#: counter-options.php:135
+#, php-format
+#@ cpd
+msgid "Table %s deleted"
+msgstr "%s テーブルが削除されました"
+
+#: counter-options.php:136
+#@ cpd
+msgid "Options deleted"
+msgstr "オプションを削除しました"
+
+#: counter-options.php:169
+#@ cpd
+msgid "Collection in progress..."
+msgstr "整理中です…"
+
+#: counter-options.php:263
+#@ cpd
+msgid "Get Visitors per Post..."
+msgstr "記事別の訪問者数を取得…"
+
+#: counter-options.php:284
+#@ cpd
+msgid "Delete old data..."
+msgstr "古いデータを削除します…"
+
+#: counter-options.php:308
+#, php-format
+#@ cpd
+msgid "Counter entries until %s collected and counter table %s optimized (size before = %s &gt; size after = %s)."
+msgstr "%s までのカウンター記録を整理し、カウンターテーブル %s を最適化しました (最適化前のサイズ = %s &gt; 最適化後のサイズ = %s)。"
+
+#: counter-options.php:317
+#@ cpd
+msgid "Installation of \"Count per Day\" checked"
+msgstr "\"Count per Day\" のインストールが完了しました。"
+
+#: counter-options.php:332
+#@ cpd
+msgid "Old search strings deleted"
+msgstr "古い検索文字列を削除しました"
+
+#: counter-options.php:377
+#: counter-options.php:705
+#@ cpd
+msgid "Uninstall"
+msgstr "アンインストール"
+
+#: counter-options.php:378
+#@ cpd
+msgid "Click here"
+msgstr "Click here"
+
+#: counter-options.php:378
+#@ cpd
+msgid "to finish the uninstall and to deactivate \"Count per Day\"."
+msgstr "\"Count per Day\" を無効化してアンインストール"
+
+#: counter-options.php:400
+#: counter-options.php:739
+#@ default
+msgid "Tools"
+msgstr "ツール"
+
+#: counter-options.php:417
+#: massbots.php:46
+#@ cpd
+msgid "Mass Bots"
+msgstr "Bot"
+
+#: counter-options.php:421
+#, php-format
+#@ cpd
+msgid "Show all IPs with more than %s page views per day"
+msgstr "一日あたり %s ページ以上閲覧のIPを表示"
+
+#: counter-options.php:422
+#: notes.php:84
+#: userperspan.php:56
+#@ cpd
+msgid "show"
+msgstr "表示"
+
+#: counter-options.php:430
+#@ cpd
+msgid "IP"
+msgstr "IP"
+
+#: counter-options.php:431
+#: notes.php:88
+#@ cpd
+#@ default
+msgid "Date"
+msgstr "日付"
+
+#: counter-options.php:432
+#@ cpd
+msgid "Client"
+msgstr "クライアント"
+
+#: counter-options.php:433
+#@ cpd
+msgid "Views"
+msgstr "閲覧数"
+
+#: counter-options.php:448
+#: counter-options.php:464
+#, php-format
+#@ cpd
+msgid "Delete these %s counts"
+msgstr "これら %s 件を削除"
+
+#: counter-options.php:476
+#: counter-options.php:926
+#@ cpd
+msgid "Backup"
+msgstr "バックアップ"
+
+#: counter-options.php:480
+#, php-format
+#@ cpd
+msgid "Create a backup of the counter table %s in your wp-content directory (if writable)."
+msgstr "カウンターテーブル %s のバックアップをwp-contentディレクトリに作成します(書き込み可能な場合)。"
+
+#: counter-options.php:483
+#@ cpd
+msgid "Download only"
+msgstr "ダウンロードのみ"
+
+#: counter-options.php:487
+#@ cpd
+msgid "Backup the database"
+msgstr "データベースのバックアップ"
+
+#: counter-options.php:515
+#@ cpd
+msgid "Settings and collections"
+msgstr "設定とオプション"
+
+#: counter-options.php:520
+#, php-format
+#@ cpd
+msgid "Counter table %s"
+msgstr "カウンターテーブル %s"
+
+#: counter-options.php:527
+#, php-format
+#@ cpd
+msgid "Add data from the backup file %s to existing counter table?"
+msgstr "現在あるカウンターテーブルにバックアップファイル %s からデータを追加しますか？"
+
+#: counter-options.php:527
+#@ cpd
+msgid "Add"
+msgstr "追加"
+
+#: counter-options.php:531
+#, php-format
+#@ cpd
+msgid "Restore data from the backup file %s ?"
+msgstr "バックアップファイル %s からデータを復元しますか？"
+
+#: counter-options.php:531
+#@ default
+msgid "Restore"
+msgstr "復元"
+
+#: counter-options.php:533
+#@ default
+msgid "Delete"
+msgstr "削除"
+
+#: counter-options.php:534
+#, php-format
+#@ cpd
+msgid "Delete the backup file %s ?"
+msgstr "バックアップファイル %s を削除しますか？"
+
+#: counter-options.php:540
+#@ cpd
+msgid "add backup to current counter table"
+msgstr "新しいカウンターテーブルにバックアップを追加"
+
+#: counter-options.php:541
+#@ cpd
+msgid "replace current counter table with with backup"
+msgstr "カウンターテーブルをバックアップで置き換える"
+
+#: counter-options.php:542
+#@ cpd
+msgid "delete backup file"
+msgstr "バックアップファイルを削除"
+
+#: counter-options.php:553
+#: counter-options.php:561
+#@ cpd
+msgid "Clean the database"
+msgstr "データベースのクリーンアップ"
+
+#: counter-options.php:557
+#@ cpd
+msgid "You can clean the counter table by delete the \"spam data\".<br />If you add new bots above the old \"spam data\" keeps in the database.<br />Here you can run the bot filter again and delete the visits of the bots."
+msgstr "\"スパムデータ\"を削除してカウンターテーブルをクリーンアップできます。<br />以前の\"スパムデータ\"に新規でBotを追加するとデータベースは保護されます。<br />ここではBotフィルターを再度実行したりBotの訪問データを削除できます。"
+
+#: counter-options.php:567
+#, php-format
+#@ cpd
+msgid "Delete search strings older than %s days."
+msgstr "%s 日より古い検索文字列を削除"
+
+#: counter-options.php:571
+#@ cpd
+msgid "Delete search strings"
+msgstr "検索文字列を削除する"
+
+#: counter-options.php:591
+#: counter-options.php:623
+#@ cpd
+msgid "Collect old data"
+msgstr "古いデータの整理"
+
+#: counter-options.php:577
+#: counter-options.php:596
+#, php-format
+#@ cpd
+msgid "Current size of your counter table %s is %s."
+msgstr "カウンターテーブル %s のサイズは %s です。"
+
+#: counter-options.php:598
+#@ cpd
+msgid "You can collect old data and clean up the counter table.<br/>Reads and visitors will be saved per month, per country and per post.<br/>Clients and referrers will deleted."
+msgstr "古いデータを整理し、カウンターテーブルをクリーンアップできます。<br/>月別・国別・記事別の購読数と訪問者数は保存されます。<br/>クライアントとリファラは削除されます。"
+
+#: counter-options.php:603
+#, php-format
+#@ cpd
+msgid "Currently your collection contains data until %s."
+msgstr "現在、%s までのデータが整理するデータに含まれています。"
+
+#: counter-options.php:607
+#@ cpd
+msgid "Normally new data will be added to the collection."
+msgstr "通常、新しいデータは整理したデータに追加されます。"
+
+#: counter-options.php:613
+#@ cpd
+msgid "Delete old collection and create a new one which contains only the data currently in counter table."
+msgstr "古いデータを消して、現在の内容のみの新しいデータをカウンターテーブルに作成する。"
+
+#: counter-options.php:614
+#, php-format
+#@ cpd
+msgid "All collected data until %s will deleted."
+msgstr "%s までの全てのデータは削除されます。"
+
+#: counter-options.php:619
+#, php-format
+#@ cpd
+msgid "Keep entries of last %s full months + current month in counter table."
+msgstr "過去 %s ヶ月間 + 今月 の記録をカウンターテーブルに保存する。"
+
+#: counter-options.php:636
+#@ cpd
+msgid "GeoIP - Countries"
+msgstr "GeoIP - 国別統計"
+
+#: counter-options.php:639
+#@ cpd
+msgid "You can get the country data for all entries in database by checking the IP adress against the GeoIP database. This can take a while!"
+msgstr "IPアドレスをチェックしてGeoIPデータベースと照合することにより全ての記事で国データを取得できます。これにはしばらく時間がかかります。"
+
+#: counter-options.php:645
+#@ cpd
+msgid "Update old counter data"
+msgstr "過去のカウンターデータを更新"
+
+#: counter-options.php:652
+#@ cpd
+msgid "Download a new version of GeoIP.dat file."
+msgstr "GeoIP.datファイルの新しいバージョンをダウンロードする。"
+
+#: counter-options.php:657
+#@ cpd
+msgid "Update GeoIP database"
+msgstr "GeoIPデータベースの更新"
+
+#: counter-options.php:662
+#@ cpd
+msgid "More informations about GeoIP"
+msgstr "GeoIPの詳しい情報"
+
+#: counter-options.php:670
+#@ cpd
+msgid "ReActivation"
+msgstr "プラグインを再度有効にする"
+
+#: counter-options.php:673
+#@ cpd
+msgid "Here you can start the installation functions manually.<br/>Same as deactivate and reactivate the plugin."
+msgstr "ここから手動で機能を開始できます。<br/>プラグインを無効にしてもう一度有効にするのと同じ効果です。"
+
+#: counter-options.php:678
+#@ cpd
+msgid "ReActivate the plugin"
+msgstr "プラグインを再度有効にする"
+
+#: counter-options.php:686
+#: counter-options.php:696
+#@ cpd
+msgid "Reset the counter"
+msgstr "カウンターのリセット"
+
+#: counter-options.php:689
+#@ cpd
+msgid "You can reset the counter by empty the table. ALL TO 0!<br />Make a backup if you need the current data!"
+msgstr "テーブルを全て空にしてリセットできます。全てが0になります！<br />最新のデータが必要な場合はバックアップを作成してください！"
+
+#: counter-options.php:695
+#: counter-options.php:718
+#@ cpd
+msgid "Yes"
+msgstr "はい"
+
+#: counter-options.php:708
+#@ cpd
+msgid "If \"Count per Day\" only disabled the tables in the database will be preserved."
+msgstr "もしも\"Count per Day\"を無効にするだけであれば使用しているデータベース上のテーブルは保存され続けます。"
+
+#: counter-options.php:709
+#@ cpd
+msgid "Here you can delete the tables and disable \"Count per Day\"."
+msgstr "ここから\"Count per Day\"が使用しているテーブルを削除し無効にすることができます。"
+
+#: counter-options.php:712
+#@ cpd
+msgid "WARNING"
+msgstr "警告"
+
+#: counter-options.php:713
+#@ cpd
+msgid "These tables (with ALL counter data) will be deleted."
+msgstr "データベース上にある以下のテーブル(全てのカウンターデータ)が削除されます。"
+
+#: counter-options.php:715
+#@ cpd
+msgid "If \"Count per Day\" re-installed, the counter starts at 0."
+msgstr "\"Count per Day\"を再インストールした場合もカウントは0から始まります。"
+
+#: counter-options.php:719
+#@ cpd
+msgid "You are sure to disable Count per Day and delete all data?"
+msgstr "本当にCount per Dayを無効にして全てのデータを削除しますか？"
+
+#: counter-options.php:727
+#@ cpd
+msgid "Support"
+msgstr "サポート"
+
+#: counter-options.php:748
+#@ cpd
+msgid "Counter"
+msgstr "カウンター"
+
+#: counter-options.php:752
+#@ cpd
+msgid "Online time"
+msgstr "オンライン判定時間(秒)"
+
+#: counter-options.php:753
+#@ cpd
+msgid "Seconds for online counter. Used for \"Visitors online\" on dashboard page."
+msgstr "オンラインの数をカウントする秒数。  ダッシュボード上の\"オンライン中の訪問者数\"で使用。"
+
+#: counter-options.php:756
+#@ cpd
+msgid "Logged on Users"
+msgstr "ログインユーザー"
+
+#: counter-options.php:758
+#@ cpd
+msgid "count too"
+msgstr "カウントに含む"
+
+#: counter-options.php:759
+#@ cpd
+msgid "until User Level"
+msgstr "次のユーザーレベルまで"
+
+#: counter-options.php:770
+#@ cpd
+msgid "Auto counter"
+msgstr "自動でカウントする"
+
+#: counter-options.php:771
+#@ cpd
+msgid "Counts automatically single-posts and pages, no changes on template needed."
+msgstr "テンプレートの変更なしで自動的に個別記事や固定ページもカウントする"
+
+#: counter-options.php:774
+#@ cpd
+msgid "Bots to ignore"
+msgstr "無視するBot"
+
+#: counter-options.php:778
+#@ cpd
+msgid "Anonymous IP"
+msgstr "匿名IP"
+
+#: counter-options.php:782
+#@ cpd
+msgid "Cache"
+msgstr "キャッシュ"
+
+#: counter-options.php:783
+#@ cpd
+msgid "I use a cache plugin. Count these visits with ajax."
+msgstr "キャッシュプラグインを使用しています。ajaxでこれらの訪問者もカウントします。"
+
+#: counter-options.php:786
+#@ cpd
+msgid "Clients and referrers"
+msgstr "クライアントとリファラ"
+
+#: counter-options.php:789
+#@ cpd
+msgid "Save and show clients and referrers.<br />Needs a lot of space in the database but gives you more detailed informations of your visitors."
+msgstr "クライアントとリファラを表示・保存します。<br />多くのデータベース容量を必要としますがあなたのサイトへの訪問者情報をより細かく把握できます。"
+
+#: counter-options.php:791
+#@ cpd
+msgid "Save URL only, no query string."
+msgstr "URLのみ保存し、クエリ部分は含まない。"
+
+#: counter-options.php:799
+#@ default
+msgid "Dashboard"
+msgstr "ダッシュボード"
+
+#: counter-options.php:815
+#@ cpd
+msgid "Who can see it"
+msgstr "閲覧を許可する人"
+
+#: counter-options.php:824
+#@ cpd
+msgid "custom"
+msgstr "カスタム"
+
+#: counter-options.php:826
+#@ cpd
+msgid "and higher are allowed to see the statistics page."
+msgstr "これ以上の権限なら統計ページの閲覧を許可します。"
+
+#: counter-options.php:828
+#, php-format
+#@ cpd
+msgid "Set the %s capability %s a user need:"
+msgstr "ユーザに必要な %s 権限 %s の設定:"
+
+#: counter-options.php:835
+#: counter-options.php:839
+#@ cpd
+msgid "How many posts do you want to see on dashboard page?"
+msgstr "ダッシュボードで何件まで閲覧しますか？"
+
+#: counter-options.php:838
+#@ cpd
+msgid "Latest Counts - Posts"
+msgstr "最近のカウント - 記事"
+
+#: counter-options.php:842
+#@ cpd
+msgid "Latest Counts - Days"
+msgstr "最近のカウント - 日別"
+
+#: counter-options.php:843
+#: counter-options.php:847
+#: counter-options.php:869
+#@ cpd
+msgid "How many days do you want look back?"
+msgstr "今日から何日前まで表示しますか？"
+
+#: counter-options.php:846
+#@ cpd
+msgid "Chart - Days"
+msgstr "チャート(グラフ) - 日別"
+
+#: counter-options.php:850
+#@ cpd
+msgid "Chart - Height"
+msgstr "チャート(グラフ) - 高さ"
+
+#: counter-options.php:851
+#@ cpd
+msgid "Height of the biggest bar"
+msgstr "最大値のときの高さ"
+
+#: counter-options.php:855
+#@ cpd
+msgid "Countries"
+msgstr "国情報"
+
+#: counter-options.php:856
+#@ cpd
+msgid "How many countries do you want to see on dashboard page?"
+msgstr "ダッシュボード上で何ヶ国まで閲覧しますか？"
+
+#: counter-options.php:861
+#@ cpd
+msgid "Substring of the user agent, separated by comma"
+msgstr "ユーザーエージェントは種類ごとにカンマで区切ってください"
+
+#: counter-options.php:864
+#@ cpd
+msgid "Referrers - Entries"
+msgstr "リファラ - 投稿別"
+
+#: counter-options.php:865
+#@ cpd
+msgid "How many referrers do you want to see on dashboard page?"
+msgstr "ダッシュボード上で何件のリファラを表示しますか？"
+
+#: counter-options.php:868
+#@ cpd
+msgid "Referrers - Days"
+msgstr "リファラ - 日数"
+
+#: counter-options.php:872
+#@ cpd
+msgid "Local URLs"
+msgstr "ローカルURLの扱い"
+
+#: counter-options.php:873
+#@ cpd
+msgid "Show local referrers too."
+msgstr "ローカルのリファラも表示する"
+
+#: counter-options.php:880
+#@ default
+msgid "Posts"
+msgstr "記事"
+
+#: counter-options.php:880
+#@ default
+msgid "Pages"
+msgstr "固定ページ"
+
+#: counter-options.php:883
+#@ cpd
+msgid "Show in lists"
+msgstr "リスト表示"
+
+#: counter-options.php:884
+#@ cpd
+msgid "Show \"Reads per Post\" in a new column in post management views."
+msgstr "投稿管理画面に新しいカラムを追加して\"記事別閲覧数\"を表示します。"
+
+#: counter-options.php:891
+#@ cpd
+msgid "Start Values"
+msgstr "スタートする値"
+
+#: counter-options.php:895
+#@ cpd
+msgid "Here you can change the date of first count and add a start count."
+msgstr "ここでカウントを開始した日とカウントに加算する値を変更できます。"
+
+#: counter-options.php:899
+#@ cpd
+msgid "Start date"
+msgstr "開始日"
+
+#: counter-options.php:900
+#@ cpd
+msgid "Your old Counter starts at?"
+msgstr "前に使っていたカウンターはいつからカウントを開始しましたか？"
+
+#: counter-options.php:903
+#: counter-options.php:907
+#@ cpd
+msgid "Start count"
+msgstr "カウントスタート"
+
+#: counter-options.php:904
+#@ cpd
+msgid "Add this value to \"Total visitors\"."
+msgstr "この値を\"総訪問者数\"に追加します。"
+
+#: counter-options.php:908
+#@ cpd
+msgid "Add this value to \"Total reads\"."
+msgstr "この値を\"総閲覧数\"に追加します。"
+
+#: counter-options.php:915
+#@ cpd
+msgid "Stylesheet"
+msgstr "スタイルシート"
+
+#: counter-options.php:918
+#@ cpd
+msgid "NO Stylesheet in Frontend"
+msgstr "トップページにスタイルシートを使わない"
+
+#: counter-options.php:919
+#@ cpd
+msgid "Do not load the stylesheet \"counter.css\" in frontend."
+msgstr "トップページに\"counter.css\"を読み込みません。"
+
+#: counter-options.php:929
+#@ cpd
+msgid "Entries per pass"
+msgstr "許可するエントリ"
+
+#: counter-options.php:932
+#@ cpd
+msgid "How many entries should be saved per pass? Default: 10000"
+msgstr "何件のエントリを保存しますか？ デフォルト: 10000"
+
+#: counter-options.php:937
+#@ cpd
+msgid "If your PHP memory limit less then 50 MB and you get a white page or error messages try a smaller value."
+msgstr "PHPのメモリ上限が 50 MB よりも少ない場合、真っ白なページかもっと小さい値にするようエラーメッセージが表示されます。"
+
+#: counter-options.php:945
+#@ cpd
+msgid "Debug mode"
+msgstr "デバッグモード"
+
+#: counter-options.php:947
+#@ cpd
+msgid "Show debug informations at the bottom of all pages."
+msgstr "全てのページの最下部にデバッグ情報を表示します。"
+
+#: counter-options.php:952
+#@ cpd
+msgid "Update options"
+msgstr "オプションの更新"
+
+#: counter.php:218
+#: counter.php:1356
+#@ cpd
+msgid "Total reads"
+msgstr "総閲覧数"
+
+#: counter.php:219
+#: counter.php:1357
+#@ cpd
+msgid "Reads today"
+msgstr "今日の閲覧数"
+
+#: counter.php:220
+#: counter.php:1358
+#@ cpd
+msgid "Reads yesterday"
+msgstr "昨日の閲覧数"
+
+#: counter.php:221
+#: counter.php:1359
+#@ cpd
+msgid "Reads last week"
+msgstr "先週の閲覧数"
+
+#: counter.php:224
+#: counter.php:1367
+#@ cpd
+msgid "Visitors currently online"
+msgstr "現在オンライン中の人数"
+
+#: counter.php:225
+#: counter.php:1362
+#@ cpd
+msgid "Visitors today"
+msgstr "今日の訪問者数"
+
+#: counter.php:226
+#: counter.php:1363
+#@ cpd
+msgid "Visitors yesterday"
+msgstr "昨日の訪問者数"
+
+#: counter.php:227
+#: counter.php:1364
+#@ cpd
+msgid "Visitors last week"
+msgstr "先週の訪問者数"
+
+#: counter.php:228
+#: counter.php:998
+#@ cpd
+msgid "Visitors"
+msgstr "訪問者数"
+
+#: counter.php:230
+#: counter.php:924
+#: counter.php:1368
+#@ cpd
+msgid "Counter starts on"
+msgstr "カウント開始日"
+
+#: counter.php:231
+#: counter.php:232
+#@ cpd
+msgid "Most visited day"
+msgstr "最も多かった日"
+
+#: counter.php:327
+#@ cpd
+msgid "Reads per day"
+msgstr "一日あたりの閲覧数"
+
+#: counter.php:418
+#: counter.php:1198
+#@ cpd
+msgid "Map"
+msgstr "マップ"
+
+#: counter.php:756
+#, php-format
+#@ cpd
+msgid "The %s most visited posts in last %s days:"
+msgstr "最も訪問者が多かった記事 %s 件 (過去 %s 日間)"
+
+#: counter.php:873
+#@ default
+msgid "Show"
+msgstr "表示"
+
+#: counter.php:875
+#: notes.php:55
+#: notes.php:89
+#@ cpd
+msgid "Notes"
+msgstr "メモ"
+
+#: counter.php:913
+#@ cpd
+msgid "Other"
+msgstr "その他"
+
+#: counter.php:944
+#, php-format
+#@ cpd
+msgid "The %s referrers in last %s days:"
+msgstr " %s 件のリファラ (過去 %s 日間)"
+
+#: counter.php:1085
+#@ default
+msgid "Edit Post"
+msgstr "記事編集"
+
+#: counter.php:1094
+#@ default
+msgid "Category"
+msgstr "カテゴリ"
+
+#: counter.php:1097
+#@ default
+msgid "Tag"
+msgstr "タグ"
+
+#: massbots.php:63
+#: userperspan.php:75
+#@ default
+msgid "Front page displays"
+msgstr "トップページの表示"
+
+#: counter.php:1142
+#, php-format
+#@ cpd
+msgid "The %s most searched strings:"
+msgstr "最も検索された単語 (過去 %s 日間)"
+
+#: counter.php:1151
+#, php-format
+#@ cpd
+msgid "The search strings of the last %s days:"
+msgstr "最近 %s 日間で検索された単語"
+
+#: counter.php:1355
+#@ cpd
+msgid "This post"
+msgstr "現在の記事"
+
+#: counter.php:1380
+#@ default
+msgid "Title"
+msgstr "タイトル"
+
+#: counter.php:1399
+#@ cpd
+msgid "drag and drop to sort"
+msgstr "ドラッグ アンド ドロップ で並び替え"
+
+#: notes.php:90
+#@ default
+msgid "Action"
+msgstr "アクション"
+
+#: notes.php:95
+#@ cpd
+msgid "add"
+msgstr "追加"
+
+#: notes.php:111
+#@ cpd
+msgid "save"
+msgstr "保存"
+
+#: notes.php:112
+#@ cpd
+msgid "delete"
+msgstr "削除"
+
+#: notes.php:123
+#@ cpd
+msgid "edit"
+msgstr "編集"
+
+#: userperspan.php:50
+#@ cpd
+msgid "Start"
+msgstr "開始"
+
+#: userperspan.php:52
+#@ cpd
+msgid "End"
+msgstr "終了"
+
+#: userperspan.php:54
+#@ cpd
+msgid "PostID"
+msgstr "記事ID"
+
+#: userperspan.php:62
+#@ cpd
+msgid "no data found"
+msgstr "データが見つかりません"
+
+#: geoip/geoip.php:117
+#@ cpd
+msgid "Sorry, necessary functions (zlib) not installed or enabled in php.ini."
+msgstr "申し訳ありません、 php.ini が無効になっているか必要な機能(zlib)がインストールされていません。"
+
+#: geoip/geoip.php:142
+#@ cpd
+msgid "New GeoIP database installed."
+msgstr "新しいGeoIPデータベースがインストールされました。"
+
+#: geoip/geoip.php:144
+#@ cpd
+msgid "Sorry, an error occurred. Try again or check the access rights of directory \"geoip\" is 777."
+msgstr "申し訳ありません、エラーが発生しました。 再度トライするか \"geoip\" のディレクトリ権限が777であることを確認してください。"
+
+#: counter-options.php:347
+#@ cpd
+msgid "Clients and referers deleted"
+msgstr ""
+
+#: counter-options.php:578
+#, php-format
+#@ cpd
+msgid "Delete clients and referers older than %s days to reduce the size of the counter table."
+msgstr ""
+
+#: counter-options.php:582
+#@ cpd
+msgid "Delete clients and referers"
+msgstr ""
+
+#: counter.php:1100
+#@ default
+msgid "Front page"
+msgstr ""
+
+#: counter.php:1315
+#@ default
+msgid "_name"
+msgstr ""
+

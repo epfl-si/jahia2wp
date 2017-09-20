@@ -1,0 +1,90 @@
+@charset "UTF-8";
+
+/* SASS Mixins */
+
+@mixin clearfix {
+  
+  &:after {
+    content: "";
+    display: block;
+    clear: both;
+  } 
+}
+
+/* Typography */
+
+@mixin icon {
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@mixin minor-text {
+  font: italic .75rem Georgia, 'Times New Roman', Times, serif;
+}
+
+@mixin transition-colors {
+  transition: background-color .3s ease-in-out, color .3s ease-in-out, border-color .3s ease-in-out;
+}
+
+/* Containers */
+
+@mixin border-bottom-dots {
+  border-bottom: 1px dotted #000;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+}
+
+/* Boxes */
+
+@mixin colored-box {
+  background: $primary-color;
+  color: #fff;
+  
+  a {
+    border-color: rgba(255,255,255,.9);
+    color: #fff;
+  }
+}
+
+@mixin colored-text-box {
+  @include colored-box;
+  padding: 10px 14px;
+  
+  p {
+    color: #fff;
+  }
+  
+  .widget-title,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    border: none;
+    color: #fff;
+    font: bold "Arial black", Arial, Helvetica, sans-serif;
+    letter-spacing: 1px;
+    padding: 0;
+    text-transform: none;
+  }
+  
+  h2 {
+    font-size: 1.25em;
+  }
+  .widget-title,
+  h3 {
+    font-size: 1.125em;
+  }
+  
+  h4,
+  h5,
+  h6 {
+    font-size: 1em;
+  }
+  
+}

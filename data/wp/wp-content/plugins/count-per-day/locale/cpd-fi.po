@@ -1,0 +1,1123 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Count Per Day v3.2.10\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-11-02 12:13+0100\n"
+"PO-Revision-Date: 2014-05-08 08:52:38+0000\n"
+"Last-Translator: Jani Alha <tuki@wysiwyg.fi>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: CSL v1.x\n"
+"X-Poedit-Language: \n"
+"X-Poedit-Country: \n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;\n"
+"X-Poedit-Basepath: \n"
+"X-Poedit-Bookmarks: \n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Textdomain-Support: yes"
+
+#: counter-options.php:52
+#@ cpd
+msgid "Options updated"
+msgstr "Valinnat päivitetty"
+
+#: counter-options.php:113
+#, php-format
+#@ cpd
+msgid "Database cleaned. %s rows deleted."
+msgstr "Tietokanta puhdistettu. %s riviä poistettu."
+
+#: counter-options.php:128
+#: counter-options.php:719
+#@ cpd
+msgid "UNINSTALL Count per Day"
+msgstr "POISTA Count per Day"
+
+#: counter-options.php:133
+#: counter-options.php:134
+#: counter-options.php:135
+#, php-format
+#@ cpd
+msgid "Table %s deleted"
+msgstr "Taulukko %s poistettu"
+
+#: counter-options.php:136
+#@ cpd
+msgid "Options deleted"
+msgstr "Valinnat poistettu"
+
+#: counter-options.php:377
+#: counter-options.php:705
+#@ cpd
+msgid "Uninstall"
+msgstr "Poista asennus"
+
+#: counter-options.php:378
+#@ cpd
+msgid "Click here"
+msgstr "Napsauta tästä"
+
+#: counter-options.php:378
+#@ cpd
+msgid "to finish the uninstall and to deactivate \"Count per Day\"."
+msgstr "viimeistelläksesi asennuksen poiston ja \"Count per Day\" käytöstä poistamisen."
+
+#: counter-options.php:752
+#@ cpd
+msgid "Online time"
+msgstr "Online-aika"
+
+#: counter-options.php:753
+#@ cpd
+msgid "Seconds for online counter. Used for \"Visitors online\" on dashboard page."
+msgstr "Sekuntia online-laskuria varten. Käytetään \"Vierailijat online-tilassa\" ohjausnäkymän sivulla."
+
+#: counter-options.php:756
+#@ cpd
+msgid "Logged on Users"
+msgstr "Kirjautuneet käyttäjinä"
+
+#: counter-options.php:758
+#@ cpd
+msgid "count too"
+msgstr "laske myös"
+
+#: counter-options.php:770
+#@ cpd
+msgid "Auto counter"
+msgstr "Automaattinen laskuri"
+
+#: counter-options.php:771
+#@ cpd
+msgid "Counts automatically single-posts and pages, no changes on template needed."
+msgstr "Laskee automaattisesti artikkelit ja sivut, muutoksia sivupohjiin ei tarvita."
+
+#: counter-options.php:774
+#@ cpd
+msgid "Bots to ignore"
+msgstr "Robotit, jotka jätetään huomioimatta"
+
+#: counter-options.php:952
+#@ cpd
+msgid "Update options"
+msgstr "Päivitä valinnat"
+
+#: counter-options.php:553
+#: counter-options.php:561
+#@ cpd
+msgid "Clean the database"
+msgstr "Puhdista tietokanta"
+
+#: counter-options.php:557
+#@ cpd
+msgid "You can clean the counter table by delete the \"spam data\".<br />If you add new bots above the old \"spam data\" keeps in the database.<br />Here you can run the bot filter again and delete the visits of the bots."
+msgstr "Voit puhdistaa laskuritaulun poistamalla \"spam-data\".<br />Mikäli lisäät uusia robotteja yläpuolelle, vanha \"spam-data\" säilytetään tietokannassa.<br />Täällä voit suorittaa robottisuodattimen uudelleen ja poistaa robottien vierailut."
+
+#: counter-options.php:708
+#@ cpd
+msgid "If \"Count per Day\" only disabled the tables in the database will be preserved."
+msgstr "Mikäli \"Count per Day\" on ainoastaan poistettu käytöstä, tullaan taulut tietokannassa säilyttämään."
+
+#: counter-options.php:709
+#@ cpd
+msgid "Here you can delete the tables and disable \"Count per Day\"."
+msgstr "Täällä voit poistaa taulut ja poistaa \"Count per Day\" -lisäosan käytöstä."
+
+#: counter-options.php:712
+#@ cpd
+msgid "WARNING"
+msgstr "VAROITUS"
+
+#: counter-options.php:713
+#@ cpd
+msgid "These tables (with ALL counter data) will be deleted."
+msgstr "Nämä taulut (KAIKKI laskutiedot mukaan luettuina) tullaan poistamaan."
+
+#: counter-options.php:715
+#@ cpd
+msgid "If \"Count per Day\" re-installed, the counter starts at 0."
+msgstr "Mikäli \"Count per Day\" asennetaan uudelleen, laskuri alkaa arvosta 0."
+
+#: counter-options.php:695
+#: counter-options.php:718
+#@ cpd
+msgid "Yes"
+msgstr "Kyllä"
+
+#: counter-options.php:719
+#@ cpd
+msgid "You are sure to disable Count per Day and delete all data?"
+msgstr "Oletko varma, että haluat poistaa \"Count per Day\" -lisäosan käytöstä ja poistaa kaikki tiedot?"
+
+#: counter-core.php:820
+#: counter.php:1283
+#@ cpd
+msgid "Statistics"
+msgstr "Tilastot"
+
+#: counter-core.php:788
+#: counter.php:223
+#: counter.php:1167
+#: counter.php:1361
+#@ cpd
+msgid "Total visitors"
+msgstr "Vierailijoita yhteensä"
+
+#: counter.php:224
+#: counter.php:1367
+#@ cpd
+msgid "Visitors currently online"
+msgstr "Vierailijat parhaillaan online-tilassa"
+
+#: counter.php:225
+#: counter.php:1362
+#@ cpd
+msgid "Visitors today"
+msgstr "Vierailijoita tänään"
+
+#: counter.php:226
+#: counter.php:1363
+#@ cpd
+msgid "Visitors yesterday"
+msgstr "Vierailijoita eilen"
+
+#: counter.php:227
+#: counter.php:1364
+#@ cpd
+msgid "Visitors last week"
+msgstr "Vierailijoita viime viikolla"
+
+#: counter.php:230
+#: counter.php:924
+#: counter.php:1368
+#@ cpd
+msgid "Counter starts on"
+msgstr "Laskuri alkaa"
+
+#: counter-core.php:794
+#: counter.php:229
+#: counter.php:328
+#: counter.php:1169
+#: counter.php:1366
+#: userperspan.php:46
+#@ cpd
+msgid "Visitors per day"
+msgstr "Vierailijoita päivässä"
+
+#: counter-core.php:790
+#: counter.php:1365
+#@ cpd
+msgid "Visitors per month"
+msgstr "Vierailijoita kuukaudessa"
+
+#: counter-core.php:792
+#: counter-options.php:834
+#@ cpd
+msgid "Visitors per post"
+msgstr "Vierailijaa per artikkeli"
+
+#: counter-options.php:123
+#@ cpd
+msgid "Counter reseted."
+msgstr "Laskuri nollattu."
+
+#: counter-options.php:835
+#: counter-options.php:839
+#@ cpd
+msgid "How many posts do you want to see on dashboard page?"
+msgstr "Kuinka monta artikkelia haluat nähdä ohjausnäkymän sivulla?"
+
+#: counter-options.php:838
+#@ cpd
+msgid "Latest Counts - Posts"
+msgstr "Viimeisimmät osumat - artikkelit"
+
+#: counter-options.php:842
+#@ cpd
+msgid "Latest Counts - Days"
+msgstr "Viimeisimmät osumat - päivät"
+
+#: counter-options.php:843
+#: counter-options.php:847
+#: counter-options.php:869
+#@ cpd
+msgid "How many days do you want look back?"
+msgstr "Kuinka monta päivää haluat katsoa taaksepäin?"
+
+#: counter-options.php:883
+#@ cpd
+msgid "Show in lists"
+msgstr "Näytä listana"
+
+#: counter-options.php:884
+#@ cpd
+msgid "Show \"Reads per Post\" in a new column in post management views."
+msgstr "Näytä \"Luettu per artikkeli\" uudella sarakkeella artikkelihallinnan näkymissä."
+
+#: counter-options.php:686
+#: counter-options.php:696
+#@ cpd
+msgid "Reset the counter"
+msgstr "Nollaa laskuri"
+
+#: counter-options.php:689
+#@ cpd
+msgid "You can reset the counter by empty the table. ALL TO 0!<br />Make a backup if you need the current data!"
+msgstr "Voit nollata laskurin tyhjentämällä taulun. KAIKKI ARVOIKSI 0.<br />Ota varmuuskopio mikäli tarvitset nykyisiä tietoja!"
+
+#: counter.php:756
+#, php-format
+#@ cpd
+msgid "The %s most visited posts in last %s days:"
+msgstr "%s eniten vierailtua artikkelia viimeisen %s päivän aikana:"
+
+#: counter-core.php:652
+#: counter-options.php:401
+#: counter-options.php:740
+#@ default
+msgid "Settings"
+msgstr "Asetukset"
+
+#  tjekkes
+#: counter-core.php:1464
+#: counter-options.php:789
+#: counter.php:222
+#: counter.php:974
+#@ cpd
+msgid "Reads"
+msgstr "Luettuja"
+
+#: counter-core.php:793
+#@ cpd
+msgid "Latest Counts"
+msgstr "Viimeisimmät osumat"
+
+#: counter-options.php:846
+#@ cpd
+msgid "Chart - Days"
+msgstr "Kaavio - päiviä"
+
+#: counter-options.php:850
+#@ cpd
+msgid "Chart - Height"
+msgstr "Kaavio - korkeus"
+
+#: counter-options.php:851
+#@ cpd
+msgid "Height of the biggest bar"
+msgstr "Suurimman pylvään korkeus"
+
+#: counter.php:1355
+#@ cpd
+msgid "This post"
+msgstr "Tämä artikkeli"
+
+#: counter-options.php:799
+#@ default
+msgid "Dashboard"
+msgstr "Ohjausnäkymä"
+
+#: counter.php:327
+#@ cpd
+msgid "Reads per day"
+msgstr "Luettuja päivässä"
+
+#: counter-options.php:63
+#, php-format
+#@ cpd
+msgid "Countries updated. <b>%s</b> entries in %s without country left"
+msgstr "Maat päivitetty. <b>%s</b> merkintää %s ilman maatietoa jäljellä"
+
+#: counter-options.php:66
+#@ cpd
+msgid "update next"
+msgstr "päivitä seuraavaksi"
+
+#: counter-options.php:636
+#@ cpd
+msgid "GeoIP - Countries"
+msgstr "GeoIP - Maat"
+
+#: counter-options.php:645
+#@ cpd
+msgid "Update old counter data"
+msgstr "Pävitä vanhat laskutiedot"
+
+#: counter-options.php:657
+#@ cpd
+msgid "Update GeoIP database"
+msgstr "Päivitä GeoIP-tietokanta"
+
+#: counter-options.php:652
+#@ cpd
+msgid "Download a new version of GeoIP.dat file."
+msgstr "Lataa uusi versio GeoIP.dat -tiedostosta."
+
+#: counter-options.php:662
+#@ cpd
+msgid "More informations about GeoIP"
+msgstr "Lisää tietoa GeoIP:stä"
+
+#: counter-core.php:804
+#@ cpd
+msgid "Reads per Country"
+msgstr "Luetut per maa"
+
+#: geoip/geoip.php:142
+#@ cpd
+msgid "New GeoIP database installed."
+msgstr "Uusi GeoIP-tietokanta asennettu."
+
+#: geoip/geoip.php:144
+#@ cpd
+msgid "Sorry, an error occurred. Try again or check the access rights of directory \"geoip\" is 777."
+msgstr "Virhe on tapahtunut. Yritä uudelleen ja tarkista, että kansiolla \"geoip\" on oikeudet 777."
+
+#: geoip/geoip.php:117
+#@ cpd
+msgid "Sorry, necessary functions (zlib) not installed or enabled in php.ini."
+msgstr "Valitettavasti tarvittavaa toimintoa (zlib) ei ole asennettu tai käyttöönotettu php.ini:ssä."
+
+#: counter-options.php:855
+#@ cpd
+msgid "Countries"
+msgstr "Maat"
+
+#: counter-options.php:856
+#@ cpd
+msgid "How many countries do you want to see on dashboard page?"
+msgstr "Kuinka monta maata haluat nähdä ohjausnäkymän sivulla?"
+
+#: counter-options.php:106
+#, php-format
+#@ cpd
+msgid "Mass Bots cleaned. %s counts deleted."
+msgstr "Robotit puhdistettu. %s osumaa poistettu."
+
+#: counter-options.php:417
+#: massbots.php:46
+#@ cpd
+msgid "Mass Bots"
+msgstr "Robotit"
+
+#: counter-options.php:421
+#, php-format
+#@ cpd
+msgid "Show all IPs with more than %s page views per day"
+msgstr "Näytä kaikki IP-osoitteet, joilla on enemmän kuin %s sivunäyttöä päivässä"
+
+#: counter-options.php:422
+#: notes.php:84
+#: userperspan.php:56
+#@ cpd
+msgid "show"
+msgstr "näytä"
+
+#: counter-options.php:448
+#: counter-options.php:464
+#, php-format
+#@ cpd
+msgid "Delete these %s counts"
+msgstr "Poista nämä %s osumat"
+
+#: counter.php:913
+#@ cpd
+msgid "Other"
+msgstr "Toinen"
+
+#: massbots.php:63
+#: userperspan.php:75
+#@ default
+msgid "Front page displays"
+msgstr "Etusivulla näytetään"
+
+#: counter-core.php:799
+#: counter-options.php:860
+#@ cpd
+msgid "Browsers"
+msgstr "Selaimet"
+
+#: counter-options.php:430
+#@ cpd
+msgid "IP"
+msgstr "IP"
+
+#: counter-options.php:431
+#: notes.php:88
+#@ cpd
+#@ default
+msgid "Date"
+msgstr "Päivä"
+
+#: counter-options.php:432
+#@ cpd
+msgid "Client"
+msgstr "Asiakas"
+
+#: counter-options.php:433
+#@ cpd
+msgid "Views"
+msgstr "Näyttöä"
+
+#: counter-options.php:891
+#@ cpd
+msgid "Start Values"
+msgstr "Aloitusarvot"
+
+#: counter-options.php:895
+#@ cpd
+msgid "Here you can change the date of first count and add a start count."
+msgstr "Täällä voit muuttaa ensimmäisen osuman päiväystä ja lisätä aloituslaskurin."
+
+#: counter-options.php:899
+#@ cpd
+msgid "Start date"
+msgstr "Aloituspäivä"
+
+#: counter-options.php:900
+#@ cpd
+msgid "Your old Counter starts at?"
+msgstr "Vanha laskurisi alkaa?"
+
+#: counter-options.php:903
+#: counter-options.php:907
+#@ cpd
+msgid "Start count"
+msgstr "Aloita laskuri"
+
+#: counter-options.php:904
+#@ cpd
+msgid "Add this value to \"Total visitors\"."
+msgstr "Lisää tämä arvo \"Vierailijaa yhteensä\"."
+
+#: counter-options.php:727
+#@ cpd
+msgid "Support"
+msgstr "Tuki"
+
+#: counter-core.php:754
+#@ cpd
+msgid "Bug? Problem? Question? Hint? Praise?"
+msgstr "Virhe? Ongelma? Kysymys? Vihje? Kehu?"
+
+#: counter-core.php:755
+#, php-format
+#@ cpd
+msgid "Write a comment on the <a href=\"%s\">plugin page</a>."
+msgstr "Kirjoita kommentti <a href=\"%s\">lisäosan sivulle</a>."
+
+#: counter.php:873
+#@ default
+msgid "Show"
+msgstr "Näytä"
+
+#: counter.php:1085
+#@ default
+msgid "Edit Post"
+msgstr "Muokkaa artikkelia"
+
+#: counter-core.php:753
+#, php-format
+#@ cpd
+msgid "Time for Count per Day: <code>%s</code>."
+msgstr "Aika osumille per päivä: <code>%s</code>."
+
+#: counter-options.php:759
+#@ cpd
+msgid "until User Level"
+msgstr "kunnes käyttäjätaso"
+
+#: counter-core.php:796
+#@ default
+msgid "Plugin"
+msgstr "Lisäosa"
+
+#: counter.php:875
+#: notes.php:55
+#: notes.php:89
+#@ cpd
+msgid "Notes"
+msgstr "Huomioita"
+
+#: notes.php:90
+#@ default
+msgid "Action"
+msgstr "Toiminto"
+
+#: notes.php:95
+#@ cpd
+msgid "add"
+msgstr "lisää"
+
+#: notes.php:111
+#@ cpd
+msgid "save"
+msgstr "tallenna"
+
+#: notes.php:112
+#@ cpd
+msgid "delete"
+msgstr "poista"
+
+#: notes.php:123
+#@ cpd
+msgid "edit"
+msgstr "muokkaa"
+
+#: counter-options.php:908
+#@ cpd
+msgid "Add this value to \"Total reads\"."
+msgstr "Lisää tämä arvo \"Luettu yhteensä\"."
+
+#: counter.php:218
+#: counter.php:1356
+#@ cpd
+msgid "Total reads"
+msgstr "Luettuja yhteensä"
+
+#: counter.php:219
+#: counter.php:1357
+#@ cpd
+msgid "Reads today"
+msgstr "Luettuja tänään"
+
+#: counter.php:220
+#: counter.php:1358
+#@ cpd
+msgid "Reads yesterday"
+msgstr "Luettuja eilen"
+
+#: counter.php:418
+#: counter.php:1198
+#@ cpd
+msgid "Map"
+msgstr "Kartta"
+
+#: counter-options.php:778
+#@ cpd
+msgid "Anonymous IP"
+msgstr "Anonyymi IP"
+
+#: counter-options.php:782
+#@ cpd
+msgid "Cache"
+msgstr "Välimuisti"
+
+#: counter-options.php:783
+#@ cpd
+msgid "I use a cache plugin. Count these visits with ajax."
+msgstr "Käytän välimuistilisäosaa. Laske nämä käynnit ajaxilla."
+
+#: counter-options.php:861
+#@ cpd
+msgid "Substring of the user agent, separated by comma"
+msgstr "Selaimet lyhyessä muodossa, pilkulla eroteltuna"
+
+#: counter-core.php:805
+#@ cpd
+msgid "Visitors per Country"
+msgstr "Vierailijat per maa"
+
+#: counter-options.php:945
+#@ cpd
+msgid "Debug mode"
+msgstr "Debug-moodi"
+
+#: counter-options.php:947
+#@ cpd
+msgid "Show debug informations at the bottom of all pages."
+msgstr "Näytä debug-tiedot kaikkien sivujen alalaidassa."
+
+#: userperspan.php:50
+#@ cpd
+msgid "Start"
+msgstr "Aloita"
+
+#: userperspan.php:52
+#@ cpd
+msgid "End"
+msgstr "Lopeta"
+
+#: userperspan.php:54
+#@ cpd
+msgid "PostID"
+msgstr "Artikkeli-ID"
+
+#: userperspan.php:62
+#@ cpd
+msgid "no data found"
+msgstr "tietoja ei löytynyt"
+
+#: counter-options.php:639
+#@ cpd
+msgid "You can get the country data for all entries in database by checking the IP adress against the GeoIP database. This can take a while!"
+msgstr "Voit saada maatiedot kaikista tietokannan merkinnoistä tarkistamalla IP-osoitteet GeoIP:n tietokannasta. Tämä voi kestää hetken!"
+
+#: counter-options.php:748
+#@ cpd
+msgid "Counter"
+msgstr "Laskuri"
+
+#: counter-options.php:872
+#@ cpd
+msgid "Local URLs"
+msgstr "Paikalliset URL-osoitteet"
+
+#: counter-options.php:873
+#@ cpd
+msgid "Show local referrers too."
+msgstr "Näytä myös paikalliset viittaavat sivustot."
+
+#: counter-options.php:880
+#@ default
+msgid "Posts"
+msgstr "Artikkeleja"
+
+#: counter-options.php:880
+#@ default
+msgid "Pages"
+msgstr "Sivuja"
+
+#: counter.php:1094
+#@ default
+msgid "Category"
+msgstr "Kategoria"
+
+#: counter.php:1097
+#@ default
+msgid "Tag"
+msgstr "Tagi"
+
+#: counter-core.php:756
+#@ default
+msgid "License"
+msgstr "Lisenssi"
+
+#: counter-core.php:800
+#@ cpd
+msgid "Referrer"
+msgstr "Viittaavat sivustot"
+
+#: counter.php:1380
+#@ default
+msgid "Title"
+msgstr "Otsikko"
+
+#: counter-options.php:789
+#@ cpd
+msgid "Save and show clients and referrers.<br />Needs a lot of space in the database but gives you more detailed informations of your visitors."
+msgstr "Tallenna ja näytä asiakkaat sekä viittaavat sivustot.<br />Tarvitsee paljon tilaa tietokannasta, mutta antaa enemmän tarkempaa tietoa käyttäjistä."
+
+#: counter-options.php:786
+#@ cpd
+msgid "Clients and referrers"
+msgstr "Asiakkaat ja viittaavat sivustot"
+
+#: counter.php:221
+#: counter.php:1359
+#@ cpd
+msgid "Reads last week"
+msgstr "Luettuja viime viikolla"
+
+#: counter-core.php:791
+#: counter.php:1360
+#@ cpd
+msgid "Reads per month"
+msgstr "Luettu per kuukausi"
+
+#: counter-options.php:864
+#@ cpd
+msgid "Referrers - Entries"
+msgstr "Viittaavat sivustot - merkinnät"
+
+#: counter-options.php:865
+#@ cpd
+msgid "How many referrers do you want to see on dashboard page?"
+msgstr "Kuinka monta viittaavaa sivustoa haluat näyttää ohjausnäkymän sivulla?"
+
+#: counter-options.php:868
+#@ cpd
+msgid "Referrers - Days"
+msgstr "Viittaavat sivustot - päivää"
+
+#: counter.php:944
+#, php-format
+#@ cpd
+msgid "The %s referrers in last %s days:"
+msgstr "%s viittaavaa sivustoa viimeisen %s päivän aikana:"
+
+#: counter-core.php:789
+#@ cpd
+msgid "Visitors online"
+msgstr "Vierailijat online-tilassa"
+
+#: counter-options.php:915
+#@ cpd
+msgid "Stylesheet"
+msgstr "Tyylitiedosto"
+
+#: counter-options.php:918
+#@ cpd
+msgid "NO Stylesheet in Frontend"
+msgstr "EI tyylitiedostoa julkisella sivustolla"
+
+#: counter-options.php:919
+#@ cpd
+msgid "Do not load the stylesheet \"counter.css\" in frontend."
+msgstr "Älä lataa tyylitiedostoa \"counter.css\" julkisella sivustolla."
+
+#: counter-options.php:815
+#@ cpd
+msgid "Who can see it"
+msgstr "Ketkä voivat nähdä sen"
+
+#: counter-options.php:824
+#@ cpd
+msgid "custom"
+msgstr "omavalintainen"
+
+#: counter-options.php:826
+#@ cpd
+msgid "and higher are allowed to see the statistics page."
+msgstr "ja korkeammille sallitaan tilastosivujen katsominen."
+
+#: counter-options.php:828
+#, php-format
+#@ cpd
+msgid "Set the %s capability %s a user need:"
+msgstr "Määritä %s oikeustaso, jonka %s käyttäjä tarvitsee:"
+
+#: counter-core.php:259
+#, php-format
+#@ cpd
+msgid "\"Count per Day\" updated to version %s."
+msgstr "\"Count per Day\" päivitetty versioon %s."
+
+#: counter-core.php:1000
+#@ cpd
+msgid "Backup failed! Cannot open file"
+msgstr "Varmuuskopiointi epäonnistui! Tiedostoa ei voida avata"
+
+#: counter-core.php:1027
+#, php-format
+#@ cpd
+msgid "Backup of %s entries in progress. Every point complies %s entries."
+msgstr "%s merkinnän varmuuskopiointi käynnissä. Jokainen piste sisältää %s merkintää."
+
+#: counter-core.php:1118
+#: counter-core.php:1126
+#, php-format
+#@ cpd
+msgid "Backup of counter table saved in %s."
+msgstr "Varmuuskopio laskuritaulusta tallennettu %s."
+
+#: counter-core.php:1120
+#: counter-core.php:1128
+#, php-format
+#@ cpd
+msgid "Backup of counter options and collection saved in %s."
+msgstr "Varmuuskopio laskurivalinnoista ja -kokoelmasta tallennettu %s."
+
+#: counter-options.php:169
+#@ cpd
+msgid "Collection in progress..."
+msgstr "Tiedonkeräys meneillään..."
+
+#: counter-options.php:263
+#@ cpd
+msgid "Get Visitors per Post..."
+msgstr "Hae vierailijat per artikkeli..."
+
+#: counter-options.php:284
+#@ cpd
+msgid "Delete old data..."
+msgstr "Poista vanhat tiedot..."
+
+#: counter-options.php:308
+#, php-format
+#@ cpd
+msgid "Counter entries until %s collected and counter table %s optimized (size before = %s &gt; size after = %s)."
+msgstr "Laskurin merkintöjä %s saakka kerätty ja laskurin taulu %s optimoitu (koko ennen = %s &gt; koko jälkeen = %s)."
+
+#: counter-options.php:317
+#@ cpd
+msgid "Installation of \"Count per Day\" checked"
+msgstr "\"Count per day\" asennus valittu"
+
+#: counter-options.php:400
+#: counter-options.php:739
+#@ default
+msgid "Tools"
+msgstr "Työkalut"
+
+#: counter-options.php:791
+#@ cpd
+msgid "Save URL only, no query string."
+msgstr "Tallenna vain URL-osoite, ei kyselytietuetta."
+
+#: counter-options.php:476
+#: counter-options.php:926
+#@ cpd
+msgid "Backup"
+msgstr "Varmuuskopioi"
+
+#: counter-options.php:929
+#@ cpd
+msgid "Entries per pass"
+msgstr "Merkintöjä hyväksytään"
+
+#: counter-options.php:932
+#@ cpd
+msgid "How many entries should be saved per pass? Default: 10000"
+msgstr "Kuinka monta merkintää tallennetaan? Oletus: 10000"
+
+#: counter-options.php:937
+#@ cpd
+msgid "If your PHP memory limit less then 50 MB and you get a white page or error messages try a smaller value."
+msgstr "Mikäli PHP-muistiraja on vähemmän kuin 50 MB ja näet valkoisen sivun tai virheilmoituksen, yritä pienemmällä arvolla."
+
+#: counter-options.php:480
+#, php-format
+#@ cpd
+msgid "Create a backup of the counter table %s in your wp-content directory (if writable)."
+msgstr "Luo varmuuskopio laskuritaulusta %s wp-content -kansioon (mikäli kirjoitettavissa)."
+
+#: counter-options.php:487
+#@ cpd
+msgid "Backup the database"
+msgstr "Varmuuskopioi tietokanta"
+
+#: counter-options.php:591
+#: counter-options.php:623
+#@ cpd
+msgid "Collect old data"
+msgstr "Kerää vanhat tiedot"
+
+#: counter-options.php:577
+#: counter-options.php:596
+#, php-format
+#@ cpd
+msgid "Current size of your counter table %s is %s."
+msgstr "Nykyinen laskentataulukon %s koko on %s."
+
+#: counter-options.php:598
+#@ cpd
+msgid "You can collect old data and clean up the counter table.<br/>Reads and visitors will be saved per month, per country and per post.<br/>Clients and referrers will deleted."
+msgstr "Voit kerätä vanhat tiedot ja puhdistaa laskuritaulun.<br/>Luetut ja vierailijat tullaan tallentamaan kuukausittain, maittain ja artikkeleittain.<br/>Asiakkaat ja viittaavat sivustot tulaan poistamaan."
+
+#: counter-options.php:603
+#, php-format
+#@ cpd
+msgid "Currently your collection contains data until %s."
+msgstr "Parhaillaan kokoelmasi sisältää tietoja %s asti."
+
+#: counter-options.php:607
+#@ cpd
+msgid "Normally new data will be added to the collection."
+msgstr "Uudet tiedot tullaat tavallisesti lisäämään kokoelmaan."
+
+#: counter-options.php:613
+#@ cpd
+msgid "Delete old collection and create a new one which contains only the data currently in counter table."
+msgstr "Poista vanha kokoelma ja luo uusi joka sisältää ainoastaan ne tiedot, jotka ovat parhaillaan laskuritaulussa."
+
+#: counter-options.php:614
+#, php-format
+#@ cpd
+msgid "All collected data until %s will deleted."
+msgstr "Kaikki kerätyt tiedot kunnes %s poistetaan."
+
+#: counter-options.php:619
+#, php-format
+#@ cpd
+msgid "Keep entries of last %s full months + current month in counter table."
+msgstr "Säilytä merkinnät viimiseltä %s kokonaiselta kuukaudelta + kuluva kuukausi laskuritaulussa."
+
+#: counter-options.php:670
+#@ cpd
+msgid "ReActivation"
+msgstr "Uudelleen aktivointi"
+
+#: counter-options.php:673
+#@ cpd
+msgid "Here you can start the installation functions manually.<br/>Same as deactivate and reactivate the plugin."
+msgstr "Täällä voit aloittaa asennustoiminnot manuaalisesti.<br/>Sama kuin lisäosan deaktivointi ja uudelleen aktivointi."
+
+#: counter-options.php:678
+#@ cpd
+msgid "ReActivate the plugin"
+msgstr "Aktivoi lisäosa uudelleen"
+
+#: counter.php:228
+#: counter.php:998
+#@ cpd
+msgid "Visitors"
+msgstr "Vierailijaa"
+
+#: counter.php:231
+#: counter.php:232
+#@ cpd
+msgid "Most visited day"
+msgstr "Eniten vierailtu päivä"
+
+#: counter.php:1399
+#@ cpd
+msgid "drag and drop to sort"
+msgstr "raahaa ja pudota lajitellaksesi"
+
+#: counter-core.php:1114
+#@ cpd
+msgid "Your can download the backup files here and now."
+msgstr "Voit ladata varmuuskopion täällä ja nyt."
+
+#: counter-options.php:483
+#@ cpd
+msgid "Download only"
+msgstr "Vain lataa"
+
+#: counter-options.php:533
+#@ default
+msgid "Delete"
+msgstr "Poista"
+
+#: counter-options.php:534
+#, php-format
+#@ cpd
+msgid "Delete the backup file %s ?"
+msgstr "Poista varmuuskopio %s ?"
+
+#: counter-core.php:795
+#: counter-options.php:864
+#: counter-options.php:868
+#@ cpd
+msgid "Search strings"
+msgstr "Hakulauseet"
+
+#: counter-core.php:1184
+#@ cpd
+msgid "Error while reading backup file!"
+msgstr "Virhe luettaessa varmuuskopiota!"
+
+#: counter-core.php:1188
+#, php-format
+#@ cpd
+msgid "The backup was added to counter table %s."
+msgstr "Varmuuskopio lisättiin laskentataulukkoon %s."
+
+#: counter-core.php:1190
+#, php-format
+#@ cpd
+msgid "The counter table %s was restored from backup."
+msgstr "Die Z&auml;hlertabelle %s wurde wiederhergestellt."
+
+#: counter-core.php:1207
+#@ cpd
+msgid "Options restored from backup."
+msgstr "Asetukset on palautettu varmuuskopiosta."
+
+#: counter-options.php:515
+#@ cpd
+msgid "Settings and collections"
+msgstr "Asetukset ja kokoelmat"
+
+#: counter-options.php:520
+#, php-format
+#@ cpd
+msgid "Counter table %s"
+msgstr "Laskentataulukko %s"
+
+#: counter-options.php:527
+#, php-format
+#@ cpd
+msgid "Add data from the backup file %s to existing counter table?"
+msgstr "Lisää tiedot varmuuskopiosta %s nykyiseen laskentataulukkoon?"
+
+#: counter-options.php:531
+#, php-format
+#@ cpd
+msgid "Restore data from the backup file %s ?"
+msgstr "Palauta tiedot varmuuskopiosta %s ?"
+
+#: counter-options.php:531
+#@ default
+msgid "Restore"
+msgstr "Palauta"
+
+#: counter-options.php:540
+#@ cpd
+msgid "add backup to current counter table"
+msgstr "lisää varmuuskopio nykyiseen laskentataulukkoon"
+
+#: counter-options.php:541
+#@ cpd
+msgid "replace current counter table with with backup"
+msgstr "korvaa nykyinen laskentataulukko varmuuskopiolla"
+
+#: counter-options.php:542
+#@ cpd
+msgid "delete backup file"
+msgstr "poista varmuuskopio"
+
+#: counter.php:1142
+#, php-format
+#@ cpd
+msgid "The %s most searched strings:"
+msgstr "%s eniten käytettyä hakulausetta:"
+
+#: counter.php:1151
+#, php-format
+#@ cpd
+msgid "The search strings of the last %s days:"
+msgstr "Hakulauseet viimeiseltä %s päivältä:"
+
+#: counter-options.php:332
+#@ cpd
+msgid "Old search strings deleted"
+msgstr "Vanhat hakulauseet on poistettu"
+
+#: counter-options.php:567
+#, php-format
+#@ cpd
+msgid "Delete search strings older than %s days."
+msgstr "Poista hakulauseet, jotka ovat vanhempia kuin %s päivää."
+
+#: counter-options.php:571
+#@ cpd
+msgid "Delete search strings"
+msgstr "Poista hakulauseet"
+
+#: counter-options.php:527
+#@ cpd
+msgid "Add"
+msgstr "Lisää"
+
+#: counter-options.php:347
+#@ cpd
+msgid "Clients and referers deleted"
+msgstr ""
+
+#: counter-options.php:578
+#, php-format
+#@ cpd
+msgid "Delete clients and referers older than %s days to reduce the size of the counter table."
+msgstr ""
+
+#: counter-options.php:582
+#@ cpd
+msgid "Delete clients and referers"
+msgstr ""
+
+#: counter.php:1100
+#@ default
+msgid "Front page"
+msgstr ""
+
+#: counter.php:1315
+#@ default
+msgid "_name"
+msgstr ""
+
