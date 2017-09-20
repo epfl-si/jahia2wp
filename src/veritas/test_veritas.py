@@ -10,11 +10,11 @@ def test_validate():
 
     errors = validator.errors
 
-    assert "invalid admin" in errors[0]
-    assert "invalid db name" in errors[1]
-    assert "db name is not unique" in errors[2]
-    assert "url is not unique" in errors[3]
-    assert "invalid url" in errors[4]
-    assert "invalid admin" in errors[5]
-    assert "invalid db name" in errors[6]
-    assert "invalid url" in errors[7]
+    assert "invalid admin" in errors[0].message
+    assert "invalid db name" in errors[1].message
+    assert "db name is not unique" in errors[2].message
+    assert "url is not unique" in errors[3].message
+    assert "invalid url" in errors[4].message
+    assert "invalid admin" in errors[5].message
+    assert "invalid db name" in errors[6].message
+    assert "invalid url" in errors[7].message

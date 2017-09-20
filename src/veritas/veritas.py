@@ -28,7 +28,7 @@ class VeritasValidor:
         # the rows
         self.rows = []
 
-        # the errors
+        # the VeritasErrors
         self.errors = []
 
         # the VeritasColumns
@@ -82,7 +82,7 @@ class VeritasValidor:
                     message="%s is not unique" % column.column_label)
 
         # sort the errors in the end to have them by line number
-        self.errors.sort()
+        # self.errors.sort()
 
     def check_regex(self, regex, column_name, message):
         """Check all the given column values with the given regex"""
@@ -109,16 +109,15 @@ class VeritasValidor:
     def add_error(self, line, column_name, message):
         """Add the given error to the list of errors"""
 
-        self.errors.append("Error line %s for column %s : %s"
-                           % (line,
-                              column_name,
-                              message))
+        error = VeritasError(line=line, column_name=column_name, message=message)
+
+        self.errors.append(error)
 
     def print_errors(self):
         """Prints the errors"""
 
         for error in self.errors:
-            print(error)
+            print(error.message)
 
 
 class VeritasColumn:
@@ -133,3 +132,14 @@ class VeritasColumn:
         self.regex = regex
         # should all the values be unique in the column?
         self.is_unique = is_unique
+
+
+class VeritasError:
+    """An error in the CVS file"""
+
+    def __init__(self, line, column_name, message):
+        """Constructor"""
+
+        self.line = line
+        self.column_name = column_name
+        self.message = "Error line %s for column %s : %s" % (line, column_name, message)
