@@ -139,7 +139,7 @@ You can control that everything went ok by checking that 4 containers have been 
 
 From here, one command will connect you inside the mgmt container
 
-    you@host:~/jahia2wp/local$ make exc
+    you@host:~/jahia2wp/local$ make exec
     www-data@xxx:/$ cd /srv && . .bashrc
     www-data@xxx:~$ gowp
     www-data@xxx:/srv/ebreton/jahia2wp/local$
