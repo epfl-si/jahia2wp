@@ -39,6 +39,7 @@ Table of content
     - [Install from Github](#install-from-github)
     - [Install locally](#install-locally)
     - [Install in C2C infra](#install-in-c2c-infra)
+    - [Tip to connect to C2C](#tip-to-connect-to-c2c)
 - [Usage](#usage)
     - [Pre-requisites](#pre-requisites)
     - [Create a new wordpress site](#create-a-new-wordpress-site)
@@ -126,42 +127,57 @@ Start db, httpd containers and run your management container :
     Creating phpmyadmin ... done
     Creating db ... done
     Creating httpd ... done
-    you@host:~/jahia2wp/local$ make run
 
-    www-data@4b01c9e89705:~$
-    # cd to your project directory
-    www-data@4b01c9e89705:~$ gowp
-    www-data@99a062ae942a:~/test/jahia2wp/local$
+You can control that everything went ok by checking that 4 containers have been started (your ids will be different)
+
+    you@host:~/jahia2wp/local$ docker ps
+    CONTAINER ID        IMAGE                   COMMAND                  CREATED             STATUS              PORTS                                      NAMES
+    6096f0b2ba3b        camptocamp/httpd        "/docker-entrypoin..."   2 minutes ago       Up 2 minutes        0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp   httpd
+    59bf4a6bf23c        mysql:5.7               "docker-entrypoint..."   2 minutes ago       Up 2 minutes        3306/tcp                                   db
+    6760eb1fbcb1        phpmyadmin/phpmyadmin   "/run.sh phpmyadmin"     2 minutes ago       Up 2 minutes        0.0.0.0:8080->80/tcp                       phpmyadmin
+    xxx                 camptocamp/mgmt         "/docker-entrypoin..."   2 minutes ago       Up 2 minutes        0.0.0.0:2222->22/tcp                       mgmt
+
+From here, one command will connect you inside the mgmt container
+
+    you@host:~/jahia2wp/local$ make exec
+    www-data@xxx:/$ cd /srv && . .bashrc
+    www-data@xxx:~$ gowp
+    www-data@xxx:/srv/ebreton/jahia2wp/local$
 
 You can now jump to the [usage](#usage) section.
 
 ### Install in C2C infra
 
+You first need to define your environment variable WP_ENV, with the name of the environment you will use on C2C infra
+
+    $ echo "
+    export WP_ENV=your-env" >> ~/.bashrc
+
 Login to the management container (within VPN) and go to your environment:
 
-    you@host:~$ ssh -A www-data@exopgesrv55.epfl.ch -p 32222
-    www-data@mgmt-2-fffxv:~$ export WP_ENV=your-env
-    www-data@mgmt-2-fffxv:~$ cd $WP_ENV
-    www-data@mgmt-2-fffxv:~/your-env$
-
-> **FIXME**: [issue for C2C](https://github.com/camptocamp/epfl-os-wp/issues/3) to AcceptEnv WP_ENV
-> we will then be able to simpy do
-> 
->     you@host:~$ ssh -A -o SendEnv=WP_ENV www-data@exopgesrv55.epfl.ch -p 32222
->     www-data@mgmt-2-fffxv:~$ cd $WP_ENV
->     www-data@mgmt-2-fffxv:~/your-env$
+    you@host:~$ ssh -A -o SendEnv=WP_ENV www-data@exopgesrv55.epfl.ch -p 32222
+    www-data@mgmt-x-xxx:~$ cd /srv/$WP_ENV
+    www-data@mgmt-x-xxx:/srv/your-env$
 
 Setup the project from github as described in [Github section](#install-from-github)
 
 And move to your project directory
 
-    www-data@mgmt-2-fffxv:~$ cd $WP_ENV/jahia2wp/local
-    www-data@mgmt-2-fffxv:~/your-env/jahia2wp/local$
+    www-data@mgmt-x-xxx:where-ever-you-are$ gowp
+    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp/local$
 
-> **FIXME**: once [.bashrc sourced](https://github.com/camptocamp/epfl-os-wp/issues/4) at login, we can use the same alias as done locally
-> 
->     www-data@mgmt-2-fffxv:~$ gowp
->     www-data@mgmt-2-fffxv:~/your-env/jahia2wp/local$
+### Tip to connect to C2C
+
+Set up an alias on your host:
+
+    $ echo "
+    alias managwp='echo ssh -A -o SendEnv=WP_ENV  www-data@exopgesrv55.epfl.ch -p 32222 && ssh -A -o SendEnv=WP_ENV www-data@exopgesrv55.epfl.ch -p 32222'" >> ~/.bashrc
+
+That will allow you to connect and move to your local dir in two commands:
+
+    you@host:~$ managwp
+    ...
+    www-data@mgmt-x-xxx:~$ gowp
 
 You can now jump to the [usage](#usage) section.
 
@@ -169,13 +185,13 @@ You can now jump to the [usage](#usage) section.
 
 ### Pre-requisites
 
-In this section, we assumed you have been throught all [installation steps](#install), and you now have a bash running in your management container
+In this section, we assumed you have been throught all [installation steps](#install), and you now have a bash running in your management container:
 
     # locally
-    www-data@99a062ae942a:~/test/jahia2wp/local$
+    www-data@xxx:~/test/jahia2wp/local$
 
     # C2C infra
-    www-data@mgmt-2-fffxv:~/your-env/jahia2wp/local$
+    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp/local$
 
 The usage are independant from where you are. The same Makefile is used both locally and in C2C infra. Only the values of the variables from the .env file vary.
 

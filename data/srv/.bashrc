@@ -1,5 +1,4 @@
 # .bashrc
 
-if [ -f .aliases ]; then
-        . .aliases
-fi
+if [ -f /srv/.aliases ]; then
+        . /srv/.aliases
