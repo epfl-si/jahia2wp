@@ -40,7 +40,7 @@ class Generator:
             subprocess.check_output(command, shell=True)
             logging.debug("Generator - {0} - Run command {1}".format(site, command))
         except subprocess.CalledProcessError as err:
-            logging.error("Generator - {0} - Command {1} failed".format(site, command))
+            logging.error("Generator - {0} - Command {1} failed {2}".format(site, command, err))
             return False
 
     @classmethod
