@@ -1,7 +1,7 @@
 <!-- markdownlint-disable -->
 <h1 align="center" style="margin:1em">
   <a href="https://jahia2wp.readthedocs.org/">
-    <img src="https://github.com/epfl-idevelop/jahia2wp/raw/master/static/jahia2wp.png"
+    <img src="./docs/static/jahia2wp.png"
          alt="Markdownify"
          width="200"></a>
   <br />
@@ -34,116 +34,207 @@ Table of content
 <!-- TOC -->
 
 - [Overview](#overview)
-    - [Purpose](#purpose)
-    - [Roadmap](#roadmap)
+- [License](#license)
 - [Install](#install)
-    - [Configuration des variables d'environnements](#configuration-des-variables-denvironnements)
-    - [Modification des variables d'environnements](#modification-des-variables-denvironnements)
-    - [Activation des variables d'environnements](#activation-des-variables-denvironnements)
+    - [Install from Github](#install-from-github)
+    - [Install locally](#install-locally)
+    - [Install in C2C infra](#install-in-c2c-infra)
+    - [Tip to connect to C2C](#tip-to-connect-to-c2c)
 - [Usage](#usage)
-    - [Lancer le make install](#lancer-le-make-install)
-    - [Lancer le make clean](#lancer-le-make-clean)
+    - [Pre-requisites](#pre-requisites)
+    - [Create a new wordpress site](#create-a-new-wordpress-site)
+    - [Delete wordpress site](#delete-wordpress-site)
+    - [phpMyAdmin (locally)](#phpmyadmin-locally)
 - [Contribution](#contribution)
     - [Guidelines](#guidelines)
     - [Code of Conduct](#code-of-conduct)
     - [Contributor list](#contributor-list)
-- [License](#license)
+- [Roadmap](#roadmap)
 - [Changelog](#changelog)
 
 <!-- /TOC -->
 
 ## Overview
 
-### Purpose
+This repository will provide you with an amazing toolbox to migrate your old beloved Jahia website to a brand new Wordpress one.
 
-### Roadmap
+> TODO: add animated gif of Jahia admin export ?
+
+In the process, not only shall you **not** loose your data, but you shall also be able to control and drive the migration process, i.e
+
+- where to migrate: URLs of your new site
+- what to migrate: all pages ? groups of pages ?
+- how to migrate: apply some filters to clean your HTML
+- for whom to migrate: use gaspar accounts as admins
+
+> TODO: add diagram ?
+
+## License
+
+[MIT license - Copyright (c) EPFL](./LICENSE)
 
 ## Install
 
-On se connecte à la machine :
+### Install from Github
 
-<pre><code>ssh www-data@exopgesrv55.epfl.ch -p 32222</code></pre>
+Github is currently the only way to go :
 
+    you@host:~$ git clone git@github.com:epfl-idevelop/jahia2wp.git
+    you@host:~$ cd jahia2wp
 
-<blockquote style="background-color: red; color: white"; font-weight: bold;>
-<p>Attention ! Vous devez adapter les commandes qui suivent avec les informations propres à votre environnement:</p>
-</blockquote>
+Set your variable environments, by copying and adapting the provided sample file :
 
-- https://env-ej-os-exopge.epfl.ch -> /srv/ejaep
-- https://env-lv-os-exopge.epfl.ch  -> /srv/lvenries
-- https://env-lc-os-exopge.epfl.ch  -> /srv/lchaboudez
-- https://env-lb-os-exopge.epfl.ch  -> /srv/lboatto
-- https://env-gc-os-exopge.epfl.ch  -> /srv/gcharmier
-- https://env-eb-os-exopge.epfl.ch  -> /srv/ebreton
+    you@host:~/jahia2wp$ cp local/.env.sample local/.env
 
-### Configuration des variables d'environnements #
+If you only work locally, all the default values should work for you: you are done and you can jump to the [usage section](#usage).
 
-Dans le répertoire <code>/srv/jahia2wp/etc/</code>, il existe 2 fichiers <code>.env</code>
+Otherwise (i.e if you work on C2C infra), you want to modify a few default values : 
 
-* db.env
-* wp.env
+    you@host:~/jahia2wp$ vi local/.env
 
-On commence par copier ce répertoire dans notre espace personnel. 
+You will first adapt the value of `WP_ENV` to match the name of your environment on C2C infrastructure, as well as `MYSQL_SUPER_*` for the DB credentials :
 
-<pre><code>cp -r /srv/jahia2wp/etc/ /srv/gcharmier/</code></pre>
+    WP_ENV?=your-env
+    MYSQL_DB_HOST?=db-host
+    MYSQL_SUPER_USER?=db-super-user
+    MYSQL_SUPER_PASSWORD?=db-secret
 
-### Modification des variables d'environnements
+As you are sharing the host with some other contributors, you want to modify a few more defaults of environment variables :
 
-On adapte les variables d'environnement pour notre espace de développement
+    # still in ./local/.env ...
+    WP_TITLE?=Prefixed Site Name
+    WP_DB_NAME?=prefixed-db-name
+    MYSQL_WP_USER?=prefixed-username
 
-Pour le fichier <code>/srv/gcharmier/etc/wp.env</code>
+Note that you should keep the question mark in `?=`. That will allow you to override this value when calling `make`.
 
-<pre><code>WP_PATH=/srv/gcharmier/env-gc-os-exopge.epfl.ch</code></pre>
+### Install locally
 
-<pre><code>WP_DB_NAME=gcwp1</code></pre>
+In order to work locally, there are three pre-requisites:
 
-<pre><code>WP_URL=https://env-gc-os-exopge.epfl.ch</code></pre>
+1. been through the [Github section](#install-from-github) above
+1. docker and docker-compose installed
+1. camptocamp docker images built locally
 
-<pre><code>WP_TITLE=GCWP1</code></pre>
-  
-Pour le fichier <code>/srv/gcharmier/etc/db.env</code>
+Head to [INSTALL_TOOLS.md](./docs/INSTALL_TOOLS.md) to get more details on docker setup.
 
-<pre><code>MYSQL_WP_USER=ugcwp1</code></pre>
+Start db, httpd containers and run your management container :
 
-### Activation des variables d'environnements
+    you@host:~/jahia2wp$ cd local
+    you@host:~/jahia2wp/local$ make up
+    Creating network "local_default" with the default driver
+    ...
+    Creating phpmyadmin ... done
+    Creating db ... done
+    Creating httpd ... done
 
-On active les modifications des variables d'environnements :
+You can control that everything went ok by checking that 4 containers have been started (your ids will be different)
 
-<pre><code>source /srv/gcharmier/etc/wp.env</code></pre>
+    you@host:~/jahia2wp/local$ docker ps
+    CONTAINER ID        IMAGE                   COMMAND                  CREATED             STATUS              PORTS                                      NAMES
+    6096f0b2ba3b        camptocamp/httpd        "/docker-entrypoin..."   2 minutes ago       Up 2 minutes        0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp   httpd
+    59bf4a6bf23c        mysql:5.7               "docker-entrypoint..."   2 minutes ago       Up 2 minutes        3306/tcp                                   db
+    6760eb1fbcb1        phpmyadmin/phpmyadmin   "/run.sh phpmyadmin"     2 minutes ago       Up 2 minutes        0.0.0.0:8080->80/tcp                       phpmyadmin
+    xxx                 camptocamp/mgmt         "/docker-entrypoin..."   2 minutes ago       Up 2 minutes        0.0.0.0:2222->22/tcp                       mgmt
 
-<pre><code>source /srv/gcharmier/etc/db.env</code></pre>
+From here, one command will connect you inside the mgmt container
 
+    you@host:~/jahia2wp/local$ make exec
+    www-data@xxx:/$ cd /srv && . .bashrc
+    www-data@xxx:~$ gowp
+    www-data@xxx:/srv/ebreton/jahia2wp/local$
+
+You can now jump to the [usage](#usage) section.
+
+### Install in C2C infra
+
+You first need to define your environment variable WP_ENV, with the name of the environment you will use on C2C infra
+
+    $ echo "
+    export WP_ENV=your-env" >> ~/.bashrc
+
+Login to the management container (within VPN) and go to your environment:
+
+    you@host:~$ ssh -A -o SendEnv=WP_ENV www-data@exopgesrv55.epfl.ch -p 32222
+    www-data@mgmt-x-xxx:~$ cd /srv/$WP_ENV
+    www-data@mgmt-x-xxx:/srv/your-env$
+
+Setup the project from github as described in [Github section](#install-from-github)
+
+And move to your project directory
+
+    www-data@mgmt-x-xxx:where-ever-you-are$ gowp
+    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp/local$
+
+### Tip to connect to C2C
+
+Set up an alias on your host:
+
+    $ echo "
+    alias managwp='echo ssh -A -o SendEnv=WP_ENV  www-data@exopgesrv55.epfl.ch -p 32222 && ssh -A -o SendEnv=WP_ENV www-data@exopgesrv55.epfl.ch -p 32222'" >> ~/.bashrc
+
+That will allow you to connect and move to your local dir in two commands:
+
+    you@host:~$ managwp
+    ...
+    www-data@mgmt-x-xxx:~$ gowp
+
+You can now jump to the [usage](#usage) section.
 
 ## Usage
 
-### Lancer le make install #
+### Pre-requisites
 
-Se positionner dans le root du projet contenant le Makefile :
-<pre><code>cd /srv/jahia2wp/</code></pre>
+In this section, we assumed you have been throught all [installation steps](#install), and you now have a bash running in your management container:
 
-On lance l'installation du site WordPress
+    # locally
+    www-data@xxx:~/test/jahia2wp/local$
 
-<pre><code>make install</code></pre>
+    # C2C infra
+    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp/local$
 
-On peut vérifier que le site répond :
+The usage are independant from where you are. The same Makefile is used both locally and in C2C infra. Only the values of the variables from the .env file vary.
 
-<pre><code>https://env-gc-os-exopge.epfl.ch/</code></pre>
+We will stick to the default values for the examples (which matches the locally setup with no modification)
 
-### Lancer le make clean
+### Create a new wordpress site
 
-Se positionner dans le root du projet contenant le Makefile :
-<pre><code>cd /srv/jahia2wp/</code></pre>
+If you have been through the [usage pre-requisites](#pre-requisites). you only need to run `make install`. The default values will setup a site on localhost.
 
-On peut supprimer les actions de la commande make install via :
-<pre><code>make clean</code></pre>
+    .../local$ make install
+    creating mySQL user
+    mkdir -p /srv/test/localhost/htdocs
+    wp core download --version=4.8 --path=/srv/test/localhost/htdocs
+    Downloading WordPress 4.8 (en_US)...
+    Success: WordPress downloaded.
+    wp config create --dbname=db1 --dbuser=user1 --dbpass=passw0rd --dbhost=db --path=/srv/test/localhost/htdocs
+    Success: Generated 'wp-config.php' file.
+    wp db create --path=/srv/test/localhost/htdocs
+    Success: Database created.
+    wp --allow-root core install --url=http://localhost --title="EB WP1" --admin_user=admin --admin_password=admin --admin_email=test@example.com --path=/srv/test/localhost/htdocs
+    sh: 1: /usr/sbin/sendmail: not found
+    Success: WordPress installed successfully.
 
+You can check that a new Wordpress is running on [localhost](http://localhost)
+
+### Delete wordpress site
+
+Onvce again, given you have been through the [usage pre-requisites](#pre-requisites), you only need to run `make clean`. The default values will dictate which site to delete (i.e localhost)
+
+    .../local$ make clean
+    rm -rf /srv/test/localhost
+    cleaning up user and DB
+
+### phpMyAdmin (locally)
+
+A phpMyAdmin is available locally at [localhost:8080](http://localhost:8080), with the server and credentials defined in your .env file
 
 ## Contribution
 
 There are a few ways where you can help out:
 
 1. Submit [Github issues](https://github.com/epfl-idevelop/jahia2wp/issues) for any feature enhancements, bugs or documentation problems.
-1. Fix open issues by sending PRs (please make sure you respect [flake8](http://flake8.pycqa.org/en/latest/) conventions and that all tests pass) ::
+1. Fix open issues by sending PRs (please make sure you respect [flake8](http://flake8.pycqa.org/en/latest/) conventions and that all tests pass) :
 
    make test
 
@@ -153,7 +244,7 @@ There are a few ways where you can help out:
 
 ### Code of Conduct
 
-As detailed in [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md), we pledge to making participation in our project and our community a harassment-free experience for everyone
+As detailed in [CODE_OF_CONDUCT.md](./docs/CODE_OF_CONDUCT.md), we pledge to making participation in our project and our community a harassment-free experience for everyone
 
 ### Contributor list
 
@@ -163,11 +254,23 @@ Big up to all the following people, without whom this project will not be
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | [<img src="https://avatars0.githubusercontent.com/u/490665?v=4s=100" width="100px;"/><br /><sub>Manu B.</sub>](https://github.com/ebreton)<br /> | [<img src="https://avatars0.githubusercontent.com/u/2668031?v=4s=100" width="100px;"/><br /><sub>Manu J. </sub>](https://github.com/jaepetto)<br /> | [<img src="https://avatars0.githubusercontent.com/u/4997224?v=4s=100" width="100px;"/><br /><sub>Greg</sub>](https://github.com/GregLeBarbar)<br /> | [<img src="https://avatars0.githubusercontent.com/u/11942430?v=4s=100" width="100px;"/><br /><sub>Lulu</sub>](https://github.com/LuluTchab)<br /> | [<img src="https://avatars0.githubusercontent.com/u/25363740?v=4s=100" width="100px;"/><br /><sub>Laurent</sub>](https://github.com/lboatto)<br /> | [<img src="https://avatars0.githubusercontent.com/u/29034311?v=4s=100" width="100px;"/><br /><sub>Luc</sub>](https://github.com/lvenries)<br /> | [<img src="https://avatars0.githubusercontent.com/u/28109?v=4s=100" width="100px;"/><br /><sub>CampToCamp</sub>](https://github.com/camptocamp)<br /> | 
 
+## Roadmap
 
+We will first focus on automation and maintenance, with the objective of driving all the creation process from one shared spreadsheet (aka configuration source).
 
-## License
+1. installing a functionnal wordpress to any given URL
+1. configuring the website with supported plugins, EPFL theme
+1. applying those first two steps to every row of our configuration source
+1. maintening the website and the plugins
 
-[MIT license - Copyright (c) EPFL](./LICENSE)
+We will secondly add support for migration of simple site
+
+1. Jahia text boxes, to wordpress pages
+1. translation, hierarchy, sidebar
+
+And lastly we will extend the support to other Jahia boxes, mainly thanks to Wordpress shortcodes
+
+- people, faq, actu, memento, infoscience, and so on ...
 
 ## Changelog
 

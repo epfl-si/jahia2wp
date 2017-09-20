@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+
+  db:
+    container_name: db
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ../data/db:/var/lib/mysql
+
+  phpmyadmin:
+      image: phpmyadmin/phpmyadmin
+      container_name: phpmyadmin
+      environment:
+      - PMA_ARBITRARY=1
+      ports:
+      - 8080:80
+      volumes:
+      - /sessions
+      
+  httpd:
+    container_name: httpd
+    image: camptocamp/httpd
+    volumes:
+      - ../data/srv:/srv
+    links:
+      - db:db
+    environment:
+      - WP_ENV=${WP_ENV}
+    ports:
+      - "80:80"
+      - "443:443"
+
+  mgmt:
+    container_name: mgmt
+    image: camptocamp/mgmt
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - WP_ENV=${WP_ENV}
+      - MYSQL_DB_HOST=${MYSQL_DB_HOST}
+    volumes:
+      - ../data/srv:/srv
+      - ../Makefile:/srv/${WP_ENV}/jahia2wp/Makefile
+      - ./:/srv/${WP_ENV}/jahia2wp/local
+      - ../src:/srv/${WP_ENV}/jahia2wp/src
+      - ../data/csv:/srv/${WP_ENV}/jahia2wp/data/csv
+    ports:
+      - "2222:22"
