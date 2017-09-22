@@ -81,8 +81,8 @@ class VeritasValidor:
                     column_name=column.column_name,
                     message="%s is not unique" % column.column_label)
 
-        # sort the errors in the end to have them by line number
-        # self.errors.sort()
+        # sort the errors by the line number
+        self.errors.sort(key=lambda x: x.line)
 
     def check_regex(self, regex, column_name, message):
         """Check all the given column values with the given regex"""
