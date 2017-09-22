@@ -1,0 +1,147 @@
+@charset "UTF-8";
+
+/*  ---------------------------------------
+    02 TWENTY SEVENTEEN RESETS
+----------------------------------------- */
+
+/* Typography */
+
+.entry-content a,
+.entry-summary a,
+.widget a,
+.site-footer .widget-area a,
+.posts-navigation a,
+.widget_authors a strong {
+  box-shadow: none !important;
+  @include transition-colors;
+}
+
+.entry-content a:focus,
+.entry-content a:hover,
+.entry-summary a:focus,
+.entry-summary a:hover,
+.widget a:focus,
+.widget a:hover,
+.site-footer .widget-area a:focus,
+.site-footer .widget-area a:hover,
+.posts-navigation a:focus,
+.posts-navigation a:hover, 
+.comment-metadata a:focus,
+.comment-metadata a:hover, 
+.comment-metadata a.comment-edit-link:focus, 
+.comment-metadata a.comment-edit-link:hover, 
+.comment-reply-link:focus, 
+.comment-reply-link:hover, 
+.widget_authors a:focus strong, 
+.widget_authors a:hover strong, 
+.entry-title a:focus, 
+.entry-title a:hover, 
+.entry-meta a:focus, 
+.entry-meta a:hover, 
+.page-links a:focus .page-number, 
+.page-links a:hover .page-number, 
+.entry-footer a:focus, 
+.entry-footer a:hover, 
+.entry-footer .cat-links a:focus, 
+.entry-footer .cat-links a:hover, 
+.entry-footer .tags-links a:focus, 
+.entry-footer .tags-links a:hover,
+.post-navigation a:focus, 
+.post-navigation a:hover, 
+.pagination a:focus:not(.prev):not(.next), 
+.pagination a:hover:not(.prev):not(.next), 
+.comments-pagination a:focus:not(.prev):not(.next), 
+.comments-pagination a:hover:not(.prev):not(.next), 
+.logged-in-as a:focus, 
+.logged-in-as a:hover, 
+a:focus .nav-title, 
+a:hover .nav-title, 
+.edit-link a:focus, 
+.edit-link a:hover, 
+.site-info a:focus, 
+.site-info a:hover, 
+.widget .widget-title a:focus, 
+.widget .widget-title a:hover, 
+.widget ul li a:focus, 
+.widget ul li a:hover {
+  box-shadow: none !important;
+  color: inherit;
+}
+
+.page .panel-content .entry-title,
+.page-title,
+body.page:not(.twentyseventeen-front-page) .entry-title {
+  font-size: inherit;
+}
+
+.entry-content .icon {
+  display: inline-block;
+  height: auto;
+  position: relative;
+  top: 0;
+  vertical-align: middle;
+  width: auto;
+}
+
+/* Site branding */
+
+.has-header-image.twentyseventeen-front-page .site-branding,
+.has-header-video.twentyseventeen-front-page .site-branding,
+.has-header-image.home.blog .site-branding,
+.has-header-video.home.blog .site-branding {
+  display: block;
+	position: static;
+}
+
+.has-header-image:not(.twentyseventeen-front-page):not(.home) .custom-header-media,
+.has-header-video:not(.twentyseventeen-front-page):not(.home) .custom-header-media {
+  display: block;
+	position: static;
+}
+
+body.has-header-image .site-title a {
+  color: #222;
+}
+
+/* Navigation */
+
+.main-navigation ul ul a {
+  width: auto;
+}
+
+.main-navigation ul li.menu-item-has-children:before,
+.main-navigation ul li.menu-item-has-children:after,
+.main-navigation ul li.page_item_has_children:before,
+.main-navigation ul li.page_item_has_children:after {
+	display: none !important;
+}
+
+.site-header .navigation-top .menu-scroll-down {
+  display: none;
+}
+
+.main-navigation .menu-item-has-children > a > .icon,
+.main-navigation .page_item_has_children > a > .icon {
+  display: none;
+}
+
+/* Content */
+
+body:not(.has-sidebar):not(.page-one-column) .page-header,
+body.has-sidebar.error404 #primary .page-header,
+body.page-two-column:not(.archive) #primary .entry-header,
+body.page-two-column.archive:not(.has-sidebar) #primary .page-header {
+  float: none;
+  width: auto;
+}
+
+.blog:not(.has-sidebar) #primary article,
+.archive:not(.page-one-column):not(.has-sidebar) #primary article,
+.search:not(.has-sidebar) #primary article,
+.error404:not(.has-sidebar) #primary .page-content,
+.error404.has-sidebar #primary .page-content,
+body.page-two-column:not(.archive) #primary .entry-content,
+body.page-two-column #comments {
+  float: none;
+  width: auto;
+}
