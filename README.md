@@ -114,11 +114,11 @@ In order to work locally, there are three pre-requisites:
 
 1. been through the [Github section](#install-from-github) above
 1. docker and docker-compose installed
-1. camptocamp docker images built locally
+1. **camptocamp docker images built locally** (you will not be able to pull them from a repository)
 
 Head to [INSTALL_TOOLS.md](./docs/INSTALL_TOOLS.md) to get more details on docker setup.
 
-Start db, httpd containers and run your management container :
+Start the `db`, `httpd` and `mgmt` containers:
 
     you@host:~/jahia2wp$ cd local
     you@host:~/jahia2wp/local$ make up
@@ -137,18 +137,17 @@ You can control that everything went ok by checking that 4 containers have been 
     6760eb1fbcb1        phpmyadmin/phpmyadmin   "/run.sh phpmyadmin"     2 minutes ago       Up 2 minutes        0.0.0.0:8080->80/tcp                       phpmyadmin
     xxx                 camptocamp/mgmt         "/docker-entrypoin..."   2 minutes ago       Up 2 minutes        0.0.0.0:2222->22/tcp                       mgmt
 
-From here, one command will connect you inside the mgmt container
+From here, one command will connect you inside the mgmt container, in your-env
 
     you@host:~/jahia2wp/local$ make exec
-    www-data@xxx:/$ cd /srv && . .bashrc
-    www-data@xxx:~$ gowp
-    www-data@xxx:/srv/ebreton/jahia2wp/local$
+    www-data@xxx:/srv/your-env$ gowp
+    www-data@xxx:/srv/your-env/jahia2wp/local$
 
 You can now jump to the [usage](#usage) section.
 
 ### Install in C2C infra
 
-You first need to define your environment variable WP_ENV, with the name of the environment you will use on C2C infra
+You first need to define locally your environment variable `WP_ENV`, with the name of the environment you will use on C2C infra
 
     $ echo "
     export WP_ENV=your-env" >> ~/.bashrc
