@@ -1,10 +1,10 @@
 """ All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017 """
 
-from .veritas import VeritasValidor
+from veritas.veritas import VeritasValidor
 
 
 def test_validate():
-    validator = VeritasValidor('src/veritas/test_veritas_data.csv')
+    validator = VeritasValidor('src/veritas/tests/test_veritas_data.csv')
 
     validator.validate()
 
