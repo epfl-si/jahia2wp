@@ -2,7 +2,7 @@
 jahia2wp: an amazing tool !
 
 Usage:
-  jahia2wp.py helloworld
+  jahia2wp.py veritas <path>
 
 Options:
   -h --help                     Show this screen.
@@ -10,12 +10,19 @@ Options:
 """
 from docopt import docopt
 from settings import VERSION
+from veritas.veritas import VeritasValidor
 
 
 def main(args):
 
-    if args.get("helloworld"):
-        print("Hello World")
+    # veritas
+    if args.get("veritas"):
+        validator = VeritasValidor(args["<path>"])
+
+        validator.validate()
+
+        validator.print_errors()
+
         return True
 
 
