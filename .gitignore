@@ -11,3 +11,6 @@ data/srv/.bash_history
 etc/*.env
 .env
 coverage.xml
+.DS_Store
+data/.DS_Store
+local/.DS_Store
