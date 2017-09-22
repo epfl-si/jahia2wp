@@ -31,7 +31,7 @@ exec:
 	  -e WP_ENV=${WP_ENV} \
 	  -e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
 	  -e MYSQL_DB_HOST=${MYSQL_DB_HOST} \
-	  mgmt bash
+	  mgmt bash -l
 
 down:
 	docker-compose down
