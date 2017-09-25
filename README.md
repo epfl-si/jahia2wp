@@ -106,6 +106,12 @@ As you are sharing the host with some other contributors, you want to modify a f
     WP_DB_NAME?=prefixed-db-name
     MYSQL_WP_USER?=prefixed-username
 
+If you want to create a subfolder Wordpress you need to modify the variable WP_FOLDER:
+    #exemples:
+    WP_FOLDER?=
+    WP_FOLDER?=/Subfolder
+    WP_FOLDER?=/Subfolder1/Subfolder2
+    
 Note that you should keep the question mark in `?=`. That will allow you to override this value when calling `make`.
 
 ### Install locally
