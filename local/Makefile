@@ -47,9 +47,9 @@ install:
 	@echo creating mySQL user *${MYSQL_WP_USER}*
 	@mysql -h ${MYSQL_DB_HOST} -u ${MYSQL_SUPER_USER} --password=${MYSQL_SUPER_PASSWORD} -e "CREATE USER '${MYSQL_WP_USER}' IDENTIFIED BY '${MYSQL_WP_PASSWORD}';"
 	@mysql -h ${MYSQL_DB_HOST} -u ${MYSQL_SUPER_USER} --password=${MYSQL_SUPER_PASSWORD} -e "GRANT ALL PRIVILEGES ON \`${WP_DB_NAME}\`.* TO \`${MYSQL_WP_USER}\`@'%';"
-	mkdir -p /srv/${WP_ENV}/${SITE_PATH}/htdocs
+	mkdir -p /srv/${WP_ENV}/${SITE_PATH}${WP_FOLDER}/htdocs
 
 	wp core download --version=4.8 --path=/srv/${WP_ENV}/${SITE_PATH}${WP_FOLDER}/htdocs
-	wp config create --dbname=${WP_DB_NAME} --dbuser=${MYSQL_WP_USER} --dbpass=${MYSQL_WP_PASSWORD} --dbhost=${MYSQL_DB_HOST} --path=/srv/${WP_ENV}/${SITE_PATH}/htdocs
-	wp db create --path=/srv/${WP_ENV}/${SITE_PATH}${WP_FOLDER}/htdocs
+	wp config create --dbname=${WP_DB_NAME} --dbuser=${MYSQL_WP_USER} --dbpass=${MYSQL_WP_PASSWORD} --dbhost=${MYSQL_DB_HOST} --path=/srv/${WP_ENV}/${SITE_PATH}${WP_FOLDER}/htdocs
+	wp db create --path=/srv/${WP_ENV}/${SITE_PATH}${WP_FOLDER}${WP_FOLDER}/htdocs
 	wp --allow-root core install --url=http://${SITE_PATH}${WP_FOLDER} --title="${WP_TITLE}" --admin_user=${WP_ADMIN_USER} --admin_password=${WP_ADMIN_PASSWORD} --admin_email=${WP_ADMIN_EMAIL} --path=/srv/${WP_ENV}/${SITE_PATH}${WP_FOLDER}/htdocs
