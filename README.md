@@ -86,7 +86,7 @@ Set your variable environments, by copying and adapting the provided sample file
 
     you@host:~/jahia2wp$ cp local/.env.sample local/.env
 
-If you only work locally, all the default values should work for you: you are done and you can jump to the [usage section](#usage).
+If you only work locally, all the default values should work for you: you are done and you can jump to the [next section](#install-locally).
 
 Otherwise (i.e if you work on C2C infra), you want to modify a few default values : 
 
