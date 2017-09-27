@@ -16,14 +16,14 @@ from docopt import docopt
 from docopt_dispatch import dispatch
 from veritas.veritas import VeritasValidor
 
-from generator.generator import Generator
+from generator.generator import WPGenerator
 from settings import VERSION
 from utils import Utils
 
 
 @dispatch.on('generate')
 def generate(csv_file, **kwargs):
-    Generator.run(csv_file)
+    WPGenerator.run(csv_file)
 
 
 @dispatch.on('veritas')

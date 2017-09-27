@@ -93,25 +93,12 @@ Otherwise (i.e if you work on C2C infra), you want to modify a few default value
 
     you@host:~/jahia2wp$ vi local/.env
 
-You will first adapt the value of `WP_ENV` to match the name of your environment on C2C infrastructure, as well as `MYSQL_SUPER_*` for the DB credentials :
+You will need to adapt a few values that will be used for all WordPresses :
 
-    WP_ENV?=your-env
+    WP_VERSION?=4.8
     MYSQL_DB_HOST?=db-host
     MYSQL_SUPER_USER?=db-super-user
     MYSQL_SUPER_PASSWORD?=db-secret
-
-As you are sharing the host with some other contributors, you want to modify a few more defaults of environment variables :
-
-    # still in ./local/.env ...
-    WP_TITLE?=Prefixed Site Name
-    WP_DB_NAME?=prefixed-db-name
-    MYSQL_WP_USER?=prefixed-username
-
-If you want to create a subfolder Wordpress you need to modify the variable WP_FOLDER:
-    #exemples:
-    WP_FOLDER?=
-    WP_FOLDER?=/Subfolder
-    WP_FOLDER?=/Subfolder1/Subfolder2
     
 Note that you should keep the question mark in `?=`. That will allow you to override this value when calling `make`.
 
@@ -228,7 +215,7 @@ You can check that a new Wordpress is running on [localhost](http://localhost)
 
 Creating a WordPress site in a subfolder only requires that you set the variable WP_FOLDER in your .env file, with a relative path
 
-    SITE_PATH?=localhost
+    SITE_DOMAIN?=localhost
     WP_FOLDER?=folder-name
 
 
