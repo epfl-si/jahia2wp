@@ -1,0 +1,20 @@
+.cpd_front_list,
+.cpd_front_list li
+{
+	margin-right: 0 !important;
+}
+
+.cpd_front_list li,
+.cpd-l,
+.cpd-notes td,
+.cpd-notes th
+{
+	text-align: right;
+}
+
+.cpd_front_list li b,
+.cpd-dashboard li b,
+.cpd-r
+{
+	float: left;
+}

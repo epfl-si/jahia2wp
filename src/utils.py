@@ -1,20 +1,20 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
-import csv
 import logging
 import os
+import csv
 
 
 class Utils:
 
     @staticmethod
     def csv_to_dict(file_path, delimiter=','):
-
-        sites = []
+        """Returns the rows of the given CSV file as a list of dicts"""
+        rows = []
         with open(file_path) as csvfile:
             reader = csv.DictReader(csvfile, delimiter=delimiter)
             for row in reader:
-                sites.append(row)
-        return sites
+                rows.append(row)
+        return rows
 
     @staticmethod
     def get_optional_env(key, default):

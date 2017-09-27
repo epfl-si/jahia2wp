@@ -1,0 +1,457 @@
+/* frontend */
+
+.cpd_front_list, .cpd_front_list li {
+	list-style-type: none !important;
+	margin-left: 0 !important;
+}
+
+.cpd_front_list li b { /* values */
+	float: right;
+}
+
+/* settings */
+
+h2 .cpd_icon {
+	vertical-align: top;
+	margin-top:2px;
+}
+
+#cpdtoolccs h3 {
+    margin-left: 1em;
+}
+
+.cpd_backups {
+	width: 100%;
+	border: 1px #ccc solid;
+	border-collapse: collapse;
+}
+
+.cpd_backups tr:nth-child(2n) {
+	background: #fff;
+}
+
+.cpd_backups td {
+	 border-bottom: 1px #ccc solid;
+}
+
+.cpd_backups a {
+	 text-decoration: none;
+}
+
+.cpd_green {
+	font-size: 16px;
+	font-weight: bold;
+	color: green;
+	margin-right: 3px;
+}
+
+.cpd_halfsize {
+	width: 49%;
+	float: left;
+}
+
+.cpd_settings fieldset {
+	margin: 5px 5px 20px;
+	padding: 0 10px 0px;
+	border: 1px solid #dfdfdf;
+	background: #fafafa;
+}
+
+.cpd_settings legend {
+    background: #eee;
+	border: 1px solid #dfdfdf;
+    margin: 0 10px;
+    padding: 1px 7px 2px;
+    text-shadow: 0 1px 0 #fff;
+    font-size:15px;
+}
+
+.cpd_settings .form-table {
+	margin-bottom: 5px !important;
+}
+
+.cpd_red {
+	color:red !important;
+}
+
+.cpd_icon {
+	display: inline-block;
+	background: url(img/cpd_sprites.png) no-repeat top left;
+	width: 16px;
+	height: 16px;
+	vertical-align: middle;
+	padding: 0 !important;
+}
+.cpd_backup{background-position: 0 0}
+.cpd_clean{background-position: 0 -46px}
+.cpd_collection{background-position: 0 -92px}
+.cpd_computer{background-position: 0 -138px}
+.cpd_calendar{background-position: 0 -184px}
+.cpd_day{background-position: 0 -230px}
+.cpd_geoip{background-position: 0 -276px}
+.cpd_help{background-position: 0 -322px}
+.cpd_massbots{background-position: 0 -368px}
+.cpd_online{background-position: 0 -414px}
+.cpd_post{background-position: 0 -460px}
+.cpd_reads{background-position: 0 -506px}
+.cpd_referrer{background-position: 0 -552px}
+.cpd_reset{background-position: 0 -598px}
+.cpd_settings{background-position: 0 -644px}
+.cpd_summary{background-position: 0 -690px}
+.cpd_tools{background-position: 0 -736px}
+.cpd_uninstall{background-position: 0 -782px}
+.cpd_update{background-position: 0 -828px}
+.cpd_user{background-position: 0 -874px}
+
+.cpd_logo {
+ 	width: 32px;
+ 	height: 32px;
+ 	vertical-align: middle;
+}
+
+/* dashboard */
+
+#cpd-flot-place {
+	padding: 5px;
+	background: #fff;
+	border: 1px #ccc solid;
+	margin: 5px 8px;
+}
+
+#cpd-flot-place .button {
+	padding: 2px 10px;
+	height: 20px;
+	line-height: 14px;
+}
+
+#cpd-flot-choice {
+	padding: 5px;
+	text-align: center;
+}
+
+#cpd-flot {
+	clear: both;
+	overflow: hidden;
+	margin-top: 5px;
+}
+
+#cpd-tooltip {
+	position: absolute;
+	z-index: 10;
+	display: none;
+	text-align: center;
+	padding: 2px 4px;
+	border: 1px solid #ddd;
+	background-color: #fff;
+	box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.4);
+}
+
+.cpd-list-chart {
+	margin-bottom: 10px;
+	border: 1px solid #ddd;
+	background: -moz-linear-gradient(top, #ccc 0, #fff 80%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #ccc), color-stop(80%, #fff));
+}
+
+.cpd-dashboard .inside {
+	padding: 0 5px;
+}
+
+.cpd-dashboard .postbox {
+	min-width: 0 !important;
+}
+
+.cpd-dashboard .cpd_front_list {
+	padding-right: 5px;
+	max-height: 200px;
+	overflow-y: auto;
+}
+
+.cpd-dashboard li {
+	color: #777;
+	padding-bottom: 2px;
+	border-bottom: 1px #ddd dotted;
+	overflow: hidden;
+}
+
+.cpd-dashboard li b {
+	float: right;
+	text-align: right;
+	font-size: 1.2em;
+	color: #2583ad;
+}
+
+.cpd-dashboard li span {
+	color: #f00;
+}
+
+.cpd-dashboard a {
+	text-decoration: none;
+}
+/* column on post and page lists */
+.column-cpd_reads {
+	width: 50px;
+	white-space: nowrap;
+	overflow: visible;
+}
+
+.cpd-l {}
+
+.cpd-r {
+	float: right;
+	text-align: right;
+}
+
+/* otherwise hidden on little displays */
+.columns-prefs .columns-prefs-3, .columns-prefs .columns-prefs-4 {
+    display: inline-block !important;
+}
+
+
+/* widget */
+
+.cpd_widget_item {
+	padding: 2px 5px;
+	background: #eee;
+	cursor: move;
+	border-radius: 4px;
+}
+
+.cpd_widget_title {
+	cursor:auto;
+}
+
+.cpd_widget_item .widefat {
+	width: 235px !important;
+	margin-left: 15px;
+
+}
+
+/* thickbox */
+
+.cpd-thickbox {
+	background-color: #F7F6F1;
+	font-size: 13px;
+	}
+
+.cpd-thickbox h2 {
+	font: italic 1.5em Georgia,"Times New Roman","Bitstream Charter",Times,serif;
+	margin: 0;
+	padding: 0;
+	color: #093E56;
+}
+
+.cpd-thickbox li {
+	padding-bottom: 5px;
+	border-top: none;
+}
+
+/* notes thickbox */
+
+.cpd-notes {
+	width: 100%;
+	width: auto;
+	margin: 1px;
+	border-color: #000;
+	border-collapse: collapse;
+	}
+
+.cpd-notes td, .cpd-notes th {
+	vertical-align: top;
+	text-align: left;
+	padding: 2px;
+	font: 12px Verdana, Arial, Helvetica, sans-serif;
+	border-bottom: 1px #aaa solid;
+	}
+
+.cpd-notes th {
+	background-color: #8cbdd5;
+	font-weight: bold;
+	}
+
+.cpd-notes .nowrap {
+	white-space: nowrap;
+	}
+
+.cpd-notes .red {
+	background-color: #f00;
+	color: #ff0;
+}
+
+.cpd-notes .green {
+	background-color: #0a0;
+	color: #ff0;
+}
+
+.cpd-notes input {
+ 	width: 97%;
+	font: 12px Verdana, Arial, Helvetica, sans-serif;
+}
+
+/* clients */
+
+.cpd-client-logo {
+	padding-left: 25px;
+	background: url(img/cpd_clients.png) no-repeat left -25px;
+}
+
+.cpd-client-chrome{background-position:0 0;}
+.cpd-client-firefox{background-position:0 -49px;}
+.cpd-client-msie{background-position:0 -98px;}
+.cpd-client-opera{background-position:0 -147px;}
+.cpd-client-safari{background-position:0 -196px;}
+
+/*referrers */
+
+#cpd_referrers li a {
+	width: 85%;
+	display: block;
+	float: left;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+/* flags */
+
+.cpd-flag {
+	display: inline-block;
+	float: left;
+	width: 23px;
+	height: 12px;
+	margin-top: 3px;
+	background-image: url(img/cpd_flags.png);
+	background-repeat: no-repeat;
+}
+
+.cpd-flag-ae{background-position:0 0;}
+.cpd-flag-af, .cpd-flag-xh, .cpd-flag-zu {background-position:0 -13px;}
+.cpd-flag-al{background-position:0 -26px;}
+.cpd-flag-am{background-position:0 -39px;}
+.cpd-flag-ar{background-position:0 -52px;}
+.cpd-flag-at{background-position:0 -65px;}
+.cpd-flag-au{background-position:0 -78px;}
+.cpd-flag-az{background-position:0 -91px;}
+.cpd-flag-ba{background-position:0 -104px;}
+.cpd-flag-bd{background-position:0 -117px;}
+.cpd-flag-be{background-position:0 -130px;}
+.cpd-flag-bg{background-position:0 -143px;}
+.cpd-flag-bh{background-position:0 -156px;}
+.cpd-flag-bn{background-position:0 -169px;}
+.cpd-flag-bo{background-position:0 -182px;}
+.cpd-flag-br{background-position:0 -195px;}
+.cpd-flag-by{background-position:0 -208px;}
+.cpd-flag-bz{background-position:0 -221px;}
+.cpd-flag-ca{background-position:0 -234px;}
+.cpd-flag-ch{background-position:0 -247px;}
+.cpd-flag-ci{background-position:0 -260px;}
+.cpd-flag-cl{background-position:0 -273px;}
+.cpd-flag-cn{background-position:0 -286px;}
+.cpd-flag-co{background-position:0 -299px;}
+.cpd-flag-cr{background-position:0 -312px;}
+.cpd-flag-cs{background-position:0 -325px;}
+.cpd-flag-cy, .cpd-flag-el, .cpd-flag-gr {background-position:0 -338px;}
+.cpd-flag-cz{background-position:0 -351px;}
+.cpd-flag-da, .cpd-flag-dk {background-position:0 -364px;}
+.cpd-flag-de{background-position:0 -377px;}
+.cpd-flag-do{background-position:0 -390px;}
+.cpd-flag-dz{background-position:0 -403px;}
+.cpd-flag-ec{background-position:0 -416px;}
+.cpd-flag-ee{background-position:0 -429px;}
+.cpd-flag-eg{background-position:0 -442px;}
+.cpd-flag-en, .cpd-flag-us {background-position:0 -455px;}
+.cpd-flag-eo{background-position:0 -468px;}
+.cpd-flag-es{background-position:0 -481px;}
+.cpd-flag-eu{background-position:0 -494px;}
+.cpd-flag-fi{background-position:0 -507px;}
+.cpd-flag-fo{background-position:0 -520px;}
+.cpd-flag-fr{background-position:0 -533px;}
+.cpd-flag-gb{background-position:0 -546px;}
+.cpd-flag-ge{background-position:0 -559px;}
+.cpd-flag-gt{background-position:0 -572px;}
+.cpd-flag-hk{background-position:0 -585px;}
+.cpd-flag-hn{background-position:0 -598px;}
+.cpd-flag-hr{background-position:0 -611px;}
+.cpd-flag-hu{background-position:0 -624px;}
+.cpd-flag-id{background-position:0 -637px;}
+.cpd-flag-ie{background-position:0 -650px;}
+.cpd-flag-il{background-position:0 -663px;}
+.cpd-flag-in{background-position:0 -676px;}
+.cpd-flag-iq{background-position:0 -689px;}
+.cpd-flag-ir{background-position:0 -702px;}
+.cpd-flag-is{background-position:0 -715px;}
+.cpd-flag-it{background-position:0 -728px;}
+.cpd-flag-ja, .cpd-flag-jp {background-position:0 -741px;}
+.cpd-flag-jm{background-position:0 -754px;}
+.cpd-flag-jo{background-position:0 -767px;}
+.cpd-flag-kk{background-position:0 -780px;}
+.cpd-flag-kp{background-position:0 -793px;}
+.cpd-flag-kr{background-position:0 -806px;}
+.cpd-flag-kw{background-position:0 -819px;}
+.cpd-flag-ky{background-position:0 -832px;}
+.cpd-flag-lb{background-position:0 -845px;}
+.cpd-flag-li{background-position:0 -858px;}
+.cpd-flag-lk{background-position:0 -871px;}
+.cpd-flag-ls{background-position:0 -884px;}
+.cpd-flag-lt{background-position:0 -897px;}
+.cpd-flag-lu{background-position:0 -910px;}
+.cpd-flag-lv{background-position:0 -923px;}
+.cpd-flag-ly{background-position:0 -936px;}
+.cpd-flag-ma{background-position:0 -949px;}
+.cpd-flag-mk{background-position:0 -962px;}
+.cpd-flag-mm{background-position:0 -975px;}
+.cpd-flag-mo{background-position:0 -988px;}
+.cpd-flag-mt{background-position:0 -1001px;}
+.cpd-flag-mx{background-position:0 -1014px;}
+.cpd-flag-my{background-position:0 -1027px;}
+.cpd-flag-nb, .cpd-flag-nn, .cpd-flag-no {background-position:0 -1040px;}
+.cpd-flag-ni{background-position:0 -1053px;}
+.cpd-flag-nl{background-position:0 -1066px;}
+.cpd-flag-nz{background-position:0 -1079px;}
+.cpd-flag-om{background-position:0 -1092px;}
+.cpd-flag-pa{background-position:0 -1105px;}
+.cpd-flag-pe{background-position:0 -1118px;}
+.cpd-flag-ph{background-position:0 -1131px;}
+.cpd-flag-pk{background-position:0 -1144px;}
+.cpd-flag-pl{background-position:0 -1157px;}
+.cpd-flag-pr{background-position:0 -1170px;}
+.cpd-flag-pt{background-position:0 -1183px;}
+.cpd-flag-py{background-position:0 -1196px;}
+.cpd-flag-qa{background-position:0 -1209px;}
+.cpd-flag-ro{background-position:0 -1222px;}
+.cpd-flag-rs{background-position:0 -1235px;}
+.cpd-flag-ru{background-position:0 -1248px;}
+.cpd-flag-sa{background-position:0 -1261px;}
+.cpd-flag-se{background-position:0 -1274px;}
+.cpd-flag-sg{background-position:0 -1287px;}
+.cpd-flag-si{background-position:0 -1300px;}
+.cpd-flag-sk{background-position:0 -1313px;}
+.cpd-flag-sv{background-position:0 -1326px;}
+.cpd-flag-sy{background-position:0 -1339px;}
+.cpd-flag-th{background-position:0 -1352px;}
+.cpd-flag-tn{background-position:0 -1365px;}
+.cpd-flag-tr{background-position:0 -1378px;}
+.cpd-flag-tt{background-position:0 -1391px;}
+.cpd-flag-tw{background-position:0 -1404px;}
+.cpd-flag-tz{background-position:0 -1417px;}
+.cpd-flag-ua{background-position:0 -1430px;}
+.cpd-flag-unknown, .cpd-flag-a1, .cpd-flag-a2, .cpd-flag-o1{background-position:0 -1443px;}
+.cpd-flag-uy{background-position:0 -1456px;}
+.cpd-flag-uz{background-position:0 -1469px;}
+.cpd-flag-ve{background-position:0 -1482px;}
+.cpd-flag-vn{background-position:0 -1495px;}
+.cpd-flag-ye{background-position:0 -1508px;}
+.cpd-flag-za{background-position:0 -1521px;}
+.cpd-flag-me{background-position:0 -1534px;}
+.cpd-flag-md{background-position:0 -1547px;}
+.cpd-flag-np{background-position:0 -1560px;}
+.cpd-flag-bs{background-position:0 -1573px;}
+.cpd-flag-cm{background-position:0 -1586px;}
+.cpd-flag-mn{background-position:0 -1599px;}
+.cpd-flag-kz{background-position:0 -1612px;}
+.cpd-flag-ng{background-position:0 -1625px;}
+.cpd-flag-kh{background-position:0 -1638px;}
+.cpd-flag-sd{background-position:0 -1651px;}
+.cpd-flag-mw{background-position:0 -1664px;}
+
+
+

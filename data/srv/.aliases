@@ -6,6 +6,10 @@ alias .....="cd ../../../.."
 
 alias gowp="cd /srv/${WP_ENV}/jahia2wp/local"
 
+# ease python3 usage
+alias python=python3
+alias virtualenv="virtualenv --python=python3"
+
 # Shortcuts
 alias h="history"
 alias j="jobs"
