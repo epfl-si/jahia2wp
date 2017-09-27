@@ -2,9 +2,13 @@
 import logging
 import os
 import csv
+import string
+import binascii
+import random
 
 
-class Utils:
+class Utils(object):
+    """Generic and all-purpose helpers"""
 
     @staticmethod
     def csv_to_dict(file_path, delimiter=','):
@@ -23,7 +27,8 @@ class Utils:
         the provided default if it's not set.
         """
         if not os.environ.get(key):
-            logging.warning("The optional environment variable %s is not set, using '%s' as default" % (key, default))
+            logging.warning(
+                "The optional environment variable %s is not set, using '%s' as default", key, default)
 
         return os.environ.get(key, default)
 
@@ -31,7 +36,8 @@ class Utils:
     def get_mandatory_env(key):
 
         if not os.environ.get(key):
-            msg = "The mandatory environment variable {} is not set".format(key)
+            msg = "The mandatory environment variable {} is not set".format(
+                key)
             logging.error(msg)
             raise Exception(msg)
 
@@ -54,10 +60,31 @@ class Utils:
         logger.setLevel(level)
 
         # set up logging to file
-        fh = logging.FileHandler(Utils.get_optional_env('LOGGING_FILE', 'jahia2wp.log'))
+        fh = logging.FileHandler(Utils.get_optional_env(
+            'LOGGING_FILE', 'jahia2wp.log'))
         fh.setLevel(level)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         fh.setFormatter(formatter)
 
         # add the handlers to the logger
         logger.addHandler(fh)
+
+    @staticmethod
+    def generate_random_b64(length):
+        """
+        Generate a random string encoded with base 64
+        """
+        return binascii.hexlify(os.urandom(int(length / 2))).decode("utf-8")
+
+    @staticmethod
+    def generate_password(length, symbols='!@#$%^&*()'):
+        """
+        Generate a random password
+        """
+        # the chars we are going to use. We don't use the plus sign (+) because
+        # it's problematic in URLs
+        chars = string.ascii_letters + string.digits + symbols
+        random.seed = (os.urandom(1024))
+
+        return ''.join(random.choice(chars) for i in range(length))
