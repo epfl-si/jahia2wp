@@ -14,16 +14,18 @@ import logging
 
 from docopt import docopt
 from docopt_dispatch import dispatch
-from veritas.veritas import VeritasValidor
 
+from veritas.veritas import VeritasValidor
 from generator.generator import WPGenerator
+
 from settings import VERSION
 from utils import Utils
 
 
 @dispatch.on('generate')
 def generate(csv_file, **kwargs):
-    WPGenerator.run(csv_file)
+    for row in Utils.csv_to_dict(csv_file):
+        WPGenerator.run(**row)
 
 
 @dispatch.on('veritas')

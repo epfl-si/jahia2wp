@@ -20,7 +20,7 @@ class WPGenerator:
     WP_ADMIN_USER = Utils.get_mandatory_env(key="WP_ADMIN_USER")
     WP_ADMIN_EMAIL = Utils.get_mandatory_env(key="WP_ADMIN_EMAIL")
 
-    def __init__(self, environment=None, domain=None, folder=None, title=None, webmaster=None, responsible=None):
+    def __init__(self, environment=None, domain=None, folder=None, title=None, webmaster=None, responsible=None, **kwargs):
         self.environment = environment
         self.domain = domain
         self.folder = folder
