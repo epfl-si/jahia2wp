@@ -26,7 +26,7 @@ class WPGenerator:
                  wp_site_url=None,
                  wp_default_site_title=None,
                  owner_id=None,
-                 responsible_id=None, **kwargs):
+                 responsible_id=None):
 
         url = urlparse(wp_site_url)
 
