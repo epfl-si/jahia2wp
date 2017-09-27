@@ -42,7 +42,8 @@ Table of content
     - [Tip to connect to C2C](#tip-to-connect-to-c2c)
 - [Usage](#usage)
     - [Pre-requisites](#pre-requisites)
-    - [Create a new wordpress site](#create-a-new-wordpress-site)
+    - [Create a new wordpress site on a dedicated domain](#create-a-new-wordpress-site-on-a-dedicated-domain)
+    - [Create a new wordpress site in a subfolder](#create-a-new-wordpress-site-in-a-subfolder)
     - [Delete wordpress site](#delete-wordpress-site)
     - [phpMyAdmin (locally)](#phpmyadmin-locally)
 - [Contribution](#contribution)
@@ -203,12 +204,12 @@ The usage are independant from where you are. The same Makefile is used both loc
 
 We will stick to the default values for the examples (which matches the locally setup with no modification)
 
-### Create a new wordpress site
+### Create a new wordpress site on a dedicated domain
 
 If you have been through the [usage pre-requisites](#pre-requisites). you only need to run `make install`. The default values will setup a site on localhost.
 
     .../local$ make install
-    creating mySQL user
+    creating mySQL user *user1*
     mkdir -p /srv/test/localhost/htdocs
     wp core download --version=4.8 --path=/srv/test/localhost/htdocs
     Downloading WordPress 4.8 (en_US)...
@@ -223,13 +224,23 @@ If you have been through the [usage pre-requisites](#pre-requisites). you only n
 
 You can check that a new Wordpress is running on [localhost](http://localhost)
 
+### Create a new wordpress site in a subfolder
+
+Creating a WordPress site in a subfolder only requires that you set the variable WP_FOLDER in your .env file, with a relative path
+
+    SITE_PATH?=localhost
+    WP_FOLDER?=folder-name
+
+
+Run `make install` as above and your site will be available on [localhost/folder-name](http://localhost/folder-name)
+
 ### Delete wordpress site
 
 Onvce again, given you have been through the [usage pre-requisites](#pre-requisites), you only need to run `make clean`. The default values will dictate which site to delete (i.e localhost)
 
     .../local$ make clean
     rm -rf /srv/test/localhost
-    cleaning up user and DB
+    cleaning up user *user1* and DB *db1*
 
 ### phpMyAdmin (locally)
 
