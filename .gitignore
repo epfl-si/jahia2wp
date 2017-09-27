@@ -9,7 +9,7 @@ data/db
 data/wp/manage-plugin-config.php.log
 data/srv/*/
 data/srv/.bash_history
-etc/*.env
 .env
 coverage.xml
+log/
 .DS_Store
