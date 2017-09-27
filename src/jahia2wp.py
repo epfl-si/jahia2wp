@@ -14,13 +14,15 @@ from utils import Utils
 from veritas.veritas import VeritasValidor
 from epflldap.ldap_search import get_sciper
 
-def main(args):
 
+def main(args):
     # Example of LDAP search
     sciper = get_sciper(username="charmier")
+    print(sciper)
 
     # Example of generate password
     new_password = Utils.generate_password(8)
+    print(new_password)
 
     # veritas
     if args.get("veritas"):
