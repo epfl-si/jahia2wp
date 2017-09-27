@@ -1,6 +1,7 @@
 # pylint: disable=W1306
 import logging
 import subprocess
+from urllib.parse import urlparse
 
 from utils import Utils
 
@@ -20,18 +21,26 @@ class WPGenerator:
     WP_ADMIN_USER = Utils.get_mandatory_env(key="WP_ADMIN_USER")
     WP_ADMIN_EMAIL = Utils.get_mandatory_env(key="WP_ADMIN_EMAIL")
 
-    def __init__(self, environment=None, domain=None, folder=None, title=None, webmaster=None, responsible=None, **kwargs):
-        self.environment = environment
-        self.domain = domain
-        self.folder = folder
-        self.title = title
-        self.webmaster = webmaster
-        self.responsible_username = responsible
+    def __init__(self,
+                 openshift_env=None,
+                 wp_site_url=None,
+                 wp_default_site_title=None,
+                 owner_id=None,
+                 responsible_id=None, **kwargs):
+
+        url = urlparse(wp_site_url)
+
+        self.openshift_env = openshift_env
+        self.domain = url.netloc
+        self.folder = url.path
+        self.wp_default_site_title = wp_default_site_title
+        self.owner_id = owner_id
+        self.responsible_id = responsible_id
 
         self.set_unique_vars()
 
     def __repr__(self):
-        return "{}/{}/{}".format(self.environment, self.domain, self.folder)
+        return "{}/{}/{}".format(self.openshift_env, self.domain, self.folder)
 
     def set_unique_vars(self):
         self.mysql_wp_user = Utils.generate_random_b64(
@@ -81,30 +90,30 @@ class WPGenerator:
 
         # create htdocs path
         self.run_command(
-            "mkdir -p /srv/{0.wp_env}/{0.site_domain}/htdocs".format(self))
+            "mkdir -p /srv/{0.openshift_env}/{0.domain}/htdocs".format(self))
 
         # install WordPress 4.8
         self.run_command(
-            "wp core download --version=4.8 --path=/srv/{0.wp_env}/{0.site_domain}/htdocs".format(self))
+            "wp core download --version=4.8 --path=/srv/{0.openshift_env}/{0.domain}/htdocs".format(self))
 
         # config WordPress
         command = "wp config create --dbname={0.wp_db_name} --dbuser={0.mysql_wp_user}".format(
             self)
-        command += " --dbpass={0.mysql_wp_password} --dbhost={0.mysql_db_host}".format(
+        command += " --dbpass={0.mysql_wp_password} --dbhost={0.MYSQL_DB_HOST}".format(
             self)
-        command += " --path=/srv/{0.wp_env}/{0.site_domain}/htdocs".format(
+        command += " --path=/srv/{0.openshift_env}/{0.domain}/htdocs".format(
             self)
         self.run_command(command)
 
         # create database
         self.run_command(
-            "wp db create --path=/srv/{0.wp_env}/{0.site_domain}/htdocs".format(self))
+            "wp db create --path=/srv/{0.openshift_env}/{0.domain}/htdocs".format(self))
 
         # fill out first form in install process (setting admin user and permissions)
-        command = "wp --allow-root core install --url=http://{0.site_domain} --title={0.wp_title}".format(
+        command = "wp --allow-root core install --url=http://{0.domain} --title={0.wp_default_site_title}".format(
             self)
-        command += " --admin_user={0.wp_admin_user} --admin_password={0.wp_admin_password}".format(
+        command += " --admin_user={0.WP_ADMIN_USER} --admin_password={0.wp_admin_password}".format(
             self)
-        command += " --admin_email={0.wp_admin_email} --path=/srv/{0.wp_env}/{0.site_domain}/htdocs".format(
+        command += " --admin_email={0.WP_ADMIN_EMAIL} --path=/srv/{0.openshift_env}/{0.domain}/htdocs".format(
             self)
         self.run_command(command)
