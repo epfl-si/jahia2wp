@@ -22,7 +22,7 @@ services:
       
   httpd:
     container_name: httpd
-    image: camptocamp/httpd
+    image: camptocamp/os-wp-httpd
     volumes:
       - ../data/srv:/srv
     links:
@@ -35,7 +35,7 @@ services:
 
   mgmt:
     container_name: mgmt
-    image: camptocamp/mgmt
+    image: camptocamp/os-wp-mgmt
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - WP_ENV=${WP_ENV}

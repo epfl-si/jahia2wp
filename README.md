@@ -36,7 +36,7 @@ Table of content
 - [Overview](#overview)
 - [License](#license)
 - [Install](#install)
-    - [Install from Github](#install-from-github)
+    - [Setup from Github](#setup-from-github)
     - [Install locally](#install-locally)
     - [Install in C2C infra](#install-in-c2c-infra)
     - [Tip to connect to C2C](#tip-to-connect-to-c2c)
@@ -76,7 +76,7 @@ In the process, not only shall you **not** loose your data, but you shall also b
 
 ## Install
 
-### Install from Github
+### Setup from Github
 
 Github is currently the only way to go :
 
@@ -87,15 +87,27 @@ Set your variable environments, by copying and adapting the provided sample file
 
     you@host:~/jahia2wp$ cp local/.env.sample local/.env
 
-If you only work locally, all the default values should work for you: you are done and you can jump to the [next section](#install-locally).
+If you only work locally, all the default values should work for you. You can proceed with installing the dependencies (you might want to setup a virtual environment first, as described in [INSTALL_TOOLS.md](./docs/INSTALL_TOOLS.md#python-virtualenv)) :
+
+    you@host:~/jahia2wp$ pip install -r requirements/local.txt
+
+In order to work locally, you can skill the next few lines, and jump to the [next section](#install-locally).
 
 Otherwise (i.e if you work on C2C infra), you want to modify a few default values : 
 
     you@host:~/jahia2wp$ vi local/.env
 
-You will need to adapt a few values that will be used for all WordPresses :
+You first need to define locally your environment variable `WP_ENV`, with the name of the environment you will use on C2C infra
 
-    WP_VERSION?=4.8
+    $ echo "
+    export WP_ENV=your-env" >> ~/.bashrc
+
+If you do not want to mess with your .bashrc, you can also set this variable in your .env file, along with a few other values that will be used for all WordPresses :
+
+    # Environment name
+    WP_ENV?=your-env
+
+    # DB credentials
     MYSQL_DB_HOST?=db-host
     MYSQL_SUPER_USER?=db-super-user
     MYSQL_SUPER_PASSWORD?=db-secret
@@ -104,21 +116,21 @@ Note that you should keep the question mark in `?=`. That will allow you to over
 
 ### Install locally
 
-In order to work locally, there are three pre-requisites:
+In order to work locally, there a few pre-requisites:
 
 1. been through the [Github section](#install-from-github) above
-1. docker and docker-compose installed
-1. **camptocamp docker images built locally** (you will not be able to pull them from a repository)
-
-Head to [INSTALL_TOOLS.md](./docs/INSTALL_TOOLS.md) to get more details on docker setup.
+1. docker and docker-compose installed (head to [INSTALL_TOOLS.md](./docs/INSTALL_TOOLS.md) to get more details on docker setup.)
+1. make installed (head to [INSTALL_TOOLS.md](./docs/INSTALL_TOOLS.md#make) to get more details on this point.)
 
 Start the `db`, `httpd` and `mgmt` containers:
 
     you@host:~/jahia2wp$ cd local
     you@host:~/jahia2wp/local$ make up
     Creating network "local_default" with the default driver
+    Pulling mgmt (camptocamp/os-wp-mgmt:latest)...
     ...
     Creating phpmyadmin ... done
+    Creating mgmt ... done
     Creating db ... done
     Creating httpd ... done
 
@@ -126,10 +138,10 @@ You can control that everything went ok by checking that 4 containers have been 
 
     you@host:~/jahia2wp/local$ docker ps
     CONTAINER ID        IMAGE                   COMMAND                  CREATED             STATUS              PORTS                                      NAMES
-    6096f0b2ba3b        camptocamp/httpd        "/docker-entrypoin..."   2 minutes ago       Up 2 minutes        0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp   httpd
+    6096f0b2ba3b        camptocamp/os-wp-httpd        "/docker-entrypoin..."   2 minutes ago       Up 2 minutes        0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp   httpd
     59bf4a6bf23c        mysql:5.7               "docker-entrypoint..."   2 minutes ago       Up 2 minutes        3306/tcp                                   db
     6760eb1fbcb1        phpmyadmin/phpmyadmin   "/run.sh phpmyadmin"     2 minutes ago       Up 2 minutes        0.0.0.0:8080->80/tcp                       phpmyadmin
-    xxx                 camptocamp/mgmt         "/docker-entrypoin..."   2 minutes ago       Up 2 minutes        0.0.0.0:2222->22/tcp                       mgmt
+    xxx                 camptocamp/os-wp-mgmt         "/docker-entrypoin..."   2 minutes ago       Up 2 minutes        0.0.0.0:2222->22/tcp                       mgmt
 
 From here, one command will connect you inside the mgmt container, in your-env
 
@@ -141,10 +153,10 @@ You can now jump to the [usage](#usage) section.
 
 ### Install in C2C infra
 
-You first need to define locally your environment variable `WP_ENV`, with the name of the environment you will use on C2C infra
+In order to work locally, there are two pre-requisites:
 
-    $ echo "
-    export WP_ENV=your-env" >> ~/.bashrc
+1. have an access to C2C infra (your public SSH key needs to be authorized on the remote server)
+1. been through the [Github section](#install-from-github) above
 
 Login to the management container (within VPN) and go to your environment:
 
