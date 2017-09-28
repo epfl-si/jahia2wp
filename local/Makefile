@@ -2,23 +2,20 @@
 include .env
 
 vars:
-	@echo Env-related vars:
+	@echo 'Environment-related vars:'
 	@echo '  WP_ENV=${WP_ENV}'
+	
+	@echo ''
+	@echo DB-related vars:
 	@echo '  MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}'
 	@echo '  MYSQL_DB_HOST=${MYSQL_DB_HOST}'
 	@echo '  MYSQL_SUPER_USER=${MYSQL_SUPER_USER}'
 	@echo '  MYSQL_SUPER_PASSWORD=${MYSQL_SUPER_PASSWORD}'
 
 	@echo ''
-	@echo 'Wordpress vars:'
-	@echo '  SITE_DOMAIN=${SITE_DOMAIN}'
-	@echo '  FOLDER=${WP_FOLDER}'
-	@echo '  WP_TITLE=${WP_TITLE}'
-	@echo '  WP_DB_NAME=${WP_DB_NAME}'
-	@echo '  MYSQL_WP_USER=${MYSQL_WP_USER}'
-	@echo '  MYSQL_WP_PASSWORD=${MYSQL_WP_PASSWORD}'
+	@echo 'Wordpress-related vars:'
+	@echo '  WP_VERSION=${WP_VERSION}'
 	@echo '  WP_ADMIN_USER=${WP_ADMIN_USER}'
-	@echo '  WP_ADMIN_PASSWORD=${WP_ADMIN_PASSWORD}'
 	@echo '  WP_ADMIN_EMAIL=${WP_ADMIN_EMAIL}'
 
 up:
