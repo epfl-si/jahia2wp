@@ -87,11 +87,19 @@ Set your variable environments, by copying and adapting the provided sample file
 
     you@host:~/jahia2wp$ cp local/.env.sample local/.env
 
-If you only work locally, all the default values should work for you. You can proceed with installing the dependencies (you might want to setup a virtual environment first, as described in [INSTALL_TOOLS.md](./docs/INSTALL_TOOLS.md#python-virtualenv)) :
+If you only work locally, all the default values should work for you. You can proceed with installing the dependencies, starting with setting up a virtual environment (you will probably need to adapt the commands below to the path where you store your virtualenvs) :
 
-    you@host:~/jahia2wp$ pip install -r requirements/local.txt
+    you@host:~$ virtualenv -p `which python3` venv
+    ...
+    Installing setuptools, pip, wheel...done.
+    you@host:~$ source ~/venv/bin/activate
 
-In order to work locally, you can skill the next few lines, and jump to the [next section](#install-locally).
+If you need more details on the virtual env, have a look at [INSTALL_TOOLS.md](./docs/INSTALL_TOOLS.md#python-virtualenv)
+
+    (venv) you@host:~$ cd jahia2wp
+    (venv) you@host:~/jahia2wp$ pip install -r requirements/local.txt
+
+In order to work locally, you can skip the next few lines, and jump to the [next section](#install-locally).
 
 Otherwise (i.e if you work on C2C infra), you want to modify a few default values : 
 
@@ -124,8 +132,8 @@ In order to work locally, there a few pre-requisites:
 
 Start the `db`, `httpd` and `mgmt` containers:
 
-    you@host:~/jahia2wp$ cd local
-    you@host:~/jahia2wp/local$ make up
+    (venv) you@host:~/jahia2wp$ cd local
+    (venv) you@host:~/jahia2wp/local$ make up
     Creating network "local_default" with the default driver
     Pulling mgmt (camptocamp/os-wp-mgmt:latest)...
     ...
@@ -136,7 +144,7 @@ Start the `db`, `httpd` and `mgmt` containers:
 
 You can control that everything went ok by checking that 4 containers have been started (your ids will be different)
 
-    you@host:~/jahia2wp/local$ docker ps
+    (venv) you@host:~/jahia2wp/local$ docker ps
     CONTAINER ID        IMAGE                    COMMAND                  CREATED             STATUS              PORTS                                      NAMES
     aaa                 camptocamp/os-wp-httpd   "/docker-entrypoin..."   37 seconds ago      Up 35 seconds       0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp   httpd
     bbb                 phpmyadmin/phpmyadmin    "/run.sh phpmyadmin"     39 seconds ago      Up 36 seconds       0.0.0.0:8080->80/tcp                       phpmyadmin
@@ -145,9 +153,9 @@ You can control that everything went ok by checking that 4 containers have been 
 
 From here, one command will connect you inside the mgmt container, in your-env
 
-    you@host:~/jahia2wp/local$ make exec
+    (venv) you@host:~/jahia2wp/local$ make exec
     www-data@xxx:/srv/your-env$ gowp
-    www-data@xxx:/srv/your-env/jahia2wp/local$
+    www-data@xxx:/srv/your-env/jahia2wp$
 
 You can now jump to the [usage](#usage) section.
 
@@ -169,7 +177,7 @@ Setup the project from github as described in [Github section](#install-from-git
 And move to your project directory
 
     www-data@mgmt-x-xxx:where-ever-you-are$ gowp
-    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp/local$
+    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp$
 
 ### Tip to connect to C2C
 

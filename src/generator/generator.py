@@ -31,8 +31,8 @@ class WPGenerator:
         url = urlparse(wp_site_url)
 
         self.openshift_env = openshift_env
-        self.domain = url.netloc
-        self.folder = url.path
+        self.domain = url.netloc.strip('/')
+        self.folder = url.path.strip('/')
         self.wp_default_site_title = wp_default_site_title
         self.owner_id = owner_id
         self.responsible_id = responsible_id
@@ -43,35 +43,30 @@ class WPGenerator:
         return "{}/{}/{}".format(self.openshift_env, self.domain, self.folder)
 
     def set_unique_vars(self):
-        self.mysql_wp_user = Utils.generate_random_b64(
-            self.USER_NAME_LENGTH).lower()
+        self.mysql_wp_user = Utils.generate_random_b64(self.USER_NAME_LENGTH).lower()
         self.mysql_wp_password = Utils.generate_password(self.PASSWORD_LENGTH)
-        self.wp_db_name = Utils.generate_random_b64(
-            self.DB_NAME_LENGTH).lower()
+        self.wp_db_name = Utils.generate_random_b64(self.DB_NAME_LENGTH).lower()
         self.wp_admin_password = Utils.generate_password(self.PASSWORD_LENGTH)
-        self.wp_webmaster_password = Utils.generate_password(
-            self.PASSWORD_LENGTH)
-        self.wp_responsible_password = Utils.generate_password(
-            self.PASSWORD_LENGTH)
+        self.wp_webmaster_password = Utils.generate_password(self.PASSWORD_LENGTH)
+        self.wp_responsible_password = Utils.generate_password(self.PASSWORD_LENGTH)
 
     def run_command(self, command):
         try:
             subprocess.check_output(command, shell=True)
-            logging.debug("Generator - %s - Run command %s",
-                          repr(self), command)
+            logging.debug("Generator - %s - Run command %s", repr(self), command)
         except subprocess.CalledProcessError as err:
-            logging.error("Generator - %s - Command %s failed %s",
-                          repr(self), command, err)
+            logging.error("Generator - %s - Command %s failed %s", repr(self), command, err)
             return False
 
     def run_mysql(self, command):
-        mysql_connection_string = "@mysql -h {0.MYSQL_DB_HOST} -u {0.MYSQL_SUPER_USER}" \
+        mysql_connection_string = "mysql -h {0.MYSQL_DB_HOST} -u {0.MYSQL_SUPER_USER}" \
             " --password={0.MYSQL_SUPER_PASSWORD} ".format(self)
         self.run_command(mysql_connection_string + command)
 
-    def wp_cli(self, command):
+    def run_wp_cli(self, command):
         try:
-            cmd = "wp {} --path='{}'".format(command, self.domain)
+            path = "/srv/{0.openshift_env}/{0.domain}/htdocs".format(self)
+            cmd = "wp {} --path='{}'".format(command, path)
             logging.debug("exec '%s'", cmd)
             return subprocess.check_output(cmd, shell=True)
         except subprocess.CalledProcessError as err:
@@ -81,39 +76,29 @@ class WPGenerator:
 
     def generate(self):
         # create MySQL user
-        self.run_mysql(
-            "-e \"CREATE USER '{0.mysql_wp_user}' IDENTIFIED BY '{0.mysql_wp_password}';\"".format(self))
+        command = "-e \"CREATE USER '{0.mysql_wp_user}' IDENTIFIED BY '{0.mysql_wp_password}';\""
+        self.run_mysql(command.format(self))
 
         # grant privileges
-        self.run_mysql(
-            r"-e \"GRANT ALL PRIVILEGES ON \`{0.wp_db_name}\`.* TO \`{0.mysql_wp_user}\`@'%';".format(self))
+        command = "-e \"GRANT ALL PRIVILEGES ON \`{0.wp_db_name}\`.* TO \`{0.mysql_wp_user}\`@'%';\""
+        self.run_mysql(command.format(self))
 
         # create htdocs path
-        self.run_command(
-            "mkdir -p /srv/{0.openshift_env}/{0.domain}/htdocs".format(self))
+        self.run_command("mkdir -p /srv/{0.openshift_env}/{0.domain}/htdocs".format(self))
 
         # install WordPress 4.8
-        self.run_command(
-            "wp core download --version=4.8 --path=/srv/{0.openshift_env}/{0.domain}/htdocs".format(self))
+        self.run_wp_cli("core download --version=4.8".format(self))
 
         # config WordPress
-        command = "wp config create --dbname={0.wp_db_name} --dbuser={0.mysql_wp_user}".format(
-            self)
-        command += " --dbpass={0.mysql_wp_password} --dbhost={0.MYSQL_DB_HOST}".format(
-            self)
-        command += " --path=/srv/{0.openshift_env}/{0.domain}/htdocs".format(
-            self)
-        self.run_command(command)
+        command = "config create --dbname='{0.wp_db_name}' --dbuser='{0.mysql_wp_user}'" \
+            " --dbpass='{0.mysql_wp_password}' --dbhost={0.MYSQL_DB_HOST}"
+        self.run_wp_cli(command.format(self))
 
         # create database
-        self.run_command(
-            "wp db create --path=/srv/{0.openshift_env}/{0.domain}/htdocs".format(self))
+        self.run_wp_cli("db create --path=/srv/{0.openshift_env}/{0.domain}/htdocs".format(self))
 
         # fill out first form in install process (setting admin user and permissions)
-        command = "wp --allow-root core install --url=http://{0.domain} --title={0.wp_default_site_title}".format(
-            self)
-        command += " --admin_user={0.WP_ADMIN_USER} --admin_password={0.wp_admin_password}".format(
-            self)
-        command += " --admin_email={0.WP_ADMIN_EMAIL} --path=/srv/{0.openshift_env}/{0.domain}/htdocs".format(
-            self)
-        self.run_command(command)
+        command = "--allow-root core install --url=http://{0.domain} --title='{0.wp_default_site_title}'" \
+            " --admin_user={0.WP_ADMIN_USER} --admin_password='{0.wp_admin_password}'"\
+            " --admin_email='{0.WP_ADMIN_EMAIL}'"
+        self.run_wp_cli(command.format(self))
