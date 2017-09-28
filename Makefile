@@ -1,6 +1,6 @@
 #!make
 
-include .env
+include local/.env
 export
 
 test:
