@@ -61,7 +61,7 @@ Containers: 0
 
 ## Docker images
 
-You will need to clone the repository containing the images for MySQL and apache.
+You will need to clone the repository containing the images for the management container and apache.
 
     $ git clone git@github.com:epfl-idevelop/epfl-os-wp.git
 
