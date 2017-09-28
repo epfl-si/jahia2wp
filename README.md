@@ -137,11 +137,11 @@ Start the `db`, `httpd` and `mgmt` containers:
 You can control that everything went ok by checking that 4 containers have been started (your ids will be different)
 
     you@host:~/jahia2wp/local$ docker ps
-    CONTAINER ID        IMAGE                   COMMAND                  CREATED             STATUS              PORTS                                      NAMES
-    6096f0b2ba3b        camptocamp/os-wp-httpd        "/docker-entrypoin..."   2 minutes ago       Up 2 minutes        0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp   httpd
-    59bf4a6bf23c        mysql:5.7               "docker-entrypoint..."   2 minutes ago       Up 2 minutes        3306/tcp                                   db
-    6760eb1fbcb1        phpmyadmin/phpmyadmin   "/run.sh phpmyadmin"     2 minutes ago       Up 2 minutes        0.0.0.0:8080->80/tcp                       phpmyadmin
-    xxx                 camptocamp/os-wp-mgmt         "/docker-entrypoin..."   2 minutes ago       Up 2 minutes        0.0.0.0:2222->22/tcp                       mgmt
+    CONTAINER ID        IMAGE                    COMMAND                  CREATED             STATUS              PORTS                                      NAMES
+    aaa                 camptocamp/os-wp-httpd   "/docker-entrypoin..."   37 seconds ago      Up 35 seconds       0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp   httpd
+    bbb                 phpmyadmin/phpmyadmin    "/run.sh phpmyadmin"     39 seconds ago      Up 36 seconds       0.0.0.0:8080->80/tcp                       phpmyadmin
+    ccc                 mysql:5.7                "docker-entrypoint..."   39 seconds ago      Up 37 seconds       3306/tcp                                   db
+    xxx                 camptocamp/os-wp-mgmt    "/docker-entrypoin..."   39 seconds ago      Up 37 seconds       0.0.0.0:2222->22/tcp                       mgmt
 
 From here, one command will connect you inside the mgmt container, in your-env
 
