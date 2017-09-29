@@ -1,4 +1,5 @@
 # pylint: disable=W1306
+import os
 import logging
 import subprocess
 from urllib.parse import urlparse
@@ -56,6 +57,10 @@ class WPGenerator:
         self.wp_webmaster_password = Utils.generate_password(self.PASSWORD_LENGTH)
         self.wp_responsible_password = Utils.generate_password(self.PASSWORD_LENGTH)
 
+    @property
+    def path(self):
+        return "/srv/{0.openshift_env}/{0.domain}/htdocs/{0.folder}".format(self)
+
     def run_command(self, command):
         try:
             subprocess.check_output(command, shell=True)
@@ -71,14 +76,28 @@ class WPGenerator:
 
     def run_wp_cli(self, command):
         try:
-            path = "/srv/{0.openshift_env}/{0.domain}/htdocs/{0.folder}".format(self)
-            cmd = "wp {} --path='{}'".format(command, path)
+            cmd = "wp {} --path='{}'".format(command, self.path)
             logging.debug("exec '%s'", cmd)
             return subprocess.check_output(cmd, shell=True)
         except subprocess.CalledProcessError as err:
             logging.error("%s - WP export - wp_cli failed : %s",
                           repr(self), err)
             return None
+
+    def is_installed(self):
+        return os.path.is_dir(self.path)
+
+    def is_config_valid(self):
+        if not self.is_installed():
+            return False
+        # TODO EB: check that the config is working (DB and user ok)
+        # wp-cli command (status?)
+
+    def is_install_valid(self):
+        if not self.is_config_valid():
+            return False
+        # TODO EB : check that the site is available, that user can login and upload media
+        # tests from test_wordpress
 
     def generate(self):
         # create MySQL user

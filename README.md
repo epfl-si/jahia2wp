@@ -78,59 +78,59 @@ In the process, not only shall you **not** loose your data, but you shall also b
 
 ### Setup from Github
 
-Github is currently the only way to go :
+Github is currently the only way to leverage this project and its awesome features :
 
     you@host:~$ git clone git@github.com:epfl-idevelop/jahia2wp.git
     you@host:~$ cd jahia2wp
 
-Set your variable environments, by copying and adapting the provided sample file :
+You also have to define locally the environment variable `WP_ENV`, with the name of the environment you will use on C2C infra (or use '`test`' if you plan to work locally exclusively). This variable is **really** important, since it is used by multiple scripts (make, docker-compose, python), in multiple place (local machine, container, C2C environment).
 
-    you@host:~/jahia2wp$ cp local/.env.sample local/.env
-
-If you only work locally, all the default values should work for you. You can proceed with installing the dependencies, starting with setting up a virtual environment (you will probably need to adapt the commands below to the path where you store your virtualenvs) :
-
-    you@host:~$ virtualenv -p `which python3` venv
-    ...
-    Installing setuptools, pip, wheel...done.
-    you@host:~$ source ~/venv/bin/activate
-
-If you need more details on the virtual env, have a look at [INSTALL_TOOLS.md](./docs/INSTALL_TOOLS.md#python-virtualenv)
-
-    (venv) you@host:~$ cd jahia2wp
-    (venv) you@host:~/jahia2wp$ pip install -r requirements/local.txt
-
-In order to work locally, you can skip the next few lines, and jump to the [next section](#install-locally).
-
-Otherwise (i.e if you work on C2C infra), you want to modify a few default values : 
-
-    you@host:~/jahia2wp$ vi local/.env
-
-You first need to define locally your environment variable `WP_ENV`, with the name of the environment you will use on C2C infra
+In this README file, we will use '`your-env`' as your value for `WP_ENV`.
 
     $ echo "
     export WP_ENV=your-env" >> ~/.bashrc
 
-If you do not want to mess with your .bashrc, you can also set this variable in your .env file, along with a few other values that will be used for all WordPresses :
+Other variables will be needed at some point from your environment. You can define default values by copying and adapting the provided sample file :
 
-    # Environment name
-    WP_ENV?=your-env
+    you@host:~/jahia2wp$ cp local/.env.sample local/.env
 
-    # DB credentials
-    MYSQL_DB_HOST?=db-host
-    MYSQL_SUPER_USER?=db-super-user
-    MYSQL_SUPER_PASSWORD?=db-secret
-    
-Note that you should keep the question mark in `?=`. That will allow you to override this value when calling `make`.
+The make commands will use those values as defaults, and also pass them to docker-compose as needed.
 
 ### Install locally
 
 In order to work locally, there a few pre-requisites:
 
-1. been through the [Github section](#install-from-github) above
 1. docker and docker-compose installed (head to [INSTALL_TOOLS.md](./docs/INSTALL_TOOLS.md) to get more details on docker setup.)
 1. make installed (head to [INSTALL_TOOLS.md](./docs/INSTALL_TOOLS.md#make) to get more details on this point.)
 
-Start the `db`, `httpd` and `mgmt` containers:
+As you do **not** want to mess up your host, set up a virtual environment. You muse use the path '`jahia2wp/data/srv/your-env`' as root directory, and '`venv`' as directory name because you will also make use of it in your container. Hence the commands:
+
+    you@host:~/jahia2wp$ mkdir -p data/srv/your-env
+    you@host:~/jahia2wp$ cd data/srv/your-env
+    you@host:.../your-env$ virtualenv -p `which python3` venv
+    ...
+    Installing setuptools, pip, wheel...done.
+    you@host:.../your-env$ source venv/bin/activate
+
+If you need more details on the virtual env, have a look at [INSTALL_TOOLS.md](./docs/INSTALL_TOOLS.md#python-virtualenv)
+
+The alias '`vjahia2wp`' will be available in the container to:
+- activate this virtualenv
+- set the pythonpath,
+- and move to the project directory.
+
+You probably want to also set it in your .bashrc file to align the behavior on your local machine and in the container. (adapt the path ~/jahia2wp to the real path where you have cloned jahia2wp)
+
+    you@host:~/jahia2wp$ echo "
+    alias vjahia2wp=source ~/jahia2wp/data/srv/${WP_ENV}/venv/bin/activate && export PYTHONPATH=~/jahia2wp/src && cd ~/jahia2wp " >> ~/.bashrc
+    you@host:~/jahia2wp$ source ~/.bashrc
+
+You can now call it, and finally install the requirements
+
+    you@host:.../your-env$ vjahia2wp
+    (venv) you@host:~/jahia2wp$ pip install -r requirements/local.txt
+
+You are now set! Just go to the `local` dir to start your docker containers, and login into your mgmt container.
 
     (venv) you@host:~/jahia2wp$ cd local
     (venv) you@host:~/jahia2wp/local$ make up
@@ -154,17 +154,14 @@ You can control that everything went ok by checking that 4 containers have been 
 From here, one command will connect you inside the mgmt container, in your-env
 
     (venv) you@host:~/jahia2wp/local$ make exec
-    www-data@xxx:/srv/your-env$ gowp
-    www-data@xxx:/srv/your-env/jahia2wp$
+    www-data@xxx:/srv/your-env$ vjahia2wp
+    (venv) www-data@xxx:/srv/your-env/jahia2wp$
 
 You can now jump to the [usage](#usage) section.
 
 ### Install in C2C infra
 
-In order to work locally, there are two pre-requisites:
-
-1. have an access to C2C infra (your public SSH key needs to be authorized on the remote server)
-1. been through the [Github section](#install-from-github) above
+In order to work remotely, you need an access to C2C infra (your public SSH key needs to be authorized on the remote server)
 
 Login to the management container (within VPN) and go to your environment:
 
@@ -174,7 +171,18 @@ Login to the management container (within VPN) and go to your environment:
 
 Setup the project from github as described in [Github section](#install-from-github)
 
-And move to your project directory
+You want to modify a few default values to be used by the containers: 
+
+    you@host:~/jahia2wp$ vi local/.env
+
+    # DB credentials
+    MYSQL_DB_HOST?=db-host
+    MYSQL_SUPER_USER?=db-super-user
+    MYSQL_SUPER_PASSWORD?=db-secret
+    
+Note that you should keep the question mark in `?=`. That will allow you to override this value when calling `make`.
+
+Move to your project directory
 
     www-data@mgmt-x-xxx:where-ever-you-are$ gowp
     www-data@mgmt-x-xxx:/srv/your-env/jahia2wp$
