@@ -65,7 +65,7 @@ class WPGenerator:
 
     def run_wp_cli(self, command):
         try:
-            path = "/srv/{0.openshift_env}/{0.domain}/htdocs".format(self)
+            path = "/srv/{0.openshift_env}/{0.domain}/htdocs/{0.folder}".format(self)
             cmd = "wp {} --path='{}'".format(command, path)
             logging.debug("exec '%s'", cmd)
             return subprocess.check_output(cmd, shell=True)
@@ -84,7 +84,7 @@ class WPGenerator:
         self.run_mysql(command.format(self))
 
         # create htdocs path
-        self.run_command("mkdir -p /srv/{0.openshift_env}/{0.domain}/htdocs".format(self))
+        self.run_command("mkdir -p /srv/{0.openshift_env}/{0.domain}/htdocs/{0.folder}".format(self))
 
         # install WordPress 4.8
         self.run_wp_cli("core download --version=4.8".format(self))
@@ -98,7 +98,7 @@ class WPGenerator:
         self.run_wp_cli("db create --path=/srv/{0.openshift_env}/{0.domain}/htdocs".format(self))
 
         # fill out first form in install process (setting admin user and permissions)
-        command = "--allow-root core install --url=http://{0.domain} --title='{0.wp_default_site_title}'" \
+        command = "--allow-root core install --url=http://{0.domain}/{0.folder} --title='{0.wp_default_site_title}'" \
             " --admin_user={0.WP_ADMIN_USER} --admin_password='{0.wp_admin_password}'"\
             " --admin_email='{0.WP_ADMIN_EMAIL}'"
         self.run_wp_cli(command.format(self))
