@@ -25,8 +25,8 @@ from utils import Utils
 @dispatch.on('generate')
 def generate(csv_file, **kwargs):
 
-    # TODO: call veritas validation
-    # TODO: modify veritas validation to validate row by row
+    # TODO GC: call veritas validation
+    # TODO GC: modify veritas validation to validate row by row
     for row in Utils.csv_to_dict(csv_file):
         WPGenerator(**row)
 
