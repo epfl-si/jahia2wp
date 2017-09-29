@@ -3,6 +3,8 @@ import logging
 import subprocess
 from urllib.parse import urlparse
 
+from epflldap.ldap_search import get_username, get_email
+
 from utils import Utils
 
 
@@ -34,13 +36,17 @@ class WPGenerator:
         self.domain = url.netloc.strip('/')
         self.folder = url.path.strip('/')
         self.wp_default_site_title = wp_default_site_title
-        self.owner_id = owner_id
-        self.responsible_id = responsible_id
-
+        self.set_users_info(owner_id, responsible_id)
         self.set_unique_vars()
 
     def __repr__(self):
         return "{}/{}/{}".format(self.openshift_env, self.domain, self.folder)
+
+    def set_users_info(self, owner_id, responsible_id):
+        self.owner_username = get_username(sciper=owner_id)
+        self.owner_email = get_email(sciper=owner_id)
+        self.responsible_username = get_username(sciper=responsible_id)
+        self.responsible_email = get_email(sciper=responsible_id)
 
     def set_unique_vars(self):
         self.mysql_wp_user = Utils.generate_random_b64(self.USER_NAME_LENGTH).lower()
