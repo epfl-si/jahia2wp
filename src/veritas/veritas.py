@@ -6,19 +6,43 @@ from utils import Utils
 
 
 class VeritasValidor:
-    """Validates a CSV file containing a list of WordPress metadata"""
+    """
+    Validates a CSV file containing a list of WordPress metadata
+    You can use https://regex101.com/ to validate your regex
+    """
 
     # the csv delimiter
     DELIMITER = ","
 
     # the regex used to validate the url
-    REGEX_URL = re.compile("^[a-zA-Z0-9.\-/]+$")
+    REGEX_URL = re.compile("^http(s)?://[a-zA-Z0-9.\-/]+$")
 
     # the regex used to validate the admin email
     REGEX_EMAIL = re.compile("(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
 
     # the regex used to validate the db name
     REGEX_DB_NAME = re.compile("^[a-z0-9]{8,16}$")
+
+    # the regex used to validated a string
+    REGEX_STRING = re.compile("^.+$")
+
+    # the regex used to validate the site type
+    REGEX_SITE_TYPE = re.compile("^wordpress$")
+
+    # the regex used to validate openshift env
+    REGEX_OPENSHIFT_ENV = re.compile("^(dev|int|ebreton|ejaep|lvenries|lboatto|gcharmier|lchaboudez)$")
+
+    # the regex used to validate theme
+    REGEX_THEME = re.compile("^EPFL$")
+
+    # the regex used to validate yes/no
+    REGEX_YES_NO = re.compile("^(yes|no)$")
+
+    # the regex used to validate an integer
+    REGEX_INTEGER = re.compile("^[0-9]+$")
+
+    # the regex used to validate a lang
+    REGEX_LANG = re.compile("^(fr|en|de|es|ro|gr|it)(,(fr|en|de|es|ro|gr|it))*$")
 
     def __init__(self, csv_path):
         """Constructor"""
@@ -43,26 +67,28 @@ class VeritasValidor:
     def define_columns(self):
         """Define the columns"""
 
-        # url
-        self.columns.append(VeritasColumn(
-            column_name="url",
-            column_label="url",
-            regex=self.REGEX_URL,
-            is_unique=True))
+        columns = (
+            ("wp_site_url", self.REGEX_URL, True),
+            ("wp_default_site_title", self.REGEX_STRING, False),
+            ("site_type", self.REGEX_SITE_TYPE, False),
+            ("openshift_env", self.REGEX_OPENSHIFT_ENV, False),
+            # category => no validation
+            ("theme", self.REGEX_THEME, False),
+            # status => no validation
+            ("installs_locked", self.REGEX_YES_NO, False),
+            ("updates_automatic", self.REGEX_YES_NO, False),
+            ("langs", self.REGEX_LANG, False),
+            ("owner_id", self.REGEX_INTEGER, False),
+            ("responsible_id", self.REGEX_INTEGER, False),
+            # unit => no validation
+            # comment => no validation
+        )
 
-        # admin
-        self.columns.append(VeritasColumn(
-            column_name="admin",
-            column_label="admin",
-            regex=self.REGEX_EMAIL,
-            is_unique=False))
-
-        # db_name
-        self.columns.append(VeritasColumn(
-            column_name="db_name",
-            column_label="db name",
-            regex=self.REGEX_DB_NAME,
-            is_unique=True))
+        for column in columns:
+            self.columns.append(VeritasColumn(
+                column_name=column[0],
+                regex=column[1],
+                is_unique=column[2]))
 
     def validate(self):
         """Validate the columns"""
@@ -72,14 +98,14 @@ class VeritasValidor:
             self.check_regex(
                 regex=column.regex,
                 column_name=column.column_name,
-                message="invalid %s" % column.column_label)
+                message="invalid %s" % column.column_name)
 
         # check the uniqueness
         for column in self.columns:
             if column.is_unique:
                 self.check_unique(
                     column_name=column.column_name,
-                    message="%s is not unique" % column.column_label)
+                    message="%s is not unique" % column.column_name)
 
         # sort the errors by the line number
         self.errors.sort(key=lambda x: x.line)
@@ -90,8 +116,7 @@ class VeritasValidor:
         for line, row in enumerate(self.rows, start=1):
             if not regex.match(row[column_name]):
                 self.add_error(line, column_name, "%s : %s" %
-                               (message,
-                                row[column_name]))
+                               (message, row[column_name]))
 
     def check_unique(self, column_name, message):
         """Check that all the values of the given column are unique"""
@@ -123,11 +148,10 @@ class VeritasValidor:
 class VeritasColumn:
     """A VeritasColumn represents a column in the CSV file"""
 
-    def __init__(self, column_name, column_label, regex, is_unique):
+    def __init__(self, column_name, regex, is_unique):
         """Constructor"""
 
         self.column_name = column_name
-        self.column_label = column_label
         # the regex used to validate the values in the column
         self.regex = regex
         # should all the values be unique in the column?
