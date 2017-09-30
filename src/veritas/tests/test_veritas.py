@@ -1,9 +1,15 @@
 """ All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017 """
+import os
+
 from veritas.veritas import VeritasValidor
+
+CURRENT_DIR = os.path.dirname(__file__)
+TEST_FILE = 'test_veritas_data.csv'
 
 
 def test_validate():
-    validator = VeritasValidor('src/veritas/tests/test_veritas_data.csv')
+    filename = os.path.join(CURRENT_DIR, TEST_FILE)
+    validator = VeritasValidor(filename)
 
     validator.validate()
 
