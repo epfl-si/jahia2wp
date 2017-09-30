@@ -15,8 +15,7 @@ before_install:
 - docker pull camptocamp/os-wp-mgmt
 
 install:
-- cd local
-- make up
+- make -C local up
 - docker exec mgmt make -C /srv/$WP_ENV/jahia2wp/local bootstrap-mgmt
 
 script:
