@@ -50,3 +50,10 @@ endif
 	@echo "Done with your local env. You can now" 
 	@if test -z "${WP_ENV}"; then echo "    $ source ~/.bashrc (to update your environment with WP_ENV value)"; fi
 	@echo "    $ make exec        (to connect into your contanier)"
+
+bootstrap-mgmt:
+	cd ../.. \
+	  && virtualenv -p `which python3` venv
+	. /srv/${WP_ENV}/venv/bin/activate \
+	  && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src \
+	  && pip install -r ../requirements/local.txt

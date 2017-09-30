@@ -41,15 +41,8 @@ services:
       - WP_ENV=${WP_ENV}
       - MYSQL_DB_HOST=${MYSQL_DB_HOST}
     volumes:
-      # simulate C2C environment: NAS and local env
-      - ../data/srv:/srv
-      - ./:/srv/${WP_ENV}/jahia2wp/local
-      # source of thruth
-      - ../data/csv:/srv/${WP_ENV}/jahia2wp/data/csv
-      # dev environment
-      - ../Makefile:/srv/${WP_ENV}/jahia2wp/Makefile
-      - ../requirements:/srv/${WP_ENV}/jahia2wp/requirements
-      - ../src:/srv/${WP_ENV}/jahia2wp/src
-      - ../bin:/srv/${WP_ENV}/jahia2wp/bin
+      - ./srv:/srv
+      - ..:/srv/${WP_ENV}/jahia2wp
+
     ports:
       - "2222:22"
