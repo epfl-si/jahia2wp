@@ -34,19 +34,19 @@ exec:
 down:
 	docker-compose down
 
-clean:
-	rm -rf /srv/${WP_ENV}/${SITE_DOMAIN}/htdocs/${WP_FOLDER}
-	@echo cleaning up user *${MYSQL_WP_USER}* and DB *${WP_DB_NAME}*
-	@mysql -h ${MYSQL_DB_HOST} -u ${MYSQL_SUPER_USER} --password=${MYSQL_SUPER_PASSWORD} -e "DROP USER \`${MYSQL_WP_USER}\`;" 
-	@mysql -h ${MYSQL_DB_HOST} -u ${MYSQL_SUPER_USER} --password=${MYSQL_SUPER_PASSWORD} -e "DROP DATABASE \`${WP_DB_NAME}\`;" 
-
-install:
-	@echo creating mySQL user *${MYSQL_WP_USER}*
-	@mysql -h ${MYSQL_DB_HOST} -u ${MYSQL_SUPER_USER} --password=${MYSQL_SUPER_PASSWORD} -e "CREATE USER '${MYSQL_WP_USER}' IDENTIFIED BY '${MYSQL_WP_PASSWORD}';"
-	@mysql -h ${MYSQL_DB_HOST} -u ${MYSQL_SUPER_USER} --password=${MYSQL_SUPER_PASSWORD} -e "GRANT ALL PRIVILEGES ON \`${WP_DB_NAME}\`.* TO \`${MYSQL_WP_USER}\`@'%';"
-	mkdir -p /srv/${WP_ENV}/${SITE_DOMAIN}/htdocs/${WP_FOLDER}
-
-	wp core download --version=4.8 --path=/srv/${WP_ENV}/${SITE_DOMAIN}/htdocs/${WP_FOLDER}
-	wp config create --dbname=${WP_DB_NAME} --dbuser=${MYSQL_WP_USER} --dbpass=${MYSQL_WP_PASSWORD} --dbhost=${MYSQL_DB_HOST} --path=/srv/${WP_ENV}/${SITE_DOMAIN}/htdocs/${WP_FOLDER}
-	wp db create --path=/srv/${WP_ENV}/${SITE_DOMAIN}/htdocs/${WP_FOLDER}
-	wp --allow-root core install --url=http://${SITE_DOMAIN}/${WP_FOLDER} --title="${WP_TITLE}" --admin_user=${WP_ADMIN_USER} --admin_password=${WP_ADMIN_PASSWORD} --admin_email=${WP_ADMIN_EMAIL} --path=/srv/${WP_ENV}/${SITE_DOMAIN}/htdocs/${WP_FOLDER}
+bootstrap-local:
+	cp .env.sample .env
+	sudo chown -R `whoami`:33 ..
+	sudo chmod -R g+w ..
+ifdef WP_ENV
+	@echo "WP_ENV already set to $(WP_ENV)"
+	make up
+else
+	echo " \
+export WP_ENV=$(ENV)" >> ~/.bashrc
+	WP_ENV=$(ENV) make up
+endif
+	@echo ""
+	@echo "Done with your local env. You can now" 
+	@if test -z "${WP_ENV}"; then echo "    $ source ~/.bashrc (to update your environment with WP_ENV value)"; fi
+	@echo "    $ make exec        (to connect into your contanier)"
