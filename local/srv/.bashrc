@@ -1,5 +1,5 @@
 # .bashrc
-alias gowp="cd /srv/${WP_ENV}/jahia2wp"
+alias gowp="cd /srv/${WP_ENV}"
 
 gowp
 

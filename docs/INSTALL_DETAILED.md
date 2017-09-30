@@ -3,21 +3,24 @@ Table of content
 
 <!-- TOC -->
 
-- [Initial setup](#initial-setup)
-- [Install locally](#install-locally)
+- [Starting point: github](#starting-point-github)
+- [Initial setup (details of `make bootstrap-local`)](#initial-setup-details-of-make-bootstrap-local)
+- [Your management environment (details of `make bootstrap-mgmt`)](#your-management-environment-details-of-make-bootstrap-mgmt)
 - [Install in C2C infra](#install-in-c2c-infra)
 - [Tip to connect to C2C](#tip-to-connect-to-c2c)
 
 <!-- /TOC -->
 
-## Initial setup
+## Starting point: github
 
 Github is currently the only way to leverage this project (and its awesome features). 
 
     you@host:~$ git clone git@github.com:epfl-idevelop/jahia2wp.git
     you@host:~$ cd jahia2wp
 
-You also have to define locally the environment variable `WP_ENV`, with the name of the environment you will use on C2C infra (or use '`test`' if you plan to work locally exclusively).
+## Initial setup (details of `make bootstrap-local`)
+
+You have to define locally the environment variable `WP_ENV`, with the name of the environment you will use on C2C infra (or use '`test`' if you plan to work locally exclusively).
 
 This variable is **really** important, since it is used by multiple scripts (make, docker-compose, python), in multiple place (local machine, container, C2C environment).
 
@@ -39,44 +42,15 @@ The make commands will use those values as defaults, and also pass them to docke
 
 Note: this part is a bit ugly on mac Os X since uid `33` matches the user `_appstore`
 
-## Install locally
-
 In order to work locally, there a few pre-requisites:
 
 1. docker and docker-compose installed (head to [INSTALL_TOOLS.md](./INSTALL_TOOLS.md) to get more details on docker setup.)
 1. make installed (head to [INSTALL_TOOLS.md](./INSTALL_TOOLS.md#make) to get more details on this point.)
 
-As you do **not** want to mess up your host, set up a virtual environment. You muse use the path '`jahia2wp/data/srv/your-env`' as root directory, and '`venv`' as directory name because you will also make use of it in your container. Hence the commands:
+`make` and `docker` will allow your to set up your containers :
 
-    you@host:~/jahia2wp$ mkdir -p data/srv/your-env
-    you@host:~/jahia2wp$ cd data/srv/your-env
-    you@host:.../your-env$ virtualenv -p `which python3` venv
-    ...
-    Installing setuptools, pip, wheel...done.
-    you@host:.../your-env$ source venv/bin/activate
-
-If you need more details on the virtual env, have a look at [INSTALL_TOOLS.md](./INSTALL_TOOLS.md#python-virtualenv)
-
-The alias '`vjahia2wp`' will be available in the container to:
-- activate this virtualenv
-- set the pythonpath,
-- and move to the project directory.
-
-You probably want to also set it in your .bashrc file to align the behavior on your local machine and in the container. (adapt the path ~/jahia2wp to the real path where you have cloned jahia2wp)
-
-    you@host:~/jahia2wp$ echo "
-    alias vjahia2wp=source ~/jahia2wp/data/srv/${WP_ENV}/venv/bin/activate && export PYTHONPATH=~/jahia2wp/src && cd ~/jahia2wp " >> ~/.bashrc
-    you@host:~/jahia2wp$ source ~/.bashrc
-
-You can now call it, and finally install the requirements
-
-    you@host:.../your-env$ vjahia2wp
-    (venv) you@host:~/jahia2wp$ pip install -r requirements/local.txt
-
-You are now set! Just go to the `local` dir to start your docker containers, and login into your mgmt container.
-
-    (venv) you@host:~/jahia2wp$ cd local
-    (venv) you@host:~/jahia2wp/local$ make up
+    you@host:~/jahia2wp$ cd local
+    you@host:~/jahia2wp/local$ make up
     Creating network "local_default" with the default driver
     Pulling mgmt (camptocamp/os-wp-mgmt:latest)...
     ...
@@ -87,18 +61,39 @@ You are now set! Just go to the `local` dir to start your docker containers, and
 
 You can control that everything went ok by checking that 4 containers have been started (your ids will be different)
 
-    (venv) you@host:~/jahia2wp/local$ docker ps
+    you@host:~/jahia2wp/local$ docker ps
     CONTAINER ID        IMAGE                    COMMAND                  CREATED             STATUS              PORTS                                      NAMES
     aaa                 camptocamp/os-wp-httpd   "/docker-entrypoin..."   37 seconds ago      Up 35 seconds       0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp   httpd
     bbb                 phpmyadmin/phpmyadmin    "/run.sh phpmyadmin"     39 seconds ago      Up 36 seconds       0.0.0.0:8080->80/tcp                       phpmyadmin
     ccc                 mysql:5.7                "docker-entrypoint..."   39 seconds ago      Up 37 seconds       3306/tcp                                   db
     xxx                 camptocamp/os-wp-mgmt    "/docker-entrypoin..."   39 seconds ago      Up 37 seconds       0.0.0.0:2222->22/tcp                       mgmt
 
-From here, one command will connect you inside the mgmt container, in your-env
+And, finaly, connect into the management one
 
-    (venv) you@host:~/jahia2wp/local$ make exec
-    www-data@xxx:/srv/your-env$ vjahia2wp
-    (venv) www-data@xxx:/srv/your-env/jahia2wp$
+    you@host:~/local$ make exec
+    www-data@xxx:/srv/your-env/jahia2wp$
+
+## Your management environment (details of `make bootstrap-mgmt`)
+
+As you do **not** want to mess futhermore with your host, we will setup the python virtual environment from the container.
+
+However, you must respect the given `venv` directory in the example to get all the scripts working as expected:
+
+    you@host:.../your-env$ virtualenv -p `which python3` venv
+    ...
+    Installing setuptools, pip, wheel...done.
+
+If you need more details on the virtual env, have a look at [INSTALL_TOOLS.md](./INSTALL_TOOLS.md#python-virtualenv)
+
+The alias '`vjahia2wp`' is available in the container to:
+- activate this virtualenv
+- set the pythonpath,
+- and move to the project directory.
+
+You can make use of it, and install the requirements
+
+    you@host:.../your-env$ vjahia2wp
+    (venv) you@host:~/jahia2wp$ pip install -r requirements/local.txt
 
 You can now jump to the [usage](#usage) section.
 
@@ -109,10 +104,12 @@ In order to work remotely, you need an access to C2C infra (your public SSH key 
 Login to the management container (within VPN) and go to your environment:
 
     you@host:~$ ssh -A -o SendEnv=WP_ENV www-data@exopgesrv55.epfl.ch -p 32222
-    www-data@mgmt-x-xxx:~$ cd /srv/$WP_ENV
     www-data@mgmt-x-xxx:/srv/your-env$
 
-Setup the project as described in the first [initial setup](#initial-setup)
+Clone the project :
+
+    www-data@mgmt-x-xxx:/srv/your-env$ git clone git@github.com:epfl-idevelop/jahia2wp.git
+    www-data@mgmt-x-xxx:/srv/your-env$ cd jahia2wp/local
 
 You want to modify a few default values to be used by the containers: 
 
@@ -125,10 +122,7 @@ You want to modify a few default values to be used by the containers:
     
 Note that you should keep the question mark in `?=`. That will allow you to override this value when calling `make`.
 
-Move to your project directory
-
-    www-data@mgmt-x-xxx:where-ever-you-are$ gowp
-    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp$
+Nearly done. You just need to finish bootstraping, either by simply calling `make bootstrap-mgmt` or going step by step from the section above.
 
 ## Tip to connect to C2C
 
@@ -141,6 +135,6 @@ That will allow you to connect and move to your local dir in two commands:
 
     you@host:~$ managwp
     ...
-    www-data@mgmt-x-xxx:~$ gowp
+    www-data@mgmt-x-xxx:~$ vjahia2wp
 
-You can now jump to the [usage](#usage) section.
+You can now jump to the [README usage](../README.md#usage) section.

@@ -38,7 +38,8 @@ Table of content
 - [Install](#install)
     - [Assumptions](#assumptions)
     - [Requirements](#requirements)
-    - [Express setup](#express-setup)
+    - [Express setup (locally)](#express-setup-locally)
+    - [Express setup (C2C)](#express-setup-c2c)
 - [Usage](#usage)
     - [Pre-requisites](#pre-requisites)
     - [Create a new wordpress site on a dedicated domain](#create-a-new-wordpress-site-on-a-dedicated-domain)
@@ -98,7 +99,7 @@ Be sure you meet the following requirements :
 
 Note that python is not in the requirements. You do not necessarily need it on your host since we will rely on docker's version.
 
-### Express setup
+### Express setup (locally)
 
 As some commands require `sudo`, you will be asked for your system password
 
@@ -106,13 +107,31 @@ As some commands require `sudo`, you will be asked for your system password
     you@host:~$ cd jahia2wp/local
     you@host:local$ make bootstrap-local ENV=your-env
     ...
-    Done with your local env. You can now
-        source ~/.bashrc (to update your environment with WP_ENV value)
-        make exec        (to connect into your contanier)
+    -> instructions to finish local setup
 
-Simply run the commands, the `make exec` one will connect you to your container. You are now ready to jump to the next section, about [usages](#usage)
+Simply run the instructions given in the last lines from the script
+
+Among them, `make exec` will connect you to your container, where you can  setup the container:
+
+    you@host:local$ make exec
+    www-data@xxx:/srv/your-env/jahia2wp$ cd local
+    www-data@xxx:/srv/your-env/jahia2wp/local$ make bootstrap-mgmt
+    ...
+
+You are now ready to jump to the next section, about [usages](#usage)
 
 If you are looking for a more explicit process, feel free to follow the [detailed guide](./docs/INSTALL_DETAILED.md).
+
+### Express setup (C2C)
+
+You will need C2C to add your public key in `authorized_keys` on the server side
+
+    you@host:~$ export WP_ENV=your-env
+    you@host:~$ ssh -A -o SendEnv=WP_ENV www-data@exopgesrv55.epfl.ch -p 32222
+    www-data@mgmt-x-xxx:/srv/your-env$ git clone git@github.com:epfl-idevelop/jahia2wp.git
+    www-data@mgmt-x-xxx:/srv/your-env$ cd jahia2wp/local
+    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp/local$ make bootstrap-mgmt
+    ...
 
 ## Usage
 
@@ -121,12 +140,17 @@ If you are looking for a more explicit process, feel free to follow the [detaile
 In this section, we assumed you have been throught all [installation steps](#install), and you now have a bash running in your management container:
 
     # locally
-    www-data@xxx:~/test/jahia2wp/local$
+    www-data@xxx:/srv/your-env$
 
     # C2C infra
-    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp/local$
+    www-data@mgmt-x-xxx:/srv/your-env$
 
-The usage are independant from where you are. The same Makefile is used both locally and in C2C infra. Only the values of the variables from the .env file vary.
+The usage are independant from where you are. The same docker image is used in both case. The difference will come from the values of the variables in the .env file. 
+
+Anyway, start with the usefull alias
+
+    www-data@xxx:...$ vjahia2wp
+    (venv) www-data@xxx:...$ 
 
 We will stick to the default values for the examples (which matches the locally setup with no modification)
 
