@@ -41,7 +41,8 @@ Table of content
     - [Express setup (locally)](#express-setup-locally)
     - [Express setup (C2C)](#express-setup-c2c)
 - [Usage](#usage)
-    - [Pre-requisites](#pre-requisites)
+    - [Enter the container](#enter-the-container)
+    - [Testing](#testing)
     - [Create a new wordpress site on a dedicated domain](#create-a-new-wordpress-site-on-a-dedicated-domain)
     - [Create a new wordpress site in a subfolder](#create-a-new-wordpress-site-in-a-subfolder)
     - [Delete wordpress site](#delete-wordpress-site)
@@ -137,24 +138,41 @@ You will need C2C to add your public key in `authorized_keys` on the server side
 
 ## Usage
 
-### Pre-requisites
+### Enter the container
 
 In this section, we assumed you have been throught all [installation steps](#install), and you now have a bash running in your management container:
 
     # locally
+    you@host:local$ make exec
     www-data@xxx:/srv/your-env$
 
     # C2C infra
+    you@host:~$ managwp
     www-data@mgmt-x-xxx:/srv/your-env$
 
 The usage are independant from where you are. The same docker image is used in both case. The difference will come from the values of the variables in the .env file. 
 
 Anyway, start with the usefull alias
 
-    www-data@xxx:...$ vjahia2wp
-    (venv) www-data@xxx:...$ 
+    www-data@...:/srv/your-env$ vjahia2wp
+    (venv) www-data@...:/srv/your-env/jahia2wp/src$ 
 
-We will stick to the default values for the examples (which matches the locally setup with no modification)
+
+### Testing
+
+Either from your host
+
+    you@host:~/jahia2wp$ make test
+    ...
+
+Or from the mgmt container
+
+    (venv) www-data@...:/srv/your-env/jahia2wp/src$ pytest
+    ...
+
+    (venv) www-data@...:/srv/your-env/jahia2wp/src$ cd .. 
+    (venv) www-data@...:/srv/your-env/jahia2wp$ make test-raw
+    ...
 
 ### Create a new wordpress site on a dedicated domain
 
