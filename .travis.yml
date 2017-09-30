@@ -8,11 +8,12 @@ services:
 language: python
 
 python:
-- '3.6'
+- 3.6
 
 before_install:
 - docker pull camptocamp/os-wp-httpd
 - docker pull camptocamp/os-wp-mgmt
+- cp local/.env.sample local/.env
 
 install:
 - make -C local up
