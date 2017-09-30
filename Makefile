@@ -1,8 +1,6 @@
 #!make
 
-include local/.env
-export
-
+# ran in mgmt container
 dev:
 	python src/generator/tests/test_generator.py
 

@@ -9,6 +9,6 @@ install:
 - pip install -r requirements/local.txt
 
 script:
-- bin/flake8.sh
+- flake8.sh --max-line-length=120 src
 - pytest --cov=./ src
 - codecov -t $CODECOV_TOKEN

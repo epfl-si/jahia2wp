@@ -16,12 +16,11 @@ class WPGenerator:
     PASSWORD_LENGTH = 32
     PROTOCOL = "http"
 
-    WP_VERSION = Utils.get_mandatory_env(key="WP_VERSION")
-
     MYSQL_DB_HOST = Utils.get_mandatory_env(key="MYSQL_DB_HOST")
     MYSQL_SUPER_USER = Utils.get_mandatory_env(key="MYSQL_SUPER_USER")
     MYSQL_SUPER_PASSWORD = Utils.get_mandatory_env(key="MYSQL_SUPER_PASSWORD")
 
+    WP_VERSION = Utils.get_mandatory_env(key="WP_VERSION")
     WP_ADMIN_USER = Utils.get_mandatory_env(key="WP_ADMIN_USER")
     WP_ADMIN_EMAIL = Utils.get_mandatory_env(key="WP_ADMIN_EMAIL")
 
@@ -90,7 +89,7 @@ class WPGenerator:
             return None
 
     def is_installed(self):
-        return os.path.is_dir(self.path)
+        return os.path.isdir(self.path)
 
     def is_config_valid(self):
         if not self.is_installed():
@@ -105,6 +104,14 @@ class WPGenerator:
         # tests from test_wordpress
 
     def generate(self):
+        # check we have a clean place first
+        if self.is_installed():
+            logging.error("%s - WP export - wordpress files already found", repr(self))
+            return False
+
+        # create htdocs path
+        self.run_command("mkdir -p /srv/{0.openshift_env}/{0.domain}/htdocs/{0.folder}".format(self))
+
         # create MySQL user
         command = "-e \"CREATE USER '{0.mysql_wp_user}' IDENTIFIED BY '{0.mysql_wp_password}';\""
         self.run_mysql(command.format(self))
@@ -112,9 +119,6 @@ class WPGenerator:
         # grant privileges
         command = "-e \"GRANT ALL PRIVILEGES ON \`{0.wp_db_name}\`.* TO \`{0.mysql_wp_user}\`@'%';\""
         self.run_mysql(command.format(self))
-
-        # create htdocs path
-        self.run_command("mkdir -p /srv/{0.openshift_env}/{0.domain}/htdocs/{0.folder}".format(self))
 
         # install WordPress 4.8
         self.run_wp_cli("core download --version=4.8".format(self))

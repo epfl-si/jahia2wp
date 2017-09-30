@@ -24,7 +24,7 @@ services:
     container_name: httpd
     image: camptocamp/os-wp-httpd
     volumes:
-      - ../data/srv:/srv
+      - ./srv:/srv
     links:
       - db:db
     environment:
@@ -36,9 +36,9 @@ services:
   mgmt:
     container_name: mgmt
     image: camptocamp/os-wp-mgmt
+    env_file:
+      - .env
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DB_HOST=${MYSQL_DB_HOST}
       - WP_ENV=${WP_ENV}
     volumes:
       - ./srv:/srv
