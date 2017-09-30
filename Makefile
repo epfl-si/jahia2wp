@@ -7,7 +7,7 @@ dev:
 	python src/generator/tests/test_generator.py
 
 test:
-	./bin/flake8.sh
+	flake8 --max-line-length=120 src
 	pytest --cov=./ src
 	coverage html
 

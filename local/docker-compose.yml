@@ -38,11 +38,10 @@ services:
     image: camptocamp/os-wp-mgmt
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - WP_ENV=${WP_ENV}
       - MYSQL_DB_HOST=${MYSQL_DB_HOST}
+      - WP_ENV=${WP_ENV}
     volumes:
       - ./srv:/srv
       - ..:/srv/${WP_ENV}/jahia2wp
-
     ports:
       - "2222:22"
