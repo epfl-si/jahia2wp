@@ -4,8 +4,6 @@ alias ...="cd ../.."
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
 
-alias gowp="cd /srv/${WP_ENV}/jahia2wp"
-
 # ease python3 usage
 alias python=python3
 alias pip=pip3
