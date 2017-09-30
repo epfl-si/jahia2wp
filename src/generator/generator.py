@@ -14,6 +14,7 @@ class WPGenerator:
     USER_NAME_LENGTH = 32
     DB_NAME_LENGTH = 32
     PASSWORD_LENGTH = 32
+    PROTOCOL = "http"
 
     WP_VERSION = Utils.get_mandatory_env(key="WP_VERSION")
 
@@ -60,6 +61,10 @@ class WPGenerator:
     @property
     def path(self):
         return "/srv/{0.openshift_env}/{0.domain}/htdocs/{0.folder}".format(self)
+
+    @property
+    def url(self):
+        return "{0.PROTOCOL}://{0.domain}/{0.folder}".format(self)
 
     def run_command(self, command):
         try:
@@ -123,7 +128,7 @@ class WPGenerator:
         self.run_wp_cli("db create --path=/srv/{0.openshift_env}/{0.domain}/htdocs".format(self))
 
         # fill out first form in install process (setting admin user and permissions)
-        command = "--allow-root core install --url=http://{0.domain}/{0.folder} --title='{0.wp_default_site_title}'" \
+        command = "--allow-root core install --url={0.url} --title='{0.wp_default_site_title}'" \
             " --admin_user={0.WP_ADMIN_USER} --admin_password='{0.wp_admin_password}'"\
             " --admin_email='{0.WP_ADMIN_EMAIL}'"
         self.run_wp_cli(command.format(self))
