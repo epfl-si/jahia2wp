@@ -1,12 +1,11 @@
 import logging
 
-from generator.generator import WPGenerator
 from utils import Utils
+from generator.generator import MockedWPGenerator
 
 
 def test_generate():
-
-    generator = WPGenerator(
+    generator = MockedWPGenerator(
         openshift_env=Utils.get_mandatory_env(key="WP_ENV"),
         wp_site_url="https://localhost/folder",
         wp_default_site_title="My test",

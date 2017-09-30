@@ -136,3 +136,12 @@ class WPGenerator:
             " --admin_user={0.WP_ADMIN_USER} --admin_password='{0.wp_admin_password}'"\
             " --admin_email='{0.WP_ADMIN_EMAIL}'"
         self.run_wp_cli(command.format(self))
+
+
+class MockedWPGenerator(WPGenerator):
+
+    def set_users_info(self, owner_id, responsible_id):
+        self.owner_username = "owner"
+        self.owner_email = "owner@epfl.ch"
+        self.responsible_username = "reponsible"
+        self.responsible_email = "responsible@epfl.ch"
