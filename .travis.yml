@@ -1,14 +1,23 @@
 # (c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017
 ---
+sudo: required
+
+services:
+- docker
+
 language: python
 
 python:
 - '3.6'
 
+before_install:
+- docker pull camptocamp/os-wp-httpd
+- docker pull camptocamp/os-wp-mgmt
+
 install:
-- pip install -r requirements/local.txt
+- cd local
+- make up
+- docker exec mgmt make -C /srv/$WP_ENV/jahia2wp/local bootstrap-mgmt
 
 script:
-- flake8.sh --max-line-length=120 src
-- pytest --cov=./ src
-- codecov -t $CODECOV_TOKEN
+- docker exec mgmt make -C /srv/$WP_ENV/jahia2wp test-travis
