@@ -113,15 +113,14 @@ Clone the project :
 
 You want to modify a few default values to be used by the containers: 
 
-    you@host:~/jahia2wp$ vi local/.env
+    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp/local$ cp /srv/.config/.env .env
+    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp/local$ vi .env
 
     # DB credentials
-    MYSQL_DB_HOST?=db-host
-    MYSQL_SUPER_USER?=db-super-user
-    MYSQL_SUPER_PASSWORD?=db-secret
+    MYSQL_DB_HOST=db-host
+    MYSQL_SUPER_USER=db-super-user
+    MYSQL_SUPER_PASSWORD=db-secret
     
-Note that you should keep the question mark in `?=`. That will allow you to override this value when calling `make`.
-
 Nearly done. You just need to finish bootstraping, either by simply calling `make bootstrap-mgmt` or going step by step from the section above.
 
 ## Tip to connect to C2C
@@ -136,5 +135,6 @@ That will allow you to connect and move to your local dir in two commands:
     you@host:~$ managwp
     ...
     www-data@mgmt-x-xxx:~$ vjahia2wp
+    (venv) www-data@mgmt-x-xxx:/srv/your-env/jahia2wp/src$ vjahia2wp
 
 You can now jump to the [README usage](../README.md#usage) section.

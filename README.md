@@ -128,6 +128,7 @@ You will need C2C to add your public key in `authorized_keys` on the server side
 
     you@host:~$ export WP_ENV=your-env
     you@host:~$ ssh -A -o SendEnv=WP_ENV www-data@exopgesrv55.epfl.ch -p 32222
+    
     www-data@mgmt-x-xxx:/srv/your-env$ git clone git@github.com:epfl-idevelop/jahia2wp.git
     www-data@mgmt-x-xxx:/srv/your-env$ cd jahia2wp/local
     www-data@mgmt-x-xxx:/srv/your-env/jahia2wp/local$ cp /srv/.config/.env .
