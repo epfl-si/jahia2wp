@@ -10,6 +10,9 @@ from utils import Utils
 
 
 class WPSite:
+    """ Pure python object that will define a WP site by its path & url
+        its title is optionnal, just to provide a default value to the final user
+    """
 
     PROTOCOL = "http"
     DEFAULT_TITLE = "New WordPress"
@@ -40,6 +43,9 @@ class WPSite:
 
 
 class WPUser:
+    """ Pure python object that will define a WP user by its name and email.
+        its password can be defined or generated
+    """
 
     WP_PASSWORD_LENGTH = 32
 
@@ -65,6 +71,13 @@ class WPUser:
 
 
 class WPRawConfig:
+    """ First object to implement some business logic
+        - is the site installed? properly configured ?
+
+        It provides also the methods to actually interact with WP-CLI
+        - generic run_wp_cli
+        - adding WP users, either from name+email or sciperID
+    """
 
     def __init__(self, wordpress):
         self.wordpress = wordpress
@@ -114,6 +127,11 @@ class WPRawConfig:
 
 
 class WPGenerator:
+    """ High level object to entirely setup a WP sites with some users.
+
+        It makes use of the lower level object (WPSite, WPUser, WPRawConfig)
+        and provides methods to access and control the DB
+    """
 
     DB_NAME_LENGTH = 32
     MYSQL_USER_NAME_LENGTH = 32
@@ -170,6 +188,9 @@ class WPGenerator:
             " --password={0.MYSQL_SUPER_PASSWORD} ".format(self)
         self.run_command(mysql_connection_string + command)
 
+    def run_wp_cli(self, command):
+        return self.wp_config.run_wp_cli(command)
+
     def prepare_db(self):
         # create htdocs path
         self.run_command("mkdir -p /srv/{0.openshift_env}/{0.domain}/htdocs/{0.folder}".format(self))
@@ -189,7 +210,7 @@ class WPGenerator:
             return False
 
         # install WordPress 4.8
-        self.wp_config.run_wp_cli("core download --version=4.8")
+        self.run_wp_cli("core download --version=4.8")
 
         # config WordPress
         command = "config create --dbname='{0.wp_db_name}' --dbuser='{0.mysql_wp_user}'" \
