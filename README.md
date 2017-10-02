@@ -9,7 +9,7 @@
 </h1>
 
 <h4 align="center">
-  Control your migration from Jahia to Wordpress
+  Control your migration from Jahia to WordPress
 </h4>
 
 <p align="center">
@@ -28,8 +28,8 @@
 </p>
 <br>
 
-Table of content
-----------------
+Table of contents
+-----------------
 
 <!-- TOC -->
 
@@ -40,12 +40,12 @@ Table of content
     - [Requirements](#requirements)
     - [Express setup (locally)](#express-setup-locally)
     - [Express setup (C2C)](#express-setup-c2c)
-- [Usage](#usage)
+- [Usages](#usages)
     - [Enter the container](#enter-the-container)
     - [Testing](#testing)
-    - [Create a new wordpress site on a dedicated domain](#create-a-new-wordpress-site-on-a-dedicated-domain)
-    - [Create a new wordpress site in a subfolder](#create-a-new-wordpress-site-in-a-subfolder)
-    - [Delete wordpress site](#delete-wordpress-site)
+    - [Create a new WordPress site on a dedicated domain](#create-a-new-wordpress-site-on-a-dedicated-domain)
+    - [Create a new WordPress site in a subfolder](#create-a-new-wordpress-site-in-a-subfolder)
+    - [Delete a WordPress site](#delete-wordpress-site)
     - [phpMyAdmin (locally)](#phpmyadmin-locally)
 - [Contribution](#contribution)
     - [Guidelines](#guidelines)
@@ -58,14 +58,14 @@ Table of content
 
 ## Overview
 
-This repository will provide you with an amazing toolbox to migrate your old beloved Jahia website to a brand new Wordpress one.
+This repository will provide you with an amazing toolbox to migrate your old beloved Jahia website to a brand new WordPress one.
 
 > TODO: add animated gif of Jahia admin export ?
 
-In the process, not only shall you **not** loose your data, but you shall also be able to control and drive the migration process, i.e
+In the process, not only shall you **not** loose your data, but you shall also be able to control and drive the migration process, i.e:
 
 - where to migrate: URLs of your new site
-- what to migrate: all pages ? groups of pages ?
+- what to migrate: all pages? only a group of pages?
 - how to migrate: apply some filters to clean your HTML
 - for whom to migrate: use gaspar accounts as admins
 
@@ -79,11 +79,11 @@ In the process, not only shall you **not** loose your data, but you shall also b
 
 ### Assumptions
 
-You are a developper, with an experience of `git` and `python`.
+You are a developer, with an experience of `git` and `python`.
 
-All along this documentation the code snippets will make the assumption that you chekout the git repo into '`you@host:~$`'.
+In this documentation the code snippets will make the assumption that you clone the git repo into '`you@host:~$`'.
 
-When it comes to environment, we will use the following values in our examples:
+When it comes to the environment, we will use the following values in our examples:
 
 - '`your-env`' for the project environment
 - '`venv`' for the python virtual environment
@@ -92,7 +92,7 @@ When it comes to environment, we will use the following values in our examples:
 
 We have tried (hard) to make this process as smooth as possible, and to isolate most of the dependencies in a `docker` container. However, you still need to install a few things locally (head to [INSTALL_TOOLS.md](./docs/INSTALL_TOOLS.md) to get more details).
 
-Be sure you meet the following requirements :
+Be sure you meet the following requirements:
 
 1. git
 1. docker and docker-compose
@@ -104,24 +104,25 @@ Note that python is not in the requirements. You do not necessarily need it on y
 
 ![architecture locale](./docs/static/archi_local.jpg)
 
-As some commands require `sudo`, you will be asked for your system password
+As some commands require `sudo`, you will be asked for your system password:
 
     you@host:~$ git clone git@github.com:epfl-idevelop/jahia2wp.git
     you@host:~$ cd jahia2wp/local
+    you@host:local$ cp .env.sample .env
     you@host:local$ make bootstrap-local ENV=your-env
     ...
     -> instructions to finish local setup
 
-Simply run the instructions given in the last lines from the script
+Simply run the instructions given in the last lines from the script.
 
-Among them, `make exec` will connect you to your container, where you can  setup the container:
+Among them, `make exec` will log you in your container, where you can configure it:
 
     you@host:local$ make exec
-    www-data@xxx:/srv/your-env/jahia2wp$ cd local
+    www-data@xxx:/srv/your-env$ cd jahia2wp/local
     www-data@xxx:/srv/your-env/jahia2wp/local$ make bootstrap-mgmt
     ...
 
-You are now ready to jump to the next section, about [usages](#usage)
+You are now ready to jump to the next section, about [usages](#usage).
 
 If you are looking for a more explicit process, feel free to follow the [detailed guide](./docs/INSTALL_DETAILED.md).
 
@@ -129,7 +130,7 @@ If you are looking for a more explicit process, feel free to follow the [detaile
 
 ![architecture Infra C2C](./docs/static/archi_infra_C2C.jpg)
 
-You will need C2C to add your public key in `authorized_keys` on the server side
+You will need to ask C2C to add your public key in `authorized_keys` on the server.
 
     you@host:~$ export WP_ENV=your-env
     you@host:~$ ssh -A -o SendEnv=WP_ENV www-data@exopgesrv55.epfl.ch -p 32222
@@ -140,11 +141,11 @@ You will need C2C to add your public key in `authorized_keys` on the server side
     www-data@mgmt-x-xxx:/srv/your-env/jahia2wp/local$ make bootstrap-mgmt
     ...
 
-## Usage
+## Usages
 
 ### Enter the container
 
-In this section, we assumed you have been throught all [installation steps](#install), and you now have a bash running in your management container:
+In this section, we assume that you have been through all [the installation steps](#install), and you now have a bash running in your management container:
 
     # locally
     you@host:local$ make exec
@@ -154,9 +155,9 @@ In this section, we assumed you have been throught all [installation steps](#ins
     you@host:~$ managwp
     www-data@mgmt-x-xxx:/srv/your-env$
 
-The usage are independant from where you are. The same docker image is used in both case. The difference will come from the values of the variables in the .env file. 
+The usage is independent from the environment. The same docker image is used in both case. The difference will come from the variables in the .env file. 
 
-Anyway, start with the usefull alias
+You can start with this useful alias:
 
     www-data@...:/srv/your-env$ vjahia2wp
     (venv) www-data@...:/srv/your-env/jahia2wp/src$ 
@@ -164,12 +165,12 @@ Anyway, start with the usefull alias
 
 ### Testing
 
-Either from your host
+You can launch the tests either from your host:
 
     you@host:~/jahia2wp$ make test
     ...
 
-Or from the mgmt container
+Or from the management container:
 
     (venv) www-data@...:/srv/your-env/jahia2wp/src$ pytest
     ...
@@ -178,9 +179,9 @@ Or from the mgmt container
     (venv) www-data@...:/srv/your-env/jahia2wp$ make test-raw
     ...
 
-### Create a new wordpress site on a dedicated domain
+### Create a new WordPress site on a dedicated domain
 
-If you have been through the [usage pre-requisites](#pre-requisites). you only need to run `make install`. The default values will setup a site on localhost.
+If you have been through the [usage pre-requisites](#pre-requisites) you only need to run `make install`. The default values will setup a site on localhost.
 
     .../local$ make install
     creating mySQL user *user1*
@@ -196,9 +197,9 @@ If you have been through the [usage pre-requisites](#pre-requisites). you only n
     sh: 1: /usr/sbin/sendmail: not found
     Success: WordPress installed successfully.
 
-You can check that a new Wordpress is running on [localhost](http://localhost)
+You can check that a new WordPress is running on [localhost](http://localhost).
 
-### Create a new wordpress site in a subfolder
+### Create a new WordPress site in a subfolder
 
 Creating a WordPress site in a subfolder only requires that you set the variable WP_FOLDER in your .env file, with a relative path
 
@@ -208,9 +209,9 @@ Creating a WordPress site in a subfolder only requires that you set the variable
 
 Run `make install` as above and your site will be available on [localhost/folder-name](http://localhost/folder-name)
 
-### Delete wordpress site
+### Delete a WordPress site
 
-Onvce again, given you have been through the [usage pre-requisites](#pre-requisites), you only need to run `make clean`. The default values will dictate which site to delete (i.e localhost)
+Once again, given you have been through the [usage pre-requisites](#pre-requisites), you only need to run `make clean`. The default values will dictate which site to delete (i.e localhost)
 
     .../local$ make clean
     rm -rf /srv/test/localhost
@@ -249,17 +250,17 @@ Big up to all the following people, without whom this project will not be
 
 We will first focus on automation and maintenance, with the objective of driving all the creation process from one shared spreadsheet (aka configuration source).
 
-1. installing a functionnal wordpress to any given URL
-1. configuring the website with supported plugins, EPFL theme
+1. installing a functional WordPress to any given URL
+1. configuring the website with supported plugins and the EPFL theme
 1. applying those first two steps to every row of our configuration source
-1. maintening the website and the plugins
+1. maintaining the website and the plugins
 
-We will secondly add support for migration of simple site
+We will secondly add support for migration of a simple site:
 
-1. Jahia text boxes, to wordpress pages
+1. Jahia text boxes, to WordPress pages
 1. translation, hierarchy, sidebar
 
-And lastly we will extend the support to other Jahia boxes, mainly thanks to Wordpress shortcodes
+And lastly we will extend the support to other Jahia boxes, mainly thanks to WordPress shortcodes
 
 - people, faq, actu, memento, infoscience, and so on ...
 
