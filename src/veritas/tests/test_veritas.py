@@ -25,3 +25,25 @@ def test_validate():
     assert "wp_site_url is not unique" in errors[7].message
     assert "invalid openshift_env" in errors[8].message
     assert "wp_site_url is not unique" in errors[9].message
+
+
+def test_get_valid_rows():
+    filename = os.path.join(CURRENT_DIR, TEST_FILE)
+    validator = VeritasValidor(filename)
+    valid_lines = ((0, {
+        'category': 'GeneralPublic',
+        'comment': 'je mets ici',
+        'installs_locked': 'yes',
+        'langs': 'fr,en',
+        'openshift_env': 'dev',
+        'owner_id': '123456',
+        'responsible_id': '123456',
+        'site_type': 'WordPress',
+        'status': 'asked',
+        'theme': 'EPFL',
+        'unit': 'VPR',
+        'updates_automatic': 'no',
+        'wp_default_site_title': 'Recherche',
+        'wp_site_url': 'htt://www.epfl.ch/recherche'}
+    ),)
+    assert validator.get_valid_rows() == valid_lines

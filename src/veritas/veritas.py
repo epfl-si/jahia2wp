@@ -7,6 +7,24 @@ from .validators import validate_integer, validate_string, validate_yes_or_no, \
     validate_openshift_env, validate_site_type, validate_theme, validate_languages
 
 
+JAHIA2WP_COLUMNS = (
+    ("wp_site_url", URLValidator(), True),
+    ("wp_default_site_title", validate_string, False),
+    ("site_type", validate_site_type, False),
+    ("openshift_env", validate_openshift_env, False),
+    # category => no validation
+    ("theme", validate_theme, False),
+    # status => no validation
+    ("installs_locked", validate_yes_or_no, False),
+    ("updates_automatic", validate_yes_or_no, False),
+    ("langs", validate_languages, False),
+    ("owner_id", validate_integer, False),
+    ("responsible_id", validate_integer, False),
+    # unit => no validation
+    # comment => no validation
+)
+
+
 class VeritasValidor:
     """
     Validates a CSV file containing a list of WordPress metadata
@@ -16,8 +34,11 @@ class VeritasValidor:
     # the csv delimiter
     DELIMITER = ","
 
-    def __init__(self, csv_path):
-        """Constructor"""
+    def __init__(self, csv_path, columns=JAHIA2WP_COLUMNS):
+        """ csv_path: path on file system pointing the CSV file to validate
+            columns: description of the validations to make on columns, array of tuple
+                [(column_name, validator, is_unique), (), ()]
+        """
 
         self.csv_path = csv_path
 
@@ -31,48 +52,50 @@ class VeritasValidor:
         self.columns = []
 
         # define the columns
-        self.define_columns()
+        for name, validator, is_unique in columns:
+            self.columns.append(VeritasColumn(name, validator, is_unique))
 
         # load the rows
         self.rows = Utils.csv_to_dict(file_path=self.csv_path, delimiter=self.DELIMITER)
-
-    def define_columns(self):
-        """Define the columns"""
-
-        for name, validator, is_unique in (
-            ("wp_site_url", URLValidator(), True),
-            ("wp_default_site_title", validate_string, False),
-            ("site_type", validate_site_type, False),
-            ("openshift_env", validate_openshift_env, False),
-            # category => no validation
-            ("theme", validate_theme, False),
-            # status => no validation
-            ("installs_locked", validate_yes_or_no, False),
-            ("updates_automatic", validate_yes_or_no, False),
-            ("langs", validate_languages, False),
-            ("owner_id", validate_integer, False),
-            ("responsible_id", validate_integer, False),
-            # unit => no validation
-            # comment => no validation
-        ):
-            self.columns.append(VeritasColumn(name, validator, is_unique))
 
     def validate(self):
         """Validate the columns"""
 
         # check the regexp
         for column in self.columns:
-            self.check_validators(column)
+            self._check_validators(column)
 
         # check the uniqueness
         for column in self.columns:
             if column.is_unique:
-                self.check_unique(column)
+                self._check_unique(column)
 
         # sort the errors by the line number
         self.errors.sort(key=lambda x: x.line)
 
-    def check_validators(self, column, message=None):
+    def print_errors(self):
+        """Prints the errors"""
+
+        for error in self.errors:
+            print(error.message)
+
+    def get_valid_rows(self):
+        """Return the content of the CSV file, less the lines which have an error"""
+        # initialize errors and run validation
+        self.errors = []
+        self.validate()
+
+        # local function to filter out lines with errors
+        lines_with_errors = set([error.line for error in self.errors])
+
+        def _is_valid(item):
+            index, row = item
+            return index not in lines_with_errors
+
+        # return valid rows
+        return tuple(filter(_is_valid, enumerate(self.rows)))
+
+    def _check_validators(self, column, message=None):
         """Check all the given column values with the given regex"""
 
         column_name = column.name
@@ -84,9 +107,9 @@ class VeritasValidor:
                 column.validator(text)
             except ValidationError:
                 error = "{} : {}".format(message, text)
-                self.add_error([index], column_name, error)
+                self._add_error([index], column_name, error)
 
-    def check_unique(self, column, message=None):
+    def _check_unique(self, column, message=None):
         """Check that all the values of the given column are unique"""
 
         unique = {}
@@ -99,20 +122,14 @@ class VeritasValidor:
             lines.append(index)
             if len(lines) > 1:
                 error = "{} : {}".format(message, text)
-                self.add_error(lines, column_name, error)
+                self._add_error(lines, column_name, error)
 
-    def add_error(self, lines, column_name, message):
+    def _add_error(self, lines, column_name, message):
         """Add the given error to the list of errors"""
 
         for line in lines:
             error = VeritasError(line=line, column_name=column_name, message=message)
             self.errors.append(error)
-
-    def print_errors(self):
-        """Prints the errors"""
-
-        for error in self.errors:
-            print(error.message)
 
 
 class VeritasColumn:
