@@ -65,7 +65,7 @@ This repository will provide you with an amazing toolbox to migrate your old bel
 In the process, not only shall you **not** loose your data, but you shall also be able to control and drive the migration process, i.e:
 
 - where to migrate: URLs of your new site
-- what to migrate: all pages? groups of pages?
+- what to migrate: all pages? only a group of pages?
 - how to migrate: apply some filters to clean your HTML
 - for whom to migrate: use gaspar accounts as admins
 
@@ -81,7 +81,7 @@ In the process, not only shall you **not** loose your data, but you shall also b
 
 You are a developer, with an experience of `git` and `python`.
 
-In this documentation the code snippets will make the assumption that you checkout the git repo into '`you@host:~$`'.
+In this documentation the code snippets will make the assumption that you clone the git repo into '`you@host:~$`'.
 
 When it comes to the environment, we will use the following values in our examples:
 
@@ -104,20 +104,21 @@ Note that python is not in the requirements. You do not necessarily need it on y
 
 ![architecture locale](./docs/static/archi_local.jpg)
 
-As some commands require `sudo`, you will be asked for your system password
+As some commands require `sudo`, you will be asked for your system password:
 
     you@host:~$ git clone git@github.com:epfl-idevelop/jahia2wp.git
     you@host:~$ cd jahia2wp/local
+    you@host:local$ cp .env.sample .env
     you@host:local$ make bootstrap-local ENV=your-env
     ...
     -> instructions to finish local setup
 
 Simply run the instructions given in the last lines from the script.
 
-Among them, `make exec` will connect you to your container, where you can configure it:
+Among them, `make exec` will log you in your container, where you can configure it:
 
     you@host:local$ make exec
-    www-data@xxx:/srv/your-env/jahia2wp$ cd local
+    www-data@xxx:/srv/your-env$ cd jahia2wp/local
     www-data@xxx:/srv/your-env/jahia2wp/local$ make bootstrap-mgmt
     ...
 
@@ -140,7 +141,7 @@ You will need to ask C2C to add your public key in `authorized_keys` on the serv
     www-data@mgmt-x-xxx:/srv/your-env/jahia2wp/local$ make bootstrap-mgmt
     ...
 
-## Usage
+## Usages
 
 ### Enter the container
 
@@ -156,7 +157,7 @@ In this section, we assume that you have been through all [the installation step
 
 The usage is independent from the environment. The same docker image is used in both case. The difference will come from the variables in the .env file. 
 
-Anyway, start with this useful alias:
+You can start with this useful alias:
 
     www-data@...:/srv/your-env$ vjahia2wp
     (venv) www-data@...:/srv/your-env/jahia2wp/src$ 
@@ -164,7 +165,7 @@ Anyway, start with this useful alias:
 
 ### Testing
 
-Either from your host:
+You can launch the tests either from your host:
 
     you@host:~/jahia2wp$ make test
     ...
