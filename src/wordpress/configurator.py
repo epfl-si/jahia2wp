@@ -23,7 +23,7 @@ class WPRawConfig:
 
     def run_wp_cli(self, command):
         try:
-            cmd = "wp {} --path='{}'".format(command, self.wp_site.path)
+            cmd = "wp --quiet {} --path='{}'".format(command, self.wp_site.path)
             logging.debug("exec '%s'", cmd)
             return subprocess.check_output(cmd, shell=True)
         except subprocess.CalledProcessError as err:
