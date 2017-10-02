@@ -28,8 +28,8 @@
 </p>
 <br>
 
-Table of content
-----------------
+Table of contents
+-----------------
 
 <!-- TOC -->
 
@@ -154,7 +154,7 @@ In this section, we assume that you have been through all [the installation step
     you@host:~$ managwp
     www-data@mgmt-x-xxx:/srv/your-env$
 
-The usage is independent from where you are. The same docker image is used in both case. The difference will come from the variables in the .env file. 
+The usage is independent from the environment. The same docker image is used in both case. The difference will come from the variables in the .env file. 
 
 Anyway, start with this useful alias:
 
