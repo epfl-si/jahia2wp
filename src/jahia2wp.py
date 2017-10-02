@@ -19,7 +19,9 @@ from docopt import docopt
 from docopt_dispatch import dispatch
 
 from veritas.veritas import VeritasValidor
-from generator.generator import WPSite, WPRawConfig, WPGenerator
+from wordpress.models import WPSite
+from wordpress.configurator import WPRawConfig
+from wordpress.generator import WPGenerator
 
 from settings import VERSION
 from utils import Utils

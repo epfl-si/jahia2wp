@@ -1,7 +1,9 @@
 import pytest
 
 from utils import Utils
-from generator.generator import WPSite, WPUser, WPRawConfig, MockedWPGenerator
+from wordpress.models import WPSite, WPUser
+from wordpress.configurator import WPRawConfig
+from wordpress.generator import MockedWPGenerator
 
 
 class TestWPSite:
