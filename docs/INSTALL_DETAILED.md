@@ -34,7 +34,7 @@ Other variables will be needed at some point from your environment. You can defi
 
     you@host:~/jahia2wp$ cp local/.env.sample local/.env
 
-The make commands will use those values as defaults, and also pass them to docker-compose as needed. Speaking of docker, you wille execute python code and tests inside a container, with local volumes. The container user (`www-data`, uid `33` in the container) will need write access on those volumes, hence you need to set some group permissions beforehand.
+The make commands will use those values as defaults, and also pass them to docker-compose as needed. Speaking of docker, you will execute python code and tests inside a container, with local volumes. The container user (`www-data`, uid `33` in the container) will need write access on those volumes, hence you need to set some group permissions beforehand.
 
     you@host:~/jahia2wp$ sudo chown -R `whoami`:33 .
     you@host:~/jahia2wp$ sudo chmod -R g+w .
