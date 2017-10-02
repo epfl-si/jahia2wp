@@ -20,7 +20,7 @@ Make sure that you have docker and docker-compose installed on your workstation:
 
 If you don't have those version installed, follow the procedure described on [the official documentation](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
 
-If you don't have **docker-compose** installed, do the following
+If you don't have **docker-compose** installed, do the following:
 
 **Note :** Do not install it using ```sudo apt-get install docker-compose``` because you won't get the last version.
 
@@ -36,7 +36,7 @@ If you had to install a fresh version of docker, beware of **user groups** : the
 
 Now you have to log off and log in again to "enable" your new group. If you don't do this, you'll have errors later.
 
-After log in again, you have to start docker services and check if everything is working fine
+After log in again, you have to start docker services and check if everything is working fine:
 
     $ sudo service docker start
     $ docker info
@@ -48,14 +48,14 @@ After log in again, you have to start docker services and check if everything is
 
 ## Make
 
-Make will also simplify your tasks
+Make will also simplify your tasks:
 
     $ make --version
     GNU Make 3.81
 
 ## Python virtualenv
 
-Install virtualenv and create your first virtual environment
+Install virtualenv and create your first virtual environment:
 
     $ sudo pip install virtualenv
     $ which python3
@@ -80,7 +80,7 @@ Install virtualenv and create your first virtual environment
     NB: pour sortir du virtualenv :
     (jahiap) $ deactivate
 
-Upgrade pip (you have to upgrade it after installing requirements otherwise it will fail because of permissions denied on some folders)
+Upgrade pip (you have to upgrade it after installing requirements otherwise it will fail because of permissions denied on some folders).
 
     $ pip install --upgrade pip
     ...
