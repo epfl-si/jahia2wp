@@ -2,7 +2,7 @@ import os
 import logging
 import subprocess
 
-from .models import WPUser
+from .models import WPException, WPUser
 
 
 class WPRawConfig:
@@ -62,7 +62,11 @@ class WPRawConfig:
         return self._add_user(WPUser(username, email))
 
     def add_ldap_user(self, sciper_id):
-        return self._add_user(WPUser.from_sciper(sciper_id))
+        try:
+            return self._add_user(WPUser.from_sciper(sciper_id))
+        except WPException as err:
+            logging.error("Generator - %s - 'add_webmasters' failed %s", repr(self), err)
+            return None
 
     def _add_user(self, user):
         if not user.password:

@@ -27,9 +27,9 @@ class WPGenerator:
     WP_ADMIN_USER = Utils.get_mandatory_env(key="WP_ADMIN_USER")
     WP_ADMIN_EMAIL = Utils.get_mandatory_env(key="WP_ADMIN_EMAIL")
 
-    def __init__(self, openshift_env, wp_site_url, wp_default_site_title, owner_id, responsible_id):
+    def __init__(self, openshift_env, wp_site_url, wp_default_site_title=None, owner_id=None, responsible_id=None):
         # create WordPress site and config
-        self.wp_site = WPSite(openshift_env, wp_site_url, wp_default_site_title)
+        self.wp_site = WPSite(openshift_env, wp_site_url, wp_default_site_title=wp_default_site_title)
         self.wp_config = WPRawConfig(self.wp_site)
 
         # prepare admin for exploitation/maintenance
@@ -110,9 +110,14 @@ class WPGenerator:
         self.run_wp_cli(command.format(self.wp_site, self.wp_admin))
 
     def add_webmasters(self):
-        owner = self.wp_config.add_ldap_user(self.owner_id)
-        responsible = self.wp_config.add_ldap_user(self.responsible_id)
-        return (owner, responsible)
+        if self.owner_id is not None:
+            owner = self.wp_config.add_ldap_user(self.owner_id)
+            if owner is not None:
+                logging.info("%s - WP config - added owner %s", self.wp_site.path, owner.username)
+        if self.responsible_id is not None:
+            responsible = self.wp_config.add_ldap_user(self.responsible_id)
+            if responsible is not None:
+                logging.info("%s - WP config - added responsible %s", self.wp_site.path, responsible.username)
 
     def clean(self):
         # TODO: retrieve db_infos (db_name, mysql_username, mysql_password)

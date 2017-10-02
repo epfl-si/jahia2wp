@@ -4,6 +4,11 @@ from epflldap.ldap_search import get_username, get_email
 from utils import Utils
 
 
+class WPException(Exception):
+    """ Simple Wrapper to customize a bit our Excepions """
+    pass
+
+
 class WPSite:
     """ Pure python object that will define a WP site by its path & url
         its title is optionnal, just to provide a default value to the final user
@@ -56,10 +61,13 @@ class WPUser:
 
     @classmethod
     def from_sciper(cls, sciper_id):
-        return cls(
-            username=get_username(sciper=sciper_id),
-            email=get_email(sciper=sciper_id)
-        )
+        try:
+            return cls(
+                username=get_username(sciper=sciper_id),
+                email=get_email(sciper=sciper_id)
+            )
+        except IndexError:
+            raise WPException("WPUser.from_sciper - %s - could not get user details", sciper_id)
 
     def set_password(self, password=None):
         self.password = password or Utils.generate_password(self.WP_PASSWORD_LENGTH)
