@@ -40,6 +40,7 @@ services:
       - .env
     environment:
       - WP_ENV=${WP_ENV}
+      - LOGGING_FILE=/srv/${WP_ENV}/logs/jahia2wp.log
     volumes:
       - ./srv:/srv
       - ..:/srv/${WP_ENV}/jahia2wp
