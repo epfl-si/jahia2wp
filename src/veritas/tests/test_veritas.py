@@ -17,8 +17,11 @@ def test_validate():
 
     assert "invalid wp_site_url" in errors[0].message
     assert "invalid site_type" in errors[1].message
-    assert "url is not unique" in errors[2].message
-    assert "invalid langs" in errors[3].message
-    assert "invalid owner_id" in errors[4].message
-    assert "invalid updates_automatic" in errors[5].message
-    assert "invalid openshift_env" in errors[6].message
+    assert "wp_site_url is not unique" in errors[2].message
+    assert "wp_site_url is not unique" in errors[3].message
+    assert "invalid langs" in errors[4].message
+    assert "invalid owner_id" in errors[5].message
+    assert "invalid updates_automatic" in errors[6].message
+    assert "wp_site_url is not unique" in errors[7].message
+    assert "invalid openshift_env" in errors[8].message
+    assert "wp_site_url is not unique" in errors[9].message
