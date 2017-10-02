@@ -40,7 +40,7 @@ Table of contents
     - [Requirements](#requirements)
     - [Express setup (locally)](#express-setup-locally)
     - [Express setup (C2C)](#express-setup-c2c)
-- [Usage](#usage)
+- [Usages](#usages)
     - [Enter the container](#enter-the-container)
     - [Testing](#testing)
     - [Create a new WordPress site on a dedicated domain](#create-a-new-wordpress-site-on-a-dedicated-domain)
