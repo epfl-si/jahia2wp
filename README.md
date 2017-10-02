@@ -102,6 +102,8 @@ Note that python is not in the requirements. You do not necessarily need it on y
 
 ### Express setup (locally)
 
+![architecture locale](./docs/static/archi_local.jpg)
+
 As some commands require `sudo`, you will be asked for your system password
 
     you@host:~$ git clone git@github.com:epfl-idevelop/jahia2wp.git
@@ -124,6 +126,8 @@ You are now ready to jump to the next section, about [usages](#usage)
 If you are looking for a more explicit process, feel free to follow the [detailed guide](./docs/INSTALL_DETAILED.md).
 
 ### Express setup (C2C)
+
+![architecture Infra C2C](./docs/static/archi_infra_C2C.jpg)
 
 You will need C2C to add your public key in `authorized_keys` on the server side
 
