@@ -2,15 +2,15 @@
 *.log
 *.coverage
 .DS_Store
+.bash_history
 .idea/
 .vscode/
 .cache/
 log/
 htmlcov/
 data/db
-data/wp/manage-plugin-config.php.log
+data/srv/
 data/srv/*/
 local/srv/*/
-local/srv/.bash_history
 local/.env
 coverage.xml

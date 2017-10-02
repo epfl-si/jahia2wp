@@ -1,5 +1,6 @@
 # pylint: disable=W1306
 import os
+import shutil
 import logging
 import subprocess
 from urllib.parse import urlparse
@@ -79,25 +80,25 @@ class WPRawConfig:
         - adding WP users, either from name+email or sciperID
     """
 
-    def __init__(self, wordpress):
-        self.wordpress = wordpress
+    def __init__(self, wp_site):
+        self.wp_site = wp_site
 
     def __repr__(self):
         installed_string = '[ok]' if self.is_installed else '[ko]'
-        return "config {0} for {1}".format(installed_string, repr(self.wordpress))
+        return "config {0} for {1}".format(installed_string, repr(self.wp_site))
 
     def run_wp_cli(self, command):
         try:
-            cmd = "wp {} --path='{}'".format(command, self.wordpress.path)
+            cmd = "wp {} --path='{}'".format(command, self.wp_site.path)
             logging.debug("exec '%s'", cmd)
             return subprocess.check_output(cmd, shell=True)
         except subprocess.CalledProcessError as err:
-            logging.error("%s - WP export - wp_cli failed : %s", repr(self.wordpress), err)
+            logging.error("%s - WP export - wp_cli failed : %s", repr(self.wp_site), err)
             return None
 
     @property
     def is_installed(self):
-        return os.path.isdir(self.wordpress.path)
+        return os.path.isdir(self.wp_site.path)
 
     @property
     def is_config_valid(self):
@@ -112,6 +113,23 @@ class WPRawConfig:
             return False
         # TODO: check that the site is available, that user can login and upload media
         # tests from test_wordpress
+
+    @property
+    def db_infos(self):
+        # TODO: read from wp_config.php {db_name, mysql_username, mysql_password}
+        pass
+
+    @property
+    def admin_infos(self):
+        # TODO: read from DB {admin_username, admin_email}
+        pass
+
+    def clean(self):
+        # TODO: save db_infos (db_name, mysql_username, mysql_password)
+        # TODO: clean db
+        # TODO: clean files
+        logging.debug("%s - WP config - removing files", self.wp_site.path)
+        shutil.rmtree(self.wp_site.path)
 
     def add_wp_user(self, username, email):
         return self._add_user(WPUser(username, email))
@@ -163,9 +181,14 @@ class WPGenerator:
         self.mysql_wp_password = Utils.generate_password(self.MYSQL_PASSWORD_LENGTH)
 
     def __repr__(self):
-        return "generator for {}".format(repr(self.wordpress))
+        return "generator for {}".format(repr(self.wp_site))
 
     def generate(self):
+        # check we have a clean place first
+        if self.wp_config.is_installed:
+            logging.error("%s - WP export - wordpress files already found", repr(self))
+            return False
+
         # create specific mysql db and user
         self.prepare_db()
 
@@ -193,7 +216,7 @@ class WPGenerator:
 
     def prepare_db(self):
         # create htdocs path
-        self.run_command("mkdir -p /srv/{0.openshift_env}/{0.domain}/htdocs/{0.folder}".format(self))
+        self.run_command("mkdir -p {}".format(self.wp_site.path))
 
         # create MySQL user
         command = "-e \"CREATE USER '{0.mysql_wp_user}' IDENTIFIED BY '{0.mysql_wp_password}';\""
@@ -204,13 +227,8 @@ class WPGenerator:
         self.run_mysql(command.format(self))
 
     def install_wp(self):
-        # check we have a clean place first
-        if self.wp_config.is_installed:
-            logging.error("%s - WP export - wordpress files already found", repr(self))
-            return False
-
-        # install WordPress 4.8
-        self.run_wp_cli("core download --version=4.8")
+        # install WordPress
+        self.run_wp_cli("core download --version={}".format(self.wp_site.WP_VERSION))
 
         # config WordPress
         command = "config create --dbname='{0.wp_db_name}' --dbuser='{0.mysql_wp_user}'" \
@@ -218,13 +236,13 @@ class WPGenerator:
         self.run_wp_cli(command.format(self))
 
         # create database
-        self.run_wp_cli("db create --path=/srv/{0.openshift_env}/{0.domain}/htdocs".format(self))
+        self.run_wp_cli("db create")
 
         # fill out first form in install process (setting admin user and permissions)
         command = "--allow-root core install --url={0.url} --title='{0.wp_default_site_title}'" \
             " --admin_user={1.username} --admin_password='{1.password}'"\
             " --admin_email='{1.email}'"
-        self.run_wp_cli(command.format(self, self.wp_admin))
+        self.run_wp_cli(command.format(self.wp_site, self.wp_admin))
 
     def add_webmasters(self):
         owner = self.wp_config.add_ldap_user(self.owner_id)

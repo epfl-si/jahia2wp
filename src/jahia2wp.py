@@ -2,6 +2,9 @@
 jahia2wp: an amazing tool !
 
 Usage:
+  jahia2wp.py check-one <wp_env> <wp_url> [--debug | --quiet]
+  jahia2wp.py clean-one <wp_env> <wp_url> [--debug | --quiet]
+  jahia2wp.py generate-one <wp_env> <wp_url> <wp_title> <owner_id> <responsible_id> [--debug | --quiet]
   jahia2wp.py generate <csv_file> [--output-dir=<OUTPUT_DIR>] [--debug | --quiet]
   jahia2wp.py veritas <path>
 
@@ -16,10 +19,37 @@ from docopt import docopt
 from docopt_dispatch import dispatch
 
 from veritas.veritas import VeritasValidor
-from generator.generator import WPGenerator
+from generator.generator import WPSite, WPRawConfig, WPGenerator
 
 from settings import VERSION
 from utils import Utils
+
+
+@dispatch.on('check-one')
+def check_one(wp_env, wp_url, **kwargs):
+    wp_site = WPSite(wp_env, wp_url, wp_default_site_title=kwargs['wp_title'])
+    wp_config = WPRawConfig(wp_site)
+    if wp_config.is_installed:
+        print("WordPress site installed @{}".format(wp_site.path))
+    else:
+        print("No WordPress site found for {}".format(wp_site.url))
+
+
+@dispatch.on('clean-one')
+def clean_one(wp_env, wp_url, **kwargs):
+    wp_site = WPSite(wp_env, wp_url)
+    wp_config = WPRawConfig(wp_site)
+    if not wp_config.is_installed:
+        print("WordPress site already removed")
+    else:
+        wp_config.clean()
+        print("Successfully cleaned WordPress site {}".format(wp_site.url))
+
+
+@dispatch.on('generate-one')
+def generate_one(wp_env, wp_url, wp_title, owner_id, responsible_id, **kwargs):
+    wp_generator = WPGenerator(wp_env, wp_url, wp_title, owner_id, responsible_id)
+    wp_generator.generate()
 
 
 @dispatch.on('generate')
