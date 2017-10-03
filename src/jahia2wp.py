@@ -1,14 +1,14 @@
-""" All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017
+"""All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017
 jahia2wp: an amazing tool !
 
 Usage:
-  jahia2wp.py check-one <wp_env> <wp_url> [--debug | --quiet]
-  jahia2wp.py clean-one <wp_env> <wp_url> [--debug | --quiet]
+  jahia2wp.py check-one    <wp_env> <wp_url> [--debug | --quiet]
+  jahia2wp.py clean-one    <wp_env> <wp_url> [--debug | --quiet]
   jahia2wp.py generate-one <wp_env> <wp_url>
-                           [--wp-title=<WP_TITLE> --owner=<OWNER_ID> --responsible=<RESPONSIBLE_ID>]
-                           [--debug | --quiet]
-  jahia2wp.py generate <csv_file> [--output-dir=<OUTPUT_DIR>] [--debug | --quiet]
-  jahia2wp.py veritas <path>
+                             [--wp-title=<WP_TITLE> --owner=<OWNER_ID> --responsible=<RESPONSIBLE_ID>]
+                             [--debug | --quiet]
+  jahia2wp.py generate-many <csv_file> [--output-dir=<OUTPUT_DIR>] [--debug | --quiet]
+  jahia2wp.py veritas       <csv_file>
 
 Options:
   -h --help                     Show this screen.
@@ -17,6 +17,7 @@ Options:
 
 import logging
 
+from pprint import pprint
 from docopt import docopt
 from docopt_dispatch import dispatch
 
@@ -53,31 +54,38 @@ def generate_one(wp_env, wp_url, wp_title=None, owner_id=None, responsible_id=No
     wp_generator.generate()
 
 
-@dispatch.on('generate')
-def generate(csv_file, **kwargs):
+@dispatch.on('generate-many')
+def generate_many(csv_file, **kwargs):
 
-    # TODO GC: call veritas validation
-    # TODO GC: modify veritas validation to validate row by row
-    for row in Utils.csv_to_dict(csv_file):
-        wp_generator = WPGenerator(
+    # use Veritas to get valid rows
+    validator = VeritasValidor(csv_file)
+    rows = validator.get_valid_rows()
+
+    # print errors
+    print("The following lines have errors that prevent the generation of the WP site:\n")
+    validator.print_errors()
+
+    # create a new WP site for each row
+    print("\n{} websites will now be generated...\n".format(len(rows)))
+    for index, row in rows:
+        print("Index #{}:\n---".format(index))
+        pprint(row)
+        WPGenerator(
             row["openshift_env"],
             row["wp_site_url"],
-            row["wp_default_site_title"],
-            row["owner_id"],
-            row["responsible_id"]
-        )
-        wp_generator.generate()
+            wp_default_site_title=row["wp_default_site_title"],
+            owner_id=row["owner_id"],
+            responsible_id=row["responsible_id"],
+        ).generate()
 
 
 @dispatch.on('veritas')
-def veritas(path, **kwargs):
-    validator = VeritasValidor(path)
+def veritas(csv_file, **kwargs):
+    validator = VeritasValidor(csv_file)
 
     validator.validate()
 
     validator.print_errors()
-
-    return True
 
 
 if __name__ == '__main__':
