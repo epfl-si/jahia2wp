@@ -17,8 +17,8 @@ class WPGenerator:
     """
 
     DB_NAME_LENGTH = 32
-    MYSQL_USER_NAME_LENGTH = 32
-    MYSQL_PASSWORD_LENGTH = 32
+    MYSQL_USER_NAME_LENGTH = 16
+    MYSQL_PASSWORD_LENGTH = 20
 
     MYSQL_DB_HOST = Utils.get_mandatory_env(key="MYSQL_DB_HOST")
     MYSQL_SUPER_USER = Utils.get_mandatory_env(key="MYSQL_SUPER_USER")
