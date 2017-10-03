@@ -8,7 +8,7 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
-      - ../data/db:/var/lib/mysql
+      - ./volumes/db:/var/lib/mysql
 
   phpmyadmin:
       image: phpmyadmin/phpmyadmin
@@ -24,7 +24,7 @@ services:
     container_name: httpd
     image: camptocamp/os-wp-httpd
     volumes:
-      - ./srv:/srv
+      - ./volumes/srv:/srv
     links:
       - db:db
     environment:
@@ -42,7 +42,13 @@ services:
       - WP_ENV=${WP_ENV}
       - LOGGING_FILE=/srv/${WP_ENV}/logs/jahia2wp.log
     volumes:
-      - ./srv:/srv
-      - ..:/srv/${WP_ENV}/jahia2wp
+      - ./volumes/srv:/srv
+      - ./etc/.aliases:/srv/.aliases
+      - ./etc/.bashrc:/srv/.bashrc
+      - ./data:/srv/${WP_ENV}/jahia2wp/data
+      - ./requirements:/srv/${WP_ENV}/jahia2wp/requirements
+      - ./src:/srv/${WP_ENV}/jahia2wp/src
+      - ./Makefile:/srv/${WP_ENV}/jahia2wp/Makefile
+      - .env:/srv/${WP_ENV}/jahia2wp/.env
     ports:
       - "2222:22"

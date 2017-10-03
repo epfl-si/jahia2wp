@@ -2,15 +2,12 @@
 *.log
 *.coverage
 .DS_Store
+.env
 .bash_history
 .idea/
 .vscode/
 .cache/
 log/
 htmlcov/
-data/db
-data/srv/
-data/srv/*/
-local/srv/*/
-local/.env
+volumes/
 coverage.xml
