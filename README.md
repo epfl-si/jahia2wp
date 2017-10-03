@@ -43,8 +43,7 @@ Table of contents
 - [Usages](#usages)
     - [Enter the container](#enter-the-container)
     - [Testing](#testing)
-    - [Create a new WordPress site on a dedicated domain](#create-a-new-wordpress-site-on-a-dedicated-domain)
-    - [Create a new WordPress site in a subfolder](#create-a-new-wordpress-site-in-a-subfolder)
+    - [Create a new WordPress site](#create-a-new-wordpress-site)
     - [Delete a WordPress site](#delete-a-wordpress-site)
     - [phpMyAdmin (locally)](#phpmyadmin-locally)
 - [Contribution](#contribution)
@@ -179,43 +178,52 @@ Or from the management container:
     (venv) www-data@...:/srv/your-env/jahia2wp$ make test-raw
     ...
 
-### Create a new WordPress site on a dedicated domain
+### Create a new WordPress site
 
-If you have been through the [usage pre-requisites](#pre-requisites) you only need to run `make install`. The default values will setup a site on localhost.
+As described above, you need 1) to connect in your mgmt container (or in C2C infra), and 2) to use the alias `vjahia2wp`
 
-    .../local$ make install
-    creating mySQL user *user1*
-    mkdir -p /srv/test/localhost/htdocs
-    wp core download --version=4.8 --path=/srv/test/localhost/htdocs
-    Downloading WordPress 4.8 (en_US)...
-    Success: WordPress downloaded.
-    wp config create --dbname=db1 --dbuser=user1 --dbpass=passw0rd --dbhost=db --path=/srv/test/localhost/htdocs
-    Success: Generated 'wp-config.php' file.
-    wp db create --path=/srv/test/localhost/htdocs
-    Success: Database created.
-    wp --allow-root core install --url=http://localhost --title="EB WP1" --admin_user=admin --admin_password=admin --admin_email=test@example.com --path=/srv/test/localhost/htdocs
-    sh: 1: /usr/sbin/sendmail: not found
-    Success: WordPress installed successfully.
+    you@host:~/jahia2wp$ make exec
+    www-data@...:/srv/your-env$ vjahia2wp
+    (venv) www-data@...:/srv/your-env/jahia2wp/src$ 
 
-You can check that a new WordPress is running on [localhost](http://localhost).
+from here you can use the python script jahia2wp.py with the commands `generate-one` or `generate-many`. Use the option `-h` to get details on available options
 
-### Create a new WordPress site in a subfolder
+    (venv) www-data@...:/srv/your-env/jahia2wp/src$ python jahia2wp.py -h
 
-Creating a WordPress site in a subfolder only requires that you set the variable WP_FOLDER in your .env file, with a relative path
+    jahia2wp: an amazing tool !
 
-    SITE_DOMAIN?=localhost
-    WP_FOLDER?=folder-name
+    Usage:
+        ...
+        jahia2wp.py generate-one <wp_env> <wp_url>
+              [--wp-title=<WP_TITLE> --owner=<OWNER_ID> --responsible=<RESPONSIBLE_ID>]
+              [--debug | --quiet]
 
+Here are some examples with WordPress sites at different levels
 
-Run `make install` as above and your site will be available on [localhost/folder-name](http://localhost/folder-name)
+    python jahia2wp.py generate-one $WP_ENV http://localhost
+    python jahia2wp.py generate-one $WP_ENV http://localhost/folder/ --wp-title="Sous Site WP" --owner=235151
+    python jahia2wp.py generate-one $WP_ENV http://localhost/folder/niv3 --wp-title="Site Niv3 WP" --owner=235151
+
+You can check that three new WordPresses are running on http://[localhost](http://localhost)/[folder](http://localhost/folder)/[niv3](http://localhost/folder/niv3).
+
 
 ### Delete a WordPress site
 
-Once again, given you have been through the [usage pre-requisites](#pre-requisites), you only need to run `make clean`. The default values will dictate which site to delete (i.e localhost)
+The interesting part of the usages from `-h` :
 
-    .../local$ make clean
-    rm -rf /srv/test/localhost
-    cleaning up user *user1* and DB *db1*
+    (venv) www-data@...:/srv/your-env/jahia2wp/src$ python jahia2wp.py -h
+
+    jahia2wp: an amazing tool !
+
+    Usage:
+        ...
+        jahia2wp.py clean-one <wp_env> <wp_url>
+
+To delete the sites created in the previous section, you will do
+
+    python jahia2wp.py clean-one $WP_ENV http://localhost
+    python jahia2wp.py clean-one $WP_ENV http://localhost/folder/
+    python jahia2wp.py clean-one $WP_ENV http://localhost/folder/niv3
 
 ### phpMyAdmin (locally)
 

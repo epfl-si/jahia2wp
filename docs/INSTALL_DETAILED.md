@@ -130,7 +130,7 @@ Set up an alias on your host:
     $ echo "
     alias managwp='echo ssh -A -o SendEnv=WP_ENV  www-data@exopgesrv55.epfl.ch -p 32222 && ssh -A -o SendEnv=WP_ENV www-data@exopgesrv55.epfl.ch -p 32222'" >> ~/.bashrc
 
-That will allow you to connect and move to your local dir in two commands:
+That will allow you to connect and move to your `src` dir in two commands:
 
     you@host:~$ managwp
     ...
