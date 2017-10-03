@@ -59,7 +59,14 @@ def generate(csv_file, **kwargs):
     # TODO GC: call veritas validation
     # TODO GC: modify veritas validation to validate row by row
     for row in Utils.csv_to_dict(csv_file):
-        WPGenerator(**row)
+        wp_generator = WPGenerator(
+            row["openshift_env"],
+            row["wp_site_url"],
+            row["wp_default_site_title"],
+            row["owner_id"],
+            row["responsible_id"]
+        )
+        wp_generator.generate()
 
 
 @dispatch.on('veritas')
