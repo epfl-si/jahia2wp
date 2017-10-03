@@ -3,7 +3,6 @@
 *.coverage
 .DS_Store
 .env
-.bash_history
 .idea/
 .vscode/
 .cache/

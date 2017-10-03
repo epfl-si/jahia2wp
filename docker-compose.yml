@@ -43,6 +43,7 @@ services:
       - LOGGING_FILE=/srv/${WP_ENV}/logs/jahia2wp.log
     volumes:
       - ./volumes/srv:/srv
+      - ./etc/.bash_history:/var/www/.bash_history
       - ./etc/.aliases:/srv/.aliases
       - ./etc/.bashrc:/srv/.bashrc
       - ./data:/srv/${WP_ENV}/jahia2wp/data
