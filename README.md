@@ -45,7 +45,7 @@ Table of contents
     - [Testing](#testing)
     - [Create a new WordPress site on a dedicated domain](#create-a-new-wordpress-site-on-a-dedicated-domain)
     - [Create a new WordPress site in a subfolder](#create-a-new-wordpress-site-in-a-subfolder)
-    - [Delete a WordPress site](#delete-wordpress-site)
+    - [Delete a WordPress site](#delete-a-wordpress-site)
     - [phpMyAdmin (locally)](#phpmyadmin-locally)
 - [Contribution](#contribution)
     - [Guidelines](#guidelines)
@@ -85,8 +85,8 @@ In this documentation the code snippets will make the assumption that you clone 
 
 When it comes to the environment, we will use the following values in our examples:
 
-- '`your-env`' for the project environment
-- '`venv`' for the python virtual environment
+- '`your-env`' for the project environment : that's ok for you if you work only locally. You need to use your environment name if you wotk on C2C infra.
+- '`venv`' for the python virtual environment : keep this name like this, since some shortcuts (aliases) make use of it.
 
 ### Requirements
 
@@ -104,12 +104,12 @@ Note that python is not in the requirements. You do not necessarily need it on y
 
 ![architecture locale](./docs/static/archi_local.jpg)
 
-As some commands require `sudo`, you will be asked for your system password:
+As some commands require `sudo`, you will be asked for your system password. The process will add a line line in your `.bashrc` (again: head to [INSTALL_TOOLS.md](./docs/INSTALL_TOOLS.md) to get more details):
 
     you@host:~$ git clone git@github.com:epfl-idevelop/jahia2wp.git
-    you@host:~$ cd jahia2wp/local
-    you@host:local$ cp .env.sample .env
-    you@host:local$ make bootstrap-local ENV=your-env
+    you@host:~$ cd jahia2wp
+    you@host:jahia2wp$ cp .env.sample .env
+    you@host:jahia2wp$ make bootstrap-local ENV=your-env (<- use your C2C environment name here if you have one)
     ...
     -> instructions to finish local setup
 
@@ -117,14 +117,14 @@ Simply run the instructions given in the last lines from the script.
 
 Among them, `make exec` will log you in your container, where you can configure it:
 
-    you@host:local$ make exec
-    www-data@xxx:/srv/your-env$ cd jahia2wp/local
-    www-data@xxx:/srv/your-env/jahia2wp/local$ make bootstrap-mgmt
+    you@host:jahia2wp$ make exec
+    www-data@xxx:/srv/your-env$ cd jahia2wp
+    www-data@xxx:/srv/your-env/jahia2wp$ make bootstrap-mgmt
     ...
 
 You are now ready to jump to the next section, about [usages](#usage).
 
-If you are looking for a more explicit process, feel free to follow the [detailed guide](./docs/INSTALL_DETAILED.md).
+Did we mention that would you be looking for a more explicit process, feel free to follow the [detailed guide](./docs/INSTALL_DETAILED.md)? ;)
 
 ### Express setup (C2C)
 
@@ -132,13 +132,13 @@ If you are looking for a more explicit process, feel free to follow the [detaile
 
 You will need to ask C2C to add your public key in `authorized_keys` on the server.
 
-    you@host:~$ export WP_ENV=your-env
+    you@host:~$ export WP_ENV=your-env (<- use your C2C environment name here if you have one)
     you@host:~$ ssh -A -o SendEnv=WP_ENV www-data@exopgesrv55.epfl.ch -p 32222
     
     www-data@mgmt-x-xxx:/srv/your-env$ git clone git@github.com:epfl-idevelop/jahia2wp.git
-    www-data@mgmt-x-xxx:/srv/your-env$ cd jahia2wp/local
-    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp/local$ cp /srv/.config/.env .
-    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp/local$ make bootstrap-mgmt
+    www-data@mgmt-x-xxx:/srv/your-env$ cd jahia2wp
+    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp$ cp /srv/.config/.env . (<- that will set the correct DB credentials for you)
+    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp$ make bootstrap-mgmt
     ...
 
 ## Usages
@@ -148,7 +148,7 @@ You will need to ask C2C to add your public key in `authorized_keys` on the serv
 In this section, we assume that you have been through all [the installation steps](#install), and you now have a bash running in your management container:
 
     # locally
-    you@host:local$ make exec
+    you@host:jahia2wp$ make exec
     www-data@xxx:/srv/your-env$
 
     # C2C infra

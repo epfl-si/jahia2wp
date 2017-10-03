@@ -20,7 +20,7 @@ Github is currently the only way to leverage this project (and its awesome featu
 
 ## Initial setup (details of `make bootstrap-local`)
 
-You have to define locally the environment variable `WP_ENV`, with the name of the environment you will use on C2C infra (or use '`test`' if you plan to work locally exclusively).
+You have to define locally the environment variable `WP_ENV`, with the name of the environment you will use on C2C infra (or just stick with the examples and use '`your-env`' if you plan to work locally exclusively).
 
 This variable is **really** important, since it is used by multiple scripts (make, docker-compose, python), in multiple places (local machine, container, C2C environment).
 
@@ -32,7 +32,7 @@ In this README file, we will use '`your-env`' as your value for `WP_ENV`.
 
 Other variables will be needed at some point from your environment. You can define default values by copying and adapting the provided sample file:
 
-    you@host:~/jahia2wp$ cp local/.env.sample local/.env
+    you@host:~/jahia2wp$ cp .env.sample .env
 
 The make commands will use those values as defaults, and also pass them to docker-compose as needed. Speaking of docker, you will execute python code and tests inside a container, with local volumes. The container user (`www-data`, uid `33` in the container) will need write access on those volumes, hence you need to set some group permissions beforehand.
 
@@ -49,8 +49,7 @@ In order to work locally, there a few pre-requisites:
 
 `make` and `docker` will allow to set up your containers:
 
-    you@host:~/jahia2wp$ cd local
-    you@host:~/jahia2wp/local$ make up
+    you@host:~/jahia2wp$ make up
     Creating network "local_default" with the default driver
     Pulling mgmt (camptocamp/os-wp-mgmt:latest)...
     ...
@@ -61,7 +60,7 @@ In order to work locally, there a few pre-requisites:
 
 You can control that everything is ok by checking that 4 containers have been started (your ids will be different):
 
-    you@host:~/jahia2wp/local$ docker ps
+    you@host:~/jahia2wp$ docker ps
     CONTAINER ID        IMAGE                    COMMAND                  CREATED             STATUS              PORTS                                      NAMES
     aaa                 camptocamp/os-wp-httpd   "/docker-entrypoin..."   37 seconds ago      Up 35 seconds       0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp   httpd
     bbb                 phpmyadmin/phpmyadmin    "/run.sh phpmyadmin"     39 seconds ago      Up 36 seconds       0.0.0.0:8080->80/tcp                       phpmyadmin
@@ -70,8 +69,8 @@ You can control that everything is ok by checking that 4 containers have been st
 
 And, finally, connect into the management container:
 
-    you@host:~/local$ make exec
-    www-data@xxx:/srv/your-env/jahia2wp$
+    you@host:~/jahia2wp$ make exec
+    www-data@xxx:/srv/your-env$
 
 ## Your management environment (details of `make bootstrap-mgmt`)
 
@@ -110,12 +109,12 @@ Login to the management container (within VPN) and go to your environment:
 Clone the project:
 
     www-data@mgmt-x-xxx:/srv/your-env$ git clone git@github.com:epfl-idevelop/jahia2wp.git
-    www-data@mgmt-x-xxx:/srv/your-env$ cd jahia2wp/local
+    www-data@mgmt-x-xxx:/srv/your-env$ cd jahia2wp
+    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp$ cp /srv/.config/.env .env
 
-You want to modify a few default values to be used by the containers: 
+The last lines provide you with usable values for your `.env`. You still can modify them if needed: 
 
-    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp/local$ cp /srv/.config/.env .env
-    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp/local$ vi .env
+    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp$ vi .env
 
     # DB credentials
     MYSQL_DB_HOST=db-host
