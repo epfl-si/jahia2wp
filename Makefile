@@ -54,6 +54,7 @@ down:
 
 bootstrap-local:
 	cp .env.sample .env
+	cp etc/.bash_history.sample etc/.bash_history
 	sudo chown -R `whoami`:33 .
 	sudo chmod -R g+w .
 ifdef WP_ENV
