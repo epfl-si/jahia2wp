@@ -51,6 +51,8 @@ def generate_one(wp_env, wp_url, wp_title=None, owner_id=None, responsible_id=No
     if not wp_generator.generate():
         logging.error("Generation failed. More info above")
 
+    print("Successfully created new WordPress site at {}".format(wp_generator.wp_site.url))
+
 
 @dispatch.on('generate-many')
 def generate_many(csv_file, **kwargs):

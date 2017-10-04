@@ -78,10 +78,11 @@ class Utils(object):
         return binascii.hexlify(os.urandom(int(length / 2))).decode("utf-8")
 
     @classmethod
-    def generate_name(cls, length):
+    def generate_name(cls, length, prefix=''):
         """ Generate a random alpha-numeric string, starting with alpha charaters """
+        seed_length = length - len(prefix) - 1
         first = random.choice(string.ascii_letters)
-        return first + cls.generate_password(length-1, symbols='')
+        return prefix + first + cls.generate_password(seed_length, symbols='')
 
     @staticmethod
     def generate_password(length, symbols='!@#^&*'):

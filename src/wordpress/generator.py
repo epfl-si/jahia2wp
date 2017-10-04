@@ -42,7 +42,7 @@ class WPGenerator:
         self.responsible_id = responsible_id
 
         # create mysql credentials
-        self.wp_db_name = Utils.generate_name(self.DB_NAME_LENGTH).lower()
+        self.wp_db_name = Utils.generate_name(self.DB_NAME_LENGTH, prefix='wp_').lower()
         self.mysql_wp_user = Utils.generate_name(self.MYSQL_USER_NAME_LENGTH).lower()
         self.mysql_wp_password = Utils.generate_password(self.MYSQL_PASSWORD_LENGTH)
 
