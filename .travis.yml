@@ -13,11 +13,11 @@ python:
 before_install:
 - docker pull camptocamp/os-wp-httpd
 - docker pull camptocamp/os-wp-mgmt
-- cp local/.env.sample local/.env
+- cp .env.sample .env
 
 install:
-- make -C local up
-- docker exec mgmt make -C /srv/$WP_ENV/jahia2wp/local bootstrap-mgmt
+- make up
+- docker exec mgmt make -C /srv/$WP_ENV/jahia2wp bootstrap-mgmt
 
 script:
 - docker exec -e CODECOV_TOKEN=$CODECOV_TOKEN mgmt make -C /srv/$WP_ENV/jahia2wp test-travis

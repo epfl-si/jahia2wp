@@ -43,9 +43,8 @@ Table of contents
 - [Usages](#usages)
     - [Enter the container](#enter-the-container)
     - [Testing](#testing)
-    - [Create a new WordPress site on a dedicated domain](#create-a-new-wordpress-site-on-a-dedicated-domain)
-    - [Create a new WordPress site in a subfolder](#create-a-new-wordpress-site-in-a-subfolder)
-    - [Delete a WordPress site](#delete-wordpress-site)
+    - [Create a new WordPress site](#create-a-new-wordpress-site)
+    - [Delete a WordPress site](#delete-a-wordpress-site)
     - [phpMyAdmin (locally)](#phpmyadmin-locally)
 - [Contribution](#contribution)
     - [Guidelines](#guidelines)
@@ -85,8 +84,8 @@ In this documentation the code snippets will make the assumption that you clone 
 
 When it comes to the environment, we will use the following values in our examples:
 
-- '`your-env`' for the project environment
-- '`venv`' for the python virtual environment
+- '`your-env`' for the project environment : that's ok for you if you work only locally. You need to use your environment name if you wotk on C2C infra.
+- '`venv`' for the python virtual environment : keep this name like this, since some shortcuts (aliases) make use of it.
 
 ### Requirements
 
@@ -104,12 +103,12 @@ Note that python is not in the requirements. You do not necessarily need it on y
 
 ![architecture locale](./docs/static/archi_local.jpg)
 
-As some commands require `sudo`, you will be asked for your system password:
+As some commands require `sudo`, you will be asked for your system password. The process will add a line line in your `.bashrc` (again: head to [INSTALL_TOOLS.md](./docs/INSTALL_TOOLS.md) to get more details):
 
     you@host:~$ git clone git@github.com:epfl-idevelop/jahia2wp.git
-    you@host:~$ cd jahia2wp/local
-    you@host:local$ cp .env.sample .env
-    you@host:local$ make bootstrap-local ENV=your-env
+    you@host:~$ cd jahia2wp
+    you@host:jahia2wp$ cp .env.sample .env
+    you@host:jahia2wp$ make bootstrap-local ENV=your-env (<- use your C2C environment name here if you have one)
     ...
     -> instructions to finish local setup
 
@@ -117,14 +116,14 @@ Simply run the instructions given in the last lines from the script.
 
 Among them, `make exec` will log you in your container, where you can configure it:
 
-    you@host:local$ make exec
-    www-data@xxx:/srv/your-env$ cd jahia2wp/local
-    www-data@xxx:/srv/your-env/jahia2wp/local$ make bootstrap-mgmt
+    you@host:jahia2wp$ make exec
+    www-data@xxx:/srv/your-env$ cd jahia2wp
+    www-data@xxx:/srv/your-env/jahia2wp$ make bootstrap-mgmt
     ...
 
 You are now ready to jump to the next section, about [usages](#usage).
 
-If you are looking for a more explicit process, feel free to follow the [detailed guide](./docs/INSTALL_DETAILED.md).
+Did we mention that would you be looking for a more explicit process, feel free to follow the [detailed guide](./docs/INSTALL_DETAILED.md)? ;)
 
 ### Express setup (C2C)
 
@@ -132,13 +131,13 @@ If you are looking for a more explicit process, feel free to follow the [detaile
 
 You will need to ask C2C to add your public key in `authorized_keys` on the server.
 
-    you@host:~$ export WP_ENV=your-env
+    you@host:~$ export WP_ENV=your-env (<- use your C2C environment name here if you have one)
     you@host:~$ ssh -A -o SendEnv=WP_ENV www-data@exopgesrv55.epfl.ch -p 32222
     
     www-data@mgmt-x-xxx:/srv/your-env$ git clone git@github.com:epfl-idevelop/jahia2wp.git
-    www-data@mgmt-x-xxx:/srv/your-env$ cd jahia2wp/local
-    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp/local$ cp /srv/.config/.env .
-    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp/local$ make bootstrap-mgmt
+    www-data@mgmt-x-xxx:/srv/your-env$ cd jahia2wp
+    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp$ cp /srv/.config/.env . (<- that will set the correct DB credentials for you)
+    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp$ make bootstrap-mgmt
     ...
 
 ## Usages
@@ -148,7 +147,7 @@ You will need to ask C2C to add your public key in `authorized_keys` on the serv
 In this section, we assume that you have been through all [the installation steps](#install), and you now have a bash running in your management container:
 
     # locally
-    you@host:local$ make exec
+    you@host:jahia2wp$ make exec
     www-data@xxx:/srv/your-env$
 
     # C2C infra
@@ -179,43 +178,52 @@ Or from the management container:
     (venv) www-data@...:/srv/your-env/jahia2wp$ make test-raw
     ...
 
-### Create a new WordPress site on a dedicated domain
+### Create a new WordPress site
 
-If you have been through the [usage pre-requisites](#pre-requisites) you only need to run `make install`. The default values will setup a site on localhost.
+As described above, you need 1) to connect in your mgmt container (or in C2C infra), and 2) to use the alias `vjahia2wp`
 
-    .../local$ make install
-    creating mySQL user *user1*
-    mkdir -p /srv/test/localhost/htdocs
-    wp core download --version=4.8 --path=/srv/test/localhost/htdocs
-    Downloading WordPress 4.8 (en_US)...
-    Success: WordPress downloaded.
-    wp config create --dbname=db1 --dbuser=user1 --dbpass=passw0rd --dbhost=db --path=/srv/test/localhost/htdocs
-    Success: Generated 'wp-config.php' file.
-    wp db create --path=/srv/test/localhost/htdocs
-    Success: Database created.
-    wp --allow-root core install --url=http://localhost --title="EB WP1" --admin_user=admin --admin_password=admin --admin_email=test@example.com --path=/srv/test/localhost/htdocs
-    sh: 1: /usr/sbin/sendmail: not found
-    Success: WordPress installed successfully.
+    you@host:~/jahia2wp$ make exec
+    www-data@...:/srv/your-env$ vjahia2wp
+    (venv) www-data@...:/srv/your-env/jahia2wp/src$ 
 
-You can check that a new WordPress is running on [localhost](http://localhost).
+from here you can use the python script jahia2wp.py with the commands `generate-one` or `generate-many`. Use the option `-h` to get details on available options
 
-### Create a new WordPress site in a subfolder
+    (venv) www-data@...:/srv/your-env/jahia2wp/src$ python jahia2wp.py -h
 
-Creating a WordPress site in a subfolder only requires that you set the variable WP_FOLDER in your .env file, with a relative path
+    jahia2wp: an amazing tool !
 
-    SITE_DOMAIN?=localhost
-    WP_FOLDER?=folder-name
+    Usage:
+        ...
+        jahia2wp.py generate-one <wp_env> <wp_url>
+              [--wp-title=<WP_TITLE> --owner=<OWNER_ID> --responsible=<RESPONSIBLE_ID>]
+              [--debug | --quiet]
 
+Here are some examples with WordPress sites at different levels
 
-Run `make install` as above and your site will be available on [localhost/folder-name](http://localhost/folder-name)
+    python jahia2wp.py generate-one $WP_ENV http://localhost
+    python jahia2wp.py generate-one $WP_ENV http://localhost/folder/ --wp-title="Sous Site WP" --owner=235151
+    python jahia2wp.py generate-one $WP_ENV http://localhost/folder/niv3 --wp-title="Site Niv3 WP" --owner=235151
+
+You can check that three new WordPresses are running on http://[localhost](http://localhost)/[folder](http://localhost/folder)/[niv3](http://localhost/folder/niv3).
+
 
 ### Delete a WordPress site
 
-Once again, given you have been through the [usage pre-requisites](#pre-requisites), you only need to run `make clean`. The default values will dictate which site to delete (i.e localhost)
+The interesting part of the usages from `-h` :
 
-    .../local$ make clean
-    rm -rf /srv/test/localhost
-    cleaning up user *user1* and DB *db1*
+    (venv) www-data@...:/srv/your-env/jahia2wp/src$ python jahia2wp.py -h
+
+    jahia2wp: an amazing tool !
+
+    Usage:
+        ...
+        jahia2wp.py clean-one <wp_env> <wp_url>
+
+To delete the sites created in the previous section, you will do
+
+    python jahia2wp.py clean-one $WP_ENV http://localhost
+    python jahia2wp.py clean-one $WP_ENV http://localhost/folder/
+    python jahia2wp.py clean-one $WP_ENV http://localhost/folder/niv3
 
 ### phpMyAdmin (locally)
 
