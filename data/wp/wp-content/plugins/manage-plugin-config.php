@@ -178,7 +178,8 @@
 
 
 	/* Path to WordPress config file */
-	define('WP_CONFIG_FILE',	'/var/www/html/'.$argv[1].'/wp-config.php');
+	// BEFORE FIX BY EB : define('WP_CONFIG_FILE',	'/var/www/html/'.$argv[1].'/wp-config.php');
+	define('WP_CONFIG_FILE',	$argv[1].'/wp-config.php');
 
 	/* To store configuration files in another folder */
 	define('CONFIG_FOLDER',	'_plugin-config');

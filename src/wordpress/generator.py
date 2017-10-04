@@ -1,12 +1,11 @@
 # pylint: disable=W1306
 import shutil
 import logging
-import subprocess
 
 from utils import Utils
 
 from .models import WPSite, WPUser
-from .configurator import WPRawConfig
+from .configurator import WPRawConfig, WPThemeConfig, WPAuthConfig
 
 
 class WPGenerator:
@@ -49,81 +48,129 @@ class WPGenerator:
         return "generator for {}".format(repr(self.wp_site))
 
     def run_command(self, command):
-        try:
-            subprocess.check_output(command, shell=True)
-            logging.debug("Generator - %s - Run command %s", repr(self), command)
-        except subprocess.CalledProcessError as err:
-            logging.error("Generator - %s - Command %s failed %s", repr(self), command, err)
-            return False
-
-    def run_mysql(self, command):
-        mysql_connection_string = "mysql -h {0.MYSQL_DB_HOST} -u {0.MYSQL_SUPER_USER}" \
-            " --password={0.MYSQL_SUPER_PASSWORD} ".format(self)
-        self.run_command(mysql_connection_string + command)
+        return self.wp_config.run_command(command)
 
     def run_wp_cli(self, command):
         return self.wp_config.run_wp_cli(command)
 
+    def run_mysql(self, command):
+        mysql_connection_string = "mysql -h {0.MYSQL_DB_HOST} -u {0.MYSQL_SUPER_USER}" \
+            " --password={0.MYSQL_SUPER_PASSWORD} ".format(self)
+        return self.run_command(mysql_connection_string + command)
+
     def generate(self):
         # check we have a clean place first
         if self.wp_config.is_installed:
-            logging.error("%s - WP export - wordpress files already found", repr(self))
+            logging.error("%s - Generator - wordpress files already found", repr(self))
             return False
 
         # create specific mysql db and user
-        self.prepare_db()
+        if not self.prepare_db():
+            logging.error("%s - Generator - Could not set up DB", repr(self))
+            return False
 
         # download, config and install WP
-        self.install_wp()
+        if not self.install_wp():
+            logging.error("%s - Generator - Could not install WP", repr(self))
+            return False
+
+        # install and configure theme and plugin (default is 'epfl')
+        theme = WPThemeConfig(self.wp_site)
+        theme.install()
+        if not theme.activate():
+            logging.error("%s - Generator - Could not activate theme", repr(self))
+            return False
+
+        auth = WPAuthConfig(self.wp_site, 'authorizer')
+        auth.install()
+        if not auth.activate():
+            logging.error("%s - Generator - Could not activate Auth plugin", repr(self))
+            return False
 
         # add 2 given webmasters
-        self.add_webmasters()
+        if not self.add_webmasters():
+            logging.error("%s - Generator - Could not add webmasters", repr(self))
+            return False
+
+        # flag success
+        return True
 
     def prepare_db(self):
         # create htdocs path
-        self.run_command("mkdir -p {}".format(self.wp_site.path))
+        if not self.run_command("mkdir -p {}".format(self.wp_site.path)):
+            logging.error("%s - Generator - Could not create tree structure", repr(self))
+            return False
 
         # create MySQL user
         command = "-e \"CREATE USER '{0.mysql_wp_user}' IDENTIFIED BY '{0.mysql_wp_password}';\""
-        self.run_mysql(command.format(self))
+        if not self.run_mysql(command.format(self)):
+            logging.error("%s - Generator - Could not create user", repr(self))
+            return False
 
         # grant privileges
         command = "-e \"GRANT ALL PRIVILEGES ON \`{0.wp_db_name}\`.* TO \`{0.mysql_wp_user}\`@'%';\""
-        self.run_mysql(command.format(self))
+        if not self.run_mysql(command.format(self)):
+            logging.error("%s - Generator - Could not grant privileges to user", repr(self))
+            return False
+
+        # flag success by returning True
+        return True
 
     def install_wp(self):
         # install WordPress
-        self.run_wp_cli("core download --version={}".format(self.wp_site.WP_VERSION))
+        if not self.run_wp_cli("core download --version={}".format(self.wp_site.WP_VERSION)):
+            logging.error("%s - Generator - Could not download", repr(self))
+            return False
 
         # config WordPress
         command = "config create --dbname='{0.wp_db_name}' --dbuser='{0.mysql_wp_user}'" \
             " --dbpass='{0.mysql_wp_password}' --dbhost={0.MYSQL_DB_HOST}"
-        self.run_wp_cli(command.format(self))
+        if not self.run_wp_cli(command.format(self)):
+            logging.error("%s - Generator - Could not create config", repr(self))
+            return False
 
         # create database
-        self.run_wp_cli("db create")
+        if not self.run_wp_cli("db create"):
+            logging.error("%s - Generator - Could not create db", repr(self))
+            return False
 
         # fill out first form in install process (setting admin user and permissions)
         command = "--allow-root core install --url={0.url} --title='{0.wp_default_site_title}'" \
             " --admin_user={1.username} --admin_password='{1.password}'"\
             " --admin_email='{1.email}'"
-        self.run_wp_cli(command.format(self.wp_site, self.wp_admin))
+        if not self.run_wp_cli(command.format(self.wp_site, self.wp_admin)):
+            logging.error("%s - Generator - Could not setup WP site", repr(self))
+            return False
+
+        # flag success by returning True
+        return True
 
     def add_webmasters(self):
+        success = True
+
         if self.owner_id is not None:
             owner = self.wp_config.add_ldap_user(self.owner_id)
             if owner is not None:
                 logging.info("%s - WP config - added owner %s", self.wp_site.path, owner.username)
+            else:
+                success = False
+
         if self.responsible_id is not None:
             responsible = self.wp_config.add_ldap_user(self.responsible_id)
             if responsible is not None:
                 logging.info("%s - WP config - added responsible %s", self.wp_site.path, responsible.username)
+            else:
+                success = False
+
+        # flag a success if at least one webmaster has been created
+        return success
 
     def clean(self):
         # TODO: retrieve db_infos (db_name, mysql_username, mysql_password)
         # TODO: clean db
         # TODO: clean files
         logging.debug("%s - WP config - removing files", self.wp_site.path)
+        # FIXME: following command also cleans sub sites
         shutil.rmtree(self.wp_site.path)
 
 

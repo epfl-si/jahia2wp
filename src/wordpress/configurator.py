@@ -1,7 +1,9 @@
 import os
+import shutil
 import logging
 import subprocess
 
+from settings import DATA_PATH
 from .models import WPException, WPUser
 
 
@@ -22,16 +24,33 @@ class WPRawConfig:
         return "config {0} for {1}".format(installed_string, repr(self.wp_site))
 
     def run_wp_cli(self, command):
+        # FIXME: maybe we want to bubble up the exception ?
         try:
             cmd = "wp --quiet {} --path='{}'".format(command, self.wp_site.path)
-            logging.debug("exec '%s'", cmd)
-            return subprocess.check_output(cmd, shell=True)
+            logging.debug("%s - WP CLI %s", self.__class__.__name__, cmd)
+            subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
         except subprocess.CalledProcessError as err:
-            logging.error("%s - WP export - wp_cli failed : %s", repr(self.wp_site), err)
-            return None
+            logging.error("%s - WP CLI failed : %s", self.__class__.__name__, err)
+            return False
+
+        # flag out success
+        return True
+
+    def run_command(self, command):
+        # FIXME: maybe we want to bubble up the exception ?
+        try:
+            logging.debug("%s - Run command %s", self.__class__.__name__, command)
+            subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+        except subprocess.CalledProcessError as err:
+            logging.error("%s - Run Command failed : %s", self.__class__.__name__, err)
+            return False
+
+        # flag out success
+        return True
 
     @property
     def is_installed(self):
+        # FIXME: following command fails if a subsite has been installed before parent one
         return os.path.isdir(self.wp_site.path)
 
     @property
@@ -73,3 +92,69 @@ class WPRawConfig:
             user.set_password()
         # TODO: call wp-cli to add user in WP
         return user
+
+
+class WPThemeConfig(WPRawConfig):
+    """ Relies on WPRawConfig to get wp_site and run wp-cli.
+        Overrides is_installed to check for the theme only
+    """
+
+    THEMES_PATH = os.path.join('wp-content', 'themes')
+
+    def __init__(self, wp_site, theme_name='epfl'):
+        super(WPThemeConfig, self).__init__(wp_site)
+        self.name = theme_name
+        self.path = os.path.sep.join([self.wp_site.path, self.THEMES_PATH, theme_name])
+
+    def __repr__(self):
+        installed_string = '[ok]' if self.is_installed else '[ko]'
+        return "theme {0} at {1}".format(installed_string, self.path)
+
+    @property
+    def is_installed(self):
+        # check if files are found in wp-content/themes
+        return os.path.isdir(self.path)
+
+    def install(self):
+        # copy files into wp-content/themes
+        src_path = os.path.sep.join([DATA_PATH, self.THEMES_PATH, self.name])
+        shutil.copytree(src_path, self.path)
+
+    def activate(self):
+        # use wp-cli to activate theme
+        return self.run_wp_cli('theme activate {}'.format(self.name))
+
+
+class WPAuthConfig(WPRawConfig):
+    """ Relies on WPRawConfig to get wp_site and run wp-cli.
+        Overrides is_installed to check for the theme only
+    """
+
+    PLUGINS_PATH = os.path.join('wp-content', 'plugins')
+
+    def __init__(self, wp_site, plugin_name):
+        super(WPAuthConfig, self).__init__(wp_site)
+        self.name = plugin_name
+        self.path = os.path.sep.join([self.wp_site.path, self.PLUGINS_PATH, plugin_name])
+
+    def __repr__(self):
+        installed_string = '[ok]' if self.is_installed else '[ko]'
+        return "plugin {0} at {1}".format(installed_string, self.path)
+
+    @property
+    def is_installed(self):
+        # check if files are found in wp-content/plugins
+        return os.path.isdir(self.path)
+
+    def install(self):
+        # copy files into wp-content/plugins
+        src_path = os.path.sep.join([DATA_PATH, self.PLUGINS_PATH, self.name])
+        shutil.copytree(src_path, self.path)
+
+    def activate(self):
+        # activation through wp-cli
+        self.run_wp_cli('plugin activate {}'.format(self.name))
+        # configure
+        cmd_path = os.path.sep.join([DATA_PATH, self.PLUGINS_PATH, 'manage-plugin-config.php'])
+        cmd = 'php {0} "{1}" 3 authorizer-deny-gaspar'
+        return self.run_command(cmd.format(cmd_path, self.wp_site.path))

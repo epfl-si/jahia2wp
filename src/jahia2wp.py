@@ -51,7 +51,8 @@ def clean_one(wp_env, wp_url, **kwargs):
 @dispatch.on('generate-one')
 def generate_one(wp_env, wp_url, wp_title=None, owner_id=None, responsible_id=None, **kwargs):
     wp_generator = WPGenerator(wp_env, wp_url, wp_title, owner_id, responsible_id)
-    wp_generator.generate()
+    if not wp_generator.generate():
+        logging.error("Generation failed. More info above")
 
 
 @dispatch.on('generate-many')
