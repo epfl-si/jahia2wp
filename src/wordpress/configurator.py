@@ -30,7 +30,10 @@ class WPRawConfig:
             logging.debug("%s - WP CLI %s", self.__class__.__name__, cmd)
             subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
         except subprocess.CalledProcessError as err:
-            logging.error("%s - WP CLI failed : %s", self.__class__.__name__, err)
+            logging.error(
+                "%s - WP CLI failed %s - %s - %s",
+                self.__class__.__name__,
+                err, err.returncode, err.output)
             return False
 
         # flag out success
@@ -42,7 +45,10 @@ class WPRawConfig:
             logging.debug("%s - Run command %s", self.__class__.__name__, command)
             subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
         except subprocess.CalledProcessError as err:
-            logging.error("%s - Run Command failed : %s", self.__class__.__name__, err)
+            logging.error(
+                "%s - Run Command failed %s - %s - %s",
+                self.__class__.__name__,
+                err, err.returncode, err.output)
             return False
 
         # flag out success
@@ -50,8 +56,9 @@ class WPRawConfig:
 
     @property
     def is_installed(self):
-        # FIXME: following command fails if a subsite has been installed before parent one
-        return os.path.isdir(self.wp_site.path)
+        # checkt that index.php has been created
+        valid_path = os.path.join(self.wp_site.path, 'index.php')
+        return os.path.isdir(valid_path)
 
     @property
     def is_config_valid(self):

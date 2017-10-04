@@ -5,7 +5,7 @@ import logging
 from utils import Utils
 
 from .models import WPSite, WPUser
-from .configurator import WPRawConfig, WPThemeConfig, WPAuthConfig
+from .configurator import WPRawConfig, WPThemeConfig
 
 
 class WPGenerator:
