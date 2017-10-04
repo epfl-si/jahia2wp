@@ -97,9 +97,7 @@ class WPRawConfig:
     def _add_user(self, user):
         if not user.password:
             user.set_password()
-
             cmd = "user create {0.username} {0.email} --user_pass=\"{0.password}\" --role=administrator".format(user)
-
             self.run_wp_cli(cmd)
 
         return user
