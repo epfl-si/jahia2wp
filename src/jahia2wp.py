@@ -41,10 +41,7 @@ def check_one(wp_env, wp_url, **kwargs):
 @dispatch.on('clean-one')
 def clean_one(wp_env, wp_url, **kwargs):
     wp_generator = WPGenerator(wp_env, wp_url)
-    if not wp_generator.wp_config.is_installed:
-        print("WordPress site already removed")
-    else:
-        wp_generator.clean()
+    if wp_generator.clean():
         print("Successfully cleaned WordPress site {}".format(wp_generator.wp_site.url))
 
 

@@ -1,8 +1,10 @@
 # pylint: disable=W1306
+import os
 import shutil
 import logging
 
 from utils import Utils
+from settings import WP_DIRS, WP_FILES
 
 from .models import WPSite, WPUser
 from .configurator import WPRawConfig, WPThemeConfig
@@ -173,10 +175,19 @@ class WPGenerator:
     def clean(self):
         # TODO: retrieve db_infos (db_name, mysql_username, mysql_password)
         # TODO: clean db
-        # TODO: clean files
+
+        # clean directories first
         logging.debug("%s - WP config - removing files", self.wp_site.path)
-        # FIXME: following command also cleans sub sites
-        shutil.rmtree(self.wp_site.path)
+        for dir_path in WP_DIRS:
+            path = os.path.join(self.wp_site.path, dir_path)
+            if os.path.exists(path):
+                shutil.rmtree(path)
+
+        # clean files
+        for file_path in WP_FILES:
+            path = os.path.join(self.wp_site.path, file_path)
+            if os.path.exists(path):
+                os.remove(path)
 
 
 class MockedWPGenerator(WPGenerator):
