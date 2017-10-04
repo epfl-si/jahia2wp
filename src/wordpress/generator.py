@@ -45,7 +45,7 @@ class WPGenerator:
         self.mysql_wp_password = Utils.generate_password(self.MYSQL_PASSWORD_LENGTH)
 
     def __repr__(self):
-        return "generator for {}".format(repr(self.wp_site))
+        return repr(self.wp_site)
 
     def run_command(self, command):
         return self.wp_config.run_command(command)
@@ -65,29 +65,34 @@ class WPGenerator:
             return False
 
         # create specific mysql db and user
+        logging.info("%s - Generator - setting up DB...", repr(self))
         if not self.prepare_db():
             logging.error("%s - Generator - Could not set up DB", repr(self))
             return False
 
         # download, config and install WP
+        logging.info("%s - Generator - downloading WP...", repr(self))
         if not self.install_wp():
             logging.error("%s - Generator - Could not install WP", repr(self))
             return False
 
         # install and configure theme and plugin (default is 'epfl')
+        logging.info("%s - Generator - activating theme...", repr(self))
         theme = WPThemeConfig(self.wp_site)
         theme.install()
         if not theme.activate():
             logging.error("%s - Generator - Could not activate theme", repr(self))
             return False
 
-        auth = WPAuthConfig(self.wp_site, 'authorizer')
-        auth.install()
-        if not auth.activate():
-            logging.error("%s - Generator - Could not activate Auth plugin", repr(self))
-            return False
+        # TODO: make use of SAML2 plugin
+        # auth = WPAuthConfig(self.wp_site, 'authorizer')
+        # auth.install()
+        # if not auth.activate():
+        #     logging.error("%s - Generator - Could not activate Auth plugin", repr(self))
+        #     return False
 
         # add 2 given webmasters
+        logging.info("%s - Generator - creating webmaster accounts...", repr(self))
         if not self.add_webmasters():
             logging.error("%s - Generator - Could not add webmasters", repr(self))
             return False

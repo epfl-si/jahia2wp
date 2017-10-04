@@ -26,7 +26,7 @@ class WPRawConfig:
     def run_wp_cli(self, command):
         # FIXME: maybe we want to bubble up the exception ?
         try:
-            cmd = "wp --quiet {} --path='{}'".format(command, self.wp_site.path)
+            cmd = "wp {} --path='{}'".format(command, self.wp_site.path)
             logging.debug("%s - WP CLI %s", self.__class__.__name__, cmd)
             subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
         except subprocess.CalledProcessError as err:
