@@ -58,7 +58,7 @@ class WPRawConfig:
     def is_installed(self):
         # checkt that index.php has been created
         valid_path = os.path.join(self.wp_site.path, 'index.php')
-        return os.path.isdir(valid_path)
+        return os.path.exists(valid_path)
 
     @property
     def is_config_valid(self):

@@ -78,7 +78,7 @@ class Utils(object):
         return binascii.hexlify(os.urandom(int(length / 2))).decode("utf-8")
 
     @staticmethod
-    def generate_password(length, symbols='!@#$%^&*'):
+    def generate_password(length, symbols='!@#^&*'):
         """
         Generate a random password
         """

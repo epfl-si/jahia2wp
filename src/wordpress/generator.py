@@ -108,6 +108,12 @@ class WPGenerator:
             logging.error("%s - Generator - Could not create tree structure", repr(self))
             return False
 
+        # create MySQL DB
+        command = "-e \"CREATE DATABASE {0.wp_db_name};\""
+        if not self.run_mysql(command.format(self)):
+            logging.error("%s - Generator - Could not create DB", repr(self))
+            return False
+
         # create MySQL user
         command = "-e \"CREATE USER '{0.mysql_wp_user}' IDENTIFIED BY '{0.mysql_wp_password}';\""
         if not self.run_mysql(command.format(self)):
@@ -134,11 +140,6 @@ class WPGenerator:
             " --dbpass='{0.mysql_wp_password}' --dbhost={0.MYSQL_DB_HOST}"
         if not self.run_wp_cli(command.format(self)):
             logging.error("%s - Generator - Could not create config", repr(self))
-            return False
-
-        # create database
-        if not self.run_wp_cli("db create"):
-            logging.error("%s - Generator - Could not create db", repr(self))
             return False
 
         # fill out first form in install process (setting admin user and permissions)

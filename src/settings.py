@@ -23,6 +23,7 @@ WP_FILES = [
     'wp-blog-header.php',
     'wp-comments-post.php',
     'wp-config-sample.php',
+    'wp-config.php',
     'wp-content',
     'wp-cron.php',
     'wp-includes',
