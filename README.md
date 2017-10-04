@@ -107,7 +107,7 @@ As some commands require `sudo`, you will be asked for your system password. The
 
     you@host:~$ git clone git@github.com:epfl-idevelop/jahia2wp.git
     you@host:~$ cd jahia2wp
-    you@host:jahia2wp$ cp .env.sample .env
+    you@host:~$ vim .env.sample
     you@host:jahia2wp$ make bootstrap-local ENV=your-env (<- use your C2C environment name here if you have one)
     ...
     -> instructions to finish local setup
