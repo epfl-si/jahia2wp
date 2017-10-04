@@ -8,7 +8,7 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
-      - ../data/db:/var/lib/mysql
+      - ./volumes/db:/var/lib/mysql
 
   phpmyadmin:
       image: phpmyadmin/phpmyadmin
@@ -22,9 +22,9 @@ services:
       
   httpd:
     container_name: httpd
-    image: camptocamp/httpd
+    image: camptocamp/os-wp-httpd
     volumes:
-      - ../data/srv:/srv
+      - ./volumes/srv:/srv
     links:
       - db:db
     environment:
@@ -35,16 +35,21 @@ services:
 
   mgmt:
     container_name: mgmt
-    image: camptocamp/mgmt
+    image: camptocamp/os-wp-mgmt
+    env_file:
+      - .env
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - WP_ENV=${WP_ENV}
-      - MYSQL_DB_HOST=${MYSQL_DB_HOST}
+      - LOGGING_FILE=/srv/${WP_ENV}/logs/jahia2wp.log
     volumes:
-      - ../data/srv:/srv
-      - ../Makefile:/srv/${WP_ENV}/jahia2wp/Makefile
-      - ./:/srv/${WP_ENV}/jahia2wp/local
-      - ../src:/srv/${WP_ENV}/jahia2wp/src
-      - ../data/csv:/srv/${WP_ENV}/jahia2wp/data/csv
+      - ./volumes/srv:/srv
+      - ./etc/.bash_history:/var/www/.bash_history
+      - ./etc/.aliases:/srv/.aliases
+      - ./etc/.bashrc:/srv/.bashrc
+      - ./data:/srv/${WP_ENV}/jahia2wp/data
+      - ./requirements:/srv/${WP_ENV}/jahia2wp/requirements
+      - ./src:/srv/${WP_ENV}/jahia2wp/src
+      - ./Makefile:/srv/${WP_ENV}/jahia2wp/Makefile
+      - .env:/srv/${WP_ENV}/jahia2wp/.env
     ports:
       - "2222:22"

@@ -1,0 +1,6 @@
+# same as local .aliases
+include .aliases
+
+# with following tweek to make sure our env vars are correctly set
+alias sourceenv="set -o allexport && source .env && set +o allexport"
+alias vjahia2wp="source /srv/${WP_ENV}/venv/bin/activate && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src && cd /srv/${WP_ENV}/jahia2wp/local && sourceenv && cd ../src"

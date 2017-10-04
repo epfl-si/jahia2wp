@@ -4,11 +4,11 @@ alias ...="cd ../.."
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
 
-alias gowp="cd /srv/${WP_ENV}/jahia2wp/local"
-
 # ease python3 usage
 alias python=python3
-alias virtualenv="virtualenv --python=python3"
+alias pip=pip3
+alias virtualenv="virtualenv --python=`which python3`"
+alias vjahia2wp="source /srv/${WP_ENV}/venv/bin/activate && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src && cd /srv/${WP_ENV}/jahia2wp/src"
 
 # Shortcuts
 alias h="history"
