@@ -67,7 +67,7 @@ Install virtualenv and create your first virtual environment:
     $ virtualenv -p /usr/bin/python3 jahia2wp
 
     $ echo "
-    alias vjahia2wp='source ~/virtualenvs/jahia2wp/bin/activate && cd ~/git-repos/jahia2wp && export PYTHONPATH=$PWD/src'
+    alias vjahia2wp='source ~/virtualenvs/jahia2wp/bin/activate && cd ~/jahia2wp && export PYTHONPATH=$PWD/src'
     " >> ~/.bash_aliases
 
     $ source ~/.bash_aliases
