@@ -1,6 +1,9 @@
 from urllib.parse import urlparse
 from epflldap.ldap_search import get_username, get_email
 
+from django.core.validators import URLValidator, EmailValidator
+from veritas.validators import validate_string, validate_openshift_env, validate_gaspar_username
+
 from utils import Utils
 
 
@@ -19,10 +22,14 @@ class WPSite:
     WP_VERSION = Utils.get_mandatory_env(key="WP_VERSION")
 
     def __init__(self, openshift_env, wp_site_url, wp_default_site_title=None):
+        # validate input
+        validate_openshift_env(openshift_env)
+        URLValidator()(wp_site_url)
+        validate_string(wp_default_site_title)
+
         # extract domain and folder from given url
         url = urlparse(wp_site_url)
 
-        # TODO: use validators from veritas to validate openshift_env
         self.openshift_env = openshift_env
 
         # set WP informations
@@ -50,7 +57,10 @@ class WPUser:
     WP_PASSWORD_LENGTH = 32
 
     def __init__(self, username, email, password=None):
-        # TODO: use validators from veritas to validate both username and email
+        # validate input
+        EmailValidator()(email)
+        validate_gaspar_username(username)
+
         self.username = username
         self.email = email
         self.password = password

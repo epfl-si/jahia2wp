@@ -6,6 +6,9 @@ import logging
 from utils import Utils
 from settings import WP_DIRS, WP_FILES
 
+from django.core.validators import URLValidator
+from veritas.validators import validate_string, validate_openshift_env, validate_integer
+
 from .models import WPSite, WPUser
 from .configurator import WPRawConfig, WPThemeConfig
 
@@ -29,6 +32,13 @@ class WPGenerator:
     WP_ADMIN_EMAIL = Utils.get_mandatory_env(key="WP_ADMIN_EMAIL")
 
     def __init__(self, openshift_env, wp_site_url, wp_default_site_title=None, owner_id=None, responsible_id=None):
+        # validate input
+        validate_openshift_env(openshift_env)
+        URLValidator()(wp_site_url)
+        validate_string(wp_default_site_title)
+        validate_integer(owner_id)
+        validate_integer(responsible_id)
+
         # create WordPress site and config
         self.wp_site = WPSite(openshift_env, wp_site_url, wp_default_site_title=wp_default_site_title)
         self.wp_config = WPRawConfig(self.wp_site)

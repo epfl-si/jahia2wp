@@ -49,6 +49,10 @@ def validate_yes_or_no(text):
     return ChoiceValidator(choices=['yes', 'no'])(text)
 
 
+def validate_gaspar_username(name):
+    return RegexValidator(regex="^[_\-\.a-z0-9]+$")(name)
+
+
 def validate_db_name(name):
     return RegexValidator(regex="^[a-z0-9]{8,16}$")(name)
 

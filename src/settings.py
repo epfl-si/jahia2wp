@@ -38,6 +38,10 @@ WP_FILES = [
 ]
 
 OPENSHIFT_ENVS = [
+    # for testing purpose
+    "your-env",
+    "test",
+    # real ones
     "dev",
     "int",
     "ebreton",
