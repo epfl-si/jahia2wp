@@ -1,7 +1,7 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
 import os
 
-VERSION = "0.1.0"
+VERSION = "0.2.1"
 
 DATA_PATH = os.path.abspath(
     os.path.sep.join([
