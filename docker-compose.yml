@@ -30,8 +30,8 @@ services:
     environment:
       - WP_ENV=${WP_ENV}
     ports:
-      - "80:80"
-      - "443:443"
+      - "${WP_PORT_HTTP}:80"
+      - "${WP_PORT_HTTPS}:443"
 
   mgmt:
     container_name: mgmt

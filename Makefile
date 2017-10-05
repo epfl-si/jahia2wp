@@ -1,4 +1,9 @@
 #!make
+# Default values, can be overridden either on the command line of make
+# or in .env
+WP_PORT_HTTP := 80
+WP_PORT_HTTPS := 443
+
 # TODO: test if file exists
 include .env
 
@@ -40,6 +45,8 @@ up:
 	@WP_ENV=${WP_ENV} \
 		MYSQL_DB_HOST=${MYSQL_DB_HOST} \
 		MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
+		WP_PORT_HTTP=${WP_PORT_HTTP} \
+		WP_PORT_HTTPS=${WP_PORT_HTTPS} \
 		docker-compose up -d
 
 exec:
@@ -50,7 +57,9 @@ exec:
 	  mgmt bash -l
 
 down:
-	docker-compose down
+	@WP_PORT_HTTP=${WP_PORT_HTTP} \
+	 WP_PORT_HTTPS=${WP_PORT_HTTPS} \
+	 docker-compose down
 
 bootstrap-local:
 	cp .env.sample .env
