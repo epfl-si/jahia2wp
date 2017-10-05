@@ -1,8 +1,9 @@
 #!make
 # Default values, can be overridden either on the command line of make
 # or in .env
-WP_PORT_HTTP := 80
-WP_PORT_HTTPS := 443
+WP_ENV ?= your-env
+WP_PORT_HTTP ?= 80
+WP_PORT_HTTPS ?= 443
 
 check-env:
 ifeq ($(wildcard .env),)
