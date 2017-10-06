@@ -23,36 +23,27 @@ class WPRawConfig:
         installed_string = '[ok]' if self.is_installed else '[ko]'
         return "config {0} for {1}".format(installed_string, repr(self.wp_site))
 
-    def run_wp_cli(self, command):
-        # TODO: discuss whether we want to bubble up the exception or not ?
-        try:
-            cmd = "wp {} --path='{}'".format(command, self.wp_site.path)
-            logging.debug("%s - WP CLI %s", self.__class__.__name__, cmd)
-            subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
-        except subprocess.CalledProcessError as err:
-            logging.error(
-                "%s - WP CLI failed %s - %s - %s",
-                self.__class__.__name__,
-                err, err.returncode, err.output)
-            return False
-
-        # flag out success
-        return True
-
     def run_command(self, command):
-        # TODO: discuss whether we want to bubble up the exception or not ?
         try:
-            logging.debug("%s - Run command %s", self.__class__.__name__, command)
-            subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+            # run command and log output
+            proc = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
+            logging.debug("%s - %s -> %s", self.__class__.__name__, command, proc.stdout)
+            # return output if got any, True otherwise
+            return proc.stdout or True
+
         except subprocess.CalledProcessError as err:
+            # log error with content of stderr
             logging.error(
                 "%s - Run Command failed %s - %s - %s",
                 self.__class__.__name__,
-                err, err.returncode, err.output)
+                err,
+                err.returncode,
+                err.stderr)
             return False
 
-        # flag out success
-        return True
+    def run_wp_cli(self, command):
+        cmd = "wp {} --path='{}'".format(command, self.wp_site.path)
+        return self.run_command(cmd)
 
     @property
     def is_installed(self):
@@ -73,6 +64,10 @@ class WPRawConfig:
         # TODO: check that the site is available, that user can login and upload media
         # tests from test_wordpress
         return True
+
+    @property
+    def wp_version(self):
+        return self.run_wp_cli('core version')
 
     @property
     def db_infos(self):
