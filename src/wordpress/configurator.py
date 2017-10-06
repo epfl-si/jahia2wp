@@ -37,7 +37,7 @@ class WPRawConfig:
                 "%s - Run Command failed %s - %s - %s",
                 self.__class__.__name__,
                 err,
-                err.returncode,
+                err.returncode, 
                 err.stderr)
             return False
 
@@ -129,7 +129,7 @@ class WPThemeConfig(WPRawConfig):
         return self.run_wp_cli('theme activate {}'.format(self.name))
 
 
-class WPAuthConfig(WPRawConfig):
+class WPPluginConfig(WPRawConfig):
     """ Relies on WPRawConfig to get wp_site and run wp-cli.
         Overrides is_installed to check for the theme only
     """
@@ -137,7 +137,7 @@ class WPAuthConfig(WPRawConfig):
     PLUGINS_PATH = os.path.join('wp-content', 'plugins')
 
     def __init__(self, wp_site, plugin_name):
-        super(WPAuthConfig, self).__init__(wp_site)
+        super(WPPluginConfig, self).__init__(wp_site)
         self.name = plugin_name
         self.path = os.path.sep.join([self.wp_site.path, self.PLUGINS_PATH, plugin_name])
 

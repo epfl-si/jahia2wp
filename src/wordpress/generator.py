@@ -91,7 +91,7 @@ class WPGenerator:
             logging.error("%s - Generator - Could not install WP", repr(self))
             return False
 
-        # install and configure theme and plugin (default is 'epfl')
+        # install and configure theme (default is 'epfl')
         logging.info("%s - Generator - activating theme...", repr(self))
         theme = WPThemeConfig(self.wp_site)
         theme.install()
@@ -99,8 +99,8 @@ class WPGenerator:
             logging.error("%s - Generator - Could not activate theme", repr(self))
             return False
 
-        # TODO: make use of SAML2 plugin
-        # auth = WPAuthConfig(self.wp_site, 'authorizer')
+        # Example of plugin declaration
+        # auth = WPPluginConfig(self.wp_site, 'plugin_name')
         # auth.install()
         # if not auth.activate():
         #     logging.error("%s - Generator - Could not activate Auth plugin", repr(self))
