@@ -24,7 +24,7 @@ class WPRawConfig:
         return "config {0} for {1}".format(installed_string, repr(self.wp_site))
 
     def run_wp_cli(self, command):
-        # FIXME: maybe we want to bubble up the exception ?
+        # TODO: discuss whether we want to bubble up the exception or not ?
         try:
             cmd = "wp {} --path='{}'".format(command, self.wp_site.path)
             logging.debug("%s - WP CLI %s", self.__class__.__name__, cmd)
@@ -40,7 +40,7 @@ class WPRawConfig:
         return True
 
     def run_command(self, command):
-        # FIXME: maybe we want to bubble up the exception ?
+        # TODO: discuss whether we want to bubble up the exception or not ?
         try:
             logging.debug("%s - Run command %s", self.__class__.__name__, command)
             subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
@@ -64,15 +64,15 @@ class WPRawConfig:
     def is_config_valid(self):
         if not self.is_installed:
             return False
-        # TODO: check that the config is working (DB and user ok)
-        # wp-cli command (status?)
+        return self.run_wp_cli('core is-installed')
 
     @property
     def is_install_valid(self):
-        if not self.is_config_valid():
+        if not self.is_config_valid:
             return False
         # TODO: check that the site is available, that user can login and upload media
         # tests from test_wordpress
+        return True
 
     @property
     def db_infos(self):

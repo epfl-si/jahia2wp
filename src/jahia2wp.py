@@ -32,10 +32,14 @@ from utils import Utils
 def check_one(wp_env, wp_url, **kwargs):
     wp_site = WPSite(wp_env, wp_url, wp_default_site_title=kwargs['wp_title'])
     wp_config = WPRawConfig(wp_site)
-    if wp_config.is_installed:
-        print("WordPress site installed @{}".format(wp_site.path))
-    else:
-        print("No WordPress site found for {}".format(wp_site.url))
+    if not wp_config.is_installed:
+        raise SystemExit("No files found for {}".format(wp_site.path))
+    if not wp_config.is_config_valid:
+        raise SystemExit("Configuration not valid for {}".format(wp_site.path))
+    if not wp_config.is_install_valid:
+        raise SystemExit("Could not login or use site at {}".format(wp_site.url))
+    # success case
+    print("WordPress site valid and accessible at {}".format(wp_site.url))
 
 
 @dispatch.on('clean-one')
@@ -49,7 +53,7 @@ def clean_one(wp_env, wp_url, **kwargs):
 def generate_one(wp_env, wp_url, wp_title=None, owner_id=None, responsible_id=None, **kwargs):
     wp_generator = WPGenerator(wp_env, wp_url, wp_title, owner_id, responsible_id)
     if not wp_generator.generate():
-        logging.error("Generation failed. More info above")
+        raise SystemExit("Generation failed. More info above")
 
     print("Successfully created new WordPress site at {}".format(wp_generator.wp_site.url))
 
