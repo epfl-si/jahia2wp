@@ -8,6 +8,7 @@ Usage:
                              [--wp-title=<WP_TITLE> --owner=<OWNER_ID> --responsible=<RESPONSIBLE_ID>]
                              [--debug | --quiet]
   jahia2wp.py generate-many <csv_file> [--output-dir=<OUTPUT_DIR>] [--debug | --quiet]
+  jahia2wp.py wp-version    <wp_env> <wp_url> [--debug | --quiet]
   jahia2wp.py veritas       <csv_file>
 
 Options:
@@ -40,6 +41,13 @@ def check_one(wp_env, wp_url, **kwargs):
         raise SystemExit("Could not login or use site at {}".format(wp_site.url))
     # success case
     print("WordPress site valid and accessible at {}".format(wp_site.url))
+
+
+@dispatch.on('wp-version')
+def wp_version(wp_env, wp_url, **kwargs):
+    wp_site = WPSite(wp_env, wp_url, wp_default_site_title=kwargs['wp_title'])
+    wp_config = WPRawConfig(wp_site)
+    print(wp_config.wp_version)
 
 
 @dispatch.on('clean-one')
