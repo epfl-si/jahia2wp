@@ -37,7 +37,7 @@ class WPRawConfig:
                 "%s - Run Command failed %s - %s - %s",
                 self.__class__.__name__,
                 err,
-                err.returncode, 
+                err.returncode,
                 err.stderr)
             return False
 
