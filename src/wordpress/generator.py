@@ -35,9 +35,12 @@ class WPGenerator:
         # validate input
         validate_openshift_env(openshift_env)
         URLValidator()(wp_site_url)
-        validate_string(wp_default_site_title)
-        validate_integer(owner_id)
-        validate_integer(responsible_id)
+        if wp_default_site_title is None:
+            validate_string(wp_default_site_title)
+        if owner_id is None:
+            validate_integer(owner_id)
+        if responsible_id is None:
+            validate_integer(responsible_id)
 
         # create WordPress site and config
         self.wp_site = WPSite(openshift_env, wp_site_url, wp_default_site_title=wp_default_site_title)
