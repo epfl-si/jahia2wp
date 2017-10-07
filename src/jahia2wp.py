@@ -10,6 +10,7 @@ Usage:
     [--debug | --quiet]
   jahia2wp.py generate-many <csv_file> [--output-dir=<OUTPUT_DIR>] [--debug | --quiet]
   jahia2wp.py wp-version    <wp_env> <wp_url> [--debug | --quiet]
+  jahia2wp.py wp-admins     <wp_env> <wp_url> [--debug | --quiet]
   jahia2wp.py veritas       <csv_file>
 
 Options:
@@ -48,7 +49,15 @@ def check_one(wp_env, wp_url, **kwargs):
 def wp_version(wp_env, wp_url, **kwargs):
     wp_site = WPSite(wp_env, wp_url, wp_default_site_title=kwargs['wp_title'])
     wp_config = WPRawConfig(wp_site)
-    print(wp_config.wp_version)
+    print(wp_config.wp_version.strip())
+
+
+@dispatch.on('wp-admins')
+def wp_admins(wp_env, wp_url, **kwargs):
+    wp_site = WPSite(wp_env, wp_url, wp_default_site_title=kwargs['wp_title'])
+    wp_config = WPRawConfig(wp_site)
+    for admin in wp_config.admins:
+        print(admin)
 
 
 @dispatch.on('clean-one')

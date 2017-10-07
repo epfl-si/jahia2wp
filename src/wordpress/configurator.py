@@ -21,6 +21,7 @@ class WPRawConfig:
     def __init__(self, wp_site):
         self.wp_site = wp_site
         self._config_infos = None
+        self._user_infos = None
 
     def __repr__(self):
         installed_string = '[ok]' if self.is_installed else '[ko]'
@@ -116,17 +117,46 @@ class WPRawConfig:
     def db_password(self):
         return self.config_infos(field='DB_PASSWORD')
 
+    def user_infos(self, username=None):
+        # lazy initialisation
+        if self._user_infos is None:
+
+            # fetch all values
+            raw_infos = self.run_wp_cli('user list --format=csv')
+            if not raw_infos:
+                raise ValueError("%s - wp cli - Could not get list of users", self.wp_site.path)
+
+            # reformat output from wp cli
+            self._user_infos = {}
+            for user_infos in Utils.csv_string_to_dict(raw_infos):
+                wp_user = WPUser(
+                    username=user_infos['user_login'],
+                    email=user_infos['user_email'],
+                    display_name=user_infos['display_name'],
+                    role=user_infos['roles'])
+
+                self._user_infos[user_infos['user_login']] = wp_user
+
+            logging.debug("%s - wp cli - config get -> %s", self.wp_site.path, self._config_infos)
+
+        # return only one user if username is given
+        if username is not None:
+            return self._user_infos[username]
+
+        # return all users otherwise
+        return self._user_infos
+
     @property
-    def admin_infos(self):
-        # TODO: read from DB {admin_username, admin_email}
-        pass
+    def admins(self):
+        return [user for (username, user) in self.user_infos().items()
+                if user.role == 'administrator']
 
-    def add_wp_user(self, username, email):
-        return self._add_user(WPUser(username, email))
+    def add_wp_user(self, username, email, role='administrator'):
+        return self._add_user(WPUser(username, email, role=role))
 
-    def add_ldap_user(self, sciper_id):
+    def add_ldap_user(self, sciper_id, role='administrator'):
         try:
-            return self._add_user(WPUser.from_sciper(sciper_id))
+            return self._add_user(WPUser.from_sciper(sciper_id, role=role))
         except WPException as err:
             logging.error("Generator - %s - 'add_webmasters' failed %s", repr(self), err)
             return None
@@ -134,9 +164,8 @@ class WPRawConfig:
     def _add_user(self, user):
         if not user.password:
             user.set_password()
-            cmd = "user create {0.username} {0.email} --user_pass=\"{0.password}\" --role=administrator".format(user)
-            self.run_wp_cli(cmd)
-
+        cmd = "user create {0.username} {0.email} --user_pass=\"{0.password}\" --role={0.role}".format(user)
+        self.run_wp_cli(cmd)
         return user
 
 

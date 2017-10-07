@@ -57,7 +57,7 @@ class WPUser:
 
     WP_PASSWORD_LENGTH = 32
 
-    def __init__(self, username, email, password=None):
+    def __init__(self, username, email, password=None, display_name=None, role=None):
         # validate input
         EmailValidator()(email)
         validate_gaspar_username(username)
@@ -65,17 +65,19 @@ class WPUser:
         self.username = username
         self.email = email
         self.password = password
+        self.display_name = display_name or username
+        self.role = role
 
     def __repr__(self):
-        password_string = 'xxxx' if self.password is not None else 'None'
-        return "{0.username}:{0.email} <{1}>".format(self, password_string)
+        return "{0.username}:{0.email} <{0.role}>".format(self)
 
     @classmethod
-    def from_sciper(cls, sciper_id):
+    def from_sciper(cls, sciper_id, role='administrator'):
         try:
             return cls(
                 username=get_username(sciper=sciper_id),
-                email=get_email(sciper=sciper_id)
+                email=get_email(sciper=sciper_id),
+                role=role
             )
         except IndexError:
             raise WPException("WPUser.from_sciper - %s - could not get user details", sciper_id)
