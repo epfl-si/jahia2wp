@@ -39,14 +39,15 @@ def _check_site(wp_env, wp_url, **kwargs):
         raise SystemExit("No files found for {}".format(wp_site.path))
     if not wp_config.is_config_valid:
         raise SystemExit("Configuration not valid for {}".format(wp_site.path))
-    if not wp_config.is_install_valid:
-        raise SystemExit("Could not login or use site at {}".format(wp_site.url))
     return wp_config
 
 
 @dispatch.on('check-one')
 def check_one(wp_env, wp_url, **kwargs):
     wp_config = _check_site(wp_env, wp_url, **kwargs)
+    # run a few more tests
+    if not wp_config.is_install_valid:
+        raise SystemExit("Could not login or use site at {}".format(wp_config.wp_site.url))
     # success case
     print("WordPress site valid and accessible at {}".format(wp_config.wp_site.url))
 
