@@ -1,8 +1,6 @@
 import os
-import sys
 import shutil
 import logging
-import subprocess
 
 from settings import DATA_PATH, WP_CONFIG_KEYS
 from utils import Utils
@@ -27,31 +25,9 @@ class WPRawConfig:
         installed_string = '[ok]' if self.is_installed else '[ko]'
         return "config {0} for {1}".format(installed_string, repr(self.wp_site))
 
-    def run_command(self, command):
-        try:
-            # run command and log output
-            proc = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
-            logging.debug("%s - %s -> %s", self.__class__.__name__, command, proc.stdout)
-            # return output if got any, True otherwise
-            if proc.stdout:
-                text = proc.stdout.decode(sys.stdout.encoding)
-                # get rid of final spaces, line return
-                return text.strip()
-            return True
-
-        except subprocess.CalledProcessError as err:
-            # log error with content of stderr
-            logging.error(
-                "%s - Run Command failed %s - %s - %s",
-                self.__class__.__name__,
-                err,
-                err.returncode,
-                err.stderr)
-            return False
-
     def run_wp_cli(self, command):
         cmd = "wp {} --path='{}'".format(command, self.wp_site.path)
-        return self.run_command(cmd)
+        return Utils.run_command(cmd)
 
     @property
     def is_installed(self):
@@ -80,7 +56,7 @@ class WPRawConfig:
     def config_infos(self, field=None):
         # validate input
         if field is not None and field not in WP_CONFIG_KEYS:
-            raise ValueError("field {} should be in {}".format(field, WP_CONFIG_KEYS))
+            raise ValueError("Field '{}' should be in {}".format(field, WP_CONFIG_KEYS))
 
         # lazy initialisation
         if self._config_infos is None:
@@ -88,14 +64,14 @@ class WPRawConfig:
             # fetch all values
             raw_infos = self.run_wp_cli('config get --format=csv')
             if not raw_infos:
-                raise ValueError("{} - wp cli - Could not get config".format(self.wp_site.path))
+                raise ValueError("Could not get config for {}".format(repr(self.wp_site)))
 
             # reformat output from wp cli
             self._config_infos = {}
             for infos in Utils.csv_string_to_dict(raw_infos):
                 self._config_infos[infos['key']] = infos['value']
 
-            logging.debug("%s - wp cli - config get -> %s", self.wp_site.path, self._config_infos)
+            logging.debug("%s - config => %s", repr(self.wp_site), self._config_infos)
 
         # filter if necessary
         if field is None:
@@ -126,7 +102,7 @@ class WPRawConfig:
             # fetch all values
             raw_infos = self.run_wp_cli('user list --format=csv')
             if not raw_infos:
-                raise ValueError("{} - wp cli - Could not get list of users".format(self.wp_site.path))
+                raise ValueError("Could not get list of users for {}".format(self.wp_site.path))
 
             # reformat output from wp cli
             self._user_infos = {}
@@ -139,7 +115,7 @@ class WPRawConfig:
 
                 self._user_infos[user_infos['user_login']] = wp_user
 
-            logging.debug("%s - wp cli - config get -> %s", self.wp_site.path, self._config_infos)
+            logging.debug("%s - user list => %s", repr(self.wp_site), self._user_infos)
 
         # return only one user if username is given
         if username is not None:
@@ -160,7 +136,7 @@ class WPRawConfig:
         try:
             return self._add_user(WPUser.from_sciper(sciper_id, role=role))
         except WPException as err:
-            logging.error("Generator - %s - 'add_webmasters' failed %s", repr(self), err)
+            logging.error("%s - LDAP call failed %s", repr(self.wp_site), err)
             return None
 
     def _add_user(self, user):
@@ -234,4 +210,4 @@ class WPPluginConfig(WPRawConfig):
         # configure
         cmd_path = os.path.sep.join([DATA_PATH, self.PLUGINS_PATH, 'manage-plugin-config.php'])
         cmd = 'php {0} "{1}" 3 authorizer-deny-gaspar'
-        return self.run_command(cmd.format(cmd_path, self.wp_site.path))
+        return Utils.run_command(cmd.format(cmd_path, self.wp_site.path))

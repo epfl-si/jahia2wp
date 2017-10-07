@@ -33,12 +33,12 @@ from utils import Utils
 
 def _check_site(wp_env, wp_url, **kwargs):
     """ Helper function to validate wp site given arguments """
-    wp_site = WPSite(wp_env, wp_url, wp_default_site_title=kwargs['wp_title'])
+    wp_site = WPSite(wp_env, wp_url, wp_default_site_title=kwargs.get('wp_title'))
     wp_config = WPRawConfig(wp_site)
     if not wp_config.is_installed:
-        raise SystemExit("No files found for {}".format(wp_site.path))
+        raise SystemExit("No files found for {}".format(wp_site.url))
     if not wp_config.is_config_valid:
-        raise SystemExit("Configuration not valid for {}".format(wp_site.path))
+        raise SystemExit("Configuration not valid for {}".format(wp_site.url))
     return wp_config
 
 
@@ -69,6 +69,8 @@ def wp_admins(wp_env, wp_url, **kwargs):
 
 @dispatch.on('clean-one')
 def clean_one(wp_env, wp_url, **kwargs):
+    _check_site(wp_env, wp_url, **kwargs)
+    # config found: proceed with cleaning
     wp_generator = WPGenerator(wp_env, wp_url)
     if wp_generator.clean():
         print("Successfully cleaned WordPress site {}".format(wp_generator.wp_site.url))

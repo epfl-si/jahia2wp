@@ -39,7 +39,7 @@ class WPSite:
         self.wp_default_site_title = wp_default_site_title or self.DEFAULT_TITLE
 
     def __repr__(self):
-        return "WP@{}/{}/{}".format(self.openshift_env, self.domain, self.folder)
+        return self.url
 
     @property
     def path(self):
