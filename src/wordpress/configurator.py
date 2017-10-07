@@ -34,7 +34,9 @@ class WPRawConfig:
             logging.debug("%s - %s -> %s", self.__class__.__name__, command, proc.stdout)
             # return output if got any, True otherwise
             if proc.stdout:
-                return proc.stdout.decode(sys.stdout.encoding)
+                text = proc.stdout.decode(sys.stdout.encoding)
+                # get rid of final spaces, line return
+                return text.strip()
             return True
 
         except subprocess.CalledProcessError as err:
@@ -78,7 +80,7 @@ class WPRawConfig:
     def config_infos(self, field=None):
         # validate input
         if field is not None and field not in WP_CONFIG_KEYS:
-            raise ValueError("field %s should be in %s", field, WP_CONFIG_KEYS)
+            raise ValueError("field {} should be in {}".format(field, WP_CONFIG_KEYS))
 
         # lazy initialisation
         if self._config_infos is None:
@@ -86,7 +88,7 @@ class WPRawConfig:
             # fetch all values
             raw_infos = self.run_wp_cli('config get --format=csv')
             if not raw_infos:
-                raise ValueError("%s - wp cli - Could not get config", self.wp_site.path)
+                raise ValueError("{} - wp cli - Could not get config".format(self.wp_site.path))
 
             # reformat output from wp cli
             self._config_infos = {}
@@ -124,7 +126,7 @@ class WPRawConfig:
             # fetch all values
             raw_infos = self.run_wp_cli('user list --format=csv')
             if not raw_infos:
-                raise ValueError("%s - wp cli - Could not get list of users", self.wp_site.path)
+                raise ValueError("{} - wp cli - Could not get list of users".format(self.wp_site.path))
 
             # reformat output from wp cli
             self._user_infos = {}
@@ -148,7 +150,7 @@ class WPRawConfig:
 
     @property
     def admins(self):
-        return [user for (username, user) in self.user_infos().items()
+        return [user for user in self.user_infos().values()
                 if user.role == 'administrator']
 
     def add_wp_user(self, username, email, role='administrator'):

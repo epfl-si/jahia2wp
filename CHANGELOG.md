@@ -27,6 +27,8 @@ Table of releases
 1. added command `wp-admins`
 1. improved command `check-one`: actually checks that config is ok with wp-cli
 1. improved command `generate-one` with parameter `--admin-password` to force password for admin instead of creating a random one
+1. improved CLI messages when running jahia2wp.py script
+
 
 **low level:**
 1. improved commands (`run_command`, `run_mysql`, `run_wp_cli`), which actually return output, do not display `stderr`, but keep it available on error cases

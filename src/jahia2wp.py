@@ -31,8 +31,8 @@ from settings import VERSION
 from utils import Utils
 
 
-@dispatch.on('check-one')
-def check_one(wp_env, wp_url, **kwargs):
+def _check_site(wp_env, wp_url, **kwargs):
+    """ Helper function to validate wp site given arguments """
     wp_site = WPSite(wp_env, wp_url, wp_default_site_title=kwargs['wp_title'])
     wp_config = WPRawConfig(wp_site)
     if not wp_config.is_installed:
@@ -41,21 +41,27 @@ def check_one(wp_env, wp_url, **kwargs):
         raise SystemExit("Configuration not valid for {}".format(wp_site.path))
     if not wp_config.is_install_valid:
         raise SystemExit("Could not login or use site at {}".format(wp_site.url))
+    return wp_config
+
+
+@dispatch.on('check-one')
+def check_one(wp_env, wp_url, **kwargs):
+    wp_config = _check_site(wp_env, wp_url, **kwargs)
     # success case
-    print("WordPress site valid and accessible at {}".format(wp_site.url))
+    print("WordPress site valid and accessible at {}".format(wp_config.wp_site.url))
 
 
 @dispatch.on('wp-version')
 def wp_version(wp_env, wp_url, **kwargs):
-    wp_site = WPSite(wp_env, wp_url, wp_default_site_title=kwargs['wp_title'])
-    wp_config = WPRawConfig(wp_site)
-    print(wp_config.wp_version.strip())
+    wp_config = _check_site(wp_env, wp_url, **kwargs)
+    # success case
+    print(wp_config.wp_version)
 
 
 @dispatch.on('wp-admins')
 def wp_admins(wp_env, wp_url, **kwargs):
-    wp_site = WPSite(wp_env, wp_url, wp_default_site_title=kwargs['wp_title'])
-    wp_config = WPRawConfig(wp_site)
+    wp_config = _check_site(wp_env, wp_url, **kwargs)
+    # success case
     for admin in wp_config.admins:
         print(admin)
 
