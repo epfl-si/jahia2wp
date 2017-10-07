@@ -14,7 +14,7 @@ include .env
 endif
 
 test: check-env
-	docker exec mgmt make -C /srv/$$WP_ENV/jahia2wp test-raw
+	docker exec --user=www-data mgmt make -C /srv/$$WP_ENV/jahia2wp test-raw
 
 test-raw: check-env
 	. /srv/${WP_ENV}/venv/bin/activate \
