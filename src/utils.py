@@ -1,5 +1,6 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
 import logging
+import io
 import os
 import csv
 import string
@@ -10,15 +11,24 @@ import random
 class Utils(object):
     """Generic and all-purpose helpers"""
 
-    @staticmethod
-    def csv_to_dict(file_path, delimiter=','):
-        """Returns the rows of the given CSV file as a list of dicts"""
+    @classmethod
+    def csv_stream_do_dict(cls, stream, delimiter=','):
         rows = []
-        with open(file_path, 'r', encoding='utf8') as csvfile:
-            reader = csv.DictReader(csvfile, delimiter=delimiter)
-            for row in reader:
-                rows.append(row)
+        reader = csv.DictReader(stream, delimiter=delimiter)
+        for row in reader:
+            rows.append(row)
         return rows
+
+    @classmethod
+    def csv_string_to_dict(cls, text, delimiter=','):
+        with io.StringIO(text) as stream:
+            return cls.csv_stream_do_dict(stream, delimiter=delimiter)
+
+    @classmethod
+    def csv_filepath_to_dict(cls, file_path, delimiter=','):
+        """Returns the rows of the given CSV file as a list of dicts"""
+        with open(file_path, 'r', encoding='utf8') as stream:
+            return cls.csv_stream_do_dict(stream, delimiter=delimiter)
 
     @staticmethod
     def get_optional_env(key, default):
