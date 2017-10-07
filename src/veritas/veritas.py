@@ -56,7 +56,7 @@ class VeritasValidor:
             self.columns.append(VeritasColumn(name, validator, is_unique))
 
         # load the rows
-        self.rows = Utils.csv_to_dict(file_path=self.csv_path, delimiter=self.DELIMITER)
+        self.rows = Utils.csv_filepath_to_dict(file_path=self.csv_path, delimiter=self.DELIMITER)
 
     def validate(self):
         """Validate the columns"""

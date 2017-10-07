@@ -25,7 +25,7 @@ class WPSite:
         # validate input
         validate_openshift_env(openshift_env)
         URLValidator()(wp_site_url)
-        if wp_default_site_title is None:
+        if wp_default_site_title is not None:
             validate_string(wp_default_site_title)
 
         # extract domain and folder from given url

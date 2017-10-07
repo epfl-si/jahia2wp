@@ -35,11 +35,11 @@ class WPGenerator:
         # validate input
         validate_openshift_env(openshift_env)
         URLValidator()(wp_site_url)
-        if wp_default_site_title is None:
+        if wp_default_site_title is not None:
             validate_string(wp_default_site_title)
-        if owner_id is None:
+        if owner_id is not None:
             validate_integer(owner_id)
-        if responsible_id is None:
+        if responsible_id is not None:
             validate_integer(responsible_id)
 
         # create WordPress site and config
@@ -187,11 +187,20 @@ class WPGenerator:
         return success
 
     def clean(self):
-        # TODO: retrieve db_infos (db_name, mysql_username, mysql_password)
-        # TODO: clean db
+        # retrieve db_infos
+        db_name = self.wp_config.db_name
+        db_user = self.wp_config.db_user
+
+        # clean db
+        logging.info("%s - WP config - cleaning up DB", self.wp_site.path)
+        if not self.run_mysql('-e "DROP DATABASE {};"'.format(db_name)):
+            logging.error("%s - WP config - could not drop DATABASE %s", self.wp_site.path, db_name)
+
+        if not self.run_mysql('-e "DROP USER {};"'.format(db_user)):
+            logging.error("%s - WP config - could not drop USER %s", self.wp_site.path, db_name)
 
         # clean directories first
-        logging.debug("%s - WP config - removing files", self.wp_site.path)
+        logging.info("%s - WP config - removing files", self.wp_site.path)
         for dir_path in WP_DIRS:
             path = os.path.join(self.wp_site.path, dir_path)
             if os.path.exists(path):

@@ -1,9 +1,11 @@
 import os
+import sys
 import shutil
 import logging
 import subprocess
 
-from settings import DATA_PATH
+from settings import DATA_PATH, WP_CONFIG_KEYS
+from utils import Utils
 from .models import WPException, WPUser
 
 
@@ -18,6 +20,7 @@ class WPRawConfig:
 
     def __init__(self, wp_site):
         self.wp_site = wp_site
+        self._config_infos = None
 
     def __repr__(self):
         installed_string = '[ok]' if self.is_installed else '[ko]'
@@ -29,7 +32,9 @@ class WPRawConfig:
             proc = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
             logging.debug("%s - %s -> %s", self.__class__.__name__, command, proc.stdout)
             # return output if got any, True otherwise
-            return proc.stdout or True
+            if proc.stdout:
+                return proc.stdout.decode(sys.stdout.encoding)
+            return True
 
         except subprocess.CalledProcessError as err:
             # log error with content of stderr
@@ -69,10 +74,47 @@ class WPRawConfig:
     def wp_version(self):
         return self.run_wp_cli('core version')
 
+    def config_infos(self, field=None):
+        # validate input
+        if field is not None and field not in WP_CONFIG_KEYS:
+            raise ValueError("field %s should be in %s", field, WP_CONFIG_KEYS)
+
+        # lazy initialisation
+        if self._config_infos is None:
+
+            # fetch all values
+            raw_infos = self.run_wp_cli('config get --format=csv')
+            if not raw_infos:
+                raise ValueError("%s - wp cli - Could not get config", self.wp_site.path)
+
+            # reformat output from wp cli
+            self._config_infos = {}
+            for infos in Utils.csv_string_to_dict(raw_infos):
+                self._config_infos[infos['key']] = infos['value']
+
+            logging.debug("%s - wp cli - config get -> %s", self.wp_site.path, self._config_infos)
+
+        # filter if necessary
+        if field is None:
+            return self._config_infos
+        else:
+            return self._config_infos[field]
+
     @property
-    def db_infos(self):
-        # TODO: read from wp_config.php {db_name, mysql_username, mysql_password}
-        pass
+    def db_name(self):
+        return self.config_infos(field='DB_NAME')
+
+    @property
+    def db_host(self):
+        return self.config_infos(field='DB_HOST')
+
+    @property
+    def db_user(self):
+        return self.config_infos(field='DB_USER')
+
+    @property
+    def db_password(self):
+        return self.config_infos(field='DB_PASSWORD')
 
     @property
     def admin_infos(self):

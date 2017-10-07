@@ -37,6 +37,24 @@ WP_FILES = [
     'xmlrpc.php'
 ]
 
+WP_CONFIG_KEYS = [
+    'table_prefix',
+    'DB_NAME',
+    'DB_USER',
+    'DB_PASSWORD',
+    'DB_HOST',
+    'DB_CHARSET',
+    'DB_COLLATE',
+    'AUTH_KEY',
+    'SECURE_AUTH_KEY',
+    'LOGGED_IN_KEY',
+    'NONCE_KEY',
+    'AUTH_SALT',
+    'SECURE_AUTH_SALT',
+    'LOGGED_IN_SALT',
+    'NONCE_SALT',
+]
+
 OPENSHIFT_ENVS = [
     # for testing purpose
     "your-env",
