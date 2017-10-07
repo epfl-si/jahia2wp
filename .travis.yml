@@ -20,4 +20,4 @@ install:
 - docker exec mgmt make -C /srv/$WP_ENV/jahia2wp bootstrap-mgmt
 
 script:
-- docker exec -e CODECOV_TOKEN=$CODECOV_TOKEN mgmt make -C /srv/$WP_ENV/jahia2wp test-travis
+- docker exec --user=www-data -e CODECOV_TOKEN=$CODECOV_TOKEN mgmt make -C /srv/$WP_ENV/jahia2wp test-travis
