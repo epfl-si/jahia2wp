@@ -31,7 +31,11 @@ class WPGenerator:
     WP_ADMIN_USER = Utils.get_mandatory_env(key="WP_ADMIN_USER")
     WP_ADMIN_EMAIL = Utils.get_mandatory_env(key="WP_ADMIN_EMAIL")
 
-    def __init__(self, openshift_env, wp_site_url, wp_default_site_title=None, owner_id=None, responsible_id=None):
+    def __init__(self, openshift_env, wp_site_url,
+                 wp_default_site_title=None,
+                 admin_password=None,
+                 owner_id=None,
+                 responsible_id=None):
         # validate input
         validate_openshift_env(openshift_env)
         URLValidator()(wp_site_url)
@@ -48,7 +52,7 @@ class WPGenerator:
 
         # prepare admin for exploitation/maintenance
         self.wp_admin = WPUser(self.WP_ADMIN_USER, self.WP_ADMIN_EMAIL)
-        self.wp_admin.set_password()
+        self.wp_admin.set_password(password=admin_password)
 
         # store scipers_id for later
         self.owner_id = owner_id

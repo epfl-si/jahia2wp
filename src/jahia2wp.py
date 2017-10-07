@@ -5,8 +5,9 @@ Usage:
   jahia2wp.py check-one    <wp_env> <wp_url> [--debug | --quiet]
   jahia2wp.py clean-one    <wp_env> <wp_url> [--debug | --quiet]
   jahia2wp.py generate-one <wp_env> <wp_url>
-                             [--wp-title=<WP_TITLE> --owner=<OWNER_ID> --responsible=<RESPONSIBLE_ID>]
-                             [--debug | --quiet]
+    [--wp-title=<WP_TITLE> --admin-password=<ADMIN_PASSWORD>]
+    [--owner=<OWNER_ID> --responsible=<RESPONSIBLE_ID>]
+    [--debug | --quiet]
   jahia2wp.py generate-many <csv_file> [--output-dir=<OUTPUT_DIR>] [--debug | --quiet]
   jahia2wp.py wp-version    <wp_env> <wp_url> [--debug | --quiet]
   jahia2wp.py veritas       <csv_file>
@@ -58,8 +59,14 @@ def clean_one(wp_env, wp_url, **kwargs):
 
 
 @dispatch.on('generate-one')
-def generate_one(wp_env, wp_url, wp_title=None, owner_id=None, responsible_id=None, **kwargs):
-    wp_generator = WPGenerator(wp_env, wp_url, wp_title, owner_id, responsible_id)
+def generate_one(wp_env, wp_url, wp_title=None, admin_password=None, owner_id=None, responsible_id=None, **kwargs):
+    wp_generator = WPGenerator(
+        wp_env,
+        wp_url,
+        wp_default_site_title=wp_title,
+        admin_password=admin_password,
+        owner_id=owner_id,
+        responsible_id=responsible_id)
     if not wp_generator.generate():
         raise SystemExit("Generation failed. More info above")
 
