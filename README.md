@@ -113,14 +113,7 @@ As some commands require `sudo`, you will be asked for your system password. The
 
 Simply run the instructions given in the last lines from the script.
 
-Among them, `make exec` will log you in your container, where you can configure it:
-
-    you@host:jahia2wp$ make exec
-    www-data@xxx:/srv/your-env$ cd jahia2wp
-    www-data@xxx:/srv/your-env/jahia2wp$ make bootstrap-mgmt
-    ...
-
-You are now ready to jump to the next section, about [usages](#usage).
+Among them, `make exec` will log you in your container: you are now ready to jump to the next section, about [usages](#usage).
 
 Did we mention that would you be looking for a more explicit process, feel free to follow the [detailed guide](./docs/INSTALL_DETAILED.md)? ;)
 
@@ -136,8 +129,8 @@ You will need to ask C2C to add your public key in `authorized_keys` on the serv
     www-data@mgmt-x-xxx:/srv/your-env$ git clone git@github.com:epfl-idevelop/jahia2wp.git
     www-data@mgmt-x-xxx:/srv/your-env$ cd jahia2wp
     www-data@mgmt-x-xxx:/srv/your-env/jahia2wp$ cp /srv/.config/.env . (<- that will set the correct DB credentials for you)
-    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp$ make bootstrap-mgmt
-    ...
+
+You are now ready to jump to the next section, about [usages](#usage).
 
 ## Usages
 
@@ -158,6 +151,9 @@ The usage is independent from the environment. The same docker image is used in 
 You can start with this useful alias:
 
     www-data@...:/srv/your-env$ vjahia2wp
+
+The configuration of your python virtual environment will occur the first time you make use of it. Otherwise, it is simply activated and your are correctly set in your `src` dir:
+
     (venv) www-data@...:/srv/your-env/jahia2wp/src$ 
 
 

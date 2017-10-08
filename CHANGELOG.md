@@ -11,12 +11,22 @@ Table of releases
 
 <!-- TOC depthFrom:2 depthTo:2 orderedList:false -->
 
+- [[0.2.2] - 2017-10-08](#022---2017-10-08)
 - [[0.2.1] - 2017-10-05](#021---2017-10-05)
 - [[Unversioned] - 2017-10-05](#unversioned---2017-10-05)
 - [[Unreleased]](#unreleased)
 - [[0.1.0] - 2017-09-14](#010---2017-09-14)
 
 <!-- /TOC -->
+
+## [0.2.2] - 2017-10-08
+**[PR #40](https://github.com/epfl-idevelop/jahia2wp/pull/40)**
+
+Organize the Makefile rules to make them more fool-proof
+
+- Make as many targets as possible idempotent (= won't hurt if run twice)
+- Split out Makefile.mgmt for targets that only make sense from inside Docker; have that file show up as "the" Makefile from the container (by way of a Docker volume)
+- Make the "make bootstrap-mgmt" step implicit for the interactive use case (vjahia2wp)
 
 ## [0.2.1] - 2017-10-05
 **[Commit 7c0365e](https://github.com/epfl-idevelop/jahia2wp/commit/7c0365ee6f3c7e447f29440394b42d8aa478b3cb)**
