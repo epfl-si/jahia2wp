@@ -28,7 +28,7 @@ test-travis: check-env
 	  && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src \
 	  && flake8 --max-line-length=120 src \
 	  && pytest --cov=./ src \
-	  && codecov -t ${CODECOV_TOKEN}
+	  && codecov
 
 vars: check-env
 	@echo 'Environment-related vars:'
