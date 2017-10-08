@@ -33,6 +33,8 @@ test-travis: check-env
 vars: check-env
 	@echo 'Environment-related vars:'
 	@echo '  WP_ENV=${WP_ENV}'
+	@echo '  WP_PORT_HTTP=${WP_PORT_HTTP}'
+	@echo '  WP_PORT_HTTPS=${WP_PORT_HTTPS}'
 	
 	@echo ''
 	@echo DB-related vars:
