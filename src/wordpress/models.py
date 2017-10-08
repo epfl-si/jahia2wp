@@ -4,7 +4,7 @@ import re
 from urllib.parse import urlparse
 from epflldap.ldap_search import get_username, get_email
 
-from django.core.validators import URLValidator, EmailValidator
+from django.core.validators import URLValidator, EmailValidator, ValidationError
 from veritas.validators import validate_string, validate_openshift_env, validate_gaspar_username
 
 from utils import Utils
@@ -110,7 +110,9 @@ class WPUser:
                 role=role
             )
         except IndexError:
-            raise WPException("WPUser.from_sciper - %s - could not get user details", sciper_id)
+            raise WPException("could not get user details for sciper %s" % sciper_id)
+        except ValidationError as err:
+            raise WPException("username or email '%s': %s" % (err.params, err.code))
 
     def set_password(self, password=None):
         self.password = password or Utils.generate_password(self.WP_PASSWORD_LENGTH)

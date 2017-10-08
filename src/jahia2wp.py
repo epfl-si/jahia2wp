@@ -11,7 +11,7 @@ Usage:
   jahia2wp.py wp-version    <wp_env> <wp_url> [--debug | --quiet]
   jahia2wp.py wp-admins     <wp_env> <wp_url> [--debug | --quiet]
   jahia2wp.py inventory     <wp_env> <path>   [--debug | --quiet]
-  jahia2wp.py generate-many <csv_file> [--output-dir=<OUTPUT_DIR>] [--debug | --quiet]
+  jahia2wp.py generate-many <csv_file>        [--debug | --quiet]
   jahia2wp.py veritas       <csv_file>
 
 Options:
@@ -21,7 +21,6 @@ Options:
 
 import logging
 
-from pprint import pprint
 from docopt import docopt
 from docopt_dispatch import dispatch
 
@@ -100,14 +99,15 @@ def generate_many(csv_file, **kwargs):
     rows = validator.get_valid_rows()
 
     # print errors
-    print("The following lines have errors that prevent the generation of the WP site:\n")
-    validator.print_errors()
+    if validator.errors:
+        print("The following lines have errors that prevent the generation of the WP site:\n")
+        validator.print_errors()
 
     # create a new WP site for each row
-    print("\n{} websites will now be generated...\n".format(len(rows)))
+    print("\n{} websites will now be generated...".format(len(rows)))
     for index, row in rows:
-        print("Index #{}:\n---".format(index))
-        pprint(row)
+        print("\nIndex #{}:\n---".format(index))
+        logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
         WPGenerator(
             row["openshift_env"],
             row["wp_site_url"],
