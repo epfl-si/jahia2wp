@@ -14,22 +14,8 @@ include .env
 endif
 
 test: check-env
+# The "test-raw" target is in Makefile.mgmt
 	docker exec mgmt make -C /srv/$$WP_ENV/jahia2wp test-raw
-
-test-raw: check-env
-	. /srv/${WP_ENV}/venv/bin/activate \
-	  && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src \
-	  && flake8 --max-line-length=120 src \
-	  && pytest --cov=./ src \
-	  && coverage html
-
-test-travis: check-env
-	. /srv/${WP_ENV}/venv/bin/activate \
-	  && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src \
-	  && flake8 --max-line-length=120 src \
-	  && pytest --cov=./ src \
-	  && codecov
-	bash -c 'bash <(curl -s https://codecov.io/bash)'
 
 vars: check-env
 	@echo 'Environment-related vars:'
@@ -86,10 +72,3 @@ endif
 	@echo "Done with your local env. You can now" 
 	@if test -z "${WP_ENV}"; then echo "    $ source ~/.bashrc (to update your environment with WP_ENV value)"; fi
 	@echo "    $ make exec        (to connect into your contanier)"
-
-bootstrap-mgmt: check-env
-	cd .. \
-	  && virtualenv -p `which python3` venv
-	. /srv/${WP_ENV}/venv/bin/activate \
-	  && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src \
-	  && pip install -r requirements/local.txt
