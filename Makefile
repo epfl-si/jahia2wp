@@ -70,8 +70,8 @@ down: check-env
 	 docker-compose down
 
 bootstrap-local:
-	cp .env.sample .env
-	cp etc/.bash_history.sample etc/.bash_history
+	[ -f .env ] || cp .env.sample .env
+	[ -f etc/.bash_history ] || cp etc/.bash_history.sample etc/.bash_history
 	sudo chown -R `whoami`:33 .
 	sudo chmod -R g+w .
 ifdef WP_ENV
