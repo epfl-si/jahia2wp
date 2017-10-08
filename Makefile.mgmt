@@ -1,0 +1,30 @@
+# These targets are to be run from inside the "mgmt" Docker container
+.PHONY: test-raw test-travis bootstrap-mgmt pip-install
+ifndef WP_ENV
+	$(error WP_ENV is undefined)
+endif
+
+test-raw: /srv/${WP_ENV}/venv
+	. /srv/${WP_ENV}/venv/bin/activate \
+	  && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src \
+	  && flake8 --max-line-length=120 src \
+	  && pytest --cov=./ src \
+	  && coverage html
+
+test-travis: /srv/${WP_ENV}/venv
+	. /srv/${WP_ENV}/venv/bin/activate \
+	  && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src \
+	  && flake8 --max-line-length=120 src \
+	  && pytest --cov=./ src \
+	  && codecov
+	bash -c 'bash <(curl -s https://codecov.io/bash)'
+
+/srv/${WP_ENV}/venv:
+	cd /srv/${WP_ENV} && virtualenv -p `which python3` venv
+	$(MAKE) pip-install
+
+bootstrap-mgmt pip-install: /srv/${WP_ENV}/venv
+	. /srv/${WP_ENV}/venv/bin/activate \
+	  && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src \
+	  && pip install -r requirements/local.txt
+
