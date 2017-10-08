@@ -29,6 +29,7 @@ test-travis: check-env
 	  && flake8 --max-line-length=120 src \
 	  && pytest --cov=./ src \
 	  && codecov
+	bash -c 'bash <(curl -s https://codecov.io/bash)'
 
 vars: check-env
 	@echo 'Environment-related vars:'
