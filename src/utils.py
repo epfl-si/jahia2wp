@@ -53,8 +53,8 @@ class Utils(object):
         with open(file_path, 'r', encoding='utf8') as stream:
             return cls.csv_stream_do_dict(stream, delimiter=delimiter)
 
-    @staticmethod
-    def get_optional_env(key, default):
+    @classmethod
+    def get_optional_env(cls, key, default):
         """
         Return the value of an optional environment variable, and use
         the provided default if it's not set.
@@ -65,8 +65,8 @@ class Utils(object):
 
         return os.environ.get(key, default)
 
-    @staticmethod
-    def get_mandatory_env(key):
+    @classmethod
+    def get_mandatory_env(cls, key):
 
         if not os.environ.get(key):
             msg = "The mandatory environment variable {} is not set".format(
@@ -76,12 +76,13 @@ class Utils(object):
 
         return os.environ.get(key)
 
-    @staticmethod
-    def set_logging_config(args):
+    @classmethod
+    def set_logging_config(cls, args):
         """
         Set logging with the 'good' level
         """
         level = logging.INFO
+        WP_ENV = cls.get_mandatory_env('WP_ENV')
 
         if args['--quiet']:
             level = logging.WARNING
@@ -89,15 +90,16 @@ class Utils(object):
             level = logging.DEBUG
 
         # set up logging to console
-        logging.basicConfig(format='%(levelname)s - %(funcName)s - %(message)s')
+        format = '%(levelname)s - {} - %(funcName)s - %(message)s'
+        logging.basicConfig(format=format.format(WP_ENV))
         logger = logging.getLogger()
         logger.setLevel(level)
 
         # set up logging to file
         fh = logging.FileHandler(Utils.get_optional_env('LOGGING_FILE', 'jahia2wp.log'))
         fh.setLevel(level)
-        formatter = logging.Formatter(
-            '%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s:%(funcName)s - %(message)s')
+        format = '%(asctime)s - %(levelname)s - {} - %(filename)s:%(lineno)s:%(funcName)s - %(message)s'
+        formatter = logging.Formatter(format.format(WP_ENV))
         fh.setFormatter(formatter)
 
         # add the handlers to the logger
