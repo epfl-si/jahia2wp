@@ -14,6 +14,7 @@ include .env
 endif
 
 test: check-env
+# The "test-raw" target is in Makefile.mgmt
 	docker exec --user=www-data mgmt make -C /srv/$$WP_ENV/jahia2wp test-raw
 
 vars: check-env
