@@ -1,5 +1,6 @@
 import os
 import re
+import logging
 
 from urllib.parse import urlparse
 from epflldap.ldap_search import get_username, get_email
@@ -54,13 +55,23 @@ class WPSite:
 
     @classmethod
     def from_path(cls, openshift_env, path):
+        given_path = os.path.abspath(path).rstrip('/')
+
         # validate given path
+        if not os.path.isdir(given_path):
+            logging.warning("given path '{}' is not a valid dir".format(given_path))
+
+        # validate path within env
         env_path = '/srv/{}'.format(openshift_env)
-        given_path = os.path.abspath(path)
         if not given_path.startswith(env_path):
             raise ValueError("given path '{}' should be included in given openshift_env '{}'".format(
                 given_path, env_path
             ))
+
+        # path is env
+        if env_path == given_path:
+            logging.debug("given path is openshift env: no site here")
+            return None
 
         # build URL from path
         if 'htdocs' in given_path:

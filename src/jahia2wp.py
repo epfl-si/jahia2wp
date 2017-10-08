@@ -2,21 +2,22 @@
 jahia2wp: an amazing tool !
 
 Usage:
-  jahia2wp.py check-one    <wp_env> <wp_url> [--debug | --quiet]
-  jahia2wp.py clean-one    <wp_env> <wp_url> [--debug | --quiet]
-  jahia2wp.py generate-one <wp_env> <wp_url>
+  jahia2wp.py check-one     <wp_env> <wp_url> [--debug | --quiet]
+  jahia2wp.py clean-one     <wp_env> <wp_url> [--debug | --quiet]
+  jahia2wp.py generate-one  <wp_env> <wp_url> [--debug | --quiet]
     [--wp-title=<WP_TITLE> --admin-password=<ADMIN_PASSWORD>]
     [--owner=<OWNER_ID> --responsible=<RESPONSIBLE_ID>]
-    [--debug | --quiet]
   jahia2wp.py wp-version    <wp_env> <wp_url> [--debug | --quiet]
   jahia2wp.py wp-admins     <wp_env> <wp_url> [--debug | --quiet]
   jahia2wp.py inventory     <wp_env> <path>   [--debug | --quiet]
   jahia2wp.py generate-many <csv_file>        [--debug | --quiet]
-  jahia2wp.py veritas       <csv_file>
+  jahia2wp.py veritas       <csv_file>        [--debug | --quiet]
 
 Options:
-  -h --help                     Show this screen.
-  -v --version                  Show version.
+  -h --help                 Show this screen.
+  -v --version              Show version.
+  --debug                   Set log level to DEBUG (default is INFO)
+  --quiet                   Set log level to WARNING (default is INFO)
 """
 
 import logging
@@ -93,7 +94,6 @@ def wp_admins(wp_env, wp_url, **kwargs):
 
 @dispatch.on('generate-many')
 def generate_many(csv_file, **kwargs):
-
     # use Veritas to get valid rows
     validator = VeritasValidor(csv_file)
     rows = validator.get_valid_rows()

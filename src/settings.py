@@ -13,6 +13,7 @@ DATA_PATH = os.path.abspath(
     )
 )
 
+ENV_DIRS = ['logs', 'venv', 'jahia2wp']
 WP_DIRS = ['wp-admin', 'wp-content', 'wp-includes']
 WP_FILES = [
     'index.php',

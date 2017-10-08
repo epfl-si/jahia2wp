@@ -14,8 +14,7 @@ Table of releases
 - [[0.2.3] - 2017-10-09](#023---2017-10-09)
 - [[0.2.2] - 2017-10-08](#022---2017-10-08)
 - [[0.2.1] - 2017-10-05](#021---2017-10-05)
-- [[Unversioned] - 2017-10-05](#unversioned---2017-10-05)
-- [[Unreleased]](#unreleased)
+- [2017-09-20](#2017-09-20)
 - [[0.1.0] - 2017-09-14](#010---2017-09-14)
 
 <!-- /TOC -->
@@ -55,14 +54,13 @@ Organize the Makefile rules to make them more fool-proof
 
 - possibilité de surcharger les variables du Makefile `WP_ENV`, `WP_PORT_HTTP` et `WP_PORT_HTTPS` par les celles d'environnement ou par la ligne de commande (par exemple `WP_PORT_HTTP=81 WP_ENV=my-env make vars`)
 
-## [Unversioned] - 2017-10-05
 **[PR #22](https://github.com/epfl-idevelop/jahia2wp/pull/22)**
 
 - création et suppression d'un Wordpress (avec le thème EPFL) par `generate-one` et `clean-one`
 - création de plusieurs sites à partir d'un CSV avec `generate-many`
 - consolidation du docker-compose et du Makefile pour créer un environnement local identique à l'environnement de production. Description dans le `README` et le `INSTALL_DETAILED`
 
-## [Unreleased]
+## 2017-09-20
 **[PR #5](https://github.com/epfl-idevelop/jahia2wp/pull/5)**
 
 - added .env(.sample) file to define all environment vars

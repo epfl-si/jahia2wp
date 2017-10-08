@@ -3,7 +3,7 @@ import shutil
 import logging
 import collections
 
-from settings import DATA_PATH, WP_DIRS, WP_CONFIG_KEYS
+from settings import DATA_PATH, ENV_DIRS, WP_DIRS, WP_CONFIG_KEYS
 from utils import Utils
 from .models import WPException, WPUser, WPSite
 
@@ -30,7 +30,7 @@ class WPRawConfig:
     def inventory(cls, wp_env, path):
         # helper function to filter out directories which are part or WP install
         def keep_wp_sites(dir_name):
-            return dir_name not in WP_DIRS
+            return dir_name not in WP_DIRS + ENV_DIRS
 
         # helper class to wrap results
         WPResult = collections.namedtuple(
@@ -48,6 +48,8 @@ class WPRawConfig:
             for dir_name in dir_names:
                 logging.debug('checking %s/%s', parent_path, dir_name)
                 wp_site = WPSite.from_path(wp_env, os.path.join(parent_path, dir_name))
+                if wp_site is None:
+                    continue
                 wp_config = cls(wp_site)
                 if wp_config.is_config_valid:
                     yield WPResult(
