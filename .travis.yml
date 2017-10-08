@@ -17,8 +17,8 @@ before_install:
 
 install:
 - make up
-- docker exec mgmt make -C /srv/$WP_ENV/jahia2wp bootstrap-mgmt
+- docker exec $(docker ps -q --filter "label=com.docker.compose.service=mgmt") make -C /srv/$WP_ENV/jahia2wp bootstrap-mgmt
 
 script:
 - ci_env=`bash <(curl -s https://codecov.io/env)`
-- docker exec $ci_env mgmt make -C /srv/$WP_ENV/jahia2wp test-travis
+- docker exec $ci_env  $(docker ps -q --filter "label=com.docker.compose.service=mgmt") make -C /srv/$WP_ENV/jahia2wp test-travis
