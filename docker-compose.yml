@@ -49,7 +49,7 @@ services:
       - ./data:/srv/${WP_ENV}/jahia2wp/data
       - ./requirements:/srv/${WP_ENV}/jahia2wp/requirements
       - ./src:/srv/${WP_ENV}/jahia2wp/src
-      - ./Makefile:/srv/${WP_ENV}/jahia2wp/Makefile
+      - ./Makefile.mgmt:/srv/${WP_ENV}/jahia2wp/Makefile
       - .env:/srv/${WP_ENV}/jahia2wp/.env
     ports:
       - "2222:22"
