@@ -25,6 +25,7 @@ Table of releases
 **high level:**
 1. added command `wp-version`
 1. added command `wp-admins`
+1. added command `inventory`
 1. improved command `check-one`: actually checks that config is ok with wp-cli
 1. improved command `generate-one` with parameter `--admin-password` to force password for admin instead of creating a random one
 1. improved CLI messages when running jahia2wp.py script
@@ -32,10 +33,12 @@ Table of releases
 
 **low level:**
 1. improved commands (`run_command`, `run_mysql`, `run_wp_cli`), which actually return output, do not display `stderr`, but keep it available on error cases
-1. improved `WPRawConfig` which now gives access to wp-config variables, and users
-1. used `veritas.validators` in wordpress models
+1. extended `Utils` to read csv from strings and to provide `run_command`
+1. improved `WPSite` with a factory method which take openshift_env and path instead of url
 1. improved model `WPUser` to get role
-1. extended `Utils` to read csv from strings. (added tests)
+1. improved `WPRawConfig` which now gives access to wp-config variables, and users
+openshift_env and url
+1. used `veritas.validators` in wordpress models
 
 ## [0.2.1] - 2017-10-05
 **[Commit 7c0365e](https://github.com/epfl-idevelop/jahia2wp/commit/7c0365ee6f3c7e447f29440394b42d8aa478b3cb)**

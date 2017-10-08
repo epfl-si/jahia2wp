@@ -44,6 +44,7 @@ Table of contents
 - [Usages](#usages)
     - [Create a new WordPress site](#create-a-new-wordpress-site)
     - [Information on a WordPress site](#information-on-a-wordpress-site)
+    - [Inventory of WordPress sites for a given path (in a given env)](#inventory-of-wordpress-sites-for-a-given-path-in-a-given-env)
     - [Delete a WordPress site](#delete-a-wordpress-site)
     - [phpMyAdmin (locally)](#phpmyadmin-locally)
 - [Contribution](#contribution)
@@ -200,6 +201,19 @@ To get the admin users of a given wordpress
     .../src$ python jahia2wp.py clean-one $WP_ENV http://localhost/folder/
     admin:admin@example.com <administrator>
     user235151:user@epfl.ch <administrator>
+
+
+### Inventory of WordPress sites for a given path (in a given env)
+
+To look into the tree structure and list all valid/unvalid wordpress sites, with some info when they are valid:
+
+    .../src$ python jahia2wp.py inventory $WP_ENV /srv/your-env/localhost
+    INFO - your-env - inventory - Building inventory...
+    path;valid;url;version;db_name;db_user;admins
+    /srv/your-env/localhost/htdocs/;ok;http://localhost/;4.8.2;wp_dvyrgdywryrcmnkjnmonfzjv9ts4d;ce8clbbqyzeqta31;admin
+    /srv/your-env/localhost/htdocs/folder;ok;http://localhost/folder;4.8;wp_snqi7wekjznhkfe1ggisr9jmqaqeo;o0ajktkeaygim7w9;admin
+    /srv/your-env/localhost/htdocs/unittest;KO;;;;;
+    INFO - your-env - inventory - Inventory made for /srv/your-env/localhost
 
 ### Delete a WordPress site
 

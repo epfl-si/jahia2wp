@@ -12,6 +12,8 @@ TEST_FILE = 'csv_fixture.csv'
 SRC_DIR = os.path.abspath(os.path.join(CURRENT_DIR, '..'))
 SCRIPT_FILE = os.path.join(SRC_DIR, 'jahia2wp.py')
 
+TEST_ENV = 'test'
+
 EXPECTED_OUTPUT_FROM_CSV = [
         {'key': 'table_prefix', 'value': 'wp_', 'type': 'variable'},
         {'key': 'DB_NAME', 'value': 'wp_a0veseethknlxrhdaachaj5qgdixh', 'type': 'constant'},
@@ -39,7 +41,7 @@ DB_COLLATE,,constant"""
 
 @pytest.fixture(scope="module")
 def setup():
-    wp_env = Utils.get_mandatory_env('WP_ENV')
+    wp_env = TEST_ENV
     wp_url = 'http://localhost/unittest'
     wp_generator = WPGenerator(wp_env, wp_url)
     if wp_generator.wp_config.is_installed:
@@ -51,25 +53,31 @@ class TestCommandLine:
     # ORDER matters
 
     def test_check_one_fails(self, setup):
-        assert not Utils.run_command('python %s check-one $WP_ENV http://localhost/unittest' % SCRIPT_FILE)
+        assert not Utils.run_command('python %s check-one %s http://localhost/unittest'
+                                     % (SCRIPT_FILE, TEST_ENV))
 
     def test_clean_one_fails(self):
-        assert not Utils.run_command('python %s clean-one $WP_ENV http://localhost/unittest' % SCRIPT_FILE)
+        assert not Utils.run_command('python %s clean-one %s http://localhost/unittest'
+                                     % (SCRIPT_FILE, TEST_ENV))
 
     def test_generate_one_success(self):
         expected = "Successfully created new WordPress site at http://localhost/unittest"
-        assert Utils.run_command('python %s generate-one $WP_ENV http://localhost/unittest' % SCRIPT_FILE) == expected
+        assert Utils.run_command('python %s generate-one %s http://localhost/unittest'
+                                 % (SCRIPT_FILE, TEST_ENV)) == expected
 
     def test_generate_one_fails(self):
-        assert not Utils.run_command('python %s generate-one $WP_ENV http://localhost/unittest' % SCRIPT_FILE)
+        assert not Utils.run_command('python %s generate-one %s http://localhost/unittest'
+                                     % (SCRIPT_FILE, TEST_ENV))
 
     def test_check_one_success(self):
         expected = "WordPress site valid and accessible at http://localhost/unittest"
-        assert Utils.run_command('python %s check-one $WP_ENV http://localhost/unittest' % SCRIPT_FILE) == expected
+        assert Utils.run_command('python %s check-one %s http://localhost/unittest'
+                                 % (SCRIPT_FILE, TEST_ENV)) == expected
 
     def test_wp_version(self):
         expected = Utils.get_mandatory_env(key="WP_VERSION")
-        assert Utils.run_command('python %s wp-version $WP_ENV http://localhost/unittest' % SCRIPT_FILE) == expected
+        assert Utils.run_command('python %s wp-version %s http://localhost/unittest'
+                                 % (SCRIPT_FILE, TEST_ENV)) == expected
 
     def test_wp_admins(self):
         user = WPUser(
@@ -77,7 +85,16 @@ class TestCommandLine:
             Utils.get_mandatory_env(key="WP_ADMIN_EMAIL"),
             role='administrator')
         expected = repr(user)
-        assert Utils.run_command('python %s wp-admins $WP_ENV http://localhost/unittest' % SCRIPT_FILE) == expected
+        assert Utils.run_command('python %s wp-admins %s http://localhost/unittest'
+                                 % (SCRIPT_FILE, TEST_ENV)) == expected
+
+    def test_inventory(self):
+        expected = """path;valid;url;version;db_name;db_user;admins
+/srv/test/localhost/htdocs/;KO;;;;;
+/srv/test/localhost/htdocs/unittest;ok;http://localhost/unittest;4.8;wp_"""
+        assert Utils.run_command('python %s inventory %s /srv/test/localhost'
+                                 % (SCRIPT_FILE, TEST_ENV)).startswith(expected)
 
     def test_clean_one(self):
-        assert Utils.run_command('python %s clean-one $WP_ENV http://localhost/unittest' % SCRIPT_FILE)
+        assert Utils.run_command('python %s clean-one %s http://localhost/unittest'
+                                 % (SCRIPT_FILE, TEST_ENV))

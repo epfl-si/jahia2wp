@@ -1,3 +1,6 @@
+import os
+import re
+
 from urllib.parse import urlparse
 from epflldap.ldap_search import get_username, get_email
 
@@ -48,6 +51,33 @@ class WPSite:
     @property
     def url(self):
         return "{0.PROTOCOL}://{0.domain}/{0.folder}".format(self)
+
+    @classmethod
+    def from_path(cls, openshift_env, path):
+        # validate given path
+        env_path = '/srv/{}'.format(openshift_env)
+        given_path = os.path.abspath(path)
+        if not given_path.startswith(env_path):
+            raise ValueError("given path '{}' should be included in given openshift_env '{}'".format(
+                given_path, env_path
+            ))
+
+        # build URL from path
+        if 'htdocs' in given_path:
+            # extract domain and folder(s)
+            regex = re.compile("/([^/]*)")
+            directories = regex.findall(os.path.abspath(path))
+            htdocs_index = directories.index('htdocs')
+            domain = directories[htdocs_index-1]
+            folders = '/'.join(directories[htdocs_index+1:])
+            url = "{}://{}/{}".format(cls.PROTOCOL, domain, folders)
+        else:
+            # domain only
+            domain = os.path.basename(given_path)
+            url = "{}://{}".format(cls.PROTOCOL, domain)
+
+        # return WPSite
+        return cls(openshift_env, url)
 
 
 class WPUser:

@@ -8,9 +8,10 @@ Usage:
     [--wp-title=<WP_TITLE> --admin-password=<ADMIN_PASSWORD>]
     [--owner=<OWNER_ID> --responsible=<RESPONSIBLE_ID>]
     [--debug | --quiet]
-  jahia2wp.py generate-many <csv_file> [--output-dir=<OUTPUT_DIR>] [--debug | --quiet]
   jahia2wp.py wp-version    <wp_env> <wp_url> [--debug | --quiet]
   jahia2wp.py wp-admins     <wp_env> <wp_url> [--debug | --quiet]
+  jahia2wp.py inventory     <wp_env> <path>   [--debug | --quiet]
+  jahia2wp.py generate-many <csv_file> [--output-dir=<OUTPUT_DIR>] [--debug | --quiet]
   jahia2wp.py veritas       <csv_file>
 
 Options:
@@ -52,21 +53,6 @@ def check_one(wp_env, wp_url, **kwargs):
     print("WordPress site valid and accessible at {}".format(wp_config.wp_site.url))
 
 
-@dispatch.on('wp-version')
-def wp_version(wp_env, wp_url, **kwargs):
-    wp_config = _check_site(wp_env, wp_url, **kwargs)
-    # success case
-    print(wp_config.wp_version)
-
-
-@dispatch.on('wp-admins')
-def wp_admins(wp_env, wp_url, **kwargs):
-    wp_config = _check_site(wp_env, wp_url, **kwargs)
-    # success case
-    for admin in wp_config.admins:
-        print(admin)
-
-
 @dispatch.on('clean-one')
 def clean_one(wp_env, wp_url, **kwargs):
     _check_site(wp_env, wp_url, **kwargs)
@@ -89,6 +75,21 @@ def generate_one(wp_env, wp_url, wp_title=None, admin_password=None, owner_id=No
         raise SystemExit("Generation failed. More info above")
 
     print("Successfully created new WordPress site at {}".format(wp_generator.wp_site.url))
+
+
+@dispatch.on('wp-version')
+def wp_version(wp_env, wp_url, **kwargs):
+    wp_config = _check_site(wp_env, wp_url, **kwargs)
+    # success case
+    print(wp_config.wp_version)
+
+
+@dispatch.on('wp-admins')
+def wp_admins(wp_env, wp_url, **kwargs):
+    wp_config = _check_site(wp_env, wp_url, **kwargs)
+    # success case
+    for admin in wp_config.admins:
+        print(admin)
 
 
 @dispatch.on('generate-many')
@@ -114,6 +115,23 @@ def generate_many(csv_file, **kwargs):
             owner_id=row["owner_id"],
             responsible_id=row["responsible_id"],
         ).generate()
+
+
+@dispatch.on('inventory')
+def inventory(wp_env, path, **kwargs):
+    logging.info("Building inventory...")
+    print(";".join(['path', 'valid', 'url', 'version', 'db_name', 'db_user', 'admins']))
+    for site_details in WPRawConfig.inventory(wp_env, path):
+        print(";".join([
+            site_details.path,
+            site_details.valid,
+            site_details.url,
+            site_details.version,
+            site_details.db_name,
+            site_details.db_user,
+            site_details.admins
+        ]))
+    logging.info("Inventory made for %s", path)
 
 
 @dispatch.on('veritas')

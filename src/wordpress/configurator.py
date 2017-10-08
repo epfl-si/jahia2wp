@@ -1,10 +1,11 @@
 import os
 import shutil
 import logging
+import collections
 
-from settings import DATA_PATH, WP_CONFIG_KEYS
+from settings import DATA_PATH, WP_DIRS, WP_CONFIG_KEYS
 from utils import Utils
-from .models import WPException, WPUser
+from .models import WPException, WPUser, WPSite
 
 
 class WPRawConfig:
@@ -24,6 +25,42 @@ class WPRawConfig:
     def __repr__(self):
         installed_string = '[ok]' if self.is_installed else '[ko]'
         return "config {0} for {1}".format(installed_string, repr(self.wp_site))
+
+    @classmethod
+    def inventory(cls, wp_env, path):
+        # helper function to filter out directories which are part or WP install
+        def keep_wp_sites(dir_name):
+            return dir_name not in WP_DIRS
+
+        # helper class to wrap results
+        WPResult = collections.namedtuple(
+            'WPResult', ['path', 'valid', 'url', 'version', 'db_name', 'db_user', 'admins'])
+
+        # set initial path
+        given_path = os.path.abspath(path)
+        logging.debug('walking through %s', given_path)
+
+        # walk through all subdirs of given path
+        # topdown is true in order modify the dirnames list in-place (and exclude WP dirs)
+        for (parent_path, dir_names, filenames) in os.walk(given_path, topdown=True):
+            # only keep potential WP sites
+            dir_names[:] = [d for d in dir_names if keep_wp_sites(d)]
+            for dir_name in dir_names:
+                logging.debug('checking %s/%s', parent_path, dir_name)
+                wp_site = WPSite.from_path(wp_env, os.path.join(parent_path, dir_name))
+                wp_config = cls(wp_site)
+                if wp_config.is_config_valid:
+                    yield WPResult(
+                        wp_config.wp_site.path,
+                        "ok",
+                        wp_config.wp_site.url,
+                        wp_config.wp_version,
+                        wp_config.db_name,
+                        wp_config.db_user,
+                        ",".join([wp_user.username for wp_user in wp_config.admins]),
+                    )
+                else:
+                    yield WPResult(wp_config.wp_site.path, "KO", "", "", "", "", "")
 
     def run_wp_cli(self, command):
         cmd = "wp {} --path='{}'".format(command, self.wp_site.path)
