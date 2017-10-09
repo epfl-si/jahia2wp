@@ -17,8 +17,14 @@ before_install:
 
 install:
 - make up
-- docker exec mgmt make -C /srv/$WP_ENV/jahia2wp bootstrap-mgmt
+# On searching containers by labels, see
+# https://docs.docker.com/engine/reference/commandline/ps/#filtering
+# The labels introduced by docker-compose don't seem to be documented
+# anywhere, but you can list them with "docker inspect". The closest
+# we have to something official would be this pull request's comment:
+# https://github.com/docker/compose/pull/1356#issuecomment-99801372
+- docker exec $(docker ps -q --filter "label=com.docker.compose.service=mgmt") make -C /srv/$WP_ENV/jahia2wp bootstrap-mgmt
 
 script:
 - ci_env=`bash <(curl -s https://codecov.io/env)`
-- docker exec --user=www-data $ci_env mgmt make -C /srv/$WP_ENV/jahia2wp test-travis
+- docker exec --user=www-data $ci_env $(docker ps -q --filter "label=com.docker.compose.service=mgmt") make -C /srv/$WP_ENV/jahia2wp test-travis

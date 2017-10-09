@@ -117,6 +117,8 @@ Simply run the instructions given in the last lines from the script.
 
 Among them, `make exec` will log you in your container: you are now ready to jump to the next section, about [usages](#usage).
 
+💡 If you want to use a nonstandard HTTP or HTTP/S port, you will need to [log in through phpMyAdmin](#phpmyadmin-locally) to [edit](https://codex.wordpress.org/Changing_The_Site_URL#Changing_the_URL_directly_in_the_database) `siteurl` in table `wp_options`, **prior to** testing your new site in the browser (or [clear the cache](https://stackoverflow.com/a/46632349/435004) if you forgot)
+
 Did we mention that would you be looking for a more explicit process, feel free to follow the [detailed guide](./docs/INSTALL_DETAILED.md)? ;)
 
 ### Express setup (C2C)
@@ -194,7 +196,7 @@ To get the version of a given wordpress:
 
 To get the admin users of a given wordpress
 
-    .../src$ python jahia2wp.py clean-one $WP_ENV http://localhost/folder/
+    .../src$ python jahia2wp.py wp-admins $WP_ENV http://localhost/folder/
     admin:admin@example.com <administrator>
     user235151:user@epfl.ch <administrator>
 
