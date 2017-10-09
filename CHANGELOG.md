@@ -40,6 +40,15 @@ Table of releases
 openshift_env and url
 1. used `veritas.validators` in wordpress models
 
+**[PR #41](https://github.com/epfl-idevelop/jahia2wp/pull/41)**
+
+No need to rely on fixed container names
+
+- Find containers by com.docker.compose.service label in Travis
+- Find the "mgmt" container by an ad-hoc label for "make exec"
+- Inter-Docker references by host name (e.g. "db") keep working,
+  thanks to Docker's magic
+
 ## [0.2.2] - 2017-10-08
 **[PR #40](https://github.com/epfl-idevelop/jahia2wp/pull/40)**
 
