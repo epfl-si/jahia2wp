@@ -201,6 +201,8 @@ Here are some examples with WordPress sites at different levels
 
 You can check that three new WordPresses are running on http://[localhost](http://localhost)/[folder](http://localhost/folder)/[niv3](http://localhost/folder/niv3).
 
+💡 If you want to use a nonstandard HTTP or HTTP/S port, you will need to [log in through phpMyAdmin](#phpmyadmin-locally) to [edit](https://codex.wordpress.org/Changing_The_Site_URL#Changing_the_URL_directly_in_the_database) `siteurl` in table `wp_options`, **prior to** testing your new site in the browser (or [clear the cache](https://stackoverflow.com/a/46632349/435004) if you forgot)
+
 
 ### Delete a WordPress site
 
