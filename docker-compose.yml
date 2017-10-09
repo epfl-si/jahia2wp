@@ -3,7 +3,6 @@ version: '3'
 services:
 
   db:
-    container_name: db
     image: mysql:5.7
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
@@ -12,7 +11,6 @@ services:
 
   phpmyadmin:
       image: phpmyadmin/phpmyadmin
-      container_name: phpmyadmin
       environment:
       - PMA_ARBITRARY=1
       ports:
@@ -21,7 +19,6 @@ services:
       - /sessions
       
   httpd:
-    container_name: httpd
     image: camptocamp/os-wp-httpd
     volumes:
       - ./volumes/srv:/srv
@@ -34,7 +31,8 @@ services:
       - "${WP_PORT_HTTPS}:443"
 
   mgmt:
-    container_name: mgmt
+    labels:
+      ch.epfl.jahia2wp.mgmt.env: ${WP_ENV}
     image: camptocamp/os-wp-mgmt
     env_file:
       - .env

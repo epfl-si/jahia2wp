@@ -13,9 +13,11 @@ else
 include .env
 endif
 
+_mgmt_container = $(shell docker ps -q --filter "label=ch.epfl.jahia2wp.mgmt.env=${WP_ENV}")
+
 test: check-env
 # The "test-raw" target is in Makefile.mgmt
-	docker exec mgmt make -C /srv/$$WP_ENV/jahia2wp test-raw
+	docker exec $(_mgmt_container) make -C /srv/$$WP_ENV/jahia2wp test-raw
 
 vars: check-env
 	@echo 'Environment-related vars:'
@@ -48,7 +50,7 @@ exec: check-env
 	  -e WP_ENV=${WP_ENV} \
 	  -e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
 	  -e MYSQL_DB_HOST=${MYSQL_DB_HOST} \
-	  mgmt bash -l
+	  $(_mgmt_container) bash -l
 
 down: check-env
 	@WP_PORT_HTTP=${WP_PORT_HTTP} \
