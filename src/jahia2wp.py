@@ -2,13 +2,16 @@
 jahia2wp: an amazing tool !
 
 Usage:
-  jahia2wp.py check-one     <wp_env> <wp_url> [--debug | --quiet]
-  jahia2wp.py clean-one     <wp_env> <wp_url> [--debug | --quiet]
-  jahia2wp.py generate-one  <wp_env> <wp_url> [--debug | --quiet]
+  jahia2wp.py clean         <wp_env> <wp_url> [--debug | --quiet]
+  jahia2wp.py check         <wp_env> <wp_url> [--debug | --quiet]
+  jahia2wp.py generate      <wp_env> <wp_url> [--debug | --quiet]
+  jahia2wp.py version       <wp_env> <wp_url> [--debug | --quiet]
+  jahia2wp.py admins        <wp_env> <wp_url> [--debug | --quiet]
+  jahia2wp.py check-one     <wp_env> <wp_url> [--debug | --quiet] [DEPRECATED]
+  jahia2wp.py clean-one     <wp_env> <wp_url> [--debug | --quiet] [DEPRECATED]
+  jahia2wp.py generate-one  <wp_env> <wp_url> [--debug | --quiet] [DEPRECATED]
     [--wp-title=<WP_TITLE> --admin-password=<ADMIN_PASSWORD>]
     [--owner=<OWNER_ID> --responsible=<RESPONSIBLE_ID>]
-  jahia2wp.py wp-version    <wp_env> <wp_url> [--debug | --quiet]
-  jahia2wp.py wp-admins     <wp_env> <wp_url> [--debug | --quiet]
   jahia2wp.py inventory     <wp_env> <path>   [--debug | --quiet]
   jahia2wp.py generate-many <csv_file>        [--debug | --quiet]
   jahia2wp.py veritas       <csv_file>        [--debug | --quiet]
@@ -29,7 +32,7 @@ from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPRawConfig, WPGenerator
 
 from settings import VERSION
-from utils import Utils
+from utils import Utils, deprecated
 
 
 def _check_site(wp_env, wp_url, **kwargs):
@@ -44,7 +47,13 @@ def _check_site(wp_env, wp_url, **kwargs):
 
 
 @dispatch.on('check-one')
+@deprecated("Use 'check' instead")
 def check_one(wp_env, wp_url, **kwargs):
+    return check(wp_env, wp_url, **kwargs)
+
+
+@dispatch.on('check')
+def check(wp_env, wp_url, **kwargs):
     wp_config = _check_site(wp_env, wp_url, **kwargs)
     # run a few more tests
     if not wp_config.is_install_valid:
@@ -54,7 +63,13 @@ def check_one(wp_env, wp_url, **kwargs):
 
 
 @dispatch.on('clean-one')
+@deprecated("Use 'clean' instead")
 def clean_one(wp_env, wp_url, **kwargs):
+    return clean(wp_env, wp_url, **kwargs)
+
+
+@dispatch.on('clean')
+def clean(wp_env, wp_url, **kwargs):
     _check_site(wp_env, wp_url, **kwargs)
     # config found: proceed with cleaning
     wp_generator = WPGenerator(wp_env, wp_url)
@@ -63,7 +78,15 @@ def clean_one(wp_env, wp_url, **kwargs):
 
 
 @dispatch.on('generate-one')
+@deprecated("Use 'generate' instead")
 def generate_one(wp_env, wp_url, wp_title=None, admin_password=None, owner_id=None, responsible_id=None, **kwargs):
+    return generate(
+        wp_env, wp_url, wp_title=wp_title, admin_password=admin_password,
+        owner_id=owner_id, responsible_id=responsible_id, **kwargs)
+
+
+@dispatch.on('generate')
+def generate(wp_env, wp_url, wp_title=None, admin_password=None, owner_id=None, responsible_id=None, **kwargs):
     wp_generator = WPGenerator(
         wp_env,
         wp_url,
@@ -77,15 +100,15 @@ def generate_one(wp_env, wp_url, wp_title=None, admin_password=None, owner_id=No
     print("Successfully created new WordPress site at {}".format(wp_generator.wp_site.url))
 
 
-@dispatch.on('wp-version')
-def wp_version(wp_env, wp_url, **kwargs):
+@dispatch.on('version')
+def version(wp_env, wp_url, **kwargs):
     wp_config = _check_site(wp_env, wp_url, **kwargs)
     # success case
     print(wp_config.wp_version)
 
 
-@dispatch.on('wp-admins')
-def wp_admins(wp_env, wp_url, **kwargs):
+@dispatch.on('admins')
+def admins(wp_env, wp_url, **kwargs):
     wp_config = _check_site(wp_env, wp_url, **kwargs)
     # success case
     for admin in wp_config.admins:

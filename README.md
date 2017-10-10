@@ -174,9 +174,9 @@ From here you can use the python script jahia2wp.py. The option `-h` will give y
 
 Here are some examples with WordPress sites at different levels
 
-    python jahia2wp.py generate-one $WP_ENV http://localhost
-    python jahia2wp.py generate-one $WP_ENV http://localhost/folder/ --wp-title="Sous Site WP" --owner=235151
-    python jahia2wp.py generate-one $WP_ENV http://localhost/folder/niv3 --wp-title="Site Niv3 WP" --admin-password=foo
+    python jahia2wp.py generate $WP_ENV http://localhost
+    python jahia2wp.py generate $WP_ENV http://localhost/folder/ --wp-title="Sous Site WP" --owner=235151
+    python jahia2wp.py generate $WP_ENV http://localhost/folder/niv3 --wp-title="Site Niv3 WP" --admin-password=foo
 
 You can check that three new WordPresses are running on http://[localhost](http://localhost)/[folder](http://localhost/folder)/[niv3](http://localhost/folder/niv3).
 
@@ -186,17 +186,17 @@ You can access the [admin](http://localhost/folder/niv3/wp-admin) of the last on
 
 To check if you have a wordpress properly configured:
 
-    .../src$ python jahia2wp.py check-one $WP_ENV http://localhost/folder/niv3
+    .../src$ python jahia2wp.py check $WP_ENV http://localhost/folder/niv3
     WordPress site valid and accessible at http://localhost/folder/niv3
 
 To get the version of a given wordpress:
 
-    .../src$ python jahia2wp.py wp-version $WP_ENV http://localhost
+    .../src$ python jahia2wp.py version $WP_ENV http://localhost
     4.8
 
 To get the admin users of a given wordpress
 
-    .../src$ python jahia2wp.py wp-admins $WP_ENV http://localhost/folder/
+    .../src$ python jahia2wp.py admins $WP_ENV http://localhost/folder/
     admin:admin@example.com <administrator>
     user235151:user@epfl.ch <administrator>
 
@@ -217,9 +217,9 @@ To look into the tree structure and list all valid/unvalid wordpress sites, with
 
 To delete the sites created in the previous section, you could do
 
-    python jahia2wp.py clean-one $WP_ENV http://localhost/folder/niv3
-    python jahia2wp.py clean-one $WP_ENV http://localhost
-    python jahia2wp.py clean-one $WP_ENV http://localhost/folder/
+    python jahia2wp.py clean $WP_ENV http://localhost/folder/niv3
+    python jahia2wp.py clean $WP_ENV http://localhost
+    python jahia2wp.py clean $WP_ENV http://localhost/folder/
 
 ### phpMyAdmin (locally)
 

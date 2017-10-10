@@ -27,30 +27,30 @@ class TestCommandLine:
     # ORDER matters
 
     def test_check_one_fails(self, setup):
-        assert not Utils.run_command('python %s check-one %s http://localhost/unittest'
+        assert not Utils.run_command('python %s check %s http://localhost/unittest'
                                      % (SCRIPT_FILE, TEST_ENV))
 
     def test_clean_one_fails(self):
-        assert not Utils.run_command('python %s clean-one %s http://localhost/unittest'
+        assert not Utils.run_command('python %s clean %s http://localhost/unittest'
                                      % (SCRIPT_FILE, TEST_ENV))
 
     def test_generate_one_success(self):
         expected = "Successfully created new WordPress site at http://localhost/unittest"
-        assert Utils.run_command('python %s generate-one %s http://localhost/unittest'
+        assert Utils.run_command('python %s generate %s http://localhost/unittest'
                                  % (SCRIPT_FILE, TEST_ENV)) == expected
 
     def test_generate_one_fails(self):
-        assert not Utils.run_command('python %s generate-one %s http://localhost/unittest'
+        assert not Utils.run_command('python %s generate %s http://localhost/unittest'
                                      % (SCRIPT_FILE, TEST_ENV))
 
     def test_check_one_success(self):
         expected = "WordPress site valid and accessible at http://localhost/unittest"
-        assert Utils.run_command('python %s check-one %s http://localhost/unittest'
+        assert Utils.run_command('python %s check %s http://localhost/unittest'
                                  % (SCRIPT_FILE, TEST_ENV)) == expected
 
     def test_wp_version(self):
         expected = Utils.get_mandatory_env(key="WP_VERSION")
-        assert Utils.run_command('python %s wp-version %s http://localhost/unittest'
+        assert Utils.run_command('python %s version %s http://localhost/unittest'
                                  % (SCRIPT_FILE, TEST_ENV)) == expected
 
     def test_wp_admins(self):
@@ -59,7 +59,7 @@ class TestCommandLine:
             Utils.get_mandatory_env(key="WP_ADMIN_EMAIL"),
             role='administrator')
         expected = repr(user)
-        assert Utils.run_command('python %s wp-admins %s http://localhost/unittest'
+        assert Utils.run_command('python %s admins %s http://localhost/unittest'
                                  % (SCRIPT_FILE, TEST_ENV)) == expected
 
     def test_inventory(self):
@@ -70,5 +70,5 @@ class TestCommandLine:
                                  % (SCRIPT_FILE, TEST_ENV)).startswith(expected)
 
     def test_clean_one(self):
-        assert Utils.run_command('python %s clean-one %s http://localhost/unittest'
+        assert Utils.run_command('python %s clean %s http://localhost/unittest'
                                  % (SCRIPT_FILE, TEST_ENV))
