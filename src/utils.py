@@ -1,5 +1,7 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
 import logging
+import warnings
+import functools
 import subprocess
 import sys
 import io
@@ -8,6 +10,38 @@ import csv
 import string
 import binascii
 import random
+
+
+def deprecated(func):
+    """ This is a decorator which can be used to mark functions as deprecated. It will result in a 
+        warning being emmitted when the function is used.
+        https://stackoverflow.com/questions/2536307/decorators-in-the-python-standard-lib-deprecated-specifically
+
+        # Examples
+
+        @deprecated
+        def some_old_function(x,y):
+            return x + y
+
+        class SomeClass:
+            @deprecated
+            def some_old_method(self, x,y):
+                return x + y
+    """
+
+    @functools.wraps(func)
+    def new_func(*args, **kwargs):
+        # turn off filter 
+        warnings.simplefilter('always', DeprecationWarning)
+        warnings.warn(
+            "Call to deprecated function {}.".format(func.__name__),
+            category=DeprecationWarning,
+            stacklevel=2)
+        # reset filter
+        warnings.simplefilter('default', DeprecationWarning)
+        return func(*args, **kwargs)
+
+    return new_func
 
 
 class Utils(object):
