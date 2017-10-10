@@ -53,25 +53,25 @@ class TestCommandLine:
     # ORDER matters
 
     def test_check_one_fails(self, setup):
-        assert not Utils.run_command('python %s check-one %s http://localhost/unittest'
+        assert not Utils.run_command('python %s check %s http://localhost/unittest'
                                      % (SCRIPT_FILE, TEST_ENV))
 
     def test_clean_one_fails(self):
-        assert not Utils.run_command('python %s clean-one %s http://localhost/unittest'
+        assert not Utils.run_command('python %s clean %s http://localhost/unittest'
                                      % (SCRIPT_FILE, TEST_ENV))
 
     def test_generate_one_success(self):
         expected = "Successfully created new WordPress site at http://localhost/unittest"
-        assert Utils.run_command('python %s generate-one %s http://localhost/unittest'
+        assert Utils.run_command('python %s generate %s http://localhost/unittest'
                                  % (SCRIPT_FILE, TEST_ENV)) == expected
 
     def test_generate_one_fails(self):
-        assert not Utils.run_command('python %s generate-one %s http://localhost/unittest'
+        assert not Utils.run_command('python %s generate %s http://localhost/unittest'
                                      % (SCRIPT_FILE, TEST_ENV))
 
     def test_check_one_success(self):
         expected = "WordPress site valid and accessible at http://localhost/unittest"
-        assert Utils.run_command('python %s check-one %s http://localhost/unittest'
+        assert Utils.run_command('python %s check %s http://localhost/unittest'
                                  % (SCRIPT_FILE, TEST_ENV)) == expected
 
     def test_wp_version(self):
@@ -96,5 +96,5 @@ class TestCommandLine:
                                  % (SCRIPT_FILE, TEST_ENV)).startswith(expected)
 
     def test_clean_one(self):
-        assert Utils.run_command('python %s clean-one %s http://localhost/unittest'
+        assert Utils.run_command('python %s clean %s http://localhost/unittest'
                                  % (SCRIPT_FILE, TEST_ENV))
