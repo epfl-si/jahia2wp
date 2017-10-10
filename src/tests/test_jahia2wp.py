@@ -76,7 +76,7 @@ class TestCommandLine:
 
     def test_wp_version(self):
         expected = Utils.get_mandatory_env(key="WP_VERSION")
-        assert Utils.run_command('python %s wp-version %s http://localhost/unittest'
+        assert Utils.run_command('python %s version %s http://localhost/unittest'
                                  % (SCRIPT_FILE, TEST_ENV)) == expected
 
     def test_wp_admins(self):
@@ -85,7 +85,7 @@ class TestCommandLine:
             Utils.get_mandatory_env(key="WP_ADMIN_EMAIL"),
             role='administrator')
         expected = repr(user)
-        assert Utils.run_command('python %s wp-admins %s http://localhost/unittest'
+        assert Utils.run_command('python %s admins %s http://localhost/unittest'
                                  % (SCRIPT_FILE, TEST_ENV)) == expected
 
     def test_inventory(self):

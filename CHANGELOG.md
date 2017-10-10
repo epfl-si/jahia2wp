@@ -11,7 +11,7 @@ Table of releases
 
 <!-- TOC depthFrom:2 depthTo:2 orderedList:false -->
 
-- [[0.2.3] - 2017-10-09](#023---2017-10-09)
+- [[0.2.3] - 2017-10-10](#023---2017-10-10)
 - [[0.2.2] - 2017-10-08](#022---2017-10-08)
 - [[0.2.1] - 2017-10-05](#021---2017-10-05)
 - [2017-09-20](#2017-09-20)
@@ -19,12 +19,17 @@ Table of releases
 
 <!-- /TOC -->
 
-## [0.2.3] - 2017-10-09
+## [0.2.3] - 2017-10-10
 **[PR #33](https://github.com/epfl-idevelop/jahia2wp/pull/33)**
 
+** deprecated **
+
+1. `check-one`, `generate-one` and `clean-one` deprecated. 
+   Use `check`, `generate` and `clean` instead
+
 **high level:**
-1. added command `wp-version`
-1. added command `wp-admins`
+1. added command `version`
+1. added command `admins`
 1. added command `inventory`
 1. improved command `check-one`: actually checks that config is ok with wp-cli
 1. improved command `generate-one` with parameter `--admin-password` to force password for admin instead of creating a random one
@@ -39,6 +44,7 @@ Table of releases
 1. improved `WPRawConfig` which now gives access to wp-config variables, and users
 openshift_env and url
 1. used `veritas.validators` in wordpress models
+1. added deprecated decorator in utils.py
 
 **[PR #41](https://github.com/epfl-idevelop/jahia2wp/pull/41)**
 
