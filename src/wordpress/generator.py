@@ -10,7 +10,7 @@ from django.core.validators import URLValidator
 from veritas.validators import validate_string, validate_openshift_env, validate_integer
 
 from .models import WPSite, WPUser
-from .configurator import WPRawConfig, WPThemeConfig
+from .config import WPRawConfig, WPThemeConfig
 
 
 class WPGenerator:

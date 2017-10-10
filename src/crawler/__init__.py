@@ -1,4 +1,4 @@
-from .configurator import JahiaConfig
+from .config import JahiaConfig
 from .session import SessionHandler
 from .crawler import JahiaCrawler, download_many
 

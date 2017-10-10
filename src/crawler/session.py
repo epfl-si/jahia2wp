@@ -5,7 +5,7 @@
 import logging
 import requests
 
-from .configurator import JahiaConfig
+from .config import JahiaConfig
 
 
 class SessionHandler(object):

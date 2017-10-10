@@ -80,3 +80,7 @@ SUPPORTED_LANGUAGES = [
     "gr",
     "it"
 ]
+
+DEFAULT_JAHIA_USER = "admin"
+DEFAULT_JAHIA_HOST = "localhost"
+DEFAULT_JAHIA_ZIP_PATH = "."
