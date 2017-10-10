@@ -6,6 +6,9 @@ import logging
 from utils import Utils
 from settings import WP_DIRS, WP_FILES
 
+from django.core.validators import URLValidator
+from veritas.validators import validate_string, validate_openshift_env, validate_integer
+
 from .models import WPSite, WPUser
 from .configurator import WPRawConfig, WPThemeConfig
 
@@ -28,14 +31,28 @@ class WPGenerator:
     WP_ADMIN_USER = Utils.get_mandatory_env(key="WP_ADMIN_USER")
     WP_ADMIN_EMAIL = Utils.get_mandatory_env(key="WP_ADMIN_EMAIL")
 
-    def __init__(self, openshift_env, wp_site_url, wp_default_site_title=None, owner_id=None, responsible_id=None):
+    def __init__(self, openshift_env, wp_site_url,
+                 wp_default_site_title=None,
+                 admin_password=None,
+                 owner_id=None,
+                 responsible_id=None):
+        # validate input
+        validate_openshift_env(openshift_env)
+        URLValidator()(wp_site_url)
+        if wp_default_site_title is not None:
+            validate_string(wp_default_site_title)
+        if owner_id is not None:
+            validate_integer(owner_id)
+        if responsible_id is not None:
+            validate_integer(responsible_id)
+
         # create WordPress site and config
         self.wp_site = WPSite(openshift_env, wp_site_url, wp_default_site_title=wp_default_site_title)
         self.wp_config = WPRawConfig(self.wp_site)
 
         # prepare admin for exploitation/maintenance
         self.wp_admin = WPUser(self.WP_ADMIN_USER, self.WP_ADMIN_EMAIL)
-        self.wp_admin.set_password()
+        self.wp_admin.set_password(password=admin_password)
 
         # store scipers_id for later
         self.owner_id = owner_id
@@ -49,54 +66,51 @@ class WPGenerator:
     def __repr__(self):
         return repr(self.wp_site)
 
-    def run_command(self, command):
-        return self.wp_config.run_command(command)
-
     def run_wp_cli(self, command):
         return self.wp_config.run_wp_cli(command)
 
     def run_mysql(self, command):
         mysql_connection_string = "mysql -h {0.MYSQL_DB_HOST} -u {0.MYSQL_SUPER_USER}" \
             " --password={0.MYSQL_SUPER_PASSWORD} ".format(self)
-        return self.run_command(mysql_connection_string + command)
+        return Utils.run_command(mysql_connection_string + command)
 
     def generate(self):
         # check we have a clean place first
         if self.wp_config.is_installed:
-            logging.error("%s - Generator - wordpress files already found", repr(self))
+            logging.error("%s - wordpress files already found", repr(self))
             return False
 
         # create specific mysql db and user
-        logging.info("%s - Generator - setting up DB...", repr(self))
+        logging.info("%s - setting up DB...", repr(self))
         if not self.prepare_db():
-            logging.error("%s - Generator - Could not set up DB", repr(self))
+            logging.error("%s - could not set up DB", repr(self))
             return False
 
         # download, config and install WP
-        logging.info("%s - Generator - downloading WP...", repr(self))
+        logging.info("%s - downloading WP...", repr(self))
         if not self.install_wp():
-            logging.error("%s - Generator - Could not install WP", repr(self))
+            logging.error("%s - could not install WP", repr(self))
             return False
 
-        # install and configure theme and plugin (default is 'epfl')
-        logging.info("%s - Generator - activating theme...", repr(self))
+        # install and configure theme (default is 'epfl')
+        logging.info("%s - activating theme...", repr(self))
         theme = WPThemeConfig(self.wp_site)
         theme.install()
         if not theme.activate():
-            logging.error("%s - Generator - Could not activate theme", repr(self))
+            logging.error("%s - could not activate theme", repr(self))
             return False
 
-        # TODO: make use of SAML2 plugin
-        # auth = WPAuthConfig(self.wp_site, 'authorizer')
+        # Example of plugin declaration
+        # auth = WPPluginConfig(self.wp_site, 'plugin_name')
         # auth.install()
         # if not auth.activate():
-        #     logging.error("%s - Generator - Could not activate Auth plugin", repr(self))
+        #     logging.error("%s - could not activate Auth plugin", repr(self))
         #     return False
 
         # add 2 given webmasters
-        logging.info("%s - Generator - creating webmaster accounts...", repr(self))
+        logging.info("%s - creating webmaster accounts...", repr(self))
         if not self.add_webmasters():
-            logging.error("%s - Generator - Could not add webmasters", repr(self))
+            logging.error("%s - could not add webmasters", repr(self))
             return False
 
         # flag success
@@ -104,26 +118,26 @@ class WPGenerator:
 
     def prepare_db(self):
         # create htdocs path
-        if not self.run_command("mkdir -p {}".format(self.wp_site.path)):
-            logging.error("%s - Generator - Could not create tree structure", repr(self))
+        if not Utils.run_command("mkdir -p {}".format(self.wp_site.path)):
+            logging.error("%s - could not create tree structure", repr(self))
             return False
 
         # create MySQL DB
         command = "-e \"CREATE DATABASE {0.wp_db_name};\""
         if not self.run_mysql(command.format(self)):
-            logging.error("%s - Generator - Could not create DB", repr(self))
+            logging.error("%s - could not create DB", repr(self))
             return False
 
         # create MySQL user
         command = "-e \"CREATE USER '{0.mysql_wp_user}' IDENTIFIED BY '{0.mysql_wp_password}';\""
         if not self.run_mysql(command.format(self)):
-            logging.error("%s - Generator - Could not create user", repr(self))
+            logging.error("%s - could not create user", repr(self))
             return False
 
         # grant privileges
         command = "-e \"GRANT ALL PRIVILEGES ON \`{0.wp_db_name}\`.* TO \`{0.mysql_wp_user}\`@'%';\""
         if not self.run_mysql(command.format(self)):
-            logging.error("%s - Generator - Could not grant privileges to user", repr(self))
+            logging.error("%s - could not grant privileges to user", repr(self))
             return False
 
         # flag success by returning True
@@ -132,14 +146,14 @@ class WPGenerator:
     def install_wp(self):
         # install WordPress
         if not self.run_wp_cli("core download --version={}".format(self.wp_site.WP_VERSION)):
-            logging.error("%s - Generator - Could not download", repr(self))
+            logging.error("%s - could not download", repr(self))
             return False
 
         # config WordPress
         command = "config create --dbname='{0.wp_db_name}' --dbuser='{0.mysql_wp_user}'" \
             " --dbpass='{0.mysql_wp_password}' --dbhost={0.MYSQL_DB_HOST}"
         if not self.run_wp_cli(command.format(self)):
-            logging.error("%s - Generator - Could not create config", repr(self))
+            logging.error("%s - could not create config", repr(self))
             return False
 
         # fill out first form in install process (setting admin user and permissions)
@@ -147,7 +161,7 @@ class WPGenerator:
             " --admin_user={1.username} --admin_password='{1.password}'"\
             " --admin_email='{1.email}'"
         if not self.run_wp_cli(command.format(self.wp_site, self.wp_admin)):
-            logging.error("%s - Generator - Could not setup WP site", repr(self))
+            logging.error("%s - could not setup WP site", repr(self))
             return False
 
         # flag success by returning True
@@ -159,14 +173,14 @@ class WPGenerator:
         if self.owner_id is not None:
             owner = self.wp_config.add_ldap_user(self.owner_id)
             if owner is not None:
-                logging.info("%s - WP config - added owner %s", self.wp_site.path, owner.username)
+                logging.info("%s - added owner %s", repr(self), owner.username)
             else:
                 success = False
 
         if self.responsible_id is not None:
             responsible = self.wp_config.add_ldap_user(self.responsible_id)
             if responsible is not None:
-                logging.info("%s - WP config - added responsible %s", self.wp_site.path, responsible.username)
+                logging.info("%s - added responsible %s", repr(self), responsible.username)
             else:
                 success = False
 
@@ -174,11 +188,20 @@ class WPGenerator:
         return success
 
     def clean(self):
-        # TODO: retrieve db_infos (db_name, mysql_username, mysql_password)
-        # TODO: clean db
+        # retrieve db_infos
+        db_name = self.wp_config.db_name
+        db_user = self.wp_config.db_user
+
+        # clean db
+        logging.info("%s - cleaning up DB", repr(self))
+        if not self.run_mysql('-e "DROP DATABASE {};"'.format(db_name)):
+            logging.error("%s - could not drop DATABASE %s", repr(self), db_name)
+
+        if not self.run_mysql('-e "DROP USER {};"'.format(db_user)):
+            logging.error("%s - could not drop USER %s", repr(self), db_name)
 
         # clean directories first
-        logging.debug("%s - WP config - removing files", self.wp_site.path)
+        logging.info("%s - removing files", repr(self))
         for dir_path in WP_DIRS:
             path = os.path.join(self.wp_site.path, dir_path)
             if os.path.exists(path):

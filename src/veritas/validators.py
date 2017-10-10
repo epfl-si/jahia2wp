@@ -17,9 +17,14 @@
 
     They are functions (or callable objects) that raise a ValidationError on failure
 """
-from django.core.validators import RegexValidator
-
 from settings import OPENSHIFT_ENVS, SUPPORTED_LANGUAGES
+
+
+from django.core.validators import RegexValidator
+from django.conf import settings as dj_settings
+
+
+dj_settings.configure(USE_I18N=False)
 
 
 class ChoiceValidator(RegexValidator):
@@ -47,6 +52,10 @@ def validate_string(text):
 
 def validate_yes_or_no(text):
     return ChoiceValidator(choices=['yes', 'no'])(text)
+
+
+def validate_gaspar_username(name):
+    return RegexValidator(regex="^[_\-\.a-zA-Z0-9]+$")(name)
 
 
 def validate_db_name(name):

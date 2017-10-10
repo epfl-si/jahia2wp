@@ -1,0 +1,4 @@
+wp_site_url,wp_default_site_title,site_type,openshift_env,category,theme,status,installs_locked,updates_automatic,langs,owner_id,responsible_id,unit,comment
+https://wp2-os-exopge.epfl.ch/recherche,Recherche,wordpress,dev,GeneralPublic,EPFL,asked,yes,no,"fr,en",248812,251646,VPR,je mets ici
+https://wp2-os-exopge.epfl.ch/education,Education,wordpress,dev,GeneralPublic,EPFL,yes,yes,no,"fr,en",248812,251646,VPE,ce qui me plait
+https://wp3-os-exopge.epfl.ch,DCSL,wordpress,dev,Lab,EPFL,to check,yes,no,fr,196571,107536,IC,

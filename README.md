@@ -40,13 +40,15 @@ Table of contents
     - [Requirements](#requirements)
     - [Express setup (locally)](#express-setup-locally)
     - [Express setup (C2C)](#express-setup-c2c)
-- [Usages](#usages)
     - [Enter the container](#enter-the-container)
-    - [Testing](#testing)
+- [Usages](#usages)
     - [Create a new WordPress site](#create-a-new-wordpress-site)
+    - [Information on a WordPress site](#information-on-a-wordpress-site)
+    - [Inventory of WordPress sites for a given path (in a given env)](#inventory-of-wordpress-sites-for-a-given-path-in-a-given-env)
     - [Delete a WordPress site](#delete-a-wordpress-site)
     - [phpMyAdmin (locally)](#phpmyadmin-locally)
 - [Contribution](#contribution)
+    - [Testing](#testing)
     - [Guidelines](#guidelines)
     - [Code of Conduct](#code-of-conduct)
     - [Contributor list](#contributor-list)
@@ -115,6 +117,8 @@ Simply run the instructions given in the last lines from the script.
 
 Among them, `make exec` will log you in your container: you are now ready to jump to the next section, about [usages](#usage).
 
+💡 If you want to use a nonstandard HTTP or HTTP/S port, you will need to [log in through phpMyAdmin](#phpmyadmin-locally) to [edit](https://codex.wordpress.org/Changing_The_Site_URL#Changing_the_URL_directly_in_the_database) `siteurl` in table `wp_options`, **prior to** testing your new site in the browser (or [clear the cache](https://stackoverflow.com/a/46632349/435004) if you forgot)
+
 Did we mention that would you be looking for a more explicit process, feel free to follow the [detailed guide](./docs/INSTALL_DETAILED.md)? ;)
 
 ### Express setup (C2C)
@@ -131,8 +135,6 @@ You will need to ask C2C to add your public key in `authorized_keys` on the serv
     www-data@mgmt-x-xxx:/srv/your-env/jahia2wp$ cp /srv/.config/.env . (<- that will set the correct DB credentials for you)
 
 You are now ready to jump to the next section, about [usages](#usage).
-
-## Usages
 
 ### Enter the container
 
@@ -157,6 +159,80 @@ The configuration of your python virtual environment will occur the first time y
     (venv) www-data@...:/srv/your-env/jahia2wp/src$ 
 
 
+## Usages
+
+For all examples given in this section, you should have completed the previous section. Therefore, the assumption is made that 
+
+1. you are connected in your `mgmt` container (or in C2C infra),
+1. and you used the alias `vjahia2wp` to activate your environment
+
+From here you can use the python script jahia2wp.py. The option `-h` will give you details on available options
+
+    python jahia2wp.py -h
+
+### Create a new WordPress site
+
+Here are some examples with WordPress sites at different levels
+
+    python jahia2wp.py generate $WP_ENV http://localhost
+    python jahia2wp.py generate $WP_ENV http://localhost/folder/ --wp-title="Sous Site WP" --owner=235151
+    python jahia2wp.py generate $WP_ENV http://localhost/folder/niv3 --wp-title="Site Niv3 WP" --admin-password=foo
+
+You can check that three new WordPresses are running on http://[localhost](http://localhost)/[folder](http://localhost/folder)/[niv3](http://localhost/folder/niv3).
+
+You can access the [admin](http://localhost/folder/niv3/wp-admin) of the last one with the credentials `admin/foo`.
+
+### Information on a WordPress site
+
+To check if you have a wordpress properly configured:
+
+    .../src$ python jahia2wp.py check $WP_ENV http://localhost/folder/niv3
+    WordPress site valid and accessible at http://localhost/folder/niv3
+
+To get the version of a given wordpress:
+
+    .../src$ python jahia2wp.py version $WP_ENV http://localhost
+    4.8
+
+To get the admin users of a given wordpress
+
+    .../src$ python jahia2wp.py admins $WP_ENV http://localhost/folder/
+    admin:admin@example.com <administrator>
+    user235151:user@epfl.ch <administrator>
+
+
+### Inventory of WordPress sites for a given path (in a given env)
+
+To look into the tree structure and list all valid/unvalid wordpress sites, with some info when they are valid:
+
+    .../src$ python jahia2wp.py inventory $WP_ENV /srv/your-env/localhost
+    INFO - your-env - inventory - Building inventory...
+    path;valid;url;version;db_name;db_user;admins
+    /srv/your-env/localhost/htdocs/;ok;http://localhost/;4.8.2;wp_dvyrgdywryrcmnkjnmonfzjv9ts4d;ce8clbbqyzeqta31;admin
+    /srv/your-env/localhost/htdocs/folder;ok;http://localhost/folder;4.8;wp_snqi7wekjznhkfe1ggisr9jmqaqeo;o0ajktkeaygim7w9;admin
+    /srv/your-env/localhost/htdocs/unittest;KO;;;;;
+    INFO - your-env - inventory - Inventory made for /srv/your-env/localhost
+
+### Delete a WordPress site
+
+To delete the sites created in the previous section, you could do
+
+    python jahia2wp.py clean $WP_ENV http://localhost/folder/niv3
+    python jahia2wp.py clean $WP_ENV http://localhost
+    python jahia2wp.py clean $WP_ENV http://localhost/folder/
+
+### phpMyAdmin (locally)
+
+A phpMyAdmin is available locally at [localhost:8080](http://localhost:8080), with the server and credentials defined in your .env file
+
+## Contribution
+
+There are a few ways where you can help out:
+
+1. Submit [Github issues](https://github.com/epfl-idevelop/jahia2wp/issues) for any feature enhancements, bugs or documentation problems.
+1. Fix open issues by sending PRs (please make sure you respect [flake8](http://flake8.pycqa.org/en/latest/) conventions and that all tests pass (see below)
+1. Add documentation (written in [markdown](https://daringfireball.net/projects/markdown/))
+
 ### Testing
 
 You can launch the tests either from your host:
@@ -173,69 +249,6 @@ Or from the management container:
     (venv) www-data@...:/srv/your-env/jahia2wp$ make test-raw
     ...
 
-### Create a new WordPress site
-
-As described above, you need 1) to connect in your mgmt container (or in C2C infra), and 2) to use the alias `vjahia2wp`
-
-    you@host:~/jahia2wp$ make exec
-    www-data@...:/srv/your-env$ vjahia2wp
-    (venv) www-data@...:/srv/your-env/jahia2wp/src$ 
-
-from here you can use the python script jahia2wp.py with the commands `generate-one` or `generate-many`. Use the option `-h` to get details on available options
-
-    (venv) www-data@...:/srv/your-env/jahia2wp/src$ python jahia2wp.py -h
-
-    jahia2wp: an amazing tool !
-
-    Usage:
-        ...
-        jahia2wp.py generate-one <wp_env> <wp_url>
-              [--wp-title=<WP_TITLE> --owner=<OWNER_ID> --responsible=<RESPONSIBLE_ID>]
-              [--debug | --quiet]
-
-Here are some examples with WordPress sites at different levels
-
-    python jahia2wp.py generate-one $WP_ENV http://localhost
-    python jahia2wp.py generate-one $WP_ENV http://localhost/folder/ --wp-title="Sous Site WP" --owner=235151
-    python jahia2wp.py generate-one $WP_ENV http://localhost/folder/niv3 --wp-title="Site Niv3 WP" --owner=235151
-
-You can check that three new WordPresses are running on http://[localhost](http://localhost)/[folder](http://localhost/folder)/[niv3](http://localhost/folder/niv3).
-
-💡 If you want to use a nonstandard HTTP or HTTP/S port, you will need to [log in through phpMyAdmin](#phpmyadmin-locally) to [edit](https://codex.wordpress.org/Changing_The_Site_URL#Changing_the_URL_directly_in_the_database) `siteurl` in table `wp_options`, **prior to** testing your new site in the browser (or [clear the cache](https://stackoverflow.com/a/46632349/435004) if you forgot)
-
-
-### Delete a WordPress site
-
-The interesting part of the usages from `-h` :
-
-    (venv) www-data@...:/srv/your-env/jahia2wp/src$ python jahia2wp.py -h
-
-    jahia2wp: an amazing tool !
-
-    Usage:
-        ...
-        jahia2wp.py clean-one <wp_env> <wp_url>
-
-To delete the sites created in the previous section, you will do
-
-    python jahia2wp.py clean-one $WP_ENV http://localhost
-    python jahia2wp.py clean-one $WP_ENV http://localhost/folder/
-    python jahia2wp.py clean-one $WP_ENV http://localhost/folder/niv3
-
-### phpMyAdmin (locally)
-
-A phpMyAdmin is available locally at [localhost:8080](http://localhost:8080), with the server and credentials defined in your .env file
-
-## Contribution
-
-There are a few ways where you can help out:
-
-1. Submit [Github issues](https://github.com/epfl-idevelop/jahia2wp/issues) for any feature enhancements, bugs or documentation problems.
-1. Fix open issues by sending PRs (please make sure you respect [flake8](http://flake8.pycqa.org/en/latest/) conventions and that all tests pass) :
-
-   make test
-
-1. Add documentation (written in [markdown](https://daringfireball.net/projects/markdown/))
 
 ### Guidelines
 

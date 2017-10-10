@@ -17,7 +17,7 @@ _mgmt_container = $(shell docker ps -q --filter "label=ch.epfl.jahia2wp.mgmt.env
 
 test: check-env
 # The "test-raw" target is in Makefile.mgmt
-	docker exec $(_mgmt_container) make -C /srv/$$WP_ENV/jahia2wp test-raw
+	docker exec --user=www-data $(_mgmt_container) make -C /srv/$$WP_ENV/jahia2wp test-raw
 
 vars: check-env
 	@echo 'Environment-related vars:'

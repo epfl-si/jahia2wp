@@ -1,10 +1,11 @@
 import os
 import shutil
 import logging
-import subprocess
+import collections
 
-from settings import DATA_PATH
-from .models import WPException, WPUser
+from settings import DATA_PATH, ENV_DIRS, WP_DIRS, WP_CONFIG_KEYS
+from utils import Utils
+from .models import WPException, WPUser, WPSite
 
 
 class WPRawConfig:
@@ -18,41 +19,54 @@ class WPRawConfig:
 
     def __init__(self, wp_site):
         self.wp_site = wp_site
+        self._config_infos = None
+        self._user_infos = None
 
     def __repr__(self):
         installed_string = '[ok]' if self.is_installed else '[ko]'
         return "config {0} for {1}".format(installed_string, repr(self.wp_site))
 
+    @classmethod
+    def inventory(cls, wp_env, path):
+        # helper function to filter out directories which are part or WP install
+        def keep_wp_sites(dir_name):
+            return dir_name not in WP_DIRS + ENV_DIRS
+
+        # helper class to wrap results
+        WPResult = collections.namedtuple(
+            'WPResult', ['path', 'valid', 'url', 'version', 'db_name', 'db_user', 'admins'])
+
+        # set initial path
+        given_path = os.path.abspath(path)
+        logging.debug('walking through %s', given_path)
+
+        # walk through all subdirs of given path
+        # topdown is true in order modify the dirnames list in-place (and exclude WP dirs)
+        for (parent_path, dir_names, filenames) in os.walk(given_path, topdown=True):
+            # only keep potential WP sites
+            dir_names[:] = [d for d in dir_names if keep_wp_sites(d)]
+            for dir_name in dir_names:
+                logging.debug('checking %s/%s', parent_path, dir_name)
+                wp_site = WPSite.from_path(wp_env, os.path.join(parent_path, dir_name))
+                if wp_site is None:
+                    continue
+                wp_config = cls(wp_site)
+                if wp_config.is_config_valid:
+                    yield WPResult(
+                        wp_config.wp_site.path,
+                        "ok",
+                        wp_config.wp_site.url,
+                        wp_config.wp_version,
+                        wp_config.db_name,
+                        wp_config.db_user,
+                        ",".join([wp_user.username for wp_user in wp_config.admins]),
+                    )
+                else:
+                    yield WPResult(wp_config.wp_site.path, "KO", "", "", "", "", "")
+
     def run_wp_cli(self, command):
-        # FIXME: maybe we want to bubble up the exception ?
-        try:
-            cmd = "wp {} --path='{}'".format(command, self.wp_site.path)
-            logging.debug("%s - WP CLI %s", self.__class__.__name__, cmd)
-            subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
-        except subprocess.CalledProcessError as err:
-            logging.error(
-                "%s - WP CLI failed %s - %s - %s",
-                self.__class__.__name__,
-                err, err.returncode, err.output)
-            return False
-
-        # flag out success
-        return True
-
-    def run_command(self, command):
-        # FIXME: maybe we want to bubble up the exception ?
-        try:
-            logging.debug("%s - Run command %s", self.__class__.__name__, command)
-            subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
-        except subprocess.CalledProcessError as err:
-            logging.error(
-                "%s - Run Command failed %s - %s - %s",
-                self.__class__.__name__,
-                err, err.returncode, err.output)
-            return False
-
-        # flag out success
-        return True
+        cmd = "wp {} --path='{}'".format(command, self.wp_site.path)
+        return Utils.run_command(cmd)
 
     @property
     def is_installed(self):
@@ -64,42 +78,111 @@ class WPRawConfig:
     def is_config_valid(self):
         if not self.is_installed:
             return False
-        # TODO: check that the config is working (DB and user ok)
-        # wp-cli command (status?)
+        return self.run_wp_cli('core is-installed')
 
     @property
     def is_install_valid(self):
-        if not self.is_config_valid():
+        if not self.is_config_valid:
             return False
         # TODO: check that the site is available, that user can login and upload media
         # tests from test_wordpress
+        return True
 
     @property
-    def db_infos(self):
-        # TODO: read from wp_config.php {db_name, mysql_username, mysql_password}
-        pass
+    def wp_version(self):
+        return self.run_wp_cli('core version')
+
+    def config_infos(self, field=None):
+        # validate input
+        if field is not None and field not in WP_CONFIG_KEYS:
+            raise ValueError("Field '{}' should be in {}".format(field, WP_CONFIG_KEYS))
+
+        # lazy initialisation
+        if self._config_infos is None:
+
+            # fetch all values
+            raw_infos = self.run_wp_cli('config get --format=csv')
+            if not raw_infos:
+                raise ValueError("Could not get config for {}".format(repr(self.wp_site)))
+
+            # reformat output from wp cli
+            self._config_infos = {}
+            for infos in Utils.csv_string_to_dict(raw_infos):
+                self._config_infos[infos['key']] = infos['value']
+
+            logging.debug("%s - config => %s", repr(self.wp_site), self._config_infos)
+
+        # filter if necessary
+        if field is None:
+            return self._config_infos
+        else:
+            return self._config_infos[field]
 
     @property
-    def admin_infos(self):
-        # TODO: read from DB {admin_username, admin_email}
-        pass
+    def db_name(self):
+        return self.config_infos(field='DB_NAME')
 
-    def add_wp_user(self, username, email):
-        return self._add_user(WPUser(username, email))
+    @property
+    def db_host(self):
+        return self.config_infos(field='DB_HOST')
 
-    def add_ldap_user(self, sciper_id):
+    @property
+    def db_user(self):
+        return self.config_infos(field='DB_USER')
+
+    @property
+    def db_password(self):
+        return self.config_infos(field='DB_PASSWORD')
+
+    def user_infos(self, username=None):
+        # lazy initialisation
+        if self._user_infos is None:
+
+            # fetch all values
+            raw_infos = self.run_wp_cli('user list --format=csv')
+            if not raw_infos:
+                raise ValueError("Could not get list of users for {}".format(self.wp_site.path))
+
+            # reformat output from wp cli
+            self._user_infos = {}
+            for user_infos in Utils.csv_string_to_dict(raw_infos):
+                wp_user = WPUser(
+                    username=user_infos['user_login'],
+                    email=user_infos['user_email'],
+                    display_name=user_infos['display_name'],
+                    role=user_infos['roles'])
+
+                self._user_infos[user_infos['user_login']] = wp_user
+
+            logging.debug("%s - user list => %s", repr(self.wp_site), self._user_infos)
+
+        # return only one user if username is given
+        if username is not None:
+            return self._user_infos[username]
+
+        # return all users otherwise
+        return self._user_infos
+
+    @property
+    def admins(self):
+        return [user for user in self.user_infos().values()
+                if user.role == 'administrator']
+
+    def add_wp_user(self, username, email, role='administrator'):
+        return self._add_user(WPUser(username, email, role=role))
+
+    def add_ldap_user(self, sciper_id, role='administrator'):
         try:
-            return self._add_user(WPUser.from_sciper(sciper_id))
+            return self._add_user(WPUser.from_sciper(sciper_id, role=role))
         except WPException as err:
-            logging.error("Generator - %s - 'add_webmasters' failed %s", repr(self), err)
+            logging.error("%s - LDAP call failed %s", repr(self.wp_site), err)
             return None
 
     def _add_user(self, user):
         if not user.password:
             user.set_password()
-            cmd = "user create {0.username} {0.email} --user_pass=\"{0.password}\" --role=administrator".format(user)
-            self.run_wp_cli(cmd)
-
+        cmd = "user create {0.username} {0.email} --user_pass=\"{0.password}\" --role={0.role}".format(user)
+        self.run_wp_cli(cmd)
         return user
 
 
@@ -134,7 +217,7 @@ class WPThemeConfig(WPRawConfig):
         return self.run_wp_cli('theme activate {}'.format(self.name))
 
 
-class WPAuthConfig(WPRawConfig):
+class WPPluginConfig(WPRawConfig):
     """ Relies on WPRawConfig to get wp_site and run wp-cli.
         Overrides is_installed to check for the theme only
     """
@@ -142,7 +225,7 @@ class WPAuthConfig(WPRawConfig):
     PLUGINS_PATH = os.path.join('wp-content', 'plugins')
 
     def __init__(self, wp_site, plugin_name):
-        super(WPAuthConfig, self).__init__(wp_site)
+        super(WPPluginConfig, self).__init__(wp_site)
         self.name = plugin_name
         self.path = os.path.sep.join([self.wp_site.path, self.PLUGINS_PATH, plugin_name])
 
@@ -166,4 +249,4 @@ class WPAuthConfig(WPRawConfig):
         # configure
         cmd_path = os.path.sep.join([DATA_PATH, self.PLUGINS_PATH, 'manage-plugin-config.php'])
         cmd = 'php {0} "{1}" 3 authorizer-deny-gaspar'
-        return self.run_command(cmd.format(cmd_path, self.wp_site.path))
+        return Utils.run_command(cmd.format(cmd_path, self.wp_site.path))
