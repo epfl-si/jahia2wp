@@ -11,6 +11,7 @@ Table of releases
 
 <!-- TOC depthFrom:2 depthTo:2 orderedList:false -->
 
+- [[0.2.4] - 2017-10-??](#024---2017-10-)
 - [[0.2.3] - 2017-10-10](#023---2017-10-10)
 - [[0.2.2] - 2017-10-08](#022---2017-10-08)
 - [[0.2.1] - 2017-10-05](#021---2017-10-05)
@@ -19,11 +20,24 @@ Table of releases
 
 <!-- /TOC -->
 
+## [0.2.4] - 2017-10-??
+**[PR #48](https://github.com/epfl-idevelop/jahia2wp/pull/48)**
+
+**high level:**
+1. added command `download`
+1. added vars `JAHIA_*` in  `.env.sample`, please update your `.env` file to make use of the download command
+
+**low level:**
+1. migrate crawler from jahiap
+1. break code into modules `SessionHandler`, `JahiaConfig`, `JahiaCrawler`
+1. support username, password, host from either .env or CLI arguments
+1. added tests
+
+
 ## [0.2.3] - 2017-10-10
 **[PR #33](https://github.com/epfl-idevelop/jahia2wp/pull/33)**
 
-** deprecated **
-
+**Features deprecated in 0.2.3**
 1. `check-one`, `generate-one` and `clean-one` deprecated. 
    Use `check`, `generate` and `clean` instead
 

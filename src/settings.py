@@ -3,7 +3,7 @@ import os
 
 from utils import Utils
 
-VERSION = "0.2.3"
+VERSION = "0.2.4"
 
 DATA_PATH = os.path.abspath(
     os.path.sep.join([
@@ -86,5 +86,6 @@ SUPPORTED_LANGUAGES = [
 
 JAHIA_USER = Utils.get_optional_env("JAHIA_USER", "admin")
 JAHIA_HOST = Utils.get_optional_env("JAHIA_HOST", "localhost")
+JAHIA_PROTOCOL = "http"
 JAHIA_URI = "administration"
 JAHIA_ZIP_PATH = Utils.get_optional_env("JAHIA_ZIP_PATH", ".")

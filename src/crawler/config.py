@@ -42,7 +42,7 @@ class JahiaConfig(object):
 
     @property
     def file_url(self):
-        return "https://{}/{}/{}".format(self.host, settings.JAHIA_URI, self.file_name)
+        return "{}://{}/{}/{}".format(settings.JAHIA_PROTOCOL, self.host, settings.JAHIA_URI, self.file_name)
 
     @property
     def already_downloaded(self):

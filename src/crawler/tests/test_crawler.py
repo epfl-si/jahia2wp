@@ -9,14 +9,14 @@ import settings
 
 from datetime import datetime
 from importlib import reload
-from crawler import JahiaConfig, SessionHandler, JahiaCrawler
+from crawler import JahiaConfig, SessionHandler, JahiaCrawler, download_many
 
 CURRENT_DIR = os.path.dirname(__file__)
 TEST_FILE = "one-site_export_2017-10-11-05-03.zip"
 TEST_SITE = "one-site"
 TEST_USER = "foo"
 TEST_PASSWORD = "bar"
-TEST_HOST = "127.0.0.1"
+TEST_HOST = "localhost"
 TEST_ZIP_PATH = CURRENT_DIR
 
 
@@ -46,7 +46,8 @@ def environment(request):
 
 @pytest.fixture(scope='module')
 def session_handler(request):
-    url = 'https://localhost/administration?redirectTo=%2Fadministration%3Fnull&do=processlogin'
+    url = '{}://localhost/administration?redirectTo=%2Fadministration%3Fnull&do=processlogin'\
+        .format(settings.JAHIA_PROTOCOL)
     # data_file = 'session.data'
     # with requests_mock.Mocker() as mocker, open(data_file, 'r') as input:
     with requests_mock.Mocker() as mocker:
@@ -67,12 +68,14 @@ class TestConfig(object):
     def test_with_var_env(self, environment):
         config = JahiaConfig(TEST_SITE, date=datetime(2017, 10, 11, 5, 3))
         assert config.host == TEST_HOST
-        assert config.file_url == "https://{}/administration/one-site_export_2017-10-11-05-03.zip".format(TEST_HOST)
+        assert config.file_url == "{}://{}/administration/one-site_export_2017-10-11-05-03.zip"\
+            .format(settings.JAHIA_PROTOCOL, TEST_HOST)
 
     def test_config_with_kwargs(self, environment):
         config = JahiaConfig(TEST_SITE, host="epfl.ch", date=datetime(2017, 10, 11, 5, 3))
         assert config.host == "epfl.ch"
-        assert config.file_url == "https://epfl.ch/administration/one-site_export_2017-10-11-05-03.zip"
+        assert config.file_url == "{}://epfl.ch/administration/one-site_export_2017-10-11-05-03.zip"\
+            .format(settings.JAHIA_PROTOCOL)
 
     def test_existing_files(self, environment):
         config = JahiaConfig(TEST_SITE)
@@ -96,7 +99,7 @@ class TestSession(object):
         assert session.username == settings.JAHIA_USER
         assert session.password == TEST_PASSWORD
         assert session.host == settings.JAHIA_HOST
-        assert session.post_url == "https://{}/administration".format(settings.JAHIA_HOST)
+        assert session.post_url == "{}://{}/administration".format(settings.JAHIA_PROTOCOL, settings.JAHIA_HOST)
         assert session.credentials == {
             'login_username': settings.JAHIA_USER,
             'login_password': TEST_PASSWORD
@@ -107,7 +110,7 @@ class TestSession(object):
         assert session.username == "bob"
         assert session.password == "bob's secret"
         assert session.host == "epfl.ch"
-        assert session.post_url == "https://epfl.ch/administration"
+        assert session.post_url == "{}://epfl.ch/administration".format(settings.JAHIA_PROTOCOL)
         assert session.credentials == {
             'login_username': "bob",
             'login_password': "bob's secret"
@@ -120,13 +123,13 @@ class TestSession(object):
 
 class TestCrawler(object):
 
-    def test_download_existing(self, environment, session_handler):
+    def test_download_existing(self, session_handler):
         crawler = JahiaCrawler(TEST_SITE)
         assert crawler.download_site().endswith(TEST_FILE)
 
-    def test_download_non_existing(self, environment, session_handler):
-        url = 'https://127.0.0.1/administration/non-existing-site_export_2017-10-11-05-03.zip?' \
-              'do=sites&sitebox=non-existing-site&sub=multipledelete&exportformat=site'
+    def test_download_non_existing(self, session_handler):
+        url = '{}://localhost/administration/non-existing-site_export_2017-10-11-05-03.zip?' \
+              'do=sites&sitebox=non-existing-site&sub=multipledelete&exportformat=site'.format(settings.JAHIA_PROTOCOL)
         zip_path = os.path.join(TEST_ZIP_PATH, TEST_FILE)
         with requests_mock.Mocker() as mocker, open(zip_path, 'rb') as input:
             # set mock response
@@ -136,3 +139,6 @@ class TestCrawler(object):
             downloaded_path = crawler.download_site()
             assert downloaded_path.endswith('non-existing-site_export_2017-10-11-05-03.zip')
             os.remove(downloaded_path)
+
+    def test_download_many(self, session_handler):
+        assert TEST_SITE in download_many([TEST_SITE], session=session_handler)

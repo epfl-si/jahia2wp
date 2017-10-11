@@ -2,6 +2,8 @@
 jahia2wp: an amazing tool !
 
 Usage:
+  jahia2wp.py download      <site>            [--debug | --quiet]
+    [--username=<USERNAME> --host=<HOST> --force]
   jahia2wp.py clean         <wp_env> <wp_url> [--debug | --quiet]
   jahia2wp.py check         <wp_env> <wp_url> [--debug | --quiet]
   jahia2wp.py generate      <wp_env> <wp_url> [--debug | --quiet]
@@ -12,9 +14,9 @@ Usage:
   jahia2wp.py generate-one  <wp_env> <wp_url> [--debug | --quiet] [DEPRECATED]
     [--wp-title=<WP_TITLE> --admin-password=<ADMIN_PASSWORD>]
     [--owner=<OWNER_ID> --responsible=<RESPONSIBLE_ID>]
-  jahia2wp.py inventory     <wp_env> <path>   [--debug | --quiet]
   jahia2wp.py generate-many <csv_file>        [--debug | --quiet]
   jahia2wp.py veritas       <csv_file>        [--debug | --quiet]
+  jahia2wp.py inventory     <wp_env> <path>   [--debug | --quiet]
 
 Options:
   -h --help                 Show this screen.
@@ -24,15 +26,27 @@ Options:
 """
 
 import logging
+import getpass
 
 from docopt import docopt
 from docopt_dispatch import dispatch
 
 from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator
+from crawler import JahiaCrawler
 
 from settings import VERSION
 from utils import Utils, deprecated
+
+
+@dispatch.on('download')
+def download(site, username=None, host=None, force=False, **kwargs):
+    # prompt for password if username is provided
+    password = None
+    if username is not None:
+        password = getpass.getpass(prompt="Jahia password for user '{}': ".format(username))
+    crawler = JahiaCrawler(site, username=username, password=password, host=host, force=force)
+    crawler.download_site()
 
 
 def _check_site(wp_env, wp_url, **kwargs):

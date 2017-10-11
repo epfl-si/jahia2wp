@@ -7,18 +7,20 @@ import requests
 
 from utils import Utils
 
-from settings import JAHIA_USER, JAHIA_HOST, JAHIA_URI
+# do not explicitely import variables
+# this allows to reload settings at running time with different environment variable (e.g in tests)
+import settings
 
 
 class SessionHandler(object):
 
     def __init__(self, username=None, password=None, host=None):
         # credentials to use
-        self.username = username or JAHIA_USER
+        self.username = username or settings.JAHIA_USER
         self.password = password or Utils.get_mandatory_env("JAHIA_PASSWORD")
 
         # crawling parameters for HTTP request
-        self.host = host or JAHIA_HOST
+        self.host = host or settings.JAHIA_HOST
         self.id_get_params = {
             'do': 'processlogin',
             'redirectTo': '/administration?null'
@@ -32,17 +34,16 @@ class SessionHandler(object):
         """ Make a POST on Jahia administration to get a valid session """
         if self._session is None:
             # lazy initialization
-            logging.info("%s - authenticating...", self.post_url)
+            logging.info("%s - authenticating %s...", self.post_url, self.username)
             session = requests.Session()
             response = session.post(
                 self.post_url,
+                data=self.credentials,
                 params=self.id_get_params,
-                data=self.credentials
             )
 
             # log and set session
-            logging.info("%s - requested %s", self.post_url, response.url)
-            logging.debug("%s - returned %s", self.post_url, response.status_code)
+            logging.debug("%s => %s", response.url, response.status_code)
             self._session = session
 
         # cls.session is set, return it
@@ -50,7 +51,7 @@ class SessionHandler(object):
 
     @property
     def post_url(self):
-        return "https://{}/{}".format(self.host, JAHIA_URI)
+        return "{}://{}/{}".format(settings.JAHIA_PROTOCOL, self.host, settings.JAHIA_URI)
 
     @property
     def credentials(self):

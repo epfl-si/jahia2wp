@@ -18,9 +18,9 @@ class JahiaCrawler(object):
 
     def __init__(self, site, session=None, username=None, password=None, host=None, date=None, force=False):
         self.site = site
-        self.session_handler = session or SessionHandler(username=username, password=password, host=host)
         self.config = JahiaConfig(site, host=host, date=date)
         self.skip_download = self.config.already_downloaded and not force
+        self.session_handler = session or SessionHandler(username=username, password=password, host=host)
 
     def download_site(self):
         # do not download twice if not force
@@ -41,8 +41,7 @@ class JahiaCrawler(object):
             params=self.config.download_params,
             stream=True
         )
-        logging.debug("requested %s", response.url)
-        logging.debug("returned %s", response.status_code)
+        logging.debug("%s => %s", response.url, response.status_code)
 
         # raise exception in case of error
         if not response.status_code == requests.codes.ok:
@@ -76,13 +75,13 @@ class JahiaCrawler(object):
         return str(self.config.file_path)
 
 
-def download_many(sites, username=None, password=None, host=None, force=False):
+def download_many(sites, session=None, username=None, password=None, host=None, force=False):
     """ returns list of downloaded_files """
     # to store paths of downloaded zips
     downloaded_files = OrderedDict()
 
     # use same session for all downloads
-    session = SessionHandler(username=username, password=password, host=host)
+    session = session or SessionHandler(username=username, password=password, host=host)
 
     # download sites from sites
     for site in sites:
