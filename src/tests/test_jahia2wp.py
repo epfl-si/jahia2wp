@@ -39,6 +39,11 @@ class TestCommandLine:
         assert Utils.run_command('python %s generate %s http://localhost/unittest'
                                  % (SCRIPT_FILE, TEST_ENV)) == expected
 
+    def test_deprecated_calls(self):
+        expected = "WARNING: Call to deprecated function"
+        assert Utils.run_command('python %s check-one %s http://localhost/unittest'
+                                 % (SCRIPT_FILE, TEST_ENV)).startswith(expected)
+
     def test_generate_one_fails(self):
         assert not Utils.run_command('python %s generate %s http://localhost/unittest'
                                      % (SCRIPT_FILE, TEST_ENV))
@@ -72,3 +77,8 @@ class TestCommandLine:
     def test_clean_one(self):
         assert Utils.run_command('python %s clean %s http://localhost/unittest'
                                  % (SCRIPT_FILE, TEST_ENV))
+
+    def test_veritas(self):
+        from veritas.tests.test_veritas import CURRENT_DIR, TEST_FILE
+        filename = os.path.join(CURRENT_DIR, TEST_FILE)
+        assert Utils.run_command('python %s veritas %s' % (SCRIPT_FILE, filename))

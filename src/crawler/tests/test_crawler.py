@@ -9,11 +9,10 @@ import settings
 
 from datetime import datetime
 from importlib import reload
-from crawler import JahiaConfig, SessionHandler
+from crawler import JahiaConfig, SessionHandler, JahiaCrawler
 
 CURRENT_DIR = os.path.dirname(__file__)
-TEST_FILE = 'existing-site_export_2017-10-11-05-03.zip'
-
+TEST_FILE = "one-site_export_2017-10-11-05-03.zip"
 TEST_SITE = "one-site"
 TEST_USER = "foo"
 TEST_PASSWORD = "bar"
@@ -45,6 +44,20 @@ def environment(request):
     return os.environ
 
 
+@pytest.fixture(scope='module')
+def session_handler(request):
+    url = 'https://localhost/administration?redirectTo=%2Fadministration%3Fnull&do=processlogin'
+    # data_file = 'session.data'
+    # with requests_mock.Mocker() as mocker, open(data_file, 'r') as input:
+    with requests_mock.Mocker() as mocker:
+        # set mock response
+        mocker.post(url, text="session")
+        # make query
+        handler = SessionHandler(username=TEST_USER, password=TEST_PASSWORD)
+        handler.session
+        return handler
+
+
 class TestConfig(object):
 
     def test_with_no_env(self, delete_environment):
@@ -62,12 +75,12 @@ class TestConfig(object):
         assert config.file_url == "https://epfl.ch/administration/one-site_export_2017-10-11-05-03.zip"
 
     def test_existing_files(self, environment):
-        config = JahiaConfig("existing-site")
+        config = JahiaConfig(TEST_SITE)
         assert config.already_downloaded is True
         assert config.existing_files[-1].endswith(TEST_FILE)
 
     def test_non_existing_files(self):
-        config = JahiaConfig(TEST_SITE)
+        config = JahiaConfig("not-downloaded-site")
         assert config.already_downloaded is False
 
 
@@ -100,15 +113,26 @@ class TestSession(object):
             'login_password': "bob's secret"
         }
 
-    def test_session(self):
-        url = 'https://localhost/administration?redirectTo=%2Fadministration%3Fnull&do=processlogin'
-        # data_file = 'session.data'
-        # with requests_mock.Mocker() as mocker, open(data_file, 'r') as input:
-        with requests_mock.Mocker() as mocker:
+    def test_session(self, session_handler):
+            assert session_handler.session
+            assert session_handler._session is not None
+
+
+class TestCrawler(object):
+
+    def test_download_existing(self, environment, session_handler):
+        crawler = JahiaCrawler(TEST_SITE)
+        assert crawler.download_site().endswith(TEST_FILE)
+
+    def test_download_non_existing(self, environment, session_handler):
+        url = 'https://127.0.0.1/administration/non-existing-site_export_2017-10-11-05-03.zip?' \
+              'do=sites&sitebox=non-existing-site&sub=multipledelete&exportformat=site'
+        zip_path = os.path.join(TEST_ZIP_PATH, TEST_FILE)
+        with requests_mock.Mocker() as mocker, open(zip_path, 'rb') as input:
             # set mock response
-            mocker.post(url, text="session")
+            mocker.post(url, body=input)
             # make query
-            session = SessionHandler(username=TEST_USER, password=TEST_PASSWORD)
-            assert session._session is None
-            assert session.session
-            assert session._session is not None
+            crawler = JahiaCrawler("non-existing-site", session=session_handler, date=datetime(2017, 10, 11, 5, 3))
+            downloaded_path = crawler.download_site()
+            assert downloaded_path.endswith('non-existing-site_export_2017-10-11-05-03.zip')
+            os.remove(downloaded_path)

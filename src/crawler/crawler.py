@@ -18,9 +18,9 @@ class JahiaCrawler(object):
 
     def __init__(self, site, session=None, username=None, password=None, host=None, date=None, force=False):
         self.site = site
-        self.session = session or SessionHandler(username=username, password=password, host=host)
+        self.session_handler = session or SessionHandler(username=username, password=password, host=host)
         self.config = JahiaConfig(site, host=host, date=date)
-        self.skip_download = len(self.config.existing_files) > 0 and not force
+        self.skip_download = self.config.already_downloaded and not force
 
     def download_site(self):
         # do not download twice if not force
@@ -36,7 +36,7 @@ class JahiaCrawler(object):
 
         # make query
         logging.debug("downloading %s...", self.config.file_name)
-        response = self.session.post(
+        response = self.session_handler.session.post(
             self.config.file_url,
             params=self.config.download_params,
             stream=True
@@ -61,8 +61,8 @@ class JahiaCrawler(object):
                 return response.iter_content(chunk_size=4096)
 
         # download file
-        logging.info("saving response into %s...", self.file_path)
-        with open(self.file_path, 'wb') as output:
+        logging.info("saving response into %s...", self.config.file_path)
+        with open(self.config.file_path, 'wb') as output:
             for chunk in read_stream():
                 if chunk:
                     output.write(chunk)
@@ -73,7 +73,7 @@ class JahiaCrawler(object):
         logging.info("file downloaded in %s", elapsed)
 
         # return PosixPath converted to string
-        return str(self.file_path)
+        return str(self.config.file_path)
 
 
 def download_many(sites, username=None, password=None, host=None, force=False):
