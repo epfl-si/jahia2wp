@@ -29,7 +29,7 @@ from docopt import docopt
 from docopt_dispatch import dispatch
 
 from veritas.veritas import VeritasValidor
-from wordpress import WPSite, WPRawConfig, WPGenerator
+from wordpress import WPSite, WPConfig, WPGenerator
 
 from settings import VERSION
 from utils import Utils, deprecated
@@ -38,7 +38,7 @@ from utils import Utils, deprecated
 def _check_site(wp_env, wp_url, **kwargs):
     """ Helper function to validate wp site given arguments """
     wp_site = WPSite(wp_env, wp_url, wp_default_site_title=kwargs.get('wp_title'))
-    wp_config = WPRawConfig(wp_site)
+    wp_config = WPConfig(wp_site)
     if not wp_config.is_installed:
         raise SystemExit("No files found for {}".format(wp_site.url))
     if not wp_config.is_config_valid:
@@ -144,7 +144,7 @@ def generate_many(csv_file, **kwargs):
 def inventory(wp_env, path, **kwargs):
     logging.info("Building inventory...")
     print(";".join(['path', 'valid', 'url', 'version', 'db_name', 'db_user', 'admins']))
-    for site_details in WPRawConfig.inventory(wp_env, path):
+    for site_details in WPConfig.inventory(wp_env, path):
         print(";".join([
             site_details.path,
             site_details.valid,

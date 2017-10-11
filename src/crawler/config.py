@@ -2,46 +2,52 @@
 
     Helper class which holds all configuration parameters to connect to Jahia
 """
-from settings import DEFAULT_JAHIA_USER, DEFAULT_JAHIA_HOST, DEFAULT_JAHIA_ZIP_PATH
+import os
+from pathlib import Path
+from datetime import datetime
 
-from utils import Utils
+# do not explicitely import variables
+# this allows to reload settings at running time with different environment variable (e.g in tests)
+import settings
 
 
 class JahiaConfig(object):
 
-    # where to store zip files
-    EXPORT_PATH = Utils.get_optional_env("JAHIA_ZIP_PATH", DEFAULT_JAHIA_ZIP_PATH)
+    # pattern for zip name
+    FILE_PATTERN = "%s_export_%s.zip"
 
-    def __init__(self, site, username=None, password=None, host=None):
+    def __init__(self, site, host=None, date=None):
         # site to crawl (jahia key)
         self.site = site
-        self.host = host or Utils.get_optional_env("JAHIA_HOST", DEFAULT_JAHIA_HOST)
-
-        # credentials to use
-        self.username = username or Utils.get_optional_env("JAHIA_USER", DEFAULT_JAHIA_USER)
-        self.password = password or Utils.get_mandatory_env("JAHIA_PASSWORD")
 
         # crawling parameters for HTTP request
-        self.uri = "administration"
-        self.file_pattern = "%s_export_%s.zip"
-
-        self.id_get_params = {
-            'do': 'processlogin',
-            'redirectTo': '/administration?null'
-        }
-        self.dwld_get_params = {
+        date = date or datetime.today()
+        self.date = date.strftime("%Y-%m-%d-%H-%M")
+        self.host = host or settings.JAHIA_HOST
+        self.download_params = {
             'do': 'sites',
             'sub': 'multipledelete',
-            'exportformat': 'site'
+            'exportformat': 'site',
+            'sitebox': self.site,
         }
 
-    @property
-    def post_url(self):
-        return "https://{}/{}".format(self.host, self.uri)
+        # compute zip file name & path
+        self.existing_files = self.check_existing_files()
+        if self.existing_files:
+            self.file_path = self.existing_files[-1]
+            self.file_name = os.path.basename(self.file_path)
+        else:
+            self.file_name = self.FILE_PATTERN % (self.site, self.date)
+            self.file_path = os.path.join(settings.JAHIA_ZIP_PATH, self.file_name)
 
     @property
-    def credentials(self):
-        return {
-            'login_username': self.username,
-            'login_password': self.password
-        }
+    def file_url(self):
+        return "https://{}/{}/{}".format(self.host, settings.JAHIA_URI, self.file_name)
+
+    @property
+    def already_downloaded(self):
+        return bool(len(self.existing_files) > 0)
+
+    def check_existing_files(self):
+        path = Path(settings.JAHIA_ZIP_PATH)
+        return [str(file_path) for file_path in path.glob("%s_export*" % self.site)]

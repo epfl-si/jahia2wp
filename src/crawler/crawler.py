@@ -4,78 +4,41 @@
 """
 
 import logging
-import os
 import timeit
+import requests
 from collections import OrderedDict
 from datetime import timedelta
-from pathlib import Path
-
-import requests
 from clint.textui import progress
+
+from .config import JahiaConfig
+from .session import SessionHandler
 
 
 class JahiaCrawler(object):
-    """
-        Call JahiaCrawler.download(cmd_args)
 
-        'cmd_args' drives the download logic, i.e:
-        * '--site': what unic site to download
-        * '-n' & '-s': or how many sites to download from jahia_sites, where from
-        * '--date': what date should be asked to Jahia
-        * '--force': if existing downloaded files should be overriden or not
-     """
-
-    def __init__(self, site_name, cmd_args):
-        self.site_name = site_name
-        # jahia download URI depends on date
-        self.date = cmd_args['--date']
-        # where to store zip files
-        self.export_path = cmd_args['--export-path']
-        # where to store output from the script (tracer)
-        self.output_path = cmd_args['--output-dir']
-        # whether overriding existing zip or not
-        self.force = cmd_args['--force-crawl']
-        # to measure overall download time for given site
-        self.elapsed = 0
-
-        # adapt file_path to cmd_args
-        existing = self.already_downloaded()
-        if existing and not self.force:
-            self.file_path = existing[-1]
-            self.file_name = os.path.basename(self.file_path)
-        else:
-            self.file_name = self.FILE_PATTERN % (self.site_name, self.date)
-            self.file_path = os.path.join(self.export_path, self.file_name)
-
-    def __str__(self):
-        """ Format used for report"""
-        return ";".join([self.site_name, self.file_path, str(self.elapsed)])
-
-    def already_downloaded(self):
-        path = Path(self.export_path)
-
-        return [str(file_path) for file_path in path.glob("%s_export*" % self.site_name)]
+    def __init__(self, site, session=None, username=None, password=None, host=None, date=None, force=False):
+        self.site = site
+        self.session = session or SessionHandler(username=username, password=password, host=host)
+        self.config = JahiaConfig(site, host=host, date=date)
+        self.skip_download = len(self.config.existing_files) > 0 and not force
 
     def download_site(self):
-        # do not download twice if not --force
-        existing = self.already_downloaded()
-        if existing and not self.force:
-            logging.warning("%s already downloaded %sx. Last one is %s",
-                            self.site_name, len(existing), self.file_path)
-            return self.file_path
-
-        # pepare query
-        params = self.DWLD_GET_PARAMS.copy()
-        params['sitebox'] = self.site_name
+        # do not download twice if not force
+        if self.skip_download:
+            files = self.config.existing_files
+            file_path = files[-1]
+            logging.info("%s already downloaded %sx. Last one is %s",
+                         self.site, len(files), file_path)
+            return file_path
 
         # set timer to measure execution time
         start_time = timeit.default_timer()
 
         # make query
-        logging.debug("downloading %s...", self.file_name)
+        logging.debug("downloading %s...", self.config.file_name)
         response = self.session.post(
-            "%s/%s/%s" % (self.HOST, self.DWLD_URI, self.file_name),
-            params=params,
+            self.config.file_url,
+            params=self.config.download_params,
             stream=True
         )
         logging.debug("requested %s", response.url)
@@ -106,41 +69,26 @@ class JahiaCrawler(object):
                     output.flush()
 
         # log execution time and return path to downloaded file
-        self.elapsed = timedelta(seconds=timeit.default_timer() - start_time)
-        logging.info("file downloaded in %s", self.elapsed)
-        tracer_path = os.path.join(self.output_path, self.TRACER)
-        with open(tracer_path, 'a') as tracer:
-            tracer.write(str(self))
-            tracer.flush()
+        elapsed = timedelta(seconds=timeit.default_timer() - start_time)
+        logging.info("file downloaded in %s", elapsed)
 
         # return PosixPath converted to string
-        return self.file_path
+        return str(self.file_path)
 
 
-def download_many(jahia_sites, cmd_args):
-    """
-        Download either the one site 'cmd_args.site_name'
-        or all 'cmd_args.number' sites from jahia_sites, starting at 'cmd_args.start_at'
-
-        returns list of downloaded_files
-    """
-    logging.debug("DATE set to %s", cmd_args['--date'])
-
+def download_many(sites, username=None, password=None, host=None, force=False):
+    """ returns list of downloaded_files """
     # to store paths of downloaded zips
     downloaded_files = OrderedDict()
 
-    # compute list fo sites to download
-    try:
-        start_at = jahia_sites.index(cmd_args['<site>'])
-    except ValueError:
-        raise SystemExit("site name %s not found in jahia_sites", cmd_args['<site>'])
-    end = start_at + int(cmd_args['--number'])
-    sites = jahia_sites[start_at:end]
+    # use same session for all downloads
+    session = SessionHandler(username=username, password=password, host=host)
 
-    # download sites from jahia_sites
+    # download sites from sites
     for site in sites:
         try:
-            downloaded_files[site] = str(JahiaCrawler(site, cmd_args).download_site())
+            crawler = JahiaCrawler(site, session=session, force=force)
+            downloaded_files[site] = crawler.download_site()
         except Exception as err:
             logging.error("%s - crawl - Could not crawl Jahia - Exception: %s", site, err)
 

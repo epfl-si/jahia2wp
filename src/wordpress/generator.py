@@ -10,13 +10,13 @@ from django.core.validators import URLValidator
 from veritas.validators import validate_string, validate_openshift_env, validate_integer
 
 from .models import WPSite, WPUser
-from .config import WPRawConfig, WPThemeConfig
+from .config import WPConfig, WPThemeConfig
 
 
 class WPGenerator:
     """ High level object to entirely setup a WP sites with some users.
 
-        It makes use of the lower level object (WPSite, WPUser, WPRawConfig)
+        It makes use of the lower level object (WPSite, WPUser, WPConfig)
         and provides methods to access and control the DB
     """
 
@@ -48,7 +48,7 @@ class WPGenerator:
 
         # create WordPress site and config
         self.wp_site = WPSite(openshift_env, wp_site_url, wp_default_site_title=wp_default_site_title)
-        self.wp_config = WPRawConfig(self.wp_site)
+        self.wp_config = WPConfig(self.wp_site)
 
         # prepare admin for exploitation/maintenance
         self.wp_admin = WPUser(self.WP_ADMIN_USER, self.WP_ADMIN_EMAIL)

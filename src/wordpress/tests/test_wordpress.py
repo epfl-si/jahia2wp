@@ -1,7 +1,7 @@
 import pytest
 
 from utils import Utils
-from wordpress import WPSite, WPUser, WPRawConfig
+from wordpress import WPSite, WPUser, WPConfig
 from wordpress.generator import MockedWPGenerator
 
 
@@ -46,7 +46,7 @@ class TestWPUser:
         pass
 
 
-class TestWPRawConfig:
+class TestWPConfig:
 
     @pytest.fixture()
     def wp_config(self):
@@ -54,7 +54,7 @@ class TestWPRawConfig:
             openshift_env="test",
             wp_site_url="https://localhost/folder",
             wp_default_site_title="My test")
-        return WPRawConfig(wordpress)
+        return WPConfig(wordpress)
 
     def test_is_installed(self, wp_config):
         pass
