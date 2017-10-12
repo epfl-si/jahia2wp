@@ -13,7 +13,8 @@ import settings
 
 class JahiaConfig(object):
 
-    # pattern for zip name
+    # elements of URI
+    JAHIA_DOWNLOAD_URI = "site/2dmaterials2016/op/edit/2dmaterials2016/engineName/export"
     FILE_PATTERN = "%s_export_%s.zip"
 
     def __init__(self, site, host=None, date=None):
@@ -26,7 +27,6 @@ class JahiaConfig(object):
         self.host = host or settings.JAHIA_HOST
         self.download_params = {
             'do': 'sites',
-            'sub': 'multipledelete',
             'exportformat': 'site',
             'sitebox': self.site,
         }
@@ -42,7 +42,7 @@ class JahiaConfig(object):
 
     @property
     def file_url(self):
-        return "{}://{}/{}/{}".format(settings.JAHIA_PROTOCOL, self.host, settings.JAHIA_URI, self.file_name)
+        return "{}://{}/{}/{}".format(settings.JAHIA_PROTOCOL, self.host, self.JAHIA_DOWNLOAD_URI, self.file_name)
 
     @property
     def already_downloaded(self):

@@ -87,5 +87,4 @@ SUPPORTED_LANGUAGES = [
 JAHIA_USER = Utils.get_optional_env("JAHIA_USER", "admin")
 JAHIA_HOST = Utils.get_optional_env("JAHIA_HOST", "localhost")
 JAHIA_PROTOCOL = "http"
-JAHIA_URI = "administration"
 JAHIA_ZIP_PATH = Utils.get_optional_env("JAHIA_ZIP_PATH", ".")

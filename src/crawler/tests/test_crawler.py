@@ -68,14 +68,14 @@ class TestConfig(object):
     def test_with_var_env(self, environment):
         config = JahiaConfig(TEST_SITE, date=datetime(2017, 10, 11, 5, 3))
         assert config.host == TEST_HOST
-        assert config.file_url == "{}://{}/administration/one-site_export_2017-10-11-05-03.zip"\
-            .format(settings.JAHIA_PROTOCOL, TEST_HOST)
+        assert config.file_url == "{}://{}/{}/one-site_export_2017-10-11-05-03.zip"\
+            .format(settings.JAHIA_PROTOCOL, TEST_HOST, JahiaConfig.JAHIA_DOWNLOAD_URI)
 
     def test_config_with_kwargs(self, environment):
         config = JahiaConfig(TEST_SITE, host="epfl.ch", date=datetime(2017, 10, 11, 5, 3))
         assert config.host == "epfl.ch"
-        assert config.file_url == "{}://epfl.ch/administration/one-site_export_2017-10-11-05-03.zip"\
-            .format(settings.JAHIA_PROTOCOL)
+        assert config.file_url == "{}://epfl.ch/{}/one-site_export_2017-10-11-05-03.zip"\
+            .format(settings.JAHIA_PROTOCOL, JahiaConfig.JAHIA_DOWNLOAD_URI)
 
     def test_existing_files(self, environment):
         config = JahiaConfig(TEST_SITE)
@@ -128,8 +128,9 @@ class TestCrawler(object):
         assert crawler.download_site().endswith(TEST_FILE)
 
     def test_download_non_existing(self, session_handler):
-        url = '{}://localhost/administration/non-existing-site_export_2017-10-11-05-03.zip?' \
-              'do=sites&sitebox=non-existing-site&sub=multipledelete&exportformat=site'.format(settings.JAHIA_PROTOCOL)
+        url = '{}://localhost/{}/non-existing-site_export_2017-10-11-05-03.zip?' \
+              'do=sites&sitebox=non-existing-site&exportformat=site' \
+              .format(settings.JAHIA_PROTOCOL, JahiaConfig.JAHIA_DOWNLOAD_URI)
         zip_path = os.path.join(TEST_ZIP_PATH, TEST_FILE)
         with requests_mock.Mocker() as mocker, open(zip_path, 'rb') as input:
             # set mock response

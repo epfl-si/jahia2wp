@@ -14,6 +14,8 @@ import settings
 
 class SessionHandler(object):
 
+    JAHIA_ADMIN_URI = "administration"
+
     def __init__(self, username=None, password=None, host=None):
         # credentials to use
         self.username = username or settings.JAHIA_USER
@@ -51,7 +53,7 @@ class SessionHandler(object):
 
     @property
     def post_url(self):
-        return "{}://{}/{}".format(settings.JAHIA_PROTOCOL, self.host, settings.JAHIA_URI)
+        return "{}://{}/{}".format(settings.JAHIA_PROTOCOL, self.host, self.JAHIA_ADMIN_URI)
 
     @property
     def credentials(self):

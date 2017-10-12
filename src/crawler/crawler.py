@@ -27,7 +27,7 @@ class JahiaCrawler(object):
         if self.skip_download:
             files = self.config.existing_files
             file_path = files[-1]
-            logging.info("%s already downloaded %sx. Last one is %s",
+            logging.info("%s - zip already downloaded %sx. Last one is %s",
                          self.site, len(files), file_path)
             return file_path
 
@@ -35,20 +35,20 @@ class JahiaCrawler(object):
         start_time = timeit.default_timer()
 
         # make query
-        logging.debug("downloading %s...", self.config.file_name)
+        logging.info("%s - downloading %s...", self.site, self.config.file_name)
         response = self.session_handler.session.post(
             self.config.file_url,
             params=self.config.download_params,
             stream=True
         )
-        logging.debug("%s => %s", response.url, response.status_code)
+        logging.debug("%s - %s => %s", self.site, response.url, response.status_code)
 
         # raise exception in case of error
         if not response.status_code == requests.codes.ok:
             response.raise_for_status()
 
         # adapt streaming function to content-length in header
-        logging.debug("headers %s", response.headers)
+        logging.debug("%s - headers %s", self.site, response.headers)
         total_length = response.headers.get('content-length')
         if total_length is not None:
             def read_stream():
@@ -60,7 +60,7 @@ class JahiaCrawler(object):
                 return response.iter_content(chunk_size=4096)
 
         # download file
-        logging.info("saving response into %s...", self.config.file_path)
+        logging.info("%s - saving response into %s...", self.site, self.config.file_path)
         with open(self.config.file_path, 'wb') as output:
             for chunk in read_stream():
                 if chunk:
@@ -69,7 +69,7 @@ class JahiaCrawler(object):
 
         # log execution time and return path to downloaded file
         elapsed = timedelta(seconds=timeit.default_timer() - start_time)
-        logging.info("file downloaded in %s", elapsed)
+        logging.info("%s - file downloaded in %s", self.site, elapsed)
 
         # return PosixPath converted to string
         return str(self.config.file_path)
