@@ -16,9 +16,10 @@ from .session import SessionHandler
 
 class JahiaCrawler(object):
 
-    def __init__(self, site, session=None, username=None, password=None, host=None, date=None, force=False):
+    def __init__(self, site, session=None, username=None, password=None,
+                 host=None, date=None, zip_path=None, force=False):
         self.site = site
-        self.config = JahiaConfig(site, host=host, date=date)
+        self.config = JahiaConfig(site, host=host, date=date, zip_path=zip_path)
         self.skip_download = self.config.already_downloaded and not force
         self.session_handler = session or SessionHandler(username=username, password=password, host=host)
 
@@ -75,7 +76,7 @@ class JahiaCrawler(object):
         return str(self.config.file_path)
 
 
-def download_many(sites, session=None, username=None, password=None, host=None, force=False):
+def download_many(sites, session=None, username=None, password=None, host=None, zip_path=None, force=False):
     """ returns list of downloaded_files """
     # to store paths of downloaded zips
     downloaded_files = OrderedDict()
@@ -86,7 +87,7 @@ def download_many(sites, session=None, username=None, password=None, host=None, 
     # download sites from sites
     for site in sites:
         try:
-            crawler = JahiaCrawler(site, session=session, force=force)
+            crawler = JahiaCrawler(site, session=session, zip_path=zip_path, force=force)
             downloaded_files[site] = crawler.download_site()
         except Exception as err:
             logging.error("%s - crawl - Could not crawl Jahia - Exception: %s", site, err)

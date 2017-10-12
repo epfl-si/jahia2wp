@@ -14,10 +14,10 @@ import settings
 class JahiaConfig(object):
 
     # elements of URI
-    JAHIA_DOWNLOAD_URI = "site/2dmaterials2016/op/edit/2dmaterials2016/engineName/export"
+    JAHIA_DOWNLOAD_URI = "administration/engineName/export"
     FILE_PATTERN = "%s_export_%s.zip"
 
-    def __init__(self, site, host=None, date=None):
+    def __init__(self, site, host=None, date=None, zip_path=None):
         # site to crawl (jahia key)
         self.site = site
 
@@ -32,13 +32,14 @@ class JahiaConfig(object):
         }
 
         # compute zip file name & path
+        self.zip_path = zip_path or settings.JAHIA_ZIP_PATH
         self.existing_files = self.check_existing_files()
         if self.existing_files:
             self.file_path = self.existing_files[-1]
             self.file_name = os.path.basename(self.file_path)
         else:
             self.file_name = self.FILE_PATTERN % (self.site, self.date)
-            self.file_path = os.path.join(settings.JAHIA_ZIP_PATH, self.file_name)
+            self.file_path = os.path.join(self.zip_path, self.file_name)
 
     @property
     def file_url(self):
@@ -49,5 +50,5 @@ class JahiaConfig(object):
         return bool(len(self.existing_files) > 0)
 
     def check_existing_files(self):
-        path = Path(settings.JAHIA_ZIP_PATH)
+        path = Path(self.zip_path)
         return [str(file_path) for file_path in path.glob("%s_export*" % self.site)]

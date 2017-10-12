@@ -3,7 +3,7 @@ jahia2wp: an amazing tool !
 
 Usage:
   jahia2wp.py download      <site>            [--debug | --quiet]
-    [--username=<USERNAME> --host=<HOST> --force]
+    [--username=<USERNAME> --host=<HOST> --zip-path=<ZIP_PATH> --force]
   jahia2wp.py clean         <wp_env> <wp_url> [--debug | --quiet]
   jahia2wp.py check         <wp_env> <wp_url> [--debug | --quiet]
   jahia2wp.py generate      <wp_env> <wp_url> [--debug | --quiet]
@@ -40,12 +40,12 @@ from utils import Utils, deprecated
 
 
 @dispatch.on('download')
-def download(site, username=None, host=None, force=False, **kwargs):
+def download(site, username=None, host=None, zip_path=None, force=False, **kwargs):
     # prompt for password if username is provided
     password = None
     if username is not None:
         password = getpass.getpass(prompt="Jahia password for user '{}': ".format(username))
-    crawler = JahiaCrawler(site, username=username, password=password, host=host, force=force)
+    crawler = JahiaCrawler(site, username=username, password=password, host=host, zip_path=zip_path, force=force)
     crawler.download_site()
 
 
