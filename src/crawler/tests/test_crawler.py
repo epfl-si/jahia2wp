@@ -17,7 +17,6 @@ TEST_SITE = "one-site"
 TEST_USER = "foo"
 TEST_PASSWORD = "bar"
 TEST_HOST = "localhost"
-TEST_ZIP_PATH = CURRENT_DIR
 
 
 @pytest.fixture()
@@ -25,7 +24,7 @@ def delete_environment(request):
     """
         Delete all env. vars
     """
-    for env_var in ["JAHIA_USER", "JAHIA_PASSWORD", "JAHIA_HOST", "JAHIA_ZIP_PATH"]:
+    for env_var in ["JAHIA_USER", "JAHIA_PASSWORD", "JAHIA_HOST"]:
         if os.environ.get(env_var):
             del os.environ[env_var]
     reload(settings)
@@ -39,7 +38,6 @@ def environment(request):
     os.environ["JAHIA_HOST"] = TEST_HOST
     os.environ["JAHIA_USER"] = TEST_USER
     os.environ["JAHIA_PASSWORD"] = TEST_PASSWORD
-    os.environ["JAHIA_ZIP_PATH"] = TEST_ZIP_PATH
     reload(settings)
     return os.environ
 
@@ -78,12 +76,12 @@ class TestConfig(object):
             .format(settings.JAHIA_PROTOCOL, JahiaConfig.JAHIA_DOWNLOAD_URI)
 
     def test_existing_files(self, environment):
-        config = JahiaConfig(TEST_SITE)
+        config = JahiaConfig(TEST_SITE, zip_path=CURRENT_DIR)
         assert config.already_downloaded is True
         assert config.existing_files[-1].endswith(TEST_FILE)
 
     def test_non_existing_files(self):
-        config = JahiaConfig("not-downloaded-site")
+        config = JahiaConfig("not-downloaded-site", zip_path=CURRENT_DIR)
         assert config.already_downloaded is False
 
 
@@ -124,14 +122,14 @@ class TestSession(object):
 class TestCrawler(object):
 
     def test_download_existing(self, session_handler):
-        crawler = JahiaCrawler(TEST_SITE)
+        crawler = JahiaCrawler(TEST_SITE, zip_path=CURRENT_DIR)
         assert crawler.download_site().endswith(TEST_FILE)
 
     def test_download_non_existing(self, session_handler):
         url = '{}://localhost/{}/non-existing-site_export_2017-10-11-05-03.zip?' \
               'do=sites&sitebox=non-existing-site&exportformat=site' \
               .format(settings.JAHIA_PROTOCOL, JahiaConfig.JAHIA_DOWNLOAD_URI)
-        zip_path = os.path.join(TEST_ZIP_PATH, TEST_FILE)
+        zip_path = os.path.join(CURRENT_DIR, TEST_FILE)
         with requests_mock.Mocker() as mocker, open(zip_path, 'rb') as input:
             # set mock response
             mocker.post(url, body=input)
@@ -142,4 +140,4 @@ class TestCrawler(object):
             os.remove(downloaded_path)
 
     def test_download_many(self, session_handler):
-        assert TEST_SITE in download_many([TEST_SITE], session=session_handler)
+        assert TEST_SITE in download_many([TEST_SITE], zip_path=CURRENT_DIR, session=session_handler)
