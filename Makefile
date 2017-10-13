@@ -38,6 +38,7 @@ vars: check-env
 	@echo '  WP_PORT_HTTPS=${WP_PORT_HTTPS}'
 
 up: check-env
+	docker-compose pull
 	@WP_ENV=${WP_ENV} \
 		MYSQL_DB_HOST=${MYSQL_DB_HOST} \
 		MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
@@ -74,3 +75,13 @@ endif
 	@echo "Done with your local env. You can now" 
 	@if test -z "${WP_ENV}"; then echo "    $ source ~/.bashrc (to update your environment with WP_ENV value)"; fi
 	@echo "    $ make exec        (to connect into your contanier)"
+
+clean: down
+	$(eval htDocsDir=$(shell find volumes/srv/$(WP_ENV)/ -name htdocs))	
+	@echo "Cleaning WP files..."
+	@if [ $(shell ls -l $(htDocsDir) | wc -l) -gt 1 ]; then sudo rm -r $(htDocsDir)/*; fi
+	@if [ -e $(htDocsDir)/.htaccess ]; then sudo rm -r $(htDocsDir)/.htaccess*; fi
+	@echo "Cleaning DB files..."
+	@if [ $(shell ls -l "volumes/db/" | wc -l) -gt 1 ]; then sudo rm -r volumes/db/*; fi
+
+	
