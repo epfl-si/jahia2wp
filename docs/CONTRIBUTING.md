@@ -10,7 +10,7 @@ Examples of contributions include:
 
 **Warning**: In order to ease the process, and set expectations, be sure to submit a PR after discussing it in an issue. Non-trivial pull requests (anything more than fixing a typo) without issues will be closed!
 
-When discussing changes and issues, please read and follow our [Code of Conduct](./docs/CODE_OF_CONDUCT.md).
+When discussing changes and issues, please read and follow our [Code of Conduct](./CODE_OF_CONDUCT.md).
 
 As you have surely seen before reaching this page, most of the project is written in python. Hence a few practices that should guide you:
 
