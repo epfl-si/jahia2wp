@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from datetime import datetime
 
-# do not explicitely import variables
+# do not explicitly import variables
 # this allows to reload settings at running time with different environment variable (e.g in tests)
 import settings
 

@@ -181,14 +181,13 @@ You can set up credentials either through environment variables (e.g in your .en
     #   JAHIA_PASSWORD = secret
     #   JAHIA_HOST = localhost
     .../src$ python jahia2wp.py download dcsl
-    NFO - your-env - session - http://jahia202.epfl.ch/administration - authenticating...
+    INFO - your-env - session - http://jahia202.epfl.ch/administration - authenticating...
     INFO - your-env - download_site - saving response into dcsl_export_2017-10-11-11-08.zip...
     INFO - your-env - download_site - file downloaded in 0:00:00.121159
 
     # using credentials from command line (you will be prompted for password)
-    .../src$ python jahia2wp.py download --username=foo
+    .../src$ python jahia2wp.py download dcsl --username=foo
     Jahia password for user 'foo':
-    Jahia password for user 'root':
     INFO - your-env - session - http://jahia202.epfl.ch/administration - authenticating...
     INFO - your-env - download_site - saving response into ./dcsl_export_2017-10-11-11-13.zip...
     INFO - your-env - download_site - file downloaded in 0:00:00.121510
