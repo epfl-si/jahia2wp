@@ -1,3 +1,6 @@
+Detailed installation process
+=============================
+
 Table of contents
 -----------------
 
@@ -13,7 +16,7 @@ Table of contents
 
 ## Starting point: github
 
-Github is currently the only way to leverage this project (and its awesome features). 
+Github is currently the only way to leverage this project (and its awesome features).
 
     you@host:~$ git clone git@github.com:epfl-idevelop/jahia2wp.git
     you@host:~$ cd jahia2wp
@@ -112,7 +115,7 @@ Clone the project:
     www-data@mgmt-x-xxx:/srv/your-env$ cd jahia2wp
     www-data@mgmt-x-xxx:/srv/your-env/jahia2wp$ cp /srv/.config/.env .env
 
-The last lines provide you with usable values for your `.env`. You still can modify them if needed: 
+The last lines provide you with usable values for your `.env`. You still can modify them if needed:
 
     www-data@mgmt-x-xxx:/srv/your-env/jahia2wp$ vi .env
 
@@ -120,7 +123,7 @@ The last lines provide you with usable values for your `.env`. You still can mod
     MYSQL_DB_HOST=db-host
     MYSQL_SUPER_USER=db-super-user
     MYSQL_SUPER_PASSWORD=db-secret
-    
+
 Nearly done. You just need to finish bootstraping, either by simply calling `make bootstrap-mgmt` or going step by step from the section above.
 
 ## Tip to connect to C2C
