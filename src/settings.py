@@ -19,6 +19,7 @@ ENV_DIRS = ['logs', 'venv', 'jahia2wp']
 
 WP_DIRS = ['wp-admin', 'wp-content', 'wp-includes']
 WP_FILES = [
+    '.htaccess',
     'index.php',
     'license.txt',
     'readme.html',
