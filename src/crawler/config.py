@@ -47,7 +47,7 @@ class JahiaConfig(object):
 
     @property
     def already_downloaded(self):
-        return bool(len(self.existing_files) > 0)
+        return len(self.existing_files) > 0
 
     def check_existing_files(self):
         path = Path(self.zip_path)
