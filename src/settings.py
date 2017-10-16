@@ -80,3 +80,16 @@ SUPPORTED_LANGUAGES = [
     "gr",
     "it"
 ]
+
+ADD_TO_ANY_PLUGIN = {
+    "name": "add-to-any",
+    "options": {
+        "option_name": "addtoany_options",
+        "option_value": "../data/plugins/add-to-any.json",
+        "autoload": "yes"
+    }
+}
+
+PLUGINS_CONFIG = [
+    ADD_TO_ANY_PLUGIN,
+]

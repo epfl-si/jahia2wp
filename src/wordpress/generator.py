@@ -4,13 +4,13 @@ import shutil
 import logging
 
 from utils import Utils
-from settings import WP_DIRS, WP_FILES
+from settings import WP_DIRS, WP_FILES, ADD_TO_ANY_PLUGIN
 
 from django.core.validators import URLValidator
 from veritas.validators import validate_string, validate_openshift_env, validate_integer
 
 from .models import WPSite, WPUser
-from .configurator import WPRawConfig, WPThemeConfig
+from .configurator import WPRawConfig, WPThemeConfig, WPPluginConfig
 
 
 class WPGenerator:
@@ -74,7 +74,49 @@ class WPGenerator:
             " --password={0.MYSQL_SUPER_PASSWORD} ".format(self)
         return Utils.run_command(mysql_connection_string + command)
 
+    def generate_plugins(self):
+
+        # install and activate AddToAny plugin
+        add_to_any_plugin = WPPluginConfig(self.wp_site, 'add-to-any')
+        add_to_any_plugin.install()
+        if not add_to_any_plugin.is_activate:
+            logging.error("%s - could not activate WP AddToAny plugin", repr(self))
+            return False
+        else:
+            logging.debug("%s - WP AddToAny plugin is activated", repr(self))
+
+        # config AddToAny plugin
+        add_to_any_plugin.config(config_data=ADD_TO_ANY_PLUGIN)
+
+        # install and activate BasicAuth plugin
+        basic_auth = WPPluginConfig(self.wp_site, 'wp-basic-auth')
+        basic_auth.install()
+        if not basic_auth.is_activate:
+            logging.error("%s - could not activate WP BASIC Auth plugin", repr(self))
+            return False
+        else:
+            logging.debug("%s - WP BASIC Auth plugin is activated", repr(self))
+
+        # install and activate Black Studio TinyMCE widget
+        black_studio_tinymce_widget = WPPluginConfig(self.wp_site, 'black-studio-tinymce-widget')
+        black_studio_tinymce_widget.install()
+        if not black_studio_tinymce_widget.is_activate:
+            logging.error("%s - could not activate WP Black Studio TinyMCE Widget plugin", repr(self))
+            return False
+        else:
+            logging.debug("%s - WP Black Studio TinyMCE Widget is activated", repr(self))
+
+        # install and activate TinyMCE Advanced plugin
+        tinymce_advanced = WPPluginConfig(self.wp_site, 'tinymce-advanced')
+        tinymce_advanced.install()
+        if not tinymce_advanced.is_activate:
+            logging.error("%s - could not activate WP TinyMCE Advanced plugin", repr(self))
+            return False
+        else:
+            logging.debug("%s - WP TinyMCE Advanced is activated", repr(self))
+
     def generate(self):
+
         # check we have a clean place first
         if self.wp_config.is_installed:
             logging.error("%s - wordpress files already found", repr(self))
@@ -100,12 +142,8 @@ class WPGenerator:
             logging.error("%s - could not activate theme", repr(self))
             return False
 
-        # Example of plugin declaration
-        # auth = WPPluginConfig(self.wp_site, 'plugin_name')
-        # auth.install()
-        # if not auth.activate():
-        #     logging.error("%s - could not activate Auth plugin", repr(self))
-        #     return False
+        # install, activate and config plugins
+        self.generate_plugins()
 
         # add 2 given webmasters
         logging.info("%s - creating webmaster accounts...", repr(self))
@@ -163,6 +201,9 @@ class WPGenerator:
         if not self.run_wp_cli(command.format(self.wp_site, self.wp_admin)):
             logging.error("%s - could not setup WP site", repr(self))
             return False
+
+        # create main menu
+        self.wp_config.create_main_menu()
 
         # flag success by returning True
         return True

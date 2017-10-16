@@ -185,6 +185,12 @@ class WPRawConfig:
         self.run_wp_cli(cmd)
         return user
 
+    def create_main_menu(self):
+        # create main menu
+        self.run_wp_cli('menu create Main')
+        # position the menu at the top
+        self.run_wp_cli('menu location assign Main top')
+
 
 class WPThemeConfig(WPRawConfig):
     """ Relies on WPRawConfig to get wp_site and run wp-cli.
@@ -217,6 +223,10 @@ class WPThemeConfig(WPRawConfig):
         return self.run_wp_cli('theme activate {}'.format(self.name))
 
 
+class WPShortCodeConfig(WPRawConfig):
+    SHORTCODE_PATH = os.path.join("")
+
+
 class WPPluginConfig(WPRawConfig):
     """ Relies on WPRawConfig to get wp_site and run wp-cli.
         Overrides is_installed to check for the theme only
@@ -238,10 +248,23 @@ class WPPluginConfig(WPRawConfig):
         # check if files are found in wp-content/plugins
         return os.path.isdir(self.path)
 
+    @property
+    def is_activate(self):
+        command = "plugin list --status=active --field=name --fomat=json"
+        return self.name in self.run_wp_cli(command)
+
     def install(self):
-        # copy files into wp-content/plugins
-        src_path = os.path.sep.join([DATA_PATH, self.PLUGINS_PATH, self.name])
-        shutil.copytree(src_path, self.path)
+        command = "plugin install {0} --activate".format(self.name)
+        self.run_wp_cli(command)
+
+    def config(self, config_data):
+
+        command = "option add {} --autoload={} --format=json < {}".format(
+            config_data["name"],
+            config_data["options"]["autoload"],
+            config_data["options"]["option_value"]
+        )
+        self.run_wp_cli(command)
 
     def activate(self):
         # activation through wp-cli
