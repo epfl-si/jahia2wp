@@ -77,11 +77,6 @@ endif
 	@echo "    $ make exec        (to connect into your contanier)"
 
 clean: down
-	$(eval htDocsDir=$(shell find volumes/srv/$(WP_ENV)/ -name htdocs))	
-	@echo "Cleaning WP files..."
-	@if [ $(shell ls -l $(htDocsDir) | wc -l) -gt 1 ]; then sudo rm -r $(htDocsDir)/*; fi
-	@if [ -e $(htDocsDir)/.htaccess ]; then sudo rm -r $(htDocsDir)/.htaccess*; fi
-	@echo "Cleaning DB files..."
-	@if [ $(shell ls -l "volumes/db/" | wc -l) -gt 1 ]; then sudo rm -r volumes/db/*; fi
+	@./clean.sh $(WP_ENV)
 
 	
