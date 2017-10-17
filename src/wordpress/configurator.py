@@ -188,7 +188,7 @@ class WPRawConfig:
     def create_main_menu(self):
         # create main menu
         self.run_wp_cli('menu create Main')
-        # position the menu at the top
+        # position the main menu at the top
         self.run_wp_cli('menu location assign Main top')
 
 
@@ -221,10 +221,6 @@ class WPThemeConfig(WPRawConfig):
     def activate(self):
         # use wp-cli to activate theme
         return self.run_wp_cli('theme activate {}'.format(self.name))
-
-
-class WPShortCodeConfig(WPRawConfig):
-    SHORTCODE_PATH = os.path.join("")
 
 
 class WPPluginConfig(WPRawConfig):
@@ -262,7 +258,12 @@ class WPPluginConfig(WPRawConfig):
         self.run_wp_cli(command)
 
     def config(self, config_data):
+        """
+            Config plugin via wp-cli.
 
+            "option_value" is the content of the plugin config
+            This content is generated outside jahia2wp script
+        """
         command = "option add {} --autoload={} --format=json < {}".format(
             config_data["name"],
             config_data["options"]["autoload"],
