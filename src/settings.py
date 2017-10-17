@@ -90,6 +90,6 @@ ADD_TO_ANY_PLUGIN = {
     }
 }
 
-PLUGINS_CONFIG = [
-    ADD_TO_ANY_PLUGIN,
-]
+EPFL_INFOSCIENCE_SHORTCODE = {
+    "zip_path": "../data/plugins/epfl_infoscience.zip",
+}

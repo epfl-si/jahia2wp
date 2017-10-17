@@ -253,8 +253,12 @@ class WPPluginConfig(WPRawConfig):
         command = "plugin list --status=active --field=name --fomat=json"
         return self.name in self.run_wp_cli(command)
 
-    def install(self):
-        command = "plugin install {0} --activate".format(self.name)
+    def install(self, zip_path=None):
+        if zip_path is not None:
+            param = zip_path
+        else:
+            param = self.name
+        command = "plugin install {0} --activate".format(param)
         self.run_wp_cli(command)
 
     def config(self, config_data):

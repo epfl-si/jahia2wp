@@ -4,7 +4,7 @@ import shutil
 import logging
 
 from utils import Utils
-from settings import WP_DIRS, WP_FILES, ADD_TO_ANY_PLUGIN
+from settings import WP_DIRS, WP_FILES, ADD_TO_ANY_PLUGIN, EPFL_INFOSCIENCE_SHORTCODE
 
 from django.core.validators import URLValidator
 from veritas.validators import validate_string, validate_openshift_env, validate_integer
@@ -114,6 +114,15 @@ class WPGenerator:
             return False
         else:
             logging.debug("%s - WP TinyMCE Advanced is activated", repr(self))
+
+        # install epfl_infoscience shortcode
+        epfl_infoscience = WPPluginConfig(self.wp_site, 'epfl_infoscience')
+        epfl_infoscience.install(zip_path=EPFL_INFOSCIENCE_SHORTCODE["zip_path"])
+        if not epfl_infoscience.is_activate:
+            logging.error("%s - could not activate WP EPFL Infoscience shortcode", repr(self))
+            return False
+        else:
+            logging.debug("%s - WP EPFL Infoscience shortcode is activated", repr(self))
 
     def generate(self):
 
