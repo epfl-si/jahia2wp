@@ -77,6 +77,6 @@ endif
 	@echo "    $ make exec        (to connect into your contanier)"
 
 clean: down
-	@./clean.sh $(WP_ENV)
+	@bin/clean.sh $(WP_ENV)
 
 	
