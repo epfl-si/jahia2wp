@@ -265,7 +265,7 @@ class WPPluginConfig(WPRawConfig):
             This content is generated outside jahia2wp script
         """
         command = "option add {} --autoload={} --format=json < {}".format(
-            config_data["name"],
+            config_data["options"]["option_name"],
             config_data["options"]["autoload"],
             config_data["options"]["option_value"]
         )
