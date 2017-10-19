@@ -152,6 +152,7 @@ class WPGenerator:
             return False
 
         # install, activate and config plugins
+        logging.info("%s - installing plugins...", repr(self))
         self.generate_plugins()
 
         # add 2 given webmasters
