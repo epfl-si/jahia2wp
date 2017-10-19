@@ -38,6 +38,7 @@ vars: check-env
 	@echo '  WP_PORT_HTTPS=${WP_PORT_HTTPS}'
 
 up: check-env
+	docker-compose pull
 	@WP_ENV=${WP_ENV} \
 		MYSQL_DB_HOST=${MYSQL_DB_HOST} \
 		MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
@@ -74,3 +75,8 @@ endif
 	@echo "Done with your local env. You can now" 
 	@if test -z "${WP_ENV}"; then echo "    $ source ~/.bashrc (to update your environment with WP_ENV value)"; fi
 	@echo "    $ make exec        (to connect into your contanier)"
+
+clean: down
+	@bin/clean.sh $(WP_ENV)
+
+	

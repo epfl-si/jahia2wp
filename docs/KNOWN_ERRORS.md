@@ -17,6 +17,3 @@
     python jahia2wp.py generate-one gcharmier https://localhost/
 
     ERROR:root:generator for WP@gcharmier/localhost/ - WP export - wordpress files already found
-
-
-2. FIX ME : You need to copy/paste the .env file to the root directory
