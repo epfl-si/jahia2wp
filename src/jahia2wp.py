@@ -2,6 +2,8 @@
 jahia2wp: an amazing tool !
 
 Usage:
+  jahia2wp.py download      <site>            [--debug | --quiet]
+    [--username=<USERNAME> --host=<HOST> --zip-path=<ZIP_PATH> --force]
   jahia2wp.py clean         <wp_env> <wp_url> [--debug | --quiet]
   jahia2wp.py check         <wp_env> <wp_url> [--debug | --quiet]
   jahia2wp.py generate      <wp_env> <wp_url> [--debug | --quiet]
@@ -12,9 +14,9 @@ Usage:
   jahia2wp.py generate-one  <wp_env> <wp_url> [--debug | --quiet] [DEPRECATED]
     [--wp-title=<WP_TITLE> --admin-password=<ADMIN_PASSWORD>]
     [--owner=<OWNER_ID> --responsible=<RESPONSIBLE_ID>]
-  jahia2wp.py inventory     <wp_env> <path>   [--debug | --quiet]
   jahia2wp.py generate-many <csv_file>        [--debug | --quiet]
   jahia2wp.py veritas       <csv_file>        [--debug | --quiet]
+  jahia2wp.py inventory     <wp_env> <path>   [--debug | --quiet]
 
 Options:
   -h --help                 Show this screen.
@@ -24,21 +26,33 @@ Options:
 """
 
 import logging
+import getpass
 
 from docopt import docopt
 from docopt_dispatch import dispatch
 
 from veritas.veritas import VeritasValidor
-from wordpress import WPSite, WPRawConfig, WPGenerator
+from wordpress import WPSite, WPConfig, WPGenerator
+from crawler import JahiaCrawler
 
 from settings import VERSION
 from utils import Utils, deprecated
 
 
+@dispatch.on('download')
+def download(site, username=None, host=None, zip_path=None, force=False, **kwargs):
+    # prompt for password if username is provided
+    password = None
+    if username is not None:
+        password = getpass.getpass(prompt="Jahia password for user '{}': ".format(username))
+    crawler = JahiaCrawler(site, username=username, password=password, host=host, zip_path=zip_path, force=force)
+    crawler.download_site()
+
+
 def _check_site(wp_env, wp_url, **kwargs):
     """ Helper function to validate wp site given arguments """
     wp_site = WPSite(wp_env, wp_url, wp_default_site_title=kwargs.get('wp_title'))
-    wp_config = WPRawConfig(wp_site)
+    wp_config = WPConfig(wp_site)
     if not wp_config.is_installed:
         raise SystemExit("No files found for {}".format(wp_site.url))
     if not wp_config.is_config_valid:
@@ -144,7 +158,7 @@ def generate_many(csv_file, **kwargs):
 def inventory(wp_env, path, **kwargs):
     logging.info("Building inventory...")
     print(";".join(['path', 'valid', 'url', 'version', 'db_name', 'db_user', 'admins']))
-    for site_details in WPRawConfig.inventory(wp_env, path):
+    for site_details in WPConfig.inventory(wp_env, path):
         print(";".join([
             site_details.path,
             site_details.valid,

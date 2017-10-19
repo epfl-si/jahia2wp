@@ -1,7 +1,9 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
 import os
 
-VERSION = "0.2.3"
+from utils import Utils
+
+VERSION = "0.2.4"
 
 DATA_PATH = os.path.abspath(
     os.path.sep.join([
@@ -14,6 +16,7 @@ DATA_PATH = os.path.abspath(
 )
 
 ENV_DIRS = ['logs', 'venv', 'jahia2wp']
+
 WP_DIRS = ['wp-admin', 'wp-content', 'wp-includes']
 WP_FILES = [
     '.htaccess',
@@ -81,3 +84,8 @@ SUPPORTED_LANGUAGES = [
     "gr",
     "it"
 ]
+
+JAHIA_USER = Utils.get_optional_env("JAHIA_USER", "admin")
+JAHIA_HOST = Utils.get_optional_env("JAHIA_HOST", "localhost")
+JAHIA_PROTOCOL = "http"
+JAHIA_ZIP_PATH = Utils.get_optional_env("JAHIA_ZIP_PATH", ".")
