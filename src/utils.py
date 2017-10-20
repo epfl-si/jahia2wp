@@ -50,6 +50,7 @@ class Utils(object):
             if proc.stdout:
                 text = proc.stdout.decode(sys.stdout.encoding)
                 # get rid of final spaces, line return
+                logging.debug(text.strip())
                 return text.strip()
             return True
 

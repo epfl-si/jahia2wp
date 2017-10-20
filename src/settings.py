@@ -85,6 +85,19 @@ SUPPORTED_LANGUAGES = [
     "it"
 ]
 
+ADD_TO_ANY_PLUGIN = {
+    "name": "add-to-any",
+    "options": {
+        "option_name": "addtoany_options",
+        "option_value": "../data/plugins/add-to-any.json",
+        "autoload": "yes"
+    }
+}
+
+EPFL_INFOSCIENCE_SHORTCODE = {
+    "zip_path": "../data/plugins/epfl_infoscience.zip",
+}
+
 JAHIA_USER = Utils.get_optional_env("JAHIA_USER", "admin")
 JAHIA_HOST = Utils.get_optional_env("JAHIA_HOST", "localhost")
 JAHIA_PROTOCOL = "http"
