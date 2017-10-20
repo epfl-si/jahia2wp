@@ -35,6 +35,9 @@ Table of releases
 1. Configuration of add-to-any
 1. Create Main menu
 
+**low level:**
+
+- possibilité de surcharger le port ssh du conteneur de `mgmt` avec la variable `WP_PORT_SSHD`, et celui du conteneur phpmyadmin avec `WP_PORT_PHPMA`.
 
 ## [0.2.4] - 2017-10-19
 **[PR #48](https://github.com/epfl-idevelop/jahia2wp/pull/48) & [PR #50](https://github.com/epfl-idevelop/jahia2wp/pull/50)**
