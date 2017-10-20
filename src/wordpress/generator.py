@@ -12,6 +12,8 @@ from veritas.validators import validate_string, validate_openshift_env, validate
 from .models import WPSite, WPUser
 from .config import WPConfig, WPThemeConfig, WPPluginConfig
 
+from .plugins import WPPluginList, WPPluginConfigInfos
+
 
 class WPGenerator:
     """ High level object to entirely setup a WP sites with some users.
@@ -75,54 +77,30 @@ class WPGenerator:
         return Utils.run_command(mysql_connection_string + command)
 
     def generate_plugins(self):
+        """
+        Get plugin list for WP site, install them, activate them if needed, configure them
 
-        # install and activate AddToAny plugin
-        add_to_any_plugin = WPPluginConfig(self.wp_site, 'add-to-any')
-        add_to_any_plugin.install()
-        if not add_to_any_plugin.is_activate:
-            logging.error("%s - could not activate WP AddToAny plugin", repr(self))
-            return False
-        else:
-            logging.debug("%s - WP AddToAny plugin is activated", repr(self))
+        """
 
-        # config AddToAny plugin
-        add_to_any_plugin.config(config_data=ADD_TO_ANY_PLUGIN)
+        # Parameters may be replaced by constant values.
+        config_manager = WPPluginList('../data/plugins/generic', '../data/plugins/specific')
 
-        # install and activate BasicAuth plugin
-        basic_auth = WPPluginConfig(self.wp_site, 'wp-basic-auth')
-        basic_auth.install()
-        if not basic_auth.is_activate:
-            logging.error("%s - could not activate WP BASIC Auth plugin", repr(self))
-            return False
-        else:
-            logging.debug("%s - WP BASIC Auth plugin is activated", repr(self))
+        # Looping through plugins to install
+        for plugin_name, plugin_config in config_manager.plugins(self.wp_site.domain).items():
+            logging.debug("%s - Installing plugin %s", repr(self), plugin_name)
 
-        # install and activate Black Studio TinyMCE widget
-        black_studio_tinymce_widget = WPPluginConfig(self.wp_site, 'black-studio-tinymce-widget')
-        black_studio_tinymce_widget.install()
-        if not black_studio_tinymce_widget.is_activate:
-            logging.error("%s - could not activate WP Black Studio TinyMCE Widget plugin", repr(self))
-            return False
-        else:
-            logging.debug("%s - WP Black Studio TinyMCE Widget is activated", repr(self))
+            # install and activate AddToAny plugin
+            plugin = WPPluginConfig(self.wp_site, plugin_name, plugin_config)
+            plugin.install()
+            plugin.set_state()
 
-        # install and activate TinyMCE Advanced plugin
-        tinymce_advanced = WPPluginConfig(self.wp_site, 'tinymce-advanced')
-        tinymce_advanced.install()
-        if not tinymce_advanced.is_activate:
-            logging.error("%s - could not activate WP TinyMCE Advanced plugin", repr(self))
-            return False
-        else:
-            logging.debug("%s - WP TinyMCE Advanced is activated", repr(self))
+            if plugin.is_activated:
+                logging.debug("%s - WP %s plugin is activated", repr(self), plugin_name)
+            else:
+                logging.debug("%s - WP %s plugin is deactivated", repr(self), plugin_name)
 
-        # install epfl_infoscience shortcode
-        epfl_infoscience = WPPluginConfig(self.wp_site, 'epfl_infoscience')
-        epfl_infoscience.install(zip_path=EPFL_INFOSCIENCE_SHORTCODE["zip_path"])
-        if not epfl_infoscience.is_activate:
-            logging.error("%s - could not activate WP EPFL Infoscience shortcode", repr(self))
-            return False
-        else:
-            logging.debug("%s - WP EPFL Infoscience shortcode is activated", repr(self))
+            # Configure plugin
+            plugin.configure()
 
     def generate(self):
 

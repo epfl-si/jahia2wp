@@ -226,13 +226,25 @@ class WPThemeConfig(WPConfig):
 class WPPluginConfig(WPConfig):
     """ Relies on WPConfig to get wp_site and run wp-cli.
         Overrides is_installed to check for the theme only
+
+
+        ===============================================================> Modifier pour récupérer les informations contenues dans un objet WPPluginConfigInfos
     """
 
     PLUGINS_PATH = os.path.join('wp-content', 'plugins')
 
-    def __init__(self, wp_site, plugin_name):
+    def __init__(self, wp_site, plugin_name, plugin_config):
+        """
+        Constructor
+
+        Keyword arguments:
+        wp_site -- Instance of class WPSite
+        plugin_name -- Plugin name
+        plugin_config -- Instance of class WPPluginConfigInfos
+        """
         super(WPPluginConfig, self).__init__(wp_site)
         self.name = plugin_name
+        self.config = plugin_config
         self.path = os.path.sep.join([self.wp_site.path, self.PLUGINS_PATH, plugin_name])
 
     def __repr__(self):
@@ -245,36 +257,42 @@ class WPPluginConfig(WPConfig):
         return os.path.isdir(self.path)
 
     @property
-    def is_activate(self):
+    def is_activated(self):
         command = "plugin list --status=active --field=name --fomat=json"
-        return self.name in self.run_wp_cli(command)
+        command_output = self.run_wp_cli(command)
+        return False if command_output is True else self.name in command_output
 
-    def install(self, zip_path=None):
-        if zip_path is not None:
-            param = zip_path
+
+    def install(self):
+        if self.config.zip_path is not None:
+            param = self.config.zip_path
         else:
             param = self.name
-        command = "plugin install {0} --activate".format(param)
+        command = "plugin install {0} ".format(param)
         self.run_wp_cli(command)
 
-    def config(self, config_data):
+    def configure(self):
         """
             Config plugin via wp-cli.
 
-            "option_value" is the content of the plugin config
-            This content is generated outside jahia2wp script
         """
-        command = "option add {} --autoload={} --format=json < {}".format(
-            config_data["options"]["option_name"],
-            config_data["options"]["autoload"],
-            config_data["options"]["option_value"]
-        )
-        self.run_wp_cli(command)
 
-    def activate(self):
-        # activation through wp-cli
-        self.run_wp_cli('plugin activate {}'.format(self.name))
-        # configure
-        cmd_path = os.path.sep.join([DATA_PATH, self.PLUGINS_PATH, 'manage-plugin-config.php'])
-        cmd = 'php {0} "{1}" 3 authorizer-deny-gaspar'
-        return Utils.run_command(cmd.format(cmd_path, self.wp_site.path))
+        # Looping through options to set
+        for option_infos in self.config.options:
+            # Applying option
+            command = "option add {} '{}' --autoload={} --format=json".format(
+                option_infos["option_name"],
+                option_infos["option_value"],
+                "yes" if option_infos["autoload"] else "no"
+            )
+            self.run_wp_cli(command)
+
+    def set_state(self):
+        """
+        Change plugin state (activated, deactivated)
+        """
+        if self.config.is_active:
+            # activation through wp-cli
+            self.run_wp_cli('plugin activate {}'.format(self.name))
+        else:
+            self.run_wp_cli('plugin deactivate {}'.format(self.name))
