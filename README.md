@@ -35,6 +35,7 @@ Table of contents
 
 - [Overview](#overview)
 - [License](#license)
+- [Roadmap](#roadmap)
 - [Install](#install)
     - [Assumptions](#assumptions)
     - [Requirements](#requirements)
@@ -42,6 +43,7 @@ Table of contents
     - [Express setup (C2C)](#express-setup-c2c)
     - [Enter the container](#enter-the-container)
 - [Usages](#usages)
+    - [Export a Jahia website (zip file)](#export-a-jahia-website-zip-file)
     - [Create a new WordPress site](#create-a-new-wordpress-site)
     - [Information on a WordPress site](#information-on-a-wordpress-site)
     - [Inventory of WordPress sites for a given path (in a given env)](#inventory-of-wordpress-sites-for-a-given-path-in-a-given-env)
@@ -52,7 +54,6 @@ Table of contents
     - [Guidelines](#guidelines)
     - [Code of Conduct](#code-of-conduct)
     - [Contributor list](#contributor-list)
-- [Roadmap](#roadmap)
 - [Changelog](#changelog)
 
 <!-- /TOC -->
@@ -61,8 +62,6 @@ Table of contents
 
 This repository will provide you with an amazing toolbox to migrate your old beloved Jahia website to a brand new WordPress one.
 
-> TODO: add animated gif of Jahia admin export ?
-
 In the process, not only shall you **not** loose your data, but you shall also be able to control and drive the migration process, i.e:
 
 - where to migrate: URLs of your new site
@@ -70,11 +69,28 @@ In the process, not only shall you **not** loose your data, but you shall also b
 - how to migrate: apply some filters to clean your HTML
 - for whom to migrate: use gaspar accounts as admins
 
-> TODO: add diagram ?
 
 ## License
 
 [MIT license - Copyright (c) EPFL](./LICENSE)
+
+## Roadmap
+
+We will first focus on automation and maintenance, with the objective of driving all the creation process from one shared spreadsheet (aka configuration source).
+
+1. installing a functional WordPress to any given URL
+1. configuring the website with supported plugins and the EPFL theme
+1. applying those first two steps to every row of our configuration source
+1. maintaining the website and the plugins
+
+We will secondly add support for migration of a simple site:
+
+1. Jahia text boxes, to WordPress pages
+1. translation, hierarchy, sidebar
+
+And lastly we will extend the support to other Jahia boxes, mainly thanks to WordPress shortcodes
+
+- people, faq, actu, memento, infoscience, and so on ...
 
 ## Install
 
@@ -170,13 +186,38 @@ From here you can use the python script jahia2wp.py. The option `-h` will give y
 
     python jahia2wp.py -h
 
+
+### Export a Jahia website (zip file)
+
+Provided that you have an admin access on Jahia for the website you wish to export, you can download a zip file with the content of your website.
+
+You can set up credentials either through environment variables (e.g in your .env file) or through the command line interface. The zip file will be downloaded in the directory pointed out by `JAHIA_ZIP_PATH` (by default where you execute the command)
+
+    # using credentials from .env
+    #   JAHIA_USER = admin
+    #   JAHIA_PASSWORD = secret
+    #   JAHIA_HOST = localhost
+    .../src$ python jahia2wp.py download dcsl
+    INFO - your-env - session - http://localhost/administration - authenticating...
+    INFO - your-env - download_site - saving response into dcsl_export_2017-10-11-11-08.zip...
+    INFO - your-env - download_site - file downloaded in 0:00:00.121159
+
+    # using credentials from command line (you will be prompted for password)
+    .../src$ python jahia2wp.py download dcsl --username=foo
+    Jahia password for user 'foo':
+    INFO - your-env - session - http://localhost/administration - authenticating...
+    INFO - your-env - download_site - saving response into ./dcsl_export_2017-10-11-11-13.zip...
+    INFO - your-env - download_site - file downloaded in 0:00:00.121510
+
+
+
 ### Create a new WordPress site
 
 Here are some examples with WordPress sites at different levels
 
-    python jahia2wp.py generate $WP_ENV http://localhost
-    python jahia2wp.py generate $WP_ENV http://localhost/folder/ --wp-title="Sous Site WP" --owner=235151
-    python jahia2wp.py generate $WP_ENV http://localhost/folder/niv3 --wp-title="Site Niv3 WP" --admin-password=foo
+    .../src$ python jahia2wp.py generate $WP_ENV http://localhost
+    .../src$ python jahia2wp.py generate $WP_ENV http://localhost/folder/ --wp-title="Sous Site WP" --owner=235151
+    .../src$ python jahia2wp.py generate $WP_ENV http://localhost/folder/niv3 --wp-title="Site Niv3 WP" --admin-password=foo
 
 You can check that three new WordPresses are running on http://[localhost](http://localhost)/[folder](http://localhost/folder)/[niv3](http://localhost/folder/niv3).
 
@@ -249,8 +290,9 @@ Or from the management container:
     (venv) www-data@...:/srv/your-env/jahia2wp$ make test-raw
     ...
 
-
 ### Guidelines
+
+Check out [CONTRIBUTING.md](./docs/CONTRIBUTING.md) for more details
 
 ### Code of Conduct
 
@@ -264,24 +306,6 @@ Big up to all the following people, without whom this project will not be
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | [<img src="https://avatars0.githubusercontent.com/u/490665?v=4s=100" width="100px;"/><br /><sub>Manu B.</sub>](https://github.com/ebreton)<br /> | [<img src="https://avatars0.githubusercontent.com/u/2668031?v=4s=100" width="100px;"/><br /><sub>Manu J. </sub>](https://github.com/jaepetto)<br /> | [<img src="https://avatars0.githubusercontent.com/u/4997224?v=4s=100" width="100px;"/><br /><sub>Greg</sub>](https://github.com/GregLeBarbar)<br /> | [<img src="https://avatars0.githubusercontent.com/u/11942430?v=4s=100" width="100px;"/><br /><sub>Lulu</sub>](https://github.com/LuluTchab)<br /> | [<img src="https://avatars0.githubusercontent.com/u/25363740?v=4s=100" width="100px;"/><br /><sub>Laurent</sub>](https://github.com/lboatto)<br /> | [<img src="https://avatars0.githubusercontent.com/u/29034311?v=4s=100" width="100px;"/><br /><sub>Luc</sub>](https://github.com/lvenries)<br /> | <br /> | 
 | [<img src="https://avatars0.githubusercontent.com/u/1629585?v=4s=100" width="100px;"/><br /><sub>Dominique</sub>](https://github.com/domq)<br /> | [<img src="https://avatars0.githubusercontent.com/u/176002?v=4s=100" width="100px;"/><br /><sub>Nicolas </sub>](https://github.com/ponstfrilus)<br /> | [<img src="https://avatars0.githubusercontent.com/u/28109?v=4s=100" width="100px;"/><br /><sub>CampToCamp</sub>](https://github.com/camptocamp)<br /> | <br /> | <br /> | | <br /> | <br /> | 
-
-## Roadmap
-
-We will first focus on automation and maintenance, with the objective of driving all the creation process from one shared spreadsheet (aka configuration source).
-
-1. installing a functional WordPress to any given URL
-1. configuring the website with supported plugins and the EPFL theme
-1. applying those first two steps to every row of our configuration source
-1. maintaining the website and the plugins
-
-We will secondly add support for migration of a simple site:
-
-1. Jahia text boxes, to WordPress pages
-1. translation, hierarchy, sidebar
-
-And lastly we will extend the support to other Jahia boxes, mainly thanks to WordPress shortcodes
-
-- people, faq, actu, memento, infoscience, and so on ...
 
 ## Changelog
 

@@ -8,7 +8,7 @@ from utils import Utils
 from .models import WPException, WPUser, WPSite
 
 
-class WPRawConfig:
+class WPConfig:
     """ First object to implement some business logic
         - is the site installed? properly configured ?
 
@@ -192,8 +192,8 @@ class WPRawConfig:
         self.run_wp_cli('menu location assign Main top')
 
 
-class WPThemeConfig(WPRawConfig):
-    """ Relies on WPRawConfig to get wp_site and run wp-cli.
+class WPThemeConfig(WPConfig):
+    """ Relies on WPConfig to get wp_site and run wp-cli.
         Overrides is_installed to check for the theme only
     """
 
@@ -223,8 +223,8 @@ class WPThemeConfig(WPRawConfig):
         return self.run_wp_cli('theme activate {}'.format(self.name))
 
 
-class WPPluginConfig(WPRawConfig):
-    """ Relies on WPRawConfig to get wp_site and run wp-cli.
+class WPPluginConfig(WPConfig):
+    """ Relies on WPConfig to get wp_site and run wp-cli.
         Overrides is_installed to check for the theme only
     """
 
