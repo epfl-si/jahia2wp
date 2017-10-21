@@ -30,6 +30,13 @@
   transition: background-color .3s ease-in-out, color .3s ease-in-out, border-color .3s ease-in-out;
 }
 
+@mixin no-bullet {
+  padding-left: 0;
+  &:before {
+    display: none;
+  }
+}
+
 /* Containers */
 
 @mixin border-bottom-dots {
@@ -46,6 +53,10 @@
   
   a {
     border-color: rgba(255,255,255,.9);
+    color: #fff;
+  }
+  
+  strong {
     color: #fff;
   }
 }
