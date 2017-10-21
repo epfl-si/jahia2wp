@@ -11,6 +11,7 @@ Table of releases
 
 <!-- TOC depthFrom:2 depthTo:2 orderedList:false -->
 
+- [[0.2.6] - 2017-10-23](#026---2017-10-23)
 - [[0.2.5] - 2017-10-20](#025---2017-10-20)
 - [[0.2.4] - 2017-10-19](#024---2017-10-19)
 - [[0.2.3] - 2017-10-10](#023---2017-10-10)
@@ -20,6 +21,26 @@ Table of releases
 - [[0.1.0] - 2017-09-14](#010---2017-09-14)
 
 <!-- /TOC -->
+
+## [0.2.6] - 2017-10-23
+**[PR #55](https://github.com/epfl-idevelop/jahia2wp/pull/55)**
+
+**Updated Theme from following bugfixes on repo jahiap:**
+
+Id | Description
+-- | --
+[240](https://github.com/epfl-idevelop/jahiap/issues/240) | Texte centré en vertical sur WP mais pas sur Jahia
+[129](https://github.com/epfl-idevelop/jahiap/issues/129) | Les titres sont tout en majuscule
+[188](https://github.com/epfl-idevelop/jahiap/issues/188) | Mauvais format des listes à puce
+[92](https://github.com/epfl-idevelop/jahiap/issues/92) | Les ligne de tableau invisible sont visibles
+[85](https://github.com/epfl-idevelop/jahiap/issues/85) | Menu déroulant "personnes" en haut à droite ne déroule pas
+[192](https://github.com/epfl-idevelop/jahiap/issues/192) | Affichage d'un rectangle gris à la place d'une division vide
+[170](https://github.com/epfl-idevelop/jahiap/issues/170) | La boite rouge dans le corps de page ne se colle pas à droite
+[169](https://github.com/epfl-idevelop/jahiap/issues/169) | Une div se colle à gauche au lieu de flotter à droite
+[89](https://github.com/epfl-idevelop/jahiap/issues/89) | Séparateur gris clair en trop dans les tableaux
+[239](https://github.com/epfl-idevelop/jahiap/issues/239) | couleur de background de paragraphe manquante
+[225](https://github.com/epfl-idevelop/jahiap/issues/225) | Dans les paragraphes des pages, il manque le surlignage en couleur de cert[...]
+
 
 ## [0.2.5] - 2017-10-20
 **[PR #51](https://github.com/epfl-idevelop/jahia2wp/pull/51)**
