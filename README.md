@@ -86,9 +86,9 @@ In the process, not only shall you **not** loose your data, but you shall also b
 
 We will first focus on automation and maintenance, with the objective of driving all the creation process from one shared spreadsheet (aka configuration source).
 
-Icons are used to mark the progress as follows: :tada:, :champagne: or :gift_heart: when available, :construction: when work in progress, :tent: when implemented as prototype in [jahiap repo](https://github.com/epfl-idevelop/jahiap) 
+Icons are used to mark the progress as follows: :balloon:, :tada:, :champagne: or :gift_heart: when available, :construction: when work in progress, :tent: when implemented as prototype in [jahiap repo](https://github.com/epfl-idevelop/jahiap) 
 
-1. :tada: installing a functional WordPress to any given URL
+1. :balloon: installing a functional WordPress to any given URL
 1. :tada: configuring the website with supported plugins and the EPFL theme
 1. :champagne: applying those first two steps to every row of our configuration source
 1. :construction: maintaining the website and the plugins
