@@ -86,16 +86,16 @@ In the process, not only shall you **not** loose your data, but you shall also b
 
 We will first focus on automation and maintenance, with the objective of driving all the creation process from one shared spreadsheet (aka configuration source).
 
-Icons are used to mark the progress as follows: :tada: when available, :construction: when work in progress, :tent: when implemented as prototype in [jahiap repo](https://github.com/epfl-idevelop/jahiap) 
+Icons are used to mark the progress as follows: :tada:, :champagne: or :gift_heart: when available, :construction: when work in progress, :tent: when implemented as prototype in [jahiap repo](https://github.com/epfl-idevelop/jahiap) 
 
 1. :tada: installing a functional WordPress to any given URL
 1. :tada: configuring the website with supported plugins and the EPFL theme
-1. :tada: applying those first two steps to every row of our configuration source
+1. :champagne: applying those first two steps to every row of our configuration source
 1. :construction: maintaining the website and the plugins
 
 We will secondly add support for migration of a simple site:
 
-1. :tada: Export the content of a Jahia website as a zipped package
+1. :gift_heart: Export the content of a Jahia website as a zipped package
 1. :tent: Parse zipped package (XML and files) as python objects
 1. :tent: Import parsed pages into WordPress (raw content)
 1. :tent: Support translation, hierarchy, menu, sidebar
@@ -146,7 +146,7 @@ Simply run the instructions given in the last lines from the script.
 
 Among them, `make exec` will log you in your container.
 
-💡 If you want to use a nonstandard HTTP or HTTP/S port, you will need to [log in through phpMyAdmin](#phpmyadmin-locally) to [edit](https://codex.wordPress.org/Changing_The_Site_URL#Changing_the_URL_directly_in_the_database) `siteurl` in table `wp_options`, **prior to** testing your new site in the browser (or [clear the cache](https://stackoverflow.com/a/46632349/435004) if you forgot)
+💡 If you want to use a nonstandard HTTP or HTTP/S port, you will need to [log in through phpMyAdmin](#phpmyadmin-locally) to [edit](https://codex.wordpress.org/Changing_The_Site_URL#Changing_the_URL_directly_in_the_database) `siteurl` in table `wp_options`, **prior to** testing your new site in the browser (or [clear the cache](https://stackoverflow.com/a/46632349/435004) if you forgot)
 
 Did we mention that would you be looking for a more explicit process, feel free to follow the [detailed guide](./docs/INSTALL_DETAILED.md)? ;)
 
@@ -242,17 +242,17 @@ You can access the [admin](http://localhost/folder/niv3/wp-admin) of the last on
 
 ### Information on a WordPress site
 
-To check if you have a wordPress properly configured:
+To check if you have a WordPress site properly configured:
 
     .../src$ python jahia2wp.py check $WP_ENV http://localhost/folder/niv3
     WordPress site valid and accessible at http://localhost/folder/niv3
 
-To get the version of a given wordPress:
+To get the version of a given WordPress site:
 
     .../src$ python jahia2wp.py version $WP_ENV http://localhost
     4.8
 
-To get the admin users of a given wordPress
+To get the admin users of a given WordPress site
 
     .../src$ python jahia2wp.py admins $WP_ENV http://localhost/folder/
     admin:admin@example.com <administrator>
@@ -261,7 +261,7 @@ To get the admin users of a given wordPress
 
 ### Inventory of WordPress sites for a given path (in a given env)
 
-To look into the tree structure and list all valid/unvalid wordPress sites, with some info when they are valid:
+To look into the tree structure and list all valid/unvalid WordPress sites, with some info when they are valid:
 
     .../src$ python jahia2wp.py inventory $WP_ENV /srv/your-env/localhost
     INFO - your-env - inventory - Building inventory...
