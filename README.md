@@ -86,19 +86,24 @@ In the process, not only shall you **not** loose your data, but you shall also b
 
 We will first focus on automation and maintenance, with the objective of driving all the creation process from one shared spreadsheet (aka configuration source).
 
-1. installing a functional WordPress to any given URL
-1. configuring the website with supported plugins and the EPFL theme
-1. applying those first two steps to every row of our configuration source
-1. maintaining the website and the plugins
+Icons are used to mark the progress as follows: :tada: when available, :construction: when work in progress, :tent: when implemented as prototype in [jahiap repo](https://github.com/epfl-idevelop/jahiap) 
+
+1. :tada: installing a functional WordPress to any given URL
+1. :tada: configuring the website with supported plugins and the EPFL theme
+1. :tada: applying those first two steps to every row of our configuration source
+1. :construction: maintaining the website and the plugins
 
 We will secondly add support for migration of a simple site:
 
-1. Jahia text boxes, to WordPress pages
-1. translation, hierarchy, sidebar
+1. :tada: Export the content of a Jahia website as a zipped package
+1. :tent: Parse zipped package (XML and files) as python objects
+1. :tent: Import parsed pages into WordPress (raw content)
+1. :tent: Support translation, hierarchy, menu, sidebar
 
 And lastly we will extend the support to other Jahia boxes, mainly thanks to WordPress shortcodes
 
-- people, faq, actu, memento, infoscience, and so on ...
+1. Import static Jahia boxes into WordPress (shortcodes)
+1. Import web-services powered Jahia boxes into WordPress (people, faq, actu, memento, infoscience, and so on ...)
 
 ## Install
 
@@ -110,7 +115,7 @@ In this documentation the code snippets will make the assumption that you clone 
 
 When it comes to the environment, we will use the following values in our examples:
 
-- '`your-env`' for the project environment : that's ok for you if you work only locally. You need to use your environment name if you wotk on C2C infra.
+- '`your-env`' for the project environment : that's ok for you if you work only locally. You need to use your environment name if you work on C2C infra.
 - '`venv`' for the python virtual environment : keep this name like this, since some shortcuts (aliases) make use of it.
 
 ### Requirements
@@ -139,9 +144,9 @@ As some commands require `sudo`, you will be asked for your system password. The
 
 Simply run the instructions given in the last lines from the script.
 
-Among them, `make exec` will log you in your container: you are now ready to jump to the next section, about [usages](#usage).
+Among them, `make exec` will log you in your container.
 
-💡 If you want to use a nonstandard HTTP or HTTP/S port, you will need to [log in through phpMyAdmin](#phpmyadmin-locally) to [edit](https://codex.wordpress.org/Changing_The_Site_URL#Changing_the_URL_directly_in_the_database) `siteurl` in table `wp_options`, **prior to** testing your new site in the browser (or [clear the cache](https://stackoverflow.com/a/46632349/435004) if you forgot)
+💡 If you want to use a nonstandard HTTP or HTTP/S port, you will need to [log in through phpMyAdmin](#phpmyadmin-locally) to [edit](https://codex.wordPress.org/Changing_The_Site_URL#Changing_the_URL_directly_in_the_database) `siteurl` in table `wp_options`, **prior to** testing your new site in the browser (or [clear the cache](https://stackoverflow.com/a/46632349/435004) if you forgot)
 
 Did we mention that would you be looking for a more explicit process, feel free to follow the [detailed guide](./docs/INSTALL_DETAILED.md)? ;)
 
@@ -158,7 +163,6 @@ You will need to ask C2C to add your public key in `authorized_keys` on the serv
     www-data@mgmt-x-xxx:/srv/your-env$ cd jahia2wp
     www-data@mgmt-x-xxx:/srv/your-env/jahia2wp$ cp /srv/.config/.env . (<- that will set the correct DB credentials for you)
 
-You are now ready to jump to the next section, about [usages](#usage).
 
 ### Enter the container
 
@@ -199,7 +203,9 @@ From here you can use the python script jahia2wp.py. The option `-h` will give y
 
 Provided that you have an admin access on Jahia for the website you wish to export, you can download a zip file with the content of your website.
 
-You can set up credentials either through environment variables (e.g in your .env file) or through the command line interface. The zip file will be downloaded in the directory pointed out by `JAHIA_ZIP_PATH` (by default where you execute the command)
+The zip file will be downloaded in the directory pointed out by `JAHIA_ZIP_PATH` (by default where you execute the command)
+
+You can set up credentials either through environment variables (e.g in your .env file)... 
 
     # using credentials from .env
     #   JAHIA_USER = admin
@@ -210,13 +216,16 @@ You can set up credentials either through environment variables (e.g in your .en
     INFO - your-env - download_site - saving response into dcsl_export_2017-10-11-11-08.zip...
     INFO - your-env - download_site - file downloaded in 0:00:00.121159
 
+
+or through the command line interface:
+
+
     # using credentials from command line (you will be prompted for password)
     .../src$ python jahia2wp.py download dcsl --username=foo
     Jahia password for user 'foo':
     INFO - your-env - session - http://localhost/administration - authenticating...
     INFO - your-env - download_site - saving response into ./dcsl_export_2017-10-11-11-13.zip...
     INFO - your-env - download_site - file downloaded in 0:00:00.121510
-
 
 
 ### Create a new WordPress site
@@ -233,17 +242,17 @@ You can access the [admin](http://localhost/folder/niv3/wp-admin) of the last on
 
 ### Information on a WordPress site
 
-To check if you have a wordpress properly configured:
+To check if you have a wordPress properly configured:
 
     .../src$ python jahia2wp.py check $WP_ENV http://localhost/folder/niv3
     WordPress site valid and accessible at http://localhost/folder/niv3
 
-To get the version of a given wordpress:
+To get the version of a given wordPress:
 
     .../src$ python jahia2wp.py version $WP_ENV http://localhost
     4.8
 
-To get the admin users of a given wordpress
+To get the admin users of a given wordPress
 
     .../src$ python jahia2wp.py admins $WP_ENV http://localhost/folder/
     admin:admin@example.com <administrator>
@@ -252,7 +261,7 @@ To get the admin users of a given wordpress
 
 ### Inventory of WordPress sites for a given path (in a given env)
 
-To look into the tree structure and list all valid/unvalid wordpress sites, with some info when they are valid:
+To look into the tree structure and list all valid/unvalid wordPress sites, with some info when they are valid:
 
     .../src$ python jahia2wp.py inventory $WP_ENV /srv/your-env/localhost
     INFO - your-env - inventory - Building inventory...
