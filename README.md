@@ -1,7 +1,7 @@
 <!-- markdownlint-disable -->
 <h1 align="center" style="margin:1em">
   <a href="https://jahia2wp.readthedocs.org/">
-    <img src="./static/jahia2wp.png"
+    <img src="./docs/static/jahia2wp.png"
          alt="jahia2wp"
          width="200"></a>
   <br />
@@ -61,16 +61,16 @@ And lastly we will extend the support to other Jahia boxes, mainly thanks to Wor
 
 ## Changelog
 
-All notable changes to this project are documented in [CHANGELOG.md](./CHANGELOG.md).
+All notable changes to this project are documented in [CHANGELOG.md](./docs/CHANGELOG.md).
 ## Install and Usage
 
 Head to the [documentation](./docs/index.md) for next practical steps
 
 ## Contribution
 
-Check out [CONTRIBUTING.md](./CONTRIBUTING.md) for more details
+Check out [CONTRIBUTING.md](./docs/CONTRIBUTING.md) for more details
 
-As well as our [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md), where we pledge to making participation in our project and our community a harassment-free experience for everyone
+As well as our [CODE_OF_CONDUCT.md](./docs/CODE_OF_CONDUCT.md), where we pledge to making participation in our project and our community a harassment-free experience for everyone
 
 ## Contributor list
 
