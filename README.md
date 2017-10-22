@@ -13,7 +13,7 @@
 </h4>
 
 <p align="center">
-  <a href="https://github.com/epfl-idevelop/jahia2wp/blob/master/CHANGELOG.md">
+  <a href="https://github.com/epfl-idevelop/jahia2wp/blob/master/docs/CHANGELOG.md">
     <img src="https://img.shields.io/badge/version-0.2.5-ff69b4.svg"
          alt="Changelog">
   </a>

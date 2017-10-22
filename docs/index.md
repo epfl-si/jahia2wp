@@ -1,6 +1,6 @@
 <!-- markdownlint-disable -->
 <h1 align="center" style="margin:1em">
-  <a href="https://jahia2wp.readthedocs.org/">
+  <a href="https://github.com/epfl-idevelop/jahia2wp">
     <img src="./static/jahia2wp.png"
          alt="jahia2wp"
          width="200"></a>
@@ -13,7 +13,7 @@
 </h4>
 
 <p align="center">
-  <a href="https://github.com/epfl-idevelop/jahia2wp/blob/master/CHANGELOG.md">
+  <a href="https://github.com/epfl-idevelop/jahia2wp/blob/master/docs/CHANGELOG.md">
     <img src="https://img.shields.io/badge/version-0.2.5-ff69b4.svg"
          alt="Changelog">
   </a>
@@ -61,7 +61,6 @@ Table of contents
     - [Testing](#testing)
     - [Guidelines](#guidelines)
     - [Code of Conduct](#code-of-conduct)
-    - [Contributor list](#contributor-list)
 - [Changelog](#changelog)
 
 <!-- /TOC -->
