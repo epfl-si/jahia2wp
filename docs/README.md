@@ -1,7 +1,7 @@
 <!-- markdownlint-disable -->
 <h1 align="center" style="margin:1em">
   <a href="https://jahia2wp.readthedocs.org/">
-    <img src="./docs/static/jahia2wp.png"
+    <img src="./static/jahia2wp.png"
          alt="Markdownify"
          width="200"></a>
   <br />
@@ -17,10 +17,10 @@
     <img src="https://img.shields.io/badge/version-0.2.5-ff69b4.svg"
          alt="Changelog">
   </a>
-  <!-- <a href="http://jahia2wp.readthedocs.io/?badge=master">
+  <a href="http://jahia2wp.readthedocs.io/?badge=master">
     <img src="https://readthedocs.org/projects/jahia2wp/badge/?version=master"
          alt="RDT">
-  </a> -->
+  </a>
   <a href="https://travis-ci.org/epfl-idevelop/jahia2wp">
     <img src="https://travis-ci.org/epfl-idevelop/jahia2wp.svg?branch=master"
          alt="Travis">
@@ -80,7 +80,7 @@ In the process, not only shall you **not** loose your data, but you shall also b
 
 ## License
 
-[MIT license - Copyright (c) EPFL](./LICENSE)
+[MIT license - Copyright (c) EPFL](../LICENSE)
 
 ## Roadmap
 
@@ -120,7 +120,7 @@ When it comes to the environment, we will use the following values in our exampl
 
 ### Requirements
 
-We have tried (hard) to make this process as smooth as possible, and to isolate most of the dependencies in a `docker` container. However, you still need to install a few things locally (head to [INSTALL_TOOLS.md](./docs/INSTALL_TOOLS.md) to get more details).
+We have tried (hard) to make this process as smooth as possible, and to isolate most of the dependencies in a `docker` container. However, you still need to install a few things locally (head to [INSTALL_TOOLS.md](./INSTALL_TOOLS.md) to get more details).
 
 Be sure you meet the following requirements:
 
@@ -132,9 +132,9 @@ Note that python is not in the requirements. You do not necessarily need it on y
 
 ### Express setup (locally)
 
-![architecture locale](./docs/static/archi_local.jpg)
+![architecture locale](./static/archi_local.jpg)
 
-As some commands require `sudo`, you will be asked for your system password. The process will add a line line in your `.bashrc` (again: head to [INSTALL_TOOLS.md](./docs/INSTALL_TOOLS.md) to get more details):
+As some commands require `sudo`, you will be asked for your system password. The process will add a line line in your `.bashrc` (again: head to [INSTALL_TOOLS.md](./INSTALL_TOOLS.md) to get more details):
 
     you@host:~$ git clone git@github.com:epfl-idevelop/jahia2wp.git
     you@host:~$ cd jahia2wp
@@ -148,11 +148,11 @@ Among them, `make exec` will log you in your container.
 
 💡 If you want to use a nonstandard HTTP or HTTP/S port, you will need to [log in through phpMyAdmin](#phpmyadmin-locally) to [edit](https://codex.wordpress.org/Changing_The_Site_URL#Changing_the_URL_directly_in_the_database) `siteurl` in table `wp_options`, **prior to** testing your new site in the browser (or [clear the cache](https://stackoverflow.com/a/46632349/435004) if you forgot)
 
-Did we mention that would you be looking for a more explicit process, feel free to follow the [detailed guide](./docs/INSTALL_DETAILED.md)? ;)
+Did we mention that would you be looking for a more explicit process, feel free to follow the [detailed guide](./INSTALL_DETAILED.md)? ;)
 
 ### Express setup (C2C)
 
-![architecture Infra C2C](./docs/static/archi_infra_C2C.jpg)
+![architecture Infra C2C](./static/archi_infra_C2C.jpg)
 
 You will need to ask C2C to add your public key in `authorized_keys` on the server.
 
@@ -309,11 +309,11 @@ Or from the management container:
 
 ### Guidelines
 
-Check out [CONTRIBUTING.md](./docs/CONTRIBUTING.md) for more details
+Check out [CONTRIBUTING.md](./CONTRIBUTING.md) for more details
 
 ### Code of Conduct
 
-As detailed in [CODE_OF_CONDUCT.md](./docs/CODE_OF_CONDUCT.md), we pledge to making participation in our project and our community a harassment-free experience for everyone
+As detailed in [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md), we pledge to making participation in our project and our community a harassment-free experience for everyone
 
 ### Contributor list
 
