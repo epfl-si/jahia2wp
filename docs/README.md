@@ -2,7 +2,7 @@
 <h1 align="center" style="margin:1em">
   <a href="https://jahia2wp.readthedocs.org/">
     <img src="./static/jahia2wp.png"
-         alt="Markdownify"
+         alt="jahia2wp"
          width="200"></a>
   <br />
   jahia2wp
@@ -327,3 +327,5 @@ Big up to all the following people, without whom this project will not be
 ## Changelog
 
 All notable changes to this project are documented in [CHANGELOG.md](./CHANGELOG.md).
+
+![From Jahia to Wordpress](./static/jahia2wp.png)
