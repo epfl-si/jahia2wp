@@ -64,7 +64,7 @@ And lastly we will extend the support to other Jahia boxes, mainly thanks to Wor
 All notable changes to this project are documented in [CHANGELOG.md](./docs/CHANGELOG.md).
 ## Install and Usage
 
-Head to the [documentation](./docs/index.md) for next practical steps
+Head to the [documentation](http://jahia2wp.readthedocs.io/en/master/) for next practical steps
 
 ## Contribution
 
