@@ -327,5 +327,3 @@ Big up to all the following people, without whom this project will not be
 ## Changelog
 
 All notable changes to this project are documented in [CHANGELOG.md](./CHANGELOG.md).
-
-![From Jahia to Wordpress](./static/jahia2wp.png)
