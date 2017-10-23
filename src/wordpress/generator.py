@@ -85,8 +85,14 @@ class WPGenerator:
         # Parameters may be replaced by constant values.
         config_manager = WPPluginList('../data/plugins/generic', '../data/plugins/specific')
 
+        if self.wp_site.folder != "":
+            site_name = self.wp_site.folder
+        else:
+            domain_parts = self.wp_site.domain.split(".")
+            site_name = self.wp_site.domain if len(domain_parts)==1 else domain_parts[1]
+
         # Looping through plugins to install
-        for plugin_name, plugin_config in config_manager.plugins(self.wp_site.domain).items():
+        for plugin_name, plugin_config in config_manager.plugins(site_name).items():
             logging.debug("%s - Installing plugin %s", repr(self), plugin_name)
 
             # install and activate AddToAny plugin

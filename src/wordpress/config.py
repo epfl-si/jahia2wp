@@ -227,8 +227,6 @@ class WPPluginConfig(WPConfig):
     """ Relies on WPConfig to get wp_site and run wp-cli.
         Overrides is_installed to check for the theme only
 
-
-        ===============================================================> Modifier pour récupérer les informations contenues dans un objet WPPluginConfigInfos
     """
 
     PLUGINS_PATH = os.path.join('wp-content', 'plugins')
