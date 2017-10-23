@@ -17,8 +17,8 @@
     <img src="https://img.shields.io/badge/version-0.2.5-ff69b4.svg"
          alt="Changelog">
   </a>
-  <a href="http://jahia2wp.readthedocs.io/?badge=master">
-    <img src="https://readthedocs.org/projects/jahia2wp/badge/?version=master"
+  <a href="http://jahia2wp.readthedocs.io">
+    <img src="https://img.shields.io/readthedocs/jahia2wp.svg"
          alt="RDT">
   </a>
   <a href="https://travis-ci.org/epfl-idevelop/jahia2wp">

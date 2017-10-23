@@ -17,8 +17,8 @@
     <img src="https://img.shields.io/badge/version-0.2.5-ff69b4.svg"
          alt="Changelog">
   </a>
-  <a href="http://jahia2wp.readthedocs.io/?badge=master">
-    <img src="https://readthedocs.org/projects/jahia2wp/badge/?version=master"
+  <a href="http://jahia2wp.readthedocs.io">
+    <img src="https://img.shields.io/readthedocs/jahia2wp.svg"
          alt="RDT">
   </a>
   <a href="https://travis-ci.org/epfl-idevelop/jahia2wp">
@@ -36,32 +36,70 @@
 </p>
 <br>
 
-## Roadmap
+## Roadmap and Overview
 
 We will first focus on automation and maintenance, with the objective of driving all the creation process from one shared spreadsheet (aka configuration source).
 
 Icons are used to mark the progress as follows: :balloon:, :tada:, :champagne: or :gift_heart: when available, :construction: when work in progress, :tent: when implemented as prototype in [jahiap repo](https://github.com/epfl-idevelop/jahiap) 
 
 1. :balloon: installing a functional WordPress to any given URL
-1. :tada: configuring the website with supported plugins and the EPFL theme
-1. :champagne: applying those first two steps to every row of our configuration source
-1. :construction: maintaining the website and the plugins
+
+        $ python jahia2wp.py generate $WP_ENV http://localhost
+        ...
+
+        $ python jahia2wp.py check $WP_ENV http://localhost
+        WordPress site valid and accessible at http://localhost
+
+2. :tada: configuring the website with supported plugins and the EPFL theme
+
+        $ python jahia2wp.py admins $WP_ENV http://localhost
+        admin:admin@example.com <administrator>
+        user123456:user@epfl.ch <administrator>
+
+3. :champagne: applying those first two steps to every row of our configuration source
+
+        $ python jahia2wp.py generate-many path/to/source.csv
+        ...
+
+        $ python jahia2wp.py inventory $WP_ENV /srv/your-env/localhost
+        INFO - your-env - inventory - Building inventory...
+        path;valid;url;version;db_name;db_user;admins
+        ...
+
+4. :construction: maintaining the website and the plugins
+
+        $ python jahia2wp.py version $WP_ENV http://localhost
+        4.8
+
+        $ python jahia2wp.py clean $WP_ENV http://localhost
+        ...
 
 We will secondly add support for migration of a simple site:
 
 1. :gift_heart: Export the content of a Jahia website as a zipped package
-1. :tent: Parse zipped package (XML and files) as python objects
-1. :tent: Import parsed pages into WordPress (raw content)
-1. :tent: Support translation, hierarchy, menu, sidebar
+
+        $ python jahia2wp.py download dcsl --username=foo
+        Jahia password for user 'foo':
+        ...
+
+2. :tent: Parse zipped package (XML and files) as python objects
+3. :tent: Import parsed pages into WordPress (raw content)
+4. :tent: Support translation, hierarchy, menu, sidebar
 
 And lastly we will extend the support to other Jahia boxes, mainly thanks to WordPress shortcodes
 
 1. Import static Jahia boxes into WordPress (shortcodes)
-1. Import web-services powered Jahia boxes into WordPress (people, faq, actu, memento, infoscience, and so on ...)
+2. Import web-services powered Jahia boxes into WordPress (people, faq, actu, memento, infoscience, and so on ...)
+
+Calling jahia2wp.py with `-h` will give you details on available options
+
+    $ python jahia2wp.py -h
+    ...
 
 ## Changelog
 
 All notable changes to this project are documented in [CHANGELOG.md](./docs/CHANGELOG.md).
+
 ## Install and Usage
 
 Head to the [documentation](http://jahia2wp.readthedocs.io/en/master/) for next practical steps
