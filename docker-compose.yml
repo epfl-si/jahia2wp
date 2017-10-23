@@ -14,7 +14,7 @@ services:
       environment:
       - PMA_ARBITRARY=1
       ports:
-      - 8080:80
+      - ${WP_PORT_PHPMA}:80
       volumes:
       - /sessions
       
@@ -50,4 +50,4 @@ services:
       - ./Makefile.mgmt:/srv/${WP_ENV}/jahia2wp/Makefile
       - .env:/srv/${WP_ENV}/jahia2wp/.env
     ports:
-      - "2222:22"
+      - "${WP_PORT_SSHD}:22"

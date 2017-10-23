@@ -13,17 +13,25 @@
 </h4>
 
 <p align="center">
-  <a href="http://jahia2wp.readthedocs.io/?badge=master">
+  <a href="https://github.com/epfl-idevelop/jahia2wp/blob/master/CHANGELOG.md">
+    <img src="https://img.shields.io/badge/version-0.2.5-ff69b4.svg"
+         alt="Changelog">
+  </a>
+  <!-- <a href="http://jahia2wp.readthedocs.io/?badge=master">
     <img src="https://readthedocs.org/projects/jahia2wp/badge/?version=master"
          alt="RDT">
-  </a>
+  </a> -->
   <a href="https://travis-ci.org/epfl-idevelop/jahia2wp">
     <img src="https://travis-ci.org/epfl-idevelop/jahia2wp.svg?branch=master"
          alt="Travis">
   </a>
   <a href="https://codecov.io/gh/epfl-idevelop/jahia2wp">
-    <img src="https://codecov.io/gh/epfl-idevelop/jahia2wp/branch/master/graph/badge.svg" 
+    <img src="https://codecov.io/gh/epfl-idevelop/jahia2wp/branch/master/graph/badge.svg"
          alt="Codecov" />
+  </a>
+  <a href="https://github.com/epfl-idevelop/jahia2wp/blob/master/LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-blue.svg"
+         alt="License" />
   </a>
 </p>
 <br>
