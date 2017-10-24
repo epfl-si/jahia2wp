@@ -83,7 +83,7 @@ class WPGenerator:
         """
 
         # Parameters may be replaced by constant values.
-        config_manager = WPPluginList('../data/plugins/generic', '../data/plugins/specific')
+        config_manager = WPPluginList('../data/plugins/generic', 'config-lot1.yml', '../data/plugins/specific')
 
         if self.wp_site.folder != "":
             site_name = self.wp_site.folder
