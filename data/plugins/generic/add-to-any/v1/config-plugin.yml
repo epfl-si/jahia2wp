@@ -1,0 +1,60 @@
+src: web
+activate: yes
+options:
+ - option_name: addtoany_options
+   option_value: |
+     {
+      "position": "top",
+      "display_in_posts_on_front_page": "-1",
+      "display_in_posts_on_archive_pages": "-1",
+      "display_in_excerpts": "-1",
+      "display_in_posts": "-1",
+      "display_in_pages": "-1",
+      "display_in_attachments": "-1",
+      "display_in_feed": "-1",
+      "onclick": "-1",
+      "icon_size": "32",
+      "button": "NONE",
+      "button_custom": "",
+      "button_show_count": "-1",
+      "header": "",
+      "additional_js_variables": "",
+      "additional_css": "",
+      "custom_icons": "-1",
+      "custom_icons_url": "\/",
+      "custom_icons_type": "png",
+      "custom_icons_width": "",
+      "custom_icons_height": "",
+      "inline_css": "1",
+      "cache": "-1",
+      "button_text": "Share",
+      "active_services": [
+        "facebook",
+        "twitter",
+        "linkedin",
+        "google_plus",
+        "email"
+      ],
+      "special_facebook_options": {
+        "show_count": "-1"
+      },
+      "special_linkedin_options": {
+        "show_count": "-1"
+      },
+      "special_facebook_like_options": {
+        "verb": "like"
+      },
+      "special_twitter_tweet_options": {
+        "show_count": "-1"
+      },
+      "special_google_plusone_options": {
+        "show_count": "-1"
+      },
+      "special_google_plus_share_options": {
+        "show_count": "-1"
+      },
+      "special_pinterest_pin_options": {
+        "show_count": "-1"
+      }
+     }
+   autoload: yes
