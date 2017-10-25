@@ -1,5 +1,5 @@
 plugins:
   - name: epfl_infoscience
-    config: !include ../data/plugins/specific/level1/config-epfl_infoscience.yml
+    config: !include config-epfl_infoscience.yml
   - name: add-to-any
-    config: !include ../data/plugins/specific/level1/config-add-to-any.yml
+    config: !include config-add-to-any.yml
