@@ -260,7 +260,6 @@ class WPPluginConfig(WPConfig):
         command_output = self.run_wp_cli(command)
         return False if command_output is True else self.name in command_output
 
-
     def install(self):
         if self.config.zip_path is not None:
             param = self.config.zip_path

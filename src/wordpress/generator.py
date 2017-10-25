@@ -12,7 +12,7 @@ from veritas.validators import validate_string, validate_openshift_env, validate
 from .models import WPSite, WPUser
 from .config import WPConfig, WPThemeConfig, WPPluginConfig
 
-from .plugins import WPPluginList, WPPluginConfigInfos
+from .plugins import WPPluginList
 
 
 class WPGenerator:
@@ -89,7 +89,7 @@ class WPGenerator:
             site_name = self.wp_site.folder
         else:
             domain_parts = self.wp_site.domain.split(".")
-            site_name = self.wp_site.domain if len(domain_parts)==1 else domain_parts[1]
+            site_name = self.wp_site.domain if len(domain_parts) == 1 else domain_parts[1]
 
         # Looping through plugins to install
         for plugin_name, plugin_config in config_manager.plugins(site_name).items():
