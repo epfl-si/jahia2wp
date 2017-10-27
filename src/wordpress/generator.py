@@ -4,7 +4,7 @@ import shutil
 import logging
 
 from utils import Utils
-from settings import WP_DIRS, WP_FILES, ADD_TO_ANY_PLUGIN, EPFL_INFOSCIENCE_SHORTCODE
+from settings import WP_DIRS, WP_FILES, PLUGINS_CONFIG_GENERIC_FOLDER, PLUGINS_CONFIG_SPECIFIC_FOLDER
 
 from django.core.validators import URLValidator
 from veritas.validators import validate_string, validate_openshift_env, validate_integer
@@ -82,8 +82,11 @@ class WPGenerator:
 
         """
 
-        # Parameters may be replaced by constant values.
-        config_manager = WPPluginList('../data/plugins/generic', 'config-lot1.yml', '../data/plugins/specific')
+        # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch" information
+        # in the source of trousse !
+        config_manager = WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
+
+        print("!!WPGenerator!! - Replace 'site_name' with a unique WP site ID from source of trousse !")
 
         if self.wp_site.folder != "":
             site_name = self.wp_site.folder
@@ -112,23 +115,23 @@ class WPGenerator:
 
         # check we have a clean place first
         if self.wp_config.is_installed:
-            logging.error("%s - wordpress files already found", repr(self))
+            logging.error("%s - WordPress files already found", repr(self))
             return False
 
         # create specific mysql db and user
-        logging.info("%s - setting up DB...", repr(self))
+        logging.info("%s - Setting up DB...", repr(self))
         if not self.prepare_db():
             logging.error("%s - could not set up DB", repr(self))
             return False
 
         # download, config and install WP
-        logging.info("%s - downloading WP...", repr(self))
+        logging.info("%s - Downloading WP...", repr(self))
         if not self.install_wp():
             logging.error("%s - could not install WP", repr(self))
             return False
 
         # install and configure theme (default is 'epfl')
-        logging.info("%s - activating theme...", repr(self))
+        logging.info("%s - Activating theme...", repr(self))
         theme = WPThemeConfig(self.wp_site)
         theme.install()
         if not theme.activate():
@@ -136,11 +139,11 @@ class WPGenerator:
             return False
 
         # install, activate and config plugins
-        logging.info("%s - installing plugins...", repr(self))
+        logging.info("%s - Installing plugins...", repr(self))
         self.generate_plugins()
 
         # add 2 given webmasters
-        logging.info("%s - creating webmaster accounts...", repr(self))
+        logging.info("%s - Creating webmaster accounts...", repr(self))
         if not self.add_webmasters():
             logging.error("%s - could not add webmasters", repr(self))
             return False
