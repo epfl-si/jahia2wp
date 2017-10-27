@@ -1,4 +1,3 @@
-import sys
 import re
 import os
 import logging
@@ -149,7 +148,7 @@ class WPPluginConfigInfos:
 
         Keyword arguments:
         plugin_name -- Plugin name
-        plugin_config -- Object containing configuration (coming directly from YAML file)
+        plugin_config -- Dict containing configuration (coming directly from YAML file)
         """
 
         self.plugin_name = plugin_name
@@ -165,13 +164,13 @@ class WPPluginConfigInfos:
         # Let's see if we have to activate the plugin or not
         self.is_active = plugin_config['activate']
 
-        # If there's no options for plugin
-        if 'options' not in plugin_config:
-            self.options = []
+        # If there's no information for DB tables (= no options) for plugin
+        if 'tables' not in plugin_config:
+            self.tables = []
 
-        else:  # Option file exists for plugin
+        else:  # table file with options exists for plugin
             # Add try catch if exception ?
-            self.options = plugin_config['options']
+            self.tables = plugin_config['tables']
 
     def __repr__(self):
         return "Plugin {} config".format(self.plugin_name)
@@ -180,7 +179,7 @@ class WPPluginConfigInfos:
         """ Read 'specific' config for plugin and merge configuration with existing one.
 
         Keyword arguments:
-        plugin_config -- Object containing configuration (coming directly from YAML file)
+        plugin_config -- Dict containing configuration (coming directly from YAML file)
         """
 
         # if "src" has been overrided
@@ -198,29 +197,56 @@ class WPPluginConfigInfos:
             self.is_active = plugin_config['activate']
 
         # If there are specific options
-        if 'options' in plugin_config:
+        if 'tables' in plugin_config:
 
-            # Going through specific options
-            for specific_option in plugin_config['options']:
+            # Going through tables for which we have configuration information
+            for table_name in plugin_config['tables']:
 
-                # Going through existing options
-                for generic_option in self.options:
+                # Going through specific options
+                for specific_option in plugin_config[table_name]['options']:
 
-                    # If we found corresponding option name
-                    if specific_option['option_name'] == generic_option['option_name']:
-                        # We remove the existing generic option
-                        self.options.remove(generic_option)
+                    # If configuration for current table is present in generic options
+                    if table_name in self.tables:
+                        # Going through generic options
+                        for generic_option in self.tables[table_name]:
 
-                # We add specific option at the end
-                self.options.append(specific_option)
+                            # If we found corresponding option name
+                            if specific_option['option_name'] == generic_option['option_name']:
+                                # We remove the existing generic option
+                                self.tables[table_name].remove(generic_option)
+
+                        # We add specific option at the end
+                        self.tables[table_name].append(specific_option)
+
+                    # We dont have any information about current table in generic options
+                    else:
+                        # We add the option for current table
+                        self.tables[table_name] = [specific_option]
+
+    def table_rows(self, table_name):
+        """ Return rows (options) for specific table
+
+        Arguments keyword:
+        table_name -- Table for which we want options
+
+        Ret:
+        - dict with rows (options). Empty if no option
+        """
+        return {} if table_name not in self.tables else self.tables[table_name]
 
 
-class WPPluginConfigExtractor:
-
-    # https://github.com/PyMySQL/mysqlclient-python
-
+class WPPluginConfigManager:
+    """ Give necessary tools to manage (import/export) configuration parameters for a plugin which are stored
+        in the database. Information to access database are recovered from WordPress config file (wp-config.php)
+    """
     def __init__(self, openshift_env, wp_site_url):
+        """ Constructor
 
+        Arguments keyword:
+        openshift_env -- Openshift environment name
+        wp_site_url -- WordPress website URL
+        """
+        # List of "defined" value to look for in "wp-config.php" file.
         WP_CONFIG_DEFINE_NAMES = ['DB_NAME', 'DB_USER', 'DB_PASSWORD', 'DB_HOST', 'DB_CHARSET']
 
         self.wp_site_url = wp_site_url
@@ -231,7 +257,9 @@ class WPPluginConfigExtractor:
         if not os.path.exists(wp_config_file):
             logging.error("WordPress config file not exists: %s", wp_config_file)
 
-        wp_config_file_content = open(wp_config_file, 'r').read()
+        wp_config_file = open(wp_config_file, 'r')
+        wp_config_file_content = wp_config_file.read()
+        wp_config_file.close()
 
         define_search_regex = re.compile("define\(\s*'(.+)'\s*,\s*'(.+)'\s*\);")
         wp_table_prefix_search_regex = re.compile("\$table_prefix\s*=\s*'(.+)'\s*;")
@@ -262,6 +290,8 @@ class WPPluginConfigExtractor:
                               '{}term_relationships'.format(self.wp_table_prefix):
                               [None, ['object_id', 'term_taxonomy_id']]}
 
+        # self.CONFIG_TABLES = {'{}options'.format(self.wp_table_prefix): ['option_id', 'option_name']}
+
         """ Relation between configuration tables. There are no explicit relation between tables in DB but there are
         relation coded in WP. """
         self.TABLES_RELATIONS = {'{}termmeta'.format(self.wp_table_prefix):
@@ -277,6 +307,22 @@ class WPPluginConfigExtractor:
                                    '{}terms'.format(self.wp_table_prefix): 'terms',
                                    '{}termmeta'.format(self.wp_table_prefix): 'termmeta',
                                    '{}term_taxonomy'.format(self.wp_table_prefix): 'term_taxonomy'}
+
+    def _wp_table_name(self, table_short_name):
+        """ Returns 'Full' WordPress table name for a table short name (which is stored in YAML file)
+
+        Arguments keyword:
+        table_short_name -- Short name of table
+        """
+        return '{}{}'.format(self.wp_table_prefix, table_short_name)
+
+    def _table_short_name(self, wp_table_name):
+        """ Returns table short name from a WordPress table name
+
+        Arguments keyword
+        wp_table_name -- WordPress table name
+        """
+        return wp_table_name.replace(self.wp_table_prefix, "")
 
     def _foreign_key_table(self, src_table, src_field):
         """ Return information about foreign key information if exists
@@ -295,34 +341,71 @@ class WPPluginConfigExtractor:
 
         return None
 
-    def _exec_mysql_request(self, request):
+    def _exec_mysql_request(self, request, return_auto_insert_id=False):
         """ Allow to execute a request in database and return result. We have to open/close connection each time
         we want to execute a request because it seems to have caching of request results so 2 identical requests
         executed in the same connection will returne the same result even if changes have been done in database in
-        the meantime """
+        the meantime.
+
+        Following package is used to access MySQL https://github.com/PyMySQL/PyMySQL
+        Documentation can be found here : http://pymysql.readthedocs.io/en/latest/
+
+        Arguments keyword:
+        request -- request to execute
+        return_auto_insert_id -- If True, return format change to a list with : <AutoInsertId>, <dictWithResult>
+
+        Return:
+        - None if error
+        - If return_auto_insert_id is False => Dict is returned
+        - If return_auto_insert_id is True => return list with <AutoInsertId>, <dictWithResult>
+        """
         result = None
-        try:
-            mysql_connection = pymysql.connect(host=self.wp_defined['DB_HOST'],
-                                               user=self.wp_defined['DB_USER'],
-                                               password=self.wp_defined['DB_PASSWORD'],
-                                               db=self.wp_defined['DB_NAME'],
-                                               charset=self.wp_defined['DB_CHARSET'],
-                                               cursorclass=pymysql.cursors.DictCursor)
 
-            cur = mysql_connection.cursor()
-            cur.execute(request)
-            result = cur.fetchall()
+        mysql_connection = pymysql.connect(host=self.wp_defined['DB_HOST'],
+                                           user=self.wp_defined['DB_USER'],
+                                           password=self.wp_defined['DB_PASSWORD'],
+                                           db=self.wp_defined['DB_NAME'],
+                                           charset=self.wp_defined['DB_CHARSET'],
+                                           cursorclass=pymysql.cursors.DictCursor,
+                                           autocommit=True)
 
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
+        cur = mysql_connection.cursor()
+        cur.execute(request)
+        result = cur.fetchall()
 
-        finally:
-            cur.close()
-            mysql_connection.close()
+        # If nothing to return,
+        if return_auto_insert_id:
+            # We look for last insert id.
+            cur.execute("SELECT LAST_INSERT_ID() AS 'last_id'")
+            # Adding information to result
+            result = cur.fetchone()['last_id'], result
 
-            return result
+        cur.close()
+        mysql_connection.close()
+
+        return result
+
+    def _addslashes(self, s):
+        """ Escape quotes and double quotes in string
+
+        Arguments keyword:
+        s -- String in which to add slashes"""
+        return re.sub("(\\\\|'|\")", lambda o: "\\" + o.group(1), s)
+
+
+class WPPluginConfigExtractor(WPPluginConfigManager):
+    """ Allows to extract plugin configuration parameters in database. This extraction needs user input during
+        the procedure.
+    """
+
+    def __init__(self, openshift_env, wp_site_url):
+        """ Constructor
+
+        Arguments keyword:
+        openshift_env -- Openshift environment name
+        wp_site_url -- WordPress website URL
+        """
+        WPPluginConfigManager.__init__(self, openshift_env, wp_site_url)
 
     def extract_config(self, output_file):
         """ Extract plugin configuration an store it in file specified by 'output_file'
@@ -346,16 +429,14 @@ and press ENTER: ".format(self.wp_site_url))
         input("Now go on plugin page and configure it with the needed information. Then press ENTER again: ")
 
         """ STEP TWO - DIFFERENTIAL CONFIGURATION """
-        diff_config = {}
-        to_yaml = {}
+        to_yaml = {'tables': {}}
 
         save_file = open(output_file, 'w+')
 
         for table_name in self.CONFIG_TABLES:
 
+            diff_config = []
             auto_inc_field, unique_fields = self.CONFIG_TABLES[table_name]
-
-            diff_config[table_name] = []
 
             rows = self._exec_mysql_request("SELECT * FROM {}".format(table_name))
 
@@ -414,30 +495,24 @@ and press ENTER: ".format(self.wp_site_url))
                     # if rows are different
                     if not identical_rows:
                         # We store the modified row
-                        diff_config[table_name].append(diff_row)
+                        diff_config.append(diff_row)
 
                 else:  # We didn't find a corresponding row. So it means the "diff" row is a new row in the DB
                     # We store the new row
-                    diff_config[table_name].append(diff_row)
+                    diff_config.append(diff_row)
 
             # If we have parameters to store
-            if len(diff_config[table_name]) > 0:
+            if len(diff_config) > 0:
+
+                # Generating section name for YAML file
+                table_short_name = self._table_short_name(table_name)
 
                 # We add a section for the table to save it in YAML file
-                to_yaml[table_name] = []
-                row_yaml = {}
+                to_yaml['tables'][table_short_name] = []
                 # Looping through changed/new rows in table
-                for row in diff_config[table_name]:
-                    # looping through fields
-                    for key in row:
-
-                        # if we have an "auto inc field" for table but it's not the current field
-                        if auto_inc_field is not None and key != auto_inc_field:
-                            # We save it to be present in YAML file
-                            row_yaml[key] = row[key]
-
-                # Adding the row in yaml file
-                to_yaml[table_name].append(row_yaml)
+                for row in diff_config:
+                    # Adding the row in yaml file
+                    to_yaml['tables'][table_short_name].append(row)
 
         # saving configuration to YAML file
         yaml.dump(to_yaml, save_file, default_flow_style=False)
@@ -445,3 +520,104 @@ and press ENTER: ".format(self.wp_site_url))
         save_file.close()
 
         print("\nPlugin configuration has been saved in file '{}'".format(output_file))
+
+
+class WPPluginConfigRestore(WPPluginConfigManager):
+    """ Allow to restore a given plugin configuration in WordPress database """
+
+    def __init__(self, openshift_env, wp_site_url):
+        """ Constructor
+
+        Arguments keyword:
+        openshift_env -- Openshift environment name
+        wp_site_url -- WordPress website URL
+        """
+        WPPluginConfigManager.__init__(self, openshift_env, wp_site_url)
+
+    def restore_config(self, config_infos):
+        """ Restore a plugin configuration. Configuration information are stored in parameter.
+
+        Arguments keyword:
+        config_infos -- Instance of class WPPluginConfigInfos
+        """
+        table_id_mapping = {}
+
+        # Looping through tables
+        for wp_table_name in self.CONFIG_TABLES:
+
+            auto_inc_field, unique_fields = self.CONFIG_TABLES[wp_table_name]
+
+            table_name = self._table_short_name(wp_table_name)
+
+            if not isinstance(unique_fields, list):
+                unique_fields = [unique_fields]
+
+            # Creating mapping for current table
+            table_id_mapping[wp_table_name] = {}
+
+            # Going through rows to add in table
+            for row in config_infos.table_rows(table_name):
+                insert_values = {}
+                update_values = []
+
+                # Going through fields/values in the row
+                for field in row:
+                    value = row[field]
+
+                    if field != auto_inc_field:
+
+                        target_table = self._foreign_key_table(wp_table_name, field)
+
+                        # If we have information about foreign key,
+                        if target_table is not None:
+
+                            # If we have a mapping for the current value,
+                            if value in table_id_mapping[target_table]:
+
+                                # Getting mapped id for current value
+                                current_value = table_id_mapping[target_table][value]
+                            else:  # We don't have any mapping
+
+                                """ We take the value as it is because it is probably referencing something already
+                                existing in the DB (and not present in the saved configuration for the plugin) """
+                                current_value = value
+
+                        else:  # We can take the value present in the config file (with 'addslashes' to be sure)
+                            current_value = self._addslashes(value)
+
+                        # We store the value to insert
+                        insert_values[field] = current_value
+
+                        if auto_inc_field != field and field not in unique_fields:
+
+                            update_values.append("{}='{}'".format(field, current_value))
+
+                # Creating request to insert row or to update it if already exists
+                request = "INSERT INTO {} ({}) VALUES('{}') ON DUPLICATE KEY UPDATE {}".format(wp_table_name,
+                          ",".join(insert_values.keys()), "','".join(insert_values.values()), ",".join(update_values))
+
+                # print("Request: {}".format(request))
+
+                insert_id = self._exec_mysql_request(request, True)
+
+                # If row wasn't inserted because already exists, (so it means we must have an 'auto-gen' field)
+                if insert_id == 0 and auto_inc_field is not None:
+
+                    # To store search conditions to find the existing row ID
+                    search_conditions = []
+
+                    # Going through unique fields
+                    for unique_field_name in unique_fields:
+                        search_conditions.append("{}='{}'".format(unique_field_name, row[unique_field_name]))
+
+                    # Creating request to search existing row information
+                    request = "SELECT * FROM {} WHERE {}".format(wp_table_name, " AND ".join(search_conditions))
+
+                    # print("Request: {}".format(request))
+
+                    res = self._exec_mysql_request(request)
+                    # Getting ID of existing row
+                    insert_id = res[0][auto_inc_field]
+
+                # Save ID mapping from data present in file TO row inserted (or already existing) in DB
+                table_id_mapping[wp_table_name][row[auto_inc_field]] = insert_id
