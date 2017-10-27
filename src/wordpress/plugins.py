@@ -38,8 +38,26 @@ def yaml_include(loader, node):
 
 yaml.add_constructor("!include", yaml_include)
 
+""" Tables in which configuration is stored, with 'auto gen id' fields and 'unique field'
+(others than only auto-gen field). Those tables must be sorted to satisfy foreign keys.
+Those are the 'short names' of the tables. We will need to add WordPress table prefix to
+have complete name. """
+WP_PLUGIN_CONFIG_TABLES = {'postmeta': ['meta_id', None],
+                           'options': ['option_id', 'option_name'],
+                           'terms': ['term_id', None],
+                           'termmeta': ['meta_id', None],
+                           'term_taxonomy': ['term_taxonomy_id', None],
+                           'term_relationships': [None, ['object_id', 'term_taxonomy_id']]}
+
+""" Relation between configuration tables. There are no explicit relation between tables in DB but there are
+relation coded in WP. """
+WP_PLUGIN_TABLES_RELATIONS = {'termmeta': {'term_id': 'terms'},
+                              'term_taxonomy': {'term_id': 'terms'},
+                              'term_relationships': {'term_taxonomy_id': 'term_taxonomy'}}
+
 
 class WPPluginList:
+    """ Use to manage plugin list for a WordPress site """
 
     def __init__(self, generic_config_path, generic_plugin_yaml, specific_config_path):
         """ Contructor
@@ -78,16 +96,16 @@ class WPPluginList:
                                                                               plugin_infos['config'])
 
     def __repr__(self):
-        return "WPPluginList"
+        return "WPPluginList: {} generic plugins in list".format(len(self._generic_plugins))
 
-    def __build_plugins_for_site(self, site_name):
+    def __build_plugins_for_site(self, wp_site_id):
         """ Build specific plugin configuration for website if exists
 
         Keyword arguments:
-        site_name -- Site for which we want the plugin list with configuration
+        wp_site_id -- Site for which we want the plugin list with configuration. This must be unique !
         """
 
-        site_specific_plugin_file = os.path.join(self._specific_config_path, site_name, 'plugin-list.yml')
+        site_specific_plugin_file = os.path.join(self._specific_config_path, wp_site_id, 'plugin-list.yml')
 
         # If no specific plugin list found for website,
         if not os.path.exists(site_specific_plugin_file):
@@ -123,18 +141,18 @@ class WPPluginList:
 
         return specific_plugins
 
-    def plugins(self, site_name=None):
+    def plugins(self, wp_site_id=None):
         """ Return plugin list for all sites or for specific site
 
         Keyword arguments:
-        site_name -- Site for which we want the plugin list with configuration
+        wp_site_id -- Site for which we want the plugin list with configuration. This has to be unique
         """
 
         # if no site, just return generic plugins
-        if site_name is None:
+        if wp_site_id is None:
             return self._generic_plugins
 
-        return self.__build_plugins_for_site(site_name)
+        return self.__build_plugins_for_site(wp_site_id)
 
 
 class WPPluginConfigInfos:
@@ -177,6 +195,8 @@ class WPPluginConfigInfos:
 
     def merge_with_specific(self, plugin_config):
         """ Read 'specific' config for plugin and merge configuration with existing one.
+
+        NOTE ! Specific options only works for 'option' table.
 
         Keyword arguments:
         plugin_config -- Dict containing configuration (coming directly from YAML file)
@@ -280,34 +300,6 @@ class WPPluginConfigManager:
             if define_name not in self.wp_defined:
                 logging.error("Missing 'define' for '%s' in WordPress config file", define_name)
 
-        """ Tables in which configuration is stored, with 'auto gen id' fields and 'unique field'
-        (others than only auto-gen field). Those tables must be sorted to satisfy foreign keys """
-        self.CONFIG_TABLES = {'{}postmeta'.format(self.wp_table_prefix): ['meta_id', None],
-                              '{}options'.format(self.wp_table_prefix): ['option_id', 'option_name'],
-                              '{}terms'.format(self.wp_table_prefix): ['term_id', None],
-                              '{}termmeta'.format(self.wp_table_prefix): ['meta_id', None],
-                              '{}term_taxonomy'.format(self.wp_table_prefix): ['term_taxonomy_id', None],
-                              '{}term_relationships'.format(self.wp_table_prefix):
-                              [None, ['object_id', 'term_taxonomy_id']]}
-
-        # self.CONFIG_TABLES = {'{}options'.format(self.wp_table_prefix): ['option_id', 'option_name']}
-
-        """ Relation between configuration tables. There are no explicit relation between tables in DB but there are
-        relation coded in WP. """
-        self.TABLES_RELATIONS = {'{}termmeta'.format(self.wp_table_prefix):
-                                 {'term_id': '{}terms'.format(self.wp_table_prefix)},
-                                 '{}term_taxonomy'.format(self.wp_table_prefix):
-                                 {'term_id': '{}terms'.format(self.wp_table_prefix)},
-                                 '{}term_relationships'.format(self.wp_table_prefix):
-                                 {'term_taxonomy_id': '{}term_taxonomy'.format(self.wp_table_prefix)}}
-
-        """ Mapping between table and section in YAML file where info will be stored """
-        self.TABLE_YAML_SECTION = {'{}postmeta'.format(self.wp_table_prefix): 'postmeta',
-                                   '{}options'.format(self.wp_table_prefix): 'options',
-                                   '{}terms'.format(self.wp_table_prefix): 'terms',
-                                   '{}termmeta'.format(self.wp_table_prefix): 'termmeta',
-                                   '{}term_taxonomy'.format(self.wp_table_prefix): 'term_taxonomy'}
-
     def _wp_table_name(self, table_short_name):
         """ Returns 'Full' WordPress table name for a table short name (which is stored in YAML file)
 
@@ -335,9 +327,9 @@ class WPPluginConfigManager:
         - None if no foreign key
         - Target table name
         """
-        if src_table in self.TABLES_RELATIONS:
-            if src_field in self.TABLES_RELATIONS[src_table]:
-                return self.TABLES_RELATIONS[src_table][src_field]
+        if src_table in WP_PLUGIN_TABLES_RELATIONS:
+            if src_field in WP_PLUGIN_TABLES_RELATIONS[src_table]:
+                return WP_PLUGIN_TABLES_RELATIONS[src_table][src_field]
 
         return None
 
@@ -421,9 +413,10 @@ and press ENTER: ".format(self.wp_site_url))
         ref_config = {}
 
         # Looping through tables in which we have to recover reference configuration
-        for table_name in self.CONFIG_TABLES:
+        for table_name in WP_PLUGIN_CONFIG_TABLES:
             # getting reference configuration for current table
-            ref_config[table_name] = self._exec_mysql_request("SELECT * FROM {}".format(table_name))
+            ref_config[table_name] = self._exec_mysql_request("SELECT * FROM {}".format(
+                self._wp_table_name(table_name)))
 
         print("")
         input("Now go on plugin page and configure it with the needed information. Then press ENTER again: ")
@@ -433,12 +426,12 @@ and press ENTER: ".format(self.wp_site_url))
 
         save_file = open(output_file, 'w+')
 
-        for table_name in self.CONFIG_TABLES:
+        for table_name in WP_PLUGIN_CONFIG_TABLES:
 
             diff_config = []
-            auto_inc_field, unique_fields = self.CONFIG_TABLES[table_name]
+            auto_inc_field, unique_fields = WP_PLUGIN_CONFIG_TABLES[table_name]
 
-            rows = self._exec_mysql_request("SELECT * FROM {}".format(table_name))
+            rows = self._exec_mysql_request("SELECT * FROM {}".format(self._wp_table_name(table_name)))
 
             # if there is a "unique field" for current table,
             if unique_fields is not None:
@@ -501,18 +494,11 @@ and press ENTER: ".format(self.wp_site_url))
                     # We store the new row
                     diff_config.append(diff_row)
 
-            # If we have parameters to store
+            # If we have parameters to store for table
             if len(diff_config) > 0:
 
-                # Generating section name for YAML file
-                table_short_name = self._table_short_name(table_name)
-
                 # We add a section for the table to save it in YAML file
-                to_yaml['tables'][table_short_name] = []
-                # Looping through changed/new rows in table
-                for row in diff_config:
-                    # Adding the row in yaml file
-                    to_yaml['tables'][table_short_name].append(row)
+                to_yaml['tables'][table_name] = diff_config
 
         # saving configuration to YAML file
         yaml.dump(to_yaml, save_file, default_flow_style=False)
@@ -543,17 +529,16 @@ class WPPluginConfigRestore(WPPluginConfigManager):
         table_id_mapping = {}
 
         # Looping through tables
-        for wp_table_name in self.CONFIG_TABLES:
+        for table_name in WP_PLUGIN_CONFIG_TABLES:
 
-            auto_inc_field, unique_fields = self.CONFIG_TABLES[wp_table_name]
+            auto_inc_field, unique_fields = WP_PLUGIN_CONFIG_TABLES[table_name]
 
-            table_name = self._table_short_name(wp_table_name)
-
+            # Transform to list if needed
             if not isinstance(unique_fields, list):
                 unique_fields = [unique_fields]
 
             # Creating mapping for current table
-            table_id_mapping[wp_table_name] = {}
+            table_id_mapping[table_name] = {}
 
             # Going through rows to add in table
             for row in config_infos.table_rows(table_name):
@@ -566,7 +551,7 @@ class WPPluginConfigRestore(WPPluginConfigManager):
 
                     if field != auto_inc_field:
 
-                        target_table = self._foreign_key_table(wp_table_name, field)
+                        target_table = self._foreign_key_table(table_name, field)
 
                         # If we have information about foreign key,
                         if target_table is not None:
@@ -593,8 +578,9 @@ class WPPluginConfigRestore(WPPluginConfigManager):
                             update_values.append("{}='{}'".format(field, current_value))
 
                 # Creating request to insert row or to update it if already exists
-                request = "INSERT INTO {} ({}) VALUES('{}') ON DUPLICATE KEY UPDATE {}".format(wp_table_name,
-                          ",".join(insert_values.keys()), "','".join(insert_values.values()), ",".join(update_values))
+                request = "INSERT INTO {} ({}) VALUES('{}') ON DUPLICATE KEY UPDATE {}".format(
+                          self._wp_table_name(table_name), ",".join(insert_values.keys()),
+                          "','".join(insert_values.values()), ",".join(update_values))
 
                 # print("Request: {}".format(request))
 
@@ -611,7 +597,8 @@ class WPPluginConfigRestore(WPPluginConfigManager):
                         search_conditions.append("{}='{}'".format(unique_field_name, row[unique_field_name]))
 
                     # Creating request to search existing row information
-                    request = "SELECT * FROM {} WHERE {}".format(wp_table_name, " AND ".join(search_conditions))
+                    request = "SELECT * FROM {} WHERE {}".format(self._wp_table_name(table_name),
+                                                                 " AND ".join(search_conditions))
 
                     # print("Request: {}".format(request))
 
@@ -620,4 +607,4 @@ class WPPluginConfigRestore(WPPluginConfigManager):
                     insert_id = res[0][auto_inc_field]
 
                 # Save ID mapping from data present in file TO row inserted (or already existing) in DB
-                table_id_mapping[wp_table_name][row[auto_inc_field]] = insert_id
+                table_id_mapping[table_name][row[auto_inc_field]] = insert_id
