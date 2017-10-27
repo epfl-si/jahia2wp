@@ -82,11 +82,11 @@ class WPGenerator:
 
         """
 
-        # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch" information
-        # in the source of trousse !
+        # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"
+        # information in the source of trousse !
         config_manager = WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
 
-        print("!!WPGenerator!! - Replace 'site_name' with a unique WP site ID from source of trousse !")
+        logging.info("!WPGenerator! - Replace 'site_name' with a unique WP site ID from source of trousse !")
 
         if self.wp_site.folder != "":
             site_name = self.wp_site.folder
