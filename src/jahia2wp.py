@@ -181,6 +181,7 @@ def veritas(csv_file, **kwargs):
 
     validator.print_errors()
 
+
 @dispatch.on('dump-plugin-config')
 def dump_plugin_config(wp_env, wp_url, output_file, **kwargs):
 
