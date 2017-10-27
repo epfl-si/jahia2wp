@@ -85,18 +85,8 @@ SUPPORTED_LANGUAGES = [
     "it"
 ]
 
-ADD_TO_ANY_PLUGIN = {
-    "name": "add-to-any",
-    "options": {
-        "option_name": "addtoany_options",
-        "option_value": "../data/plugins/add-to-any.json",
-        "autoload": "yes"
-    }
-}
-
-EPFL_INFOSCIENCE_SHORTCODE = {
-    "zip_path": "../data/plugins/epfl_infoscience.zip",
-}
+PLUGINS_CONFIG_GENERIC_FOLDER = '../data/plugins/generic'
+PLUGINS_CONFIG_SPECIFIC_FOLDER = '../data/plugins/specific'
 
 JAHIA_USER = Utils.get_optional_env("JAHIA_USER", "admin")
 JAHIA_HOST = Utils.get_optional_env("JAHIA_HOST", "localhost")
