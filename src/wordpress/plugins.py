@@ -96,7 +96,7 @@ class WPPluginList:
                                                                               plugin_infos['config'])
 
     def __repr__(self):
-        return "WPPluginList: {} generic plugins in list".format(len(self._generic_plugins))
+        return "WPPluginList"
 
     def __build_plugins_for_site(self, wp_site_id):
         """ Build specific plugin configuration for website if exists
