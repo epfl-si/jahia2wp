@@ -506,6 +506,7 @@ and press ENTER: ".format(self.wp_site_url))
         save_file.close()
 
         print("\nPlugin configuration has been saved in file '{}'".format(output_file))
+        print("You now have to copy content of this file in the YAML file containing FULL plugin configuration.")
 
 
 class WPPluginConfigRestore(WPPluginConfigManager):
