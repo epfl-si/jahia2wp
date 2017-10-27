@@ -6,6 +6,7 @@ import collections
 from settings import DATA_PATH, ENV_DIRS, WP_DIRS, WP_CONFIG_KEYS
 from utils import Utils
 from .models import WPException, WPUser, WPSite
+from wordpress.plugins import WPPluginConfigRestore
 
 
 class WPConfig:
@@ -273,16 +274,8 @@ class WPPluginConfig(WPConfig):
             Config plugin via wp-cli.
 
         """
-
-        # Looping through options to set
-        for option_infos in self.config.options:
-            # Applying option
-            command = "option add {} '{}' --autoload={} --format=json".format(
-                option_infos["option_name"],
-                option_infos["option_value"],
-                "yes" if option_infos["autoload"] else "no"
-            )
-            self.run_wp_cli(command)
+        # Creating object to do plugin configuration restore and lauch restore right after !
+        WPPluginConfigRestore(self.wp_site.openshift_env, self.wp_site.url).restore_config(self.config)
 
     def set_state(self):
         """
