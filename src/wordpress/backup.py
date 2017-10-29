@@ -53,7 +53,7 @@ class WPBackup:
         if not self.wp_site.folder:
             self.dir_name = "localhost"
         else:
-            self.dir_name = self.wp_site.folder
+            self.dir_name = self.wp_site.folder.split("/")[-1]
 
         # Create a backup folder data/backups/wp_site_id
         self.path = os.path.join(
@@ -142,6 +142,9 @@ class WPBackup:
         """
         Generate a tar file that contains the php files of the WordPress site
         """
+        if not os.listdir(self.wp_site.path):
+            raise WPException("The WordPress site {} is not properly installed".format(repr(self.wp_site)))
+
         # Generate tar file
         Utils.generate_tar_file(
             backup_file=os.path.join(self.path, tar_file_name),
