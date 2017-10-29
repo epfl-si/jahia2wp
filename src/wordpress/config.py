@@ -5,7 +5,7 @@ import collections
 
 from settings import DATA_PATH, ENV_DIRS, WP_DIRS, WP_CONFIG_KEYS
 from utils import Utils
-from .models import WPException, WPUser, WPSite
+from .models import WPException, WPUser, WPSite, WPUtils
 
 
 class WPConfig:
@@ -65,8 +65,8 @@ class WPConfig:
                     yield WPResult(wp_config.wp_site.path, "KO", "", "", "", "", "")
 
     def run_wp_cli(self, command):
-        cmd = "wp {} --path='{}'".format(command, self.wp_site.path)
-        return Utils.run_command(cmd)
+        WPUtils.run_wp_cli(command, self.wp_site.path)
+        return Utils.run_command(command)
 
     @property
     def is_installed(self):

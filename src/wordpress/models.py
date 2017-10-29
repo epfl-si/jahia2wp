@@ -16,6 +16,14 @@ class WPException(Exception):
     pass
 
 
+class WPUtils:
+
+    @staticmethod
+    def run_wp_cli(command, wp_site_path):
+        cmd = "wp {} --path='{}'".format(command, wp_site_path)
+        return Utils.run_command(cmd)
+
+
 class WPSite:
     """ Pure python object that will define a WP site by its path & url
         its title is optionnal, just to provide a default value to the final user
@@ -25,7 +33,9 @@ class WPSite:
     DEFAULT_TITLE = "New WordPress"
     WP_VERSION = Utils.get_mandatory_env(key="WP_VERSION")
 
-    def __init__(self, openshift_env, wp_site_url, wp_default_site_title=None):
+    def __init__(self, openshift_env, wp_site_id, wp_site_url, wp_default_site_title=None):
+
+        self. wp_site_id = wp_site_id
         # validate input
         validate_openshift_env(openshift_env)
         URLValidator()(wp_site_url)

@@ -9,6 +9,8 @@ import csv
 import string
 import binascii
 import random
+import tarfile
+import re
 
 
 def deprecated(message):
@@ -158,3 +160,16 @@ class Utils(object):
         random.seed = (os.urandom(1024))
 
         return ''.join(random.choice(chars) for i in range(length))
+
+    @staticmethod
+    def generate_tar_file(backup_file, backup_listed_incremental_file, source_path):
+        """
+        Generate a tar file
+        """
+        command = "tar --create --file={} --listed-incremental={} {}".format(
+            backup_file,
+            backup_listed_incremental_file,
+            source_path
+        )
+        logging.debug("Command to generate tar file: {}".format(command))
+        Utils.run_command(command)

@@ -2,21 +2,22 @@
 jahia2wp: an amazing tool !
 
 Usage:
-  jahia2wp.py download      <site>            [--debug | --quiet]
+  jahia2wp.py download      <site>                          [--debug | --quiet]
     [--username=<USERNAME> --host=<HOST> --zip-path=<ZIP_PATH> --force]
-  jahia2wp.py clean         <wp_env> <wp_url> [--debug | --quiet]
-  jahia2wp.py check         <wp_env> <wp_url> [--debug | --quiet]
-  jahia2wp.py generate      <wp_env> <wp_url> [--debug | --quiet]
-  jahia2wp.py version       <wp_env> <wp_url> [--debug | --quiet]
-  jahia2wp.py admins        <wp_env> <wp_url> [--debug | --quiet]
-  jahia2wp.py check-one     <wp_env> <wp_url> [--debug | --quiet] [DEPRECATED]
-  jahia2wp.py clean-one     <wp_env> <wp_url> [--debug | --quiet] [DEPRECATED]
-  jahia2wp.py generate-one  <wp_env> <wp_url> [--debug | --quiet] [DEPRECATED]
+  jahia2wp.py clean         <wp_env> <wp_url>               [--debug | --quiet]
+  jahia2wp.py check         <wp_env> <wp_url>               [--debug | --quiet]
+  jahia2wp.py generate      <wp_env> <wp_url>               [--debug | --quiet]
+  jahia2wp.py version       <wp_env> <wp_url>               [--debug | --quiet]
+  jahia2wp.py admins        <wp_env> <wp_url>               [--debug | --quiet]
+  jahia2wp.py check-one     <wp_env> <wp_url>               [--debug | --quiet] [DEPRECATED]
+  jahia2wp.py clean-one     <wp_env> <wp_url>               [--debug | --quiet] [DEPRECATED]
+  jahia2wp.py generate-one  <wp_env> <wp_url>               [--debug | --quiet] [DEPRECATED]
     [--wp-title=<WP_TITLE> --admin-password=<ADMIN_PASSWORD>]
     [--owner=<OWNER_ID> --responsible=<RESPONSIBLE_ID>]
-  jahia2wp.py generate-many <csv_file>        [--debug | --quiet]
-  jahia2wp.py veritas       <csv_file>        [--debug | --quiet]
-  jahia2wp.py inventory     <wp_env> <path>   [--debug | --quiet]
+  jahia2wp.py generate-many <csv_file>                      [--debug | --quiet]
+  jahia2wp.py backup-many   <csv_file> <backup_type>        [--debug | --quiet]
+  jahia2wp.py veritas       <csv_file>                      [--debug | --quiet]
+  jahia2wp.py inventory     <wp_env> <path>                 [--debug | --quiet]
 
 Options:
   -h --help                 Show this screen.
@@ -24,7 +25,6 @@ Options:
   --debug                   Set log level to DEBUG (default is INFO)
   --quiet                   Set log level to WARNING (default is INFO)
 """
-
 import logging
 import getpass
 
@@ -32,7 +32,7 @@ from docopt import docopt
 from docopt_dispatch import dispatch
 
 from veritas.veritas import VeritasValidor
-from wordpress import WPSite, WPConfig, WPGenerator
+from wordpress import WPSite, WPConfig, WPGenerator, WPBackup
 from crawler import JahiaCrawler
 
 from settings import VERSION
@@ -152,6 +152,35 @@ def generate_many(csv_file, **kwargs):
             owner_id=row["owner_id"],
             responsible_id=row["responsible_id"],
         ).generate()
+
+
+@dispatch.on('backup-many')
+def backup_many(csv_file, backup_type, **kwargs):
+
+    # use Veritas to get valid rows
+    validator = VeritasValidor(csv_file)
+    rows = validator.get_valid_rows()
+
+    # print errors
+    if validator.errors:
+        print("The following lines have errors that prevent the generation of the WP site's :\n")
+        validator.print_errors()
+
+    # create a new WP site backup for each row
+    print("\n{} websites will now be backuped...".format(len(rows)))
+    for index, row in rows:
+        print("\nIndex #{}:\n---".format(index))
+        logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
+
+        wp_site = WPSite(
+            openshift_env=row["openshift_env"],
+            wp_site_id=row["wp_site_id"],
+            wp_site_url=row["wp_site_url"],
+            wp_default_site_title=row["wp_default_site_title"]
+        )
+
+        wp_backup = WPBackup(wp_site, backup_type)
+        wp_backup.generate_backup()
 
 
 @dispatch.on('inventory')
