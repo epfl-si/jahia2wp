@@ -35,7 +35,7 @@ class WPSite:
 
     def __init__(self, openshift_env, wp_site_id, wp_site_url, wp_default_site_title=None):
 
-        self. wp_site_id = wp_site_id
+        self.wp_site_id = wp_site_id
         # validate input
         validate_openshift_env(openshift_env)
         URLValidator()(wp_site_url)

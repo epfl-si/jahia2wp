@@ -9,8 +9,6 @@ import csv
 import string
 import binascii
 import random
-import tarfile
-import re
 
 
 def deprecated(message):

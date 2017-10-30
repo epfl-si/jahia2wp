@@ -65,8 +65,7 @@ class WPConfig:
                     yield WPResult(wp_config.wp_site.path, "KO", "", "", "", "", "")
 
     def run_wp_cli(self, command):
-        WPUtils.run_wp_cli(command, self.wp_site.path)
-        return Utils.run_command(command)
+        return WPUtils.run_wp_cli(command, self.wp_site.path)
 
     @property
     def is_installed(self):

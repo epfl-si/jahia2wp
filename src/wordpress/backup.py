@@ -11,33 +11,33 @@ from utils import Utils
 class WPBackup:
     """
     Class that handles the backups.
-    
+
     A backup of a WordPress site contains :
-    - copy of all .php file (tar files) 
+    - copy of all .php file (tar files)
     - a dump of the database (.sql file)
-    
+
     Backup types:
     There are 2 types of backup :
     - full : Full backup.
     - inc : Incremental backup.
-    
+
     A full backup generates 3 files :
-    - ".tar" file: to save of php files. 
+    - ".tar" file: to save of php files.
       Format : <wp_site_id>_<wp_site_folder>_<timestamp>_fullN.tar
-      
+
     - ".list" file: uses for incremental backup
      Format : <wp_site_id>_<wp_site_folder>_fullN.list
-     
+
     - ".sql" file: the db dump
     Format : <wp_site_id>_<wp_site_folder>_<timestamp>_fullN.sql
-    
+
     A incremental backup generates 2 files :
-    - ".tar" file: to save of php files. 
+    - ".tar" file: to save of php files.
       Format : <wp_site_id>_<wp_site_folder>_<timestamp>_fullN_incM.tar
-      
+
     - ".sql" file: the db dump
     Format : <wp_site_id>_<wp_site_folder>_<timestamp>_fullN.sql
-    
+
     The content difference between incremental tar files are saved in the list file.
     """
 
@@ -63,7 +63,7 @@ class WPBackup:
 
     def _get_max_number(self, regex):
         """
-        Go through the backup directory and return the max number 
+        Go through the backup directory and return the max number
         according to the regular expression passed as parameter
         """
         pattern = re.compile(regex)
@@ -78,7 +78,7 @@ class WPBackup:
     @property
     def max_full_number(self):
         """
-        Go through the backup directory and return the max full number 
+        Go through the backup directory and return the max full number
         """
         return self._get_max_number(regex=self.REGEX_FULL_NUMBER)
 
@@ -178,7 +178,7 @@ class WPBackup:
 
     def generate_backup(self):
         """
-        Generate the backup 
+        Generate the backup
         """
 
         if not os.path.exists(self.path):
