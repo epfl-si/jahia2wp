@@ -81,21 +81,13 @@ class WPGenerator:
         Get plugin list for WP site, install them, activate them if needed, configure them
 
         """
-
+        logging.info("WPGenerator.generate_plugins(): Add parameter for 'batch file' (YAML)")
         # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"
         # information in the source of trousse !
-        config_manager = WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
-
-        logging.info("!WPGenerator! - Replace 'site_name' with a unique WP site ID from source of trousse !")
-
-        if self.wp_site.folder != "":
-            site_name = self.wp_site.folder
-        else:
-            domain_parts = self.wp_site.domain.split(".")
-            site_name = self.wp_site.domain if len(domain_parts) == 1 else domain_parts[1]
+        plugin_list = WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
 
         # Looping through plugins to install
-        for plugin_name, plugin_config in config_manager.plugins(site_name).items():
+        for plugin_name, plugin_config in plugin_list.plugins(self.wp_site.wp_site_id).items():
             logging.debug("%s - Installing plugin %s", repr(self), plugin_name)
 
             # install and activate AddToAny plugin
