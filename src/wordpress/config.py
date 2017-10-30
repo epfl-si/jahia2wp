@@ -275,7 +275,7 @@ class WPPluginConfig(WPConfig):
 
         """
         # Creating object to do plugin configuration restore and lauch restore right after !
-        WPPluginConfigRestore(self.wp_site.openshift_env, self.wp_site.url).restore_config(self.config)
+        WPPluginConfigRestore(self.wp_site).restore_config(self.config)
 
     def set_state(self):
         """

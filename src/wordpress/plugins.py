@@ -259,18 +259,16 @@ class WPPluginConfigManager:
     """ Give necessary tools to manage (import/export) configuration parameters for a plugin which are stored
         in the database. Information to access database are recovered from WordPress config file (wp-config.php)
     """
-    def __init__(self, openshift_env, wp_site_url):
+    def __init__(self, wp_site):
         """ Constructor
 
         Arguments keyword:
-        openshift_env -- Openshift environment name
-        wp_site_url -- WordPress website URL
+        wp_site -- Instance of WPSite class
         """
         # List of "defined" value to look for in "wp-config.php" file.
         WP_CONFIG_DEFINE_NAMES = ['DB_NAME', 'DB_USER', 'DB_PASSWORD', 'DB_HOST', 'DB_CHARSET']
 
-        self.wp_site_url = wp_site_url
-        self.wp_site = WPSite(openshift_env, wp_site_url)
+        self.wp_site = wp_site
 
         wp_config_file = os.path.join(self.wp_site.path, "wp-config.php")
 
@@ -390,14 +388,13 @@ class WPPluginConfigExtractor(WPPluginConfigManager):
         the procedure.
     """
 
-    def __init__(self, openshift_env, wp_site_url):
+    def __init__(self, wp_site):
         """ Constructor
 
         Arguments keyword:
-        openshift_env -- Openshift environment name
-        wp_site_url -- WordPress website URL
+        wp_site -- Instance of WPSite class
         """
-        WPPluginConfigManager.__init__(self, openshift_env, wp_site_url)
+        WPPluginConfigManager.__init__(self, wp_site)
 
     def extract_config(self, output_file):
         """ Extract plugin configuration an store it in file specified by 'output_file'
@@ -407,7 +404,7 @@ class WPPluginConfigExtractor(WPPluginConfigManager):
         """
 
         input("Log into WP admin console ({}/wp-admin) and navigate a bit through pages. Then, come back here \
-and press ENTER: ".format(self.wp_site_url))
+and press ENTER: ".format(self.wp_site.url))
 
         """ STEP ONE - REFERENCE CONFIG """
         ref_config = {}
@@ -512,14 +509,13 @@ and press ENTER: ".format(self.wp_site_url))
 class WPPluginConfigRestore(WPPluginConfigManager):
     """ Allow to restore a given plugin configuration in WordPress database """
 
-    def __init__(self, openshift_env, wp_site_url):
+    def __init__(self, wp_site):
         """ Constructor
 
         Arguments keyword:
-        openshift_env -- Openshift environment name
-        wp_site_url -- WordPress website URL
+        wp_site -- Instance of class WPSite
         """
-        WPPluginConfigManager.__init__(self, openshift_env, wp_site_url)
+        WPPluginConfigManager.__init__(self, wp_site)
 
     def restore_config(self, config_infos):
         """ Restore a plugin configuration. Configuration information are stored in parameter.
