@@ -6,6 +6,7 @@ import shutil
 
 from . import WPUtils, WPException
 from utils import Utils
+from settings import BACKUP_PATH
 
 
 class WPBackup:
@@ -41,7 +42,6 @@ class WPBackup:
     The content difference between incremental tar files are saved in the list file.
     """
 
-    BACKUP_ROOT_DIR = "../data/backups/"
     REGEX_FULL_NUMBER = ".+full([0-9]+)\.tar$"
     REGEX_INC_NUMBER = ".+full{}_inc([0-9]+)\.tar$"
 
@@ -51,10 +51,7 @@ class WPBackup:
         self.type = backup_type
 
         # Create a backup folder data/backups/wp_site_name
-        self.path = os.path.join(
-            self.BACKUP_ROOT_DIR,
-            self.wp_site.name
-        )
+        self.path = os.path.join(BACKUP_PATH, self.wp_site.name)
 
     def _get_max_number(self, regex):
         """

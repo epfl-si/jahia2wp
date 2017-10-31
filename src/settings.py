@@ -6,14 +6,10 @@ from utils import Utils
 VERSION = "0.2.5"
 
 DATA_PATH = os.path.abspath(
-    os.path.sep.join([
-        os.path.dirname(__file__),
-        '..',
-        'data',
-        'wp',
-        ]
-    )
+    os.path.sep.join([os.path.dirname(__file__), '..', 'data'])
 )
+WP_PATH = os.path.join(DATA_PATH, 'wp')
+BACKUP_PATH = os.path.join(DATA_PATH, 'backups')
 
 ENV_DIRS = ['logs', 'venv', 'jahia2wp']
 

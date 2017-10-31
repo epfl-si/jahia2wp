@@ -3,7 +3,7 @@ import shutil
 import logging
 import collections
 
-from settings import DATA_PATH, ENV_DIRS, WP_DIRS, WP_CONFIG_KEYS
+from settings import WP_PATH, ENV_DIRS, WP_DIRS, WP_CONFIG_KEYS
 from utils import Utils
 from .models import WPException, WPUser, WPSite, WPUtils
 
@@ -214,7 +214,7 @@ class WPThemeConfig(WPConfig):
 
     def install(self):
         # copy files into wp-content/themes
-        src_path = os.path.sep.join([DATA_PATH, self.THEMES_PATH, self.name])
+        src_path = os.path.sep.join([WP_PATH, self.THEMES_PATH, self.name])
         shutil.copytree(src_path, self.path)
 
     def activate(self):
@@ -274,6 +274,6 @@ class WPPluginConfig(WPConfig):
         # activation through wp-cli
         self.run_wp_cli('plugin activate {}'.format(self.name))
         # configure
-        cmd_path = os.path.sep.join([DATA_PATH, self.PLUGINS_PATH, 'manage-plugin-config.php'])
+        cmd_path = os.path.sep.join([WP_PATH, self.PLUGINS_PATH, 'manage-plugin-config.php'])
         cmd = 'php {0} "{1}" 3 authorizer-deny-gaspar'
         return Utils.run_command(cmd.format(cmd_path, self.wp_site.path))
