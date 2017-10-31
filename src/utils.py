@@ -169,5 +169,4 @@ class Utils(object):
             backup_listed_incremental_file,
             source_path
         )
-        logging.debug("Command to generate tar file: {}".format(command))
         Utils.run_command(command)
