@@ -74,6 +74,9 @@ Icons are used to mark the progress as follows: :balloon:, :tada:, :champagne: o
         $ python jahia2wp.py clean $WP_ENV http://localhost
         ...
 
+        $ python jahia2wp.py backup $WP_ENV http://localhost
+        ...
+
 We will secondly add support for migration of a simple site:
 
 1. :gift_heart: Export the content of a Jahia website as a zipped package
