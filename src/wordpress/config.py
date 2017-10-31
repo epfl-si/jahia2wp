@@ -1,12 +1,11 @@
 import os
-import shutil
 import logging
 import collections
 
-from settings import DATA_PATH, ENV_DIRS, WP_DIRS, WP_CONFIG_KEYS
+from settings import ENV_DIRS, WP_DIRS, WP_CONFIG_KEYS
 from utils import Utils
+
 from .models import WPException, WPUser, WPSite
-from wordpress.plugins import WPPluginConfigRestore
 
 
 class WPConfig:
@@ -191,98 +190,3 @@ class WPConfig:
         self.run_wp_cli('menu create Main')
         # position the main menu at the top
         self.run_wp_cli('menu location assign Main top')
-
-
-class WPThemeConfig(WPConfig):
-    """ Relies on WPConfig to get wp_site and run wp-cli.
-        Overrides is_installed to check for the theme only
-    """
-
-    THEMES_PATH = os.path.join('wp-content', 'themes')
-
-    def __init__(self, wp_site, theme_name='epfl'):
-        super(WPThemeConfig, self).__init__(wp_site)
-        self.name = theme_name
-        self.path = os.path.sep.join([self.wp_site.path, self.THEMES_PATH, theme_name])
-
-    def __repr__(self):
-        installed_string = '[ok]' if self.is_installed else '[ko]'
-        return "theme {0} at {1}".format(installed_string, self.path)
-
-    @property
-    def is_installed(self):
-        # check if files are found in wp-content/themes
-        return os.path.isdir(self.path)
-
-    def install(self):
-        # copy files into wp-content/themes
-        src_path = os.path.sep.join([DATA_PATH, self.THEMES_PATH, self.name])
-        shutil.copytree(src_path, self.path)
-
-    def activate(self):
-        # use wp-cli to activate theme
-        return self.run_wp_cli('theme activate {}'.format(self.name))
-
-
-class WPPluginConfig(WPConfig):
-    """ Relies on WPConfig to get wp_site and run wp-cli.
-        Overrides is_installed to check for the theme only
-
-    """
-
-    PLUGINS_PATH = os.path.join('wp-content', 'plugins')
-
-    def __init__(self, wp_site, plugin_name, plugin_config):
-        """
-        Constructor
-
-        Keyword arguments:
-        wp_site -- Instance of class WPSite
-        plugin_name -- Plugin name
-        plugin_config -- Instance of class WPPluginConfigInfos
-        """
-        super(WPPluginConfig, self).__init__(wp_site)
-        self.name = plugin_name
-        self.config = plugin_config
-        self.path = os.path.sep.join([self.wp_site.path, self.PLUGINS_PATH, plugin_name])
-
-    def __repr__(self):
-        installed_string = '[ok]' if self.is_installed else '[ko]'
-        return "plugin {0} at {1}".format(installed_string, self.path)
-
-    @property
-    def is_installed(self):
-        # check if files are found in wp-content/plugins
-        return os.path.isdir(self.path)
-
-    @property
-    def is_activated(self):
-        command = "plugin list --status=active --field=name --format=json"
-        command_output = self.run_wp_cli(command)
-        return False if command_output is True else self.name in command_output
-
-    def install(self):
-        if self.config.zip_path is not None:
-            param = self.config.zip_path
-        else:
-            param = self.name
-        command = "plugin install {0} ".format(param)
-        self.run_wp_cli(command)
-
-    def configure(self):
-        """
-            Config plugin via wp-cli.
-
-        """
-        # Creating object to do plugin configuration restore and lauch restore right after !
-        WPPluginConfigRestore(self.wp_site).restore_config(self.config)
-
-    def set_state(self):
-        """
-        Change plugin state (activated, deactivated)
-        """
-        if self.config.is_active:
-            # activation through wp-cli
-            self.run_wp_cli('plugin activate {}'.format(self.name))
-        else:
-            self.run_wp_cli('plugin deactivate {}'.format(self.name))

@@ -10,9 +10,9 @@ from django.core.validators import URLValidator
 from veritas.validators import validate_string, validate_openshift_env, validate_integer
 
 from .models import WPSite, WPUser
-from .config import WPConfig, WPThemeConfig, WPPluginConfig
-
-from .plugins import WPPluginList
+from .config import WPConfig
+from .themes import WPThemeConfig
+from .plugins import WPPluginList, WPPluginConfig
 
 
 class WPGenerator:
