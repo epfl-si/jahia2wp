@@ -11,7 +11,8 @@ Table of releases
 
 <!-- TOC depthFrom:2 depthTo:2 orderedList:false -->
 
-- [[0.2.6] - 2017-10-23](#026---2017-10-23)
+- [[0.2.?] - 2017-11-?](#02---2017-11-)
+- [[0.2.6] - 2017-10-31](#026---2017-10-31)
 - [[0.2.5] - 2017-10-20](#025---2017-10-20)
 - [[0.2.4] - 2017-10-19](#024---2017-10-19)
 - [[0.2.3] - 2017-10-10](#023---2017-10-10)
@@ -22,7 +23,7 @@ Table of releases
 
 <!-- /TOC -->
 
-## [0.2.6] - 2017-10-23
+## [0.2.?] - 2017-11-?
 **[PR #55](https://github.com/epfl-idevelop/jahia2wp/pull/55)**
 
 **Updated Theme from following bugfixes on repo jahiap:**
@@ -40,6 +41,30 @@ Id | Description
 [89](https://github.com/epfl-idevelop/jahiap/issues/89) | Séparateur gris clair en trop dans les tableaux
 [239](https://github.com/epfl-idevelop/jahiap/issues/239) | couleur de background de paragraphe manquante
 [225](https://github.com/epfl-idevelop/jahiap/issues/225) | Dans les paragraphes des pages, il manque le surlignage en couleur de cert[...]
+
+
+## [0.2.6] - 2017-10-31
+**[PR #54](https://github.com/epfl-idevelop/jahia2wp/pull/54)**
+
+**High level changes:**
+
+1. L'extraction des informations de configuration d'un plugin est faite de manière interactive (le script se met en attente jusqu'à ce que la configuration soit faite). Une option `extract-plugin-config` a été ajoutée à `jahia2wp.py`
+2. les commandes `generate` et `generate-many` utilisent les nouveaux fichiers de configuration des plugins (YAML) de manière transparente pour installer et configurer les plugins
+
+**DISCLAIMER :** Les fichiers de configuration sont pour l'instant créés manuellement, de manière indépendante de la source de vérité. Une prochaine itération reverra ce système pour redonner la main à la source de vérité, et pouvoir générer tous les fichiers de configuration automatiquement 
+
+**Low level changes:**
+
+1. le fichier config.py a été éclaté en config.py, plugins.py et themes.py
+1. Les classes suivantes ont été ajoutées pour la gestion des plugins (dans plugins.py):
+    - `WPPluginConfigManager` fourni des accès MySQL et des informations sur la structure des tables où sont stockées les informations de configuration des plugins
+    - `WPPluginConfigExtractor` (hérite de `WPPluginConfigManager`) permet d'extraire les informations de configuration d'un plugin (stockées potentiellement dans X tables différentes) et de les sauver dans un fichier YAML
+    - `WPPluginConfigRestore` (hérite de `WPPluginConfigManager`) permet de restaurer les informations de configuration d'un plugin à partir d'une instance de `WPPluginConfigInfos` (décrite ci-dessous).
+    - `WPPluginConfigList` fourni la liste des plugins à installer/configurer pour un site web donné par un id unique (cet ID doit encore être ajouté dans la source de vérité).
+    - `WPPluginConfigInfos` permet de reconstruire les informations de configuration d'un plugin à partir d'une configuration générique à X sites et d'une potentielle configuration spécifique pour un site donné. Ces informations sont ensuite utilisées par `WPPluginConfigRestore` afin d'être mises dans la DB.
+1. Du fait que l'on doit potentiellement remettre des options dans d'autres tables que la table "options" et que WPCLI ne permet que d'ajouter des informations dans cette dite-table, l'utilisation d'un package pip (`PyMYSQL`) pour faire les requêtes dans la DB a été faite. WPCLI n'est donc plus utilisé pour mettre les options dans la DB, tout est fait depuis le package.
+1. Pour ce qui est de la configuration spécifique des plugins, pour le moment, seule la table `options` est gérée par le code. 
+1. Les nouvelles classes créées sont utilisées pour paramétrer les plugins lors de la génération d'un site.
 
 
 ## [0.2.5] - 2017-10-20
