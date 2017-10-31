@@ -33,9 +33,8 @@ class WPSite:
     DEFAULT_TITLE = "New WordPress"
     WP_VERSION = Utils.get_mandatory_env(key="WP_VERSION")
 
-    def __init__(self, openshift_env, wp_site_id, wp_site_url, wp_default_site_title=None):
+    def __init__(self, openshift_env, wp_site_url, wp_default_site_title=None):
 
-        self.wp_site_id = wp_site_id
         # validate input
         validate_openshift_env(openshift_env)
         URLValidator()(wp_site_url)
@@ -62,6 +61,15 @@ class WPSite:
     @property
     def url(self):
         return "{0.PROTOCOL}://{0.domain}/{0.folder}".format(self)
+
+    @property
+    def name(self):
+        # return domain site has no folder
+        if not self.folder:
+            return self.domain
+
+        # returns last folder if site as a folder defined
+        return self.folder.split('/')[-1]
 
     @classmethod
     def from_path(cls, openshift_env, path):

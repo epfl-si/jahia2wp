@@ -23,20 +23,20 @@ class WPBackup:
 
     A full backup generates 3 files :
     - ".tar" file: to save of files.
-      Format : <wp_site_id>_<wp_site_folder>_<timestamp>_fullN.tar
+      Format : <wp_site_name>_<timestamp>_fullN.tar
 
     - ".list" file: uses for incremental backup
-     Format : <wp_site_id>_<wp_site_folder>_fullN.list
+     Format : <wp_site_name>_fullN.list
 
     - ".sql" file: the db dump
-    Format : <wp_site_id>_<wp_site_folder>_<timestamp>_fullN.sql
+    Format : <wp_site_name>_<timestamp>_fullN.sql
 
     A incremental backup generates 2 files :
     - ".tar" file: to save files.
-      Format : <wp_site_id>_<wp_site_folder>_<timestamp>_fullN_incM.tar
+      Format : <wp_site_name>_<timestamp>_fullN_incM.tar
 
     - ".sql" file: the db dump
-    Format : <wp_site_id>_<wp_site_folder>_<timestamp>_fullN.sql
+    Format : <wp_site_name>_<timestamp>_fullN.sql
 
     The content difference between incremental tar files are saved in the list file.
     """
@@ -50,15 +50,10 @@ class WPBackup:
         self.wp_site = wp_site
         self.type = backup_type
 
-        if not self.wp_site.folder:
-            self.dir_name = "localhost"
-        else:
-            self.dir_name = self.wp_site.folder.split("/")[-1]
-
-        # Create a backup folder data/backups/wp_site_id
+        # Create a backup folder data/backups/wp_site_name
         self.path = os.path.join(
             self.BACKUP_ROOT_DIR,
-            self.wp_site.wp_site_id
+            self.wp_site.name
         )
 
     def _get_max_number(self, regex):
@@ -131,7 +126,7 @@ class WPBackup:
             pattern = re.compile(self.REGEX_INC_NUMBER.format(self.max_full_number))
             current_full_number = pattern.findall(tar_file_name)[0]
         listed_incremental_file = "_".join(
-            (self.wp_site.wp_site_id, self.dir_name, "full")
+            (self.wp_site.name, "full")
         )
         listed_incremental_file += "".join(
             (current_full_number, ".list")
@@ -186,7 +181,7 @@ class WPBackup:
         logging.debug("{} - Backup folder: {}".format(repr(self.wp_site), self.path))
 
         timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        base_name = "_".join((self.wp_site.wp_site_id, self.dir_name, timestamp, 'full'))
+        base_name = "_".join((self.wp_site.name, timestamp, 'full'))
 
         if self.type == "full":
             base_name += self.next_full_number

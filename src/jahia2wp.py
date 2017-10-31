@@ -174,7 +174,6 @@ def backup_many(csv_file, backup_type, **kwargs):
 
         wp_site = WPSite(
             openshift_env=row["openshift_env"],
-            wp_site_id=row["wp_site_id"],
             wp_site_url=row["wp_site_url"],
             wp_default_site_title=row["wp_default_site_title"]
         )

@@ -1,5 +1,5 @@
-wp_site_id,wp_site_url,wp_default_site_title,site_type,openshift_env,category,theme,status,installs_locked,updates_automatic,langs,owner_id,responsible_id,unit,comment
-12345,https://www.epfl.ch/recherche,Recherche,wordpress,dev,GeneralPublic,EPFL,asked,yes,no,"fr,en",188475,133134,VPR,je mets ici
-23451,https://www.epfl.ch/education,Education,wordpress,dev,GeneralPublic,EPFL,yes,yes,no,"fr,en",123456,123456,VPE,ce qui me plait
-34512,https://www.epfl.ch/education/master,Master,wordpress,dev,GeneralPublic,EPFL,yes,yes,no,"fr,en",123456,123456,VPE,des infos que l'utilisateur m'a donné par ex
-45123,https://www.epfl.ch/atelierweb,WWW,wordpress,dev,GeneralPublic,EPFL,no,yes,no,"fr,en",123456,123456,VPSI,
+wp_site_url,wp_default_site_title,site_type,openshift_env,category,theme,status,installs_locked,updates_automatic,langs,owner_id,responsible_id,unit,comment
+https://www.epfl.ch/recherche,Recherche,wordpress,dev,GeneralPublic,EPFL,asked,yes,no,"fr,en",188475,133134,VPR,je mets ici
+https://www.epfl.ch/education,Education,wordpress,dev,GeneralPublic,EPFL,yes,yes,no,"fr,en",123456,123456,VPE,ce qui me plait
+https://www.epfl.ch/education/master,Master,wordpress,dev,GeneralPublic,EPFL,yes,yes,no,"fr,en",123456,123456,VPE,des infos que l'utilisateur m'a donné par ex
+https://www.epfl.ch/atelierweb,WWW,wordpress,dev,GeneralPublic,EPFL,no,yes,no,"fr,en",123456,123456,VPSI,
