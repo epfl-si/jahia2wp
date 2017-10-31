@@ -69,3 +69,27 @@ DB_USER,"ogtc,62msegz2beji",constant
 DB_PASSWORD,Rfcua2LKD^vpGy@m*R*Z,constant
 DB_COLLATE,,constant"""
         assert Utils.csv_string_to_dict(text) == EXPECTED_OUTPUT_FROM_CSV
+
+
+class TestTar:
+
+    OUTPUT_TAR = os.path.join(CURRENT_DIR, "test.tar")
+    OUTPUT_INC = os.path.join(CURRENT_DIR, "test.inc")
+
+    def test_generate_tar_file(self):
+        # setup
+        for file_name in [self.OUTPUT_TAR, self.OUTPUT_INC]:
+            if os.path.exists(file_name):
+                os.remove(file_name)
+
+        # run command
+        Utils.generate_tar_file(
+            self.OUTPUT_TAR,
+            self.OUTPUT_INC,
+            os.path.join(CURRENT_DIR, TEST_FILE)
+        )
+
+        # check output
+        for file_name in [self.OUTPUT_TAR, self.OUTPUT_INC]:
+            assert os.path.exists(file_name)
+            os.remove(file_name)
