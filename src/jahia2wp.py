@@ -144,13 +144,7 @@ def admins(wp_env, wp_url, **kwargs):
 @dispatch.on('generate-many')
 def generate_many(csv_file, **kwargs):
     # use Veritas to get valid rows
-    validator = VeritasValidor(csv_file)
-    rows = validator.get_valid_rows()
-
-    # print errors
-    if validator.errors:
-        print("The following lines have errors that prevent the generation of the WP site:\n")
-        validator.print_errors()
+    rows = VeritasValidor.filter_valid_rows(csv_file)
 
     # create a new WP site for each row
     print("\n{} websites will now be generated...".format(len(rows)))
@@ -168,20 +162,12 @@ def generate_many(csv_file, **kwargs):
 
 @dispatch.on('backup-many')
 def backup_many(csv_file, backup_type=None, **kwargs):
-
     # use Veritas to get valid rows
-    validator = VeritasValidor(csv_file)
-    rows = validator.get_valid_rows()
-
-    # print errors
-    if validator.errors:
-        print("The following lines have errors that prevent the generation of the WP site's :\n")
-        validator.print_errors()
+    rows = VeritasValidor.filter_valid_rows(csv_file)
 
     # create a new WP site backup for each row
     print("\n{} websites will now be backuped...".format(len(rows)))
     for index, row in rows:
-        print("\nIndex #{}:\n---".format(index))
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
         WPBackup(
             openshift_env=row["openshift_env"],

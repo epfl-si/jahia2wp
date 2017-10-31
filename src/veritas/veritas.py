@@ -34,6 +34,21 @@ class VeritasValidor:
     # the csv delimiter
     DELIMITER = ","
 
+    @classmethod
+    def filter_valid_rows(cls, csv_file):
+        """Shortcut method to call get_valid_rows, print errors, and only return valid elements"""
+        # use Veritas to get valid rows
+        validator = cls(csv_file)
+        rows = validator.get_valid_rows()
+
+        # print errors
+        if validator.errors:
+            print("The following lines have errors and have been filtered out:\n")
+            validator.print_errors()
+
+        # return valid rows only
+        return rows
+
     def __init__(self, csv_path, columns=JAHIA2WP_COLUMNS):
         """ csv_path: path on file system pointing the CSV file to validate
             columns: description of the validations to make on columns, array of tuple

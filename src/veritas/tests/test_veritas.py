@@ -5,6 +5,21 @@ from veritas.veritas import VeritasValidor
 
 CURRENT_DIR = os.path.dirname(__file__)
 TEST_FILE = 'test_veritas_data.csv'
+VALID_LINE = {
+        'category': 'GeneralPublic',
+        'comment': 'je mets ici',
+        'installs_locked': 'yes',
+        'langs': 'fr,en',
+        'openshift_env': 'dev',
+        'owner_id': '123456',
+        'responsible_id': '123456',
+        'site_type': 'WordPress',
+        'status': 'asked',
+        'theme': 'EPFL',
+        'unit': 'VPR',
+        'updates_automatic': 'no',
+        'wp_default_site_title': 'Recherche',
+        'wp_site_url': 'htt://www.epfl.ch/recherche'}
 
 
 def test_validate():
@@ -29,21 +44,12 @@ def test_validate():
 
 def test_get_valid_rows():
     filename = os.path.join(CURRENT_DIR, TEST_FILE)
+    valid_lines = ((0, VALID_LINE),)
     validator = VeritasValidor(filename)
-    valid_lines = ((0, {
-        'category': 'GeneralPublic',
-        'comment': 'je mets ici',
-        'installs_locked': 'yes',
-        'langs': 'fr,en',
-        'openshift_env': 'dev',
-        'owner_id': '123456',
-        'responsible_id': '123456',
-        'site_type': 'WordPress',
-        'status': 'asked',
-        'theme': 'EPFL',
-        'unit': 'VPR',
-        'updates_automatic': 'no',
-        'wp_default_site_title': 'Recherche',
-        'wp_site_url': 'htt://www.epfl.ch/recherche'}
-    ),)
     assert validator.get_valid_rows() == valid_lines
+
+
+def test_filter_method():
+    filename = os.path.join(CURRENT_DIR, TEST_FILE)
+    valid_lines = ((0, VALID_LINE),)
+    assert valid_lines == VeritasValidor.filter_valid_rows(filename)
