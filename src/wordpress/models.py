@@ -16,14 +16,6 @@ class WPException(Exception):
     pass
 
 
-class WPUtils:
-
-    @staticmethod
-    def run_wp_cli(command, wp_site_path):
-        cmd = "wp {} --path='{}'".format(command, wp_site_path)
-        return Utils.run_command(cmd)
-
-
 class WPSite:
     """ Pure python object that will define a WP site by its path & url
         its title is optionnal, just to provide a default value to the final user
