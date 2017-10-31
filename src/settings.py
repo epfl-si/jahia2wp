@@ -3,7 +3,7 @@ import os
 
 from utils import Utils
 
-VERSION = "0.2.5"
+VERSION = "0.2.6"
 
 DATA_PATH = os.path.abspath(
     os.path.sep.join([
