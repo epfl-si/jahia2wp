@@ -13,7 +13,7 @@ class WPBackup:
     Class that handles the backups.
 
     A backup of a WordPress site contains :
-    - copy of all .php file (tar files)
+    - copy of all files (tar files)
     - a dump of the database (.sql file)
 
     Backup types:
@@ -22,7 +22,7 @@ class WPBackup:
     - inc : Incremental backup.
 
     A full backup generates 3 files :
-    - ".tar" file: to save of php files.
+    - ".tar" file: to save of files.
       Format : <wp_site_id>_<wp_site_folder>_<timestamp>_fullN.tar
 
     - ".list" file: uses for incremental backup
@@ -32,7 +32,7 @@ class WPBackup:
     Format : <wp_site_id>_<wp_site_folder>_<timestamp>_fullN.sql
 
     A incremental backup generates 2 files :
-    - ".tar" file: to save of php files.
+    - ".tar" file: to save of files.
       Format : <wp_site_id>_<wp_site_folder>_<timestamp>_fullN_incM.tar
 
     - ".sql" file: the db dump
@@ -140,7 +140,7 @@ class WPBackup:
 
     def generate_wp_files_backup(self, tar_file_name):
         """
-        Generate a tar file that contains the php files of the WordPress site
+        Generate a tar file that contains all the files of the WordPress site
         """
         if not os.listdir(self.wp_site.path):
             raise WPException("The WordPress site {} is not properly installed".format(repr(self.wp_site)))
