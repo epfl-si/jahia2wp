@@ -4,13 +4,15 @@ import shutil
 import logging
 
 from utils import Utils
-from settings import WP_DIRS, WP_FILES, ADD_TO_ANY_PLUGIN, EPFL_INFOSCIENCE_SHORTCODE
+from settings import WP_DIRS, WP_FILES, PLUGINS_CONFIG_GENERIC_FOLDER, PLUGINS_CONFIG_SPECIFIC_FOLDER
 
 from django.core.validators import URLValidator
 from veritas.validators import validate_string, validate_openshift_env, validate_integer
 
 from .models import WPSite, WPUser
-from .config import WPConfig, WPThemeConfig, WPPluginConfig
+from .config import WPConfig
+from .themes import WPThemeConfig
+from .plugins import WPPluginList, WPPluginConfig
 
 
 class WPGenerator:
@@ -75,76 +77,59 @@ class WPGenerator:
         return Utils.run_command(mysql_connection_string + command)
 
     def generate_plugins(self):
+        """
+        Get plugin list for WP site, install them, activate them if needed, configure them
 
-        # install and activate AddToAny plugin
-        add_to_any_plugin = WPPluginConfig(self.wp_site, 'add-to-any')
-        add_to_any_plugin.install()
-        if not add_to_any_plugin.is_activate:
-            logging.error("%s - could not activate WP AddToAny plugin", repr(self))
-            return False
+        """
+        logging.info("WPGenerator.generate_plugins(): Add parameter for 'batch file' (YAML)")
+        # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"
+        # information in the source of trousse !
+        plugin_list = WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
+
+        if self.wp_site.folder != "":
+            site_id = self.wp_site.folder
         else:
-            logging.debug("%s - WP AddToAny plugin is activated", repr(self))
+            domain_parts = self.wp_site.domain.split(".")
+            site_id = self.wp_site.domain if len(domain_parts) == 1 else domain_parts[1]
 
-        # config AddToAny plugin
-        add_to_any_plugin.config(config_data=ADD_TO_ANY_PLUGIN)
+        # Looping through plugins to install
+        for plugin_name, plugin_config in plugin_list.plugins(site_id).items():
+            logging.debug("%s - Installing plugin %s", repr(self), plugin_name)
 
-        # install and activate BasicAuth plugin
-        basic_auth = WPPluginConfig(self.wp_site, 'wp-basic-auth')
-        basic_auth.install()
-        if not basic_auth.is_activate:
-            logging.error("%s - could not activate WP BASIC Auth plugin", repr(self))
-            return False
-        else:
-            logging.debug("%s - WP BASIC Auth plugin is activated", repr(self))
+            # install and activate AddToAny plugin
+            plugin = WPPluginConfig(self.wp_site, plugin_name, plugin_config)
+            plugin.install()
+            plugin.set_state()
 
-        # install and activate Black Studio TinyMCE widget
-        black_studio_tinymce_widget = WPPluginConfig(self.wp_site, 'black-studio-tinymce-widget')
-        black_studio_tinymce_widget.install()
-        if not black_studio_tinymce_widget.is_activate:
-            logging.error("%s - could not activate WP Black Studio TinyMCE Widget plugin", repr(self))
-            return False
-        else:
-            logging.debug("%s - WP Black Studio TinyMCE Widget is activated", repr(self))
+            if plugin.is_activated:
+                logging.debug("%s - WP %s plugin is activated", repr(self), plugin_name)
+            else:
+                logging.debug("%s - WP %s plugin is deactivated", repr(self), plugin_name)
 
-        # install and activate TinyMCE Advanced plugin
-        tinymce_advanced = WPPluginConfig(self.wp_site, 'tinymce-advanced')
-        tinymce_advanced.install()
-        if not tinymce_advanced.is_activate:
-            logging.error("%s - could not activate WP TinyMCE Advanced plugin", repr(self))
-            return False
-        else:
-            logging.debug("%s - WP TinyMCE Advanced is activated", repr(self))
-
-        # install epfl_infoscience shortcode
-        epfl_infoscience = WPPluginConfig(self.wp_site, 'epfl_infoscience')
-        epfl_infoscience.install(zip_path=EPFL_INFOSCIENCE_SHORTCODE["zip_path"])
-        if not epfl_infoscience.is_activate:
-            logging.error("%s - could not activate WP EPFL Infoscience shortcode", repr(self))
-            return False
-        else:
-            logging.debug("%s - WP EPFL Infoscience shortcode is activated", repr(self))
+            # Configure plugin
+            plugin.configure()
 
     def generate(self):
 
         # check we have a clean place first
         if self.wp_config.is_installed:
-            logging.error("%s - wordpress files already found", repr(self))
+            logging.error("%s - WordPress files already found", repr(self))
             return False
 
         # create specific mysql db and user
-        logging.info("%s - setting up DB...", repr(self))
+        logging.info("%s - Setting up DB...", repr(self))
         if not self.prepare_db():
             logging.error("%s - could not set up DB", repr(self))
             return False
 
         # download, config and install WP
-        logging.info("%s - downloading WP...", repr(self))
+        logging.info("%s - Downloading WP...", repr(self))
         if not self.install_wp():
             logging.error("%s - could not install WP", repr(self))
             return False
 
         # install and configure theme (default is 'epfl')
-        logging.info("%s - activating theme...", repr(self))
+        logging.info("%s - Activating theme...", repr(self))
         theme = WPThemeConfig(self.wp_site)
         theme.install()
         if not theme.activate():
@@ -152,11 +137,11 @@ class WPGenerator:
             return False
 
         # install, activate and config plugins
-        logging.info("%s - installing plugins...", repr(self))
+        logging.info("%s - Installing plugins...", repr(self))
         self.generate_plugins()
 
         # add 2 given webmasters
-        logging.info("%s - creating webmaster accounts...", repr(self))
+        logging.info("%s - Creating webmaster accounts...", repr(self))
         if not self.add_webmasters():
             logging.error("%s - could not add webmasters", repr(self))
             return False
