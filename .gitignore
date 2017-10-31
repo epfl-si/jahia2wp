@@ -10,4 +10,5 @@
 log/
 htmlcov/
 volumes/
+data/backups/
 coverage.xml
