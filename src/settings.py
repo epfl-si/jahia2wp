@@ -3,7 +3,7 @@ import os
 
 from utils import Utils
 
-VERSION = "0.2.5"
+VERSION = "0.2.7"
 
 DATA_PATH = os.path.abspath(
     os.path.sep.join([os.path.dirname(__file__), '..', 'data'])
@@ -81,19 +81,11 @@ SUPPORTED_LANGUAGES = [
     "gr",
     "it"
 ]
+current_file_path = os.path.dirname(os.path.realpath(__file__))
+PLUGINS_CONFIG_GENERIC_FOLDER = os.path.sep.join([current_file_path, '..', 'data', 'plugins', 'generic'])
+PLUGINS_CONFIG_SPECIFIC_FOLDER = os.path.sep.join([current_file_path, '..', 'data', 'plugins', 'specific'])
+PLUGIN_SOURCE_WP_STORE = 'web'
 
-ADD_TO_ANY_PLUGIN = {
-    "name": "add-to-any",
-    "options": {
-        "option_name": "addtoany_options",
-        "option_value": "../data/plugins/add-to-any.json",
-        "autoload": "yes"
-    }
-}
-
-EPFL_INFOSCIENCE_SHORTCODE = {
-    "zip_path": "../data/plugins/epfl_infoscience.zip",
-}
 
 JAHIA_USER = Utils.get_optional_env("JAHIA_USER", "admin")
 JAHIA_HOST = Utils.get_optional_env("JAHIA_HOST", "localhost")

@@ -49,16 +49,22 @@ Icons are used to mark the progress as follows: :balloon:, :tada:, :champagne: o
 
         $ python jahia2wp.py check $WP_ENV http://localhost
         WordPress site valid and accessible at http://localhost
-
-2. :tada: configuring the website with supported plugins and the EPFL theme
-
+        
         $ python jahia2wp.py admins $WP_ENV http://localhost
         admin:admin@example.com <administrator>
         user123456:user@epfl.ch <administrator>
 
+2. :tada: configuring the website with supported plugins and the EPFL theme
+
+        $ python jahia2wp.py extract-plugin-config $WP_ENV http://localhost output_file
+        ...
+
 3. :champagne: applying those first two steps to every row of our configuration source
 
         $ python jahia2wp.py generate-many path/to/source.csv
+        ...
+
+        $ python jahia2wp.py backup-many path/to/source.csv
         ...
 
         $ python jahia2wp.py inventory $WP_ENV /srv/your-env/localhost
