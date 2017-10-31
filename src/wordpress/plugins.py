@@ -4,7 +4,7 @@ import logging
 import copy
 import yaml
 import pymysql.cursors
-from wordpress.models import WPSite
+from settings import PLUGIN_SOURCE_WP_STORE
 
 
 """ Class declared in this file:
@@ -172,7 +172,7 @@ class WPPluginConfigInfos:
         self.plugin_name = plugin_name
 
         # If we have to download from web,
-        if plugin_config['src'].lower() == 'web':
+        if plugin_config['src'].lower() == PLUGIN_SOURCE_WP_STORE:
             self.zip_path = None
         else:
             if not os.path.exists(plugin_config['src']):
