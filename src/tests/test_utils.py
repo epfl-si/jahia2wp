@@ -73,8 +73,8 @@ DB_COLLATE,,constant"""
 
 class TestTar:
 
-    OUTPUT_TAR = os.path.join(CURRENT_DIR, "test.tar")
-    OUTPUT_INC = os.path.join(CURRENT_DIR, "test.inc")
+    OUTPUT_TAR = "/tmp/test.tar"
+    OUTPUT_INC = "/tmp/test.inc"
 
     def test_generate_tar_file(self):
         # setup
