@@ -257,7 +257,7 @@ class WPPluginConfig(WPConfig):
 
     @property
     def is_activated(self):
-        command = "plugin list --status=active --field=name --fomat=json"
+        command = "plugin list --status=active --field=name --format=json"
         command_output = self.run_wp_cli(command)
         return False if command_output is True else self.name in command_output
 
