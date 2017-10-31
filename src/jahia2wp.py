@@ -2,22 +2,22 @@
 jahia2wp: an amazing tool !
 
 Usage:
-  jahia2wp.py download            <site>            [--debug | --quiet]
+  jahia2wp.py download              <site>            [--debug | --quiet]
     [--username=<USERNAME> --host=<HOST> --zip-path=<ZIP_PATH> --force]
-  jahia2wp.py clean               <wp_env> <wp_url> [--debug | --quiet]
-  jahia2wp.py check               <wp_env> <wp_url> [--debug | --quiet]
-  jahia2wp.py generate            <wp_env> <wp_url> [--debug | --quiet]
-  jahia2wp.py version             <wp_env> <wp_url> [--debug | --quiet]
-  jahia2wp.py admins              <wp_env> <wp_url> [--debug | --quiet]
-  jahia2wp.py check-one           <wp_env> <wp_url> [--debug | --quiet] [DEPRECATED]
-  jahia2wp.py clean-one           <wp_env> <wp_url> [--debug | --quiet] [DEPRECATED]
-  jahia2wp.py generate-one        <wp_env> <wp_url> [--debug | --quiet] [DEPRECATED]
+  jahia2wp.py clean                 <wp_env> <wp_url> [--debug | --quiet]
+  jahia2wp.py check                 <wp_env> <wp_url> [--debug | --quiet]
+  jahia2wp.py generate              <wp_env> <wp_url> [--debug | --quiet]
+  jahia2wp.py version               <wp_env> <wp_url> [--debug | --quiet]
+  jahia2wp.py admins                <wp_env> <wp_url> [--debug | --quiet]
+  jahia2wp.py check-one             <wp_env> <wp_url> [--debug | --quiet] [DEPRECATED]
+  jahia2wp.py clean-one             <wp_env> <wp_url> [--debug | --quiet] [DEPRECATED]
+  jahia2wp.py generate-one          <wp_env> <wp_url> [--debug | --quiet] [DEPRECATED]
     [--wp-title=<WP_TITLE> --admin-password=<ADMIN_PASSWORD>]
     [--owner=<OWNER_ID> --responsible=<RESPONSIBLE_ID>]
-  jahia2wp.py generate-many       <csv_file>        [--debug | --quiet]
-  jahia2wp.py veritas             <csv_file>        [--debug | --quiet]
-  jahia2wp.py inventory           <wp_env> <path>   [--debug | --quiet]
-  jahia2wp.py dump-plugin-config  <wp_env> <wp_url> <output_file> [--debug | --quiet]
+  jahia2wp.py generate-many         <csv_file>        [--debug | --quiet]
+  jahia2wp.py veritas               <csv_file>        [--debug | --quiet]
+  jahia2wp.py inventory             <wp_env> <path>   [--debug | --quiet]
+  jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
 
 Options:
   -h --help                 Show this screen.
@@ -182,8 +182,8 @@ def veritas(csv_file, **kwargs):
     validator.print_errors()
 
 
-@dispatch.on('dump-plugin-config')
-def dump_plugin_config(wp_env, wp_url, output_file, **kwargs):
+@dispatch.on('extract-plugin-config')
+def extract_plugin_config(wp_env, wp_url, output_file, **kwargs):
 
     ext = WPPluginConfigExtractor(wp_env, wp_url)
 
