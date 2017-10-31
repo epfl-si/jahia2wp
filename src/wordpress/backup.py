@@ -158,7 +158,9 @@ class WPBackup:
 
         # Generate tar file
         if not Utils.generate_tar_file(
-            backup_file=os.path.join(self.path, tar_file_name),
+            backup_file=os.path.join(
+                self.path,
+                tar_file_name),
             backup_listed_incremental_file=os.path.join(
                 self.path,
                 self.generate_listed_incremental_file_name(tar_file_name)
@@ -177,21 +179,14 @@ class WPBackup:
         """
 
         # Build db backup
-        command = "db export {} --path={}".format(
-            dump_file_name,
-            self.wp_site.path
-        )
+        abs_path = os.path.join(self.path, dump_file_name)
+        command = "db export {} --path={}".format(abs_path, self.wp_site.path)
 
         # exit on failure
         if not self.wp_config.run_wp_cli(command):
-            raise WPException("WP DB dump {} could not be created".format(dump_file_name))
+            raise WPException("WP DB dump {} could not be created".format(abs_path))
 
-        # Move dump to the backup folder
-        source = os.path.abspath(dump_file_name)
-        destination = os.path.join(os.getcwd(), self.path, dump_file_name)
-        shutil.move(source, destination)
-
-        logging.debug("{} - WP db dump {} is created".format(repr(self.wp_site), dump_file_name))
+        logging.debug("{} - WP db dump {} is created".format(repr(self.wp_site), abs_path))
 
     def backup(self):
         """
