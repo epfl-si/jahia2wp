@@ -85,8 +85,10 @@ SUPPORTED_LANGUAGES = [
     "it"
 ]
 current_file_path = os.path.dirname(os.path.realpath(__file__))
-PLUGINS_CONFIG_GENERIC_FOLDER = os.path.join(current_file_path, '../data/plugins/generic')
-PLUGINS_CONFIG_SPECIFIC_FOLDER = os.path.join(current_file_path, '../data/plugins/specific')
+PLUGINS_CONFIG_GENERIC_FOLDER = os.path.sep.join([current_file_path, '..', 'data', 'plugins', 'generic'])
+PLUGINS_CONFIG_SPECIFIC_FOLDER = os.path.sep.join([current_file_path, '..', 'data', 'plugins', 'specific'])
+PLUGIN_SOURCE_WP_STORE = 'web'
+
 
 JAHIA_USER = Utils.get_optional_env("JAHIA_USER", "admin")
 JAHIA_HOST = Utils.get_optional_env("JAHIA_HOST", "localhost")
