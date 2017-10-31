@@ -19,7 +19,7 @@ class WPBackup:
     Backup types:
     There are 2 types of backup :
     - full : Full backup.
-    - inc : Incremental backup.
+    - inc : Incremental backup (for files only, not the DB).
 
     A full backup generates 3 files :
     - ".tar" file: to save of files.
@@ -32,7 +32,7 @@ class WPBackup:
     Format : <wp_site_id>_<wp_site_folder>_<timestamp>_fullN.sql
 
     A incremental backup generates 2 files :
-    - ".tar" file: to save of files.
+    - ".tar" file: to save files.
       Format : <wp_site_id>_<wp_site_folder>_<timestamp>_fullN_incM.tar
 
     - ".sql" file: the db dump
