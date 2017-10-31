@@ -169,4 +169,4 @@ class Utils(object):
             backup_listed_incremental_file,
             source_path
         )
-        Utils.run_command(command)
+        return Utils.run_command(command)

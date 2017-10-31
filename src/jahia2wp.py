@@ -7,6 +7,8 @@ Usage:
   jahia2wp.py clean         <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py check         <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate      <wp_env> <wp_url>               [--debug | --quiet]
+  jahia2wp.py backup        <wp_env> <wp_url>               [--debug | --quiet]
+    [--backup-type=<BACKUP_TYPE>]
   jahia2wp.py version       <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py admins        <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py check-one     <wp_env> <wp_url>               [--debug | --quiet] [DEPRECATED]
@@ -15,7 +17,8 @@ Usage:
     [--wp-title=<WP_TITLE> --admin-password=<ADMIN_PASSWORD>]
     [--owner=<OWNER_ID> --responsible=<RESPONSIBLE_ID>]
   jahia2wp.py generate-many <csv_file>                      [--debug | --quiet]
-  jahia2wp.py backup-many   <csv_file> <backup_type>        [--debug | --quiet]
+  jahia2wp.py backup-many   <csv_file>                      [--debug | --quiet]
+    [--backup-type=<BACKUP_TYPE>]
   jahia2wp.py veritas       <csv_file>                      [--debug | --quiet]
   jahia2wp.py inventory     <wp_env> <path>                 [--debug | --quiet]
 
@@ -114,6 +117,15 @@ def generate(wp_env, wp_url, wp_title=None, admin_password=None, owner_id=None, 
     print("Successfully created new WordPress site at {}".format(wp_generator.wp_site.url))
 
 
+@dispatch.on('backup')
+def backup(wp_env, wp_url, backup_type=None, **kwargs):
+    wp_backup = WPBackup(wp_env, wp_url, backup_type=backup_type)
+    if not wp_backup.backup():
+        raise SystemExit("Backup failed. More info above")
+
+    print("Successfully backed-up WordPress site for {}".format(wp_backup.wp_site.url))
+
+
 @dispatch.on('version')
 def version(wp_env, wp_url, **kwargs):
     wp_config = _check_site(wp_env, wp_url, **kwargs)
@@ -155,7 +167,7 @@ def generate_many(csv_file, **kwargs):
 
 
 @dispatch.on('backup-many')
-def backup_many(csv_file, backup_type, **kwargs):
+def backup_many(csv_file, backup_type=None, **kwargs):
 
     # use Veritas to get valid rows
     validator = VeritasValidor(csv_file)
@@ -171,13 +183,12 @@ def backup_many(csv_file, backup_type, **kwargs):
     for index, row in rows:
         print("\nIndex #{}:\n---".format(index))
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
-
-        wp_backup = WPBackup(
+        WPBackup(
             openshift_env=row["openshift_env"],
             wp_site_url=row["wp_site_url"],
             wp_default_site_title=row["wp_default_site_title"],
-            backup_type=backup_type)
-        wp_backup.generate_backup()
+            backup_type=backup_type
+        ).backup()
 
 
 @dispatch.on('inventory')

@@ -150,25 +150,30 @@ class WPBackup:
     def generate_wp_files_backup(self, tar_file_name):
         """
         Generate a tar file that contains all the files of the WordPress site
+
+        raises WPException on failures
         """
         if not os.listdir(self.wp_site.path):
             raise WPException("The WordPress site {} is not properly installed".format(repr(self.wp_site)))
 
         # Generate tar file
-        Utils.generate_tar_file(
+        if not Utils.generate_tar_file(
             backup_file=os.path.join(self.path, tar_file_name),
             backup_listed_incremental_file=os.path.join(
                 self.path,
                 self.generate_listed_incremental_file_name(tar_file_name)
             ),
             source_path=self.wp_site.path
-        )
+        ):
+            raise WPException("WP tar {} could not be created".format(tar_file_name))
 
-        logging.debug("{} - WP tar {} is created".format(repr(self.wp_site), tar_file_name))
+        logging.debug("%s - WP tar %s is created", repr(self.wp_site), tar_file_name)
 
     def generate_db_dump(self, dump_file_name):
         """
         Generate the database dump.
+
+        raises WPException on failures
         """
 
         # Build db backup
@@ -176,7 +181,10 @@ class WPBackup:
             dump_file_name,
             self.wp_site.path
         )
-        self.wp_config.run_wp_cli(command)
+
+        # exit on failure
+        if not self.wp_config.run_wp_cli(command):
+            raise WPException("WP DB dump {} could not be created".format(dump_file_name))
 
         # Move dump to the backup folder
         source = os.path.abspath(dump_file_name)
@@ -185,7 +193,7 @@ class WPBackup:
 
         logging.debug("{} - WP db dump {} is created".format(repr(self.wp_site), dump_file_name))
 
-    def generate_backup(self):
+    def backup(self):
         """
         Generate the backup
         """
@@ -203,7 +211,12 @@ class WPBackup:
         elif self.type == "inc":
             base_name += "".join((self.max_full_number, "_inc", self.next_inc_number))
 
-        self.generate_wp_files_backup(tar_file_name=base_name + ".tar")
-        self.generate_db_dump(dump_file_name=base_name + ".sql")
+        try:
+            self.generate_wp_files_backup(tar_file_name=base_name + ".tar")
+            self.generate_db_dump(dump_file_name=base_name + ".sql")
+            logging.info("%s - %s WP backup is created", repr(self.wp_site), self.type)
+            return True
 
-        logging.info("{} - WP backup is created".format(repr(self.wp_site)))
+        except WPException as err:
+            logging.error("%s - WP backup failed: %s", repr(self.wp_site), err)
+            return False

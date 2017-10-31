@@ -39,6 +39,16 @@ class TestCommandLine:
         assert Utils.run_command('python %s generate %s http://localhost/unittest'
                                  % (SCRIPT_FILE, TEST_ENV)) == expected
 
+    def test_backup_full(self):
+        expected = "Successfully backed-up WordPress site for http://localhost/unittest"
+        assert Utils.run_command('python %s backup %s http://localhost/unittest'
+                                 % (SCRIPT_FILE, TEST_ENV)) == expected
+
+    def test_backup_incremental(self):
+        expected = "Successfully backed-up WordPress site for http://localhost/unittest"
+        assert Utils.run_command('python %s backup %s http://localhost/unittest --backup-type=inc'
+                                 % (SCRIPT_FILE, TEST_ENV)) == expected
+
     def test_deprecated_calls(self):
         expected = "WARNING: Call to deprecated function"
         assert Utils.run_command('python %s check-one %s http://localhost/unittest'
