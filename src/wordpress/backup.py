@@ -2,7 +2,6 @@ import datetime
 import logging
 import os
 import re
-import shutil
 
 from .models import WPException, WPSite
 from .config import WPConfig
