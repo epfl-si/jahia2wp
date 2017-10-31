@@ -4,7 +4,12 @@ import os
 import re
 import shutil
 
-from . import WPUtils, WPException
+from .models import WPException, WPSite
+from .config import WPConfig
+
+from django.core.validators import URLValidator
+from veritas.validators import validate_openshift_env, validate_string, validate_backup_type
+
 from utils import Utils
 from settings import BACKUP_PATH
 
@@ -42,13 +47,25 @@ class WPBackup:
     The content difference between incremental tar files are saved in the list file.
     """
 
+    DEFAULT_TYPE = 'full'
     REGEX_FULL_NUMBER = ".+full([0-9]+)\.tar$"
     REGEX_INC_NUMBER = ".+full{}_inc([0-9]+)\.tar$"
 
-    def __init__(self, wp_site, backup_type):
+    def __init__(self, openshift_env, wp_site_url,
+                 wp_default_site_title=None,
+                 backup_type=None):
+        # validate input
+        validate_openshift_env(openshift_env)
+        URLValidator()(wp_site_url)
+        if wp_default_site_title is not None:
+            validate_string(wp_default_site_title)
+        if backup_type is not None:
+            validate_backup_type(backup_type)
 
-        self.wp_site = wp_site
-        self.type = backup_type
+        # setup site and config
+        self.wp_site = WPSite(openshift_env, wp_site_url, wp_default_site_title=wp_default_site_title)
+        self.wp_config = WPConfig(self.wp_site)
+        self.type = backup_type or self.DEFAULT_TYPE
 
         # Create a backup folder data/backups/wp_site_name
         self.path = os.path.join(BACKUP_PATH, self.wp_site.name)
@@ -159,7 +176,7 @@ class WPBackup:
             dump_file_name,
             self.wp_site.path
         )
-        WPUtils.run_wp_cli(command, self.wp_site.path)
+        self.wp_config.run_wp_cli(command)
 
         # Move dump to the backup folder
         source = os.path.abspath(dump_file_name)

@@ -172,13 +172,11 @@ def backup_many(csv_file, backup_type, **kwargs):
         print("\nIndex #{}:\n---".format(index))
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
 
-        wp_site = WPSite(
+        wp_backup = WPBackup(
             openshift_env=row["openshift_env"],
             wp_site_url=row["wp_site_url"],
-            wp_default_site_title=row["wp_default_site_title"]
-        )
-
-        wp_backup = WPBackup(wp_site, backup_type)
+            wp_default_site_title=row["wp_default_site_title"],
+            backup_type=backup_type)
         wp_backup.generate_backup()
 
 
