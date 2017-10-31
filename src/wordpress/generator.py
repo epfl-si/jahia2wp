@@ -86,8 +86,14 @@ class WPGenerator:
         # information in the source of trousse !
         plugin_list = WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
 
+        if self.wp_site.folder != "":
+            site_id = self.wp_site.folder
+        else:
+            domain_parts = self.wp_site.domain.split(".")
+            site_id = self.wp_site.domain if len(domain_parts) == 1 else domain_parts[1]
+
         # Looping through plugins to install
-        for plugin_name, plugin_config in plugin_list.plugins(self.wp_site.wp_site_id).items():
+        for plugin_name, plugin_config in plugin_list.plugins(site_id).items():
             logging.debug("%s - Installing plugin %s", repr(self), plugin_name)
 
             # install and activate AddToAny plugin
