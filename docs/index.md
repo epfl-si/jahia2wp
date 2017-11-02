@@ -55,6 +55,7 @@ Table of contents
     - [Create a new WordPress site](#create-a-new-wordpress-site)
     - [Information on a WordPress site](#information-on-a-wordpress-site)
     - [Inventory of WordPress sites for a given path (in a given env)](#inventory-of-wordpress-sites-for-a-given-path-in-a-given-env)
+    - [Backup a WordPress site](#backup-a-wordpress-site)
     - [Delete a WordPress site](#delete-a-wordpress-site)
     - [phpMyAdmin (locally)](#phpmyadmin-locally)
 - [Contribution](#contribution)
@@ -271,6 +272,14 @@ To look into the tree structure and list all valid/unvalid WordPress sites, with
     /srv/your-env/localhost/htdocs/folder;ok;http://localhost/folder;4.8;wp_snqi7wekjznhkfe1ggisr9jmqaqeo;o0ajktkeaygim7w9;admin
     /srv/your-env/localhost/htdocs/unittest;KO;;;;;
     INFO - your-env - inventory - Inventory made for /srv/your-env/localhost
+
+### Backup a WordPress site
+
+To save a WordPress site, you can choose between a full or an incremental backup, and control the location of your backups with the environment variable `BACKUP_PATH`
+
+    python jahia2wp.py backup $WP_ENV http://localhost/folder
+    python jahia2wp.py backup $WP_ENV http://localhost/folder --backup-type=inc
+
 
 ### Delete a WordPress site
 

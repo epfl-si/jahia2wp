@@ -3,17 +3,14 @@ import os
 
 from utils import Utils
 
-VERSION = "0.2.6"
+VERSION = "0.2.7"
 
 DATA_PATH = os.path.abspath(
-    os.path.sep.join([
-        os.path.dirname(__file__),
-        '..',
-        'data',
-        'wp',
-        ]
-    )
+    os.path.sep.join([os.path.dirname(__file__), '..', 'data'])
 )
+WP_PATH = os.path.join(DATA_PATH, 'wp')
+BACKUP_PATH = Utils.get_optional_env(
+    "BACKUP_PATH", os.path.join(DATA_PATH, 'backups'))
 
 ENV_DIRS = ['logs', 'venv', 'jahia2wp']
 

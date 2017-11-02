@@ -1,8 +1,9 @@
 from .models import WPException, WPSite, WPUser
 from .config import WPConfig
 from .themes import WPThemeConfig
-from .plugins import WPPluginConfig
+from .plugins import WPPluginConfig, WPPluginConfigExtractor
 from .generator import WPGenerator
+from .backup import WPBackup
 
 
 __all__ = [
@@ -10,7 +11,9 @@ __all__ = [
     WPSite,
     WPUser,
     WPGenerator,
+    WPBackup,
     WPConfig,
     WPPluginConfig,
+    WPPluginConfigExtractor,
     WPThemeConfig,
 ]
