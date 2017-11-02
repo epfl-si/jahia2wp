@@ -7,6 +7,8 @@ Usage:
   jahia2wp.py clean                 <wp_env> <wp_url> [--debug | --quiet]
   jahia2wp.py check                 <wp_env> <wp_url> [--debug | --quiet]
   jahia2wp.py generate              <wp_env> <wp_url> [--debug | --quiet]
+    [--wp-title=<WP_TITLE> --admin-password=<ADMIN_PASSWORD>]
+    [--owner=<OWNER_ID> --responsible=<RESPONSIBLE_ID>]
   jahia2wp.py version               <wp_env> <wp_url> [--debug | --quiet]
   jahia2wp.py admins                <wp_env> <wp_url> [--debug | --quiet]
   jahia2wp.py check-one             <wp_env> <wp_url> [--debug | --quiet] [DEPRECATED]
