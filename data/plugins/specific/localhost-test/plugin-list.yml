@@ -1,0 +1,3 @@
+plugins:
+  - name: epfl_infoscience
+    config: !include config-epfl_infoscience.yml
