@@ -48,7 +48,7 @@ class Utils(object):
             logging.debug("%s => %s", command, proc.stdout)
             # return output if got any, True otherwise
             if proc.stdout:
-                text = proc.stdout.decode(sys.stdout.encoding)
+                text = proc.stdout.decode(sys.stdout.encoding, "ignore")
                 # get rid of final spaces, line return
                 logging.debug(text.strip())
                 return text.strip()
