@@ -5,7 +5,7 @@ import copy
 import yaml
 import pymysql.cursors
 
-from settings import PLUGIN_SOURCE_WP_STORE
+from settings import PLUGIN_SOURCE_WP_STORE, PLUGIN_ACTION_INSTALL
 
 from .config import WPConfig
 
@@ -204,6 +204,10 @@ class WPPluginConfig(WPConfig):
         command = "plugin install {0} ".format(param)
         self.run_wp_cli(command)
 
+    def uninstall(self):
+        self.run_wp_cli('plugin deactivate {}'.format(self.name))
+        self.run_wp_cli('plugin uninstall {}'.format(self.name))
+
     def configure(self):
         """
             Config plugin via wp-cli.
@@ -239,16 +243,20 @@ class WPPluginConfigInfos:
 
         self.plugin_name = plugin_name
 
-        # If we have to download from web,
-        if plugin_config['src'].lower() == PLUGIN_SOURCE_WP_STORE:
-            self.zip_path = None
-        else:
-            if not os.path.exists(plugin_config['src']):
-                logging.error("%s - ZIP file not exists: %s", repr(self), plugin_config['src'])
-            self.zip_path = plugin_config['src']
+        self.action = plugin_config['action'] if 'action' in plugin_config else PLUGIN_ACTION_INSTALL
 
-        # Let's see if we have to activate the plugin or not
-        self.is_active = plugin_config['activate']
+        # If we have to install plugin, we look for several information
+        if self.action == PLUGIN_ACTION_INSTALL:
+            # If we have to download from web,
+            if plugin_config['src'].lower() == PLUGIN_SOURCE_WP_STORE:
+                self.zip_path = None
+            else:
+                if not os.path.exists(plugin_config['src']):
+                    logging.error("%s - ZIP file not exists: %s", repr(self), plugin_config['src'])
+                self.zip_path = plugin_config['src']
+
+            # Let's see if we have to activate the plugin or not
+            self.is_active = plugin_config['activate']
 
         # If there's no information for DB tables (= no options) for plugin
         if 'tables' not in plugin_config:
@@ -269,6 +277,9 @@ class WPPluginConfigInfos:
         Keyword arguments:
         plugin_config -- Dict containing configuration (coming directly from YAML file)
         """
+
+        if 'action' in plugin_config:
+            self.action = plugin_config['action']
 
         # if "src" has been overrided
         if 'src' in plugin_config:
