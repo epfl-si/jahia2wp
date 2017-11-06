@@ -21,6 +21,25 @@ jQuery(document).ready(function($){
     $(this).siblings(".children").toggle();
   });
   
+  // EPFL header
+  
+  $(".search-filter .selected-field").click(function(){
+    $(this).siblings(".menu").toggleClass("hidden");
+  });
+  
+  $(".search-filter .menu").mouseleave(function(){
+      $(this).addClass("hidden");
+  });
+  
+  $(".search-filter .menu").find("label").click(function(event){
+    event.preventDefault();
+    var textLabel = $(this).text();
+    $(this).addClass("current");
+    $(this).parent("li").siblings("li").find("label").removeClass("current");
+    $(".search-filter .selected-field").text(textLabel);
+    $(".search-filter .menu").addClass("hidden");
+  });
+  
   // Secondary navigation
   
   function secondaryNavigation() {
