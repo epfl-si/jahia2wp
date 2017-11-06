@@ -115,8 +115,8 @@ class WPGenerator:
                 else:
                     logging.debug("%s - WP %s plugin is deactivated", repr(self), plugin_name)
 
-                    # Configure plugin
-                    plugin.configure()
+                # Configure plugin
+                plugin.configure()
 
     def generate(self):
 
