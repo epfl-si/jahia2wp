@@ -76,3 +76,7 @@ def validate_theme(text):
 
 def validate_languages(text):
     return MultipleChoicesValidator(SUPPORTED_LANGUAGES)(text)
+
+
+def validate_backup_type(text):
+    return ChoiceValidator(choices=['inc', 'full'])(text)

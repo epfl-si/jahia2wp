@@ -1,7 +1,7 @@
 import os
 import shutil
 
-from settings import DATA_PATH
+from settings import WP_PATH
 
 from .config import WPConfig
 
@@ -29,7 +29,7 @@ class WPThemeConfig(WPConfig):
 
     def install(self):
         # copy files into wp-content/themes
-        src_path = os.path.sep.join([DATA_PATH, self.THEMES_PATH, self.name])
+        src_path = os.path.sep.join([WP_PATH, self.THEMES_PATH, self.name])
         shutil.copytree(src_path, self.path)
 
     def activate(self):

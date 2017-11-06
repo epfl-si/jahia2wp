@@ -11,7 +11,8 @@ Table of releases
 
 <!-- TOC depthFrom:2 depthTo:2 orderedList:false -->
 
-- [[0.2.?] - 2017-11-?](#02---2017-11-)
+- [[0.2.8] - 2017-11-06](#028---2017-11-06)
+- [[0.2.7] - 2017-11-01](#027---2017-11-01)
 - [[0.2.6] - 2017-10-31](#026---2017-10-31)
 - [[0.2.5] - 2017-10-20](#025---2017-10-20)
 - [[0.2.4] - 2017-10-19](#024---2017-10-19)
@@ -23,7 +24,7 @@ Table of releases
 
 <!-- /TOC -->
 
-## [0.2.?] - 2017-11-?
+## [0.2.8] - 2017-11-06
 **[PR #55](https://github.com/epfl-idevelop/jahia2wp/pull/55)**
 
 **Updated Theme from following bugfixes on repo jahiap:**
@@ -41,6 +42,51 @@ Id | Description
 [89](https://github.com/epfl-idevelop/jahiap/issues/89) | Séparateur gris clair en trop dans les tableaux
 [239](https://github.com/epfl-idevelop/jahiap/issues/239) | couleur de background de paragraphe manquante
 [225](https://github.com/epfl-idevelop/jahiap/issues/225) | Dans les paragraphes des pages, il manque le surlignage en couleur de cert[...]
+
+## [0.2.7] - 2017-11-01
+**[PR #57](https://github.com/epfl-idevelop/jahia2wp/pull/57)**
+
+**high level:**
+
+1. new commands `backup` and `backup-many` to backup one single site or all sites in source of trust. 
+
+        $ python jahia2wp.py backup $WP_ENV http://localhost
+        ...
+        $ python jahia2wp.py backup-many path/to/csv
+        ...
+
+1. Backups are `full` by default, but can be `inc`remental by using option `--backup-type`
+
+        $ python jahia2wp.py backup $WP_ENV http://localhost --backup-type=inc
+        ...
+1. new environment variable `BACKUP_PATH` to define where to store backups (by default: `jahia2wp/data/backups`)
+
+**low level:**
+
+A backup of a WordPress site relies on a `WPConfig`, and is called/used in a similar way as `WPGenerator`. It creates three files:
+- a `.tar` of all WP files (php, assets, media)
+- a `.list` reference file for incremental backups
+- a `.sql` dump of the database
+
+Backups are stored in `BACKUP_PATH` (by default: `jahia2wp/data/backups`), with the following name convention: `<wp_site_name>[_<timestamp>]_fullN[_incM].<tar|list|sql>`
+
+**DISCLAIMER:** next iteration might revise this structure for something more easily exploitable, such as:
+
+    backups
+    ├── site_1
+    │   ├── 2017-10-31
+    │   │   ├── full-201710310945.tar
+    │   │   ├── inc-201711012300.tar
+    │   │   ├── inc-201711022301.tar
+    │   │   └── inc-201711032310.tar
+    │   └── 2017-11-06
+    │       └── full-201711060946.tar
+    ├── site_2
+    │   └── 2017-11-06
+    │       ├── full-201711060947.tar
+    │       └── inc-201711060946.tar
+    └── site_3
+
 
 
 ## [0.2.6] - 2017-10-31

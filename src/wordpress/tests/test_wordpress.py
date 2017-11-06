@@ -20,6 +20,13 @@ class TestWPSite:
     def test_url(self, wordpress):
         assert wordpress.url == "http://localhost/folder"
 
+    def test_name(self, wordpress):
+        assert wordpress.name == "folder"
+        assert WPSite.from_path("test", "/srv/test/localhost/htdocs/folder") \
+            .name == "folder"
+        assert WPSite.from_path("test", "/srv/test/localhost/htdocs/folder/sub") \
+            .name == "sub"
+
     def test_failing_url_from_path(self):
         with pytest.raises(ValueError):
             WPSite.from_path("ebreton", "/srv/test/localhost")

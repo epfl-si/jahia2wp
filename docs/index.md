@@ -55,6 +55,7 @@ Table of contents
     - [Create a new WordPress site](#create-a-new-wordpress-site)
     - [Information on a WordPress site](#information-on-a-wordpress-site)
     - [Inventory of WordPress sites for a given path (in a given env)](#inventory-of-wordpress-sites-for-a-given-path-in-a-given-env)
+    - [Backup a WordPress site](#backup-a-wordpress-site)
     - [Delete a WordPress site](#delete-a-wordpress-site)
     - [phpMyAdmin (locally)](#phpmyadmin-locally)
 - [Contribution](#contribution)
@@ -136,6 +137,8 @@ Note that python is not in the requirements. You do not necessarily need it on y
 As some commands require `sudo`, you will be asked for your system password. The process will add a line line in your `.bashrc` (again: head to [INSTALL_TOOLS.md](./INSTALL_TOOLS.md) to get more details):
 
     you@host:~$ git clone git@github.com:epfl-idevelop/jahia2wp.git
+    # or, would you rather use https instead of SSH
+    # you@host:~$ git clone https://github.com/epfl-idevelop/jahia2wp.git 
     you@host:~$ cd jahia2wp
     you@host:jahia2wp$ make bootstrap-local ( add ENV=your-env if you use a C2C environment name here if you have one)
     ...
@@ -269,6 +272,14 @@ To look into the tree structure and list all valid/unvalid WordPress sites, with
     /srv/your-env/localhost/htdocs/folder;ok;http://localhost/folder;4.8;wp_snqi7wekjznhkfe1ggisr9jmqaqeo;o0ajktkeaygim7w9;admin
     /srv/your-env/localhost/htdocs/unittest;KO;;;;;
     INFO - your-env - inventory - Inventory made for /srv/your-env/localhost
+
+### Backup a WordPress site
+
+To save a WordPress site, you can choose between a full or an incremental backup, and control the location of your backups with the environment variable `BACKUP_PATH`
+
+    python jahia2wp.py backup $WP_ENV http://localhost/folder
+    python jahia2wp.py backup $WP_ENV http://localhost/folder --backup-type=inc
+
 
 ### Delete a WordPress site
 
