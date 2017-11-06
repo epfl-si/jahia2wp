@@ -11,6 +11,7 @@ Table of releases
 
 <!-- TOC depthFrom:2 depthTo:2 orderedList:false -->
 
+- [[0.2.9] - 2017-11-07](#029---2017-11-07)
 - [[0.2.8] - 2017-11-06](#028---2017-11-06)
 - [[0.2.7] - 2017-11-01](#027---2017-11-01)
 - [[0.2.6] - 2017-10-31](#026---2017-10-31)
@@ -23,6 +24,22 @@ Table of releases
 - [[0.1.0] - 2017-09-14](#010---2017-09-14)
 
 <!-- /TOC -->
+
+
+
+## [0.2.9] - 2017-11-07
+**[PR #65](https://github.com/epfl-idevelop/jahia2wp/pull/65)**
+
+**high level:**
+
+- Added procedure in HOWTOs to explain how to update WP php files from historical repository
+
+**low level:**
+
+- Ajout des scripts js pour le bon fonctionnement du menu déroulant du header EPFL: epfl-idevelop/jahiap#126
+- Le fichier "modernizr.custom.js" est renommé "modernizr.js": epfl-idevelop/jahiap#279
+- J'ai enlevé l'appel de toutes les images de fond inutiles dans la feuille de style epfl.scss (les images sont remplacées par des pictos avec FontAwesome): epfl-idevelop/jahiap#279
+
 
 ## [0.2.8] - 2017-11-06
 **[PR #55](https://github.com/epfl-idevelop/jahia2wp/pull/55)**
