@@ -5,4 +5,4 @@ tables:
   - autoload: 'no'
     option_id: 177
     option_name: mainwp_child_uniqueId
-    option_value: EPFLManage
+    option_value: WinterIsComing

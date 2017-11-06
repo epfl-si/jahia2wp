@@ -1,3 +1,0 @@
-plugins:
-  - name: mainwp-child
-    config: !include config-mainwp-child.yml
