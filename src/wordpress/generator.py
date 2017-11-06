@@ -101,19 +101,19 @@ class WPGenerator:
 
             # If we have to uninstall the plugin
             if plugin_config.action == PLUGIN_ACTION_UNINSTALL:
-                logging.info("%s - Uninstalling plugin %s", repr(self), plugin_name)
+                logging.info("%s - Plugins - Uninstalling '%s'...", repr(self), plugin_name)
                 plugin.uninstall()
-                logging.info("%s - WP %s plugin has been uninstalled", repr(self), plugin_name)
+                logging.info("%s - Plugins - '%s' has been uninstalled", repr(self), plugin_name)
 
             else:  # We have to install the plugin
-                logging.info("%s - Installing plugin %s", repr(self), plugin_name)
+                logging.info("%s - Plugins - Installing '%s'...", repr(self), plugin_name)
                 plugin.install()
                 plugin.set_state()
 
                 if plugin.is_activated:
-                    logging.debug("%s - WP %s plugin is activated", repr(self), plugin_name)
+                    logging.debug("%s - Plugins - '%s' is activated", repr(self), plugin_name)
                 else:
-                    logging.debug("%s - WP %s plugin is deactivated", repr(self), plugin_name)
+                    logging.debug("%s - Plugins - '%s' is deactivated", repr(self), plugin_name)
 
                 # Configure plugin
                 plugin.configure()
