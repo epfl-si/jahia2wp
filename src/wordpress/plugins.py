@@ -270,40 +270,40 @@ class WPPluginConfigInfos:
     def __repr__(self):
         return "Plugin {} config".format(self.plugin_name)
 
-    def merge_with_specific(self, plugin_config):
+    def merge_with_specific(self, specific_plugin_config):
         """ Read 'specific' config for plugin and merge configuration with existing one.
 
         NOTE ! Specific options only works for 'option' table.
 
         Keyword arguments:
-        plugin_config -- Dict containing configuration (coming directly from YAML file)
+        specific_plugin_config -- Dict containing specific configuration (coming directly from YAML file)
         """
 
-        if 'action' in plugin_config:
-            self.action = plugin_config['action']
+        if 'action' in specific_plugin_config:
+            self.action = specific_plugin_config['action']
 
         # if "src" has been overrided
-        if 'src' in plugin_config:
+        if 'src' in specific_plugin_config:
             # If we have to download from web,
-            if plugin_config['src'].lower() == 'web':
+            if specific_plugin_config['src'].lower() == PLUGIN_SOURCE_WP_STORE:
                 self.zip_path = None
             else:
-                if not os.path.exists(plugin_config['src']):
-                    logging.error("%s - ZIP file not exists: %s", repr(self), plugin_config['src'])
-                self.zip_path = plugin_config['src']
+                if not os.path.exists(specific_plugin_config['src']):
+                    logging.error("%s - ZIP file not exists: %s", repr(self), specific_plugin_config['src'])
+                self.zip_path = specific_plugin_config['src']
 
         # If activation has been overrided
-        if 'activate' in plugin_config:
-            self.is_active = plugin_config['activate']
+        if 'activate' in specific_plugin_config:
+            self.is_active = specific_plugin_config['activate']
 
         # If there are specific options
-        if 'tables' in plugin_config:
+        if 'tables' in specific_plugin_config:
 
             # Going through tables for which we have configuration information
-            for table_name in plugin_config['tables']:
+            for table_name in specific_plugin_config['tables']:
 
                 # Going through specific options
-                for specific_option in plugin_config[table_name]['options']:
+                for specific_option in specific_plugin_config[table_name]['options']:
 
                     # If configuration for current table is present in generic options
                     if table_name in self.tables:
