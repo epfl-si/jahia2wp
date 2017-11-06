@@ -1,9 +1,9 @@
-# Howto update the theme (and plugins) from container-wp-volumes
+# HOWTO update the WP files from container-wp-volumes
 
-The theme and the supported plugins are located in tow places:
+The theme and our supported plugins are located in tow places:
 
-1. historically, in [container-wp-volumes](https://github.com/epfl-idevelop/container-wp-volumes). This repository is used by [jahiap](https://github.com/epfl-idevelop/jahiap), the historical repository of the project. That is where Aline pushes her updates
-2. in this repository/[data](https://github.com/epfl-idevelop/jahia2wp/tree/master/data). This is the source of the code for the current phase of the project
+1. historically, in [container-wp-volumes](https://github.com/epfl-idevelop/container-wp-volumes). This repository is used by [jahiap](https://github.com/epfl-idevelop/jahiap), the historical repository of the project. That is the place where Aline pushes her updates
+2. in this repository/[data](https://github.com/epfl-idevelop/jahia2wp/tree/master/data). This is  the source of the code for the current phase of the project
 
 As for now, the current repository must be manually updated.
 
@@ -36,5 +36,6 @@ We will make the assumptions that you have your repos in the following paths:
 
         jahia2wp $ git status
         jahia2wp $ git commit -am "updated wp-content with content of last sprint"
+        jahia2wp $ git push
 
-5. Create PR on github
+5. Create PR on [github](https://github.com/epfl-idevelop/jahia2wp/branches). You probably can use your CHANGELOG description as the description of your PR
