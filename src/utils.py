@@ -50,7 +50,7 @@ class Utils(object):
             if proc.stdout:
                 # Second parameter "ignore" has been added because some plugins have 'strange' characters in their
                 # name so 'decode' is failing and exits the script. Adding "ignore" as parameter prevent script from
-                # exiting. 
+                # exiting.
                 text = proc.stdout.decode(sys.stdout.encoding, "ignore")
                 # get rid of final spaces, line return
                 logging.debug(text.strip())
