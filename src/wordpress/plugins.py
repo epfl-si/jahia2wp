@@ -8,6 +8,7 @@ import pymysql.cursors
 from settings import PLUGIN_SOURCE_WP_STORE, PLUGIN_ACTION_INSTALL
 
 from .config import WPConfig
+from .models import WPSite
 
 
 """ Class declared in this file:
@@ -214,7 +215,7 @@ class WPPluginConfig(WPConfig):
 
         """
         # Creating object to do plugin configuration restore and lauch restore right after !
-        WPPluginConfigRestore(self.wp_site).restore_config(self.config)
+        WPPluginConfigRestore(self.wp_site.openshift_env, self.wp_site.url).restore_config(self.config)
 
     def set_state(self):
         """
@@ -338,7 +339,7 @@ class WPPluginConfigManager:
     """ Give necessary tools to manage (import/export) configuration parameters for a plugin which are stored
         in the database. Information to access database are recovered from WordPress config file (wp-config.php)
     """
-    def __init__(self, wp_site):
+    def __init__(self, wp_env, wp_url):
         """ Constructor
 
         Arguments keyword:
@@ -347,7 +348,7 @@ class WPPluginConfigManager:
         # List of "defined" value to look for in "wp-config.php" file.
         WP_CONFIG_DEFINE_NAMES = ['DB_NAME', 'DB_USER', 'DB_PASSWORD', 'DB_HOST', 'DB_CHARSET']
 
-        self.wp_site = wp_site
+        self.wp_site = WPSite(wp_env, wp_url)
 
         wp_config_file = os.path.join(self.wp_site.path, "wp-config.php")
 
@@ -467,13 +468,13 @@ class WPPluginConfigExtractor(WPPluginConfigManager):
         the procedure.
     """
 
-    def __init__(self, wp_site):
+    def __init__(self, wp_env, wp_url):
         """ Constructor
 
         Arguments keyword:
         wp_site -- Instance of WPSite class
         """
-        WPPluginConfigManager.__init__(self, wp_site)
+        WPPluginConfigManager.__init__(self, wp_env, wp_url)
 
     def extract_config(self, output_file):
         """ Extract plugin configuration an store it in file specified by 'output_file'
@@ -588,13 +589,13 @@ and press ENTER: ".format(self.wp_site.url))
 class WPPluginConfigRestore(WPPluginConfigManager):
     """ Allow to restore a given plugin configuration in WordPress database """
 
-    def __init__(self, wp_site):
+    def __init__(self, wp_env, wp_url):
         """ Constructor
 
         Arguments keyword:
         wp_site -- Instance of class WPSite
         """
-        WPPluginConfigManager.__init__(self, wp_site)
+        WPPluginConfigManager.__init__(self, wp_env, wp_url)
 
     def restore_config(self, config_infos):
         """ Restore a plugin configuration. Configuration information are stored in parameter.
