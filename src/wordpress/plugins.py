@@ -265,7 +265,7 @@ class WPPluginConfigInfos:
 
         # If there's no information for DB tables (= no options) for plugin
         if 'tables' not in plugin_config:
-            self.tables = []
+            self.tables = {}
 
         else:  # table file with options exists for plugin
             # Add try catch if exception ?
@@ -289,6 +289,7 @@ class WPPluginConfigInfos:
         # if "src" has been overrided
         if 'src' in specific_plugin_config:
             # If we have to download from web,
+
             if specific_plugin_config['src'].lower() == PLUGIN_SOURCE_WP_STORE:
                 self.zip_path = None
             else:
@@ -306,28 +307,28 @@ class WPPluginConfigInfos:
         if 'tables' in specific_plugin_config:
 
             # Going through tables for which we have configuration information
-            for table_name in specific_plugin_config['tables']:
+            if 'options' in specific_plugin_config['tables']:
 
                 # Going through specific options
-                for specific_option in specific_plugin_config[table_name]:
+                for specific_option in specific_plugin_config['tables']['options']:
 
                     # If configuration for current table is present in generic options
-                    if table_name in self.tables:
+                    if 'options' in self.tables:
                         # Going through generic options
-                        for generic_option in self.tables[table_name]:
+                        for generic_option in self.tables['options']:
 
                             # If we found corresponding option name
                             if specific_option['option_name'] == generic_option['option_name']:
                                 # We remove the existing generic option
-                                self.tables[table_name].remove(generic_option)
+                                self.tables['options'].remove(generic_option)
 
                         # We add specific option at the end
-                        self.tables[table_name].append(specific_option)
+                        self.tables['options'].append(specific_option)
 
                     # We dont have any information about current table in generic options
                     else:
                         # We add the option for current table
-                        self.tables[table_name] = [specific_option]
+                        self.tables['options'] = [specific_option]
 
     def table_rows(self, table_name):
         """ Return rows (options) for specific table
