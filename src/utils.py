@@ -41,14 +41,16 @@ class Utils(object):
     """Generic and all-purpose helpers"""
 
     @staticmethod
-    def run_command(command):
+    def run_command(command, encoding=sys.stdout.encoding):
         try:
+            # encode command properly for subprocess
+            command_ascii = command.encode(encoding)
             # run command and log output
-            proc = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
+            proc = subprocess.run(command_ascii, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
             logging.debug("%s => %s", command, proc.stdout)
             # return output if got any, True otherwise
             if proc.stdout:
-                text = proc.stdout.decode(sys.stdout.encoding)
+                text = proc.stdout.decode(encoding)
                 # get rid of final spaces, line return
                 logging.debug(text.strip())
                 return text.strip()
@@ -76,9 +78,9 @@ class Utils(object):
             return cls.csv_stream_do_dict(stream, delimiter=delimiter)
 
     @classmethod
-    def csv_filepath_to_dict(cls, file_path, delimiter=','):
+    def csv_filepath_to_dict(cls, file_path, delimiter=',', encoding="utf-8"):
         """Returns the rows of the given CSV file as a list of dicts"""
-        with open(file_path, 'r', encoding='utf8') as stream:
+        with open(file_path, 'r', encoding=encoding) as stream:
             return cls.csv_stream_do_dict(stream, delimiter=delimiter)
 
     @classmethod
