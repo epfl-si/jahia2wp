@@ -15,6 +15,57 @@
   border: 0;
 }
 
+a:empty,
+abbr:empty,
+acronym:empty,
+address:empty,
+b:empty,
+blockquote:empty,
+cite:empty,
+code:empty,
+dd:empty,
+del:empty,
+div:empty,
+dt:empty,
+em:empty,
+h1:empty,
+h2:empty,
+h3:empty,
+h4:empty,
+h5:empty,
+h6:empty,
+i:empty,
+li:empty,
+p:empty,
+pre:empty,
+small:empty,
+span:empty,
+strike:empty,
+strong:empty,
+sub:empty,
+sup:empty,
+td:empty,
+th:empty {
+  display: none;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+ul,
+ol
+dl,
+table,
+blockquote,
+form {
+  clear: both;
+}
+
+
 /* --- Typography --- */
 
 /* General typography settings */
@@ -85,7 +136,6 @@ h3,
 h4,
 h5,
 h6 {
-  clear: none;
   color: #000;
   margin-bottom: .75em;
   @include transition-colors;
@@ -122,7 +172,9 @@ h4 {
 }
 h5 {
   font-size: .8125em /* 13px */;
+  letter-spacing: 0;
   line-height: 1.6em;
+  text-transform: none;
 }
 
 /* Links */
@@ -158,6 +210,31 @@ ol {
 
 li {
   margin-bottom: .375em;
+}
+
+ul {
+  list-style: none;
+  padding-left: 0;
+  
+  li {
+    padding-left: 1em;
+    position: relative;
+    
+    &:before {
+      content: "";
+      background: #000;
+      border-radius: 50%;
+      height: 6px;
+      position: absolute;
+      top: .4em; right: auto; bottom: auto; left: 0;
+      width: 6px;
+    }
+    
+    li:before {
+      background: transparent;
+      border: 1px solid #000;
+    }
+  }
 }
 
 dl dt {
@@ -226,7 +303,12 @@ input[type="color"],
 textarea {
   background: #fff;
   border-radius: 0;
-  padding: .4em;
+  display: inline-block;
+	height: 32px;
+	line-height: 30px;
+  padding: 0 .4em;
+  vertical-align: top;
+  width: auto;
 }
 
 button,
@@ -235,12 +317,32 @@ input[type="submit"] {
   @include transition-colors;
   background: #999c98;
 	border-radius: 0;
-	padding: .75em 1.25em;
+	height: 32px;
+	line-height: 32px;
+	padding: 0 1.25em;
 	
 	&:hover,
 	&:focus {
   	background: $primary-color;
 	}
+}
+
+/* --- Tables --- */
+
+table,
+tr,
+td,
+th {
+  border: 0;
+}
+
+td,
+th {
+  vertical-align: top;
+}
+
+td {
+  padding: 0.2em;
 }
 
 /* --- Grid and structure --- */

@@ -13,25 +13,28 @@
     
 02  TWENTY SEVENTEEN RESETS
 
-03  GLOBAL CONTENT & SITE STRUCTURE
+03  JAHIA IMPORTED CONTENT
+
+04  GLOBAL CONTENT & SITE STRUCTURE
     - Structure
     - Pages
     - Articles
 
-04  HEADER
+05  HEADER
     - Site title
     - Main navigation
 
-05  FOOTER
+06  FOOTER
 
-06  SIDEBAR
+07  SIDEBAR
 
-07  PRIMARY CONTENT
+08  PRIMARY CONTENT
 
 --  MEDIA QUERIES
     
 ------------------------------------------*/
 
+@import "jahia.scss";
 @import "epfl.scss";
 @import "variables.scss";
 @import "mixins.scss";
@@ -41,12 +44,13 @@
 
 
 /*  ---------------------------------------
-    03 GLOBAL CONTENT & SITE STRUCTURE
+    04 GLOBAL CONTENT & SITE STRUCTURE
 ----------------------------------------- */
 
 /* --- Structure --- */
 
 body {
+  line-height: 1.2em;
   padding-bottom: 24px;
 }
 
@@ -115,7 +119,7 @@ body {
   }
   
   &:hover:before {
-    background: $color-alt;
+    background: $primary-color-sec;
   }
 }
 
@@ -367,9 +371,51 @@ a.a2a_button_{
   margin: 1.5em 0;
 }
 
+
 /*  ---------------------------------------
-    04 HEADER
+    03 JAHIA IMPORTED CONTENT
 ----------------------------------------- */
+
+.local-color {
+  @include colored-text-box;
+  display: inline-block;
+}
+.local-color-down {
+  @include colored-text-box;
+  background: $primary-color-alt;
+}
+
+.local-color,
+.local-color-down {
+  font-size: .8125em;
+  font-size: .8125rem;
+  
+  p {
+    font-size: 1em;
+    font-size: .8125rem;
+  }
+}
+
+.box-flat-panel {
+  padding: 6px 8px 8px 8px;
+  width: 100%;
+}
+
+.news-list li,
+.list-layout li {
+  @include no-bullet;
+}
+
+/*  ---------------------------------------
+    05 HEADER
+----------------------------------------- */
+
+.menu li,
+.nav li,
+.lang li,
+.widget ul li {
+  @include no-bullet;
+}
 
 /* --- EPFL banner --- */
 
@@ -393,6 +439,10 @@ a.a2a_button_{
 
 #nav-menus {
   width: auto;
+  
+  li {
+    @include no-bullet;
+  }
 }
 
 #header2013 #nav-menus a.main-link {
@@ -486,6 +536,18 @@ a.a2a_button_{
   
   .svg & {
     background-image: url(../images/search.svg);
+  }
+}
+
+/* --- Site logo --- */
+
+.custom-logo-link {
+  display: block;
+  margin-bottom: 10px;
+  padding: 0;
+  
+  img {
+    display: block;
   }
 }
 
@@ -650,7 +712,7 @@ a.a2a_button_{
 }
 
 /*  ---------------------------------------
-    05 FOOTER
+    06 FOOTER
 ----------------------------------------- */
 
 .site-footer {
@@ -726,7 +788,7 @@ a.a2a_button_{
 }
 
 /*  ---------------------------------------
-    06 SIDEBAR
+    07 SIDEBAR
 ----------------------------------------- */
 
 #secondary {
@@ -760,7 +822,7 @@ a.a2a_button_{
     padding: 3px 20px;
     
     &:hover {
-      background: $color-alt;
+      background: $primary-color-sec;
     }
   }
   
@@ -893,7 +955,7 @@ a.a2a_button_{
 }
 
 /*  ---------------------------------------
-    07 PRIMARY CONTENT
+    08 PRIMARY CONTENT
 ----------------------------------------- */
 
 /* Toolbar */
@@ -1147,7 +1209,7 @@ a.a2a_button_{
 @media screen and (min-width: 30em) {
   
   /*  ---------------------------------------
-    04 HEADER
+    05 HEADER
   ----------------------------------------- */
   
   /* --- Site title --- */
@@ -1167,7 +1229,35 @@ a.a2a_button_{
 @media screen and (min-width: 48em) {
   
   /*  ---------------------------------------
-    03 GLOBAL CONTENT & SITE STRUCTURE
+    03 JAHIA IMPORTED CONTENT
+  ----------------------------------------- */
+  
+  .box-flat-panel {
+    width: 50%;
+  }
+  
+  .entry-content .box {
+    float: left;
+    padding-right: 2px;
+    width: 50%;
+    
+    .box-flat-panel {
+      width: 100%;
+    }
+    
+    &.last-col {
+      padding-left: 2px;
+      padding-right: 0;
+    }
+  }
+  
+  .entry-content .right {
+    margin-left: 25px;
+    float: right;
+  }
+  
+  /*  ---------------------------------------
+    04 GLOBAL CONTENT & SITE STRUCTURE
   ----------------------------------------- */
   
   #primary.col,
@@ -1181,13 +1271,27 @@ a.a2a_button_{
   }
   
   /*  ---------------------------------------
-    04 HEADER
+    05 HEADER
   ----------------------------------------- */
+  
+  /* --- Site logo --- */
+
+  .custom-logo-link {
+    margin-bottom: 20px;
+    
+     img {
+       max-width: none;
+     }
+  }
   
   /* --- Site title --- */
   
   .site-branding {
     padding: 24px 0 !important;
+    
+    .has-header-image & {
+      padding-top: 12px !important;
+    }
   }
   
   .custom-header {
@@ -1245,7 +1349,7 @@ a.a2a_button_{
       padding: 0 8px;
       
       &:hover {
-         background: $color-alt;
+         background: $primary-color-sec;
        }
     }
   }
@@ -1283,13 +1387,17 @@ a.a2a_button_{
     border-top-width: 0;
     padding-top: 1px;
     padding-bottom: 0;
+    width: 340px;
+    
+    ul {
+      width: auto;
+    }
   }
   
   .main-navigation .sub-menu li {
     background: #fff;
     border: 0;
     float: none;
-    white-space: nowrap;
     
     &:hover {
       background: #fff;
@@ -1384,7 +1492,7 @@ a.a2a_button_{
   }
   
   /*  ---------------------------------------
-    05 FOOTER
+    06 FOOTER
   ----------------------------------------- */
   
   .site-footer {
@@ -1416,7 +1524,7 @@ a.a2a_button_{
   }
   
   /*  ---------------------------------------
-    07 PRIMARY CONTENT
+    08 PRIMARY CONTENT
   ----------------------------------------- */
   
   /* --- Articles --- */
@@ -1449,7 +1557,7 @@ a.a2a_button_{
 @media screen and ( min-width: 64em ) {
   
   /*  ---------------------------------------
-    03 GLOBAL CONTENT & SITE STRUCTURE
+    04 GLOBAL CONTENT & SITE STRUCTURE
   ----------------------------------------- */
   
   .wrap {
@@ -1467,7 +1575,7 @@ a.a2a_button_{
   }
   
   /*  ---------------------------------------
-    04 HEADER
+    05 HEADER
   ----------------------------------------- */
   
   /* --- Main navigation --- */
@@ -1477,7 +1585,7 @@ a.a2a_button_{
   }
   
   /*  ---------------------------------------
-    07 PRIMARY CONTENT
+    08 PRIMARY CONTENT
   ----------------------------------------- */
   
   /* Page title & content */
