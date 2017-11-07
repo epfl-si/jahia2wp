@@ -11,31 +11,33 @@ As for now, the current repository must be manually updated.
 
 You have cloned the two repositories with your favorite method, i.e SSH or HTTPS.
 
-We will make the assumptions that you have your repos in the following paths:
+We will make the assumptions that you have your repos in the following paths, in the `master` branch:
 
-    container-wp-volumes $
+    container-wp-volumes (master) $
 
-    jahia2wp $
+    jahia2wp (master) $
 
 ## Procedure
 
-1. Update your repos
+1. Update your repos (merge if necessary)
 
-        container-wp-volumes $ git pull
+        container-wp-volumes (master) $ git pull
 
-        jahia2wp $ git checkout fix-update-wp-content-from-container-wp-volumes
-        jahia2wp $ git pull
+        jahia2wp (master) $ git pull
+        jahia2wp (master) $ git checkout fix-update-wp-content-from-container-wp-volumes
+        jahia2wp (fix-update-wp-content-from-container-wp-volumes)$ git pull
+        jahia2wp (fix-update-wp-content-from-container-wp-volumes)$ git merge origin master
 
 2. RSync
 
-        jahia2wp $ rsync -av ../container-wp-volumes/wp-content/ data/wp/wp-content/
+        jahia2wp (fix-...-wp-volumes) $ rsync -av ../container-wp-volumes/wp-content/ data/wp/wp-content/
 
 3. Update changelog if necessary
 
 4. Review, commit and push
 
-        jahia2wp $ git status
-        jahia2wp $ git commit -am "updated wp-content with content of last sprint"
-        jahia2wp $ git push
+        jahia2wp (fix-...-wp-volumes) $ git status
+        jahia2wp (fix-...-wp-volumes) $ git commit -am "updated wp-content with content of last sprint"
+        jahia2wp (fix-...-wp-volumes) $ git push
 
 5. Create PR on [github](https://github.com/epfl-idevelop/jahia2wp/branches). You probably can use your CHANGELOG description as the description of your PR
