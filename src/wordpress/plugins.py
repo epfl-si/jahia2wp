@@ -255,7 +255,7 @@ class WPPluginConfigInfos:
 
         # If there's no information for DB tables (= no options) for plugin
         if 'tables' not in plugin_config:
-            self.tables = []
+            self.tables = {}
 
         else:  # table file with options exists for plugin
             # Add try catch if exception ?
@@ -264,55 +264,55 @@ class WPPluginConfigInfos:
     def __repr__(self):
         return "Plugin {} config".format(self.plugin_name)
 
-    def merge_with_specific(self, plugin_config):
+    def merge_with_specific(self, specific_plugin_config):
         """ Read 'specific' config for plugin and merge configuration with existing one.
 
         NOTE ! Specific options only works for 'option' table.
 
         Keyword arguments:
-        plugin_config -- Dict containing configuration (coming directly from YAML file)
+        specific_plugin_config -- Dict containing specific configuration (coming directly from YAML file)
         """
 
         # if "src" has been overrided
-        if 'src' in plugin_config:
+        if 'src' in specific_plugin_config:
             # If we have to download from web,
-            if plugin_config['src'].lower() == 'web':
+            if specific_plugin_config['src'].lower() == 'web':
                 self.zip_path = None
             else:
-                if not os.path.exists(plugin_config['src']):
-                    logging.error("%s - ZIP file not exists: %s", repr(self), plugin_config['src'])
-                self.zip_path = plugin_config['src']
+                if not os.path.exists(specific_plugin_config['src']):
+                    logging.error("%s - ZIP file not exists: %s", repr(self), specific_plugin_config['src'])
+                self.zip_path = specific_plugin_config['src']
 
         # If activation has been overrided
-        if 'activate' in plugin_config:
-            self.is_active = plugin_config['activate']
+        if 'activate' in specific_plugin_config:
+            self.is_active = specific_plugin_config['activate']
 
         # If there are specific options
-        if 'tables' in plugin_config:
+        if 'tables' in specific_plugin_config:
 
             # Going through tables for which we have configuration information
-            for table_name in plugin_config['tables']:
+            if 'options' in specific_plugin_config['tables']:
 
                 # Going through specific options
-                for specific_option in plugin_config[table_name]['options']:
+                for specific_option in specific_plugin_config['tables']['options']:
 
                     # If configuration for current table is present in generic options
-                    if table_name in self.tables:
+                    if 'options' in self.tables:
                         # Going through generic options
-                        for generic_option in self.tables[table_name]:
+                        for generic_option in self.tables['options']:
 
                             # If we found corresponding option name
                             if specific_option['option_name'] == generic_option['option_name']:
                                 # We remove the existing generic option
-                                self.tables[table_name].remove(generic_option)
+                                self.tables['options'].remove(generic_option)
 
                         # We add specific option at the end
-                        self.tables[table_name].append(specific_option)
+                        self.tables['options'].append(specific_option)
 
                     # We dont have any information about current table in generic options
                     else:
                         # We add the option for current table
-                        self.tables[table_name] = [specific_option]
+                        self.tables['options'] = [specific_option]
 
     def table_rows(self, table_name):
         """ Return rows (options) for specific table

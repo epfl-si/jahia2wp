@@ -11,7 +11,7 @@ Table of releases
 
 <!-- TOC depthFrom:2 depthTo:2 orderedList:false -->
 
-- [[0.2.11] - 2017-11-?](#0211---2017-11-)
+- [[0.2.?] - 2017-11-?](#02---2017-11-)
 - [[0.2.9] - 2017-11-07](#029---2017-11-07)
 - [[0.2.8] - 2017-11-06](#028---2017-11-06)
 - [[0.2.7] - 2017-11-01](#027---2017-11-01)
@@ -26,7 +26,7 @@ Table of releases
 
 <!-- /TOC -->
 
-## [0.2.11] - 2017-11-?
+## [0.2.?] - 2017-11-?
 **[PR #67](https://github.com/epfl-idevelop/jahia2wp/pull/67)**
 
 **High level:**
@@ -44,17 +44,21 @@ Table of releases
 
 ## [0.2.9] - 2017-11-07
 **[PR #66](https://github.com/epfl-idevelop/jahia2wp/pull/66)**
+**[PR #65](https://github.com/epfl-idevelop/jahia2wp/pull/65)**
 
 **High level:**
 
 1. Installation et configuration du plugin `MainWP-Child` avec clef "secrète"
+1. Added procedure in HOWTOs to explain how to update WP php files from historical repository
 
 **Low level:**
 
 1. Extraction de la configuration du plugin `MainWP-Child` puis modification du nécessaire pour l'ajouter à la liste des plugins à installer.
 1. La clef secrète est actuellement mise dans la configuration générique du plugin.
 1. On ne créé plus d'instance de `WPSite` dans `jahia2wp.py`. C'est désormais fait dans `WPPluginConfigExtractor` (déjà demandé dans PR64 mais refait aussi ici pour que ça soit propre également).
-
+1. Ajout des scripts js pour le bon fonctionnement du menu déroulant du header EPFL: epfl-idevelop/jahiap#126
+1. Le fichier "modernizr.custom.js" est renommé "modernizr.js": epfl-idevelop/jahiap#279
+1. J'ai enlevé l'appel de toutes les images de fond inutiles dans la feuille de style epfl.scss (les images sont remplacées par des pictos avec FontAwesome): epfl-idevelop/jahiap#279
 
 ## [0.2.8] - 2017-11-06
 **[PR #55](https://github.com/epfl-idevelop/jahia2wp/pull/55)**
