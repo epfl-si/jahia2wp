@@ -11,6 +11,7 @@ Table of releases
 
 <!-- TOC depthFrom:2 depthTo:2 orderedList:false -->
 
+- [[0.2.11] - 2017-11-?](#0211---2017-11-)
 - [[0.2.9] - 2017-11-07](#029---2017-11-07)
 - [[0.2.8] - 2017-11-06](#028---2017-11-06)
 - [[0.2.7] - 2017-11-01](#027---2017-11-01)
@@ -24,6 +25,22 @@ Table of releases
 - [[0.1.0] - 2017-09-14](#010---2017-09-14)
 
 <!-- /TOC -->
+
+## [0.2.11] - 2017-11-?
+**[PR #67](https://github.com/epfl-idevelop/jahia2wp/pull/67)**
+
+**High level:**
+
+1. la commande `clean` accepte de ne pas avoir de DB et nettoie tout de même les fichiers
+1. les commandes `generate` et `generate-many` acceptent des accents dans le titre Wordpress
+1. `generate-many` n'affiche pas de message d'erreur si on passe le meme SCIPER_ID dans les colonnes onwer et responsible
+
+**Low level:**
+
+1. ajout d'un test de génération de site (avec accent et même ids) dans test_wordpress
+1. utilisation de `sys.stdout.encoding `dans run_command dans la commande
+1. comme c'était déjà le cas pour le output -> l'encoding est passé en kwarg de la fonction
+
 
 ## [0.2.9] - 2017-11-07
 **[PR #66](https://github.com/epfl-idevelop/jahia2wp/pull/66)**
