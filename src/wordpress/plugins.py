@@ -5,7 +5,7 @@ import copy
 import yaml
 import pymysql.cursors
 
-from settings import PLUGIN_SOURCE_WP_STORE, PLUGIN_ACTION_INSTALL
+from settings import PLUGIN_SOURCE_WP_STORE, PLUGIN_ACTION_INSTALL, PLUGINS_CONFIG_BASE_PATH
 
 from .config import WPConfig
 from .models import WPSite
@@ -168,7 +168,7 @@ class WPPluginConfig(WPConfig):
 
     """
 
-    PLUGINS_PATH = os.path.join('wp-content', 'plugins')
+    WP_PLUGINS_PATH = os.path.join('wp-content', 'plugins')
 
     def __init__(self, wp_site, plugin_name, plugin_config):
         """
@@ -182,7 +182,7 @@ class WPPluginConfig(WPConfig):
         super(WPPluginConfig, self).__init__(wp_site)
         self.name = plugin_name
         self.config = plugin_config
-        self.path = os.path.sep.join([self.wp_site.path, self.PLUGINS_PATH, plugin_name])
+        self.path = os.path.sep.join([self.wp_site.path, self.WP_PLUGINS_PATH, plugin_name])
 
     def __repr__(self):
         installed_string = '[ok]' if self.is_installed else '[ko]'
@@ -254,9 +254,11 @@ class WPPluginConfigInfos:
             if plugin_config['src'].lower() == PLUGIN_SOURCE_WP_STORE:
                 self.zip_path = None
             else:
-                if not os.path.exists(plugin_config['src']):
-                    logging.error("%s - ZIP file not exists: %s", repr(self), plugin_config['src'])
-                self.zip_path = plugin_config['src']
+                # Generate full path to plugin ZIP file
+                zip_full_path = os.path.join(PLUGINS_CONFIG_BASE_PATH, plugin_config['src'])
+                if not os.path.exists(zip_full_path):
+                    logging.error("%s - ZIP file not exists: %s", repr(self), zip_full_path)
+                self.zip_path = zip_full_path
 
             # Let's see if we have to activate the plugin or not
             self.is_active = plugin_config['activate']
@@ -290,9 +292,11 @@ class WPPluginConfigInfos:
             if specific_plugin_config['src'].lower() == PLUGIN_SOURCE_WP_STORE:
                 self.zip_path = None
             else:
-                if not os.path.exists(specific_plugin_config['src']):
-                    logging.error("%s - ZIP file not exists: %s", repr(self), specific_plugin_config['src'])
-                self.zip_path = specific_plugin_config['src']
+                # Generate full path to plugin ZIP file
+                zip_full_path = os.path.join(PLUGINS_CONFIG_BASE_PATH, specific_plugin_config['src'])
+                if not os.path.exists(zip_full_path):
+                    logging.error("%s - ZIP file not exists: %s", repr(self), zip_full_path)
+                self.zip_path = zip_full_path
 
         # If activation has been overrided
         if 'activate' in specific_plugin_config:
@@ -305,7 +309,7 @@ class WPPluginConfigInfos:
             for table_name in specific_plugin_config['tables']:
 
                 # Going through specific options
-                for specific_option in specific_plugin_config[table_name]['options']:
+                for specific_option in specific_plugin_config[table_name]:
 
                     # If configuration for current table is present in generic options
                     if table_name in self.tables:
