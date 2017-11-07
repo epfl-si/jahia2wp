@@ -213,7 +213,7 @@ class WPGenerator:
             else:
                 success = False
 
-        if self.responsible_id is not None:
+        if self.responsible_id is not None and self.responsible_id != self.owner_id:
             responsible = self.wp_config.add_ldap_user(self.responsible_id)
             if responsible is not None:
                 logging.info("%s - added responsible %s", repr(self), responsible.username)
