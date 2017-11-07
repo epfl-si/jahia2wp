@@ -19,6 +19,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="profile" href="http://gmpg.org/xfn/11">
 
+<script type="text/javascript" src="//www.epfl.ch/js/jquery-epfl.min.js"></script>
+<script type="text/javascript">jQuery.noConflict();</script> 
+<script type="text/javascript" src="//www.epfl.ch/js/globalnav.js"></script>
+
 <?php readfile("http://www.epfl.ch/templates/fragments/header.sig.html")?>
 
 <?php wp_head(); ?>

@@ -425,12 +425,15 @@ a.a2a_button_{
 }
 
 #header2013 {
+  background: #fff;
   margin-left: -8px;
   margin-right: -8px;
   padding: 0 8px;
   position: relative;
   width: 100%;
   z-index: 9999;
+  
+  @include clearfix;
 }
 
 #header2013 #nav-logo a {

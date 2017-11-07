@@ -11,6 +11,7 @@ Table of releases
 
 <!-- TOC depthFrom:2 depthTo:2 orderedList:false -->
 
+- [[0.2.10] - 2017-11-?](#0210---2017-11-)
 - [[0.2.9] - 2017-11-07](#029---2017-11-07)
 - [[0.2.8] - 2017-11-06](#028---2017-11-06)
 - [[0.2.7] - 2017-11-01](#027---2017-11-01)
@@ -38,8 +39,10 @@ Table of releases
 
 **Low level changes:**
 
+1. Ajout de tests unitaires
 1. Champ `action` ajouté dans le fichier de configuration YAML du plugin. Celui-ci permet de dire si on veut installer ou désinstaller un plugin. Si pas présent, c'est que le plugin doit être installé. Mise à jour du code en conséquence.
 1. Correction d'un bug dans l'appel à la fonction d'extraction de la configuration d'un plugin.
+
 
 
 ## [0.2.9] - 2017-11-07
