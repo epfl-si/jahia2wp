@@ -83,6 +83,13 @@ body.page:not(.twentyseventeen-front-page) .entry-title {
   width: auto;
 }
 
+input + button,
+input + input[type="button"],
+input + input[type="submit"] {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
 /* Site branding */
 
 .has-header-image.twentyseventeen-front-page .site-branding,
@@ -97,6 +104,11 @@ body.page:not(.twentyseventeen-front-page) .entry-title {
 .has-header-video:not(.twentyseventeen-front-page):not(.home) .custom-header-media {
   display: block;
 	position: static;
+}
+
+.has-header-image.twentyseventeen-front-page .custom-header,
+.has-header-image.home.blog .custom-header {
+  height: auto;
 }
 
 body.has-header-image .site-title a {

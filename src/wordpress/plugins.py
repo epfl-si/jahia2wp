@@ -94,11 +94,13 @@ class WPPluginList:
         if plugin_list is None:
             logging.error("%s - YAML file seems to be empty: %s", repr(self), generic_plugin_file)
 
-        # Going through plugins
-        for plugin_infos in plugin_list['plugins']:
-            # Extracting plugin configuration
-            self._generic_plugins[plugin_infos['name']] = WPPluginConfigInfos(plugin_infos['name'],
-                                                                              plugin_infos['config'])
+        # If we have plugins,
+        if plugin_list['plugins'] is not None:
+            # Going through plugins
+            for plugin_infos in plugin_list['plugins']:
+                # Extracting plugin configuration
+                self._generic_plugins[plugin_infos['name']] = WPPluginConfigInfos(plugin_infos['name'],
+                                                                                  plugin_infos['config'])
 
     def __repr__(self):
         return "WPPluginList"
@@ -343,7 +345,8 @@ class WPPluginConfigManager:
         """ Constructor
 
         Arguments keyword:
-        wp_site -- Instance of WPSite class
+        wp_env - OpenShift env
+        wp_url - webSite URL
         """
         # List of "defined" value to look for in "wp-config.php" file.
         WP_CONFIG_DEFINE_NAMES = ['DB_NAME', 'DB_USER', 'DB_PASSWORD', 'DB_HOST', 'DB_CHARSET']
@@ -472,7 +475,8 @@ class WPPluginConfigExtractor(WPPluginConfigManager):
         """ Constructor
 
         Arguments keyword:
-        wp_site -- Instance of WPSite class
+        wp_env - OpenShift env
+        wp_url - webSite URL
         """
         WPPluginConfigManager.__init__(self, wp_env, wp_url)
 
@@ -593,7 +597,8 @@ class WPPluginConfigRestore(WPPluginConfigManager):
         """ Constructor
 
         Arguments keyword:
-        wp_site -- Instance of class WPSite
+        wp_env - OpenShift env
+        wp_url - webSite URL
         """
         WPPluginConfigManager.__init__(self, wp_env, wp_url)
 
@@ -659,7 +664,7 @@ class WPPluginConfigRestore(WPPluginConfigManager):
                           self._wp_table_name(table_name), ",".join(insert_values.keys()),
                           "','".join(insert_values.values()), ",".join(update_values))
 
-                # print("Request: {}".format(request))
+                logging.debug("Request: {}".format(request))
 
                 insert_id = self._exec_mysql_request(request, True)
 
@@ -677,7 +682,7 @@ class WPPluginConfigRestore(WPPluginConfigManager):
                     request = "SELECT * FROM {} WHERE {}".format(self._wp_table_name(table_name),
                                                                  " AND ".join(search_conditions))
 
-                    # print("Request: {}".format(request))
+                    logging.debug("Request: {}".format(request))
 
                     res = self._exec_mysql_request(request)
                     # Getting ID of existing row

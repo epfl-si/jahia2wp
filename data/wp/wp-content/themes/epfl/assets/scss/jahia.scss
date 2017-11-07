@@ -1,0 +1,184 @@
+.epflTvChannelBox .epfl-tv-channel a{position:relative;}
+.epflTvChannelBox .epfl-tv-channel .news-list{margin-bottom:0;width:100%;}
+.epflTvChannelBox .epfl-tv-channel .news-text{width:auto;}
+.epflTvChannelBox .epfl-tv-channel .news-video-overlay{left:auto;}
+.epflTvVideoBox .epfl-tv-video{border:1px solid #454545;margin:0 auto;max-width:650px;}
+.mapBox .epfl-map{border:1px solid gray;margin:0 auto!important;max-width:650px;}
+.mapBox .epfl-map img{margin:0;}
+.mementoBox .memento{list-style:none;margin:5px 0 0 0;padding:0;}
+.mementoBox .memento li{border-bottom:1px dotted #000;clear:both;list-style:none;margin:0;padding:4px 0;*zoom:1;}
+.mementoBox .memento li:before,.mementoBox .memento li:after{content:"";display:table;}
+.mementoBox .memento li:after{clear:both;}
+.mementoBox .memento .event{position:relative;}
+.mementoBox .memento .left{margin-right:4px;width:160px;}
+.mementoBox .memento .right{float:left;margin:0;width:488px;}
+.mementoBox .memento .date{clear:left;float:left;height:104px;margin:0 4px 0 0;padding:4px;text-align:center;width:36px;}
+.mementoBox .memento .canceled .date{background-color:#999C98;}
+.mementoBox .memento .from,.mementoBox .memento .to{display:block;font:26px/28px Impact,"Arial Black","DejaVu Sans",Arial,Helvetica,sans-serif;letter-spacing:2px;}
+.mementoBox .memento .to{border-top:4px solid #454545;margin-top:2px;padding-top:2px;}
+.mementoBox .memento .local-color .to{border-color:#fff;}
+.mementoBox .memento .month{display:block;font:normal 18px/20px Impact,"Arial Black","DejaVu Sans",Arial,Helvetica,sans-serif;letter-spacing:1px;text-transform:uppercase;}
+.mementoBox .memento .start-time,.mementoBox .memento .end-time{display:block;font:normal 10px/12px Arial,Helvetica,sans-serif;letter-spacing:0;}
+.mementoBox .memento .visual{float:left;height:112px;width:112px;margin:0;}
+.mementoBox .memento .canceled .visual{background-color:#696F6E;}
+.mementoBox .memento .summary{float:left;height:112px;margin-right:4px;overflow:hidden;width:324px;}
+.mementoBox .memento .summary h4{font-size:13px;margin:0;}
+.mementoBox .memento .summary h4 a{background-position:0 14px;}
+.mementoBox .memento .hour{color:black;font:italic bold 12px Georgia,'Times New Roman',Times,serif;padding-right:4px;}
+.mementoBox .memento .location{color:black;font:italic 12px Georgia,'Times New Roman',Times,serif;}
+.mementoBox .memento .name{line-height:16px;}
+.mementoBox .memento .people{float:left;max-height:110px;overflow:hidden;width:160px;}
+.mementoBox .memento .ribbon{background:url(//memento.epfl.ch/public/img/ribbons.png);position:absolute;height:112px;left:0;top:0;width:125px;}
+.mementoBox .memento .ribbon.canceled{background-position:250px 125px;left:48px;}
+.mementoBox .memento .ribbon.canceled:lang(fr){background-position:250px 0;}
+.mementoBox .box-links{margin-top:4px;}
+.unit-col .mementoBox .memento{max-height:336px;overflow:hidden;}
+.unit-col .mementoBox .memento li{border:none;padding:6px 0 6px 38px;}
+.unit-col .mementoBox .memento .date{float:left;height:auto;margin-left:-38px;padding:0;width:34px;}
+.unit-col .mementoBox .memento .right{width:auto;}
+.unit-col .mementoBox .memento .to{border-color:#fff;}
+.unit-col .mementoBox .memento .summary{width:auto;height:auto;max-height:90px;}
+.unit-col .mementoBox .memento h4{font-weight:normal;}
+.unit-col .mementoBox .memento h4 a:hover{color:#fff;}
+.right-col .mementoBox .memento{margin-top:-10px;}
+.right-col .mementoBox .memento .date{height:auto;}
+.right-col .mementoBox .memento .right{width:160px;}
+.right-col .mementoBox .memento .summary{float:none;width:auto;height:auto;}
+.right-col .mementoBox .memento .summary a{background:none;}
+.right-col .mementoBox .memento .export{margin-right:4px;}
+.right-col .mementoBox .memento .people{float:none;margin-left:48px;width:auto;}
+.rssBox .button.feed{margin-right:0;}
+.snippetsBox .zoom{position:relative;z-index:9999;}
+.snippetsBox .zoom img{border:5px solid #fff;margin:0;border-radius:3px;}
+.snippetsBox .close{background:#fff;padding:4px 3px 3px 4px;position:absolute;right:-26px;top:-26px;border-radius:15px;}
+.snippetsBox .close .icon{margin:0;}
+.snippetsBox .snippet-img{cursor:pointer;}
+.right-col .snippetsBox .simple-layout .news-text{width:160px;}
+.actuBox .box-links .button{position:relative;top:-40px;}
+.box.actuBox .box-links .button{top:0;}
+.right-col .text-news li{border-bottom:1px dotted black;}
+.faqBox .faq-item{border-bottom:1px dotted black;padding-bottom:12px;}
+.peopleListBox .photo_box:nth-of-type(4n+1){clear:left;}
+.infoscienceBox .box-links .button{margin-top:4px;}
+.htmlBox .content{border-top:0;}
+.htmlBox .content a img{margin:0;}
+.ac-list{background:#fff;border:1px solid #CFD0CA;box-shadow:1px 1px 8px 0 #000;min-width:283px!important;z-index:3000;}
+.ac-list ul{list-style:none;margin:12px 0 4px 0;}
+.ac-list li{cursor:pointer;padding:0 4px;}
+.ac-selected{background:#CFD0CA;}
+.ac-more{float:right;font:italic bold 12px/16px Georgia,'Times New Roman',Times,serif;}
+.ac-more .ac-selected{background:none;}
+#actualContent{background:url('../img/server/my-server.png') no-repeat;}
+#header.filler .main-link{background-image:none!important;}
+h1{padding-top:53px;padding-bottom:4px;}
+#main-content h1.visuallyhidden{clip:initial;height:55px;position:relative;visibility:hidden;}
+#main-content h1.visuallyhidden ~ #breadcrumbs,#main-content h1.visuallyhidden ~ #languages{top:-53px;}
+#breadcrumbs,#languages{overflow:visible;padding:0;position:relative;top:-87px;}
+#breadcrumbs{max-width:816px;}
+#breadcrumbs li{padding-right:0;}
+#breadcrumbs a{padding-right:12px;}
+#main-navigation{min-height:24px;}
+.topnav>.hidden{display:none;}
+#main-navigation .topnav li.homeLink a{background:url(../img/icon_home_white.png) no-repeat 6px 6px!important;width:12px;height:18px;padding:4px 8px 2px 4px;}
+#main-navigation .topnav li.homeLink a span{display:none;}
+.dropdown .menu{width:338px;}
+.box,.fullbox{position:relative;}
+.home-list-layout li{float:left;height:90px;width:324px;}
+.home-list-layout li.heading-news{height:278px;}
+.home-list-layout li.heading-news .news-img{margin:0;}
+.home-list-layout li.heading-news .news-text{height:92px;margin-top:1px;width:324px;}
+.home-list-layout .news-img{height:90px;margin-right:6px;}
+.home-list-layout .news-text{border-bottom:1px solid #000;float:left;height:89px;overflow:hidden;width:158px;}
+div.single-news .news-text{height:96px;width:auto!important;border-bottom:none;}
+div.single-news ul.news-list,div.single-news ul.list-layout{width:324px;margin-top:0;}
+.homepage-content .single-news{border-bottom:none;}
+.content ol.people-list,.content ul.people-list{display:block;margin:5px 5px 0 0;}
+ol.people-list .name{width:235px;}
+.unit-col .local-color li{list-style-image:url("//www.epfl.ch/img/dot-white.png");}
+.right-col{overflow:hidden;}
+#footer li{margin:0;}
+#footer li:before{content:"|";margin-right:4px;}
+#footer li:first-child:before,#footer li.login:before{display:none;}
+.x-btn{display:none;}
+.x-menu a{background-image:none;}
+#notifications .notification a{background-position:0 11px;}
+img.right{padding-left:10px;}
+img.left{padding-right:10px;}
+.topright{display:block;position:absolute;right:0;top:0;}
+.relative{position:relative;}
+.clear{overflow:hidden;}
+.modal{padding-right:8px!important;text-align:left;width:350px;opacity:.9;}
+table.sortable thead th{cursor:pointer;}
+table.sortable thead th:after{content:" ";background:url('/templates/epfl/img/sorting/sort.png') no-repeat center center;display:inline-block;width:18px;height:18px;line-height:18px;}
+table.sortable .headerSortUp:after{background-image:url('/templates/epfl/img/sorting/down.png');}
+table.sortable .headerSortDown:after{background-image:url('/templates/epfl/img/sorting/up.png');}
+.g-cell{display:block;float:left;overflow:hidden;}
+.g-cell div{padding:2px 8px;}
+.g-col-1{left:0;}
+.g-col-2{left:164px;}
+.g-col-3{left:328px;}
+.g-col-4{left:492px;}
+.g-col-5{left:656px;}
+.g-col-6{left:820px;}
+.g-row-1{top:0;}
+.g-row-2{top:94px;}
+.g-row-3{top:188px;}
+.g-row-4{top:282px;}
+.g-row-5{top:376px;}
+.g-width-1{width:160px;}
+.g-width-2{width:324px;}
+.g-width-3{width:488px;}
+.g-width-4{width:652px;}
+.g-width-5{width:816px;}
+.g-width-6{width:980px;}
+.g-height-1{height:90px;}
+.g-height-2{height:184px;}
+.g-height-3{height:278px;}
+.g-height-4{height:372px;}
+.g-height-5{height:466px;}
+.home-navpanel{position:relative;}
+.homepage-content .home-header .home-navpanel .unit-col .unit-1-cells,.homepage-content .home-header .home-navpanel .unit-col .unit-3-cells,.homepage-content .home-header .home-navpanel .unit-col .unit-4-cells{padding:2px 8px;}
+.unit-1-cells{height:86px;padding:2px 8px;margin:0 0 4px 0;overflow:hidden;}
+.unit-4-cells{height:368px;padding:2px 8px;margin:0 0 4px 0;overflow:hidden;}
+.unit-3-cells h3,.unit-4-cells h3{font:bold 14px/16px Arial,Helvetica,sans-serif;}
+.home-banner{float:left;margin-right:4px;margin-bottom:44px;position:relative;}
+.home-banner .keyVisual>a{background:none;}
+.home-banner img{margin:0;}
+.homepage-content .box p{margin-right:0;}
+.homepage-content .home-header .home-navpanel .unit-col div{padding:0;}
+.box .list-layout,.box .news-list{border:none;margin-bottom:0;padding:0;width:auto;}
+.content .box .list-layout li,.content .box .news-list li{margin:0 0 4px 0;}
+.content .box .list-layout .news-text{width:150px;}
+.unit-col .box{margin:0;width:auto;}
+.unit-col .box-links .button .icon{display:none;}
+.unit-col .box-links .button .label{background-image:url('//www.epfl.ch/img/underline-white.gif');font:normal 12px/16px Arial,Helvetica,sans-serif;letter-spacing:0;}
+.clearfix{*zoom:1;}
+.clearfix:before{content:"";display:table;}
+.clearfix:after{clear:both;content:"";display:table;}
+.migration_info{display:none;}
+.gridBox .grid{float:left;width:127px;height:146px;border-right:3px solid white;position:relative;margin-bottom:4px;}
+.gridBox .grid.large{width:257px;}
+.gridBox .grid.empty .h3{display:none;}
+.gridBox .grid.empty .bg{background:none!important;}
+.gridBox .bg{opacity:.6;filter:alpha(opacity=60);position:absolute;left:0;top:0;width:100%;height:100%;transition:opacity .25s ease-in-out;-moz-transition:opacity .25s ease-in-out;-webkit-transition:opacity .25s ease-in-out;}
+.gridBox .grid:hover .bg{opacity:1;filter:alpha(opacity=100);}
+.gridBox .grid h3{margin:0;position:absolute;bottom:0;left:0;width:100%;background-color:#eff1ec;height:76px;}
+.gridBox .grid.large h3{height:46px;}
+.gridBox .grid h3 a{font-family:Arial,Helvetica,sans-serif;letter-spacing:normal;padding:5px;text-decoration:none;background-image:none;display:block;font-size:small;}
+.gridBox .containerListWrap{float:left;}
+.gridBox .containerListWrap .notification.button.list{height:16px;}
+.icon-facebook,.icon-twitter,.icon-linkedin,.icon-googleplus{cursor:pointer;width:24px;height:24px;}
+div.socialshare{float:left;}
+div.socialshare span.label{position:relative;top:3px;padding-right:10px;cursor:default;}
+.studying{position:relative;height:372px;width:652px;clear:both;}
+.studying img{height:372px;width:652px;margin:0;}
+.studying a{background:none;color:white;font-weight:bold;}
+.studying-title{position:absolute;width:300px;bottom:20px;left:80px;color:white;font-weight:bold;}
+.studying-calendar-image{position:absolute;bottom:20px;left:400px;}
+.studying-calendar-image img{height:49px;width:49px;margin:0;}
+.studying-calendar-text{position:absolute;width:60px;bottom:20px;left:470px;color:white;font-weight:bold;}
+.memento li .studying .date{position:absolute;width:24px;font:normal 25px/19px Impact;letter-spacing:1px;bottom:15px;left:20px;background:transparent;}
+.memento li .studying .date_ac{position:absolute;width:24px;font:normal 25px/19px Impact;letter-spacing:1px;bottom:19px;left:20px;background:transparent;}
+.memento li.studying{height:372px;}
+li.level1,li.level1 a{color:#fff!important;background-color:#000;}
+li.level1 a:hover{color:#000!important;}
