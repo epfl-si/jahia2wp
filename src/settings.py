@@ -3,7 +3,7 @@ import os
 
 from utils import Utils
 
-VERSION = "0.2.10"
+VERSION = "0.2.?"
 
 DATA_PATH = os.path.abspath(
     os.path.sep.join([os.path.dirname(__file__), '..', 'data'])
