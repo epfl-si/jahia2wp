@@ -12,7 +12,8 @@ Table of releases
 <!-- TOC depthFrom:2 depthTo:2 orderedList:false -->
 
 - [[0.2.?] - 2017-11-?](#02---2017-11-)
-- [[0.2.10] - 2017-11-?](#0210---2017-11-)
+- [[0.2.11] - 2017-11-08](#0211---2017-11-08)
+- [[0.2.10] - 2017-11-08](#0210---2017-11-08)
 - [[0.2.9] - 2017-11-07](#029---2017-11-07)
 - [[0.2.8] - 2017-11-06](#028---2017-11-06)
 - [[0.2.7] - 2017-11-01](#027---2017-11-01)
@@ -45,7 +46,16 @@ Table of releases
 1. Correction d'un bug dans l'appel à la fonction d'extraction de la configuration d'un plugin.
 
 
-## [0.2.10] - 2017-11-?
+## [0.2.11] - 2017-11-08
+**[Issue #13](https://github.com/epfl-idevelop/jahia2wp/issues/13)**
+
+**High level:**
+
+1. Added miniorange generic configuration
+2. Added miniorange sample specific configuration
+
+
+## [0.2.10] - 2017-11-08
 **[PR #67](https://github.com/epfl-idevelop/jahia2wp/pull/67)**
 
 **High level:**
