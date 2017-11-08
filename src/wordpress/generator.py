@@ -222,7 +222,7 @@ class WPGenerator:
             else:
                 success = False
 
-        if self.responsible_id is not None:
+        if self.responsible_id is not None and self.responsible_id != self.owner_id:
             responsible = self.wp_config.add_ldap_user(self.responsible_id)
             if responsible is not None:
                 logging.info("%s - added responsible %s", repr(self), responsible.username)
@@ -234,18 +234,23 @@ class WPGenerator:
 
     def clean(self):
         # retrieve db_infos
-        db_name = self.wp_config.db_name
-        db_user = self.wp_config.db_user
+        try:
+            db_name = self.wp_config.db_name
+            db_user = self.wp_config.db_user
 
-        # clean db
-        logging.info("%s - cleaning up DB", repr(self))
-        if not self.run_mysql('-e "DROP DATABASE {};"'.format(db_name)):
-            logging.error("%s - could not drop DATABASE %s", repr(self), db_name)
+            # clean db
+            logging.info("%s - cleaning up DB", repr(self))
+            if not self.run_mysql('-e "DROP DATABASE IF EXISTS {};"'.format(db_name)):
+                logging.error("%s - could not drop DATABASE %s", repr(self), db_name)
 
-        if not self.run_mysql('-e "DROP USER {};"'.format(db_user)):
-            logging.error("%s - could not drop USER %s", repr(self), db_name)
+            if not self.run_mysql('-e "DROP USER IF EXISTS {};"'.format(db_user)):
+                logging.error("%s - could not drop USER %s", repr(self), db_name)
 
-        # clean directories first
+        # handle case where no wp_config found
+        except ValueError as err:
+            logging.warning("%s - could not clean DB: %s", repr(self), err)
+
+        # clean directories before files
         logging.info("%s - removing files", repr(self))
         for dir_path in WP_DIRS:
             path = os.path.join(self.wp_site.path, dir_path)
