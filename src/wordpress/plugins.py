@@ -5,7 +5,7 @@ import copy
 import yaml
 import pymysql.cursors
 
-from settings import PLUGIN_SOURCE_WP_STORE, PLUGIN_ACTION_INSTALL, PLUGINS_CONFIG_BASE_PATH
+from settings import PLUGIN_SOURCE_WP_STORE, PLUGIN_ACTION_INSTALL, PLUGIN_ACTION_NOTHING, PLUGINS_CONFIG_BASE_PATH
 
 from .config import WPConfig
 from .models import WPSite
@@ -246,22 +246,29 @@ class WPPluginConfigInfos:
 
         self.plugin_name = plugin_name
 
+        # Getting value if exists, otherwise set with default
         self.action = plugin_config['action'] if 'action' in plugin_config else PLUGIN_ACTION_INSTALL
 
-        # If we have to install plugin, we look for several information
+        # If we have to install plugin (default action), we look for several information
         if self.action == PLUGIN_ACTION_INSTALL:
-            # If we have to download from web,
-            if plugin_config['src'].lower() == PLUGIN_SOURCE_WP_STORE:
-                self.zip_path = None
-            else:
-                # Generate full path to plugin ZIP file
-                zip_full_path = os.path.join(PLUGINS_CONFIG_BASE_PATH, plugin_config['src'])
-                if not os.path.exists(zip_full_path):
-                    logging.error("%s - ZIP file not exists: %s", repr(self), zip_full_path)
-                self.zip_path = zip_full_path
-
             # Let's see if we have to activate the plugin or not
             self.is_active = plugin_config['activate']
+
+            # If plugin needs to be activated
+            if self.is_active:
+                # If we have to download from web,
+                if plugin_config['src'].lower() == PLUGIN_SOURCE_WP_STORE:
+                    self.zip_path = None
+                else:
+                    # Generate full path to plugin ZIP file
+                    zip_full_path = os.path.join(PLUGINS_CONFIG_BASE_PATH, plugin_config['src'])
+                    if not os.path.exists(zip_full_path):
+                        logging.error("%s - ZIP file not exists: %s", repr(self), zip_full_path)
+                    self.zip_path = zip_full_path
+
+            else:  # Plugin has to be deactivated
+                # So, action is set to nothing
+                self.action = PLUGIN_ACTION_NOTHING
 
         # If there's no information for DB tables (= no options) for plugin
         if 'tables' not in plugin_config:

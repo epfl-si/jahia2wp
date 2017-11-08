@@ -5,7 +5,7 @@ import logging
 
 from utils import Utils
 from settings import WP_DIRS, WP_FILES, PLUGINS_CONFIG_GENERIC_FOLDER, PLUGINS_CONFIG_SPECIFIC_FOLDER, \
-                     PLUGIN_ACTION_UNINSTALL
+                     PLUGIN_ACTION_UNINSTALL, PLUGIN_ACTION_INSTALL, PLUGIN_ACTION_NOTHING
 
 from django.core.validators import URLValidator
 from veritas.validators import validate_string, validate_openshift_env, validate_integer
@@ -106,8 +106,11 @@ class WPGenerator:
                 logging.info("%s - Plugins - '%s' has been uninstalled", repr(self), plugin_name)
 
             else:  # We have to install the plugin
-                logging.info("%s - Plugins - Installing '%s'...", repr(self), plugin_name)
-                plugin.install()
+                # We may have to install or do nothing (if we only want to deactivate plugin)
+                if plugin_config.action == PLUGIN_ACTION_INSTALL:
+                    logging.info("%s - Plugins - Installing '%s'...", repr(self), plugin_name)
+                    plugin.install()
+
                 plugin.set_state()
 
                 if plugin.is_activated:

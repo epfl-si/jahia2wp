@@ -90,6 +90,7 @@ PLUGINS_CONFIG_SPECIFIC_FOLDER = os.path.join(PLUGINS_CONFIG_BASE_PATH, 'specifi
 PLUGIN_SOURCE_WP_STORE = 'web'
 PLUGIN_ACTION_INSTALL = 'install'
 PLUGIN_ACTION_UNINSTALL = 'uninstall'
+PLUGIN_ACTION_NOTHING = 'nothing'
 
 
 JAHIA_USER = Utils.get_optional_env("JAHIA_USER", "admin")
