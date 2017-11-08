@@ -44,9 +44,9 @@ class Utils(object):
     def run_command(command, encoding=sys.stdout.encoding):
         try:
             # encode command properly for subprocess
-            command_ascii = command.encode(encoding)
+            command_bytes = command.encode(encoding)
             # run command and log output
-            proc = subprocess.run(command_ascii, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
+            proc = subprocess.run(command_bytes, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
             logging.debug("%s => %s", command, proc.stdout)
             # return output if got any, True otherwise
             if proc.stdout:
