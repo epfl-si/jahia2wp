@@ -1,17 +1,20 @@
 import pytest
 import yaml
-from settings import *
-from wordpress.plugins import *
-from wordpress.generator import *
+import os
+from settings import PLUGINS_CONFIG_GENERIC_FOLDER, PLUGINS_CONFIG_SPECIFIC_FOLDER
+from wordpress.plugins import WPPluginList, WPPluginConfig, WPConfig
+from wordpress.generator import MockedWPGenerator
 
-TEST_SITE='unittest'
-SITE_URL_GENERIC="https://localhost/"
-SITE_URL_SPECIFIC="https://localhost/{}".format(TEST_SITE)
+TEST_SITE = 'unittest'
+SITE_URL_GENERIC = "https://localhost/"
+SITE_URL_SPECIFIC = "https://localhost/{}".format(TEST_SITE)
 TEST_ENV = 'test'
+
 
 @pytest.fixture(scope="module")
 def wp_plugin_list():
     return WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
+
 
 @pytest.fixture(scope="class")
 def wp_site_generic():
@@ -24,6 +27,7 @@ def wp_site_generic():
     generator.generate()
     return generator.wp_site
 
+
 @pytest.fixture(scope="class")
 def wp_site_specific():
     # To generate website with specific plugin list/configuration
@@ -35,9 +39,10 @@ def wp_site_specific():
     generator.generate()
     return generator.wp_site
 
+
 def test_yaml_include():
     # Generate filename to open regarding current script path
-    yaml_file = local_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'yaml-root.yml')
+    yaml_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'yaml-root.yml')
     yaml_content = yaml.load(open(yaml_file, 'r'))
     assert yaml_content['root_value'] == 'root'
     assert yaml_content['included_value'] == 'included'
@@ -151,6 +156,7 @@ class TestWPPluginConfigRestore:
         wp_config = WPConfig(wp_site_generic)
         assert wp_config.run_wp_cli("option get addtoany_options") == 'test_overload'
         assert wp_config.run_wp_cli("option get addtoany_dummy") == 'dummy'
+
 
 class TestWPPluginConfigExtractor:
     pass

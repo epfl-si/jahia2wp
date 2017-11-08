@@ -5,7 +5,7 @@ import logging
 
 from utils import Utils
 from settings import WP_DIRS, WP_FILES, PLUGINS_CONFIG_GENERIC_FOLDER, PLUGINS_CONFIG_SPECIFIC_FOLDER, \
-                     PLUGIN_ACTION_UNINSTALL, PLUGIN_ACTION_INSTALL, PLUGIN_ACTION_NOTHING
+                     PLUGIN_ACTION_UNINSTALL, PLUGIN_ACTION_INSTALL
 
 from django.core.validators import URLValidator
 from veritas.validators import validate_string, validate_openshift_env, validate_integer
