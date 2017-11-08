@@ -11,6 +11,7 @@ Table of releases
 
 <!-- TOC depthFrom:2 depthTo:2 orderedList:false -->
 
+- [[0.2.?] - 2017-11-?](#02---2017-11-)
 - [[0.2.11] - 2017-11-08](#0211---2017-11-08)
 - [[0.2.10] - 2017-11-08](#0210---2017-11-08)
 - [[0.2.9] - 2017-11-07](#029---2017-11-07)
@@ -26,6 +27,20 @@ Table of releases
 - [[0.1.0] - 2017-09-14](#010---2017-09-14)
 
 <!-- /TOC -->
+
+
+## [0.2.?] - 2017-11-?
+
+**High level:**
+
+1. New WP site has EPFL look and feel
+1. Columns `installs_locked` and `updates_automatic` from source of trust are now taken into account
+
+**Low level:**
+
+1. PluginList takes into account the values from `installs_locked` and `updates_automatic`
+1. If installed, those two plugins are installed in mu-plugin (in order to forbid their removal)
+
 
 ## [0.2.11] - 2017-11-08
 **[Issue #13](https://github.com/epfl-idevelop/jahia2wp/issues/13)**
