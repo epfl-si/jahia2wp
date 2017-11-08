@@ -75,14 +75,19 @@ class TestWPConfig:
 
 class TestWPGenerator:
 
+    TITLE_WITH_ACCENT = "démo"
+    SAME_SCIPER_ID = 157489
+
     @pytest.fixture()
     def wp_generator(self):
-        return MockedWPGenerator(
+        generator = MockedWPGenerator(
             openshift_env=Utils.get_mandatory_env(key="WP_ENV"),
             wp_site_url="https://localhost/folder",
-            wp_default_site_title="My test",
-            owner_id="157489",
-            responsible_id="157489")
+            wp_default_site_title=self.TITLE_WITH_ACCENT,
+            owner_id=self.SAME_SCIPER_ID,
+            responsible_id=self.SAME_SCIPER_ID)
+        generator.clean()
+        return generator
 
     def test_prepare_db(self, wp_generator):
         pass
@@ -91,4 +96,4 @@ class TestWPGenerator:
         pass
 
     def test_generate(self, wp_generator):
-        pass
+        assert wp_generator.generate()
