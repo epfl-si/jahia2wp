@@ -99,31 +99,34 @@ class TestWPPluginConfig:
             assert wp_plugin_config.is_installed is installed
 
     def test_is_activated_generic(self, wp_site_generic, wp_plugin_list):
-        # plugins and if they have to be activated or not
-        plugins_to_test = {'add-to-any': True, 'akismet': False}
 
-        for plugin_name in plugins_to_test:
+        # plugins and if they have to be activated or not
+        for plugin_name, activated in {
+            'add-to-any': True,
+            'akismet': False
+        }.items():
 
             plugin_config = wp_plugin_list.plugins()[plugin_name]
             wp_plugin_config = WPPluginConfig(wp_site_generic, plugin_name, plugin_config)
 
-            assert wp_plugin_config.is_activated is plugins_to_test[plugin_name]
+            assert wp_plugin_config.is_activated is activated
 
     def test_is_activated_specific(self, wp_site_specific, wp_plugin_list):
-        # plugins and if they have to be activated or not
-        plugins_to_test = {'add-to-any': True, 'epfl_infoscience': True}
 
-        for plugin_name in plugins_to_test:
+        # plugins and if they have to be activated or not
+        for plugin_name, activated in {
+            'add-to-any': True,
+            'epfl_infoscience': True
+        }.items():
 
             plugin_config = wp_plugin_list.plugins(TEST_SITE)[plugin_name]
             wp_plugin_config = WPPluginConfig(wp_site_specific, plugin_name, plugin_config)
 
-            assert wp_plugin_config.is_activated is plugins_to_test[plugin_name]
+            assert wp_plugin_config.is_activated == activated
 
     def test_valid_uninstall(self, wp_site_specific, wp_plugin_list):
-        plugins_to_test = ['add-to-any', 'epfl_infoscience']
 
-        for plugin_name in plugins_to_test:
+        for plugin_name in ['add-to-any', 'epfl_infoscience']:
 
             plugin_config = wp_plugin_list.plugins(TEST_SITE)[plugin_name]
             wp_plugin_config = WPPluginConfig(wp_site_specific, plugin_name, plugin_config)
