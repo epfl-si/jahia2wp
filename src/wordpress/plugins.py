@@ -6,27 +6,23 @@ import copy
 import yaml
 import pymysql.cursors
 
-from settings import WP_PATH, PLUGIN_SOURCE_WP_STORE
+from settings import WP_PATH, PLUGIN_SOURCE_WP_STORE, \
+    PLUGIN_ACTION_INSTALL, PLUGIN_ACTION_NOTHING, PLUGINS_CONFIG_BASE_PATH
 
 from .config import WPConfig
 from .models import WPSite
 
 
-""" Class declared in this file:
-- WPPluginList => to manage plugin list for a website
-- WPPluginConfig  => to manage one given plugin for a website
-- WPPluginConfigInfos => To store/generate the configuration of a given plugin.
-"""
-
-""" Defining necessary to allow usage of "!include" in YAML files.
-Given path to include file can be relative to :
-- Python script location
-- YAML file from which "include" is done
-"""
-
-
 def yaml_include(loader, node):
+    """ Defining necessary to allow usage of "!include" in YAML files.
+    Given path to include file can be relative to :
+    - Python script location
+    - YAML file from which "include" is done
 
+    This can be use to include a value for a key. This value can be just a string or a complex (hiearchical) YAML file
+    Ex:
+    my_key: !include file/with/value.yml
+    """
     local_file = os.path.join(os.path.dirname(loader.stream.name), node.value)
 
     # if file to include exists with given valu
@@ -169,7 +165,7 @@ class WPPluginConfig(WPConfig):
 
     """
 
-    PLUGINS_PATH = os.path.join('wp-content', 'plugins')
+    WP_PLUGINS_PATH = os.path.join('wp-content', 'plugins')
 
     def __init__(self, wp_site, plugin_name, plugin_config):
         """
@@ -183,7 +179,7 @@ class WPPluginConfig(WPConfig):
         super(WPPluginConfig, self).__init__(wp_site)
         self.name = plugin_name
         self.config = plugin_config
-        self.path = os.path.sep.join([self.wp_site.path, self.PLUGINS_PATH, plugin_name])
+        self.path = os.path.sep.join([self.wp_site.path, self.WP_PLUGINS_PATH, plugin_name])
 
     def __repr__(self):
         installed_string = '[ok]' if self.is_installed else '[ko]'
@@ -207,6 +203,10 @@ class WPPluginConfig(WPConfig):
             param = self.name
         command = "plugin install {0} ".format(param)
         self.run_wp_cli(command)
+
+    def uninstall(self):
+        self.run_wp_cli('plugin deactivate {}'.format(self.name))
+        self.run_wp_cli('plugin uninstall {}'.format(self.name))
 
     def configure(self):
         """
@@ -257,16 +257,29 @@ class WPPluginConfigInfos:
 
         self.plugin_name = plugin_name
 
-        # If we have to download from web,
-        if plugin_config['src'].lower() == PLUGIN_SOURCE_WP_STORE:
-            self.zip_path = None
-        else:
-            if not os.path.exists(plugin_config['src']):
-                logging.error("%s - ZIP file not exists: %s", repr(self), plugin_config['src'])
-            self.zip_path = plugin_config['src']
+        # Getting value if exists, otherwise set with default
+        self.action = plugin_config['action'] if 'action' in plugin_config else PLUGIN_ACTION_INSTALL
 
-        # Let's see if we have to activate the plugin or not
-        self.is_active = plugin_config['activate']
+        # If we have to install plugin (default action), we look for several information
+        if self.action == PLUGIN_ACTION_INSTALL:
+            # Let's see if we have to activate the plugin or not
+            self.is_active = plugin_config['activate']
+
+            # If plugin needs to be activated
+            if self.is_active:
+                # If we have to download from web,
+                if plugin_config['src'].lower() == PLUGIN_SOURCE_WP_STORE:
+                    self.zip_path = None
+                else:
+                    # Generate full path to plugin ZIP file
+                    zip_full_path = os.path.join(PLUGINS_CONFIG_BASE_PATH, plugin_config['src'])
+                    if not os.path.exists(zip_full_path):
+                        logging.error("%s - ZIP file not exists: %s", repr(self), zip_full_path)
+                    self.zip_path = zip_full_path
+
+            else:  # Plugin has to be deactivated
+                # So, action is set to nothing
+                self.action = PLUGIN_ACTION_NOTHING
 
         # If there's no information for DB tables (= no options) for plugin
         if 'tables' not in plugin_config:
@@ -288,15 +301,21 @@ class WPPluginConfigInfos:
         specific_plugin_config -- Dict containing specific configuration (coming directly from YAML file)
         """
 
+        if 'action' in specific_plugin_config:
+            self.action = specific_plugin_config['action']
+
         # if "src" has been overrided
         if 'src' in specific_plugin_config:
             # If we have to download from web,
-            if specific_plugin_config['src'].lower() == 'web':
+
+            if specific_plugin_config['src'].lower() == PLUGIN_SOURCE_WP_STORE:
                 self.zip_path = None
             else:
-                if not os.path.exists(specific_plugin_config['src']):
-                    logging.error("%s - ZIP file not exists: %s", repr(self), specific_plugin_config['src'])
-                self.zip_path = specific_plugin_config['src']
+                # Generate full path to plugin ZIP file
+                zip_full_path = os.path.join(PLUGINS_CONFIG_BASE_PATH, specific_plugin_config['src'])
+                if not os.path.exists(zip_full_path):
+                    logging.error("%s - ZIP file not exists: %s", repr(self), zip_full_path)
+                self.zip_path = zip_full_path
 
         # If activation has been overrided
         if 'activate' in specific_plugin_config:

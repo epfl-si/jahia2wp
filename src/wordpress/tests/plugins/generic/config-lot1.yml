@@ -1,0 +1,7 @@
+plugins:
+  - name: add-to-any
+    config: !include add-to-any/v1/config-plugin.yml
+  - name: hello
+    config: !include hello/config-plugin.yml
+  - name: akismet
+    config: !include akismet/config-plugin.yml

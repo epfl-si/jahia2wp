@@ -1,0 +1,10 @@
+tables:
+  options:
+  - autoload: 'yes'
+    option_id: 150
+    option_name: addtoany_dummy
+    option_value: dummy
+  - autoload: 'yes'
+    option_id: 15q
+    option_name: addtoany_options
+    option_value: test_overload

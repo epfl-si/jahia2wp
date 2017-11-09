@@ -12,6 +12,7 @@ Table of releases
 <!-- TOC depthFrom:2 depthTo:2 orderedList:false -->
 
 - [[0.2.?] - 2017-11-?](#02---2017-11-)
+- [[0.2.12] - 2017-11-09](#0212---2017-11-09)
 - [[0.2.11] - 2017-11-08](#0211---2017-11-08)
 - [[0.2.10] - 2017-11-08](#0210---2017-11-08)
 - [[0.2.9] - 2017-11-07](#029---2017-11-07)
@@ -40,6 +41,23 @@ Table of releases
 
 1. PluginList takes into account the values from `installs_locked` and `updates_automatic`
 1. If installed, those two plugins are installed in mu-plugin (in order to forbid their removal)
+
+
+## [0.2.12] - 2017-11-09
+**[PR #64](https://github.com/epfl-idevelop/jahia2wp/pull/64)**
+
+**High level changes:**
+
+1. Possibilité de désinstaller un plugin (installé de base avec WordPress ou installé depuis une config générique).
+1. Mise à jour de la liste des plugins (sans configuration) à installer 
+1. Suppression automatique des plugins installés automatiquement avec WordPress et qui n'étaient pas dans la liste données dans l'issue #52
+1. A noter que quand `simple-sitemap` est installé, la première fois qu'on retourne sur la page d'administration, on est redirigé sur la page de "démo" du plugin... pas trouvé où il était mis dans la DB qu'il fallait afficher cette page...
+
+**Low level changes:**
+
+1. Ajout de tests unitaires
+1. Champ `action` ajouté dans le fichier de configuration YAML du plugin. Celui-ci permet de dire si on veut installer ou désinstaller un plugin. Si pas présent, c'est que le plugin doit être installé. Mise à jour du code en conséquence.
+1. Correction d'un bug dans l'appel à la fonction d'extraction de la configuration d'un plugin.
 
 
 ## [0.2.11] - 2017-11-08
@@ -80,7 +98,7 @@ Table of releases
 
 1. Extraction de la configuration du plugin `MainWP-Child` puis modification du nécessaire pour l'ajouter à la liste des plugins à installer.
 1. La clef secrète est actuellement mise dans la configuration générique du plugin.
-1. On ne créé plus d'instance de `WPSite` dans `jahia2wp.py`. C'est désormais fait dans `WPPluginConfigExtractor` (déjà demandé dans PR64 mais refait aussi ici pour que ça soit propre également).
+1. On ne créé plus d'instance de `WPSite` dans `jahia2wp.py`. C'est désormais fait dans `WPPluginConfigExtractor`
 1. Ajout des scripts js pour le bon fonctionnement du menu déroulant du header EPFL: epfl-idevelop/jahiap#126
 1. Le fichier "modernizr.custom.js" est renommé "modernizr.js": epfl-idevelop/jahiap#279
 1. J'ai enlevé l'appel de toutes les images de fond inutiles dans la feuille de style epfl.scss (les images sont remplacées par des pictos avec FontAwesome): epfl-idevelop/jahiap#279

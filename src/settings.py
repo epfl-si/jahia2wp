@@ -82,9 +82,15 @@ SUPPORTED_LANGUAGES = [
     "it"
 ]
 current_file_path = os.path.dirname(os.path.realpath(__file__))
-PLUGINS_CONFIG_GENERIC_FOLDER = os.path.sep.join([current_file_path, '..', 'data', 'plugins', 'generic'])
-PLUGINS_CONFIG_SPECIFIC_FOLDER = os.path.sep.join([current_file_path, '..', 'data', 'plugins', 'specific'])
+PLUGINS_CONFIG_BASE_PATH = Utils.get_optional_env(
+    "PLUGINS_CONFIG_BASE_PATH", os.path.sep.join([current_file_path, '..', 'data', 'plugins']))
+PLUGINS_CONFIG_GENERIC_FOLDER = os.path.join(PLUGINS_CONFIG_BASE_PATH, 'generic')
+PLUGINS_CONFIG_SPECIFIC_FOLDER = os.path.join(PLUGINS_CONFIG_BASE_PATH, 'specific')
+
 PLUGIN_SOURCE_WP_STORE = 'web'
+PLUGIN_ACTION_INSTALL = 'install'
+PLUGIN_ACTION_UNINSTALL = 'uninstall'
+PLUGIN_ACTION_NOTHING = 'nothing'
 
 DEFAULT_CONFIG_INSTALLS_LOCKED = True
 DEFAULT_CONFIG_UPDATES_AUTOMATIC = True

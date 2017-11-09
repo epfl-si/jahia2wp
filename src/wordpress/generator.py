@@ -5,7 +5,8 @@ import logging
 
 from utils import Utils
 from settings import WP_DIRS, WP_FILES, PLUGINS_CONFIG_GENERIC_FOLDER, PLUGINS_CONFIG_SPECIFIC_FOLDER, \
-     DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
+    PLUGIN_ACTION_UNINSTALL, PLUGIN_ACTION_INSTALL, \
+    DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
 
 from django.core.validators import URLValidator
 from veritas.validators import validate_string, validate_openshift_env, validate_integer
@@ -100,20 +101,31 @@ class WPGenerator:
 
         # Looping through plugins to install
         for plugin_name, plugin_config in plugin_list.plugins(site_id).items():
-            logging.debug("%s - Installing plugin %s", repr(self), plugin_name)
 
             # install and activate AddToAny plugin
             plugin = WPPluginConfig(self.wp_site, plugin_name, plugin_config)
-            plugin.install()
-            plugin.set_state()
 
-            if plugin.is_activated:
-                logging.debug("%s - WP %s plugin is activated", repr(self), plugin_name)
-            else:
-                logging.debug("%s - WP %s plugin is deactivated", repr(self), plugin_name)
+            # If we have to uninstall the plugin
+            if plugin_config.action == PLUGIN_ACTION_UNINSTALL:
+                logging.info("%s - Plugins - Uninstalling '%s'...", repr(self), plugin_name)
+                plugin.uninstall()
+                logging.info("%s - Plugins - '%s' has been uninstalled", repr(self), plugin_name)
 
-            # Configure plugin
-            plugin.configure()
+            else:  # We have to install the plugin
+                # We may have to install or do nothing (if we only want to deactivate plugin)
+                if plugin_config.action == PLUGIN_ACTION_INSTALL:
+                    logging.info("%s - Plugins - Installing '%s'...", repr(self), plugin_name)
+                    plugin.install()
+
+                plugin.set_state()
+
+                if plugin.is_activated:
+                    logging.debug("%s - Plugins - '%s' is activated", repr(self), plugin_name)
+                else:
+                    logging.debug("%s - Plugins - '%s' is deactivated", repr(self), plugin_name)
+
+                # Configure plugin
+                plugin.configure()
 
     def generate(self):
 

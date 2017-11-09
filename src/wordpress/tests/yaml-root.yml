@@ -1,0 +1,2 @@
+root_value: root
+included_value: !include 'yaml-included.yml'
