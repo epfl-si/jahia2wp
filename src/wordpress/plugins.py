@@ -1,11 +1,12 @@
 import re
 import os
+import shutil
 import logging
 import copy
 import yaml
 import pymysql.cursors
 
-from settings import PLUGIN_SOURCE_WP_STORE
+from settings import WP_PATH, PLUGIN_SOURCE_WP_STORE
 
 from .config import WPConfig
 from .models import WPSite
@@ -233,6 +234,11 @@ class WPMuPluginConfig(WPPluginConfig):
     """
 
     PLUGINS_PATH = os.path.join('wp-content', 'mu-plugins')
+
+    def install(self):
+        # copy files into wp-content/mu-plugins
+        src_path = os.path.sep.join([WP_PATH, self.PLUGINS_PATH, self.name])
+        shutil.copytree(src_path, self.path)
 
 
 class WPPluginConfigInfos:
