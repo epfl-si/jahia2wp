@@ -2,7 +2,7 @@ import pytest
 import yaml
 import os
 from settings import PLUGINS_CONFIG_GENERIC_FOLDER, PLUGINS_CONFIG_SPECIFIC_FOLDER
-from wordpress.plugins import WPPluginList, WPPluginConfig, WPConfig
+from wordpress import WPPluginList, WPPluginConfig, WPConfig
 from wordpress.generator import MockedWPGenerator
 
 TEST_SITE = 'unittest'
@@ -42,8 +42,8 @@ def wp_site_specific():
 
 def test_yaml_include():
     # Generate filename to open regarding current script path
-    yaml_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'yaml-root.yml')
-    yaml_content = yaml.load(open(yaml_file, 'r'))
+    yaml_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'yaml-root.yml')
+    yaml_content = yaml.load(open(yaml_path, 'r'))
     assert yaml_content['root_value'] == 'root'
     assert yaml_content['included_value'] == 'included'
 
@@ -70,26 +70,33 @@ class TestWPPluginList:
 class TestWPPluginConfig:
 
     def test_valid_install_generic(self, wp_site_generic, wp_plugin_list):
-        # Plugins and if they have to be installed or not
-        plugins_to_test = {'add-to-any': True, 'hello': False, 'akismet': True}
 
-        for plugin_name in plugins_to_test:
+        # Plugins and if they have to be installed or not
+        for plugin_name, installed in {
+            'add-to-any': True,
+            'hello': False,
+            'akismet': True
+        }.items():
 
             plugin_config = wp_plugin_list.plugins()[plugin_name]
             wp_plugin_config = WPPluginConfig(wp_site_generic, plugin_name, plugin_config)
 
-            assert wp_plugin_config.is_installed is plugins_to_test[plugin_name]
+            assert wp_plugin_config.is_installed is installed
 
     def test_valid_install_specific(self, wp_site_specific, wp_plugin_list):
-        # Plugins and if they have to be installed or not
-        plugins_to_test = {'add-to-any': True, 'epfl_infoscience': True, 'hello': False, 'akismet': False}
 
-        for plugin_name in plugins_to_test:
+        # Plugins and if they have to be installed or not
+        for plugin_name, installed in {
+            'add-to-any': True,
+            'epfl_infoscience': True,
+            'hello': False,
+            'akismet': False
+        }.items():
 
             plugin_config = wp_plugin_list.plugins(TEST_SITE)[plugin_name]
             wp_plugin_config = WPPluginConfig(wp_site_specific, plugin_name, plugin_config)
 
-            assert wp_plugin_config.is_installed is plugins_to_test[plugin_name]
+            assert wp_plugin_config.is_installed is installed
 
     def test_is_activated_generic(self, wp_site_generic, wp_plugin_list):
         # plugins and if they have to be activated or not

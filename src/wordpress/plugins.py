@@ -11,21 +11,16 @@ from .config import WPConfig
 from .models import WPSite
 
 
-""" Class declared in this file:
-- WPPluginList => to manage plugin list for a website
-- WPPluginConfig  => to manage one given plugin for a website
-- WPPluginConfigInfos => To store/generate the configuration of a given plugin.
-"""
-
-""" Defining necessary to allow usage of "!include" in YAML files.
-Given path to include file can be relative to :
-- Python script location
-- YAML file from which "include" is done
-"""
-
-
 def yaml_include(loader, node):
+    """ Defining necessary to allow usage of "!include" in YAML files.
+    Given path to include file can be relative to :
+    - Python script location
+    - YAML file from which "include" is done
 
+    This can be use to include a value for a key. This value can be just a string or a complex (hiearchical) YAML file
+    Ex:
+    my_key: !include file/with/value.yml
+    """
     local_file = os.path.join(os.path.dirname(loader.stream.name), node.value)
 
     # if file to include exists with given valu
