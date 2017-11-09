@@ -3,3 +3,5 @@ plugins:
     config: !include config-epfl_infoscience.yml
   - name: add-to-any
     config: !include config-add-to-any.yml
+  - name: akismet
+    config: !include config-akismet.yml

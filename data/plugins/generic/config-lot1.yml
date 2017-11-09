@@ -1,6 +1,18 @@
 plugins:
   - name: add-to-any
     config: !include add-to-any/v1/config-plugin.yml
+  - name: simple-sitemap
+    config: !include simple-sitemap/v1/config-plugin.yml
+  - name: tinymce-advanced
+    config: !include tinymce-advanced/v1/config-plugin.yml
+  - name: black-studio-tinymce-widget
+    config: !include black-studio-tinymce-widget/v1/config-plugin.yml
+  - name: akismet
+    config: !include akismet/config-plugin.yml
+  - name: hello
+    config: !include hello/config-plugin.yml
+  - name: mainwp-child
+    config: !include mainwp-child/v1/plugin-config.yml
   - name: miniorange-saml-20-single-sign-on
     config: !include miniorange-saml-20-single-sign-on/v1/config-plugin.yml
   - name: mainwp-child
