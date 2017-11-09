@@ -4,7 +4,8 @@ import shutil
 import logging
 
 from utils import Utils
-from settings import WP_DIRS, WP_FILES, PLUGINS_CONFIG_GENERIC_FOLDER, PLUGINS_CONFIG_SPECIFIC_FOLDER
+from settings import WP_DIRS, WP_FILES, PLUGINS_CONFIG_GENERIC_FOLDER, PLUGINS_CONFIG_SPECIFIC_FOLDER, \
+     DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
 
 from django.core.validators import URLValidator
 from veritas.validators import validate_string, validate_openshift_env, validate_integer
@@ -35,6 +36,8 @@ class WPGenerator:
 
     def __init__(self, openshift_env, wp_site_url,
                  wp_default_site_title=None,
+                 installs_locked=DEFAULT_CONFIG_INSTALLS_LOCKED,
+                 updates_automatic=DEFAULT_CONFIG_UPDATES_AUTOMATIC,
                  admin_password=None,
                  owner_id=None,
                  responsible_id=None):
@@ -50,7 +53,10 @@ class WPGenerator:
 
         # create WordPress site and config
         self.wp_site = WPSite(openshift_env, wp_site_url, wp_default_site_title=wp_default_site_title)
-        self.wp_config = WPConfig(self.wp_site)
+        self.wp_config = WPConfig(
+            self.wp_site,
+            installs_locked=installs_locked,
+            updates_automatic=updates_automatic)
 
         # prepare admin for exploitation/maintenance
         self.wp_admin = WPUser(self.WP_ADMIN_USER, self.WP_ADMIN_EMAIL)

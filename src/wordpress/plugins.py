@@ -226,6 +226,15 @@ class WPPluginConfig(WPConfig):
             self.run_wp_cli('plugin deactivate {}'.format(self.name))
 
 
+class WPMuPluginConfig(WPPluginConfig):
+    """ Relies on WPConfig to get wp_site and run wp-cli.
+        Overrides is_installed to check for the theme only
+
+    """
+
+    PLUGINS_PATH = os.path.join('wp-content', 'mu-plugins')
+
+
 class WPPluginConfigInfos:
     """ Allow to manage configuration for a given plugin. Functionalities are :
     - Init with configuration information in YAML format

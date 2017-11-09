@@ -1,5 +1,6 @@
 import pytest
 
+from settings import DEFAULT_CONFIG_INSTALLS_LOCKED
 from utils import Utils
 from wordpress import WPSite, WPUser, WPConfig
 from wordpress.generator import MockedWPGenerator
@@ -85,9 +86,14 @@ class TestWPGenerator:
             wp_site_url="https://localhost/folder",
             wp_default_site_title=self.TITLE_WITH_ACCENT,
             owner_id=self.SAME_SCIPER_ID,
-            responsible_id=self.SAME_SCIPER_ID)
+            responsible_id=self.SAME_SCIPER_ID,
+            updates_automatic=False)
         generator.clean()
         return generator
+
+    def test_config(self, wp_generator):
+        assert wp_generator.wp_config.installs_locked == DEFAULT_CONFIG_INSTALLS_LOCKED
+        assert wp_generator.wp_config.updates_automatic is False
 
     def test_prepare_db(self, wp_generator):
         pass
