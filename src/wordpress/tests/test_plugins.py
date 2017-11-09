@@ -122,7 +122,7 @@ class TestWPPluginConfig:
             plugin_config = wp_plugin_list.plugins(TEST_SITE)[plugin_name]
             wp_plugin_config = WPPluginConfig(wp_site_specific, plugin_name, plugin_config)
 
-            assert wp_plugin_config.is_activated == activated
+            assert wp_plugin_config.is_activated is activated
 
     def test_valid_uninstall(self, wp_site_specific, wp_plugin_list):
 
@@ -166,7 +166,3 @@ class TestWPPluginConfigRestore:
         wp_config = WPConfig(wp_site_generic)
         assert wp_config.run_wp_cli("option get addtoany_options") == 'test_overload'
         assert wp_config.run_wp_cli("option get addtoany_dummy") == 'dummy'
-
-
-class TestWPPluginConfigExtractor:
-    pass
