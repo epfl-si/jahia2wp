@@ -50,7 +50,10 @@ class Utils(object):
             logging.debug("%s => %s", command, proc.stdout)
             # return output if got any, True otherwise
             if proc.stdout:
-                text = proc.stdout.decode(encoding)
+                # Second parameter "ignore" has been added because some plugins have 'strange' characters in their
+                # name so 'decode' is failing and exits the script. Adding "ignore" as parameter prevent script from
+                # exiting.
+                text = proc.stdout.decode(encoding, "ignore")
                 # get rid of final spaces, line return
                 logging.debug(text.strip())
                 return text.strip()

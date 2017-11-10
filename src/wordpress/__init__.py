@@ -1,7 +1,7 @@
 from .models import WPException, WPSite, WPUser
 from .config import WPConfig
 from .themes import WPThemeConfig
-from .plugins import WPPluginConfig, WPPluginConfigExtractor
+from .plugins import WPPluginConfig, WPPluginConfigExtractor, WPPluginList
 from .generator import WPGenerator
 from .backup import WPBackup
 
@@ -16,4 +16,5 @@ __all__ = [
     WPPluginConfig,
     WPPluginConfigExtractor,
     WPThemeConfig,
+    WPPluginList,
 ]
