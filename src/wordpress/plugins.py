@@ -8,7 +8,7 @@ import pymysql.cursors
 from settings import PLUGIN_SOURCE_WP_STORE, PLUGIN_ACTION_INSTALL, PLUGIN_ACTION_NOTHING, PLUGINS_CONFIG_BASE_PATH
 
 from .config import WPConfig
-from .models import WPSite
+from .models import WPSite, WPException
 
 
 def yaml_include(loader, node):
@@ -30,7 +30,9 @@ def yaml_include(loader, node):
     elif os.path.exists(local_file):
         include_file = local_file
     else:
-        logging.error("YAML include in '%s' - file to include doesn't exists: %s", loader.stream.name, node.value)
+        error_msg = "YAML include in '%s' - file to include doesn't exists: %s", loader.stream.name, node.value
+        raise WPException(error_msg)
+        logging.error(error_msg)
 
     with open(include_file) as inputfile:
         return yaml.load(inputfile)
