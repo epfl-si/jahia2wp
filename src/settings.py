@@ -3,7 +3,7 @@ import os
 
 from utils import Utils
 
-VERSION = "0.2.11"
+VERSION = "0.2.12"
 
 DATA_PATH = os.path.abspath(
     os.path.sep.join([os.path.dirname(__file__), '..', 'data'])
@@ -90,6 +90,7 @@ PLUGINS_CONFIG_SPECIFIC_FOLDER = os.path.join(PLUGINS_CONFIG_BASE_PATH, 'specifi
 PLUGIN_SOURCE_WP_STORE = 'web'
 PLUGIN_ACTION_INSTALL = 'install'
 PLUGIN_ACTION_UNINSTALL = 'uninstall'
+PLUGIN_ACTION_NOTHING = 'nothing'
 
 
 JAHIA_USER = Utils.get_optional_env("JAHIA_USER", "admin")

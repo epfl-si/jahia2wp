@@ -12,3 +12,4 @@ htmlcov/
 volumes/
 data/backups/
 coverage.xml
+data/plugins/generic/miniorange-saml-20-single-sign-on/
