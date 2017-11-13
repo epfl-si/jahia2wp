@@ -134,13 +134,13 @@ Note that python is not in the requirements. You do not necessarily need it on y
 
 ![architecture locale](./static/archi_local.jpg)
 
-As some commands require `sudo`, you will be asked for your system password. The process will add a line line in your `.bashrc` (again: head to [INSTALL_TOOLS.md](./INSTALL_TOOLS.md) to get more details):
+As some commands require `sudo`, you will be asked for your system password. The process will add a line in your `.bashrc` (again: head to [INSTALL_TOOLS.md](./INSTALL_TOOLS.md) to get more details):
 
     you@host:~$ git clone git@github.com:epfl-idevelop/jahia2wp.git
     # or, would you rather use https instead of SSH
     # you@host:~$ git clone https://github.com/epfl-idevelop/jahia2wp.git 
     you@host:~$ cd jahia2wp
-    you@host:jahia2wp$ make bootstrap-local ( add ENV=your-env if you use a C2C environment name here if you have one)
+    you@host:jahia2wp$ make bootstrap-local (add ENV=your-env if you use a C2C environment name here if you have one)
     ...
     -> instructions to finish local setup
 
@@ -184,7 +184,7 @@ You can start with this useful alias:
 
     www-data@...:/srv/your-env$ vjahia2wp
 
-The configuration of your python virtual environment will occur the first time you make use of it. Otherwise, it is simply activated and your are correctly set in your `src` dir:
+The configuration of your python virtual environment will occur the first time you make use of it. Otherwise, it is simply activated and you are correctly set in your `src` dir:
 
     (venv) www-data@...:/srv/your-env/jahia2wp/src$ 
 
@@ -297,7 +297,7 @@ A phpMyAdmin is available locally at [localhost:8080](http://localhost:8080), wi
 
 There are a few ways where you can help out:
 
-1. Submit [Github issues](https://github.com/epfl-idevelop/jahia2wp/issues) for any feature enhancements, bugs or documentation problems.
+1. Submit [GitHub issues](https://github.com/epfl-idevelop/jahia2wp/issues) for any feature enhancements, bugs or documentation problems.
 1. Fix open issues by sending PRs (please make sure you respect [flake8](http://flake8.pycqa.org/en/latest/) conventions and that all tests pass (see below)
 1. Add documentation (written in [markdown](https://daringfireball.net/projects/markdown/))
 
