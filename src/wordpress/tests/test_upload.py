@@ -9,9 +9,10 @@ from bs4 import BeautifulSoup
 
 
 class Test_WPTester(object):
+
     @pytest.fixture()
     def base_url(self):
-        return os.getenv('SUT_BASE_URL', 'http://localhost:8000')
+        return os.getenv('SUT_BASE_URL', 'http://localhost')
 
     @pytest.fixture()
     def username(self):
@@ -65,7 +66,12 @@ class Test_WPTester(object):
 
         # upload the image
         logging.debug("Uploading the image")
-        with open('2.jpg', 'rb') as f:
+
+        os.getenv("SUT_PASSWORD", 'admin')
+
+        file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'media.jpg')
+
+        with open(file_path, 'rb') as f:
             upload_data = {'post_id': '0',
                            '_wp_http_referer': '/wp-admin/media-new.php',
                            '_wpnonce': wp_nonce,
@@ -83,6 +89,7 @@ class Test_WPTester(object):
             base_path=base_url,
             timestamp=datetime.date.today(),
             filename=unique_file_name)
+        print(image_url)
         image_page = session.get(image_url)
         assert image_page.status_code is 200
 
