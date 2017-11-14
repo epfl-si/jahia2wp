@@ -1,4 +1,7 @@
-from src.wordpress import WPConfig
+import os
+
+from wordpress import WPConfig
+from .manager import WPPluginConfigRestore
 
 
 class WPPluginConfig(WPConfig):

@@ -1,14 +1,10 @@
-import re
 import os
 import logging
 import copy
 import yaml
-import pymysql.cursors
 
 from settings import PLUGIN_SOURCE_WP_STORE, PLUGIN_ACTION_INSTALL, PLUGIN_ACTION_NOTHING, PLUGINS_CONFIG_BASE_PATH
-
-from .config import WPConfig
-from .models import WPSite, WPException
+from wordpress import WPException
 
 
 def yaml_include(loader, node):
@@ -39,23 +35,6 @@ def yaml_include(loader, node):
 
 
 yaml.add_constructor("!include", yaml_include)
-
-""" Tables in which configuration is stored, with 'auto gen id' fields and 'unique field'
-(others than only auto-gen field). Those tables must be sorted to satisfy foreign keys.
-Those are the 'short names' of the tables. We will need to add WordPress table prefix to
-have complete name. """
-WP_PLUGIN_CONFIG_TABLES = {'postmeta': ['meta_id', None],
-                           'options': ['option_id', 'option_name'],
-                           'terms': ['term_id', None],
-                           'termmeta': ['meta_id', None],
-                           'term_taxonomy': ['term_taxonomy_id', None],
-                           'term_relationships': [None, ['object_id', 'term_taxonomy_id']]}
-
-""" Relation between configuration tables. There are no explicit relation between tables in DB but there are
-relation coded in WP. """
-WP_PLUGIN_TABLES_RELATIONS = {'termmeta': {'term_id': 'terms'},
-                              'term_taxonomy': {'term_id': 'terms'},
-                              'term_relationships': {'term_taxonomy_id': 'term_taxonomy'}}
 
 
 class WPPluginList:
@@ -157,8 +136,6 @@ class WPPluginList:
             return self._generic_plugins
 
         return self.__build_plugins_for_site(wp_site_id)
-
-
 
 
 class WPPluginConfigInfos:

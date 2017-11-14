@@ -1,3 +1,13 @@
+import os
+import logging
+import re
+import yaml
+import pymysql
+
+from settings import WP_PLUGIN_TABLES_RELATIONS, WP_PLUGIN_CONFIG_TABLES
+from wordpress import WPSite
+
+
 class WPPluginConfigManager:
     """ Give necessary tools to manage (import/export) configuration parameters for a plugin which are stored
         in the database. Information to access database are recovered from WordPress config file (wp-config.php)
@@ -148,8 +158,8 @@ class WPPluginConfigExtractor(WPPluginConfigManager):
         output_file -- Path to output file where to store plugin configuration
         """
 
-        input("Log into WP admin console ({}/wp-admin) and navigate a bit through pages. Then, come back here \
-and press ENTER: ".format(self.wp_site.url))
+        input("Log into WP admin console ({}/wp-admin) and navigate a bit through pages. Then, come back here"
+              "and press ENTER: ".format(self.wp_site.url))
 
         """ STEP ONE - REFERENCE CONFIG """
         ref_config = {}
