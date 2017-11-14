@@ -91,7 +91,7 @@ class WPGenerator:
             site_id = self.wp_site.folder
         else:
             domain_parts = self.wp_site.domain.split(".")
-            site_id = self.wp_site.domain if len(domain_parts) == 1 else domain_parts[1]
+            site_id = self.wp_site.domain if len(domain_parts) == 1 else domain_parts[0]
 
         # Looping through plugins to install
         for plugin_name, plugin_config in plugin_list.plugins(site_id).items():
