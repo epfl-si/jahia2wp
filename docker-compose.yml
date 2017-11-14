@@ -3,7 +3,7 @@ version: '3'
 services:
 
   db:
-    image: mysql:5.7
+    image: mariadb:5.5
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
