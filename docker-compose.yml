@@ -19,7 +19,7 @@ services:
       - /sessions
       
   httpd:
-    image: camptocamp/os-wp-httpd
+    image: epflidevelop/os-wp-httpd
     volumes:
       - ./volumes/srv:/srv
     links:
@@ -33,7 +33,7 @@ services:
   mgmt:
     labels:
       ch.epfl.jahia2wp.mgmt.env: ${WP_ENV}
-    image: camptocamp/os-wp-mgmt
+    image: epflidevelop/os-wp-mgmt
     env_file:
       - .env
     environment:
