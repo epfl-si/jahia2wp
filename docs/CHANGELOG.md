@@ -32,19 +32,23 @@ Table of releases
 ## [0.2.13] - 2017-11-14
 
 **[PR #70](https://github.com/epfl-idevelop/jahia2wp/pull/70)**
-**[PR #75](https://github.com/epfl-idevelop/jahia2wp/pull/70)**
+**[PR #75](https://github.com/epfl-idevelop/jahia2wp/pull/75)**
+**[PR #77](https://github.com/epfl-idevelop/jahia2wp/pull/77): **
 
 **High level changes:**
 
 1. (#70) Infos de logging modifiées
 1. (#70) Ajout de la gestion de "use cases" d'installation/désinstallation" de plugins spécifiques
 1. (#75) added option `--force` on command `clean`
+1. (#77) Need to reset DB (using 5.5 instead of 5.7) and containers (images location changed)
 
 **Low level changes:**
 
 1. (#70) Ajout de check si un plugin est installé ou pas avant de tenter de l'installer ou de le désinstaller.
 1. (#75) removed IF EXISTS when dropping user.
 1. (#75) by-passing check_config in jahia2wp.py:clean when using option --force
+1. (#77) added Dockerfiles image to build up `httpd` and `mgmt` docker images
+1. (#77) aligned mariaDB version (5.5) with the one used on C2C infra
 
 
 ## [0.2.12] - 2017-11-09
