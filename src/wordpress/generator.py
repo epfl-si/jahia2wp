@@ -91,7 +91,7 @@ class WPGenerator:
             site_id = self.wp_site.folder
         else:
             domain_parts = self.wp_site.domain.split(".")
-            site_id = self.wp_site.domain if len(domain_parts) == 1 else domain_parts[1]
+            site_id = self.wp_site.domain if len(domain_parts) == 1 else domain_parts[0]
 
         # Looping through plugins to install
         for plugin_name, plugin_config in plugin_list.plugins(site_id).items():
@@ -101,22 +101,30 @@ class WPGenerator:
 
             # If we have to uninstall the plugin
             if plugin_config.action == PLUGIN_ACTION_UNINSTALL:
-                logging.info("%s - Plugins - Uninstalling '%s'...", repr(self), plugin_name)
-                plugin.uninstall()
-                logging.info("%s - Plugins - '%s' has been uninstalled", repr(self), plugin_name)
+                logging.info("%s - Plugins - %s: Uninstalling...", repr(self), plugin_name)
+                if plugin.is_installed:
+                    plugin.uninstall()
+                    logging.info("%s - Plugins - %s: Uninstalled!", repr(self), plugin_name)
+                else:
+                    logging.info("%s - Plugins - %s: Not installed!", repr(self), plugin_name)
 
             else:  # We have to install the plugin
                 # We may have to install or do nothing (if we only want to deactivate plugin)
                 if plugin_config.action == PLUGIN_ACTION_INSTALL:
-                    logging.info("%s - Plugins - Installing '%s'...", repr(self), plugin_name)
-                    plugin.install()
+                    logging.info("%s - Plugins - %s: Installing...", repr(self), plugin_name)
+                    if not plugin.is_installed:
+                        plugin.install()
+                        logging.info("%s - Plugins - %s: Installed!", repr(self), plugin_name)
+                    else:
+                        logging.info("%s - Plugins - %s: Already installed!", repr(self), plugin_name)
 
+                logging.info("%s - Plugins - %s: Setting state...", repr(self), plugin_name)
                 plugin.set_state()
 
                 if plugin.is_activated:
-                    logging.debug("%s - Plugins - '%s' is activated", repr(self), plugin_name)
+                    logging.info("%s - Plugins - %s: Activated!", repr(self), plugin_name)
                 else:
-                    logging.debug("%s - Plugins - '%s' is deactivated", repr(self), plugin_name)
+                    logging.info("%s - Plugins - %s: Deactivated!", repr(self), plugin_name)
 
                 # Configure plugin
                 plugin.configure()

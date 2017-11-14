@@ -280,3 +280,12 @@
 #brief-panel h3 acronym { color: red;}
 #brief-panel h3 a { color: red;}
 #brief-panel .large { width: 320px; margin-right:0; }
+
+/* Responsive header */
+
+.site-header.epfl .logo {
+  margin-top: .3075em;
+  height: 100%;
+  font-size: 1.1em;
+  width: 16.66666%;
+}
