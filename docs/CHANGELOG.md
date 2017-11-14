@@ -33,7 +33,7 @@ Table of releases
 
 **[PR #70](https://github.com/epfl-idevelop/jahia2wp/pull/70)**
 **[PR #75](https://github.com/epfl-idevelop/jahia2wp/pull/75)**
-**[PR #77](https://github.com/epfl-idevelop/jahia2wp/pull/77): **
+**[PR #77](https://github.com/epfl-idevelop/jahia2wp/pull/77)**
 
 **High level changes:**
 
