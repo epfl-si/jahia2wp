@@ -6,9 +6,17 @@ from wordpress import WPPluginList, WPPluginConfig, WPConfig
 from wordpress.generator import MockedWPGenerator
 
 TEST_SITE = 'unittest'
-SITE_URL_GENERIC = "https://localhost/"
-SITE_URL_SPECIFIC = "https://localhost/{}".format(TEST_SITE)
+SITE_URL_GENERIC = "http://localhost/"
+SITE_URL_SPECIFIC = "http://localhost/{}".format(TEST_SITE)
 TEST_ENV = 'test'
+
+"""
+If you want to execute pytest locally to your computer (= not on Travis), you have to :
+$ make exec
+$ vjahia
+$ export PLUGINS_CONFIG_BASE_PATH=wordpress/tests/plugins
+$ pytest -x wordpress/tests/test_plugins.py
+"""
 
 
 @pytest.fixture(scope="module")
