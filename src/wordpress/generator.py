@@ -13,7 +13,7 @@ from veritas.validators import validate_string, validate_openshift_env, validate
 from .models import WPSite, WPUser
 from .config import WPConfig
 from .themes import WPThemeConfig
-from .plugins import WPPluginList, WPPluginConfig
+from .plugins import WPPluginList, WPPluginConfig, WP_PLUGIN_CONFIG_TABLES
 
 
 class WPGenerator:
@@ -77,6 +77,58 @@ class WPGenerator:
             " --password={0.MYSQL_SUPER_PASSWORD} ".format(self)
         return Utils.run_command(mysql_connection_string + command)
 
+    def gen_site_id(self):
+        """
+        Temporary function. Only use to generate site ID for current WP site. In the future, we won't need this
+        function because it will be a field in Source of trousse
+        """
+        if self.wp_site.folder != "":
+            return self.wp_site.folder
+        else:
+            domain_parts = self.wp_site.domain.split(".")
+            return self.wp_site.domain if len(domain_parts) == 1 else domain_parts[0]
+
+    def list_plugins(self, with_config=False, for_plugin=None):
+        """
+        List plugins (and configuration) for WP site
+
+        Keyword arguments:
+        with_config -- (Bool) to specify if plugin config has to be displayed
+        for_plugin -- Used only if 'with_config'=True. Allow to display only configuration for one given plugin.
+        """
+        logging.info("WPGenerator.list_plugins(): Add parameter for 'batch file' (YAML)")
+        # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"
+        # information in the source of trousse !
+        plugin_list = WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
+
+        site_id = self.gen_site_id()
+
+        print("Plugin list for site '{}':".format(site_id))
+
+        # Looping through plugins to display
+        for plugin_name, plugin_config in plugin_list.plugins(site_id).items():
+
+            # If we have to display information for current plugin.
+            if not with_config or (with_config and (for_plugin is None or for_plugin == plugin_name)):
+                print("- {}".format(plugin_name))
+
+                print("  - action   : {}".format(plugin_config.action))
+                if plugin_config.action != PLUGIN_ACTION_UNINSTALL:
+                    print("  - activated: {}".format(plugin_config.is_active))
+                    if plugin_config.is_active:
+                        print("  - src      : {}".format(plugin_config.zip_path if plugin_config.zip_path
+                                                         is not None else 'web'))
+                # if we need to display configuration
+                if with_config:
+                    print("  - tables")
+                    for table_name in WP_PLUGIN_CONFIG_TABLES:
+
+                        print("    + {}".format(table_name))
+                        for row in plugin_config.table_rows(table_name):
+                            print(row)
+
+                print("\n")
+
     def generate_plugins(self):
         """
         Get plugin list for WP site, install them, activate them if needed, configure them
@@ -87,11 +139,7 @@ class WPGenerator:
         # information in the source of trousse !
         plugin_list = WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
 
-        if self.wp_site.folder != "":
-            site_id = self.wp_site.folder
-        else:
-            domain_parts = self.wp_site.domain.split(".")
-            site_id = self.wp_site.domain if len(domain_parts) == 1 else domain_parts[0]
+        site_id = self.gen_site_id()
 
         # Looping through plugins to install
         for plugin_name, plugin_config in plugin_list.plugins(site_id).items():
