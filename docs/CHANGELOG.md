@@ -11,6 +11,7 @@ Table of releases
 
 <!-- TOC depthFrom:2 depthTo:2 orderedList:false -->
 
+- [[0.2.13] - 2017-11-14](#0213---2017-11-14)
 - [[0.2.12] - 2017-11-09](#0212---2017-11-09)
 - [[0.2.11] - 2017-11-08](#0211---2017-11-08)
 - [[0.2.10] - 2017-11-08](#0210---2017-11-08)
@@ -27,6 +28,18 @@ Table of releases
 - [[0.1.0] - 2017-09-14](#010---2017-09-14)
 
 <!-- /TOC -->
+
+## [0.2.13] - 2017-11-14
+**[PR #70](https://github.com/epfl-idevelop/jahia2wp/pull/70)**
+
+**High level changes:**
+
+1. Infos de logging modifiées
+1. Ajout de la gestion de "use cases" d'installation/désinstallation" de plugins spécifiques
+
+**Low level changes:**
+
+1. Ajout de check si un plugin est installé ou pas avant de tenter de l'installer ou de le désinstaller.
 
 
 ## [0.2.12] - 2017-11-09
