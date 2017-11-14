@@ -33,12 +33,14 @@ Table of releases
 
 **[PR #70](https://github.com/epfl-idevelop/jahia2wp/pull/70)**
 **[PR #75](https://github.com/epfl-idevelop/jahia2wp/pull/70)**
+**[PR #78](https://github.com/epfl-idevelop/jahia2wp/pull/78)**
 
 **High level changes:**
 
 1. (#70) Infos de logging modifiées
 1. (#70) Ajout de la gestion de "use cases" d'installation/désinstallation" de plugins spécifiques
 1. (#75) added option `--force` on command `clean`
+1. (#78) Added documentation and template to create cronjobs on openshift
 
 **Low level changes:**
 
