@@ -1,7 +1,7 @@
-# HOWTO create a cronjob on openshift infra
+# HOWTO create a cronjob on openshift infrastructure
 
-Cette page propose les recettes pour créer et gérer des cronjobs.
-Vous pouvez vous référer à [la documentation officielle](https://docs.openshift.org/latest/dev_guide/cron_jobs.html) pour plus de détails.
+You will find on this page a few recipes to create and manage cronjobs.
+Please refer to the [official documentation](https://docs.openshift.org/latest/dev_guide/cron_jobs.html) for more details.
 
 ## Pre-requisite : login
 
@@ -9,9 +9,7 @@ Vous pouvez vous référer à [la documentation officielle](https://docs.openshi
 
 ## Creating a job
 
-Vous devez avoir préparé une descrition de votre cronjob, c'est à dire un fichier YAML.
-
-Ils sont définis dans le repo à `etc/cronjobs/*.yaml`. Le premier exemple est `build-dev-inventory.yml`
+You should have prepared a job description in YAML format. You will find examples in the directory `etc/cronjobs`. For instance [etc/jobs/build-dev-inventory.yaml](../../etc/jobs/build-dev-inventory.yaml)
 
     $ oc create -f test-cronjob-definition.yaml
 
@@ -21,7 +19,7 @@ Ils sont définis dans le repo à `etc/cronjobs/*.yaml`. Le premier exemple est 
 
 ## Listing logs for a job
 
-our accéder aux logs, vous devez d'abord identifier sur quel pod votre cronjob tourne, Ensuite, utilisez `oc logs <pod>`:
+In order to access the logs, you first need to know which pod runs your job. Once you know it, use the command `oc logs <pod>`:
 
     $ oc get pods
     NAME                                       READY     STATUS             RESTARTS   AGE
