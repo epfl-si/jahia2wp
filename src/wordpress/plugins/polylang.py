@@ -1,0 +1,3 @@
+
+class WPPolylang(WPPluginConfig):
+    pass
