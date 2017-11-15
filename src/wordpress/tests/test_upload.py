@@ -7,14 +7,13 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
-from utils import Utils
+from settings import DOCKER_IP
 from wordpress.generator import MockedWPGenerator
 
 
 class TestWpUploadTest:
 
     SAME_SCIPER_ID = "188475"
-    IP_ADRESS_DOCKER = "172.17.0.1"
 
     @pytest.fixture()
     def session(self):
@@ -28,7 +27,7 @@ class TestWpUploadTest:
     def wp_generator(self):
         generator = MockedWPGenerator(
             openshift_env="test",
-            wp_site_url="https://" + self.IP_ADRESS_DOCKER + "/folder",
+            wp_site_url="https://" + DOCKER_IP + "/folder",
             wp_default_site_title="Upload test",
             admin_password="admin",
             owner_id=self.SAME_SCIPER_ID,
