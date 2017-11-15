@@ -1,7 +1,6 @@
 """ All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017 """
 from django.core.validators import URLValidator, ValidationError
 
-from settings import DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
 from utils import Utils
 
 from .validators import validate_integer, validate_string, validate_yes_or_no, \
