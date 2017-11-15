@@ -17,6 +17,7 @@ from .models import WPSite, WPUser
 from .config import WPConfig
 from .themes import WPThemeConfig
 from .plugins.models import WPPluginList
+from .plugins.config import WPMuPluginConfig
 
 
 class WPGenerator:
@@ -123,55 +124,6 @@ class WPGenerator:
 
         return plugin_list.list_plugins(self.wp_site.name, with_config, for_plugin)
 
-    def generate_plugins(self):
-        """
-        Get plugin list for WP site, install them, activate them if needed, configure them
-
-        """
-        logging.info("WPGenerator.generate_plugins(): Add parameter for 'batch file' (YAML)")
-        # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"
-        # information in the source of trousse !
-        plugin_list = WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
-
-        # Looping through plugins to install
-        for plugin_name, config_dict in plugin_list.plugins(self.wp_site.name).items():
-
-            # Fectch proper PluginConfig class and create instance
-            plugin_class_name = WP_PLUGIN_CONFIG_CLASS_BY_NAME.get(
-                plugin_name, WP_DEFAULT_PLUGIN_CONFIG)
-            plugin_class = Utils.import_class_from_string(plugin_class_name)
-            plugin_config = plugin_class(self.wp_site, plugin_name, config_dict)
-
-            # If we have to uninstall the plugin
-            if config_dict.action == PLUGIN_ACTION_UNINSTALL:
-                logging.info("%s - Plugins - %s: Uninstalling...", repr(self), plugin_name)
-                if plugin_config.is_installed:
-                    plugin_config.uninstall()
-                    logging.info("%s - Plugins - %s: Uninstalled!", repr(self), plugin_name)
-                else:
-                    logging.info("%s - Plugins - %s: Not installed!", repr(self), plugin_name)
-
-            else:  # We have to install the plugin
-                # We may have to install or do nothing (if we only want to deactivate plugin)
-                if config_dict.action == PLUGIN_ACTION_INSTALL:
-                    logging.info("%s - Plugins - %s: Installing...", repr(self), plugin_name)
-                    if not plugin_config.is_installed:
-                        plugin_config.install()
-                        logging.info("%s - Plugins - %s: Installed!", repr(self), plugin_name)
-                    else:
-                        logging.info("%s - Plugins - %s: Already installed!", repr(self), plugin_name)
-
-                logging.info("%s - Plugins - %s: Setting state...", repr(self), plugin_name)
-                plugin_config.set_state()
-
-                if plugin_config.is_activated:
-                    logging.info("%s - Plugins - %s: Activated!", repr(self), plugin_name)
-                else:
-                    logging.info("%s - Plugins - %s: Deactivated!", repr(self), plugin_name)
-
-                # Configure plugin
-                plugin_config.configure()
-
     def generate(self):
         """
         Generate a complete and fully working WordPress website
@@ -200,6 +152,11 @@ class WPGenerator:
         if not theme.activate():
             logging.error("%s - could not activate theme", repr(self))
             return False
+
+        # install, activate and config mu-plugins
+        # must be done before plugins if automatic updates are disabled
+        logging.info("%s - Installing mu-plugins...", repr(self))
+        self.generate_mu_plugins()
 
         # install, activate and config plugins
         logging.info("%s - Installing plugins...", repr(self))
@@ -293,6 +250,67 @@ class WPGenerator:
 
         # flag a success if at least one webmaster has been created
         return success
+
+    def generate_mu_plugins(self):
+        WPMuPluginConfig(self.wp_site, "epfl-functions.php").install()
+        WPMuPluginConfig(self.wp_site, "EPFL-SC-infoscience.php").install()
+
+        if self.wp_config.installs_locked:
+            WPMuPluginConfig(self.wp_site, "EPFL_installs_locked.php").install()
+
+        if self.wp_config.updates_automatic:
+            WPMuPluginConfig(self.wp_site, "EPFL_enable_updates_automatic.php").install()
+        else:
+            WPMuPluginConfig(self.wp_site, "EPFL_disable_updates_automatic.php").install()
+
+    def generate_plugins(self):
+        """
+        Get plugin list for WP site, install them, activate them if needed, configure them
+
+        """
+        logging.info("WPGenerator.generate_plugins(): Add parameter for 'batch file' (YAML)")
+        # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"
+        # information in the source of trousse !
+        plugin_list = WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
+
+        # Looping through plugins to install
+        for plugin_name, config_dict in plugin_list.plugins(self.wp_site.name).items():
+
+            # Fectch proper PluginConfig class and create instance
+            plugin_class_name = WP_PLUGIN_CONFIG_CLASS_BY_NAME.get(
+                plugin_name, WP_DEFAULT_PLUGIN_CONFIG)
+            plugin_class = Utils.import_class_from_string(plugin_class_name)
+            plugin_config = plugin_class(self.wp_site, plugin_name, config_dict)
+
+            # If we have to uninstall the plugin
+            if config_dict.action == PLUGIN_ACTION_UNINSTALL:
+                logging.info("%s - Plugins - %s: Uninstalling...", repr(self), plugin_name)
+                if plugin_config.is_installed:
+                    plugin_config.uninstall()
+                    logging.info("%s - Plugins - %s: Uninstalled!", repr(self), plugin_name)
+                else:
+                    logging.info("%s - Plugins - %s: Not installed!", repr(self), plugin_name)
+
+            else:  # We have to install the plugin
+                # We may have to install or do nothing (if we only want to deactivate plugin)
+                if config_dict.action == PLUGIN_ACTION_INSTALL:
+                    logging.info("%s - Plugins - %s: Installing...", repr(self), plugin_name)
+                    if not plugin_config.is_installed:
+                        plugin_config.install()
+                        logging.info("%s - Plugins - %s: Installed!", repr(self), plugin_name)
+                    else:
+                        logging.info("%s - Plugins - %s: Already installed!", repr(self), plugin_name)
+
+                logging.info("%s - Plugins - %s: Setting state...", repr(self), plugin_name)
+                plugin_config.set_state()
+
+                if plugin_config.is_activated:
+                    logging.info("%s - Plugins - %s: Activated!", repr(self), plugin_name)
+                else:
+                    logging.info("%s - Plugins - %s: Deactivated!", repr(self), plugin_name)
+
+                # Configure plugin
+                plugin_config.configure()
 
     def clean(self):
         """

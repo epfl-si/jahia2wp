@@ -4,7 +4,7 @@ import os
 from importlib import reload
 
 import settings
-from wordpress import WPPluginList, WPPluginConfig, WPConfig
+from wordpress import WPPluginList, WPPluginConfig, WPMuPluginConfig, WPConfig
 from wordpress.generator import MockedWPGenerator
 
 TEST_SITE = 'unittest'
@@ -146,6 +146,9 @@ class TestWPPluginConfig:
             wp_plugin_config = WPPluginConfig(wp_site_specific, plugin_name, plugin_config)
 
             assert wp_plugin_config.is_activated is activated
+
+    def test_mu_plugins_installed(self, wp_site_specific):
+        assert os.path.exists(WPMuPluginConfig(wp_site_specific, "epfl-functions").path)
 
     def test_valid_uninstall(self, wp_site_specific, wp_plugin_list):
 
