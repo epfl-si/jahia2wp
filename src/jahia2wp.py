@@ -5,6 +5,7 @@ Usage:
   jahia2wp.py download              <site>                          [--debug | --quiet]
     [--username=<USERNAME> --host=<HOST> --zip-path=<ZIP_PATH> --force]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
+    [--force]
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate              <wp_env> <wp_url>               [--debug | --quiet]
     [--wp-title=<WP_TITLE> --admin-password=<ADMIN_PASSWORD>]
@@ -90,8 +91,10 @@ def clean_one(wp_env, wp_url, **kwargs):
 
 
 @dispatch.on('clean')
-def clean(wp_env, wp_url, **kwargs):
-    _check_site(wp_env, wp_url, **kwargs)
+def clean(wp_env, wp_url, force=False, **kwargs):
+    # when forced, do not check the status of the config -> just remove everything possible
+    if not force:
+        _check_site(wp_env, wp_url, **kwargs)
     # config found: proceed with cleaning
     wp_generator = WPGenerator(wp_env, wp_url)
     if wp_generator.clean():
