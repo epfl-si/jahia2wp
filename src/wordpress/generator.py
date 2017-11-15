@@ -77,16 +77,6 @@ class WPGenerator:
             " --password={0.MYSQL_SUPER_PASSWORD} ".format(self)
         return Utils.run_command(mysql_connection_string + command)
 
-    def gen_site_id(self):
-        """
-        Temporary function. Only use to generate site ID for current WP site. In the future, we won't need this
-        function because it will be a field in Source of trousse
-        """
-        if self.wp_site.folder != "":
-            return self.wp_site.folder.split('/')[-1]
-        else:
-            return self.wp_site.domain.split(".")[0]
-
     def list_plugins(self, with_config=False, for_plugin=None):
         """
         List plugins (and configuration) for WP site
@@ -100,7 +90,7 @@ class WPGenerator:
         # information in the source of trousse !
         plugin_list = WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
 
-        return plugin_list.list_plugins(self.gen_site_id(), with_config, for_plugin)
+        return plugin_list.list_plugins(self.wp_site.name, with_config, for_plugin)
 
     def generate_plugins(self):
         """
@@ -112,10 +102,8 @@ class WPGenerator:
         # information in the source of trousse !
         plugin_list = WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
 
-        site_id = self.gen_site_id()
-
         # Looping through plugins to install
-        for plugin_name, plugin_config in plugin_list.plugins(site_id).items():
+        for plugin_name, plugin_config in plugin_list.plugins(self.wp_site.name).items():
 
             # install and activate AddToAny plugin
             plugin = WPPluginConfig(self.wp_site, plugin_name, plugin_config)
