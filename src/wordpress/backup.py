@@ -53,6 +53,15 @@ class WPBackup:
     def __init__(self, openshift_env, wp_site_url,
                  wp_default_site_title=None,
                  backup_type=None):
+        """
+        Class constructor
+
+        Argument keywords:
+        openshift_env -- Name of OpenShift environment on which script is executed
+        wp_site_url -- URL to Website to backup
+        wp_default_site_title -- (optional) website title
+        backup_type -- (optional) Backup type to do. 'inc' or 'full'
+        """
         # validate input
         validate_openshift_env(openshift_env)
         URLValidator()(wp_site_url)
@@ -73,6 +82,9 @@ class WPBackup:
         """
         Go through the backup directory and return the max number
         according to the regular expression passed as parameter
+
+        Argument keywords:
+        regex -- Regular expression to use to return max number
         """
         pattern = re.compile(regex)
 
@@ -128,8 +140,10 @@ class WPBackup:
 
     def generate_listed_incremental_file_name(self, tar_file_name):
         """
-        Generate the name of listed incremental file.
-        This file is used to save the content differences between the different incremental tar files
+        Generate name of file use to list incremental changes of a TAR file.
+
+        Argument keywords:
+        tar_file_name -- Name of TAR file used for backup
         """
 
         if self.type == "full":
@@ -138,19 +152,22 @@ class WPBackup:
         elif self.type == "inc":
             pattern = re.compile(self.REGEX_INC_NUMBER.format(self.max_full_number))
             current_full_number = pattern.findall(tar_file_name)[0]
-        listed_incremental_file = "_".join(
+        listed_incremental_file_name = "_".join(
             (self.wp_site.name, "full")
         )
-        listed_incremental_file += "".join(
+        listed_incremental_file_name += "".join(
             (current_full_number, ".list")
         )
-        return listed_incremental_file
+        return listed_incremental_file_name
 
     def generate_wp_files_backup(self, tar_file_name):
         """
         Generate a tar file that contains all the files of the WordPress site
 
         raises WPException on failures
+
+        Argument keywords:
+        tar_file_name -- Name of TAR file in which saving WP files.
         """
         if not os.listdir(self.wp_site.path):
             raise WPException("The WordPress site {} is not properly installed".format(repr(self.wp_site)))
@@ -175,6 +192,9 @@ class WPBackup:
         Generate the database dump.
 
         raises WPException on failures
+
+        Argument keywords:
+        dump_file_name -- Filename where to dump DB content.
         """
 
         # Build db backup
@@ -189,7 +209,7 @@ class WPBackup:
 
     def backup(self):
         """
-        Generate the backup
+        Launch the backup
         """
 
         if not os.path.exists(self.path):
