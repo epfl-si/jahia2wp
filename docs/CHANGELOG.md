@@ -33,6 +33,7 @@ Table of releases
 
 **[PR #70](https://github.com/epfl-idevelop/jahia2wp/pull/70)**
 **[PR #75](https://github.com/epfl-idevelop/jahia2wp/pull/70)**
+**[PR #76](https://github.com/epfl-idevelop/jahia2wp/pull/76)**
 **[PR #81](https://github.com/epfl-idevelop/jahia2wp/pull/81)**
 
 **High level changes:**
@@ -40,6 +41,7 @@ Table of releases
 1. (#70) Infos de logging modifiées
 1. (#70) Ajout de la gestion de "use cases" d'installation/désinstallation" de plugins spécifiques
 1. (#75) added option `--force` on command `clean`
+1. (#76) Nouvelle option pour lister les plugins (`list-plugins`) ajoutée dans `jahia2wp.py`. Elle permet de lister les plugins qui seront installés (ainsi que leur config si on la veut) pour un site (donné par `wp_env` et `wp_url`)
 1. (#81) Cette PR ajoute un test fonctionnel à savoir : tester l'upload d'un média dans un site WP.
 
 **Low level changes:**
@@ -47,6 +49,10 @@ Table of releases
 1. (#70) Ajout de check si un plugin est installé ou pas avant de tenter de l'installer ou de le désinstaller.
 1. (#75) removed IF EXISTS when dropping user.
 1. (#75) by-passing check_config in jahia2wp.py:clean when using option --force
+1. (#76) Fonction pour afficher une liste de plugins qui va être installée.
+1. (#76) Pas de test spécifique ajouté pour ceci car c'est juste de l'affichage et la génération de la liste de plugins pour un site est déjà testée.
+1. (#76) Modifications dans `test_jahia2wp.py` pour utiliser des variables pour les infos sur les sites à tester au lieu de hard-coder à chaque fois.
+1. (#76) Modification de WPSite.name qui joue le role d'ID du site WordPress pour l'instant. Pour un sous-domaine, la valeur retournée est le sous-domaine à la place du FQDN
 1. (#81) A noter que pour que les tests fonctionnent depuis le conteneur on utilise l'IP de Docker "172.17.0.1" qui potentiellement peut changer dans le futur.
 
 
