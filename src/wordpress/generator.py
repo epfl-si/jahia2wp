@@ -41,6 +41,17 @@ class WPGenerator:
                  admin_password=None,
                  owner_id=None,
                  responsible_id=None):
+        """
+        Class constructor
+
+        Argument keywords:
+        openshift_env -- Name of OpenShift environment on which script is executed
+        wp_site_url -- Website URL
+        wp_default_site_title -- (optional) website title
+        admin_password -- (optional) Password to use for 'admin' account
+        owner_id -- (optional) ID (sciper) of website owner
+        responsible_id -- (optional) ID (sciper) of website responsible
+        """
         # validate input
         validate_openshift_env(openshift_env)
         URLValidator()(wp_site_url)
@@ -72,9 +83,21 @@ class WPGenerator:
         return repr(self.wp_site)
 
     def run_wp_cli(self, command):
+        """
+        Execute a WP-CLI command
+
+        Argument keywords:
+        command -- WP-CLI command to execute. The command doesn't have to start with "wp ".
+        """
         return self.wp_config.run_wp_cli(command)
 
     def run_mysql(self, command):
+        """
+        Execute MySQL request using DB information stored in instance
+
+        Argument keywords:
+        command -- Request to execute in DB.
+        """
         mysql_connection_string = "mysql -h {0.MYSQL_DB_HOST} -u {0.MYSQL_SUPER_USER}" \
             " --password={0.MYSQL_SUPER_PASSWORD} ".format(self)
         return Utils.run_command(mysql_connection_string + command)
@@ -144,7 +167,9 @@ class WPGenerator:
                 plugin_config.configure()
 
     def generate(self):
-
+        """
+        Generate a complete and fully working WordPress website
+        """
         # check we have a clean place first
         if self.wp_config.is_installed:
             logging.error("%s - WordPress files already found", repr(self))
@@ -184,6 +209,9 @@ class WPGenerator:
         return True
 
     def prepare_db(self):
+        """
+        Prepare the DB to store WordPress configuration.
+        """
         # create htdocs path
         if not Utils.run_command("mkdir -p {}".format(self.wp_site.path)):
             logging.error("%s - could not create tree structure", repr(self))
@@ -211,6 +239,9 @@ class WPGenerator:
         return True
 
     def install_wp(self):
+        """
+        Execute WordPress installation
+        """
         # install WordPress
         if not self.run_wp_cli("core download --version={}".format(self.wp_site.WP_VERSION)):
             logging.error("%s - could not download", repr(self))
@@ -235,6 +266,9 @@ class WPGenerator:
         return True
 
     def add_webmasters(self):
+        """
+        Add webmasters to WordPress install.
+        """
         success = True
 
         if self.owner_id is not None:
@@ -255,6 +289,9 @@ class WPGenerator:
         return success
 
     def clean(self):
+        """
+        Completely clean a WordPress install, DB and files.
+        """
         # retrieve db_infos
         try:
             db_name = self.wp_config.db_name
@@ -287,8 +324,15 @@ class WPGenerator:
 
 
 class MockedWPGenerator(WPGenerator):
+    """
+    Class used for tests only. We don't have a LDAP server on Travis-ci so we add 'fake' webmasters without
+    calling LDAP.
+    """
 
     def add_webmasters(self):
+        """
+        Add fake webmasters without querying LDAP
+        """
         owner = self.wp_config.add_wp_user("owner", "owner@epfl.ch")
         responsible = self.wp_config.add_wp_user("responsible", "responsible@epfl.ch")
         return (owner, responsible)
