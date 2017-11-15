@@ -30,6 +30,13 @@ def setup_environment():
     return os.environ
 
 
+def build_generator():
+    return MockedWPGenerator(
+        openshift_env=TEST_ENV,
+        wp_site_url=SITE_URL_GENERIC,
+        wp_default_site_title="My test")
+
+
 @pytest.fixture(scope="module")
 def wp_plugin_list():
     setup_environment()
@@ -42,10 +49,7 @@ def wp_plugin_list():
 @pytest.fixture(scope="class")
 def wp_site_generic():
     # To generate website with generic plugin list/configuration
-    generator = MockedWPGenerator(
-                openshift_env=TEST_ENV,
-                wp_site_url=SITE_URL_GENERIC,
-                wp_default_site_title="My test")
+    generator = build_generator()
     generator.clean()
     generator.generate()
     return generator.wp_site
@@ -148,7 +152,7 @@ class TestWPPluginConfig:
             assert wp_plugin_config.is_activated is activated
 
     def test_mu_plugins_installed(self, wp_site_specific):
-        assert os.path.exists(WPMuPluginConfig(wp_site_specific, "epfl-functions").path)
+        assert os.path.exists(WPMuPluginConfig(wp_site_specific, "epfl-functions.php").path)
 
     def test_valid_uninstall(self, wp_site_specific, wp_plugin_list):
 
@@ -192,3 +196,7 @@ class TestWPPluginConfigRestore:
         wp_config = WPConfig(wp_site_generic)
         assert wp_config.run_wp_cli("option get addtoany_options") == 'test_overload'
         assert wp_config.run_wp_cli("option get addtoany_dummy") == 'dummy'
+
+
+def test_teardown():
+    build_generator().clean()
