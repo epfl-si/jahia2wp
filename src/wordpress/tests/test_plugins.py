@@ -1,19 +1,42 @@
 import pytest
 import yaml
 import os
-from settings import PLUGINS_CONFIG_GENERIC_FOLDER, PLUGINS_CONFIG_SPECIFIC_FOLDER
+from importlib import reload
+
+import settings
 from wordpress import WPPluginList, WPPluginConfig, WPConfig
 from wordpress.generator import MockedWPGenerator
 
 TEST_SITE = 'unittest'
-SITE_URL_GENERIC = "https://localhost/"
-SITE_URL_SPECIFIC = "https://localhost/{}".format(TEST_SITE)
+SITE_URL_GENERIC = "http://localhost/"
+SITE_URL_SPECIFIC = "http://localhost/{}".format(TEST_SITE)
 TEST_ENV = 'test'
+
+"""
+If you want to execute pytest locally to your computer (= not on Travis), you have to :
+$ make exec
+$ vjahia
+$ pytest -x wordpress/tests/test_plugins.py
+"""
+
+
+def setup_environment():
+    """
+    Load fake environment variables for every test
+    """
+    os.environ["PLUGINS_CONFIG_BASE_PATH"] = os.path.join(
+        settings.SRC_DIR_PATH, "wordpress/tests/plugins")
+    reload(settings)
+    return os.environ
 
 
 @pytest.fixture(scope="module")
 def wp_plugin_list():
-    return WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
+    setup_environment()
+    return WPPluginList(
+        settings.PLUGINS_CONFIG_GENERIC_FOLDER,
+        'config-lot1.yml',
+        settings.PLUGINS_CONFIG_SPECIFIC_FOLDER)
 
 
 @pytest.fixture(scope="class")

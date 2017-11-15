@@ -58,7 +58,7 @@ class WPSite:
     def name(self):
         # return domain site has no folder
         if not self.folder:
-            return self.domain
+            return self.domain.split('.')[0]
 
         # returns last folder if site as a folder defined
         return self.folder.split('/')[-1]
