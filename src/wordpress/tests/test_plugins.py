@@ -24,7 +24,8 @@ def setup_environment():
     """
     Load fake environment variables for every test
     """
-    os.environ["PLUGINS_CONFIG_BASE_PATH"] = "wordpress/tests/plugins"
+    os.environ["PLUGINS_CONFIG_BASE_PATH"] = os.path.join(
+        settings.SRC_DIR_PATH, "wordpress/tests/plugins")
     reload(settings)
     return os.environ
 
