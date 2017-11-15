@@ -171,9 +171,6 @@ class WPGenerator:
             logging.error("%s - could not add webmasters", repr(self))
             return False
 
-        # create main menu
-        self.wp_config.create_main_menu()
-
         # flag success
         return True
 

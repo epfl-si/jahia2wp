@@ -12,8 +12,8 @@ class WPPolylangConfig(WPPluginConfig):
             - `default`, string: default language should be in `languages`
                 If no default is provided, uses the first item of the array
         """
-        # validate input
-        languages = languages or ["fr_FR", "en_GB 1"]
+        # validate input (we keep en_GB instead of en_us to get UK flag, in admin)
+        languages = languages or ["fr_FR", "en_GB"]
         default = default or languages[0]
         if default not in languages:
             raise WPException("Default language {} not found in list of supported languages {}".format(
