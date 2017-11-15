@@ -1,7 +1,6 @@
 """ All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017 """
 from django.core.validators import URLValidator, ValidationError
 
-from settings import DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
 from utils import Utils
 
 from .validators import validate_integer, validate_string, validate_yes_or_no, \
@@ -15,8 +14,8 @@ JAHIA2WP_COLUMNS = (
     # category => no validation
     ("theme", validate_theme, False),
     # status => no validation
-    ("installs_locked", validate_yes_or_no, DEFAULT_CONFIG_INSTALLS_LOCKED),
-    ("updates_automatic", validate_yes_or_no, DEFAULT_CONFIG_UPDATES_AUTOMATIC),
+    ("installs_locked", validate_yes_or_no, False),
+    ("updates_automatic", validate_yes_or_no, False),
     ("langs", validate_languages, False),
     ("owner_id", validate_integer, False),
     ("responsible_id", validate_integer, False),

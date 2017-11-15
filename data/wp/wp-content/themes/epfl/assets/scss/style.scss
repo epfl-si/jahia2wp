@@ -53,6 +53,12 @@ body {
   line-height: 1.2em;
   padding-bottom: 24px;
 }
+.site {
+  font-size: 1rem;
+  margin: 0;
+  padding: 0;
+  width: auto;
+}
 
 .site-content {
   margin-top: 10px;
@@ -82,7 +88,8 @@ body {
 
 /* --- Icons --- */
 
-.fa-icon {
+.fa-icon,
+.icon {
   border: 0;
   position: relative;
   
@@ -90,7 +97,8 @@ body {
     @include icon;
   }
 }
-.fa-icon.btn-icon {
+.fa-icon.btn-icon,
+.icon.btn-icon {
   
   &:before {
     background: $primary-color;
@@ -527,7 +535,6 @@ a.a2a_button_{
     position: absolute;
     top: auto; right: 5px; bottom: 5px; left: auto;
     transform: rotate(-45deg);
-    
   }
 }
 
@@ -539,6 +546,121 @@ a.a2a_button_{
   
   .svg & {
     background-image: url(../images/search.svg);
+  }
+}
+
+/* Responsive header */
+
+.site-header.epfl .logo {
+  margin-top: 10px;
+}
+
+.epflnav .nav-item {
+  background: transparent;
+}
+
+.epflnav .icon-menu {
+  padding: 0 6px;
+  top: 10px;
+  
+  &:before {
+    @include icon;
+    content: "\f0c9";
+    font-size: 1.375em;
+    height: 32px;
+    line-height: 32px;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+  }
+}
+
+.search .icon {
+  padding: 0 6px;
+  top: 10px;
+  
+  &:before {
+    @include icon;
+    content: "\f002";
+    font-size: 1.25em;
+    height: 32px;
+    line-height: 32px;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+  }
+}
+
+#epfl-header .form-input {
+  display: block;
+  float: left;
+  width: 150px;
+  width: calc(100% - 145px - 18px);
+  
+  .search-query {
+    height: 25px;
+    line-height: 25px;
+    padding: 0 5px;
+    width: 100%;
+  }
+  
+  &.form-input-mini {
+    width: 25px;
+  }
+}
+#epfl-header .form-select {
+  background: #fff;
+  float: left;
+  font-size: 13px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  height: 25px;
+  line-height: 25px;
+  padding-left: 0;
+  position: relative;
+  transition: all .3s ease-in-out;
+  width: 120px;
+  
+  &:after {
+    @include icon;
+    content: "\f063";
+    background: transparent;
+    float: right;
+    font-size: 10px;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 8px; right: 5px; bottom: 5px; left: auto;
+    transform: rotate(-45deg);
+  }
+  
+  &:hover {
+    background: #000;
+    color: #fff;
+  }
+  
+  select {
+    height: inherit;
+    line-height: inherit;
+    padding: 0 5px;
+  }
+}
+#epfl-header .search-submit {
+  border: none;
+  cursor: pointer;
+  float: left;
+  height: 25px;
+  line-height: 25px;
+  vertical-align: bottom;
+  width: 25px;
+  
+  &:before {
+    @include icon;
+    content: "\f002";
+    height: inherit;
+    line-height: inherit;
+    vertical-align: top;
+    width: 100%;
   }
 }
 
@@ -557,7 +679,7 @@ a.a2a_button_{
 /* --- Site title --- */
 
 .site-header {
-  background: #fff;
+  background: none;
   
   a {
     border: 0;
@@ -594,6 +716,14 @@ a.a2a_button_{
 .menu-toggle {
   color: #fff;
   padding: .5em 1em;
+  
+  &:before {
+    display: none !important;
+  }
+  
+  svg {
+    visibility: visible;
+  }
 }
 .main-navigation .menu {
   border-top: 0;
@@ -670,11 +800,25 @@ a.a2a_button_{
   li {
     display: inline-block;
     vertical-align: middle;
+    margin: 0;
     margin-right: .75em;
+  }
+}
+#breadcrumbs {
+  top: 0;
+  
+  a {
+    padding: 0;
   }
 }
 
 /* Language switcher */
+
+.lang {
+  padding: 0;
+  position: static;
+  text-align: left;
+}
 
 .language-switcher {
   list-style: none;
@@ -684,8 +828,8 @@ a.a2a_button_{
   li {
     display: inline-block;
     font-size: .75em;
+    margin: 0;
     margin-right: .5em;
-    margin-bottom: 0;
     
     &:after {
       content: "/";
@@ -814,7 +958,7 @@ a.a2a_button_{
 
 .sidebar .nav {
   list-style: none;
-  margin: 0 0 40px;
+  margin: 0 0 30px;
   
   a {
     background: $primary-color;
@@ -964,6 +1108,8 @@ a.a2a_button_{
 /* Toolbar */
 
 .toolbar {
+  background: transparent;
+  border: 0;
   height: 28px;
   margin-bottom: 8px;
 }
@@ -1277,6 +1423,15 @@ a.a2a_button_{
     05 HEADER
   ----------------------------------------- */
   
+  /* --- EPFL Header --- */
+  
+  .site-header.epfl .logo {
+    margin-top: 6px;
+  }
+  .epflnav .nav-link {
+    margin: 6px 0;
+  }
+  
   /* --- Site logo --- */
 
   .custom-logo-link {
@@ -1333,6 +1488,7 @@ a.a2a_button_{
     float: left;
     height: inherit;
     margin: 0;
+    padding: 0;
     vertical-align: top;
     
     &:first-child {
@@ -1341,9 +1497,11 @@ a.a2a_button_{
     
     &:hover {
       border-color: #fff;
+      border-width: 0 1px;
     }
     
     a {
+      border: 0;
       color: #fff;
       display: block;
       height: inherit;
@@ -1434,10 +1592,18 @@ a.a2a_button_{
   	color: #000;
 	}
   
-  .sub-menu .sub-menu {
+  .main-navigation .sub-menu .sub-menu {
     border: 0;
     left: 0;
-    position: static;
+    margin-left: 1.5em;
+    position: relative;
+    
+    &:before {
+      content: "";
+      border-left: 1px dotted $light-grey;
+      position: absolute;
+      top: 5px; right: auto; left: -1px; bottom: 5px;
+    }
     
     a {
       font-weight: 400;
@@ -1492,6 +1658,8 @@ a.a2a_button_{
     margin: 0;
     max-width: 20%;
     padding: 0;
+    position: static;
+    text-align: right;
   }
   
   /*  ---------------------------------------
@@ -1508,12 +1676,12 @@ a.a2a_button_{
     }
   }
   
-  .footer-nav {
-    float: left;
-  }
-  
   .footer-content {
-    
+  
+    .footer-nav {
+      border: 0;
+      float: left;
+    }
     
     .site-info {
       margin: 0;

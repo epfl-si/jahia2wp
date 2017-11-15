@@ -47,6 +47,10 @@ sup:empty,
 td:empty,
 th:empty {
   display: none;
+  
+  &[aria-hidden="false"] {
+    display: block;
+  }
 }
 
 p,
@@ -350,3 +354,22 @@ td {
 .grid {
   @include clearfix;
 }
+
+/* --- EPFL Built resets --- */
+
+.menu-item {
+  padding: 0;
+  
+  &:hover {
+    background: transparent;
+  }
+}
+
+.epflnav .nav,
+.site-content,
+.site-footer,
+.site-header {
+  margin: 0;
+}
+
+

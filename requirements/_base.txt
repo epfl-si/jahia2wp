@@ -3,3 +3,5 @@ docopt-dispatch==0.0.2
 epfl-ldap==0.0.2
 django==1.11.5
 clint==0.5.1
+PyYAML==3.12
+PyMySQL==0.7.11

@@ -23,6 +23,14 @@ class TestWPSite:
 
     def test_name(self, wordpress):
         assert wordpress.name == "folder"
+        assert WPSite(
+            openshift_env="test",
+            wp_site_url="http://localhost/") \
+            .name == "localhost"
+        assert WPSite(
+            openshift_env="test",
+            wp_site_url="http://www.epfl.ch/") \
+            .name == "www"
         assert WPSite.from_path("test", "/srv/test/localhost/htdocs/folder") \
             .name == "folder"
         assert WPSite.from_path("test", "/srv/test/localhost/htdocs/folder/sub") \

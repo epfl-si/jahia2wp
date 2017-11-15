@@ -4,8 +4,10 @@ import shutil
 import logging
 
 from utils import Utils
-from settings import WP_DIRS, WP_FILES, PLUGINS_CONFIG_GENERIC_FOLDER, PLUGINS_CONFIG_SPECIFIC_FOLDER, \
+from settings import WP_DIRS, WP_FILES, \
     PLUGIN_ACTION_UNINSTALL, PLUGIN_ACTION_INSTALL, \
+    PLUGINS_CONFIG_GENERIC_FOLDER, PLUGINS_CONFIG_SPECIFIC_FOLDER, \
+    WP_PLUGIN_CONFIG_CLASS_BY_NAME, WP_DEFAULT_PLUGIN_CONFIG, \
     DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
 
 from django.core.validators import URLValidator
@@ -14,7 +16,7 @@ from veritas.validators import validate_string, validate_openshift_env, validate
 from .models import WPSite, WPUser
 from .config import WPConfig
 from .themes import WPThemeConfig
-from .plugins import WPPluginList, WPPluginConfig
+from .plugins.models import WPPluginList
 
 
 class WPGenerator:
@@ -42,6 +44,17 @@ class WPGenerator:
                  admin_password=None,
                  owner_id=None,
                  responsible_id=None):
+        """
+        Class constructor
+
+        Argument keywords:
+        openshift_env -- Name of OpenShift environment on which script is executed
+        wp_site_url -- Website URL
+        wp_default_site_title -- (optional) website title
+        admin_password -- (optional) Password to use for 'admin' account
+        owner_id -- (optional) ID (sciper) of website owner
+        responsible_id -- (optional) ID (sciper) of website responsible
+        """
         # validate input
         validate_openshift_env(openshift_env)
         URLValidator()(wp_site_url)
@@ -76,12 +89,39 @@ class WPGenerator:
         return repr(self.wp_site)
 
     def run_wp_cli(self, command):
+        """
+        Execute a WP-CLI command using method present in WPConfig instance.
+
+        Argument keywords:
+        command -- WP-CLI command to execute. The command doesn't have to start with "wp ".
+        """
         return self.wp_config.run_wp_cli(command)
 
     def run_mysql(self, command):
+        """
+        Execute MySQL request using DB information stored in instance
+
+        Argument keywords:
+        command -- Request to execute in DB.
+        """
         mysql_connection_string = "mysql -h {0.MYSQL_DB_HOST} -u {0.MYSQL_SUPER_USER}" \
             " --password={0.MYSQL_SUPER_PASSWORD} ".format(self)
         return Utils.run_command(mysql_connection_string + command)
+
+    def list_plugins(self, with_config=False, for_plugin=None):
+        """
+        List plugins (and configuration) for WP site
+
+        Keyword arguments:
+        with_config -- (Bool) to specify if plugin config has to be displayed
+        for_plugin -- Used only if 'with_config'=True. Allow to display only configuration for one given plugin.
+        """
+        logging.info("WPGenerator.list_plugins(): Add parameter for 'batch file' (YAML)")
+        # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"
+        # information in the source of trousse !
+        plugin_list = WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
+
+        return plugin_list.list_plugins(self.wp_site.name, with_config, for_plugin)
 
     def generate_plugins(self):
         """
@@ -93,42 +133,49 @@ class WPGenerator:
         # information in the source of trousse !
         plugin_list = WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
 
-        if self.wp_site.folder != "":
-            site_id = self.wp_site.folder
-        else:
-            domain_parts = self.wp_site.domain.split(".")
-            site_id = self.wp_site.domain if len(domain_parts) == 1 else domain_parts[1]
-
         # Looping through plugins to install
-        for plugin_name, plugin_config in plugin_list.plugins(site_id).items():
+        for plugin_name, config_dict in plugin_list.plugins(self.wp_site.name).items():
 
-            # install and activate AddToAny plugin
-            plugin = WPPluginConfig(self.wp_site, plugin_name, plugin_config)
+            # Fectch proper PluginConfig class and create instance
+            plugin_class_name = WP_PLUGIN_CONFIG_CLASS_BY_NAME.get(
+                plugin_name, WP_DEFAULT_PLUGIN_CONFIG)
+            plugin_class = Utils.import_class_from_string(plugin_class_name)
+            plugin_config = plugin_class(self.wp_site, plugin_name, config_dict)
 
             # If we have to uninstall the plugin
-            if plugin_config.action == PLUGIN_ACTION_UNINSTALL:
-                logging.info("%s - Plugins - Uninstalling '%s'...", repr(self), plugin_name)
-                plugin.uninstall()
-                logging.info("%s - Plugins - '%s' has been uninstalled", repr(self), plugin_name)
+            if config_dict.action == PLUGIN_ACTION_UNINSTALL:
+                logging.info("%s - Plugins - %s: Uninstalling...", repr(self), plugin_name)
+                if plugin_config.is_installed:
+                    plugin_config.uninstall()
+                    logging.info("%s - Plugins - %s: Uninstalled!", repr(self), plugin_name)
+                else:
+                    logging.info("%s - Plugins - %s: Not installed!", repr(self), plugin_name)
 
             else:  # We have to install the plugin
                 # We may have to install or do nothing (if we only want to deactivate plugin)
-                if plugin_config.action == PLUGIN_ACTION_INSTALL:
-                    logging.info("%s - Plugins - Installing '%s'...", repr(self), plugin_name)
-                    plugin.install()
+                if config_dict.action == PLUGIN_ACTION_INSTALL:
+                    logging.info("%s - Plugins - %s: Installing...", repr(self), plugin_name)
+                    if not plugin_config.is_installed:
+                        plugin_config.install()
+                        logging.info("%s - Plugins - %s: Installed!", repr(self), plugin_name)
+                    else:
+                        logging.info("%s - Plugins - %s: Already installed!", repr(self), plugin_name)
 
-                plugin.set_state()
+                logging.info("%s - Plugins - %s: Setting state...", repr(self), plugin_name)
+                plugin_config.set_state()
 
-                if plugin.is_activated:
-                    logging.debug("%s - Plugins - '%s' is activated", repr(self), plugin_name)
+                if plugin_config.is_activated:
+                    logging.info("%s - Plugins - %s: Activated!", repr(self), plugin_name)
                 else:
-                    logging.debug("%s - Plugins - '%s' is deactivated", repr(self), plugin_name)
+                    logging.info("%s - Plugins - %s: Deactivated!", repr(self), plugin_name)
 
                 # Configure plugin
-                plugin.configure()
+                plugin_config.configure()
 
     def generate(self):
-
+        """
+        Generate a complete and fully working WordPress website
+        """
         # check we have a clean place first
         if self.wp_config.is_installed:
             logging.error("%s - WordPress files already found", repr(self))
@@ -168,6 +215,9 @@ class WPGenerator:
         return True
 
     def prepare_db(self):
+        """
+        Prepare the DB to store WordPress configuration.
+        """
         # create htdocs path
         if not Utils.run_command("mkdir -p {}".format(self.wp_site.path)):
             logging.error("%s - could not create tree structure", repr(self))
@@ -195,6 +245,9 @@ class WPGenerator:
         return True
 
     def install_wp(self):
+        """
+        Execute WordPress installation
+        """
         # install WordPress
         if not self.run_wp_cli("core download --version={}".format(self.wp_site.WP_VERSION)):
             logging.error("%s - could not download", repr(self))
@@ -215,13 +268,13 @@ class WPGenerator:
             logging.error("%s - could not setup WP site", repr(self))
             return False
 
-        # create main menu
-        self.wp_config.create_main_menu()
-
         # flag success by returning True
         return True
 
     def add_webmasters(self):
+        """
+        Add webmasters to WordPress install.
+        """
         success = True
 
         if self.owner_id is not None:
@@ -242,6 +295,9 @@ class WPGenerator:
         return success
 
     def clean(self):
+        """
+        Completely clean a WordPress install, DB and files.
+        """
         # retrieve db_infos
         try:
             db_name = self.wp_config.db_name
@@ -252,7 +308,7 @@ class WPGenerator:
             if not self.run_mysql('-e "DROP DATABASE IF EXISTS {};"'.format(db_name)):
                 logging.error("%s - could not drop DATABASE %s", repr(self), db_name)
 
-            if not self.run_mysql('-e "DROP USER IF EXISTS {};"'.format(db_user)):
+            if not self.run_mysql('-e "DROP USER {};"'.format(db_user)):
                 logging.error("%s - could not drop USER %s", repr(self), db_name)
 
         # handle case where no wp_config found
@@ -274,8 +330,15 @@ class WPGenerator:
 
 
 class MockedWPGenerator(WPGenerator):
+    """
+    Class used for tests only. We don't have a LDAP server on Travis-ci so we add 'fake' webmasters without
+    calling LDAP.
+    """
 
     def add_webmasters(self):
+        """
+        Add fake webmasters without querying LDAP
+        """
         owner = self.wp_config.add_wp_user("owner", "owner@epfl.ch")
         responsible = self.wp_config.add_wp_user("responsible", "responsible@epfl.ch")
         return (owner, responsible)
