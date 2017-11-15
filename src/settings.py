@@ -9,6 +9,7 @@ VERSION = "0.2.13"
 # Docker may change it in the future, which will cause some tests to fail.
 DOCKER_IP = "172.17.0.1"
 
+SRC_DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 DATA_PATH = os.path.abspath(
     os.path.sep.join([os.path.dirname(__file__), '..', 'data'])
 )
@@ -85,9 +86,9 @@ SUPPORTED_LANGUAGES = [
     "gr",
     "it"
 ]
-current_file_path = os.path.dirname(os.path.realpath(__file__))
+
 PLUGINS_CONFIG_BASE_PATH = Utils.get_optional_env(
-    "PLUGINS_CONFIG_BASE_PATH", os.path.sep.join([current_file_path, '..', 'data', 'plugins']))
+    "PLUGINS_CONFIG_BASE_PATH", os.path.sep.join([SRC_DIR_PATH, '..', 'data', 'plugins']))
 PLUGINS_CONFIG_GENERIC_FOLDER = os.path.join(PLUGINS_CONFIG_BASE_PATH, 'generic')
 PLUGINS_CONFIG_SPECIFIC_FOLDER = os.path.join(PLUGINS_CONFIG_BASE_PATH, 'specific')
 

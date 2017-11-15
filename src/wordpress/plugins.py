@@ -5,7 +5,8 @@ import copy
 import yaml
 import pymysql.cursors
 
-from settings import PLUGIN_SOURCE_WP_STORE, PLUGIN_ACTION_INSTALL, PLUGIN_ACTION_NOTHING, PLUGINS_CONFIG_BASE_PATH
+from settings import PLUGIN_SOURCE_WP_STORE, PLUGIN_ACTION_INSTALL, PLUGIN_ACTION_NOTHING, PLUGINS_CONFIG_BASE_PATH, \
+                     PLUGIN_ACTION_UNINSTALL
 
 from .config import WPConfig
 from .models import WPSite, WPException
@@ -157,6 +158,50 @@ class WPPluginList:
             return self._generic_plugins
 
         return self.__build_plugins_for_site(wp_site_id)
+
+    def list_plugins(self, site_id, with_config=False, for_plugin=None):
+        """
+        List plugins (and configuration) for WP site
+
+        Keyword arguments:
+        site_id -- Site for which we want the plugin list
+        with_config -- (Bool) to specify if plugin config has to be displayed
+        for_plugin -- Used only if 'with_config'=True. Allow to display only configuration for one given plugin.
+
+        return
+        String with plugin list.
+        """
+        ret_str = "Plugin list for site '{}':\n".format(site_id)
+
+        # Looping through plugins to display
+        for plugin_name, plugin_config in self.plugins(site_id).items():
+
+            # If we have to display information for current plugin.
+            # ---
+            # If we have to only display plugin list (with no configuration)
+            # OR
+            # IF we have to display plugin list AND configuration for ALL plugins or a GIVEN one
+            if not with_config or (with_config and (for_plugin is None or for_plugin == plugin_name)):
+                ret_str = "{}- {}\n".format(ret_str, plugin_name)
+
+                ret_str = "{}  - action   : {}\n".format(ret_str, plugin_config.action)
+                if plugin_config.action != PLUGIN_ACTION_UNINSTALL:
+                    ret_str = "{}  - activated: {}\n".format(ret_str, plugin_config.is_active)
+                    if plugin_config.is_active:
+                        ret_str = "{}  - src      : {}\n".format(ret_str, plugin_config.zip_path if
+                                                                 plugin_config.zip_path is not None else 'web')
+                # if we need to display configuration
+                if with_config:
+                    ret_str = "{}  - tables\n".format(ret_str)
+                    for table_name in WP_PLUGIN_CONFIG_TABLES:
+
+                        ret_str = "{}    + {}\n".format(ret_str, table_name)
+                        for row in plugin_config.table_rows(table_name):
+                            ret_str = "{} {}\n".format(ret_str, row)
+
+                ret_str = "{}\n".format(ret_str)
+
+        return ret_str
 
 
 class WPPluginConfig(WPConfig):
