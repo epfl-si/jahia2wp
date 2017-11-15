@@ -157,14 +157,14 @@ class WPBackup:
 
         # Generate tar file
         if not Utils.generate_tar_file(
-            backup_file=os.path.join(
+            os.path.join(
                 self.path,
                 tar_file_name),
-            backup_listed_incremental_file=os.path.join(
+            os.path.join(
                 self.path,
                 self.generate_listed_incremental_file_name(tar_file_name)
             ),
-            source_path=self.wp_site.path
+            self.wp_site.path
         ):
             raise WPException("WP tar {} could not be created".format(tar_file_name))
 
