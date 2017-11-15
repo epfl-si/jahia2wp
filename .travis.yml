@@ -8,7 +8,7 @@ services:
 language: python
 
 python:
-- 3.6
+- 3.5
 
 before_install:
 - docker pull camptocamp/os-wp-httpd

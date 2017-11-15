@@ -7,19 +7,13 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
+from settings import DOCKER_IP
+from wordpress.generator import MockedWPGenerator
 
-class Test_WPTester(object):
-    @pytest.fixture()
-    def base_url(self):
-        return os.getenv('SUT_BASE_URL', 'http://localhost:8000')
 
-    @pytest.fixture()
-    def username(self):
-        return os.getenv('SUT_USERNAME', 'admin')
+class TestWpUploadTest:
 
-    @pytest.fixture()
-    def password(self):
-        return os.getenv("SUT_PASSWORD", 'admin')
+    SAME_SCIPER_ID = "188475"
 
     @pytest.fixture()
     def session(self):
@@ -29,16 +23,33 @@ class Test_WPTester(object):
         logging.debug("Closing session")
         session.close()
 
-    def test_upload_image_to_wordpress(self, session, base_url, username, password):
+    @pytest.fixture()
+    def wp_generator(self):
+        generator = MockedWPGenerator(
+            openshift_env="test",
+            wp_site_url="https://" + DOCKER_IP + "/folder",
+            wp_default_site_title="Upload test",
+            admin_password="admin",
+            owner_id=self.SAME_SCIPER_ID,
+            responsible_id=self.SAME_SCIPER_ID)
+        generator.clean()
+        generator.generate()
+        return generator
+
+    def test_upload_image_to_wordpress(self, wp_generator, session):
+
+        username = wp_generator.wp_admin.username
+
         # login to WordPress
         logging.debug("Login in to WordPress")
-        link = "{base_path}/wp-login.php".format(base_path=base_url)
+        link = "{base_path}/wp-login.php".format(base_path=wp_generator.wp_site.url)
         login_data = {"log": username,
-                      "pwd": password,
+                      "pwd": wp_generator.wp_admin.password,
                       "rememberme": "forever",
-                      "redirect_to": "{base_path}/wp-admin".format(base_path=base_url),
+                      "redirect_to": "{base_path}/wp-admin".format(base_path=wp_generator.wp_site.url),
                       "redirect_to_automatic": "1"
                       }
+
         page_login = session.post(link, login_data)
         assert page_login.status_code is 200
 
@@ -51,7 +62,7 @@ class Test_WPTester(object):
 
         # go the media upload page (in order to generate a nonce)
         logging.debug("Getting the media upload page in order to get wp_nonce")
-        upload_page = session.get('{base_path}/wp-admin/media-new.php'.format(base_path=base_url))
+        upload_page = session.get('{base_path}/wp-admin/media-new.php'.format(base_path=wp_generator.wp_site.url))
 
         # Grab the _wp_nonce
         logging.debug("Getting the wp_nonce")
@@ -65,31 +76,39 @@ class Test_WPTester(object):
 
         # upload the image
         logging.debug("Uploading the image")
-        with open('2.jpg', 'rb') as f:
+
+        os.getenv("SUT_PASSWORD", 'admin')
+
+        file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'media.jpg')
+
+        with open(file_path, 'rb') as f:
             upload_data = {'post_id': '0',
                            '_wp_http_referer': '/wp-admin/media-new.php',
                            '_wpnonce': wp_nonce,
                            'action': 'upload_attachement',
                            'html-upload': 'Upload'}
             files = {'async-upload': (unique_file_name, f)}
-            upload_result = session.post('{base_path}/wp-admin/media-new.php'.format(base_path=base_url),
-                                         data=upload_data,
-                                         files=files)
+            upload_result = session.post(
+                '{base_path}/wp-admin/media-new.php'.format(base_path=wp_generator.wp_site.url),
+                data=upload_data,
+                files=files
+            )
         assert upload_result.status_code is 200
 
         # checks if the image has really been uploaded
         logging.debug("Cross cjecking that the image was really uploaded")
         image_url = "{base_path}/wp-content/uploads/{timestamp:%Y/%m}/{filename}".format(
-            base_path=base_url,
+            base_path=wp_generator.wp_site.url,
             timestamp=datetime.date.today(),
             filename=unique_file_name)
+        print(image_url)
         image_page = session.get(image_url)
         assert image_page.status_code is 200
 
         # cleanup up the mess
         logging.debug("Starting cleanup the uploaded file")
         upload_management_page_url = "{base_path}/wp-admin/upload.php?mode=list".format(
-            base_path=base_url)
+            base_path=wp_generator.wp_site.url)
         upload_management_page = session.get(upload_management_page_url)
         assert upload_management_page.status_code is 200
         soup = BeautifulSoup(upload_management_page.content, 'lxml')
@@ -103,7 +122,7 @@ class Test_WPTester(object):
                 table_cell_element = filename_element.parent
                 delete_link = table_cell_element.find('a', {'class': 'submitdelete'})
                 delete_link = delete_link['href']
-                delete_link = "{base_path}/wp-admin/{link}".format(base_path=base_url, link=delete_link)
+                delete_link = "{base_path}/wp-admin/{link}".format(base_path=wp_generator.wp_site.url, link=delete_link)
 
                 logging.debug("Deleting the file")
                 delete_media_result = session.get(delete_link)
@@ -113,3 +132,6 @@ class Test_WPTester(object):
         logging.debug("Cross checking that the file has been correctly deleted")
         image_page = session.get(image_url)
         assert image_page.status_code == 404
+
+        # clean WP site
+        wp_generator.clean()

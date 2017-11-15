@@ -5,6 +5,10 @@ from utils import Utils
 
 VERSION = "0.2.13"
 
+# This Docker IP address is used for automatic testing.
+# Docker may change it in the future, which will cause some tests to fail.
+DOCKER_IP = "172.17.0.1"
+
 DATA_PATH = os.path.abspath(
     os.path.sep.join([os.path.dirname(__file__), '..', 'data'])
 )
