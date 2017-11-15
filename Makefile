@@ -34,8 +34,23 @@ vars: check-env
 	@echo 'Wordpress-related vars:'
 	@echo '  WP_VERSION=${WP_VERSION}'
 	@echo '  WP_ADMIN_USER=${WP_ADMIN_USER}'
+	@echo '  WP_ADMIN_EMAIL=${WP_ADMIN_EMAIL}'
 	@echo '  WP_PORT_HTTP=${WP_PORT_HTTP}'
 	@echo '  WP_PORT_HTTPS=${WP_PORT_HTTPS}'
+
+	@echo ''
+	@echo 'WPManagement-related vars:'
+	@echo '  WP_PORT_PHPMA=${WP_PORT_PHPMA}'
+	@echo '  WP_PORT_SSHD=${WP_PORT_SSHD}'
+	@echo '  BACKUP_PATH=${BACKUP_PATH}'
+	@echo '  PLUGINS_CONFIG_BASE_PATH=${PLUGINS_CONFIG_BASE_PATH}'
+
+	@echo ''
+	@echo 'Jahia-related vars:'
+	@echo '  JAHIA_ZIP_PATH=${JAHIA_ZIP_PATH}'
+	@echo '  JAHIA_USER=${JAHIA_USER}'
+	@echo '  JAHIA_PASSWORD=${JAHIA_PASSWORD}'
+	@echo '  JAHIA_HOST=${JAHIA_HOST}'
 
 up: check-env
 	docker-compose pull
