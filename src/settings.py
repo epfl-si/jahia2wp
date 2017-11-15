@@ -5,10 +5,15 @@ from utils import Utils
 
 VERSION = "0.2.?"
 
-current_dir_path = os.path.dirname(__file__)
+SRC_DIR_PATH = os.path.dirname(__file__)
 
+# This Docker IP address is used for automatic testing.
+# Docker may change it in the future, which will cause some tests to fail.
+DOCKER_IP = "172.17.0.1"
+
+SRC_DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 DATA_PATH = os.path.abspath(
-    os.path.sep.join([current_dir_path, '..', 'data'])
+    os.path.sep.join([SRC_DIR_PATH, '..', 'data'])
 )
 WP_PATH = os.path.join(DATA_PATH, 'wp')
 BACKUP_PATH = Utils.get_optional_env(
@@ -88,7 +93,7 @@ DEFAULT_CONFIG_INSTALLS_LOCKED = True
 DEFAULT_CONFIG_UPDATES_AUTOMATIC = True
 
 PLUGINS_CONFIG_BASE_PATH = Utils.get_optional_env(
-    "PLUGINS_CONFIG_BASE_PATH", os.path.join(DATA_PATH, 'plugins'))
+    "PLUGINS_CONFIG_BASE_PATH", os.path.sep.join([SRC_DIR_PATH, '..', 'data', 'plugins']))
 PLUGINS_CONFIG_GENERIC_FOLDER = os.path.join(PLUGINS_CONFIG_BASE_PATH, 'generic')
 PLUGINS_CONFIG_SPECIFIC_FOLDER = os.path.join(PLUGINS_CONFIG_BASE_PATH, 'specific')
 

@@ -85,6 +85,21 @@ class WPGenerator:
             " --password={0.MYSQL_SUPER_PASSWORD} ".format(self)
         return Utils.run_command(mysql_connection_string + command)
 
+    def list_plugins(self, with_config=False, for_plugin=None):
+        """
+        List plugins (and configuration) for WP site
+
+        Keyword arguments:
+        with_config -- (Bool) to specify if plugin config has to be displayed
+        for_plugin -- Used only if 'with_config'=True. Allow to display only configuration for one given plugin.
+        """
+        logging.info("WPGenerator.list_plugins(): Add parameter for 'batch file' (YAML)")
+        # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"
+        # information in the source of trousse !
+        plugin_list = WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
+
+        return plugin_list.list_plugins(self.wp_site.name, with_config, for_plugin)
+
     def generate_plugins(self):
         """
         Get plugin list for WP site, install them, activate them if needed, configure them
@@ -95,14 +110,8 @@ class WPGenerator:
         # information in the source of trousse !
         plugin_list = WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
 
-        if self.wp_site.folder != "":
-            site_id = self.wp_site.folder
-        else:
-            domain_parts = self.wp_site.domain.split(".")
-            site_id = self.wp_site.domain if len(domain_parts) == 1 else domain_parts[0]
-
         # Looping through plugins to install
-        for plugin_name, config_dict in plugin_list.plugins(site_id).items():
+        for plugin_name, config_dict in plugin_list.plugins(self.wp_site.name).items():
 
             # Fectch proper PluginConfig class and create instance
             plugin_class_name = WP_PLUGIN_CONFIG_CLASS_BY_NAME.get(
@@ -176,9 +185,6 @@ class WPGenerator:
         if not self.add_webmasters():
             logging.error("%s - could not add webmasters", repr(self))
             return False
-
-        # create main menu
-        self.wp_config.create_main_menu()
 
         # flag success
         return True
