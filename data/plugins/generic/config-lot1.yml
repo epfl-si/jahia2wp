@@ -13,5 +13,7 @@ plugins:
     config: !include hello/config-plugin.yml
   - name: miniorange-saml-20-single-sign-on
     config: !include miniorange-saml-20-single-sign-on/v1/config-plugin.yml
+  - name: polylang
+    config: !include polylang/v1/config-plugin.yml
   - name: mainwp-child
     config: !include mainwp-child/v1/config-plugin.yml

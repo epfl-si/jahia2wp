@@ -4,8 +4,10 @@ import shutil
 import logging
 
 from utils import Utils
-from settings import WP_DIRS, WP_FILES, PLUGINS_CONFIG_GENERIC_FOLDER, PLUGINS_CONFIG_SPECIFIC_FOLDER, \
-                     PLUGIN_ACTION_UNINSTALL, PLUGIN_ACTION_INSTALL
+from settings import WP_DIRS, WP_FILES, \
+    PLUGIN_ACTION_UNINSTALL, PLUGIN_ACTION_INSTALL, \
+    PLUGINS_CONFIG_GENERIC_FOLDER, PLUGINS_CONFIG_SPECIFIC_FOLDER, \
+    WP_PLUGIN_CONFIG_CLASS_BY_NAME, WP_DEFAULT_PLUGIN_CONFIG
 
 from django.core.validators import URLValidator
 from veritas.validators import validate_string, validate_openshift_env, validate_integer
@@ -13,7 +15,7 @@ from veritas.validators import validate_string, validate_openshift_env, validate
 from .models import WPSite, WPUser
 from .config import WPConfig
 from .themes import WPThemeConfig
-from .plugins import WPPluginList, WPPluginConfig
+from .plugins.models import WPPluginList
 
 
 class WPGenerator:
@@ -103,40 +105,43 @@ class WPGenerator:
         plugin_list = WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
 
         # Looping through plugins to install
-        for plugin_name, plugin_config in plugin_list.plugins(self.wp_site.name).items():
+        for plugin_name, config_dict in plugin_list.plugins(self.wp_site.name).items():
 
-            # install and activate AddToAny plugin
-            plugin = WPPluginConfig(self.wp_site, plugin_name, plugin_config)
+            # Fectch proper PluginConfig class and create instance
+            plugin_class_name = WP_PLUGIN_CONFIG_CLASS_BY_NAME.get(
+                plugin_name, WP_DEFAULT_PLUGIN_CONFIG)
+            plugin_class = Utils.import_class_from_string(plugin_class_name)
+            plugin_config = plugin_class(self.wp_site, plugin_name, config_dict)
 
             # If we have to uninstall the plugin
-            if plugin_config.action == PLUGIN_ACTION_UNINSTALL:
+            if config_dict.action == PLUGIN_ACTION_UNINSTALL:
                 logging.info("%s - Plugins - %s: Uninstalling...", repr(self), plugin_name)
-                if plugin.is_installed:
-                    plugin.uninstall()
+                if plugin_config.is_installed:
+                    plugin_config.uninstall()
                     logging.info("%s - Plugins - %s: Uninstalled!", repr(self), plugin_name)
                 else:
                     logging.info("%s - Plugins - %s: Not installed!", repr(self), plugin_name)
 
             else:  # We have to install the plugin
                 # We may have to install or do nothing (if we only want to deactivate plugin)
-                if plugin_config.action == PLUGIN_ACTION_INSTALL:
+                if config_dict.action == PLUGIN_ACTION_INSTALL:
                     logging.info("%s - Plugins - %s: Installing...", repr(self), plugin_name)
-                    if not plugin.is_installed:
-                        plugin.install()
+                    if not plugin_config.is_installed:
+                        plugin_config.install()
                         logging.info("%s - Plugins - %s: Installed!", repr(self), plugin_name)
                     else:
                         logging.info("%s - Plugins - %s: Already installed!", repr(self), plugin_name)
 
                 logging.info("%s - Plugins - %s: Setting state...", repr(self), plugin_name)
-                plugin.set_state()
+                plugin_config.set_state()
 
-                if plugin.is_activated:
+                if plugin_config.is_activated:
                     logging.info("%s - Plugins - %s: Activated!", repr(self), plugin_name)
                 else:
                     logging.info("%s - Plugins - %s: Deactivated!", repr(self), plugin_name)
 
                 # Configure plugin
-                plugin.configure()
+                plugin_config.configure()
 
     def generate(self):
 
@@ -225,9 +230,6 @@ class WPGenerator:
         if not self.run_wp_cli(command.format(self.wp_site, self.wp_admin)):
             logging.error("%s - could not setup WP site", repr(self))
             return False
-
-        # create main menu
-        self.wp_config.create_main_menu()
 
         # flag success by returning True
         return True
