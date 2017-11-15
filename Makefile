@@ -89,7 +89,7 @@ endif
 	@echo ""
 	@echo "Done with your local env. You can now" 
 	@if test -z "${WP_ENV}"; then echo "    $ source ~/.bashrc (to update your environment with WP_ENV value)"; fi
-	@echo "    $ make exec        (to connect into your contanier)"
+	@echo "    $ make exec        (to connect into your container)"
 
 clean: down
 	@bin/clean.sh $(WP_ENV)
