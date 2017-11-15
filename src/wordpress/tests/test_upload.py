@@ -39,8 +39,6 @@ class TestWpUploadTest:
     def test_upload_image_to_wordpress(self, wp_generator, session):
 
         username = wp_generator.wp_admin.username
-        password = wp_generator.wp_admin.username
-        print("Password: {}".format(password))
 
         # login to WordPress
         logging.debug("Login in to WordPress")
@@ -51,9 +49,6 @@ class TestWpUploadTest:
                       "redirect_to": "{base_path}/wp-admin".format(base_path=wp_generator.wp_site.url),
                       "redirect_to_automatic": "1"
                       }
-
-        print("link {}: ".format(link))
-        print("login_data {}: ".format(login_data))
 
         page_login = session.post(link, login_data)
         assert page_login.status_code is 200
@@ -138,4 +133,5 @@ class TestWpUploadTest:
         image_page = session.get(image_url)
         assert image_page.status_code == 404
 
+        # clean WP site
         wp_generator.clean()
