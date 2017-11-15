@@ -91,7 +91,7 @@ class WPConfig:
     @property
     def is_installed(self):
         """
-        Check if a WordPress is installed
+        Tells if a WordPress is installed by checking if 'index.php' file is present
 
         Return:
         True, False
@@ -103,7 +103,8 @@ class WPConfig:
     @property
     def is_config_valid(self):
         """
-        Tells if WordPress configuration is valid
+        Tells if WordPress configuration is valid by checking DB connection with settings present in 'wp-config.php'
+        file
 
         Return:
         True, False
@@ -135,7 +136,8 @@ class WPConfig:
 
     def config_infos(self, field=None):
         """
-        Extract and return WordPress configuration informations
+        Extract and return WordPress configuration informations.
+        Informations can be found here: https://developer.wordpress.org/cli/commands/config/get/
 
         Argument keywords:
         field -- (optional) configuration field for which we want the value
@@ -199,6 +201,9 @@ class WPConfig:
 
         Argument keywords:
         username -- (optional) Username for which we want informations
+
+        Return:
+        dictionnary with username as key and a WPUser instance as value.
         """
         # lazy initialisation
         if self._user_infos is None:
@@ -231,7 +236,7 @@ class WPConfig:
     @property
     def admins(self):
         """
-        Returns a list containing informations about 'administrator' users
+        Returns a list containing of WPUser instances which have§ 'administrator' role
         """
         return [user for user in self.user_infos().values()
                 if user.role == 'administrator']
