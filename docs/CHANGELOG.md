@@ -11,6 +11,7 @@ Table of releases
 
 <!-- TOC depthFrom:2 depthTo:2 orderedList:false -->
 
+- [[0.2.13] - 2017-11-14/15](#0213---2017-11-1415)
 - [[0.2.12] - 2017-11-09](#0212---2017-11-09)
 - [[0.2.11] - 2017-11-08](#0211---2017-11-08)
 - [[0.2.10] - 2017-11-08](#0210---2017-11-08)
@@ -27,6 +28,26 @@ Table of releases
 - [[0.1.0] - 2017-09-14](#010---2017-09-14)
 
 <!-- /TOC -->
+
+## [0.2.13] - 2017-11-14/15
+
+**[PR #70](https://github.com/epfl-idevelop/jahia2wp/pull/70)**
+**[PR #75](https://github.com/epfl-idevelop/jahia2wp/pull/70)**
+**[PR #81](https://github.com/epfl-idevelop/jahia2wp/pull/81)**
+
+**High level changes:**
+
+1. (#70) Infos de logging modifiées
+1. (#70) Ajout de la gestion de "use cases" d'installation/désinstallation" de plugins spécifiques
+1. (#75) added option `--force` on command `clean`
+1. (#81) Cette PR ajoute un test fonctionnel à savoir : tester l'upload d'un média dans un site WP.
+
+**Low level changes:**
+
+1. (#70) Ajout de check si un plugin est installé ou pas avant de tenter de l'installer ou de le désinstaller.
+1. (#75) removed IF EXISTS when dropping user.
+1. (#75) by-passing check_config in jahia2wp.py:clean when using option --force
+1. (#81) A noter que pour que les tests fonctionnent depuis le conteneur on utilise l'IP de Docker "172.17.0.1" qui potentiellement peut changer dans le futur.
 
 
 ## [0.2.12] - 2017-11-09

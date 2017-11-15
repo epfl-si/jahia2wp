@@ -3,7 +3,11 @@ import os
 
 from utils import Utils
 
-VERSION = "0.2.12"
+VERSION = "0.2.13"
+
+# This Docker IP address is used for automatic testing.
+# Docker may change it in the future, which will cause some tests to fail.
+DOCKER_IP = "172.17.0.1"
 
 SRC_DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 DATA_PATH = os.path.abspath(
