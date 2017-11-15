@@ -243,7 +243,7 @@ class WPConfig:
         Argument keywords:
         username -- Name of user to add
         email -- eMail of user to add
-        role -- (optional) user's role
+        role -- (optional) WordPress user's role (https://codex.wordpress.org/Roles_and_Capabilities#Summary_of_Roles)
                 'administrator'
                 'editor'
                 'author'
@@ -258,7 +258,7 @@ class WPConfig:
 
         Argument keywords:
         sciper_id -- New user SCIPER
-        role -- (optional) user's role
+        role -- (optional) WordPress user's role (https://codex.wordpress.org/Roles_and_Capabilities#Summary_of_Roles)
                 'administrator'
                 'editor'
                 'author'
