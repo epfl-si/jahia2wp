@@ -84,7 +84,7 @@ class WPGenerator:
 
     def run_wp_cli(self, command):
         """
-        Execute a WP-CLI command
+        Execute a WP-CLI command using method present in WPConfig instance.
 
         Argument keywords:
         command -- WP-CLI command to execute. The command doesn't have to start with "wp ".
