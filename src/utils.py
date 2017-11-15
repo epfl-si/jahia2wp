@@ -75,6 +75,7 @@ class Utils(object):
 
         Arguments keywords:
         stream -- stream containing infos to put in dictionnary
+                  For stream information, have a look here: https://docs.python.org/3.5/library/io.html
         delimiter -- character to use to split infos coming from stream (CSV)
 
         Return: list of dictionnaries
