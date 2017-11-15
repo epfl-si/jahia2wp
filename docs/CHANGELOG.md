@@ -11,7 +11,7 @@ Table of releases
 
 <!-- TOC depthFrom:2 depthTo:2 orderedList:false -->
 
-- [[0.2.13] - 2017-11-14](#0213---2017-11-14)
+- [[0.2.13] - 2017-11-14/15](#0213---2017-11-1415)
 - [[0.2.12] - 2017-11-09](#0212---2017-11-09)
 - [[0.2.11] - 2017-11-08](#0211---2017-11-08)
 - [[0.2.10] - 2017-11-08](#0210---2017-11-08)
@@ -29,26 +29,39 @@ Table of releases
 
 <!-- /TOC -->
 
-## [0.2.13] - 2017-11-14
+## [0.2.13] - 2017-11-14/15
 
 **[PR #70](https://github.com/epfl-idevelop/jahia2wp/pull/70)**
 **[PR #75](https://github.com/epfl-idevelop/jahia2wp/pull/75)**
+**[PR #76](https://github.com/epfl-idevelop/jahia2wp/pull/76)**
 **[PR #77](https://github.com/epfl-idevelop/jahia2wp/pull/77)**
+**[PR #80](https://github.com/epfl-idevelop/jahia2wp/pull/80)**
+**[PR #81](https://github.com/epfl-idevelop/jahia2wp/pull/81)**
 
 **High level changes:**
 
 1. (#70) Infos de logging modifiées
 1. (#70) Ajout de la gestion de "use cases" d'installation/désinstallation" de plugins spécifiques
 1. (#75) added option `--force` on command `clean`
+1. (#76) Nouvelle option pour lister les plugins (`list-plugins`) ajoutée dans `jahia2wp.py`. Elle permet de lister les plugins qui seront installés (ainsi que leur config si on la veut) pour un site (donné par `wp_env` et `wp_url`)
 1. (#77) Need to reset DB (using 5.5 instead of 5.7) and containers (images location changed)
+1. (#80) added auto-configuration of polylang (with two languages: fr, en)
+1. (#80) update `make vars` to display all env vars used in project
+1. (#81) Cette PR ajoute un test fonctionnel à savoir : tester l'upload d'un média dans un site WP.
 
 **Low level changes:**
 
 1. (#70) Ajout de check si un plugin est installé ou pas avant de tenter de l'installer ou de le désinstaller.
 1. (#75) removed IF EXISTS when dropping user.
 1. (#75) by-passing check_config in jahia2wp.py:clean when using option --force
+1. (#76) Fonction pour afficher une liste de plugins qui va être installée.
+1. (#76) Pas de test spécifique ajouté pour ceci car c'est juste de l'affichage et la génération de la liste de plugins pour un site est déjà testée.
+1. (#76) Modifications dans `test_jahia2wp.py` pour utiliser des variables pour les infos sur les sites à tester au lieu de hard-coder à chaque fois.
+1. (#76) Modification de WPSite.name qui joue le role d'ID du site WordPress pour l'instant. Pour un sous-domaine, la valeur retournée est le sous-domaine à la place du FQDN
 1. (#77) added Dockerfiles image to build up `httpd` and `mgmt` docker images
 1. (#77) aligned mariaDB version (5.5) with the one used on C2C infra
+1. (#80) refactored code related to plugins -> new package `wordpress.plugins`
+1. (#81) A noter que pour que les tests fonctionnent depuis le conteneur on utilise l'IP de Docker "172.17.0.1" qui potentiellement peut changer dans le futur.
 
 
 ## [0.2.12] - 2017-11-09

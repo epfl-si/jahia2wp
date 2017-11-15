@@ -4,8 +4,10 @@ import shutil
 import logging
 
 from utils import Utils
-from settings import WP_DIRS, WP_FILES, PLUGINS_CONFIG_GENERIC_FOLDER, PLUGINS_CONFIG_SPECIFIC_FOLDER, \
-                     PLUGIN_ACTION_UNINSTALL, PLUGIN_ACTION_INSTALL
+from settings import WP_DIRS, WP_FILES, \
+    PLUGIN_ACTION_UNINSTALL, PLUGIN_ACTION_INSTALL, \
+    PLUGINS_CONFIG_GENERIC_FOLDER, PLUGINS_CONFIG_SPECIFIC_FOLDER, \
+    WP_PLUGIN_CONFIG_CLASS_BY_NAME, WP_DEFAULT_PLUGIN_CONFIG
 
 from django.core.validators import URLValidator
 from veritas.validators import validate_string, validate_openshift_env, validate_integer
@@ -13,7 +15,7 @@ from veritas.validators import validate_string, validate_openshift_env, validate
 from .models import WPSite, WPUser
 from .config import WPConfig
 from .themes import WPThemeConfig
-from .plugins import WPPluginList, WPPluginConfig
+from .plugins.models import WPPluginList
 
 
 class WPGenerator:
@@ -77,6 +79,21 @@ class WPGenerator:
             " --password={0.MYSQL_SUPER_PASSWORD} ".format(self)
         return Utils.run_command(mysql_connection_string + command)
 
+    def list_plugins(self, with_config=False, for_plugin=None):
+        """
+        List plugins (and configuration) for WP site
+
+        Keyword arguments:
+        with_config -- (Bool) to specify if plugin config has to be displayed
+        for_plugin -- Used only if 'with_config'=True. Allow to display only configuration for one given plugin.
+        """
+        logging.info("WPGenerator.list_plugins(): Add parameter for 'batch file' (YAML)")
+        # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"
+        # information in the source of trousse !
+        plugin_list = WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
+
+        return plugin_list.list_plugins(self.wp_site.name, with_config, for_plugin)
+
     def generate_plugins(self):
         """
         Get plugin list for WP site, install them, activate them if needed, configure them
@@ -87,47 +104,44 @@ class WPGenerator:
         # information in the source of trousse !
         plugin_list = WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
 
-        if self.wp_site.folder != "":
-            site_id = self.wp_site.folder
-        else:
-            domain_parts = self.wp_site.domain.split(".")
-            site_id = self.wp_site.domain if len(domain_parts) == 1 else domain_parts[0]
-
         # Looping through plugins to install
-        for plugin_name, plugin_config in plugin_list.plugins(site_id).items():
+        for plugin_name, config_dict in plugin_list.plugins(self.wp_site.name).items():
 
-            # install and activate AddToAny plugin
-            plugin = WPPluginConfig(self.wp_site, plugin_name, plugin_config)
+            # Fectch proper PluginConfig class and create instance
+            plugin_class_name = WP_PLUGIN_CONFIG_CLASS_BY_NAME.get(
+                plugin_name, WP_DEFAULT_PLUGIN_CONFIG)
+            plugin_class = Utils.import_class_from_string(plugin_class_name)
+            plugin_config = plugin_class(self.wp_site, plugin_name, config_dict)
 
             # If we have to uninstall the plugin
-            if plugin_config.action == PLUGIN_ACTION_UNINSTALL:
+            if config_dict.action == PLUGIN_ACTION_UNINSTALL:
                 logging.info("%s - Plugins - %s: Uninstalling...", repr(self), plugin_name)
-                if plugin.is_installed:
-                    plugin.uninstall()
+                if plugin_config.is_installed:
+                    plugin_config.uninstall()
                     logging.info("%s - Plugins - %s: Uninstalled!", repr(self), plugin_name)
                 else:
                     logging.info("%s - Plugins - %s: Not installed!", repr(self), plugin_name)
 
             else:  # We have to install the plugin
                 # We may have to install or do nothing (if we only want to deactivate plugin)
-                if plugin_config.action == PLUGIN_ACTION_INSTALL:
+                if config_dict.action == PLUGIN_ACTION_INSTALL:
                     logging.info("%s - Plugins - %s: Installing...", repr(self), plugin_name)
-                    if not plugin.is_installed:
-                        plugin.install()
+                    if not plugin_config.is_installed:
+                        plugin_config.install()
                         logging.info("%s - Plugins - %s: Installed!", repr(self), plugin_name)
                     else:
                         logging.info("%s - Plugins - %s: Already installed!", repr(self), plugin_name)
 
                 logging.info("%s - Plugins - %s: Setting state...", repr(self), plugin_name)
-                plugin.set_state()
+                plugin_config.set_state()
 
-                if plugin.is_activated:
+                if plugin_config.is_activated:
                     logging.info("%s - Plugins - %s: Activated!", repr(self), plugin_name)
                 else:
                     logging.info("%s - Plugins - %s: Deactivated!", repr(self), plugin_name)
 
                 # Configure plugin
-                plugin.configure()
+                plugin_config.configure()
 
     def generate(self):
 
@@ -216,9 +230,6 @@ class WPGenerator:
         if not self.run_wp_cli(command.format(self.wp_site, self.wp_admin)):
             logging.error("%s - could not setup WP site", repr(self))
             return False
-
-        # create main menu
-        self.wp_config.create_main_menu()
 
         # flag success by returning True
         return True
