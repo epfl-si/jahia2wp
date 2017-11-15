@@ -184,9 +184,3 @@ class WPConfig:
         cmd = "user create {0.username} {0.email} --user_pass=\"{0.password}\" --role={0.role}".format(user)
         self.run_wp_cli(cmd)
         return user
-
-    def create_main_menu(self):
-        # create main menu
-        self.run_wp_cli('menu create Main')
-        # position the main menu at the top
-        self.run_wp_cli('menu location assign Main top')

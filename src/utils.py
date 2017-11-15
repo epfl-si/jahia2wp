@@ -2,6 +2,7 @@
 import logging
 import functools
 import subprocess
+import importlib
 import sys
 import io
 import os
@@ -175,3 +176,9 @@ class Utils(object):
             source_path
         )
         return Utils.run_command(command)
+
+    @staticmethod
+    def import_class_from_string(class_string):
+        module_name, class_name = class_string.rsplit('.', 1)
+        module = importlib.import_module(module_name)
+        return getattr(module, class_name)

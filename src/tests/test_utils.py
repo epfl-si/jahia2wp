@@ -4,6 +4,9 @@ import pytest
 
 from utils import Utils
 
+from wordpress import WPSite
+from wordpress.plugins.polylang import WPPolylangConfig
+
 
 CURRENT_DIR = os.path.dirname(__file__)
 TEST_FILE = 'csv_fixture.csv'
@@ -69,6 +72,17 @@ DB_USER,"ogtc,62msegz2beji",constant
 DB_PASSWORD,Rfcua2LKD^vpGy@m*R*Z,constant
 DB_COLLATE,,constant"""
         assert Utils.csv_string_to_dict(text) == EXPECTED_OUTPUT_FROM_CSV
+
+
+class TestImport:
+
+    def test_first_level_import(self):
+        assert WPSite == Utils.import_class_from_string(
+            "wordpress.WPSite")
+
+    def test_low_level_import(self):
+        assert WPPolylangConfig == Utils.import_class_from_string(
+            "wordpress.plugins.polylang.WPPolylangConfig")
 
 
 class TestTar:
