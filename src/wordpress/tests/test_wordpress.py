@@ -12,7 +12,7 @@ class TestWPSite:
     def wordpress(self):
         return WPSite(
             openshift_env="test",
-            wp_site_url="https://localhost/folder",
+            wp_site_url="http://localhost/folder",
             wp_default_site_title="My test")
 
     def test_path(self, wordpress):
@@ -68,7 +68,7 @@ class TestWPConfig:
     def wp_config(self):
         wordpress = WPSite(
             openshift_env="test",
-            wp_site_url="https://localhost/folder",
+            wp_site_url="http://localhost/folder",
             wp_default_site_title="My test")
         return WPConfig(wordpress)
 
@@ -91,7 +91,7 @@ class TestWPGenerator:
     def wp_generator(self):
         generator = MockedWPGenerator(
             openshift_env=Utils.get_mandatory_env(key="WP_ENV"),
-            wp_site_url="https://localhost/folder",
+            wp_site_url="http://localhost/folder",
             wp_default_site_title=self.TITLE_WITH_ACCENT,
             owner_id=self.SAME_SCIPER_ID,
             responsible_id=self.SAME_SCIPER_ID,
