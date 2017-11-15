@@ -1,5 +1,7 @@
 import os
+import shutil
 
+from settings import WP_PATH
 from wordpress import WPConfig
 from .manager import WPPluginConfigRestore
 
@@ -70,3 +72,17 @@ class WPPluginConfig(WPConfig):
             self.run_wp_cli('plugin activate {}'.format(self.name))
         else:
             self.run_wp_cli('plugin deactivate {}'.format(self.name))
+
+
+class WPMuPluginConfig(WPPluginConfig):
+    """ Relies on WPConfig to get wp_site and run wp-cli.
+        Overrides is_installed to check for the theme only
+
+    """
+
+    PLUGINS_PATH = os.path.join('wp-content', 'mu-plugins')
+
+    def install(self):
+        # copy files into wp-content/mu-plugins
+        src_path = os.path.sep.join([WP_PATH, self.PLUGINS_PATH, self.name])
+        shutil.copytree(src_path, self.path)
