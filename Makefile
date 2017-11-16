@@ -22,7 +22,7 @@ test: check-env
 vars: check-env
 	@echo 'Environment-related vars:'
 	@echo '  WP_ENV=${WP_ENV}'
-	
+
 	@echo ''
 	@echo DB-related vars:
 	@echo '  MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}'
@@ -68,6 +68,15 @@ exec: check-env
 	  -e MYSQL_DB_HOST=${MYSQL_DB_HOST} \
 	  $(_mgmt_container) bash -l
 
+exec-test-local: check-env
+	@docker exec --user www-data -it  \
+	  -e WP_ENV=${WP_ENV}\
+	  -e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
+	  -e MYSQL_DB_HOST=${MYSQL_DB_HOST} \
+		-e PLUGINS_CONFIG_BASE_PATH=wordpress/tests/plugins \
+		-e DOCKER_IP=172.18.0.5 \
+	  $(_mgmt_container) bash -l
+
 down: check-env
 	@WP_PORT_HTTP=${WP_PORT_HTTP} \
 	 WP_PORT_HTTPS=${WP_PORT_HTTPS} \
@@ -87,11 +96,9 @@ export WP_ENV=$(ENV)" >> ~/.bashrc
 	WP_ENV=$(ENV) make up
 endif
 	@echo ""
-	@echo "Done with your local env. You can now" 
+	@echo "Done with your local env. You can now"
 	@if test -z "${WP_ENV}"; then echo "    $ source ~/.bashrc (to update your environment with WP_ENV value)"; fi
 	@echo "    $ make exec        (to connect into your container)"
 
 clean: down
 	@bin/clean.sh $(WP_ENV)
-
-	
