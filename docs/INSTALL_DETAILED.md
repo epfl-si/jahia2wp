@@ -126,8 +126,8 @@ The last lines provide you with usable values for your `.env`. You still can mod
 
 You also have to modify the two following lines in `.env` file. If you don't do this, it won't work correctly.
 
-    BACKUP_PATH=data/backups
-    PLUGINS_CONFIG_BASE_PATH=data/plugins/
+    BACKUP_PATH=../data/backups
+    PLUGINS_CONFIG_BASE_PATH=../data/plugins/
 
 Nearly done. You just need to finish bootstraping, either by simply calling `make bootstrap-mgmt` or going step by step from the section above.
 
