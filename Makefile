@@ -14,6 +14,9 @@ include .env
 endif
 
 _mgmt_container = $(shell docker ps -q --filter "label=ch.epfl.jahia2wp.mgmt.env=${WP_ENV}")
+# TODO : Improve call, ex using label )but we have to add lable inside container
+_httpd_container_ip = $(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' jahia2wp_httpd_1)
+
 
 test: check-env
 # The "test-raw" target is in Makefile.mgmt
@@ -74,7 +77,7 @@ exec-test-local: check-env
 	  -e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
 	  -e MYSQL_DB_HOST=${MYSQL_DB_HOST} \
 		-e PLUGINS_CONFIG_BASE_PATH=wordpress/tests/plugins \
-		-e DOCKER_IP=172.18.0.5 \
+		-e DOCKER_IP=$(_httpd_container_ip) \
 	  $(_mgmt_container) bash -l
 
 down: check-env
