@@ -86,7 +86,7 @@ class TestCommandLine:
 
     def test_inventory(self):
         expected = """path;valid;url;version;db_name;db_user;admins
-/srv/test/localhost/htdocs/;KO;;;;;
+/srv/test/localhost/htdocs;KO;;;;;
 /srv/test/localhost/htdocs/{};ok;{};4.8;wp_""".format(TEST_SITE, SITE_URL_SPECIFIC)
         assert Utils.run_command('python %s inventory %s /srv/test/localhost'
                                  % (SCRIPT_FILE, TEST_ENV)).startswith(expected)
