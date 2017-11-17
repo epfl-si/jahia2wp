@@ -1,0 +1,4 @@
+if [ -f /srv/.bashrc ]; then
+  . /srv/.bashrc
+fi
+

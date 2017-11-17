@@ -11,6 +11,7 @@ Table of releases
 
 <!-- TOC depthFrom:2 depthTo:2 orderedList:false -->
 
+- [[0.2.14] - 2017-11-17](#0214---2017-11-17)
 - [[0.2.13] - 2017-11-14/15](#0213---2017-11-1415)
 - [[0.2.12] - 2017-11-09](#0212---2017-11-09)
 - [[0.2.11] - 2017-11-08](#0211---2017-11-08)
@@ -29,10 +30,25 @@ Table of releases
 
 <!-- /TOC -->
 
+## [0.2.14] - 2017-11-17
+
+**[PR #77](https://github.com/epfl-idevelop/jahia2wp/pull/77)**
+
+**High level changes:**
+
+1. Tagged version after Sprint_S1711
+1. (#77) Need to reset DB (using 5.5 instead of 5.7) and containers (images location changed)
+
+**Low level changes:**
+
+1. (#77) added Dockerfiles image to build up `httpd` and `mgmt` docker images
+1. (#77) aligned mariaDB version (5.5) with the one used on C2C infra
+
+
 ## [0.2.13] - 2017-11-14/15
 
 **[PR #70](https://github.com/epfl-idevelop/jahia2wp/pull/70)**
-**[PR #75](https://github.com/epfl-idevelop/jahia2wp/pull/70)**
+**[PR #75](https://github.com/epfl-idevelop/jahia2wp/pull/75)**
 **[PR #76](https://github.com/epfl-idevelop/jahia2wp/pull/76)**
 **[PR #80](https://github.com/epfl-idevelop/jahia2wp/pull/80)**
 **[PR #81](https://github.com/epfl-idevelop/jahia2wp/pull/81)**
