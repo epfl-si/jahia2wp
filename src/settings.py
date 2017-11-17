@@ -3,7 +3,7 @@ import os
 
 from utils import Utils
 
-VERSION = "0.2.13"
+VERSION = "0.2.14"
 
 # This Docker IP address is used for automatic testing.
 # Docker may change it in the future, which will cause some tests to fail.
