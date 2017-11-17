@@ -4,10 +4,7 @@ import shutil
 import logging
 
 from utils import Utils
-from settings import WP_DIRS, WP_FILES, \
-    PLUGIN_ACTION_UNINSTALL, PLUGIN_ACTION_INSTALL, \
-    PLUGINS_CONFIG_GENERIC_FOLDER, PLUGINS_CONFIG_SPECIFIC_FOLDER, \
-    WP_PLUGIN_CONFIG_CLASS_BY_NAME, WP_DEFAULT_PLUGIN_CONFIG
+import settings
 
 from django.core.validators import URLValidator
 from veritas.validators import validate_string, validate_openshift_env, validate_integer
@@ -113,7 +110,8 @@ class WPGenerator:
         logging.info("WPGenerator.list_plugins(): Add parameter for 'batch file' (YAML)")
         # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"
         # information in the source of trousse !
-        plugin_list = WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
+        plugin_list = WPPluginList(settings.PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml',
+                                   settings.PLUGINS_CONFIG_SPECIFIC_FOLDER)
 
         return plugin_list.list_plugins(self.wp_site.name, with_config, for_plugin)
 
@@ -125,19 +123,20 @@ class WPGenerator:
         logging.info("WPGenerator.generate_plugins(): Add parameter for 'batch file' (YAML)")
         # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"
         # information in the source of trousse !
-        plugin_list = WPPluginList(PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', PLUGINS_CONFIG_SPECIFIC_FOLDER)
+        plugin_list = WPPluginList(settings.PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml',
+                                   settings.PLUGINS_CONFIG_SPECIFIC_FOLDER)
 
         # Looping through plugins to install
         for plugin_name, config_dict in plugin_list.plugins(self.wp_site.name).items():
 
             # Fectch proper PluginConfig class and create instance
-            plugin_class_name = WP_PLUGIN_CONFIG_CLASS_BY_NAME.get(
-                plugin_name, WP_DEFAULT_PLUGIN_CONFIG)
+            plugin_class_name = settings.WP_PLUGIN_CONFIG_CLASS_BY_NAME.get(
+                plugin_name, settings.WP_DEFAULT_PLUGIN_CONFIG)
             plugin_class = Utils.import_class_from_string(plugin_class_name)
             plugin_config = plugin_class(self.wp_site, plugin_name, config_dict)
 
             # If we have to uninstall the plugin
-            if config_dict.action == PLUGIN_ACTION_UNINSTALL:
+            if config_dict.action == settings.PLUGIN_ACTION_UNINSTALL:
                 logging.info("%s - Plugins - %s: Uninstalling...", repr(self), plugin_name)
                 if plugin_config.is_installed:
                     plugin_config.uninstall()
@@ -147,7 +146,7 @@ class WPGenerator:
 
             else:  # We have to install the plugin
                 # We may have to install or do nothing (if we only want to deactivate plugin)
-                if config_dict.action == PLUGIN_ACTION_INSTALL:
+                if config_dict.action == settings.PLUGIN_ACTION_INSTALL:
                     logging.info("%s - Plugins - %s: Installing...", repr(self), plugin_name)
                     if not plugin_config.is_installed:
                         plugin_config.install()
@@ -311,13 +310,13 @@ class WPGenerator:
 
         # clean directories before files
         logging.info("%s - removing files", repr(self))
-        for dir_path in WP_DIRS:
+        for dir_path in settings.WP_DIRS:
             path = os.path.join(self.wp_site.path, dir_path)
             if os.path.exists(path):
                 shutil.rmtree(path)
 
         # clean files
-        for file_path in WP_FILES:
+        for file_path in settings.WP_FILES:
             path = os.path.join(self.wp_site.path, file_path)
             if os.path.exists(path):
                 os.remove(path)
