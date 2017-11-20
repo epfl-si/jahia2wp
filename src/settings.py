@@ -87,6 +87,8 @@ SUPPORTED_LANGUAGES = [
     "it"
 ]
 
+DEFAULT_THEME_NAME = 'epfl'
+
 PLUGINS_CONFIG_BASE_PATH = Utils.get_optional_env(
     "PLUGINS_CONFIG_BASE_PATH", os.path.sep.join([SRC_DIR_PATH, '..', 'data', 'plugins']))
 PLUGINS_CONFIG_GENERIC_FOLDER = os.path.join(PLUGINS_CONFIG_BASE_PATH, 'generic')
