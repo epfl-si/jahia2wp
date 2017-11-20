@@ -1,0 +1,9 @@
+src: generic/wordpress.plugin.accred/v1/wordpress.plugin.accred.zip
+activate: yes
+tables:
+  options:
+  - autoload: 'yes'
+    option_id: 274
+    option_name: plugin:epfl_accred:administrator_group
+    option_value: wp_test_auth
+
