@@ -113,7 +113,9 @@ def generate_one(wp_env, wp_url, wp_title=None, admin_password=None, owner_id=No
 
 @dispatch.on('generate')
 def generate(wp_env, wp_url, wp_title=None, admin_password=None, owner_id=None, responsible_id=None,
-             theme=DEFAULT_THEME_NAME, theme_faculty=None, **kwargs):
+             theme=None, theme_faculty=None, **kwargs):
+    if theme is None:
+        theme = DEFAULT_THEME_NAME
     wp_generator = WPGenerator(
         wp_env,
         wp_url,
