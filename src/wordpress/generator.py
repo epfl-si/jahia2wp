@@ -7,7 +7,7 @@ from utils import Utils
 from settings import WP_DIRS, WP_FILES, \
     PLUGIN_ACTION_UNINSTALL, PLUGIN_ACTION_INSTALL, \
     PLUGINS_CONFIG_GENERIC_FOLDER, PLUGINS_CONFIG_SPECIFIC_FOLDER, \
-    WP_PLUGIN_CONFIG_CLASS_BY_NAME, WP_DEFAULT_PLUGIN_CONFIG
+    WP_PLUGIN_CONFIG_CLASS_BY_NAME, WP_DEFAULT_PLUGIN_CONFIG, DEFAULT_THEME_NAME
 
 from django.core.validators import URLValidator
 from veritas.validators import validate_string, validate_openshift_env, validate_integer
@@ -40,7 +40,9 @@ class WPGenerator:
                  wp_default_site_title=None,
                  admin_password=None,
                  owner_id=None,
-                 responsible_id=None):
+                 responsible_id=None,
+                 theme=DEFAULT_THEME_NAME,
+                 theme_faculty=None):
         """
         Class constructor
 
@@ -51,6 +53,8 @@ class WPGenerator:
         admin_password -- (optional) Password to use for 'admin' account
         owner_id -- (optional) ID (sciper) of website owner
         responsible_id -- (optional) ID (sciper) of website responsible
+        theme -- (optional) WordPress Theme name
+        theme_faculty -- (optional) Faculty name to use with theme (to select color)
         """
         # validate input
         validate_openshift_env(openshift_env)
@@ -73,6 +77,10 @@ class WPGenerator:
         # store scipers_id for later
         self.owner_id = owner_id
         self.responsible_id = responsible_id
+
+        # Theme configuration
+        self.theme = theme
+        self.theme_faculty = None if theme_faculty == '' else theme_faculty
 
         # create mysql credentials
         self.wp_db_name = Utils.generate_name(self.DB_NAME_LENGTH, prefix='wp_').lower()
@@ -187,9 +195,9 @@ class WPGenerator:
             logging.error("%s - could not install WP", repr(self))
             return False
 
-        # install and configure theme (default is 'epfl')
+        # install and configure theme (default is settings.DEFAULT_THEME_NAME)
         logging.info("%s - Activating theme...", repr(self))
-        theme = WPThemeConfig(self.wp_site)
+        theme = WPThemeConfig(self.wp_site, self.theme, self.theme_faculty)
         theme.install()
         if not theme.activate():
             logging.error("%s - could not activate theme", repr(self))
