@@ -272,7 +272,7 @@ class WPGenerator:
         """
         Delete all widgets from the given sidebar.  
         
-        There is 2 sidebars : 
+        There are 2 sidebars : 
         - One sidebar for the homepage. In this case sidebar parameter is "homepage-widgets".
         - Another sidebar for all anothers pages. In this case sidebar parameter is "page-widgets".
         """
