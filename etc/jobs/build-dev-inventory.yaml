@@ -23,7 +23,7 @@ spec:
              env:
              - name: WP_ENV
                value: ebreton
-             image: docker-registry.default.svc:5000/exopge/mgmt:latest
+             image: epflidevelop/os-wp-cronjob:latest
              imagePullPolicy: Always
              name: inventory
              resources: {}
