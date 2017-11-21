@@ -195,6 +195,9 @@ class WPGenerator:
             logging.error("%s - could not activate theme", repr(self))
             return False
 
+        # Delete all widgets
+        self.delete_widgets()
+
         # install, activate and config plugins
         logging.info("%s - Installing plugins...", repr(self))
         self.generate_plugins()
@@ -264,6 +267,21 @@ class WPGenerator:
 
         # flag success by returning True
         return True
+
+    def delete_widgets(self, sidebar="homepage-widgets"):
+        """
+        Delete all widgets from the given sidebar.  
+        
+        There is 2 sidebars : 
+        - One sidebar for the homepage. In this case sidebar parameter is "homepage-widgets".
+        - Another sidebar for all anothers pages. In this case sidebar parameter is "page-widgets".
+        """
+        cmd = "widget list {} --fields=id --format=csv".format(sidebar)
+        widgets_id_list = self.run_wp_cli(cmd).split("\n")
+        for widget_id in widgets_id_list:
+            cmd = "widget delete " + widget_id
+            self.run_wp_cli(cmd)
+        logging.info("All widgets deleted")
 
     def add_webmasters(self):
         """
