@@ -46,7 +46,7 @@ from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
 from crawler import JahiaCrawler
 
-from settings import VERSION, DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
+from settings import VERSION, DEFAULT_THEME_NAME, DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
 from utils import Utils, deprecated
 
 
@@ -117,7 +117,7 @@ def generate_one(wp_env, wp_url, wp_title=None,
 def generate(wp_env, wp_url,
              wp_title=None, admin_password=None,
              owner_id=None, responsible_id=None,
-             theme=None, theme_faculty=None,
+             theme=DEFAULT_THEME_NAME, theme_faculty=None,
              installs_locked=DEFAULT_CONFIG_INSTALLS_LOCKED,
              updates_automatic=DEFAULT_CONFIG_UPDATES_AUTOMATIC, **kwargs):
     wp_generator = WPGenerator(

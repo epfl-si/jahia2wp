@@ -86,7 +86,7 @@ class WPGenerator:
         self.responsible_id = responsible_id
 
         # Theme configuration
-        self.theme = theme
+        self.theme = theme or DEFAULT_THEME_NAME
         self.theme_faculty = None if theme_faculty == '' else theme_faculty
 
         # create mysql credentials
