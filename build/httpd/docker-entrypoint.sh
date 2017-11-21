@@ -5,9 +5,14 @@ set -e
 cat > /etc/apache2/conf-available/dyn-vhost.conf <<EOF
 UseCanonicalName Off
 
+SetEnvIf X-Forwarded-For "^(.*\..*\..*\..*)|(.*:.*:.*:.*:.*:.*:.*:.*)" proxied
 LogFormat "%V %h %l %u %t \"%r\" %s %b" vcommon
-CustomLog "/srv/${WP_ENV}/logs/access_log" vcommon
-ErrorLog "/srv/${WP_ENV}/logs/error_log"
+LogFormat "%V %{X-Forwarded-For}i %l %u %t \"%r\" %s %b" vproxy
+CustomLog "| /usr/bin/rotatelogs /srv/${WP_ENV}/logs/access_log.%Y%m%d 86400" vcommon env=!proxied
+CustomLog "/dev/stdout" vcommon env=!proxied
+CustomLog "| /usr/bin/rotatelogs /srv/${WP_ENV}/logs/access_log.%Y%m%d 86400" vproxy env=proxied
+CustomLog "/dev/stdout" vcommon env=proxied
+ErrorLog "| /usr/bin/rotatelogs /srv/${WP_ENV}/logs/error_log.%Y%m%d 86400"
 
 VirtualDocumentRoot "/srv/${WP_ENV}/%0/htdocs"
 
