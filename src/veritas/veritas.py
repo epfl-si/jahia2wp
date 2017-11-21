@@ -4,7 +4,7 @@ from django.core.validators import URLValidator, ValidationError
 from utils import Utils
 
 from .validators import validate_integer, validate_string, validate_yes_or_no, \
-    validate_openshift_env, validate_site_type, validate_theme, validate_languages
+    validate_openshift_env, validate_site_type, validate_theme, validate_theme_faculty, validate_languages
 
 JAHIA2WP_COLUMNS = (
     ("wp_site_url", URLValidator(), True),
@@ -13,6 +13,7 @@ JAHIA2WP_COLUMNS = (
     ("openshift_env", validate_openshift_env, False),
     # category => no validation
     ("theme", validate_theme, False),
+    ("theme_faculty", validate_theme_faculty, False),
     # status => no validation
     ("installs_locked", validate_yes_or_no, False),
     ("updates_automatic", validate_yes_or_no, False),

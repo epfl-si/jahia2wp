@@ -10,6 +10,7 @@ Usage:
   jahia2wp.py generate              <wp_env> <wp_url>               [--debug | --quiet]
     [--wp-title=<WP_TITLE> --admin-password=<ADMIN_PASSWORD>]
     [--owner=<OWNER_ID> --responsible=<RESPONSIBLE_ID>]
+    [--theme=<THEME> --theme_faculty=<THEME-FACULTY>]
     [--installs-locked=<INSTALLS_LOCKED> --automatic-updates=<UPDATES_AUTOMATIC>]
   jahia2wp.py backup                <wp_env> <wp_url>               [--debug | --quiet]
     [--backup-type=<BACKUP_TYPE>]
@@ -116,6 +117,7 @@ def generate_one(wp_env, wp_url, wp_title=None,
 def generate(wp_env, wp_url,
              wp_title=None, admin_password=None,
              owner_id=None, responsible_id=None,
+             theme=None, theme_faculty=None,
              installs_locked=DEFAULT_CONFIG_INSTALLS_LOCKED,
              updates_automatic=DEFAULT_CONFIG_UPDATES_AUTOMATIC, **kwargs):
     wp_generator = WPGenerator(
@@ -125,6 +127,8 @@ def generate(wp_env, wp_url,
         admin_password=admin_password,
         owner_id=owner_id,
         responsible_id=responsible_id,
+        theme=theme,
+        theme_faculty=theme_faculty,
         installs_locked=installs_locked,
         updates_automatic=updates_automatic)
     if not wp_generator.generate():
@@ -174,7 +178,9 @@ def generate_many(csv_file, **kwargs):
             owner_id=row["owner_id"],
             responsible_id=row["responsible_id"],
             updates_automatic=row["udpates_automatic"],
-            installs_locked=row["installs_locked"]
+            installs_locked=row["installs_locked"],
+            theme=row["theme"],
+            theme_faculty=row["theme_faculty"],
         ).generate()
 
 

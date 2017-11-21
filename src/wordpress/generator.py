@@ -7,7 +7,7 @@ from utils import Utils
 from settings import WP_DIRS, WP_FILES, \
     PLUGIN_ACTION_UNINSTALL, PLUGIN_ACTION_INSTALL, \
     PLUGINS_CONFIG_GENERIC_FOLDER, PLUGINS_CONFIG_SPECIFIC_FOLDER, \
-    WP_PLUGIN_CONFIG_CLASS_BY_NAME, WP_DEFAULT_PLUGIN_CONFIG, \
+    WP_PLUGIN_CONFIG_CLASS_BY_NAME, WP_DEFAULT_PLUGIN_CONFIG, DEFAULT_THEME_NAME, \
     DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
 
 from django.core.validators import URLValidator
@@ -44,7 +44,9 @@ class WPGenerator:
                  updates_automatic=DEFAULT_CONFIG_UPDATES_AUTOMATIC,
                  admin_password=None,
                  owner_id=None,
-                 responsible_id=None):
+                 responsible_id=None,
+                 theme=DEFAULT_THEME_NAME,
+                 theme_faculty=None):
         """
         Class constructor
 
@@ -55,6 +57,8 @@ class WPGenerator:
         admin_password -- (optional) Password to use for 'admin' account
         owner_id -- (optional) ID (sciper) of website owner
         responsible_id -- (optional) ID (sciper) of website responsible
+        theme -- (optional) WordPress Theme name
+        theme_faculty -- (optional) Faculty name to use with theme (to select color)
         """
         # validate input
         validate_openshift_env(openshift_env)
@@ -80,6 +84,10 @@ class WPGenerator:
         # store scipers_id for later
         self.owner_id = owner_id
         self.responsible_id = responsible_id
+
+        # Theme configuration
+        self.theme = theme
+        self.theme_faculty = None if theme_faculty == '' else theme_faculty
 
         # create mysql credentials
         self.wp_db_name = Utils.generate_name(self.DB_NAME_LENGTH, prefix='wp_').lower()
@@ -145,9 +153,9 @@ class WPGenerator:
             logging.error("%s - could not install WP", repr(self))
             return False
 
-        # install and configure theme (default is 'epfl')
+        # install and configure theme (default is settings.DEFAULT_THEME_NAME)
         logging.info("%s - Activating theme...", repr(self))
-        theme = WPThemeConfig(self.wp_site)
+        theme = WPThemeConfig(self.wp_site, self.theme, self.theme_faculty)
         theme.install()
         if not theme.activate():
             logging.error("%s - could not activate theme", repr(self))
@@ -157,6 +165,9 @@ class WPGenerator:
         # must be done before plugins if automatic updates are disabled
         logging.info("%s - Installing mu-plugins...", repr(self))
         self.generate_mu_plugins()
+
+        # Delete all widgets
+        self.delete_widgets()
 
         # install, activate and config plugins
         logging.info("%s - Installing plugins...", repr(self))
@@ -227,6 +238,21 @@ class WPGenerator:
 
         # flag success by returning True
         return True
+
+    def delete_widgets(self, sidebar="homepage-widgets"):
+        """
+        Delete all widgets from the given sidebar.
+
+        There are 2 sidebars :
+        - One sidebar for the homepage. In this case sidebar parameter is "homepage-widgets".
+        - Another sidebar for all anothers pages. In this case sidebar parameter is "page-widgets".
+        """
+        cmd = "widget list {} --fields=id --format=csv".format(sidebar)
+        widgets_id_list = self.run_wp_cli(cmd).split("\n")
+        for widget_id in widgets_id_list:
+            cmd = "widget delete " + widget_id
+            self.run_wp_cli(cmd)
+        logging.info("All widgets deleted")
 
     def add_webmasters(self):
         """

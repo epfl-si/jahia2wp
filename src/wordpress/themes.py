@@ -1,7 +1,7 @@
 import os
 import shutil
 
-from settings import WP_PATH
+from settings import WP_PATH, DEFAULT_THEME_NAME
 
 from .config import WPConfig
 
@@ -13,16 +13,18 @@ class WPThemeConfig(WPConfig):
 
     THEMES_PATH = os.path.join('wp-content', 'themes')
 
-    def __init__(self, wp_site, theme_name='epfl'):
+    def __init__(self, wp_site, theme_name=DEFAULT_THEME_NAME, theme_faculty=None):
         """
         Class constructor
 
         Argument keywords:
         wp_site -- Instance of class WPSite
         theme_name -- (optional) Theme name
+        theme_faculty -- (optional) Theme faculty. Used for theme color.
         """
         super(WPThemeConfig, self).__init__(wp_site)
         self.name = theme_name
+        self.faculty = theme_faculty
         self.path = os.path.sep.join([self.wp_site.path, self.THEMES_PATH, theme_name])
 
     def __repr__(self):
@@ -53,4 +55,12 @@ class WPThemeConfig(WPConfig):
         Set theme as active theme in WordPress
         """
         # use wp-cli to activate theme
-        return self.run_wp_cli('theme activate {}'.format(self.name))
+        result = self.run_wp_cli('theme activate {}'.format(self.name))
+
+        if not result:
+            return False
+
+        if self.faculty is None:
+            return result
+        else:
+            return self.run_wp_cli('option add epfl:theme_faculty {}'.format(self.faculty))

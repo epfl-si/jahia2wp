@@ -3,9 +3,7 @@ import os
 
 from utils import Utils
 
-VERSION = "0.2.?"
-
-SRC_DIR_PATH = os.path.dirname(__file__)
+VERSION = "0.2.15"
 
 # This Docker IP address is used for automatic testing.
 # Docker may change it in the future, which will cause some tests to fail.
@@ -91,6 +89,8 @@ SUPPORTED_LANGUAGES = [
 
 DEFAULT_CONFIG_INSTALLS_LOCKED = True
 DEFAULT_CONFIG_UPDATES_AUTOMATIC = True
+
+DEFAULT_THEME_NAME = 'epfl'
 
 PLUGINS_CONFIG_BASE_PATH = Utils.get_optional_env(
     "PLUGINS_CONFIG_BASE_PATH", os.path.sep.join([SRC_DIR_PATH, '..', 'data', 'plugins']))
