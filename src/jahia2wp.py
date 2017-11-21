@@ -9,7 +9,8 @@ Usage:
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate              <wp_env> <wp_url>               [--debug | --quiet]
     [--wp-title=<WP_TITLE> --admin-password=<ADMIN_PASSWORD>]
-    [--owner=<OWNER_ID> --responsible=<RESPONSIBLE_ID>]
+    [--owner=<OWNER_ID> --responsible=<RESPONSIBLE_ID> ]
+    [--theme=<THEME> --theme_faculty=<THEME-FACULTY>]
   jahia2wp.py backup                <wp_env> <wp_url>               [--debug | --quiet]
     [--backup-type=<BACKUP_TYPE>]
   jahia2wp.py version               <wp_env> <wp_url>               [--debug | --quiet]
@@ -44,7 +45,7 @@ from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
 from crawler import JahiaCrawler
 
-from settings import VERSION
+from settings import VERSION, DEFAULT_THEME_NAME
 from utils import Utils, deprecated
 
 
@@ -111,14 +112,19 @@ def generate_one(wp_env, wp_url, wp_title=None, admin_password=None, owner_id=No
 
 
 @dispatch.on('generate')
-def generate(wp_env, wp_url, wp_title=None, admin_password=None, owner_id=None, responsible_id=None, **kwargs):
+def generate(wp_env, wp_url, wp_title=None, admin_password=None, owner_id=None, responsible_id=None,
+             theme=None, theme_faculty=None, **kwargs):
+    if theme is None:
+        theme = DEFAULT_THEME_NAME
     wp_generator = WPGenerator(
         wp_env,
         wp_url,
         wp_default_site_title=wp_title,
         admin_password=admin_password,
         owner_id=owner_id,
-        responsible_id=responsible_id)
+        responsible_id=responsible_id,
+        theme=theme,
+        theme_faculty=theme_faculty)
     if not wp_generator.generate():
         raise SystemExit("Generation failed. More info above")
 
@@ -165,6 +171,8 @@ def generate_many(csv_file, **kwargs):
             wp_default_site_title=row["wp_default_site_title"],
             owner_id=row["owner_id"],
             responsible_id=row["responsible_id"],
+            theme=row["theme"],
+            theme_faculty=row["theme_faculty"]
         ).generate()
 
 
