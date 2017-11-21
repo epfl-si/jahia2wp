@@ -11,6 +11,8 @@ Table of releases
 
 <!-- TOC depthFrom:2 depthTo:2 orderedList:false -->
 
+- [[0.2.15] - 2017-11-21](#0215---2017-11-21)
+- [[0.2.14] - 2017-11-17](#0214---2017-11-17)
 - [[0.2.13] - 2017-11-14/15](#0213---2017-11-1415)
 - [[0.2.12] - 2017-11-09](#0212---2017-11-09)
 - [[0.2.11] - 2017-11-08](#0211---2017-11-08)
@@ -29,10 +31,50 @@ Table of releases
 
 <!-- /TOC -->
 
+## [0.2.15] - 2017-11-21
+
+**[PR #69](https://github.com/epfl-idevelop/jahia2wp/pull/69)**
+**[PR #100](https://github.com/epfl-idevelop/jahia2wp/pull/100)**
+**[PR #102](https://github.com/epfl-idevelop/jahia2wp/pull/102)**
+
+**High level:**
+
+1. (#69) New WP site has EPFL look and feel
+1. (#69) Columns `installs_locked` and `updates_automatic` from source of trust are now taken into account
+1. (#100) Ajout de 2 paramètres optionnels à `generate` pour pouvoir dire quel thème et quelle faculté de thème (couleur) on veut pour le site.
+1. (#102) Suppression de la sidebar 
+
+**Low level:**
+
+1. (#69) PluginList takes into account the values from `installs_locked` and `updates_automatic`
+1. (#69) If installed, those two plugins are installed in mu-plugin (in order to forbid their removal)
+1. (#69) In tests, replaced epfl_infoscience.zip with redirection.zip in order to avoid conflict with mu-plugin EPFL-SC-Infoscience
+1. (#100) Ajout d'un champ `theme_faculty` dans la source de vérité + gestion de celui-ci dans le code.
+1. (#100) Modification du champ `theme` dans la source de vérité pour le mettre en minuscule (afin de réellement correspondre au nom du thème) + modif de la RegEx de contrôle
+1. (#100) Le nom du thème par défaut a été mis dans une variable (`settings.DEFAULT_THEME_NAME`) car il commençait à se retrouver à plein d'endroits. 
+1. (#100) Mise à jour des fichiers "source de vérité" pour que ça fonctionne avec le nouveau champ.
+1. (#100) Modification du fichier du thème pour voir que la classe (=`theme_faculty`) est bien ajoutée à la balise `<body>` (cette modif va aussi être faite dans les fichiers du thème gérés par Aline).
+1. (#102) Suppression des widgets de la sidebar de la homepage
+
+## [0.2.14] - 2017-11-17
+
+**[PR #77](https://github.com/epfl-idevelop/jahia2wp/pull/77)**
+
+**High level changes:**
+
+1. Tagged version after Sprint_S1711
+1. (#77) Need to reset DB (using 5.5 instead of 5.7) and containers (images location changed)
+
+**Low level changes:**
+
+1. (#77) added Dockerfiles image to build up `httpd` and `mgmt` docker images
+1. (#77) aligned mariaDB version (5.5) with the one used on C2C infra
+
+
 ## [0.2.13] - 2017-11-14/15
 
 **[PR #70](https://github.com/epfl-idevelop/jahia2wp/pull/70)**
-**[PR #75](https://github.com/epfl-idevelop/jahia2wp/pull/70)**
+**[PR #75](https://github.com/epfl-idevelop/jahia2wp/pull/75)**
 **[PR #76](https://github.com/epfl-idevelop/jahia2wp/pull/76)**
 **[PR #78](https://github.com/epfl-idevelop/jahia2wp/pull/78)**
 **[PR #80](https://github.com/epfl-idevelop/jahia2wp/pull/80)**

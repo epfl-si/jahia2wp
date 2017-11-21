@@ -48,7 +48,11 @@ class WPSite:
 
     @property
     def path(self):
-        return "/srv/{0.openshift_env}/{0.domain}/htdocs/{0.folder}".format(self)
+        if not self.folder:
+            # specific case in order to avoid a trailing '/'
+            return "/srv/{0.openshift_env}/{0.domain}/htdocs".format(self)
+        else:
+            return "/srv/{0.openshift_env}/{0.domain}/htdocs/{0.folder}".format(self)
 
     @property
     def url(self):

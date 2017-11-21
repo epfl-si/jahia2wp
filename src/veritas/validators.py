@@ -71,7 +71,11 @@ def validate_site_type(text):
 
 
 def validate_theme(text):
-    return RegexValidator(regex="^EPFL$")(text)
+    return RegexValidator(regex="^[a-zA-Z0-9_-]+$")(text)
+
+
+def validate_theme_faculty(text):
+    return RegexValidator(regex="^(|cdh|cdm|enac|ic|sb|sti|sv)$")(text)
 
 
 def validate_languages(text):

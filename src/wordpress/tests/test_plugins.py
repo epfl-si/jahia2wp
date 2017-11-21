@@ -4,7 +4,7 @@ import os
 from importlib import reload
 
 import settings
-from wordpress import WPPluginList, WPPluginConfig, WPConfig
+from wordpress import WPPluginList, WPPluginConfig, WPMuPluginConfig, WPConfig
 from wordpress.generator import MockedWPGenerator
 
 TEST_SITE = 'unittest'
@@ -30,6 +30,13 @@ def setup_environment():
     return os.environ
 
 
+def build_generator():
+    return MockedWPGenerator(
+        openshift_env=TEST_ENV,
+        wp_site_url=SITE_URL_GENERIC,
+        wp_default_site_title="My test")
+
+
 @pytest.fixture(scope="module")
 def wp_plugin_list():
     setup_environment()
@@ -42,10 +49,7 @@ def wp_plugin_list():
 @pytest.fixture(scope="class")
 def wp_site_generic():
     # To generate website with generic plugin list/configuration
-    generator = MockedWPGenerator(
-                openshift_env=TEST_ENV,
-                wp_site_url=SITE_URL_GENERIC,
-                wp_default_site_title="My test")
+    generator = build_generator()
     generator.clean()
     generator.generate()
     return generator.wp_site
@@ -82,7 +86,7 @@ class TestWPPluginList:
             assert plugin_name in plugin_list
 
     def test_specific_plugin_list(self, wp_plugin_list):
-        plugins_to_test = ['add-to-any', 'hello', 'epfl_infoscience', 'akismet']
+        plugins_to_test = ['add-to-any', 'hello', 'redirection', 'akismet']
 
         plugin_list = wp_plugin_list.plugins(TEST_SITE)
         assert len(plugin_list) == len(plugins_to_test)
@@ -111,7 +115,7 @@ class TestWPPluginConfig:
         # Plugins and if they have to be installed or not
         for plugin_name, installed in {
             'add-to-any': True,
-            'epfl_infoscience': True,
+            'redirection': True,
             'hello': False,
             'akismet': False
         }.items():
@@ -139,7 +143,7 @@ class TestWPPluginConfig:
         # plugins and if they have to be activated or not
         for plugin_name, activated in {
             'add-to-any': True,
-            'epfl_infoscience': True
+            'redirection': True
         }.items():
 
             plugin_config = wp_plugin_list.plugins(TEST_SITE)[plugin_name]
@@ -147,9 +151,12 @@ class TestWPPluginConfig:
 
             assert wp_plugin_config.is_activated is activated
 
+    def test_mu_plugins_installed(self, wp_site_specific):
+        assert os.path.exists(WPMuPluginConfig(wp_site_specific, "epfl-functions.php").path)
+
     def test_valid_uninstall(self, wp_site_specific, wp_plugin_list):
 
-        for plugin_name in ['add-to-any', 'epfl_infoscience']:
+        for plugin_name in ['add-to-any', 'redirection']:
 
             plugin_config = wp_plugin_list.plugins(TEST_SITE)[plugin_name]
             wp_plugin_config = WPPluginConfig(wp_site_specific, plugin_name, plugin_config)
@@ -189,3 +196,7 @@ class TestWPPluginConfigRestore:
         wp_config = WPConfig(wp_site_generic)
         assert wp_config.run_wp_cli("option get addtoany_options") == 'test_overload'
         assert wp_config.run_wp_cli("option get addtoany_dummy") == 'dummy'
+
+
+def test_teardown():
+    build_generator().clean()

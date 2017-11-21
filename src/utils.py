@@ -70,6 +70,16 @@ class Utils(object):
 
     @classmethod
     def csv_stream_do_dict(cls, stream, delimiter=','):
+        """
+        Transform Stream (in CSV format) into a dictionnary
+
+        Arguments keywords:
+        stream -- stream containing infos to put in dictionnary
+                  For stream information, have a look here: https://docs.python.org/3.5/library/io.html
+        delimiter -- character to use to split infos coming from stream (CSV)
+
+        Return: list of dictionnaries
+        """
         rows = []
         reader = csv.DictReader(stream, delimiter=delimiter)
         for row in reader:
@@ -78,12 +88,30 @@ class Utils(object):
 
     @classmethod
     def csv_string_to_dict(cls, text, delimiter=','):
+        """
+        Transform a string (in CSV format) into a dictionnary
+
+        Arguments keywords:
+        text -- String containing CSV information
+        delimiter -- character to use to split infos coming from string (CSV)
+
+        Return: list of dictionnaries
+        """
         with io.StringIO(text) as stream:
             return cls.csv_stream_do_dict(stream, delimiter=delimiter)
 
     @classmethod
     def csv_filepath_to_dict(cls, file_path, delimiter=',', encoding="utf-8"):
-        """Returns the rows of the given CSV file as a list of dicts"""
+        """
+        Returns the rows of the given CSV file as a list of dicts
+
+        Arguments keywords:
+        file_path -- path to file containing infos (in CSV format)
+        delimiter -- character to use to split infos coming from file (CSV)
+        encoding -- encoding used in file 'file_path'
+
+        Retur: list of dictionnaries
+        """
         with open(file_path, 'r', encoding=encoding) as stream:
             return cls.csv_stream_do_dict(stream, delimiter=delimiter)
 
@@ -92,6 +120,10 @@ class Utils(object):
         """
         Return the value of an optional environment variable, and use
         the provided default if it's not set.
+
+        Arguments keywords:
+        key -- Name of variable we want to get the value
+        default -- Value to return if 'key' not found in environment variables
         """
         if not os.environ.get(key):
             logging.warning(
@@ -101,7 +133,12 @@ class Utils(object):
 
     @classmethod
     def get_mandatory_env(cls, key):
+        """
+        Return the value of a mandatory environment variable. If the variable doesn't exists, exception is raised.
 
+        Arguments keywords:
+        key -- Name of mandatory variable we want to get the value
+        """
         if not os.environ.get(key):
             msg = "The mandatory environment variable {} is not set".format(
                 key)
@@ -114,6 +151,9 @@ class Utils(object):
     def set_logging_config(cls, args):
         """
         Set logging with the 'good' level
+
+        Arguments keywords:
+        args -- list containing parameters passed to script
         """
         level = logging.INFO
         WP_ENV = cls.get_mandatory_env('WP_ENV')
@@ -143,12 +183,21 @@ class Utils(object):
     def generate_random_b64(length):
         """
         Generate a random string encoded with base 64
+
+        Arguments keywords:
+        length -- length of generated string.
         """
         return binascii.hexlify(os.urandom(int(length / 2))).decode("utf-8")
 
     @classmethod
     def generate_name(cls, length, prefix=''):
-        """ Generate a random alpha-numeric string, starting with alpha charaters """
+        """
+        Generate a random alpha-numeric string, starting with alpha charaters
+
+        Arguments keywords:
+        length -- length of generated name
+        prefix -- string to put as prefix to generated name
+        """
         seed_length = length - len(prefix) - 1
         first = random.choice(string.ascii_letters)
         return prefix + first + cls.generate_password(seed_length, symbols='')
@@ -157,6 +206,10 @@ class Utils(object):
     def generate_password(length, symbols='!@#^&*'):
         """
         Generate a random password
+
+        Arguments keywords
+        length -- length of generated password
+        symbols -- special symbols to add to 'default' characters used to generate the password
         """
         # the chars we are going to use. We don't use the plus sign (+) because
         # it's problematic in URLs
@@ -166,19 +219,30 @@ class Utils(object):
         return ''.join(random.choice(chars) for i in range(length))
 
     @staticmethod
-    def generate_tar_file(backup_file, backup_listed_incremental_file, source_path):
+    def generate_tar_file(tar_file_path, tar_listed_inc_file_path, source_path):
         """
         Generate a tar file
+
+        Arguments keywords
+        tar_file_path -- path of TAR file to create
+        tar_listed_inc_file_path -- path to file containing incremental infos to help to create tar file
+        source_path -- path to infos to put in TAR file
         """
         command = "tar --create --file={} --listed-incremental={} {}".format(
-            backup_file,
-            backup_listed_incremental_file,
+            tar_file_path,
+            tar_listed_inc_file_path,
             source_path
         )
         return Utils.run_command(command)
 
     @staticmethod
     def import_class_from_string(class_string):
+        """
+        Import (and return) a class from its name
+
+        Arguments keywords:
+        class_string -- name of class to import
+        """
         module_name, class_name = class_string.rsplit('.', 1)
         module = importlib.import_module(module_name)
         return getattr(module, class_name)
