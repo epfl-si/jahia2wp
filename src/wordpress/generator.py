@@ -270,9 +270,9 @@ class WPGenerator:
 
     def delete_widgets(self, sidebar="homepage-widgets"):
         """
-        Delete all widgets from the given sidebar.  
-        
-        There are 2 sidebars : 
+        Delete all widgets from the given sidebar.
+
+        There are 2 sidebars :
         - One sidebar for the homepage. In this case sidebar parameter is "homepage-widgets".
         - Another sidebar for all anothers pages. In this case sidebar parameter is "page-widgets".
         """
