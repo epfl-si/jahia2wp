@@ -1,6 +1,6 @@
 plugins:
-  - name: epfl_infoscience
-    config: !include config-epfl_infoscience.yml
+  - name: redirection
+    config: !include config-redirection.yml
   - name: add-to-any
     config: !include config-add-to-any.yml
   - name: akismet

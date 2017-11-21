@@ -86,7 +86,7 @@ class TestWPPluginList:
             assert plugin_name in plugin_list
 
     def test_specific_plugin_list(self, wp_plugin_list):
-        plugins_to_test = ['add-to-any', 'hello', 'epfl_infoscience', 'akismet']
+        plugins_to_test = ['add-to-any', 'hello', 'redirection', 'akismet']
 
         plugin_list = wp_plugin_list.plugins(TEST_SITE)
         assert len(plugin_list) == len(plugins_to_test)
@@ -115,7 +115,7 @@ class TestWPPluginConfig:
         # Plugins and if they have to be installed or not
         for plugin_name, installed in {
             'add-to-any': True,
-            'epfl_infoscience': True,
+            'redirection': True,
             'hello': False,
             'akismet': False
         }.items():
@@ -143,7 +143,7 @@ class TestWPPluginConfig:
         # plugins and if they have to be activated or not
         for plugin_name, activated in {
             'add-to-any': True,
-            'epfl_infoscience': True
+            'redirection': True
         }.items():
 
             plugin_config = wp_plugin_list.plugins(TEST_SITE)[plugin_name]
@@ -156,7 +156,7 @@ class TestWPPluginConfig:
 
     def test_valid_uninstall(self, wp_site_specific, wp_plugin_list):
 
-        for plugin_name in ['add-to-any', 'epfl_infoscience']:
+        for plugin_name in ['add-to-any', 'redirection']:
 
             plugin_config = wp_plugin_list.plugins(TEST_SITE)[plugin_name]
             wp_plugin_config = WPPluginConfig(wp_site_specific, plugin_name, plugin_config)

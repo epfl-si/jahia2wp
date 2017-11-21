@@ -41,6 +41,7 @@ Table of releases
 
 1. PluginList takes into account the values from `installs_locked` and `updates_automatic`
 1. If installed, those two plugins are installed in mu-plugin (in order to forbid their removal)
+1. In tests, replaced epfl_infoscience.zip with redirection.zip in order to avoid conflict with mu-plugin EPFL-SC-Infoscience
 
 
 ## [0.2.13] - 2017-11-14/15
