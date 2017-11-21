@@ -3,7 +3,7 @@ import os
 
 from utils import Utils
 
-VERSION = "0.2.14"
+VERSION = "0.2.15"
 
 # This Docker IP address is used for automatic testing.
 # Docker may change it in the future, which will cause some tests to fail.
@@ -12,7 +12,7 @@ DOCKER_IP = Utils.get_optional_env(
 
 SRC_DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 DATA_PATH = os.path.abspath(
-    os.path.sep.join([os.path.dirname(__file__), '..', 'data'])
+    os.path.sep.join([SRC_DIR_PATH, '..', 'data'])
 )
 WP_PATH = os.path.join(DATA_PATH, 'wp')
 BACKUP_PATH = Utils.get_optional_env(
@@ -88,6 +88,11 @@ SUPPORTED_LANGUAGES = [
     "it"
 ]
 
+DEFAULT_CONFIG_INSTALLS_LOCKED = True
+DEFAULT_CONFIG_UPDATES_AUTOMATIC = True
+
+DEFAULT_THEME_NAME = 'epfl'
+
 PLUGINS_CONFIG_BASE_PATH = Utils.get_optional_env(
     "PLUGINS_CONFIG_BASE_PATH", os.path.sep.join([SRC_DIR_PATH, '..', 'data', 'plugins']))
 PLUGINS_CONFIG_GENERIC_FOLDER = os.path.join(PLUGINS_CONFIG_BASE_PATH, 'generic')
@@ -124,7 +129,6 @@ WP_DEFAULT_PLUGIN_CONFIG = "wordpress.plugins.config.WPPluginConfig"
 WP_PLUGIN_CONFIG_CLASS_BY_NAME = {
     "polylang": "wordpress.plugins.polylang.WPPolylangConfig",
 }
-
 
 JAHIA_USER = Utils.get_optional_env("JAHIA_USER", "admin")
 JAHIA_HOST = Utils.get_optional_env("JAHIA_HOST", "localhost")
