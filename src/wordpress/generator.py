@@ -249,7 +249,9 @@ class WPGenerator:
         - Another sidebar for all anothers pages. In this case sidebar parameter is "page-widgets".
         """
         cmd = "widget list {} --fields=id --format=csv".format(sidebar)
-        widgets_id_list = self.run_wp_cli(cmd).split("\n")
+        # Result is sliced to remove 1st element which is name of field (id).
+        # Because WPCLI command can take several fields, the name is displayed in the result.
+        widgets_id_list = self.run_wp_cli(cmd).split("\n")[1:]
         for widget_id in widgets_id_list:
             cmd = "widget delete " + widget_id
             self.run_wp_cli(cmd)
