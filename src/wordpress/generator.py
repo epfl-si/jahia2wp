@@ -169,6 +169,7 @@ class WPGenerator:
         # Delete all widgets, inactive themes
         self.delete_widgets()
         self.delete_inactive_themes()
+        self.delete_demo_posts()
 
         # install, activate and config plugins
         logging.info("%s - Installing plugins...", repr(self))
@@ -260,11 +261,19 @@ class WPGenerator:
         Delete all inactive themes
         """
         cmd = "theme list --fields=name --status=inactive --format=csv"
-        themes_name_list = self.run_wp_cli(cmd).split("\n")
+        themes_name_list = self.run_wp_cli(cmd).split("\n")[1:]
         for theme_name in themes_name_list:
             cmd = "theme delete {}".format(theme_name)
             self.run_wp_cli(cmd)
         logging.info("All inactive themes deleted")
+
+    def delete_demo_posts(self):
+        """
+        Delete 'welcome blog' and 'sample page'
+        """
+        self.run_wp_cli("post delete 1")
+        self.run_wp_cli("post delete 2")
+        logging.info("All demo posts deleted")
 
     def add_webmasters(self):
         """
@@ -292,6 +301,7 @@ class WPGenerator:
     def generate_mu_plugins(self):
         WPMuPluginConfig(self.wp_site, "epfl-functions.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL-SC-infoscience.php").install()
+        WPMuPluginConfig(self.wp_site, "EPFL_custom_editor_menu.php").install()
 
         if self.wp_config.installs_locked:
             WPMuPluginConfig(self.wp_site, "EPFL_installs_locked.php").install()
