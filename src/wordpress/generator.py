@@ -166,8 +166,9 @@ class WPGenerator:
         logging.info("%s - Installing mu-plugins...", repr(self))
         self.generate_mu_plugins()
 
-        # Delete all widgets
+        # Delete all widgets, inactive themes
         self.delete_widgets()
+        self.delete_inactive_themes()
 
         # install, activate and config plugins
         logging.info("%s - Installing plugins...", repr(self))
@@ -253,6 +254,17 @@ class WPGenerator:
             cmd = "widget delete " + widget_id
             self.run_wp_cli(cmd)
         logging.info("All widgets deleted")
+
+    def delete_inactive_themes(self):
+        """
+        Delete all inactive themes
+        """
+        cmd = "theme list --fields=name --status=inactive --format=csv"
+        themes_name_list = self.run_wp_cli(cmd).split("\n")
+        for theme_name in themes_name_list:
+            cmd = "theme delete {}".format(theme_name)
+            self.run_wp_cli(cmd)
+        logging.info("All inactive themes deleted")
 
     def add_webmasters(self):
         """
