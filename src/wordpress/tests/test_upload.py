@@ -9,11 +9,14 @@ from bs4 import BeautifulSoup
 
 from settings import DOCKER_IP
 from wordpress.generator import MockedWPGenerator
+from utils import Utils
 
 
 class TestWpUploadTest:
 
     SAME_SCIPER_ID = "188475"
+    # If executed locally, we have to use environment which is set up locally or test will fail
+    WP_ENV = Utils.get_mandatory_env("WP_ENV")
 
     @pytest.fixture()
     def session(self):
