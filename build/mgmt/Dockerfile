@@ -33,8 +33,8 @@ RUN mkdir /var/run/sshd && \
     sed -ri 's/#?PermitRootLogin\s+.*/PermitRootLogin yes/g' /etc/ssh/sshd_config && \
     mkdir /tmp/openshift && \
     cd /tmp/openshift && \
-    curl -L -O https://github.com/openshift/origin/releases/download/v3.6.0/openshift-origin-client-tools-v3.6.0-c4dd4cf-linux-64bit.tar.gz && \
-    tar -xf openshift-origin-client-tools-v3.6.0-c4dd4cf-linux-64bit.tar.gz  && \
+    curl -L -O https://github.com/openshift/origin/releases/download/v3.6.1/openshift-origin-client-tools-v3.6.1-008f2d5-linux-64bit.tar.gz && \
+    tar -xf openshift-origin-client-tools-v3.6.1-008f2d5-linux-64bit.tar.gz && \
     mv */oc /usr/local/bin && \
     cd / && \
     rm -rf /tmp/openshift && \
