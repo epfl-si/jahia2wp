@@ -3,7 +3,7 @@ import yaml
 import os
 from importlib import reload
 import settings
-from wordpress import WPPluginList, WPPluginConfig, WPConfig
+from wordpress import WPPluginList, WPPluginConfig, WPConfig, WPMuPluginConfig
 from wordpress.generator import MockedWPGenerator
 
 TEST_SITE = 'unittest'
