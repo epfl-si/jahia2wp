@@ -124,7 +124,8 @@ class WPGenerator:
         logging.info("WPGenerator.list_plugins(): Add parameter for 'batch file' (YAML)")
         # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"
         # information in the source of trousse !
-        plugin_list = WPPluginList(settings.PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', settings.PLUGINS_CONFIG_SPECIFIC_FOLDER)
+        plugin_list = WPPluginList(settings.PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml',
+                                   settings.PLUGINS_CONFIG_SPECIFIC_FOLDER)
 
         return plugin_list.list_plugins(self.wp_site.name, with_config, for_plugin)
 
@@ -293,7 +294,8 @@ class WPGenerator:
         logging.info("WPGenerator.generate_plugins(): Add parameter for 'batch file' (YAML)")
         # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"
         # information in the source of trousse !
-        plugin_list = WPPluginList(settings.PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml', settings.PLUGINS_CONFIG_SPECIFIC_FOLDER)
+        plugin_list = WPPluginList(settings.PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml',
+                                   settings.PLUGINS_CONFIG_SPECIFIC_FOLDER)
 
         # Looping through plugins to install
         for plugin_name, config_dict in plugin_list.plugins(self.wp_site.name).items():
