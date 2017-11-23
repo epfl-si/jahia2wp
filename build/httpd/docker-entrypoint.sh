@@ -11,7 +11,7 @@ LogFormat "%V %{X-Forwarded-For}i %l %u %t \"%r\" %s %b" vproxy
 CustomLog "| /usr/bin/rotatelogs /srv/${WP_ENV}/logs/access_log.%Y%m%d 86400" vcommon env=!proxied
 CustomLog "/dev/stdout" vcommon env=!proxied
 CustomLog "| /usr/bin/rotatelogs /srv/${WP_ENV}/logs/access_log.%Y%m%d 86400" vproxy env=proxied
-CustomLog "/dev/stdout" vcommon env=proxied
+CustomLog "/dev/stdout" vproxy env=proxied
 ErrorLog "| /usr/bin/rotatelogs /srv/${WP_ENV}/logs/error_log.%Y%m%d 86400"
 
 VirtualDocumentRoot "/srv/${WP_ENV}/%0/htdocs"

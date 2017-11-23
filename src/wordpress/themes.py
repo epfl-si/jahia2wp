@@ -1,7 +1,7 @@
 import os
 import shutil
 
-from settings import WP_PATH, DEFAULT_THEME_NAME
+import settings
 
 from .config import WPConfig
 
@@ -13,7 +13,7 @@ class WPThemeConfig(WPConfig):
 
     THEMES_PATH = os.path.join('wp-content', 'themes')
 
-    def __init__(self, wp_site, theme_name=DEFAULT_THEME_NAME, theme_faculty=None):
+    def __init__(self, wp_site, theme_name=settings.DEFAULT_THEME_NAME, theme_faculty=None):
         """
         Class constructor
 
@@ -47,7 +47,7 @@ class WPThemeConfig(WPConfig):
         Install theme
         """
         # copy files into wp-content/themes
-        src_path = os.path.sep.join([WP_PATH, self.THEMES_PATH, self.name])
+        src_path = os.path.sep.join([settings.WP_PATH, self.THEMES_PATH, self.name])
         shutil.copytree(src_path, self.path)
 
     def activate(self):
