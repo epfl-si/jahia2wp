@@ -2,8 +2,7 @@ import os
 import logging
 import collections
 
-from settings import ENV_DIRS, WP_DIRS, WP_CONFIG_KEYS, \
-     DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
+import settings
 
 from utils import Utils
 
@@ -20,8 +19,8 @@ class WPConfig:
     """
 
     def __init__(self, wp_site,
-                 installs_locked=DEFAULT_CONFIG_INSTALLS_LOCKED,
-                 updates_automatic=DEFAULT_CONFIG_UPDATES_AUTOMATIC):
+                 installs_locked=settings.DEFAULT_CONFIG_INSTALLS_LOCKED,
+                 updates_automatic=settings.DEFAULT_CONFIG_UPDATES_AUTOMATIC):
         """
         Class constructor
 
@@ -53,7 +52,7 @@ class WPConfig:
         """
         # helper function to filter out directories which are part or WP install
         def keep_wp_sites(dir_name):
-            return dir_name not in WP_DIRS + ENV_DIRS
+            return dir_name not in settings.WP_DIRS + settings.ENV_DIRS
 
         # helper class to wrap results
         WPResult = collections.namedtuple(
@@ -153,8 +152,8 @@ class WPConfig:
         field -- (optional) configuration field for which we want the value
         """
         # validate input
-        if field is not None and field not in WP_CONFIG_KEYS:
-            raise ValueError("Field '{}' should be in {}".format(field, WP_CONFIG_KEYS))
+        if field is not None and field not in settings.WP_CONFIG_KEYS:
+            raise ValueError("Field '{}' should be in {}".format(field, settings.WP_CONFIG_KEYS))
 
         # lazy initialisation
         if self._config_infos is None:
