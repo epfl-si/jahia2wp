@@ -13,6 +13,9 @@ TEST_ENV = 'test'
 
 """
 Load fake environment variables for every test
+FIXME: Can be improved. Information can be found here :
+- https://docs.pytest.org/en/2.7.3/xunit_setup.html
+- http://agiletesting.blogspot.ch/2005/01/python-unit-testing-part-3-pytest-tool.html
 """
 os.environ["PLUGINS_CONFIG_BASE_PATH"] = os.path.join(settings.SRC_DIR_PATH, "wordpress/tests/plugins")
 reload(settings)
@@ -140,6 +143,9 @@ class TestWPPluginConfig:
             wp_plugin_config = WPPluginConfig(wp_generator_specific.wp_site, plugin_name, plugin_config)
 
             assert wp_plugin_config.is_activated is activated
+
+    def test_mu_plugins_installed(self, wp_generator_specific):
+        assert os.path.exists(WPMuPluginConfig(wp_generator_specific.wp_site, "epfl-functions.php").path)
 
     def test_valid_uninstall(self, wp_generator_specific, wp_plugin_list):
 
