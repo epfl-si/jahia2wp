@@ -1,6 +1,6 @@
 import pytest
 
-from settings import DEFAULT_CONFIG_INSTALLS_LOCKED
+import settings
 from utils import Utils
 from wordpress import WPSite, WPUser, WPConfig
 from wordpress.generator import MockedWPGenerator
@@ -100,7 +100,7 @@ class TestWPGenerator:
         return generator
 
     def test_config(self, wp_generator):
-        assert wp_generator.wp_config.installs_locked == DEFAULT_CONFIG_INSTALLS_LOCKED
+        assert wp_generator.wp_config.installs_locked == settings.DEFAULT_CONFIG_INSTALLS_LOCKED
         assert wp_generator.wp_config.updates_automatic is False
 
     def test_prepare_db(self, wp_generator):

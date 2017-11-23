@@ -46,7 +46,7 @@ from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
 from crawler import JahiaCrawler
 
-from settings import VERSION, DEFAULT_THEME_NAME, DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
+import settings
 from utils import Utils, deprecated
 
 
@@ -117,9 +117,9 @@ def generate_one(wp_env, wp_url, wp_title=None,
 def generate(wp_env, wp_url,
              wp_title=None, admin_password=None,
              owner_id=None, responsible_id=None,
-             theme=DEFAULT_THEME_NAME, theme_faculty=None,
-             installs_locked=DEFAULT_CONFIG_INSTALLS_LOCKED,
-             updates_automatic=DEFAULT_CONFIG_UPDATES_AUTOMATIC, **kwargs):
+             theme=None, theme_faculty=None,
+             installs_locked=settings.DEFAULT_CONFIG_INSTALLS_LOCKED,
+             updates_automatic=settings.DEFAULT_CONFIG_UPDATES_AUTOMATIC, **kwargs):
     wp_generator = WPGenerator(
         wp_env,
         wp_url,
@@ -247,7 +247,7 @@ if __name__ == '__main__':
 
     # docopt return a dictionary with all arguments
     # __doc__ contains package docstring
-    args = docopt(__doc__, version=VERSION)
+    args = docopt(__doc__, version=settings.VERSION)
 
     # set logging config before anything else
     Utils.set_logging_config(args)

@@ -3,9 +3,7 @@ import logging
 import copy
 import yaml
 
-from settings import PLUGIN_SOURCE_WP_STORE, \
-    PLUGIN_ACTION_INSTALL, PLUGIN_ACTION_UNINSTALL, PLUGIN_ACTION_NOTHING, \
-    PLUGINS_CONFIG_BASE_PATH, WP_PLUGIN_CONFIG_TABLES \
+import settings
 
 from wordpress import WPException
 
@@ -166,7 +164,7 @@ class WPPluginList:
                 ret_str = "{}- {}\n".format(ret_str, plugin_name)
 
                 ret_str = "{}  - action   : {}\n".format(ret_str, plugin_config.action)
-                if plugin_config.action != PLUGIN_ACTION_UNINSTALL:
+                if plugin_config.action != settings.PLUGIN_ACTION_UNINSTALL:
                     ret_str = "{}  - activated: {}\n".format(ret_str, plugin_config.is_active)
                     if plugin_config.is_active:
                         ret_str = "{}  - src      : {}\n".format(ret_str, plugin_config.zip_path if
@@ -174,7 +172,7 @@ class WPPluginList:
                 # if we need to display configuration
                 if with_config:
                     ret_str = "{}  - tables\n".format(ret_str)
-                    for table_name in WP_PLUGIN_CONFIG_TABLES:
+                    for table_name in settings.WP_PLUGIN_CONFIG_TABLES:
 
                         ret_str = "{}    + {}\n".format(ret_str, table_name)
                         for row in plugin_config.table_rows(table_name):
@@ -202,28 +200,28 @@ class WPPluginConfigInfos:
         self.plugin_name = plugin_name
 
         # Getting value if exists, otherwise set with default
-        self.action = plugin_config['action'] if 'action' in plugin_config else PLUGIN_ACTION_INSTALL
+        self.action = plugin_config['action'] if 'action' in plugin_config else settings.PLUGIN_ACTION_INSTALL
 
         # If we have to install plugin (default action), we look for several information
-        if self.action == PLUGIN_ACTION_INSTALL:
+        if self.action == settings.PLUGIN_ACTION_INSTALL:
             # Let's see if we have to activate the plugin or not
             self.is_active = plugin_config['activate']
 
             # If plugin needs to be activated
             if self.is_active:
                 # If we have to download from web,
-                if plugin_config['src'].lower() == PLUGIN_SOURCE_WP_STORE:
+                if plugin_config['src'].lower() == settings.PLUGIN_SOURCE_WP_STORE:
                     self.zip_path = None
                 else:
                     # Generate full path to plugin ZIP file
-                    zip_full_path = os.path.join(PLUGINS_CONFIG_BASE_PATH, plugin_config['src'])
+                    zip_full_path = os.path.join(settings.PLUGINS_CONFIG_BASE_PATH, plugin_config['src'])
                     if not os.path.exists(zip_full_path):
                         logging.error("%s - ZIP file not exists: %s", repr(self), zip_full_path)
                     self.zip_path = zip_full_path
 
             else:  # Plugin has to be deactivated
                 # So, action is set to nothing
-                self.action = PLUGIN_ACTION_NOTHING
+                self.action = settings.PLUGIN_ACTION_NOTHING
 
         # If there's no information for DB tables (= no options) for plugin
         if 'tables' not in plugin_config:
@@ -252,11 +250,11 @@ class WPPluginConfigInfos:
         if 'src' in specific_plugin_config:
             # If we have to download from web,
 
-            if specific_plugin_config['src'].lower() == PLUGIN_SOURCE_WP_STORE:
+            if specific_plugin_config['src'].lower() == settings.PLUGIN_SOURCE_WP_STORE:
                 self.zip_path = None
             else:
                 # Generate full path to plugin ZIP file
-                zip_full_path = os.path.join(PLUGINS_CONFIG_BASE_PATH, specific_plugin_config['src'])
+                zip_full_path = os.path.join(settings.PLUGINS_CONFIG_BASE_PATH, specific_plugin_config['src'])
                 if not os.path.exists(zip_full_path):
                     logging.error("%s - ZIP file not exists: %s", repr(self), zip_full_path)
                 self.zip_path = zip_full_path

@@ -1,7 +1,7 @@
 import os
 import shutil
 
-from settings import WP_PATH
+import settings
 from wordpress import WPConfig
 from .manager import WPPluginConfigRestore
 
@@ -98,7 +98,7 @@ class WPMuPluginConfig(WPConfig):
 
     def install(self):
         # copy files from jahia2wp/data/wp/wp-content/mu-plugins into domain/htdocs/folder/wp-content/mu-plugins
-        src_path = os.path.sep.join([WP_PATH, self.PLUGINS_PATH, self.name])
+        src_path = os.path.sep.join([settings.WP_PATH, self.PLUGINS_PATH, self.name])
         shutil.copyfile(src_path, self.path)
 
     @property
