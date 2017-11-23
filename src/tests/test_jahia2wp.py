@@ -90,9 +90,13 @@ class TestCommandLine:
                                  % (SCRIPT_FILE, TEST_ENV, SITE_URL_SPECIFIC)) == expected
 
     def test_inventory(self):
+
+        version = Utils.run_command('python %s version %s %s' % (SCRIPT_FILE, TEST_ENV, SITE_URL_SPECIFIC))
+
         expected = """path;valid;url;version;db_name;db_user;admins
 /srv/test/localhost/htdocs;KO;;;;;
-/srv/test/localhost/htdocs/{};ok;{};4.8;wp_""".format(TEST_SITE, SITE_URL_SPECIFIC)
+/srv/test/localhost/htdocs/{};ok;{};{};wp_""".format(TEST_SITE, SITE_URL_SPECIFIC, version)
+
         assert Utils.run_command('python %s inventory %s /srv/test/localhost'
                                  % (SCRIPT_FILE, TEST_ENV)).startswith(expected)
 
