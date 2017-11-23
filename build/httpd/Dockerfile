@@ -5,6 +5,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     apache2 \
     ca-certificates \
     libapache2-mod-php7.0 \
+    libapache2-mod-security2 \
+    modsecurity-crs \
     php7.0 \
     php7.0-gd \
     php7.0-curl \
