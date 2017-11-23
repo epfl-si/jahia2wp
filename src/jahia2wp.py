@@ -177,7 +177,7 @@ def generate_many(csv_file, **kwargs):
             wp_default_site_title=row["wp_default_site_title"],
             owner_id=row["owner_id"],
             responsible_id=row["responsible_id"],
-            updates_automatic=row["udpates_automatic"],
+            updates_automatic=row["updates_automatic"],
             installs_locked=row["installs_locked"],
             theme=row["theme"],
             theme_faculty=row["theme_faculty"],
