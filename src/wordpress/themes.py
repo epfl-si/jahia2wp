@@ -46,9 +46,15 @@ class WPThemeConfig(WPConfig):
         """
         Install theme
         """
-        # copy files into wp-content/themes
-        src_path = os.path.sep.join([WP_PATH, self.THEMES_PATH, self.name])
-        shutil.copytree(src_path, self.path)
+        src_theme_path = os.path.sep.join([WP_PATH, self.THEMES_PATH])
+
+        for theme_folder in os.listdir(src_theme_path):
+            current_theme_path = os.path.join(src_theme_path, theme_folder)
+            if os.path.isdir(current_theme_path):
+
+                # copy files into wp-content/themes
+                #src_path = os.path.sep.join([WP_PATH, self.THEMES_PATH, "*"])
+                shutil.copytree(current_theme_path, os.path.sep.join([self.wp_site.path, self.THEMES_PATH, theme_folder]))
 
     def activate(self):
         """
