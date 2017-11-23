@@ -72,8 +72,13 @@ class TestCommandLine:
 
     def test_wp_version(self):
         expected = Utils.get_mandatory_env(key="WP_VERSION")
-        assert Utils.run_command('python %s version %s %s'
-                                 % (SCRIPT_FILE, TEST_ENV, SITE_URL_SPECIFIC)) == expected
+
+        # we do the check only if a specific version was given
+        # (e.g. "4.9"), because "latest" will depend on when
+        # the test is run
+        if expected != "latest":
+            assert Utils.run_command('python %s version %s %s'
+                                     % (SCRIPT_FILE, TEST_ENV, SITE_URL_SPECIFIC)) == expected
 
     def test_wp_admins(self):
         user = WPUser(
