@@ -6,7 +6,4 @@ tables:
     option_id: 274
     option_name: plugin:epfl_accred:administrator_group
     option_value: wp_test_auth
-  - autoload: 'yes'
-    option_id: 275
-    option_name: plugin:epfl_accred:unit_id
-    option_value:
+
