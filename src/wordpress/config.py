@@ -295,5 +295,6 @@ class WPConfig:
         if not user.password:
             user.set_password()
         cmd = "user create {0.username} {0.email} --user_pass=\"{0.password}\" --role={0.role}".format(user)
-        self.run_wp_cli(cmd)
+        if self.run_wp_cli(cmd) is False:
+            logging.error("%s - wp user create failed. More details in the logs above", repr(self.wp_site))
         return user
