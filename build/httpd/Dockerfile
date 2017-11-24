@@ -17,8 +17,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-get -y autoremove && \
     apt-get clean
 
-COPY server.key /etc/apache2/ssl/
-COPY server.cert /etc/apache2/ssl/
 COPY apache2.conf /etc/apache2/
 COPY docker-entrypoint.sh /
 RUN chmod a+x /docker-entrypoint.sh
