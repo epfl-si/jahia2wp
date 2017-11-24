@@ -257,7 +257,7 @@ class WPGenerator:
         logging.info("All widgets deleted")
 
     def add_options(self):
-        cmd = "option update plugin:epfl_accred:unit {}".format(self.unit_name)
+        cmd = "option update plugin:epfl_accred:unit {}".format(self.unit_name.upper())
         self.run_wp_cli(cmd)
 
         cmd = "option add plugin:epfl_accred:unit_id {}".format(self.unit_id)
