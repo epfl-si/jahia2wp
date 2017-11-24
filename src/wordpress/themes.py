@@ -39,8 +39,9 @@ class WPThemeConfig(WPConfig):
         Return
         True, False
         """
-        # check if files are found in wp-content/themes
-        return os.path.isdir(self.path)
+        command = "theme list --field=name --format=json"
+        command_output = self.run_wp_cli(command)
+        return False if command_output is True else self.name in command_output
 
     @classmethod
     def install_all(cls, wp_site):
