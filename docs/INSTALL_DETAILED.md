@@ -152,7 +152,7 @@ You also have to modify the two following lines in `.env` file. If you don't do 
     BACKUP_PATH=../data/backups
     PLUGINS_CONFIG_BASE_PATH=../data/plugins/
 
-Nearly done. You just need to finish bootstraping, either by simply calling `make bootstrap-mgmt` or going step by step from the section above.
+Nearly done. You just need to finish bootstraping, either by simply calling `make -f Makefile.c2c` or going step by step from the section above.
 
 ## Tip to connect to C2C
 
