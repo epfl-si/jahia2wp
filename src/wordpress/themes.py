@@ -46,7 +46,7 @@ class WPThemeConfig(WPConfig):
     def install_all(cls, wp_site):
         """
         Install all themes
-        
+
         Argument keywords:
         wp_site -- Instance of class WPSite
         """
