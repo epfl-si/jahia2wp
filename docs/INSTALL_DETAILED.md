@@ -9,6 +9,7 @@ Table of contents
 - [Starting point: github](#starting-point-github)
 - [Initial setup (details of `make bootstrap-local`)](#initial-setup-details-of-make-bootstrap-local)
 - [Your management environment (details of `make bootstrap-mgmt`)](#your-management-environment-details-of-make-bootstrap-mgmt)
+- [Setting up a brand new infra (new pods, new NAS, new everything)](#setting-up-a-brand-new-infra-new-pods-new-nas-new-everything)
 - [Install in C2C infra](#install-in-c2c-infra)
 - [Tip to connect to C2C](#tip-to-connect-to-c2c)
 
@@ -99,6 +100,28 @@ You can use it, and install the requirements:
     (venv) you@host:~/jahia2wp$ pip install -r requirements/local.txt
 
 You can now jump to the [usage](#usage) section.
+
+## Setting up a brand new infra (new pods, new NAS, new everything)
+
+Connect to the infrastructure and make sure you have subfolders matching your pods. For instance:
+
+Pods | Folder
+-----|-------
+httpd-manager | /srv/manager
+httpd-subdomains | /srv/subdomains
+httpd-www | /srv/www
+httpd-intranet | /srv/intranet
+
+Add the following files in `/srv`:
+- .bashrc
+- .aliases
+- .config/.env 
+
+You should derive them from an other existing infrastructure (e.g test), or from the sample files found in the repo:
+
+- [etc/.bashrc](../etc/.bashrc)
+- [etc/.aliases_c2c](../etc/.aliases_c2c)
+- [.env.sample](../etc/.env.sample)
 
 ## Install in C2C infra
 
