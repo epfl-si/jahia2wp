@@ -7,7 +7,7 @@ from utils import Utils
 import settings
 
 from django.core.validators import URLValidator
-from veritas.validators import validate_string, validate_openshift_env, validate_integer
+from veritas.validators import validate_string, validate_openshift_env, validate_integer, validate_unit
 
 from .models import WPSite, WPUser
 from .config import WPConfig
@@ -42,7 +42,8 @@ class WPGenerator:
                  owner_id=None,
                  responsible_id=None,
                  theme=settings.DEFAULT_THEME_NAME,
-                 theme_faculty=None):
+                 theme_faculty=None,
+                 unit=None):
         """
         Class constructor
 
@@ -65,6 +66,8 @@ class WPGenerator:
             validate_integer(owner_id)
         if responsible_id is not None:
             validate_integer(responsible_id)
+        if unit:
+            self.unit_id, self.unit_name = validate_unit(unit)
 
         # create WordPress site and config
         self.wp_site = WPSite(openshift_env, wp_site_url, wp_default_site_title=wp_default_site_title)
@@ -170,6 +173,8 @@ class WPGenerator:
         logging.info("%s - Installing plugins...", repr(self))
         self.generate_plugins()
 
+        self.add_options()
+
         # add 2 given webmasters
         logging.info("%s - Creating webmaster accounts...", repr(self))
         if not self.add_webmasters():
@@ -251,6 +256,14 @@ class WPGenerator:
             self.run_wp_cli(cmd)
         logging.info("All widgets deleted")
 
+    def add_options(self):
+        cmd = "option add plugin:epfl_accred:unit {}".format(self.unit_name)
+        self.run_wp_cli(cmd)
+
+        cmd = "option add plugin:epfl_accred:unit_id {}".format(self.unit_id)
+        self.run_wp_cli(cmd)
+        logging.info("All tequila/accred options added")
+
     def add_webmasters(self):
         """
         Add webmasters to WordPress install.
@@ -289,7 +302,6 @@ class WPGenerator:
     def generate_plugins(self):
         """
         Get plugin list for WP site, install them, activate them if needed, configure them
-
         """
         logging.info("WPGenerator.generate_plugins(): Add parameter for 'batch file' (YAML)")
         # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"

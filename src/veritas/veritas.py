@@ -1,10 +1,11 @@
 """ All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017 """
+import logging
 from django.core.validators import URLValidator, ValidationError
 
 from utils import Utils
 
 from .validators import validate_integer, validate_string, validate_yes_or_no, \
-    validate_openshift_env, validate_site_type, validate_theme, validate_theme_faculty, validate_languages
+    validate_openshift_env, validate_site_type, validate_theme, validate_theme_faculty, validate_languages, validate_unit
 
 JAHIA2WP_COLUMNS = (
     ("wp_site_url", URLValidator(), True),
@@ -20,7 +21,7 @@ JAHIA2WP_COLUMNS = (
     ("langs", validate_languages, False),
     ("owner_id", validate_integer, False),
     ("responsible_id", validate_integer, False),
-    # unit => no validation
+    ("unit", validate_unit, False),
     # comment => no validation
 )
 
@@ -87,6 +88,7 @@ class VeritasValidor:
 
         # sort the errors by the line number
         self.errors.sort(key=lambda x: x.line)
+        logging.info("The CSV file is validated !")
 
     def print_errors(self):
         """Prints the errors"""

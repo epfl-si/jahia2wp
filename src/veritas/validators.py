@@ -17,12 +17,13 @@
 
     They are functions (or callable objects) that raise a ValidationError on failure
 """
+from epflldap.ldap_search import get_unit_id, is_unit_exist
+
 from settings import OPENSHIFT_ENVS, SUPPORTED_LANGUAGES
 
 
 from django.core.validators import RegexValidator
 from django.conf import settings as dj_settings
-
 
 dj_settings.configure(USE_I18N=False)
 
@@ -84,3 +85,14 @@ def validate_languages(text):
 
 def validate_backup_type(text):
     return ChoiceValidator(choices=['inc', 'full'])(text)
+
+
+def validate_unit(unit_name):
+    try:
+        unit_id = get_unit_id(unit_name)
+    except:
+        # Import here to avoid recursive import
+        from wordpress import WPException
+
+        raise WPException("The unit name {} doesn't exist".format(unit_name))
+    return unit_id, unit_name

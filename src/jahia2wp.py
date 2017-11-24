@@ -12,6 +12,7 @@ Usage:
     [--owner=<OWNER_ID> --responsible=<RESPONSIBLE_ID>]
     [--theme=<THEME> --theme_faculty=<THEME-FACULTY>]
     [--installs-locked=<INSTALLS_LOCKED> --automatic-updates=<UPDATES_AUTOMATIC>]
+    [--unit=<UNIT>]
   jahia2wp.py backup                <wp_env> <wp_url>               [--debug | --quiet]
     [--backup-type=<BACKUP_TYPE>]
   jahia2wp.py version               <wp_env> <wp_url>               [--debug | --quiet]
@@ -119,7 +120,8 @@ def generate(wp_env, wp_url,
              owner_id=None, responsible_id=None,
              theme=None, theme_faculty=None,
              installs_locked=settings.DEFAULT_CONFIG_INSTALLS_LOCKED,
-             updates_automatic=settings.DEFAULT_CONFIG_UPDATES_AUTOMATIC, **kwargs):
+             updates_automatic=settings.DEFAULT_CONFIG_UPDATES_AUTOMATIC,
+             unit=None, **kwargs):
     wp_generator = WPGenerator(
         wp_env,
         wp_url,
@@ -130,7 +132,9 @@ def generate(wp_env, wp_url,
         theme=theme,
         theme_faculty=theme_faculty,
         installs_locked=installs_locked,
-        updates_automatic=updates_automatic)
+        updates_automatic=updates_automatic,
+        unit=unit,
+    )
     if not wp_generator.generate():
         raise SystemExit("Generation failed. More info above")
 
@@ -181,6 +185,7 @@ def generate_many(csv_file, **kwargs):
             installs_locked=row["installs_locked"],
             theme=row["theme"],
             theme_faculty=row["theme_faculty"],
+            unit=row["unit"],
         ).generate()
 
 
