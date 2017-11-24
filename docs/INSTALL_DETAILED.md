@@ -123,6 +123,15 @@ You should derive them from an other existing infrastructure (e.g test), or from
 - [etc/.aliases_c2c](../etc/.aliases_c2c)
 - [.env.sample](../etc/.env.sample)
 
+Also add the miniorange files in `/srv`:
+- .config/config-plugin.yml
+- .config/miniorange-saml-20-single-sign-on.zip
+
+You will find them on our [intranet](https://confluence.epfl.ch:8443/x/ngpqAw). And then can copy them to the server with the following commands :
+
+    $ scp -P 32222 config-plugin.yml www-data@exopgesrv55.epfl.ch:/srv/.config/
+    $ scp -P 32222 miniorange-saml-20-single-sign-on.zip  www-data@exopgesrv55.epfl.ch:/srv/.config/
+
 ## Install in C2C infra
 
 In order to work remotely, you need an access to C2C infra (your public SSH key needs to be authorized on the remote server).
@@ -147,12 +156,18 @@ The last lines provide you with usable values for your `.env`. You still can mod
     MYSQL_SUPER_USER=db-super-user
     MYSQL_SUPER_PASSWORD=db-secret
 
-You also have to modify the two following lines in `.env` file. If you don't do this, it won't work correctly.
-
     BACKUP_PATH=../data/backups
     PLUGINS_CONFIG_BASE_PATH=../data/plugins/
 
-Nearly done. You just need to finish bootstraping, either by simply calling `make -f Makefile.c2c` or going step by step from the section above.
+Set up your virtual environment with `make -f Makefile.c2c`
+
+And finally copy our paid plugin files into the environment
+
+    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp$ mkdir -p data/plugins/generic/miniorange-saml-20-single-sign-on/v1
+    www-data@mgmt-x-xxx:/srv/your-env/jahia2wp$ cd data/plugins/generic/miniorange-saml-20-single-sign-on/v1
+    www-data@mgmt-x-xxx:.../v1$ cp /srv/.config/miniorange-saml-20-single-sign-on.zip .
+    www-data@mgmt-x-xxx:.../v1$ cp /srv/.config/config-plugin.yml .
+
 
 ## Tip to connect to C2C
 
