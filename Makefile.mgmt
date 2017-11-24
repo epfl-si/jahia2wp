@@ -11,6 +11,11 @@ test-raw: /srv/${WP_ENV}/venv
 	  && pytest --cov=./ src \
 	  && coverage html
 
+functional-tests-raw: /srv/${WP_ENV}/venv
+	. /srv/${WP_ENV}/venv/bin/activate \
+	  && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src \
+	  && pytest functional_tests 
+
 test-travis: /srv/${WP_ENV}/venv
 	. /srv/${WP_ENV}/venv/bin/activate \
 	  && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src \
