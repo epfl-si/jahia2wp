@@ -42,12 +42,16 @@ class WPThemeConfig(WPConfig):
         # check if files are found in wp-content/themes
         return os.path.isdir(self.path)
 
-    def install(self):
+    @classmethod
+    def install_all(cls, wp_site):
         """
-        Install theme
+        Install all themes
+        
+        Argument keywords:
+        wp_site -- Instance of class WPSite
         """
         # Generate path to source themes folder
-        src_theme_path = os.path.sep.join([settings.WP_PATH, self.THEMES_PATH])
+        src_theme_path = os.path.sep.join([settings.WP_PATH, cls.THEMES_PATH])
 
         # Looping through folder elements
         for theme_folder in os.listdir(src_theme_path):
@@ -58,7 +62,7 @@ class WPThemeConfig(WPConfig):
 
                 # Copy current theme files into wp-content/themes
                 shutil.copytree(current_theme_path,
-                                os.path.sep.join([self.wp_site.path, self.THEMES_PATH, theme_folder]))
+                                os.path.sep.join([wp_site.path, cls.THEMES_PATH, theme_folder]))
 
     def activate(self):
         """
