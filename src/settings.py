@@ -62,11 +62,12 @@ WP_CONFIG_KEYS = [
     'NONCE_SALT',
 ]
 
+# TODO: move those in YML file for easier adjustments
 OPENSHIFT_ENVS = [
     # for testing purpose
     "your-env",
     "test",
-    # real ones
+    # for dev infra
     "dev",
     "int",
     "ebreton",
@@ -74,7 +75,12 @@ OPENSHIFT_ENVS = [
     "lvenries",
     "lboatto",
     "gcharmier",
-    "lchaboudez"
+    "lchaboudez",
+    # for prod infra
+    "manager",
+    "subdomains",
+    "www",
+    "intranet",
 ]
 
 SUPPORTED_LANGUAGES = [
