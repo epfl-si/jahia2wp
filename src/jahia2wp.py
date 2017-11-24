@@ -33,8 +33,8 @@ Usage:
 Options:
   -h --help                 Show this screen.
   -v --version              Show version.
-  --debug                   Set log level to DEBUG (default is INFO)
-  --quiet                   Set log level to WARNING (default is INFO)
+  --debug                   Set log level to DEBUG [default: INFO]
+  --quiet                   Set log level to WARNING [default: INFO]
 """
 import logging
 import getpass
@@ -118,8 +118,17 @@ def generate(wp_env, wp_url,
              wp_title=None, admin_password=None,
              owner_id=None, responsible_id=None,
              theme=DEFAULT_THEME_NAME, theme_faculty=None,
-             installs_locked=DEFAULT_CONFIG_INSTALLS_LOCKED,
-             updates_automatic=DEFAULT_CONFIG_UPDATES_AUTOMATIC, **kwargs):
+             installs_locked=None,
+             updates_automatic=None, **kwargs):
+
+    # if nothing is specified we want a locked install
+    if installs_locked is None:
+        installs_locked = True
+
+    # if nothing is specified we want automatic updates
+    if updates_automatic is None:
+        updates_automatic = True
+
     wp_generator = WPGenerator(
         wp_env,
         wp_url,
