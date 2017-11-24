@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY server.key /etc/apache2/ssl/
 COPY server.cert /etc/apache2/ssl/
 COPY apache2.conf /etc/apache2/
+COPY restrict-wp-admin.conf /etc/apache2/conf.enabled/
 COPY docker-entrypoint.sh /
 RUN chmod a+x /docker-entrypoint.sh
 
