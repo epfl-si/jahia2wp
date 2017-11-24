@@ -11,7 +11,7 @@ Table of releases
 
 <!-- TOC depthFrom:2 depthTo:2 orderedList:false -->
 
-- [[0.2.15] - 2017-11-21](#0215---2017-11-21)
+- [[0.2.15] - 2017-11-30](#0215---2017-11-30)
 - [[0.2.14] - 2017-11-17](#0214---2017-11-17)
 - [[0.2.13] - 2017-11-14/15](#0213---2017-11-1415)
 - [[0.2.12] - 2017-11-09](#0212---2017-11-09)
@@ -31,11 +31,12 @@ Table of releases
 
 <!-- /TOC -->
 
-## [0.2.15] - 2017-11-21
+## [0.2.15] - 2017-11-30
 
 **[PR #69](https://github.com/epfl-idevelop/jahia2wp/pull/69)**
 **[PR #100](https://github.com/epfl-idevelop/jahia2wp/pull/100)**
 **[PR #102](https://github.com/epfl-idevelop/jahia2wp/pull/102)**
+**[PR #105](https://github.com/epfl-idevelop/jahia2wp/pull/105)**
 
 **High level:**
 
@@ -43,6 +44,8 @@ Table of releases
 1. (#69) Columns `installs_locked` and `updates_automatic` from source of trust are now taken into account
 1. (#100) Ajout de 2 paramètres optionnels à `generate` pour pouvoir dire quel thème et quelle faculté de thème (couleur) on veut pour le site.
 1. (#102) Suppression de la sidebar 
+1. (#105) Amélioration de la sécurité selon [les recommendations de l'OWASP](https://www.owasp.org/index.php/OWASP_Wordpress_Security_Implementation_Guideline).
+1. (#105) Nouveaux sites installé avec la version `latest` de WordPress au lieu de `4.8`
 
 **Low level:**
 
@@ -55,6 +58,9 @@ Table of releases
 1. (#100) Mise à jour des fichiers "source de vérité" pour que ça fonctionne avec le nouveau champ.
 1. (#100) Modification du fichier du thème pour voir que la classe (=`theme_faculty`) est bien ajoutée à la balise `<body>` (cette modif va aussi être faite dans les fichiers du thème gérés par Aline).
 1. (#102) Suppression des widgets de la sidebar de la homepage
+1. (#105) Mises-à-jour automatiques du Core, des plugins et thèmes
+1. (#105) Ajout du module Apache ModSecurity
+1. (#105) Modification de la configuration WordPress pour empêcher l'édition en ligne des plugins et thèmes
 
 ## [0.2.14] - 2017-11-17
 
