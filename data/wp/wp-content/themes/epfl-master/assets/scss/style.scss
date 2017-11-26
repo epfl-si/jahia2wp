@@ -399,6 +399,28 @@ a.a2a_button_{
   margin: 1.5em 0;
 }
 
+/* Search form */
+
+.search-form .search-submit {
+  @include color-background-btn;
+  float: right;
+  padding: 0;
+  width: 32px;
+  
+  &:before {
+    @include icon;
+    content: "\f002";
+    font-size: 16px;
+    line-height: 32px;
+  }
+}
+.search-form .search-field {
+  .csscalc & {
+    border-right: 0;
+    width: calc( 100% - 32px );
+  }
+}
+
 
 /*  ---------------------------------------
     02 JAHIA IMPORTED CONTENT
@@ -1188,6 +1210,15 @@ a.a2a_button_{
   line-height: 1.4em;
   text-transform: none;
 }
+  
+.page-header {
+  margin-bottom: 20px;
+  
+  .page-title {
+    margin: 0;
+    padding: 0;
+  }
+}
 
 /* --- Single article --- */
 
@@ -1204,6 +1235,11 @@ a.a2a_button_{
 
 /* Article list */
 
+.list-articles .hentry {
+  @include clearfix;
+  @include border-bottom-dots;
+}
+
 .list-articles .entry-header {
   
   .entry-title {
@@ -1219,6 +1255,7 @@ a.a2a_button_{
   
 }
 .list-articles .post-thumbnail {
+  margin: 0;
   margin-bottom: 20px;
   
   a {
@@ -1609,7 +1646,7 @@ a.a2a_button_{
     text-indent: -3333px;
     
     a {
-      background: #000;
+      //background: #000;
       width: 30px;
       
       &:before {
@@ -1802,6 +1839,7 @@ a.a2a_button_{
   }
   .list-articles .post-thumbnail {
     float: left;
+    margin-bottom: 0;
     padding-right: 20px;
     width: 30%;
   }
@@ -1809,6 +1847,10 @@ a.a2a_button_{
   .list-articles .entry-content {
     clear: right;
     padding-left: 30%;
+    
+    & > * {
+      clear: none;
+    }
   }
   
 }
