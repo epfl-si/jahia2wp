@@ -1,5 +1,6 @@
 src: generic/tequila/v1/tequila.zip
 activate: yes
+# Waiting of domq
 #tables:
 #  options:
 #  - autoload: 'yes'
