@@ -34,8 +34,9 @@ class WPPluginConfig(WPConfig):
 
     @property
     def is_installed(self):
-        # check if files are found in wp-content/plugins
-        return os.path.isdir(self.path)
+        command = "plugin list --field=name --format=json"
+        command_output = self.run_wp_cli(command)
+        return False if command_output is True else self.name in command_output
 
     @property
     def is_activated(self):
