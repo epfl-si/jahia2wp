@@ -234,6 +234,12 @@ class WPGenerator:
             logging.error("%s - could not setup WP site", repr(self))
             return False
 
+        # Configure permalinks
+        command = "rewrite structure '/%postname%/' --hard"
+        if not self.run_wp_cli(command):
+            logging.error("%s - could not configure permalinks", repr(self))
+            return False
+
         # flag success by returning True
         return True
 
