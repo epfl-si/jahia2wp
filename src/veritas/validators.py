@@ -85,9 +85,10 @@ def validate_languages(text):
 def validate_backup_type(text):
     return ChoiceValidator(choices=['inc', 'full'])(text)
 
-# FIXME: le validate doit seulement retourner une execption
-# en cas de problème
+
 def validate_unit(unit_name):
+    # FIXME: le validate doit seulement retourner une execption
+    # en cas de problème
     try:
         unit_id = get_unit_id(unit_name)
     except:
