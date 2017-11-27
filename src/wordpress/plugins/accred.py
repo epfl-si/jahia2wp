@@ -12,12 +12,6 @@ class WPAccredConfig(WPPluginConfig):
 
         Notice: unit_id will be used in the future.
         """
-
-        logging.debug("///////////////////////////////////////////")
-        logging.debug(unit_name)
-        logging.debug(unit_id)
-        logging.debug("///////////////////////////////////////////")
-
         # configure options
         cmd = "option update plugin:epfl_accred:unit {}".format(unit_name.upper())
         self.run_wp_cli(cmd)

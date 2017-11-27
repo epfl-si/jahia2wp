@@ -91,7 +91,6 @@ class WPGenerator:
                 'unit_id': self.unit_id, 'unit_name': self.unit_name
             }
 
-
         # Theme configuration
         self.theme = theme or settings.DEFAULT_THEME_NAME
         self.theme_faculty = None if theme_faculty == '' else theme_faculty
@@ -355,11 +354,6 @@ class WPGenerator:
                     logging.info("%s - Plugins - %s: Deactivated!", repr(self), plugin_name)
 
                 # Configure plugin
-                logging.debug("////////////////////////////////////////////////////////")
-                logging.debug(plugin_name)
-                logging.debug(plugin_config)
-                logging.debug(self.plugin_config_custom)
-                logging.debug("////////////////////////////////////////////////////////")
                 plugin_config.configure(**self.plugin_config_custom)
 
     def clean(self):
