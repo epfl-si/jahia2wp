@@ -1,8 +1,8 @@
 src: generic/wordpress.plugin.tequila/v1/wordpress.plugin.tequila.zip
 activate: yes
-tables:
-  options:
-  - autoload: 'yes'
-    option_id: 275
-    option_name: plugin:epfl_tequila:has_dual_auth
-    option_value: 0
+#tables:
+#  options:
+#  - autoload: 'yes'
+#    option_id: 275
+#    option_name: plugin:epfl_tequila:has_dual_auth
+#    option_value: 0
