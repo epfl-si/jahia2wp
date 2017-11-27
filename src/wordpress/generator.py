@@ -270,8 +270,11 @@ class WPGenerator:
         """
         Delete 'welcome blog' and 'sample page'
         """
-        self.run_wp_cli("post delete 1")
-        self.run_wp_cli("post delete 2")
+        cmd = "post list --post_type=page,post --field=ID --format=csv"
+        posts_list = self.run_wp_cli(cmd).split("\n")
+        for post in posts_list:
+            cmd = "post delete {}".format(post)
+            self.run_wp_cli(cmd)
         logging.info("All demo posts deleted")
 
     def add_webmasters(self):
