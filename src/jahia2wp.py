@@ -119,9 +119,8 @@ def generate(wp_env, wp_url,
              wp_title=None, admin_password=None,
              owner_id=None, responsible_id=None,
              theme=DEFAULT_THEME_NAME, theme_faculty=None,
-             installs_locked=None,
-             updates_automatic=None,
-             unit = None, ** kwargs):
+             installs_locked=None, updates_automatic=None,
+             unit=None, **kwargs):
 
     # if nothing is specified we want a locked install
     if installs_locked is None:
