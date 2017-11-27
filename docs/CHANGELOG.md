@@ -82,6 +82,7 @@ Table of releases
 **[PR #70](https://github.com/epfl-idevelop/jahia2wp/pull/70)**
 **[PR #75](https://github.com/epfl-idevelop/jahia2wp/pull/75)**
 **[PR #76](https://github.com/epfl-idevelop/jahia2wp/pull/76)**
+**[PR #78](https://github.com/epfl-idevelop/jahia2wp/pull/78)**
 **[PR #80](https://github.com/epfl-idevelop/jahia2wp/pull/80)**
 **[PR #81](https://github.com/epfl-idevelop/jahia2wp/pull/81)**
 
@@ -91,6 +92,7 @@ Table of releases
 1. (#70) Ajout de la gestion de "use cases" d'installation/désinstallation" de plugins spécifiques
 1. (#75) added option `--force` on command `clean`
 1. (#76) Nouvelle option pour lister les plugins (`list-plugins`) ajoutée dans `jahia2wp.py`. Elle permet de lister les plugins qui seront installés (ainsi que leur config si on la veut) pour un site (donné par `wp_env` et `wp_url`)
+1. (#78) Added documentation and template to create cronjobs on openshift
 1. (#80) added auto-configuration of polylang (with two languages: fr, en)
 1. (#80) update `make vars` to display all env vars used in project
 1. (#81) Cette PR ajoute un test fonctionnel à savoir : tester l'upload d'un média dans un site WP.
