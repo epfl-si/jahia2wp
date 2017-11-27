@@ -127,6 +127,7 @@ WP_PLUGIN_TABLES_RELATIONS = {
 WP_DEFAULT_PLUGIN_CONFIG = "wordpress.plugins.config.WPPluginConfig"
 WP_PLUGIN_CONFIG_CLASS_BY_NAME = {
     "polylang": "wordpress.plugins.polylang.WPPolylangConfig",
+    "accred": "wordpress.plugins.accred.WPAccredConfig",
 }
 
 JAHIA_USER = Utils.get_optional_env("JAHIA_USER", "admin")
