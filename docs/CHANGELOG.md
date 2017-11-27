@@ -37,6 +37,7 @@ Table of releases
 **[PR #100](https://github.com/epfl-idevelop/jahia2wp/pull/100)**
 **[PR #102](https://github.com/epfl-idevelop/jahia2wp/pull/102)**
 **[PR #105](https://github.com/epfl-idevelop/jahia2wp/pull/105)**
+**[PR #113](https://github.com/epfl-idevelop/jahia2wp/pull/113)**
 
 **High level:**
 
@@ -46,6 +47,7 @@ Table of releases
 1. (#102) Suppression de la sidebar 
 1. (#105) Amélioration de la sécurité selon [les recommendations de l'OWASP](https://www.owasp.org/index.php/OWASP_Wordpress_Security_Implementation_Guideline).
 1. (#105) Nouveaux sites installé avec la version `latest` de WordPress au lieu de `4.8`
+1. (#113) New make command: `make functional-tests`
 
 **Low level:**
 
@@ -61,6 +63,10 @@ Table of releases
 1. (#105) Mises-à-jour automatiques du Core, des plugins et thèmes
 1. (#105) Ajout du module Apache ModSecurity
 1. (#105) Modification de la configuration WordPress pour empêcher l'édition en ligne des plugins et thèmes
+1. (#113) automatic fetching of the IP of the httpd docker (instead of hard-code in settings.py)
+1. (#113) test_uploads moved out of `jahia2wp/src/.../tests` into `jahia2wp/functional_tests`
+1. (#113) new entries in makefile and makefile.mgmt to run pytest in newly created dir above
+1. (#113) `TEST_ENV` & `TEST_SITE` moved to `settings.py`
 
 ## [0.2.14] - 2017-11-17
 
