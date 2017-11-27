@@ -9,7 +9,7 @@ class WPAccredConfig(WPPluginConfig):
         """
         plugin:epfl_accred:unit is the unit name.
         plugin:epfl_accred:unit_id is the unit id.
-        
+
         Notice: unit_id will be used in the future.
         """
         # configure options

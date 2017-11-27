@@ -17,10 +17,9 @@
 
     They are functions (or callable objects) that raise a ValidationError on failure
 """
-from epflldap.ldap_search import get_unit_id, is_unit_exist
+from epflldap.ldap_search import get_unit_id
 
 from settings import OPENSHIFT_ENVS, SUPPORTED_LANGUAGES
-
 
 from django.core.validators import RegexValidator
 from django.conf import settings as dj_settings
