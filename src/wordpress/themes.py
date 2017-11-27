@@ -1,7 +1,7 @@
 import os
 import shutil
 
-from settings import WP_PATH, DEFAULT_THEME_NAME
+import settings
 
 from .config import WPConfig
 
@@ -13,7 +13,7 @@ class WPThemeConfig(WPConfig):
 
     THEMES_PATH = os.path.join('wp-content', 'themes')
 
-    def __init__(self, wp_site, theme_name=DEFAULT_THEME_NAME, theme_faculty=None):
+    def __init__(self, wp_site, theme_name=settings.DEFAULT_THEME_NAME, theme_faculty=None):
         """
         Class constructor
 
@@ -39,16 +39,31 @@ class WPThemeConfig(WPConfig):
         Return
         True, False
         """
-        # check if files are found in wp-content/themes
-        return os.path.isdir(self.path)
+        command = "theme list --field=name --format=json"
+        command_output = self.run_wp_cli(command)
+        return False if command_output is True else self.name in command_output
 
-    def install(self):
+    @classmethod
+    def install_all(cls, wp_site):
         """
-        Install theme
+        Install all themes
+
+        Argument keywords:
+        wp_site -- Instance of class WPSite
         """
-        # copy files into wp-content/themes
-        src_path = os.path.sep.join([WP_PATH, self.THEMES_PATH, self.name])
-        shutil.copytree(src_path, self.path)
+        # Generate path to source themes folder
+        src_theme_path = os.path.sep.join([settings.WP_PATH, cls.THEMES_PATH])
+
+        # Looping through folder elements
+        for theme_folder in os.listdir(src_theme_path):
+            # Generate path to current element
+            current_theme_path = os.path.join(src_theme_path, theme_folder)
+            # If current element is a directory, it is a theme
+            if os.path.isdir(current_theme_path):
+
+                # Copy current theme files into wp-content/themes
+                shutil.copytree(current_theme_path,
+                                os.path.sep.join([wp_site.path, cls.THEMES_PATH, theme_folder]))
 
     def activate(self):
         """

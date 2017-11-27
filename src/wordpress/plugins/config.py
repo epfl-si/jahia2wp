@@ -2,7 +2,7 @@ import os
 import shutil
 import logging
 
-from settings import WP_PATH
+import settings
 from wordpress import WPConfig
 from .manager import WPPluginConfigRestore
 
@@ -35,8 +35,9 @@ class WPPluginConfig(WPConfig):
 
     @property
     def is_installed(self):
-        # check if files are found in wp-content/plugins
-        return os.path.isdir(self.path)
+        command = "plugin list --field=name --format=json"
+        command_output = self.run_wp_cli(command)
+        return False if command_output is True else self.name in command_output
 
     @property
     def is_activated(self):
@@ -98,7 +99,7 @@ class WPMuPluginConfig(WPConfig):
 
     def install(self):
         # copy files from jahia2wp/data/wp/wp-content/mu-plugins into domain/htdocs/folder/wp-content/mu-plugins
-        src_path = os.path.sep.join([WP_PATH, self.PLUGINS_PATH, self.name])
+        src_path = os.path.sep.join([settings.WP_PATH, self.PLUGINS_PATH, self.name])
         shutil.copyfile(src_path, self.path)
 
         logging.debug("%s - Plugins - %s: Copied file from %s to %s",

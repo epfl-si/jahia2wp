@@ -10,7 +10,7 @@ from django.core.validators import URLValidator
 from veritas.validators import validate_openshift_env, validate_string, validate_backup_type
 
 from utils import Utils
-from settings import BACKUP_PATH
+import settings
 
 
 class WPBackup:
@@ -76,7 +76,7 @@ class WPBackup:
         self.type = backup_type or self.DEFAULT_TYPE
 
         # Create a backup folder data/backups/wp_site_name
-        self.path = os.path.join(BACKUP_PATH, self.wp_site.name)
+        self.path = os.path.join(settings.BACKUP_PATH, self.wp_site.name)
 
     def _get_max_number(self, regex):
         """
