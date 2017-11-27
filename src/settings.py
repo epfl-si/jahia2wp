@@ -9,7 +9,8 @@ SRC_DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 # This Docker IP address is used for automatic testing.
 # Docker may change it in the future, which will cause some tests to fail.
 DOCKER_IP = Utils.get_optional_env("DOCKER_IP", "172.17.0.1")
-TEST_ENV = Utils.get_optional_env("WP_ENV", "test")
+TEST_ENV = "test"
+TEST_SITE = 'unittest'
 
 DATA_PATH = os.path.abspath(
     os.path.sep.join([SRC_DIR_PATH, '..', 'data'])

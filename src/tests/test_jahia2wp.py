@@ -2,7 +2,7 @@
 import os
 import pytest
 
-from settings import TEST_ENV
+from settings import TEST_ENV, TEST_SITE
 from utils import Utils
 from wordpress import WPGenerator, WPUser
 
@@ -11,7 +11,6 @@ CURRENT_DIR = os.path.dirname(__file__)
 SRC_DIR = os.path.abspath(os.path.join(CURRENT_DIR, '..'))
 SCRIPT_FILE = os.path.join(SRC_DIR, 'jahia2wp.py')
 
-TEST_SITE = 'unittest'
 SITE_URL_SPECIFIC = "http://localhost/{}".format(TEST_SITE)
 
 
@@ -97,8 +96,9 @@ class TestCommandLine:
 /srv/test/localhost/htdocs;KO;;;;;
 /srv/test/localhost/htdocs/{};ok;{};{};wp_""".format(TEST_SITE, SITE_URL_SPECIFIC, version)
 
-        assert Utils.run_command('python %s inventory %s /srv/test/localhost'
-                                 % (SCRIPT_FILE, TEST_ENV)).startswith(expected)
+        assert Utils.run_command(
+            'python {0} inventory {1} /srv/test/localhost'.format(
+                SCRIPT_FILE, TEST_ENV)).startswith(expected)
 
     def test_clean_one(self):
         assert Utils.run_command('python %s clean %s %s'
