@@ -161,9 +161,10 @@ class WPGenerator:
             return False
 
         # install and configure theme (default is settings.DEFAULT_THEME_NAME)
+        logging.info("%s - Installing all themes...", repr(self))
+        WPThemeConfig.install_all(self.wp_site)
         logging.info("%s - Activating theme...", repr(self))
         theme = WPThemeConfig(self.wp_site, self.theme, self.theme_faculty)
-        theme.install()
         if not theme.activate():
             logging.error("%s - could not activate theme", repr(self))
             return False
@@ -241,6 +242,12 @@ class WPGenerator:
             " --admin_email='{1.email}'"
         if not self.run_wp_cli(command.format(self.wp_site, self.wp_admin)):
             logging.error("%s - could not setup WP site", repr(self))
+            return False
+
+        # Configure permalinks
+        command = "rewrite structure '/%postname%/' --hard"
+        if not self.run_wp_cli(command):
+            logging.error("%s - could not configure permalinks", repr(self))
             return False
 
         # flag success by returning True

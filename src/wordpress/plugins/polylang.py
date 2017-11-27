@@ -32,7 +32,6 @@ class WPPolylangConfig(WPPluginConfig):
         # configure options
         logging.info("%s - setting polylang options ...", self.wp_site)
         self.run_wp_cli("pll option update media_support 0")
-        self.run_wp_cli("option update permalink_structure '/%postname%/'")
 
         # create menus
         logging.info("%s - creating polylang menu ...", self.wp_site)

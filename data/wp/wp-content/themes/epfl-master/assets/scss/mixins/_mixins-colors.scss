@@ -1,0 +1,213 @@
+/* Color variables */
+
+$primary-color-cdh: #daa521;
+$primary-color-sec-cdh: #b77504;
+
+$primary-color-cdm: #990165;
+$primary-color-sec-cdm: #740052;
+
+$primary-color-enac: #ea5e00;
+$primary-color-sec-enac: #d53c00;
+
+$primary-color-ic: #1bb5b5;
+$primary-color-sec-ic: #007f87;
+
+$primary-color-sb: #007ba5;
+$primary-color-sec-sb: #015876;
+
+$primary-color-sti: #8972d5;
+$primary-color-sec-sti: #5d41a2;
+
+$primary-color-sv: #6fba01;
+$primary-color-sec-sv: #439809;
+
+/*  Color mixins */
+
+// Background for regular elements
+@mixin color-background {
+  background-color: $primary-color;
+  
+  // CDH
+  .cdh & {
+    background-color: $primary-color-cdh;
+  }
+  // CDM
+  .cdm & {
+    background-color: $primary-color-cdm;
+  }
+  // ENAC
+  .enac & {
+    background-color: $primary-color-enac;
+  }
+  // IC
+  .ic & {
+    background-color: $primary-color-ic;
+  }
+  // SB
+  .sb & {
+    background-color: $primary-color-sb;
+  }
+  // STI
+  .sti & {
+    background-color: $primary-color-sti;
+  }
+  // SV
+  .sv & {
+    background-color: $primary-color-sv;
+  }
+}
+
+// Background for buttons and button-like links
+@mixin color-background-btn {
+  @include color-background;
+  
+  &:hover {
+    background-color: $primary-color-sec;
+  }
+  // CDH
+  .cdh &:hover {
+    background-color: $primary-color-sec-cdh;
+  }
+  // CDM
+  .cdm &:hover {
+    background-color: $primary-color-sec-cdm;
+  }
+  // ENAC
+  .enac &:hover {
+    background-color: $primary-color-sec-enac;
+  }
+  // IC
+  .ic &:hover {
+    background-color: $primary-color-sec-ic;
+  }
+  // SB
+  .sb &:hover {
+    background-color: $primary-color-sec-sb;
+  }
+  // STI
+  .sti &:hover {
+    background-color: $primary-color-sec-sti;
+  }
+  // SV
+  .sv &:hover {
+    background-color: $primary-color-sec-sv;
+  }
+}
+
+// Link color
+@mixin color-link {
+  color: #000;
+  
+  &:hover {
+    color: $primary-color;
+  }
+  // CDH
+  .cdh &:hover {
+    color: $primary-color-cdh;
+  }
+  // CDM
+  .cdm &:hover {
+    color: $primary-color-cdm;
+  }
+  // ENAC
+  .enac &:hover {
+    color: $primary-color-enac;
+  }
+  // IC
+  .ic &:hover {
+    color: $primary-color-ic;
+  }
+  // SB
+  .sb &:hover {
+    color: $primary-color-sb;
+  }
+  // STI
+  .sti &:hover {
+    color: $primary-color-sti;
+  }
+  // SV
+  .sv &:hover {
+    color: $primary-color-sv;
+  }
+}
+
+// Border color
+@mixin color-border {
+  border-color: $primary-color;
+  
+  // CDH
+  .cdh & {
+    border-color: $primary-color-cdh;
+  }
+  // CDM
+  .cdm & {
+    border-color: $primary-color-cdm;
+  }
+  // ENAC
+  .enac & {
+    border-color: $primary-color-enac;
+  }
+  // IC
+  .ic & {
+    border-color: $primary-color-ic;
+  }
+  // SB
+  .sb & {
+    border-color: $primary-color-sb;
+  }
+  // STI
+  .sti & {
+    border-color: $primary-color-sti;
+  }
+  // SV
+  .sv & {
+    border-color: $primary-color-sv;
+  }
+}
+
+// Background icons
+@mixin color-bg-icons {
+  
+  &:before {
+    @include color-background;
+  }
+    
+  &:hover:before {
+    background: $primary-color-sec;
+    
+    // CDH
+    .cdh & {
+      background-color: $primary-color-sec-cdh;
+    }
+    // CDM
+    .cdm & {
+      background-color: $primary-color-sec-cdm;
+    }
+    // ENAC
+    .enac & {
+      background-color: $primary-color-sec-enac;
+    }
+    // IC
+    .ic & {
+      background-color: $primary-color-sec-ic;
+    }
+    // SB
+    .sb & {
+      background-color: $primary-color-sec-sb;
+    }
+    // STI
+    .sti & {
+      background-color: $primary-color-sec-sti;
+    }
+    // SV
+    .sv & {
+      background-color: $primary-color-sec-sv;
+    }
+  }
+  
+  
+}
+
+
+
+

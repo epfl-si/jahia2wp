@@ -34,8 +34,8 @@ Usage:
 Options:
   -h --help                 Show this screen.
   -v --version              Show version.
-  --debug                   Set log level to DEBUG (default is INFO)
-  --quiet                   Set log level to WARNING (default is INFO)
+  --debug                   Set log level to DEBUG [default: INFO]
+  --quiet                   Set log level to WARNING [default: INFO]
 """
 import logging
 import getpass
@@ -47,7 +47,7 @@ from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
 from crawler import JahiaCrawler
 
-import settings
+from settings import VERSION, DEFAULT_THEME_NAME
 from utils import Utils, deprecated
 
 
@@ -118,10 +118,19 @@ def generate_one(wp_env, wp_url, wp_title=None,
 def generate(wp_env, wp_url,
              wp_title=None, admin_password=None,
              owner_id=None, responsible_id=None,
-             theme=None, theme_faculty=None,
-             installs_locked=settings.DEFAULT_CONFIG_INSTALLS_LOCKED,
-             updates_automatic=settings.DEFAULT_CONFIG_UPDATES_AUTOMATIC,
-             unit=None, **kwargs):
+             theme=DEFAULT_THEME_NAME, theme_faculty=None,
+             installs_locked=None,
+             updates_automatic=None,
+             unit = None, ** kwargs):
+
+    # if nothing is specified we want a locked install
+    if installs_locked is None:
+        installs_locked = True
+
+    # if nothing is specified we want automatic updates
+    if updates_automatic is None:
+        updates_automatic = True
+
     wp_generator = WPGenerator(
         wp_env,
         wp_url,
@@ -181,7 +190,7 @@ def generate_many(csv_file, **kwargs):
             wp_default_site_title=row["wp_default_site_title"],
             owner_id=row["owner_id"],
             responsible_id=row["responsible_id"],
-            updates_automatic=row["udpates_automatic"],
+            updates_automatic=row["updates_automatic"],
             installs_locked=row["installs_locked"],
             theme=row["theme"],
             theme_faculty=row["theme_faculty"],
@@ -252,7 +261,7 @@ if __name__ == '__main__':
 
     # docopt return a dictionary with all arguments
     # __doc__ contains package docstring
-    args = docopt(__doc__, version=settings.VERSION)
+    args = docopt(__doc__, version=VERSION)
 
     # set logging config before anything else
     Utils.set_logging_config(args)

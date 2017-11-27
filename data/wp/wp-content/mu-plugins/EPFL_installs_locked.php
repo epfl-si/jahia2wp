@@ -7,15 +7,13 @@
  * Author: wwp-admin@epfl.ch
  * */
 
-/* Disable Plugin and Theme Update and Installation
+/* Disable Plugin and Theme Update and Installation.
+ *
+ * Note : this will also set DISALLOW_FILE_EDIT to true.
+ *
  * https://codex.wordpress.org/Editing_wp-config.php
  */
 define( 'DISALLOW_FILE_MODS', true );
-
-/* Disable the Plugin and Theme Editor
- * https://codex.wordpress.org/Editing_wp-config.php
- */
-define( 'DISALLOW_FILE_EDIT', true );
 
 /* Disable descativation and edit plug link
  * https://codex.wordpress.org/Plugin_API/Filter_Reference/plugin_action_links_(plugin_file_name)
