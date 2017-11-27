@@ -1,5 +1,6 @@
 import os
 import shutil
+import logging
 
 import settings
 from wordpress import WPConfig
@@ -100,6 +101,11 @@ class WPMuPluginConfig(WPConfig):
         # copy files from jahia2wp/data/wp/wp-content/mu-plugins into domain/htdocs/folder/wp-content/mu-plugins
         src_path = os.path.sep.join([settings.WP_PATH, self.PLUGINS_PATH, self.name])
         shutil.copyfile(src_path, self.path)
+
+        logging.debug("%s - Plugins - %s: Copied file from %s to %s",
+                      repr(self.wp_site),
+                      self.name, src_path,
+                      self.path)
 
     @property
     def dir_path(self):
