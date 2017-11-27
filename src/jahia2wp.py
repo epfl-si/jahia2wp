@@ -46,7 +46,7 @@ from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
 from crawler import JahiaCrawler
 
-import settings
+from settings import VERSION, DEFAULT_THEME_NAME
 from utils import Utils, deprecated
 
 
@@ -256,7 +256,7 @@ if __name__ == '__main__':
 
     # docopt return a dictionary with all arguments
     # __doc__ contains package docstring
-    args = docopt(__doc__, version=settings.VERSION)
+    args = docopt(__doc__, version=VERSION)
 
     # set logging config before anything else
     Utils.set_logging_config(args)
