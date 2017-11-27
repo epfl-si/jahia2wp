@@ -47,7 +47,7 @@ Table of releases
 1. (#102) Suppression de la sidebar 
 1. (#105) Amélioration de la sécurité selon [les recommendations de l'OWASP](https://www.owasp.org/index.php/OWASP_Wordpress_Security_Implementation_Guideline).
 1. (#105) Nouveaux sites installé avec la version `latest` de WordPress au lieu de `4.8`
-1. (#113) New make command: `make functional-tests`
+1. (#113) New command: `make functional-tests`, launching `test_upload.py` and `test_jahia2wp.py`
 
 **Low level:**
 
@@ -66,7 +66,7 @@ Table of releases
 1. (#113) automatic fetching of the IP of the httpd docker (instead of hard-code in settings.py)
 1. (#113) test_uploads moved out of `jahia2wp/src/.../tests` into `jahia2wp/functional_tests`
 1. (#113) new entries in makefile and makefile.mgmt to run pytest in newly created dir above
-1. (#113) `TEST_ENV` & `TEST_SITE` moved to `settings.py`
+1. (#113) new var OPENSHIFT_ENV in settings.py to define which pod to use
 
 ## [0.2.14] - 2017-11-17
 

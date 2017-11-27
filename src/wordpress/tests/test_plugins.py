@@ -38,7 +38,7 @@ def wp_plugin_list():
 def wp_generator_generic():
     # To generate website with generic plugin list/configuration
     generator = MockedWPGenerator(
-                openshift_env=settings.TEST_ENV,
+                openshift_env=settings.OPENSHIFT_ENV,
                 wp_site_url=SITE_URL_GENERIC,
                 wp_default_site_title="My test")
     generator.clean()
@@ -50,7 +50,7 @@ def wp_generator_generic():
 def wp_generator_specific():
     # To generate website with specific plugin list/configuration
     generator = MockedWPGenerator(
-                openshift_env=settings.TEST_ENV,
+                openshift_env=settings.OPENSHIFT_ENV,
                 wp_site_url=SITE_URL_SPECIFIC,
                 wp_default_site_title="My test")
     generator.clean()
