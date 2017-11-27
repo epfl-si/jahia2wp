@@ -19,4 +19,3 @@ plugins:
     config: !include tequila/v1/config-plugin.yml
   - name: accred
     config: !include accred/v1/config-plugin.yml
-   
