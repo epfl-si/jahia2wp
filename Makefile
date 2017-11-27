@@ -25,9 +25,8 @@ functional-tests: check-env
 # The "functional-tests-raw" target is in Makefile.mgmt
 # WP_ENV hardcoded to 'test'
 	docker exec --user=www-data \
-	  -e WP_ENV=test \
 	  -e DOCKER_IP=$(_httpd_container_ip) \
-	  $(_mgmt_container) make -C /srv/test/jahia2wp functional-tests-raw
+	  $(_mgmt_container) make -C /srv/$$WP_ENV/jahia2wp functional-tests-raw
 
 vars: check-env
 	@echo 'Environment-related vars:'
