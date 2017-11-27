@@ -84,6 +84,8 @@ class WPGenerator:
         self.owner_id = owner_id
         self.responsible_id = responsible_id
 
+        self.plugin_config_custom = {}
+
         if unit:
             # TODO: Revoir le nom plugin_config car conflit
             # Plugin configuration
