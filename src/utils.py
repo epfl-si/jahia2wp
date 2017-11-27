@@ -156,7 +156,7 @@ class Utils(object):
         args -- list containing parameters passed to script
         """
         level = logging.INFO
-        WP_ENV = cls.get_mandatory_env('WP_ENV')
+        WP_ENV = cls.get_optional_env('WP_ENV', "your-env")
 
         if args['--quiet']:
             level = logging.WARNING

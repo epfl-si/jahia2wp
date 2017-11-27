@@ -2,6 +2,7 @@
 import os
 import pytest
 
+from settings import TEST_ENV
 from utils import Utils
 from wordpress import WPGenerator, WPUser
 
@@ -12,7 +13,6 @@ SCRIPT_FILE = os.path.join(SRC_DIR, 'jahia2wp.py')
 
 TEST_SITE = 'unittest'
 SITE_URL_SPECIFIC = "http://localhost/{}".format(TEST_SITE)
-TEST_ENV = 'test'
 
 
 @pytest.fixture(scope="module")

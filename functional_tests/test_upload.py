@@ -7,7 +7,7 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
-from settings import DOCKER_IP
+from settings import DOCKER_IP, TEST_ENV
 from wordpress.generator import MockedWPGenerator
 
 
@@ -26,7 +26,7 @@ class TestWpUploadTest:
     @pytest.fixture()
     def wp_generator(self):
         generator = MockedWPGenerator(
-            openshift_env="test",
+            openshift_env=TEST_ENV,
             wp_site_url="http://" + DOCKER_IP + "/folder",
             wp_default_site_title="Upload test",
             admin_password="admin",

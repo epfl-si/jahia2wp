@@ -9,7 +9,6 @@ from wordpress.generator import MockedWPGenerator
 TEST_SITE = 'unittest'
 SITE_URL_GENERIC = "http://localhost/"
 SITE_URL_SPECIFIC = "http://localhost/{}".format(TEST_SITE)
-TEST_ENV = 'test'
 
 """
 Load fake environment variables for every test
@@ -40,7 +39,7 @@ def wp_plugin_list():
 def wp_generator_generic():
     # To generate website with generic plugin list/configuration
     generator = MockedWPGenerator(
-                openshift_env=TEST_ENV,
+                openshift_env=settings.TEST_ENV,
                 wp_site_url=SITE_URL_GENERIC,
                 wp_default_site_title="My test")
     generator.clean()
@@ -52,7 +51,7 @@ def wp_generator_generic():
 def wp_generator_specific():
     # To generate website with specific plugin list/configuration
     generator = MockedWPGenerator(
-                openshift_env=TEST_ENV,
+                openshift_env=settings.TEST_ENV,
                 wp_site_url=SITE_URL_SPECIFIC,
                 wp_default_site_title="My test")
     generator.clean()
