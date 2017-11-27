@@ -173,8 +173,6 @@ class WPGenerator:
         logging.info("%s - Installing plugins...", repr(self))
         self.generate_plugins()
 
-        self.add_options()
-
         # add 2 given webmasters
         logging.info("%s - Creating webmaster accounts...", repr(self))
         if not self.add_webmasters():
@@ -255,14 +253,6 @@ class WPGenerator:
             cmd = "widget delete " + widget_id
             self.run_wp_cli(cmd)
         logging.info("All widgets deleted")
-
-    def add_options(self):
-        cmd = "option update plugin:epfl_accred:unit {}".format(self.unit_name.upper())
-        self.run_wp_cli(cmd)
-
-        cmd = "option add plugin:epfl_accred:unit_id {}".format(self.unit_id)
-        self.run_wp_cli(cmd)
-        logging.info("All tequila/accred options added")
 
     def add_webmasters(self):
         """
