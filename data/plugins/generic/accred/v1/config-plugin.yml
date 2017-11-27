@@ -1,4 +1,4 @@
-src: generic/wordpress.plugin.accred/v1/wordpress.plugin.accred.zip
+src: generic/accred/v1/accred.zip
 activate: yes
 tables:
   options:

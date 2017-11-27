@@ -1,4 +1,4 @@
-src: generic/wordpress.plugin.tequila/v1/wordpress.plugin.tequila.zip
+src: generic/tequila/v1/tequila.zip
 activate: yes
 #tables:
 #  options:

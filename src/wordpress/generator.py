@@ -84,11 +84,13 @@ class WPGenerator:
         self.owner_id = owner_id
         self.responsible_id = responsible_id
 
-        # TODO: Revoir le nom plugin_config car conflit
-        # Plugin configuration
-        self.plugin_config = {
-            'unit_id': self.unit_id, 'unit_name': self.unit_name
-        }
+        if unit:
+            # TODO: Revoir le nom plugin_config car conflit
+            # Plugin configuration
+            self.plugin_config_custom = {
+                'unit_id': self.unit_id, 'unit_name': self.unit_name
+            }
+
 
         # Theme configuration
         self.theme = theme or settings.DEFAULT_THEME_NAME
@@ -179,6 +181,9 @@ class WPGenerator:
         logging.info("%s - Installing plugins...", repr(self))
         self.generate_plugins()
 
+        # Accred options
+        self.add_options()
+
         # add 2 given webmasters
         logging.info("%s - Creating webmaster accounts...", repr(self))
         if not self.add_webmasters():
@@ -259,6 +264,14 @@ class WPGenerator:
             cmd = "widget delete " + widget_id
             self.run_wp_cli(cmd)
         logging.info("All widgets deleted")
+
+    def add_options(self):
+        cmd = "option update plugin:epfl_accred:unit {}".format(self.unit_name.upper())
+        self.run_wp_cli(cmd)
+
+        cmd = "option add plugin:epfl_accred:unit_id {}".format(self.unit_id)
+        self.run_wp_cli(cmd)
+        logging.info("All tequila/accred options added")
 
     def add_webmasters(self):
         """
@@ -342,7 +355,12 @@ class WPGenerator:
                     logging.info("%s - Plugins - %s: Deactivated!", repr(self), plugin_name)
 
                 # Configure plugin
-                plugin_config.configure(**self.plugin_config)
+                logging.debug("////////////////////////////////////////////////////////")
+                logging.debug(plugin_name)
+                logging.debug(plugin_config)
+                logging.debug(self.plugin_config_custom)
+                logging.debug("////////////////////////////////////////////////////////")
+                plugin_config.configure(**self.plugin_config_custom)
 
     def clean(self):
         """
