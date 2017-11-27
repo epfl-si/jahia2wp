@@ -19,9 +19,7 @@ class TestWpUploadTest:
     def session(self):
         logging.debug("Starting new session")
         session = requests.session()
-        yield session
-        logging.debug("Closing session")
-        session.close()
+        return session
 
     @pytest.fixture()
     def wp_generator(self):
