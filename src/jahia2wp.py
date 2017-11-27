@@ -128,7 +128,7 @@ def generate(wp_env, wp_url,
     # if nothing is specified we want automatic updates
     if updates_automatic is None:
         updates_automatic = True
-          
+
     wp_generator = WPGenerator(
         wp_env,
         wp_url,
