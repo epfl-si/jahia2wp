@@ -91,7 +91,7 @@ SUPPORTED_LANGUAGES = [
 DEFAULT_CONFIG_INSTALLS_LOCKED = True
 DEFAULT_CONFIG_UPDATES_AUTOMATIC = True
 
-DEFAULT_THEME_NAME = 'epfl'
+DEFAULT_THEME_NAME = 'epfl-master'
 
 PLUGINS_CONFIG_BASE_PATH = Utils.get_optional_env(
     "PLUGINS_CONFIG_BASE_PATH", os.path.sep.join([SRC_DIR_PATH, '..', 'data', 'plugins']))

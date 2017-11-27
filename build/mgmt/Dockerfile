@@ -42,6 +42,7 @@ RUN mkdir /var/run/sshd && \
 
 COPY ./bash_profile /var/www/.bash_profile
 COPY ./docker-entrypoint.sh /
+COPY ./config.yml /var/www/.wp-cli/config.yml
 
 RUN sed -ir 's#www-data.*:/usr/sbin/nologin#www-data:x:33:33:www-data:/var/www:/bin/bash#' /etc/passwd
 RUN mkdir -p /var/www/.ssh
