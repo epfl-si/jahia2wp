@@ -90,7 +90,7 @@ class WPGenerator:
         if unit:
             self.plugin_config_custom = {
                 'unit_name': unit,
-                'unit_id': self.get_unit_id()
+                'unit_id': self.get_unit_id(unit)
             }
         else:
             self.plugin_config_custom = {}
@@ -272,11 +272,11 @@ class WPGenerator:
             self.run_wp_cli(cmd)
         logging.info("All widgets deleted")
 
-    def get_unit_id(self):
+    def get_unit_id(self, unit_name):
         """
         Get unit id via LDAP Search
         """
-        return get_unit_id(self.unit_name),
+        return get_unit_id(unit_name)
 
     def add_webmasters(self):
         """
