@@ -58,10 +58,6 @@ class TestWPUser:
         user.set_password()
         assert len(user.password) == WPUser.WP_PASSWORD_LENGTH
 
-    def test_from_sciper(self):
-        # TODO: mock LDAP calls get_username & get_email
-        pass
-
 
 class TestWPConfig:
 
