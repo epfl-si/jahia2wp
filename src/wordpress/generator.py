@@ -69,6 +69,7 @@ class WPGenerator:
         if responsible_id is not None:
             validate_integer(responsible_id)
         if unit:
+            # FIXME / TODO : rendre l'unit obligatoire... parcequ'un site sans unit, c'est un peu comme.... (au choix)
             validate_unit(unit)
 
         # create WordPress site and config
