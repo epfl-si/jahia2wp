@@ -1,0 +1,124 @@
+@import "mixins-colors";
+
+// Rem output with px fallback
+@mixin font-size($sizeValue: 1) {
+	font-size: ($sizeValue * 16) * 1px;
+	font-size: $sizeValue * 1rem;
+}
+
+// Center block
+@mixin center-block {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+// Clearfix
+@mixin clearfix {
+  
+  &:after {
+    content: "";
+    display: block;
+    clear: both;
+  } 
+}
+
+// Clear after (not all clearfix need this also)
+@mixin clearfix-after() {
+	clear: both;
+}
+
+// Column width with margin
+@mixin column-width($numberColumns: 3) {
+	width: map-get( $columns, $numberColumns ) - ( ( $columns__margin * ( $numberColumns - 1 ) ) / $numberColumns );
+}
+
+/* Typography */
+
+@mixin icon {
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  vertical-align: baseline;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@mixin minor-text {
+  font: italic .75rem Georgia, 'Times New Roman', Times, serif;
+}
+
+@mixin transition-colors {
+  transition: background-color .3s ease-in-out, color .3s ease-in-out, border-color .3s ease-in-out;
+}
+
+@mixin no-bullet {
+  padding-left: 0;
+  &:before {
+    display: none;
+  }
+}
+
+/* Containers */
+
+@mixin border-bottom-dots {
+  border-bottom: 1px dotted #000;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+}
+
+/* Boxes */
+
+@mixin colored-box {
+  @include color-background;
+  color: #fff;
+  
+  a {
+    border-color: rgba(255,255,255,.9);
+    color: #fff;
+  }
+  
+  strong {
+    color: #fff;
+  }
+}
+
+@mixin colored-text-box {
+  @include colored-box;
+  padding: 10px 14px;
+  
+  p {
+    color: #fff;
+  }
+  
+  .widget-title,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    border: none;
+    color: #fff;
+    font: bold "Arial black", Arial, Helvetica, sans-serif;
+    letter-spacing: 1px;
+    padding: 0;
+    text-transform: none;
+  }
+  
+  h2 {
+    font-size: 1.25em;
+  }
+  .widget-title,
+  h3 {
+    font-size: 1.125em;
+  }
+  
+  h4,
+  h5,
+  h6 {
+    font-size: 1em;
+  }
+  
+}
