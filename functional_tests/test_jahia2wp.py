@@ -106,9 +106,3 @@ class TestCommandLine:
     def test_clean_one(self):
         assert Utils.run_command('python %s clean %s %s'
                                  % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC))
-
-    # TODO: Test à déplacer dans les tests fonctionnels
-    # def test_veritas(self):
-    #     from veritas.tests.test_veritas import CURRENT_DIR, TEST_FILE
-    #     filename = os.path.join(CURRENT_DIR, TEST_FILE)
-    #     assert Utils.run_command('python %s veritas %s' % (SCRIPT_FILE, filename))
