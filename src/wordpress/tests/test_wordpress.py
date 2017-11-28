@@ -39,7 +39,7 @@ class TestWPSite:
 
     def test_failing_url_from_path(self):
         with pytest.raises(ValueError):
-            WPSite.from_path("test", ROOT_PATH)
+            WPSite.from_path("ebraton", ROOT_PATH)
 
     def test_valid_url_from_path(self):
         assert WPSite.from_path(settings.OPENSHIFT_ENV, ROOT_PATH) \
