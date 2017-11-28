@@ -11,7 +11,7 @@ Usage:
     [--wp-title=<WP_TITLE> --admin-password=<PASSWORD>]
     [--owner-id=<SCIPER> --responsible-id=<SCIPER>]
     [--theme=<THEME> --theme_faculty=<THEME-FACULTY>]
-    [--installs-locked=<INSTALLS_LOCKED> --automatic-updates=<UPDATES_AUTOMATIC>]
+    [--installs-locked=<BOOLEAN> --automatic-updates=<BOOLEAN>]
     [--unit=<UNIT>]
   jahia2wp.py backup                <wp_env> <wp_url>               [--debug | --quiet]
     [--backup-type=<BACKUP_TYPE>]
@@ -42,7 +42,7 @@ from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
 from crawler import JahiaCrawler
 
-from settings import VERSION, DEFAULT_THEME_NAME
+from settings import VERSION, DEFAULT_THEME_NAME, SUPPORTED_TRUE_STRINGS
 from utils import Utils
 
 
@@ -99,10 +99,14 @@ def generate(wp_env, wp_url,
     # if nothing is specified we want a locked install
     if installs_locked is None:
         installs_locked = True
+    else:
+        installs_locked = installs_locked.lower() in SUPPORTED_TRUE_STRINGS
 
     # if nothing is specified we want automatic updates
     if updates_automatic is None:
         updates_automatic = True
+    else:
+        updates_automatic = updates_automatic.lower() in SUPPORTED_TRUE_STRINGS
 
     wp_generator = WPGenerator(
         wp_env,
