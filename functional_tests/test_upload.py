@@ -19,6 +19,7 @@ class TestWpUploadTest:
     def session(self):
         logging.debug("Starting new session")
         session = requests.session()
+        # TODO close the session properly
         return session
 
     @pytest.fixture()
