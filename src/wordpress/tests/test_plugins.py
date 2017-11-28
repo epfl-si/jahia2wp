@@ -42,6 +42,7 @@ def wp_generator_generic():
                 wp_site_url=SITE_URL_GENERIC,
                 wp_default_site_title="My test")
     generator.clean()
+    # TODO: move the tests that requires a WP to functional tests
     generator.generate()
     return generator
 
