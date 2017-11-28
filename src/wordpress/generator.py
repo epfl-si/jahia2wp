@@ -9,7 +9,8 @@ from utils import Utils
 import settings
 
 from django.core.validators import URLValidator
-from veritas.validators import validate_string, validate_openshift_env, validate_integer, validate_unit
+from veritas.validators import validate_string, validate_openshift_env, validate_integer, validate_unit, \
+    validate_theme_faculty, validate_theme
 
 from .models import WPSite, WPUser
 from .config import WPConfig
@@ -68,6 +69,10 @@ class WPGenerator:
             validate_integer(owner_id)
         if responsible_id is not None:
             validate_integer(responsible_id)
+        if theme is not None:
+            validate_theme(theme)
+        if theme_faculty is not None:
+            validate_theme_faculty(theme_faculty)
         if unit:
             # FIXME / TODO : rendre l'unit obligatoire... parcequ'un site sans unit, c'est un peu comme.... (au choix)
             validate_unit(unit)
