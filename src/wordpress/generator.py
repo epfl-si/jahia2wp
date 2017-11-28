@@ -295,6 +295,7 @@ class WPGenerator:
             if owner is not None:
                 logging.info("%s - added owner %s", repr(self), owner.username)
             else:
+                logging.warning("%s - could not add owner %s", repr(self), owner.username)
                 success = False
 
         if self.responsible_id is not None and self.responsible_id != self.owner_id:
@@ -302,6 +303,7 @@ class WPGenerator:
             if responsible is not None:
                 logging.info("%s - added responsible %s", repr(self), responsible.username)
             else:
+                logging.warning("%s - could not add responsible %s", repr(self), responsible.username)
                 success = False
 
         # flag a success if at least one webmaster has been created
