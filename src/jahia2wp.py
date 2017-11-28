@@ -12,6 +12,7 @@ Usage:
     [--owner-id=<SCIPER> --responsible-id=<SCIPER>]
     [--theme=<THEME> --theme_faculty=<THEME-FACULTY>]
     [--installs-locked=<INSTALLS_LOCKED> --automatic-updates=<UPDATES_AUTOMATIC>]
+    [--unit=<UNIT>]
   jahia2wp.py backup                <wp_env> <wp_url>               [--debug | --quiet]
     [--backup-type=<BACKUP_TYPE>]
   jahia2wp.py version               <wp_env> <wp_url>               [--debug | --quiet]
@@ -118,8 +119,8 @@ def generate(wp_env, wp_url,
              wp_title=None, admin_password=None,
              owner_id=None, responsible_id=None,
              theme=DEFAULT_THEME_NAME, theme_faculty=None,
-             installs_locked=None,
-             updates_automatic=None, **kwargs):
+             installs_locked=None, updates_automatic=None,
+             unit=None, **kwargs):
 
     # if nothing is specified we want a locked install
     if installs_locked is None:
@@ -139,7 +140,9 @@ def generate(wp_env, wp_url,
         theme=theme,
         theme_faculty=theme_faculty,
         installs_locked=installs_locked,
-        updates_automatic=updates_automatic)
+        updates_automatic=updates_automatic,
+        unit=unit,
+    )
     if not wp_generator.generate():
         raise SystemExit("Generation failed. More info above")
 
@@ -190,6 +193,7 @@ def generate_many(csv_file, **kwargs):
             installs_locked=row["installs_locked"],
             theme=row["theme"],
             theme_faculty=row["theme_faculty"],
+            unit=row["unit"],
         ).generate()
 
 

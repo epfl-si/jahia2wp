@@ -1,0 +1,9 @@
+src: generic/tequila/v1/tequila.zip
+activate: yes
+# Waiting of domq
+#tables:
+#  options:
+#  - autoload: 'yes'
+#    option_id: 275
+#    option_name: plugin:epfl_tequila:has_dual_auth
+#    option_value: 0

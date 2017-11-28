@@ -57,7 +57,7 @@ class WPPluginConfig(WPConfig):
         self.run_wp_cli('plugin deactivate {}'.format(self.name))
         self.run_wp_cli('plugin uninstall {}'.format(self.name))
 
-    def configure(self):
+    def configure(self, **kwargs):
         """
             Config plugin via wp-cli.
 

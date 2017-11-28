@@ -6,7 +6,7 @@ from .config import WPPluginConfig
 
 class WPPolylangConfig(WPPluginConfig):
 
-    def configure(self, languages=None, default=None):
+    def configure(self, languages=None, default=None, **kwargs):
         """ kwargs:
             - `languages`, array: all languages to install
             - `default`, string: default language should be in `languages`

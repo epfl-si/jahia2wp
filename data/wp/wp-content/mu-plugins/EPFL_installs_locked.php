@@ -50,5 +50,7 @@ add_action( 'admin_menu', 'EPFL_remove_admin_submenus',999 );
 function EPFL_remove_admin_submenus() {
 	remove_submenu_page( 'options-general.php', 'addtoany' );
 	remove_submenu_page( 'options-general.php', 'mainwp_child_tab' );
+	remove_submenu_page( 'options-general.php', 'epfl_accred' );
+	remove_submenu_page( 'options-general.php', 'epfl_tequila' );
 }
 ?>

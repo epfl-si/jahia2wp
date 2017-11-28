@@ -14,4 +14,8 @@ plugins:
   - name: polylang
     config: !include polylang/v1/config-plugin.yml
   - name: mainwp-child
-    config: !include mainwp-child/v1/config-plugin.yml
+    config: !include mainwp-child/v1/config-plugin.yml 
+  - name: tequila
+    config: !include tequila/v1/config-plugin.yml
+  - name: accred
+    config: !include accred/v1/config-plugin.yml

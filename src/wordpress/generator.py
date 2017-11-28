@@ -3,11 +3,13 @@ import os
 import shutil
 import logging
 
+from epflldap.ldap_search import get_unit_id
+
 from utils import Utils
 import settings
 
 from django.core.validators import URLValidator
-from veritas.validators import validate_string, validate_openshift_env, validate_integer
+from veritas.validators import validate_string, validate_openshift_env, validate_integer, validate_unit
 
 from .models import WPSite, WPUser
 from .config import WPConfig
@@ -42,7 +44,8 @@ class WPGenerator:
                  owner_id=None,
                  responsible_id=None,
                  theme=settings.DEFAULT_THEME_NAME,
-                 theme_faculty=None):
+                 theme_faculty=None,
+                 unit=None):
         """
         Class constructor
 
@@ -65,6 +68,8 @@ class WPGenerator:
             validate_integer(owner_id)
         if responsible_id is not None:
             validate_integer(responsible_id)
+        if unit:
+            validate_unit(unit)
 
         # create WordPress site and config
         self.wp_site = WPSite(openshift_env, wp_site_url, wp_default_site_title=wp_default_site_title)
@@ -80,6 +85,15 @@ class WPGenerator:
         # store scipers_id for later
         self.owner_id = owner_id
         self.responsible_id = responsible_id
+
+        # plugin configuration
+        if unit:
+            self.plugin_config_custom = {
+                'unit_name': unit,
+                'unit_id': self.get_unit_id(unit)
+            }
+        else:
+            self.plugin_config_custom = {}
 
         # Theme configuration
         self.theme = theme or settings.DEFAULT_THEME_NAME
@@ -262,6 +276,12 @@ class WPGenerator:
             self.run_wp_cli(cmd)
         logging.info("All widgets deleted")
 
+    def get_unit_id(self, unit_name):
+        """
+        Get unit id via LDAP Search
+        """
+        return get_unit_id(unit_name)
+
     def delete_inactive_themes(self):
         """
         Delete all inactive themes
@@ -325,7 +345,6 @@ class WPGenerator:
     def generate_plugins(self):
         """
         Get plugin list for WP site, install them, activate them if needed, configure them
-
         """
         logging.info("WPGenerator.generate_plugins(): Add parameter for 'batch file' (YAML)")
         # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"
@@ -370,7 +389,7 @@ class WPGenerator:
                     logging.info("%s - Plugins - %s: Deactivated!", repr(self), plugin_name)
 
                 # Configure plugin
-                plugin_config.configure()
+                plugin_config.configure(**self.plugin_config_custom)
 
     def clean(self):
         """
@@ -420,3 +439,10 @@ class MockedWPGenerator(WPGenerator):
         owner = self.wp_config.add_wp_user("owner", "owner@epfl.ch")
         responsible = self.wp_config.add_wp_user("responsible", "responsible@epfl.ch")
         return (owner, responsible)
+
+    def get_unit_id(self):
+        """
+        Return a fake unit id without querying LDAP
+        """
+        unit_id = 42
+        return unit_id

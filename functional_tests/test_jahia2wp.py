@@ -1,10 +1,12 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
 import os
+
 import pytest
 
 from settings import DOCKER_IP, OPENSHIFT_ENV, TEST_SITE, SRC_DIR_PATH
 from utils import Utils
-from wordpress import WPGenerator, WPUser
+from wordpress import WPUser
+from wordpress.generator import MockedWPGenerator
 
 SCRIPT_FILE = os.path.join(SRC_DIR_PATH, 'jahia2wp.py')
 SITE_URL_SPECIFIC = "http://{0}/{1}".format(DOCKER_IP, TEST_SITE)
@@ -14,7 +16,7 @@ SITE_URL_SPECIFIC = "http://{0}/{1}".format(DOCKER_IP, TEST_SITE)
 def setup():
     wp_env = OPENSHIFT_ENV
     wp_url = SITE_URL_SPECIFIC
-    wp_generator = WPGenerator(wp_env, wp_url)
+    wp_generator = MockedWPGenerator(wp_env, wp_url)
     if wp_generator.wp_config.is_installed:
         wp_generator.clean()
 
@@ -104,8 +106,3 @@ class TestCommandLine:
     def test_clean_one(self):
         assert Utils.run_command('python %s clean %s %s'
                                  % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC))
-
-    def test_veritas(self):
-        from veritas.tests.test_veritas import CURRENT_DIR, TEST_FILE
-        filename = os.path.join(CURRENT_DIR, TEST_FILE)
-        assert Utils.run_command('python %s veritas %s' % (SCRIPT_FILE, filename))
