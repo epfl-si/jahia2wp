@@ -157,7 +157,7 @@ class Utils(object):
         """
         # get openshift env
         # do not load it from settings, because loading settings will probably make some calls to logging,
-        # wich will shortcut our call to 'logging.basicConfig' below
+        # which will shortcut our call to 'logging.basicConfig' below
         OPENSHIFT_ENV = Utils.get_mandatory_env("WP_ENV")
 
         # set up level of logging
