@@ -3,6 +3,8 @@ import os
 import shutil
 import logging
 
+from epflldap.ldap_search import get_unit_id
+
 from utils import Utils
 import settings
 
@@ -67,7 +69,7 @@ class WPGenerator:
         if responsible_id is not None:
             validate_integer(responsible_id)
         if unit:
-            self.unit_id, self.unit_name = validate_unit(unit)
+            validate_unit(unit)
 
         # create WordPress site and config
         self.wp_site = WPSite(openshift_env, wp_site_url, wp_default_site_title=wp_default_site_title)
@@ -84,14 +86,14 @@ class WPGenerator:
         self.owner_id = owner_id
         self.responsible_id = responsible_id
 
-        self.plugin_config_custom = {}
-
+        # plugin configuration
         if unit:
-            # TODO: Revoir le nom plugin_config car conflit
-            # Plugin configuration
             self.plugin_config_custom = {
-                'unit_id': self.unit_id, 'unit_name': self.unit_name
+                'unit_name': unit,
+                'unit_id': self.get_unit_id()
             }
+        else:
+            self.plugin_config_custom = {}
 
         # Theme configuration
         self.theme = theme or settings.DEFAULT_THEME_NAME
@@ -270,6 +272,12 @@ class WPGenerator:
             self.run_wp_cli(cmd)
         logging.info("All widgets deleted")
 
+    def get_unit_id(self):
+        """
+        Get unit id via LDAP Search
+        """
+        return get_unit_id(self.unit_name),
+
     def add_webmasters(self):
         """
         Add webmasters to WordPress install.
@@ -402,3 +410,10 @@ class MockedWPGenerator(WPGenerator):
         owner = self.wp_config.add_wp_user("owner", "owner@epfl.ch")
         responsible = self.wp_config.add_wp_user("responsible", "responsible@epfl.ch")
         return (owner, responsible)
+
+    def get_unit_id(self):
+        """
+        Add fake unit id without queryind LDAP
+        """
+        unit_id = 42
+        return unit_id

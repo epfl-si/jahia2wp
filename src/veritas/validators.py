@@ -17,12 +17,12 @@
 
     They are functions (or callable objects) that raise a ValidationError on failure
 """
+from django.conf import settings as dj_settings
+from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from epflldap.ldap_search import get_unit_id
 
 from settings import OPENSHIFT_ENVS, SUPPORTED_LANGUAGES
-
-from django.core.validators import RegexValidator
-from django.conf import settings as dj_settings
 
 dj_settings.configure(USE_I18N=False)
 
@@ -87,13 +87,7 @@ def validate_backup_type(text):
 
 
 def validate_unit(unit_name):
-    # FIXME: le validate doit seulement retourner une execption
-    # en cas de problème
     try:
-        unit_id = get_unit_id(unit_name)
+        get_unit_id(unit_name)
     except:
-        # Import here to avoid recursive import
-        from wordpress import WPException
-
-        raise WPException("The unit name {} doesn't exist".format(unit_name))
-    return unit_id, unit_name
+        raise ValidationError("The unit name {} doesn't exist".format(unit_name))
