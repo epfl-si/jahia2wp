@@ -17,11 +17,6 @@ Usage:
     [--backup-type=<BACKUP_TYPE>]
   jahia2wp.py version               <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py admins                <wp_env> <wp_url>               [--debug | --quiet]
-  jahia2wp.py check-one             <wp_env> <wp_url>               [--debug | --quiet] [DEPRECATED]
-  jahia2wp.py clean-one             <wp_env> <wp_url>               [--debug | --quiet] [DEPRECATED]
-  jahia2wp.py generate-one          <wp_env> <wp_url>               [--debug | --quiet] [DEPRECATED]
-    [--wp-title=<WP_TITLE> --admin-password=<PASSWORD>]
-    [--owner-id=<SCIPER> --responsible-id=<SCIPER>]
   jahia2wp.py generate-many         <csv_file>                      [--debug | --quiet]
   jahia2wp.py backup-many           <csv_file>                      [--debug | --quiet]
     [--backup-type=<BACKUP_TYPE>]
@@ -48,7 +43,7 @@ from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExt
 from crawler import JahiaCrawler
 
 from settings import VERSION, DEFAULT_THEME_NAME
-from utils import Utils, deprecated
+from utils import Utils
 
 
 @dispatch.on('download')
@@ -72,12 +67,6 @@ def _check_site(wp_env, wp_url, **kwargs):
     return wp_config
 
 
-@dispatch.on('check-one')
-@deprecated("Use 'check' instead")
-def check_one(wp_env, wp_url, **kwargs):
-    return check(wp_env, wp_url, **kwargs)
-
-
 @dispatch.on('check')
 def check(wp_env, wp_url, **kwargs):
     wp_config = _check_site(wp_env, wp_url, **kwargs)
@@ -86,12 +75,6 @@ def check(wp_env, wp_url, **kwargs):
         raise SystemExit("Could not login or use site at {}".format(wp_config.wp_site.url))
     # success case
     print("WordPress site valid and accessible at {}".format(wp_config.wp_site.url))
-
-
-@dispatch.on('clean-one')
-@deprecated("Use 'clean' instead")
-def clean_one(wp_env, wp_url, **kwargs):
-    return clean(wp_env, wp_url, **kwargs)
 
 
 @dispatch.on('clean')
@@ -103,15 +86,6 @@ def clean(wp_env, wp_url, force=False, **kwargs):
     wp_generator = WPGenerator(wp_env, wp_url)
     if wp_generator.clean():
         print("Successfully cleaned WordPress site {}".format(wp_generator.wp_site.url))
-
-
-@dispatch.on('generate-one')
-@deprecated("Use 'generate' instead")
-def generate_one(wp_env, wp_url, wp_title=None,
-                 admin_password=None, owner_id=None, responsible_id=None, **kwargs):
-    return generate(
-        wp_env, wp_url, wp_title=wp_title, admin_password=admin_password,
-        owner_id=owner_id, responsible_id=responsible_id, **kwargs)
 
 
 @dispatch.on('generate')
