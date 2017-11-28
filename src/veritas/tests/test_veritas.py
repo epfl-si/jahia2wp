@@ -1,7 +1,7 @@
 """ All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017 """
 import os
 
-from veritas.veritas import VeritasValidor
+from veritas.veritas import VeritasValidor, MOCK_JAHIA2WP_COLUMNS
 
 CURRENT_DIR = os.path.dirname(__file__)
 TEST_FILE = 'test_veritas_data.csv'
@@ -25,7 +25,8 @@ VALID_LINE = {
 
 def test_validate():
     filename = os.path.join(CURRENT_DIR, TEST_FILE)
-    validator = VeritasValidor(filename)
+
+    validator = VeritasValidor(filename, columns=MOCK_JAHIA2WP_COLUMNS)
 
     validator.validate()
 
@@ -46,11 +47,11 @@ def test_validate():
 def test_get_valid_rows():
     filename = os.path.join(CURRENT_DIR, TEST_FILE)
     valid_lines = ((0, VALID_LINE),)
-    validator = VeritasValidor(filename)
+    validator = VeritasValidor(filename, columns=MOCK_JAHIA2WP_COLUMNS)
     assert validator.get_valid_rows() == valid_lines
 
 
 def test_filter_method():
     filename = os.path.join(CURRENT_DIR, TEST_FILE)
     valid_lines = ((0, VALID_LINE),)
-    assert valid_lines == VeritasValidor.filter_valid_rows(filename)
+    assert valid_lines == VeritasValidor.filter_valid_rows(filename, columns=MOCK_JAHIA2WP_COLUMNS)

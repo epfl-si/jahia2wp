@@ -3,8 +3,8 @@ import os
 import pytest
 
 from utils import Utils
-from wordpress import WPGenerator, WPUser
-
+from wordpress import WPUser
+from wordpress.generator import MockedWPGenerator
 
 CURRENT_DIR = os.path.dirname(__file__)
 SRC_DIR = os.path.abspath(os.path.join(CURRENT_DIR, '..'))
@@ -19,7 +19,7 @@ TEST_ENV = 'test'
 def setup():
     wp_env = TEST_ENV
     wp_url = SITE_URL_SPECIFIC
-    wp_generator = WPGenerator(wp_env, wp_url)
+    wp_generator = MockedWPGenerator(wp_env, wp_url)
     if wp_generator.wp_config.is_installed:
         wp_generator.clean()
 
@@ -104,7 +104,8 @@ class TestCommandLine:
         assert Utils.run_command('python %s clean %s %s'
                                  % (SCRIPT_FILE, TEST_ENV, SITE_URL_SPECIFIC))
 
-    def test_veritas(self):
-        from veritas.tests.test_veritas import CURRENT_DIR, TEST_FILE
-        filename = os.path.join(CURRENT_DIR, TEST_FILE)
-        assert Utils.run_command('python %s veritas %s' % (SCRIPT_FILE, filename))
+    # TODO: Test à déplacer dans les tests fonctionnels
+    # def test_veritas(self):
+    #     from veritas.tests.test_veritas import CURRENT_DIR, TEST_FILE
+    #     filename = os.path.join(CURRENT_DIR, TEST_FILE)
+    #     assert Utils.run_command('python %s veritas %s' % (SCRIPT_FILE, filename))

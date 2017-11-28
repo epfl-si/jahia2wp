@@ -91,3 +91,7 @@ def validate_unit(unit_name):
         get_unit_id(unit_name)
     except:
         raise ValidationError("The unit name {} doesn't exist".format(unit_name))
+
+
+def mock_validate_unit(unit_name):
+    return 42

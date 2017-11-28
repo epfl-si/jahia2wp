@@ -6,9 +6,9 @@ from django.core.validators import URLValidator, ValidationError
 from utils import Utils
 from .validators import validate_integer, validate_string, validate_yes_or_no, \
     validate_openshift_env, validate_site_type, validate_theme, validate_theme_faculty, validate_languages, \
-    validate_unit
+    validate_unit, mock_validate_unit
 
-JAHIA2WP_COLUMNS = (
+BASE_COLUMNS = [
     ("wp_site_url", URLValidator(), True),
     ("wp_default_site_title", validate_string, False),
     ("site_type", validate_site_type, False),
@@ -24,7 +24,15 @@ JAHIA2WP_COLUMNS = (
     ("responsible_id", validate_integer, False),
     ("unit", validate_unit, False),
     # comment => no validation
-)
+]
+
+JAHIA2WP_COLUMNS = BASE_COLUMNS + [
+    ("unit", validate_unit, False),
+]
+
+MOCK_JAHIA2WP_COLUMNS = BASE_COLUMNS + [
+    ("unit", mock_validate_unit, False),
+]
 
 
 class VeritasValidor:
@@ -37,10 +45,10 @@ class VeritasValidor:
     DELIMITER = ","
 
     @classmethod
-    def filter_valid_rows(cls, csv_file):
+    def filter_valid_rows(cls, csv_file, columns=JAHIA2WP_COLUMNS):
         """Shortcut method to call get_valid_rows, print errors, and only return valid elements"""
         # use Veritas to get valid rows
-        validator = cls(csv_file)
+        validator = cls(csv_file, columns)
         rows = validator.get_valid_rows()
 
         # print errors
