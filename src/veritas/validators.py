@@ -44,6 +44,10 @@ class MultipleChoicesValidator(RegexValidator):
         super(MultipleChoicesValidator, self).__init__(regex=regex, **kwargs)
 
 
+# TODO: Delete all return below
+# validate functions should not return anything
+
+
 def validate_integer(text):
     return RegexValidator(regex="^[0-9]+$")(text)
 
@@ -90,9 +94,10 @@ def validate_backup_type(text):
 
 
 def validate_unit(unit_name):
+    # FIXME: epfl-ldap should return a LDAP Exception
     try:
         get_unit_id(unit_name)
-    except:
+    except Exception:
         raise ValidationError("The unit name {} doesn't exist".format(unit_name))
 
 
