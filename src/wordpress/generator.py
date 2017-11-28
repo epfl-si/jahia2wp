@@ -442,7 +442,7 @@ class MockedWPGenerator(WPGenerator):
 
     def get_unit_id(self):
         """
-        Add fake unit id without queryind LDAP
+        Return a fake unit id without querying LDAP
         """
         unit_id = 42
         return unit_id
