@@ -22,7 +22,6 @@ BASE_COLUMNS = [
     ("langs", validate_languages, False),
     ("owner_id", validate_integer, False),
     ("responsible_id", validate_integer, False),
-    ("unit", validate_unit, False),
     # comment => no validation
 ]
 
