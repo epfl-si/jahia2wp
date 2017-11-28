@@ -7,7 +7,7 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
-from settings import DOCKER_IP
+from settings import DOCKER_IP, OPENSHIFT_ENV
 from wordpress.generator import MockedWPGenerator
 
 
@@ -19,14 +19,13 @@ class TestWpUploadTest:
     def session(self):
         logging.debug("Starting new session")
         session = requests.session()
-        yield session
-        logging.debug("Closing session")
-        session.close()
+        # TODO close the session properly
+        return session
 
     @pytest.fixture()
     def wp_generator(self):
         generator = MockedWPGenerator(
-            openshift_env="test",
+            openshift_env=OPENSHIFT_ENV,
             wp_site_url="http://" + DOCKER_IP + "/folder",
             wp_default_site_title="Upload test",
             admin_password="admin",

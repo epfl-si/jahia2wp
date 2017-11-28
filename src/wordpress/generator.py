@@ -178,8 +178,10 @@ class WPGenerator:
         logging.info("%s - Installing mu-plugins...", repr(self))
         self.generate_mu_plugins()
 
-        # Delete all widgets
+        # Delete all widgets, inactive themes
         self.delete_widgets()
+        self.delete_inactive_themes()
+        self.delete_demo_posts()
 
         # install, activate and config plugins
         logging.info("%s - Installing plugins...", repr(self))
@@ -266,6 +268,8 @@ class WPGenerator:
         - Another sidebar for all anothers pages. In this case sidebar parameter is "page-widgets".
         """
         cmd = "widget list {} --fields=id --format=csv".format(sidebar)
+        # Result is sliced to remove 1st element which is name of field (id).
+        # Because WPCLI command can take several fields, the name is displayed in the result.
         widgets_id_list = self.run_wp_cli(cmd).split("\n")[1:]
         for widget_id in widgets_id_list:
             cmd = "widget delete " + widget_id
@@ -278,6 +282,28 @@ class WPGenerator:
         """
         return get_unit_id(unit_name)
 
+    def delete_inactive_themes(self):
+        """
+        Delete all inactive themes
+        """
+        cmd = "theme list --fields=name --status=inactive --format=csv"
+        themes_name_list = self.run_wp_cli(cmd).split("\n")[1:]
+        for theme_name in themes_name_list:
+            cmd = "theme delete {}".format(theme_name)
+            self.run_wp_cli(cmd)
+        logging.info("All inactive themes deleted")
+
+    def delete_demo_posts(self):
+        """
+        Delete 'welcome blog' and 'sample page'
+        """
+        cmd = "post list --post_type=page,post --field=ID --format=csv"
+        posts_list = self.run_wp_cli(cmd).split("\n")
+        for post in posts_list:
+            cmd = "post delete {}".format(post)
+            self.run_wp_cli(cmd)
+        logging.info("All demo posts deleted")
+
     def add_webmasters(self):
         """
         Add webmasters to WordPress install.
@@ -289,6 +315,7 @@ class WPGenerator:
             if owner is not None:
                 logging.info("%s - added owner %s", repr(self), owner.username)
             else:
+                logging.warning("%s - could not add owner %s", repr(self), owner.username)
                 success = False
 
         if self.responsible_id is not None and self.responsible_id != self.owner_id:
@@ -296,6 +323,7 @@ class WPGenerator:
             if responsible is not None:
                 logging.info("%s - added responsible %s", repr(self), responsible.username)
             else:
+                logging.warning("%s - could not add responsible %s", repr(self), responsible.username)
                 success = False
 
         # flag a success if at least one webmaster has been created
@@ -304,6 +332,7 @@ class WPGenerator:
     def generate_mu_plugins(self):
         WPMuPluginConfig(self.wp_site, "epfl-functions.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL-SC-infoscience.php").install()
+        WPMuPluginConfig(self.wp_site, "EPFL_custom_editor_menu.php").install()
 
         if self.wp_config.installs_locked:
             WPMuPluginConfig(self.wp_site, "EPFL_installs_locked.php").install()

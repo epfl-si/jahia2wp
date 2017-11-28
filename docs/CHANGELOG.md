@@ -38,6 +38,8 @@ Table of releases
 **[PR #100](https://github.com/epfl-idevelop/jahia2wp/pull/100)**
 **[PR #102](https://github.com/epfl-idevelop/jahia2wp/pull/102)**
 **[PR #105](https://github.com/epfl-idevelop/jahia2wp/pull/105)**
+**[PR #112](https://github.com/epfl-idevelop/jahia2wp/pull/112)**
+**[PR #113](https://github.com/epfl-idevelop/jahia2wp/pull/113)**
 
 **High level:**
 
@@ -48,6 +50,9 @@ Table of releases
 1. (#99) Add plugin tequila and plugin accred with accred rights 
 1. (#105) Amélioration de la sécurité selon [les recommendations de l'OWASP](https://www.owasp.org/index.php/OWASP_Wordpress_Security_Implementation_Guideline).
 1. (#105) Nouveaux sites installé avec la version `latest` de WordPress au lieu de `4.8`
+1. (#112) enriched [INSTALL_DETAILED](https://github.com/epfl-idevelop/jahia2wp/blob/setup-prod/docs/INSTALL_DETAILED.md#setting-up-a-brand-new-infra-new-pods-new-nas-new-everything) documentation with setup of brand new servers
+1. (#112) change validation of openshift environments: validation is now done checking for the appropriate directory on the file system, instead of checking against a list of hardcoded values
+1. (#113) New command: `make functional-tests`, launching `test_upload.py` and `test_jahia2wp.py`
 
 **Low level:**
 
@@ -66,6 +71,12 @@ Table of releases
 1. (#105) Mises-à-jour automatiques du Core, des plugins et thèmes
 1. (#105) Ajout du module Apache ModSecurity
 1. (#105) Modification de la configuration WordPress pour empêcher l'édition en ligne des plugins et thèmes
+1. (#112) added names of new pods in valid values (settings.py for now)
+1. (#112) created dedicated Makefile.c2c in order to bootstrap a environment in a new pod
+1. (#113) automatic fetching of the IP of the httpd docker (instead of hard-code in settings.py)
+1. (#113) test_uploads moved out of `jahia2wp/src/.../tests` into `jahia2wp/functional_tests`
+1. (#113) new entries in makefile and makefile.mgmt to run pytest in newly created dir above
+1. (#113) new var OPENSHIFT_ENV in settings.py to define which pod to use
 
 ## [0.2.14] - 2017-11-17
 
@@ -87,6 +98,7 @@ Table of releases
 **[PR #70](https://github.com/epfl-idevelop/jahia2wp/pull/70)**
 **[PR #75](https://github.com/epfl-idevelop/jahia2wp/pull/75)**
 **[PR #76](https://github.com/epfl-idevelop/jahia2wp/pull/76)**
+**[PR #78](https://github.com/epfl-idevelop/jahia2wp/pull/78)**
 **[PR #80](https://github.com/epfl-idevelop/jahia2wp/pull/80)**
 **[PR #81](https://github.com/epfl-idevelop/jahia2wp/pull/81)**
 
@@ -96,6 +108,7 @@ Table of releases
 1. (#70) Ajout de la gestion de "use cases" d'installation/désinstallation" de plugins spécifiques
 1. (#75) added option `--force` on command `clean`
 1. (#76) Nouvelle option pour lister les plugins (`list-plugins`) ajoutée dans `jahia2wp.py`. Elle permet de lister les plugins qui seront installés (ainsi que leur config si on la veut) pour un site (donné par `wp_env` et `wp_url`)
+1. (#78) Added documentation and template to create cronjobs on openshift
 1. (#80) added auto-configuration of polylang (with two languages: fr, en)
 1. (#80) update `make vars` to display all env vars used in project
 1. (#81) Cette PR ajoute un test fonctionnel à savoir : tester l'upload d'un média dans un site WP.

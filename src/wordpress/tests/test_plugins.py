@@ -6,10 +6,8 @@ import settings
 from wordpress import WPPluginList, WPPluginConfig, WPConfig, WPMuPluginConfig
 from wordpress.generator import MockedWPGenerator
 
-TEST_SITE = 'unittest'
 SITE_URL_GENERIC = "http://localhost/"
-SITE_URL_SPECIFIC = "http://localhost/{}".format(TEST_SITE)
-TEST_ENV = 'test'
+SITE_URL_SPECIFIC = "http://localhost/{}".format(settings.TEST_SITE)
 
 """
 Load fake environment variables for every test
@@ -40,7 +38,7 @@ def wp_plugin_list():
 def wp_generator_generic():
     # To generate website with generic plugin list/configuration
     generator = MockedWPGenerator(
-                openshift_env=TEST_ENV,
+                openshift_env=settings.OPENSHIFT_ENV,
                 wp_site_url=SITE_URL_GENERIC,
                 wp_default_site_title="My test")
     generator.clean()
@@ -52,7 +50,7 @@ def wp_generator_generic():
 def wp_generator_specific():
     # To generate website with specific plugin list/configuration
     generator = MockedWPGenerator(
-                openshift_env=TEST_ENV,
+                openshift_env=settings.OPENSHIFT_ENV,
                 wp_site_url=SITE_URL_SPECIFIC,
                 wp_default_site_title="My test")
     generator.clean()
@@ -81,7 +79,7 @@ class TestWPPluginList:
     def test_specific_plugin_list(self, wp_plugin_list):
         plugins_to_test = ['add-to-any', 'hello', 'redirection', 'akismet']
 
-        plugin_list = wp_plugin_list.plugins(TEST_SITE)
+        plugin_list = wp_plugin_list.plugins(settings.TEST_SITE)
         assert len(plugin_list) == len(plugins_to_test)
         for plugin_name in plugins_to_test:
             assert plugin_name in plugin_list
@@ -113,7 +111,7 @@ class TestWPPluginConfig:
             'akismet': False
         }.items():
 
-            plugin_config = wp_plugin_list.plugins(TEST_SITE)[plugin_name]
+            plugin_config = wp_plugin_list.plugins(settings.TEST_SITE)[plugin_name]
             wp_plugin_config = WPPluginConfig(wp_generator_specific.wp_site, plugin_name, plugin_config)
 
             assert wp_plugin_config.is_installed is installed
@@ -139,7 +137,7 @@ class TestWPPluginConfig:
             'redirection': True
         }.items():
 
-            plugin_config = wp_plugin_list.plugins(TEST_SITE)[plugin_name]
+            plugin_config = wp_plugin_list.plugins(settings.TEST_SITE)[plugin_name]
             wp_plugin_config = WPPluginConfig(wp_generator_specific.wp_site, plugin_name, plugin_config)
 
             assert wp_plugin_config.is_activated is activated
@@ -151,7 +149,7 @@ class TestWPPluginConfig:
 
         for plugin_name in ['add-to-any', 'redirection']:
 
-            plugin_config = wp_plugin_list.plugins(TEST_SITE)[plugin_name]
+            plugin_config = wp_plugin_list.plugins(settings.TEST_SITE)[plugin_name]
             wp_plugin_config = WPPluginConfig(wp_generator_specific.wp_site, plugin_name, plugin_config)
             wp_plugin_config.uninstall()
             assert wp_plugin_config.is_installed is False
@@ -177,7 +175,7 @@ class TestWPPluginConfigRestore:
     def test_restore_specific_config(self, wp_generator_generic, wp_plugin_list):
 
         # First, uninstall from WP installation
-        plugin_config = wp_plugin_list.plugins(TEST_SITE)['add-to-any']
+        plugin_config = wp_plugin_list.plugins(settings.TEST_SITE)['add-to-any']
         wp_plugin_config = WPPluginConfig(wp_generator_generic.wp_site, 'add-to-any', plugin_config)
         wp_plugin_config.uninstall()
 

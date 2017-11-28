@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY apache2.conf /etc/apache2/
 COPY restrict-wp-admin.conf /etc/apache2/conf-enabled/
+COPY modsecurity.conf /etc/modsecurity/
 COPY docker-entrypoint.sh /
 RUN chmod a+x /docker-entrypoint.sh
 

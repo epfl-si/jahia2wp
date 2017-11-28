@@ -11,8 +11,8 @@ python:
 - 3.5
 
 before_install:
-- docker pull camptocamp/os-wp-httpd
-- docker pull camptocamp/os-wp-mgmt
+- docker pull epflidevelop/os-wp-httpd
+- docker pull epflidevelop/os-wp-mgmt
 - cp .env.sample .env
 
 install:

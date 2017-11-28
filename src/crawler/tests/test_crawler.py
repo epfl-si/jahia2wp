@@ -13,7 +13,7 @@ from crawler import JahiaConfig, SessionHandler, JahiaCrawler, download_many
 
 CURRENT_DIR = os.path.dirname(__file__)
 TEST_FILE = "one-site_export_2017-10-11-05-03.zip"
-TEST_SITE = "one-site"
+TEST_JAHIA_SITE = "one-site"
 TEST_USER = "foo"
 TEST_PASSWORD = "bar"
 TEST_HOST = "localhost"
@@ -60,23 +60,23 @@ def session_handler(request):
 class TestConfig(object):
 
     def test_with_no_env(self, delete_environment):
-        config = JahiaConfig(TEST_SITE)
+        config = JahiaConfig(TEST_JAHIA_SITE)
         assert config.host == "localhost"
 
     def test_with_var_env(self, environment):
-        config = JahiaConfig(TEST_SITE, date=datetime(2017, 10, 11, 5, 3))
+        config = JahiaConfig(TEST_JAHIA_SITE, date=datetime(2017, 10, 11, 5, 3))
         assert config.host == TEST_HOST
         assert config.file_url == "{}://{}/{}/one-site_export_2017-10-11-05-03.zip"\
             .format(settings.JAHIA_PROTOCOL, TEST_HOST, JahiaConfig.JAHIA_DOWNLOAD_URI)
 
     def test_config_with_kwargs(self, environment):
-        config = JahiaConfig(TEST_SITE, host="epfl.ch", date=datetime(2017, 10, 11, 5, 3))
+        config = JahiaConfig(TEST_JAHIA_SITE, host="epfl.ch", date=datetime(2017, 10, 11, 5, 3))
         assert config.host == "epfl.ch"
         assert config.file_url == "{}://epfl.ch/{}/one-site_export_2017-10-11-05-03.zip"\
             .format(settings.JAHIA_PROTOCOL, JahiaConfig.JAHIA_DOWNLOAD_URI)
 
     def test_existing_files(self, environment):
-        config = JahiaConfig(TEST_SITE, zip_path=CURRENT_DIR)
+        config = JahiaConfig(TEST_JAHIA_SITE, zip_path=CURRENT_DIR)
         assert config.already_downloaded is True
         assert config.existing_files[-1].endswith(TEST_FILE)
 
@@ -122,7 +122,7 @@ class TestSession(object):
 class TestCrawler(object):
 
     def test_download_existing(self, session_handler):
-        crawler = JahiaCrawler(TEST_SITE, zip_path=CURRENT_DIR)
+        crawler = JahiaCrawler(TEST_JAHIA_SITE, zip_path=CURRENT_DIR)
         assert crawler.download_site().endswith(TEST_FILE)
 
     def test_download_non_existing(self, session_handler):
@@ -140,4 +140,4 @@ class TestCrawler(object):
             os.remove(downloaded_path)
 
     def test_download_many(self, session_handler):
-        assert TEST_SITE in download_many([TEST_SITE], zip_path=CURRENT_DIR, session=session_handler)
+        assert TEST_JAHIA_SITE in download_many([TEST_JAHIA_SITE], zip_path=CURRENT_DIR, session=session_handler)

@@ -10,7 +10,7 @@ VALID_LINE = {
         'comment': 'je mets ici',
         'installs_locked': 'yes',
         'langs': 'fr,en',
-        'openshift_env': 'dev',
+        'openshift_env': 'test',
         'owner_id': '123456',
         'responsible_id': '123456',
         'site_type': 'WordPress',
@@ -27,6 +27,10 @@ def test_validate():
     filename = os.path.join(CURRENT_DIR, TEST_FILE)
 
     validator = VeritasValidor(filename, columns=MOCK_JAHIA2WP_COLUMNS)
+
+    # make sure test environment exists
+    if not os.path.exists("/srv/test"):
+        os.mkdir("/srv/test")
 
     validator.validate()
 
