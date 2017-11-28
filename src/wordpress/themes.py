@@ -52,7 +52,7 @@ class WPThemeConfig(WPConfig):
         wp_site -- Instance of class WPSite
         """
         # Generate path to source themes folder
-        src_theme_path = os.path.sep.join([settings.WP_PATH, cls.THEMES_PATH])
+        src_theme_path = os.path.sep.join([settings.WP_FILES_PATH, cls.THEMES_PATH])
 
         # Looping through folder elements
         for theme_folder in os.listdir(src_theme_path):

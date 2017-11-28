@@ -47,6 +47,7 @@ services:
       - ./data:/srv/${WP_ENV}/jahia2wp/data
       - ./requirements:/srv/${WP_ENV}/jahia2wp/requirements
       - ./src:/srv/${WP_ENV}/jahia2wp/src
+      - ./functional_tests:/srv/${WP_ENV}/jahia2wp/functional_tests
       - ./Makefile.mgmt:/srv/${WP_ENV}/jahia2wp/Makefile
       - .env:/srv/${WP_ENV}/jahia2wp/.env
     ports:

@@ -155,9 +155,13 @@ class Utils(object):
         Arguments keywords:
         args -- list containing parameters passed to script
         """
-        level = logging.INFO
-        WP_ENV = cls.get_mandatory_env('WP_ENV')
+        # get openshift env
+        # do not load it from settings, because loading settings will probably make some calls to logging,
+        # which will shortcut our call to 'logging.basicConfig' below
+        OPENSHIFT_ENV = Utils.get_mandatory_env("WP_ENV")
 
+        # set up level of logging
+        level = logging.INFO
         if args['--quiet']:
             level = logging.WARNING
         elif args['--debug']:
@@ -165,7 +169,7 @@ class Utils(object):
 
         # set up logging to console
         format = '%(levelname)s - {} - %(funcName)s - %(message)s'
-        logging.basicConfig(format=format.format(WP_ENV))
+        logging.basicConfig(format=format.format(OPENSHIFT_ENV))
         logger = logging.getLogger()
         logger.setLevel(level)
 
@@ -173,7 +177,7 @@ class Utils(object):
         fh = logging.FileHandler(Utils.get_optional_env('LOGGING_FILE', 'jahia2wp.log'))
         fh.setLevel(level)
         format = '%(asctime)s - %(levelname)s - {} - %(filename)s:%(lineno)s:%(funcName)s - %(message)s'
-        formatter = logging.Formatter(format.format(WP_ENV))
+        formatter = logging.Formatter(format.format(OPENSHIFT_ENV))
         fh.setFormatter(formatter)
 
         # add the handlers to the logger
