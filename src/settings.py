@@ -61,21 +61,6 @@ WP_CONFIG_KEYS = [
     'NONCE_SALT',
 ]
 
-OPENSHIFT_ENVS = [
-    # for testing purpose
-    "your-env",
-    "test",
-    # real ones
-    "dev",
-    "int",
-    "ebreton",
-    "ejaep",
-    "lvenries",
-    "lboatto",
-    "gcharmier",
-    "lchaboudez"
-]
-
 SUPPORTED_LANGUAGES = [
     "fr",
     "en",

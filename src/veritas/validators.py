@@ -17,9 +17,11 @@
 
     They are functions (or callable objects) that raise a ValidationError on failure
 """
-from settings import OPENSHIFT_ENVS, SUPPORTED_LANGUAGES
+import os
 
+from settings import SUPPORTED_LANGUAGES
 
+from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.conf import settings as dj_settings
 
@@ -63,7 +65,8 @@ def validate_db_name(name):
 
 
 def validate_openshift_env(text):
-    return ChoiceValidator(OPENSHIFT_ENVS)(text)
+    if not os.path.isdir('/srv/{}'.format(text)):
+        raise ValidationError("Openshift environment not valid")
 
 
 def validate_site_type(text):

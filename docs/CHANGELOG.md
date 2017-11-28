@@ -37,6 +37,7 @@ Table of releases
 **[PR #100](https://github.com/epfl-idevelop/jahia2wp/pull/100)**
 **[PR #102](https://github.com/epfl-idevelop/jahia2wp/pull/102)**
 **[PR #105](https://github.com/epfl-idevelop/jahia2wp/pull/105)**
+**[PR #112](https://github.com/epfl-idevelop/jahia2wp/pull/112)**
 **[PR #113](https://github.com/epfl-idevelop/jahia2wp/pull/113)**
 
 **High level:**
@@ -47,6 +48,8 @@ Table of releases
 1. (#102) Suppression de la sidebar 
 1. (#105) Amélioration de la sécurité selon [les recommendations de l'OWASP](https://www.owasp.org/index.php/OWASP_Wordpress_Security_Implementation_Guideline).
 1. (#105) Nouveaux sites installé avec la version `latest` de WordPress au lieu de `4.8`
+1. (#112) enriched [INSTALL_DETAILED](https://github.com/epfl-idevelop/jahia2wp/blob/setup-prod/docs/INSTALL_DETAILED.md#setting-up-a-brand-new-infra-new-pods-new-nas-new-everything) documentation with setup of brand new servers
+1. (#112) change validation of openshift environments: validation is now done checking for the appropriate directory on the file system, instead of checking against a list of hardcoded values
 1. (#113) New command: `make functional-tests`, launching `test_upload.py` and `test_jahia2wp.py`
 
 **Low level:**
@@ -63,6 +66,8 @@ Table of releases
 1. (#105) Mises-à-jour automatiques du Core, des plugins et thèmes
 1. (#105) Ajout du module Apache ModSecurity
 1. (#105) Modification de la configuration WordPress pour empêcher l'édition en ligne des plugins et thèmes
+1. (#112) added names of new pods in valid values (settings.py for now)
+1. (#112) created dedicated Makefile.c2c in order to bootstrap a environment in a new pod
 1. (#113) automatic fetching of the IP of the httpd docker (instead of hard-code in settings.py)
 1. (#113) test_uploads moved out of `jahia2wp/src/.../tests` into `jahia2wp/functional_tests`
 1. (#113) new entries in makefile and makefile.mgmt to run pytest in newly created dir above
