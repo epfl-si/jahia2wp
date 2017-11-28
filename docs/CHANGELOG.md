@@ -36,6 +36,7 @@ Table of releases
 **[PR #69](https://github.com/epfl-idevelop/jahia2wp/pull/69)**
 **[PR #100](https://github.com/epfl-idevelop/jahia2wp/pull/100)**
 **[PR #102](https://github.com/epfl-idevelop/jahia2wp/pull/102)**
+**[PR #112](https://github.com/epfl-idevelop/jahia2wp/pull/112)**
 
 **High level:**
 
@@ -43,6 +44,8 @@ Table of releases
 1. (#69) Columns `installs_locked` and `updates_automatic` from source of trust are now taken into account
 1. (#100) Ajout de 2 paramètres optionnels à `generate` pour pouvoir dire quel thème et quelle faculté de thème (couleur) on veut pour le site.
 1. (#102) Suppression de la sidebar 
+1. (#112) enriched [INSTALL_DETAILED](https://github.com/epfl-idevelop/jahia2wp/blob/setup-prod/docs/INSTALL_DETAILED.md#setting-up-a-brand-new-infra-new-pods-new-nas-new-everything) documentation with setup of brand new servers
+1. (#112) change validation of openshift environments: validation is now done checking for the appropriate directory on the file system, instead of checking against a list of hardcoded values
 
 **Low level:**
 
@@ -55,6 +58,8 @@ Table of releases
 1. (#100) Mise à jour des fichiers "source de vérité" pour que ça fonctionne avec le nouveau champ.
 1. (#100) Modification du fichier du thème pour voir que la classe (=`theme_faculty`) est bien ajoutée à la balise `<body>` (cette modif va aussi être faite dans les fichiers du thème gérés par Aline).
 1. (#102) Suppression des widgets de la sidebar de la homepage
+1. (#112) added names of new pods in valid values (settings.py for now)
+1. (#112) created dedicated Makefile.c2c in order to bootstrap a environment in a new pod
 
 ## [0.2.14] - 2017-11-17
 
