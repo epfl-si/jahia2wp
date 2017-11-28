@@ -330,6 +330,7 @@ class WPGenerator:
         return success
 
     def generate_mu_plugins(self):
+        # TODO: add those plugins into the general list of plugins (with the class WPMuPluginConfig)
         WPMuPluginConfig(self.wp_site, "epfl-functions.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL-SC-infoscience.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL_custom_editor_menu.php").install()
@@ -355,7 +356,8 @@ class WPGenerator:
         # Looping through plugins to install
         for plugin_name, config_dict in plugin_list.plugins(self.wp_site.name).items():
 
-            # Fectch proper PluginConfig class and create instance
+            # Fetch proper PluginConfig class and create instance
+            # TODO: read class from YML
             plugin_class_name = settings.WP_PLUGIN_CONFIG_CLASS_BY_NAME.get(
                 plugin_name, settings.WP_DEFAULT_PLUGIN_CONFIG)
             plugin_class = Utils.import_class_from_string(plugin_class_name)
