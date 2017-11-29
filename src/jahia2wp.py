@@ -7,12 +7,11 @@ Usage:
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--force]
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
-  jahia2wp.py generate              <wp_env> <wp_url>               [--debug | --quiet]
+  jahia2wp.py generate              <wp_env> <wp_url> <unit_name>        [--debug | --quiet]
     [--wp-title=<WP_TITLE> --admin-password=<PASSWORD>]
     [--owner-id=<SCIPER> --responsible-id=<SCIPER>]
     [--theme=<THEME> --theme_faculty=<THEME-FACULTY>]
     [--installs-locked=<INSTALLS_LOCKED> --automatic-updates=<UPDATES_AUTOMATIC>]
-    [--unit=<UNIT>]
   jahia2wp.py backup                <wp_env> <wp_url>               [--debug | --quiet]
     [--backup-type=<BACKUP_TYPE>]
   jahia2wp.py version               <wp_env> <wp_url>               [--debug | --quiet]
@@ -115,12 +114,12 @@ def generate_one(wp_env, wp_url, wp_title=None,
 
 
 @dispatch.on('generate')
-def generate(wp_env, wp_url,
+def generate(wp_env, wp_url, unit_name,
              wp_title=None, admin_password=None,
              owner_id=None, responsible_id=None,
              theme=DEFAULT_THEME_NAME, theme_faculty=None,
              installs_locked=None, updates_automatic=None,
-             unit=None, **kwargs):
+             **kwargs):
 
     # if nothing is specified we want a locked install
     if installs_locked is None:
@@ -133,6 +132,7 @@ def generate(wp_env, wp_url,
     wp_generator = WPGenerator(
         wp_env,
         wp_url,
+        unit_name,
         wp_default_site_title=wp_title,
         admin_password=admin_password,
         owner_id=owner_id,
@@ -140,8 +140,7 @@ def generate(wp_env, wp_url,
         theme=theme,
         theme_faculty=theme_faculty,
         installs_locked=installs_locked,
-        updates_automatic=updates_automatic,
-        unit=unit,
+        updates_automatic=updates_automatic
     )
     if not wp_generator.generate():
         raise SystemExit("Generation failed. More info above")

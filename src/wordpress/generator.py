@@ -36,7 +36,7 @@ class WPGenerator:
     WP_ADMIN_USER = Utils.get_mandatory_env(key="WP_ADMIN_USER")
     WP_ADMIN_EMAIL = Utils.get_mandatory_env(key="WP_ADMIN_EMAIL")
 
-    def __init__(self, openshift_env, wp_site_url,
+    def __init__(self, openshift_env, wp_site_url, unit_name,
                  wp_default_site_title=None,
                  installs_locked=settings.DEFAULT_CONFIG_INSTALLS_LOCKED,
                  updates_automatic=settings.DEFAULT_CONFIG_UPDATES_AUTOMATIC,
@@ -44,8 +44,7 @@ class WPGenerator:
                  owner_id=None,
                  responsible_id=None,
                  theme=settings.DEFAULT_THEME_NAME,
-                 theme_faculty=None,
-                 unit=None):
+                 theme_faculty=None):
         """
         Class constructor
 
@@ -62,14 +61,13 @@ class WPGenerator:
         # validate input
         validate_openshift_env(openshift_env)
         URLValidator()(wp_site_url)
+        validate_unit(unit_name)
         if wp_default_site_title is not None:
             validate_string(wp_default_site_title)
         if owner_id is not None:
             validate_integer(owner_id)
         if responsible_id is not None:
             validate_integer(responsible_id)
-        if unit:
-            validate_unit(unit)
 
         # create WordPress site and config
         self.wp_site = WPSite(openshift_env, wp_site_url, wp_default_site_title=wp_default_site_title)
@@ -87,13 +85,10 @@ class WPGenerator:
         self.responsible_id = responsible_id
 
         # plugin configuration
-        if unit:
-            self.plugin_config_custom = {
-                'unit_name': unit,
-                'unit_id': self.get_unit_id(unit)
-            }
-        else:
-            self.plugin_config_custom = {}
+        self.plugin_config_custom = {
+            'unit_name': unit_name,
+            'unit_id': self.get_the_unit_id(unit_name)
+        }
 
         # Theme configuration
         self.theme = theme or settings.DEFAULT_THEME_NAME
@@ -276,7 +271,7 @@ class WPGenerator:
             self.run_wp_cli(cmd)
         logging.info("All widgets deleted")
 
-    def get_unit_id(self, unit_name):
+    def get_the_unit_id(self, unit_name):
         """
         Get unit id via LDAP Search
         """
