@@ -294,11 +294,13 @@ class WPGenerator:
 
     def delete_inactive_themes(self):
         """
-        Delete all inactive themes
+        Delete all inactive themes except 'epfl-blank' theme
         """
         cmd = "theme list --fields=name --status=inactive --format=csv"
         themes_name_list = self.run_wp_cli(cmd).split("\n")[1:]
         for theme_name in themes_name_list:
+            if theme_name == "epfl-blank":
+                continue
             cmd = "theme delete {}".format(theme_name)
             self.run_wp_cli(cmd)
         logging.info("All inactive themes deleted")
