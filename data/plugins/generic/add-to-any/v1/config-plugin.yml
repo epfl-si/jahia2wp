@@ -1,5 +1,5 @@
 src: web
-activate: yes
+activate: no
 tables:
   options:
   - autoload: 'yes'

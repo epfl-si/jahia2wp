@@ -1,6 +1,4 @@
 plugins:
-  - name: add-to-any
-    config: !include add-to-any/v1/config-plugin.yml
   - name: simple-sitemap
     config: !include simple-sitemap/v1/config-plugin.yml
   - name: tinymce-advanced
