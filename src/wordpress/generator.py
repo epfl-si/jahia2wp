@@ -55,9 +55,7 @@ class WPGenerator:
         theme_faculty -- (optional) Faculty name to use with theme (to select color)
         """
         # validate input
-        validate_openshift_env(openshift_env)
-        URLValidator()(wp_site_url)
-        validate_unit(unit_name)
+        self.validate_args(openshift_env, wp_site_url, unit_name)
         if wp_default_site_title is not None:
             validate_string(wp_default_site_title)
         if theme is not None:
@@ -261,6 +259,12 @@ class WPGenerator:
             self.run_wp_cli(cmd)
         logging.info("All widgets deleted")
 
+    def validate_args(self, openshift_env, wp_site_url, unit_name):
+        """ Call validators in an independant function to allow mocking them """
+        validate_openshift_env(openshift_env)
+        URLValidator()(wp_site_url)
+        validate_unit(unit_name)
+
     def get_the_unit_id(self, unit_name):
         """
         Get unit id via LDAP Search
@@ -393,6 +397,10 @@ class MockedWPGenerator(WPGenerator):
     Class used for tests only. We don't have a LDAP server on Travis-ci so we add 'fake' webmasters without
     calling LDAP.
     """
+
+    def validate_args(self, openshift_env, wp_site_url, unit_name):
+        """ on validate openshift_env in mock"""
+        validate_openshift_env(openshift_env)
 
     def get_the_unit_id(self, unit_name):
         """

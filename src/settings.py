@@ -9,7 +9,7 @@ OPENSHIFT_ENV = Utils.get_mandatory_env("WP_ENV")
 
 # This Docker IP address is used for automatic testing.
 # Docker may change it in the future, which will cause some tests to fail.
-DOCKER_IP = Utils.get_optional_env("DOCKER_IP", "172.17.0.1")
+HTTPD_CONTAINER = Utils.get_optional_env("HTTPD_CONTAINER", "httpd")
 TEST_SITE = 'unittest'
 
 DATA_PATH = os.path.abspath(os.path.sep.join([SRC_DIR_PATH, '..', 'data']))

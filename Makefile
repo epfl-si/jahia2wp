@@ -14,8 +14,7 @@ include .env
 endif
 
 _mgmt_container = $(shell docker ps -q --filter "label=ch.epfl.jahia2wp.mgmt.env=${WP_ENV}")
-# TODO : Improve call, (ex using label... we have to add lable inside container)
-_httpd_container_ip = $(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' jahia2wp_httpd_1)
+_httpd_container = $(shell docker ps -q --filter "label=ch.epfl.jahia2wp.httpd.env=${WP_ENV}")
 
 test: check-env
 # The "test-raw" target is in Makefile.mgmt
@@ -25,7 +24,7 @@ functional-tests: check-env
 # The "functional-tests-raw" target is in Makefile.mgmt
 # WP_ENV hardcoded to 'test'
 	docker exec --user=www-data \
-	  -e DOCKER_IP=$(_httpd_container_ip) \
+	  -e HTTPD_CONTAINER=$(_httpd_container) \
 	  $(_mgmt_container) make -C /srv/$$WP_ENV/jahia2wp functional-tests-raw
 
 vars: check-env

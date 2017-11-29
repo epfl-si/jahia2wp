@@ -3,13 +3,14 @@ import os
 
 import pytest
 
-from settings import DOCKER_IP, OPENSHIFT_ENV, TEST_SITE, SRC_DIR_PATH
+from settings import OPENSHIFT_ENV, TEST_SITE, SRC_DIR_PATH
 from utils import Utils
 from wordpress import WPUser
 from wordpress.generator import MockedWPGenerator
 
 SCRIPT_FILE = os.path.join(SRC_DIR_PATH, 'jahia2wp.py')
-SITE_URL_SPECIFIC = "http://{0}/{1}".format(DOCKER_IP, TEST_SITE)
+TEST_HOST = 'localhost'
+SITE_URL_SPECIFIC = "http://{0}/{1}".format(TEST_HOST, TEST_SITE)
 UNIT_NAME = "idevelop"
 
 
@@ -79,12 +80,12 @@ class TestCommandLine:
         expected_lines = [
             "path;valid;url;version;db_name;db_user;admins",
             "/srv/{0}/{1}/htdocs/{2};ok;{3};{4};wp_".format(
-                OPENSHIFT_ENV, DOCKER_IP, TEST_SITE, SITE_URL_SPECIFIC, version),
+                OPENSHIFT_ENV, TEST_HOST, TEST_SITE, SITE_URL_SPECIFIC, version),
         ]
 
         output = Utils.run_command(
             'python {0} inventory {1} /srv/{1}/{2}'.format(
-                SCRIPT_FILE, OPENSHIFT_ENV, DOCKER_IP))
+                SCRIPT_FILE, OPENSHIFT_ENV, TEST_HOST))
 
         for expected_line in expected_lines:
             assert expected_line in output
