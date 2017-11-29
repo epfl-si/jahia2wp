@@ -95,8 +95,6 @@ class TestWPGenerator:
             wp_site_url="http://localhost/folder",
             unit_name="idevelop",
             wp_default_site_title=self.TITLE_WITH_ACCENT,
-            owner_id=self.SAME_SCIPER_ID,
-            responsible_id=self.SAME_SCIPER_ID,
             updates_automatic=False)
         generator.clean()
         return generator
