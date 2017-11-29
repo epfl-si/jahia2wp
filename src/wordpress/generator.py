@@ -256,6 +256,10 @@ class WPGenerator:
             logging.error("%s - could not configure permalinks", repr(self))
             return False
 
+        # Add french for the admin interface
+        command = "language core install fr_FR"
+        self.run_wp_cli(command)
+
         # flag success by returning True
         return True
 
