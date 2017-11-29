@@ -123,8 +123,6 @@ You should derive them from an other existing infrastructure (e.g test), or from
 - [etc/.aliases_c2c](../etc/.aliases_c2c)
 - [.env.sample](../etc/.env.sample)
 
-You will find them on our [intranet](https://confluence.epfl.ch:8443/x/ngpqAw).
-You will find them on our [intranet](https://confluence.epfl.ch:8443/x/ngpqAw).
 
 ## Install in C2C infra
 
