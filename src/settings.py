@@ -79,9 +79,12 @@ DEFAULT_CONFIG_UPDATES_AUTOMATIC = True
 DEFAULT_THEME_NAME = 'epfl-master'
 
 PLUGINS_CONFIG_BASE_PATH = Utils.get_optional_env(
-    "PLUGINS_CONFIG_BASE_PATH", os.path.sep.join([SRC_DIR_PATH, '..', 'data', 'plugins']))
-PLUGINS_CONFIG_GENERIC_FOLDER = os.path.join(PLUGINS_CONFIG_BASE_PATH, 'generic')
-PLUGINS_CONFIG_SPECIFIC_FOLDER = os.path.join(PLUGINS_CONFIG_BASE_PATH, 'specific')
+    "PLUGINS_CONFIG_BASE_PATH", os.path.sep.join(['..', 'data', 'plugins']))
+
+PLUGINS_CONFIG_GENERIC_FOLDER = os.path.abspath(os.path.sep.join(
+    [SRC_DIR_PATH, PLUGINS_CONFIG_BASE_PATH, 'generic']))
+PLUGINS_CONFIG_SPECIFIC_FOLDER = os.path.abspath(os.path.sep.join(
+    [SRC_DIR_PATH, PLUGINS_CONFIG_BASE_PATH, 'specific']))
 
 PLUGIN_SOURCE_WP_STORE = 'web'
 PLUGIN_ACTION_INSTALL = 'install'
