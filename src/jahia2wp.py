@@ -82,7 +82,8 @@ def clean(wp_env, wp_url, force=False, **kwargs):
     if not force:
         _check_site(wp_env, wp_url, **kwargs)
     # config found: proceed with cleaning
-    wp_generator = WPGenerator(wp_env, wp_url)
+    # FIXME: Il faut faire un clean qui n'a pas besoin de unit_name
+    wp_generator = WPGenerator(wp_env, wp_url, 'idevelop')
     if wp_generator.clean():
         print("Successfully cleaned WordPress site {}".format(wp_generator.wp_site.url))
 
@@ -160,12 +161,12 @@ def generate_many(csv_file, **kwargs):
         WPGenerator(
             row["openshift_env"],
             row["wp_site_url"],
+            row["unit_name"],
             wp_default_site_title=row["wp_default_site_title"],
             updates_automatic=row["updates_automatic"],
             installs_locked=row["installs_locked"],
             theme=row["theme"],
             theme_faculty=row["theme_faculty"],
-            unit=row["unit"],
         ).generate()
 
 
