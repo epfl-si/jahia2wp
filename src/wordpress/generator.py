@@ -9,7 +9,7 @@ from utils import Utils
 import settings
 
 from django.core.validators import URLValidator
-from veritas.validators import validate_string, validate_openshift_env, validate_integer, validate_unit
+from veritas.validators import validate_string, validate_openshift_env, validate_unit
 
 from .models import WPSite, WPUser
 from .config import WPConfig
@@ -41,8 +41,6 @@ class WPGenerator:
                  installs_locked=settings.DEFAULT_CONFIG_INSTALLS_LOCKED,
                  updates_automatic=settings.DEFAULT_CONFIG_UPDATES_AUTOMATIC,
                  admin_password=None,
-                 owner_id=None,
-                 responsible_id=None,
                  theme=settings.DEFAULT_THEME_NAME,
                  theme_faculty=None,
                  unit=None):
@@ -54,8 +52,6 @@ class WPGenerator:
         wp_site_url -- Website URL
         wp_default_site_title -- (optional) website title
         admin_password -- (optional) Password to use for 'admin' account
-        owner_id -- (optional) ID (sciper) of website owner
-        responsible_id -- (optional) ID (sciper) of website responsible
         theme -- (optional) WordPress Theme name
         theme_faculty -- (optional) Faculty name to use with theme (to select color)
         """
@@ -64,10 +60,6 @@ class WPGenerator:
         URLValidator()(wp_site_url)
         if wp_default_site_title is not None:
             validate_string(wp_default_site_title)
-        if owner_id is not None:
-            validate_integer(owner_id)
-        if responsible_id is not None:
-            validate_integer(responsible_id)
         if unit:
             validate_unit(unit)
 
@@ -81,10 +73,6 @@ class WPGenerator:
         # prepare admin for exploitation/maintenance
         self.wp_admin = WPUser(self.WP_ADMIN_USER, self.WP_ADMIN_EMAIL)
         self.wp_admin.set_password(password=admin_password)
-
-        # store scipers_id for later
-        self.owner_id = owner_id
-        self.responsible_id = responsible_id
 
         # plugin configuration
         if unit:
@@ -186,12 +174,6 @@ class WPGenerator:
         # install, activate and config plugins
         logging.info("%s - Installing plugins...", repr(self))
         self.generate_plugins()
-
-        # add 2 given webmasters
-        logging.info("%s - Creating webmaster accounts...", repr(self))
-        if not self.add_webmasters():
-            logging.error("%s - could not add webmasters", repr(self))
-            return False
 
         # flag success
         return True
@@ -308,31 +290,6 @@ class WPGenerator:
             self.run_wp_cli(cmd)
         logging.info("All demo posts deleted")
 
-    def add_webmasters(self):
-        """
-        Add webmasters to WordPress install.
-        """
-        success = True
-
-        if self.owner_id is not None:
-            owner = self.wp_config.add_ldap_user(self.owner_id)
-            if owner is not None:
-                logging.info("%s - added owner %s", repr(self), owner.username)
-            else:
-                logging.warning("%s - could not add owner %s", repr(self), owner.username)
-                success = False
-
-        if self.responsible_id is not None and self.responsible_id != self.owner_id:
-            responsible = self.wp_config.add_ldap_user(self.responsible_id)
-            if responsible is not None:
-                logging.info("%s - added responsible %s", repr(self), responsible.username)
-            else:
-                logging.warning("%s - could not add responsible %s", repr(self), responsible.username)
-                success = False
-
-        # flag a success if at least one webmaster has been created
-        return success
-
     def generate_mu_plugins(self):
         WPMuPluginConfig(self.wp_site, "epfl-functions.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL-SC-infoscience.php").install()
@@ -435,14 +392,6 @@ class MockedWPGenerator(WPGenerator):
     Class used for tests only. We don't have a LDAP server on Travis-ci so we add 'fake' webmasters without
     calling LDAP.
     """
-
-    def add_webmasters(self):
-        """
-        Add fake webmasters without querying LDAP
-        """
-        owner = self.wp_config.add_wp_user("owner", "owner@epfl.ch")
-        responsible = self.wp_config.add_wp_user("responsible", "responsible@epfl.ch")
-        return (owner, responsible)
 
     def get_unit_id(self):
         """
