@@ -38,10 +38,12 @@ from docopt import docopt
 from docopt_dispatch import dispatch
 
 from veritas.veritas import VeritasValidor
+from veritas.casters import cast_boolean
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
 from crawler import JahiaCrawler
 
-from settings import VERSION, DEFAULT_THEME_NAME, SUPPORTED_TRUE_STRINGS
+from settings import VERSION, DEFAULT_THEME_NAME, \
+    DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
 from utils import Utils
 
 
@@ -97,15 +99,15 @@ def generate(wp_env, wp_url, unit_name,
 
     # if nothing is specified we want a locked install
     if installs_locked is None:
-        installs_locked = True
+        installs_locked = DEFAULT_CONFIG_INSTALLS_LOCKED
     else:
-        installs_locked = installs_locked.lower() in SUPPORTED_TRUE_STRINGS
+        installs_locked = cast_boolean(installs_locked)
 
     # if nothing is specified we want automatic updates
     if updates_automatic is None:
-        updates_automatic = True
+        updates_automatic = DEFAULT_CONFIG_UPDATES_AUTOMATIC
     else:
-        updates_automatic = updates_automatic.lower() in SUPPORTED_TRUE_STRINGS
+        updates_automatic = cast_boolean(updates_automatic)
 
     wp_generator = WPGenerator(
         wp_env,

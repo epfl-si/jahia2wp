@@ -71,7 +71,7 @@ SUPPORTED_LANGUAGES = [
     "it"
 ]
 
-SUPPORTED_TRUE_STRINGS = ['true', 'yes', 'on', '1']
+SUPPORTED_TRUE_STRINGS = ['true', 'yes', 'y', 'on', '1']
 
 DEFAULT_CONFIG_INSTALLS_LOCKED = True
 DEFAULT_CONFIG_UPDATES_AUTOMATIC = True
