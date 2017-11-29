@@ -18,7 +18,6 @@
     They are functions (or callable objects) that raise a ValidationError on failure
 """
 import os
-
 from django.conf import settings as dj_settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator

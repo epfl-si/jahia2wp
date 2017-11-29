@@ -1,4 +1,4 @@
-wp_site_url,wp_default_site_title,site_type,openshift_env,category,theme,theme_faculty,status,installs_locked,updates_automatic,langs,owner_id,responsible_id,unit,comment
+wp_site_url,wp_default_site_title,site_type,openshift_env,category,theme,theme_faculty,status,installs_locked,updates_automatic,langs,owner_id,responsible_id,unit_name,comment
 htt://www.epfl.ch/recherche,Recherche,WordPress,test,GeneralPublic,epfl,,asked,yes,no,"fr,en",123456,123456,VPR,je mets ici
 https://www.epfl.ch/education,Education,wordpress,test,GeneralPublic,epfl,,yes,yes,no,"fr,en",123456,123456,VPE,ce qui me plait
 https://www.epfl.ch/education,Master,wordpress,test,GeneralPublic,epfl,,yes,yes,no,"fr,en,en",123456,123456,VPE,des infos que l'utilisateur m'a donné par ex

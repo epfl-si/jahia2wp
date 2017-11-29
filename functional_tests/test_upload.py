@@ -27,6 +27,7 @@ class TestWpUploadTest:
         generator = MockedWPGenerator(
             openshift_env=OPENSHIFT_ENV,
             wp_site_url="http://" + DOCKER_IP + "/folder",
+            unit_name="idevelop",
             wp_default_site_title="Upload test",
             admin_password="admin",
             owner_id=self.SAME_SCIPER_ID,
