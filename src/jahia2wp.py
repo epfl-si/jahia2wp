@@ -5,12 +5,11 @@ Usage:
   jahia2wp.py download              <site>                          [--debug | --quiet]
     [--username=<USERNAME> --host=<HOST> --zip-path=<ZIP_PATH> --force]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
-    [--force]
+    [--stop-on-errors]
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
-  jahia2wp.py generate              <wp_env> <wp_url> <unit_name>        [--debug | --quiet]
-    [--wp-title=<WP_TITLE> --admin-password=<PASSWORD>]
-    [--owner-id=<SCIPER> --responsible-id=<SCIPER>]
-    [--theme=<THEME> --theme_faculty=<THEME-FACULTY>]
+  jahia2wp.py generate              <wp_env> <wp_url>               [--debug | --quiet]
+    [--wp-title=<WP_TITLE> --admin-password=<PASSWORD> --unit-name=<NAME>]
+    [--theme=<THEME> --theme-faculty=<THEME-FACULTY>]
     [--installs-locked=<BOOLEAN> --automatic-updates=<BOOLEAN>]
   jahia2wp.py backup                <wp_env> <wp_url>               [--debug | --quiet]
     [--backup-type=<BACKUP_TYPE>]
@@ -79,21 +78,20 @@ def check(wp_env, wp_url, **kwargs):
 
 
 @dispatch.on('clean')
-def clean(wp_env, wp_url, force=False, **kwargs):
+def clean(wp_env, wp_url, stop_on_errors=False, **kwargs):
     # when forced, do not check the status of the config -> just remove everything possible
-    if not force:
+    if stop_on_errors:
         _check_site(wp_env, wp_url, **kwargs)
     # config found: proceed with cleaning
-    # FIXME: Il faut faire un clean qui n'a pas besoin de unit_name
-    wp_generator = WPGenerator(wp_env, wp_url, 'idevelop')
+    wp_generator = WPGenerator(wp_env, wp_url)
     if wp_generator.clean():
         print("Successfully cleaned WordPress site {}".format(wp_generator.wp_site.url))
 
 
 @dispatch.on('generate')
-def generate(wp_env, wp_url, unit_name,
-             wp_title=None, admin_password=None,
-             theme=DEFAULT_THEME_NAME, theme_faculty=None,
+def generate(wp_env, wp_url,
+             wp_title=None, admin_password=None, unit_name=None,
+             theme=None, theme_faculty=None,
              installs_locked=None, updates_automatic=None,
              **kwargs):
 
@@ -112,10 +110,10 @@ def generate(wp_env, wp_url, unit_name,
     wp_generator = WPGenerator(
         wp_env,
         wp_url,
-        unit_name,
         wp_default_site_title=wp_title,
         admin_password=admin_password,
-        theme=theme,
+        unit_name=unit_name,
+        theme=theme or DEFAULT_THEME_NAME,
         theme_faculty=theme_faculty,
         installs_locked=installs_locked,
         updates_automatic=updates_automatic
@@ -163,8 +161,8 @@ def generate_many(csv_file, **kwargs):
         WPGenerator(
             row["openshift_env"],
             row["wp_site_url"],
-            row["unit_name"],
             wp_default_site_title=row["wp_default_site_title"],
+            unit_name=row["unit_name"],
             updates_automatic=row["updates_automatic"],
             installs_locked=row["installs_locked"],
             theme=row["theme"],
@@ -225,8 +223,7 @@ def extract_plugin_config(wp_env, wp_url, output_file, **kwargs):
 
 @dispatch.on('list-plugins')
 def list_plugins(wp_env, wp_url, config=False, plugin=None, **kwargs):
-    # FIXME: Il faut faire un list_plugins qui n'a pas besoin de unit_name
-    print(WPGenerator(wp_env, wp_url, 'idevelop').list_plugins(config, plugin))
+    print(WPGenerator(wp_env, wp_url).list_plugins(config, plugin))
 
 
 if __name__ == '__main__':

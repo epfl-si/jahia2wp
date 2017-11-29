@@ -11,16 +11,14 @@ from wordpress.generator import MockedWPGenerator
 SCRIPT_FILE = os.path.join(SRC_DIR_PATH, 'jahia2wp.py')
 TEST_HOST = 'localhost'
 SITE_URL_SPECIFIC = "http://{0}/{1}".format(TEST_HOST, TEST_SITE)
-UNIT_NAME = "idevelop"
 
 
 @pytest.fixture(scope="module")
 def setup():
     wp_env = OPENSHIFT_ENV
     wp_url = SITE_URL_SPECIFIC
-    wp_generator = MockedWPGenerator(wp_env, wp_url, UNIT_NAME)
-    if wp_generator.wp_config.is_installed:
-        wp_generator.clean()
+    wp_generator = MockedWPGenerator(wp_env, wp_url)
+    wp_generator.clean()
 
 
 class TestCommandLine:
@@ -32,13 +30,13 @@ class TestCommandLine:
                                      % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC))
 
     def test_clean_one_fails(self):
-        assert not Utils.run_command('python %s clean %s %s'
+        assert not Utils.run_command('python %s clean %s %s --stop-on-errors'
                                      % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC))
 
     def test_generate_one_success(self):
         expected = "Successfully created new WordPress site at {}".format(SITE_URL_SPECIFIC)
-        assert Utils.run_command('python %s generate %s %s %s'
-                                 % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC, UNIT_NAME)) == expected
+        assert Utils.run_command('python %s generate %s %s'
+                                 % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC)) == expected
 
     def test_backup_full(self):
         expected = "Successfully backed-up WordPress site for {}".format(SITE_URL_SPECIFIC)
@@ -91,5 +89,5 @@ class TestCommandLine:
             assert expected_line in output
 
     def test_clean_one(self):
-        assert Utils.run_command('python %s clean %s %s'
+        assert Utils.run_command('python %s clean %s %s --stop-on-errors'
                                  % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC))

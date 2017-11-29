@@ -39,8 +39,8 @@ def wp_generator_generic():
     generator = MockedWPGenerator(
                 settings.OPENSHIFT_ENV,
                 SITE_URL_GENERIC,
-                'idevelop',
-                wp_default_site_title="My test")
+                wp_default_site_title="My test",
+                unit_name='idevelop')
     generator.clean()
     generator.generate()
     return generator
@@ -52,7 +52,6 @@ def wp_generator_specific():
     generator = MockedWPGenerator(
                 settings.OPENSHIFT_ENV,
                 SITE_URL_SPECIFIC,
-                'idevelop',
                 wp_default_site_title="My test")
     generator.clean()
     generator.generate()

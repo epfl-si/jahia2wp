@@ -80,8 +80,8 @@ class TestWPGenerator:
         generator = MockedWPGenerator(
             settings.OPENSHIFT_ENV,
             "http://localhost/folder",
-            "idevelop",
             wp_default_site_title=self.TITLE_WITH_ACCENT,
+            unit_name="idevelop",
             updates_automatic=False)
         generator.clean()
         return generator

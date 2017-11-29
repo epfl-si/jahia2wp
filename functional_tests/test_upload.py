@@ -27,7 +27,6 @@ class TestWpUploadTest:
         generator = MockedWPGenerator(
             OPENSHIFT_ENV,
             "http://" + HTTPD_CONTAINER + "/folder",
-            "idevelop",
             wp_default_site_title="Upload test",
             admin_password="admin")
         generator.clean()
