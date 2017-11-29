@@ -42,6 +42,14 @@ function EPFL_remove_menu_pages() {
 	remove_menu_page( 'mo_saml_settings' ); 
 }
 
+/* Hide plugin bulk deactivate action
+ * https://codex.wordpress.org/Plugin_API/Filter_Reference/bulk_actions
+ */
+add_filter('bulk_actions-plugins','my_custom_bulk_actions');
+function my_custom_bulk_actions($actions){
+	    unset( $actions[ 'deactivate-selected' ] );
+	        return $actions;
+}
 
 /* Hide plugin configuration
  * https://codex.wordpress.org/Plugin_API/Action_Reference/admin_menu
