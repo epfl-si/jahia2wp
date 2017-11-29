@@ -83,7 +83,7 @@ def clean(wp_env, wp_url, force=False, **kwargs):
         _check_site(wp_env, wp_url, **kwargs)
     # config found: proceed with cleaning
     # FIXME: Il faut faire un clean qui n'a pas besoin de unit_name
-    wp_generator = WPGenerator(wp_env, wp_url, 'fakeunit')
+    wp_generator = WPGenerator(wp_env, wp_url, 'idevelop')
     if wp_generator.clean():
         print("Successfully cleaned WordPress site {}".format(wp_generator.wp_site.url))
 
