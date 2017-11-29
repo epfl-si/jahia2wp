@@ -54,11 +54,6 @@ class TestCommandLine:
         assert Utils.run_command('python %s list-plugins %s %s'
                                  % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC)).startswith(expected)
 
-    def test_deprecated_calls(self):
-        expected = "WARNING: Call to deprecated function"
-        assert Utils.run_command('python %s check-one %s %s'
-                                 % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC)).startswith(expected)
-
     def test_generate_one_fails(self):
         assert not Utils.run_command('python %s generate %s %s'
                                      % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC))

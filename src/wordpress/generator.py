@@ -9,8 +9,8 @@ from utils import Utils
 import settings
 
 from django.core.validators import URLValidator
-from veritas.validators import validate_string, validate_openshift_env, validate_unit
-
+from veritas.validators import validate_string, validate_openshift_env, validate_unit, \
+    validate_theme_faculty, validate_theme
 from .models import WPSite, WPUser
 from .config import WPConfig
 from .themes import WPThemeConfig
@@ -60,6 +60,10 @@ class WPGenerator:
         validate_unit(unit_name)
         if wp_default_site_title is not None:
             validate_string(wp_default_site_title)
+        if theme is not None:
+            validate_theme(theme)
+        if theme_faculty is not None:
+            validate_theme_faculty(theme_faculty)
 
         # create WordPress site and config
         self.wp_site = WPSite(openshift_env, wp_site_url, wp_default_site_title=wp_default_site_title)
@@ -286,6 +290,7 @@ class WPGenerator:
         logging.info("All demo posts deleted")
 
     def generate_mu_plugins(self):
+        # TODO: add those plugins into the general list of plugins (with the class WPMuPluginConfig)
         WPMuPluginConfig(self.wp_site, "epfl-functions.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL-SC-infoscience.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL_custom_editor_menu.php").install()
@@ -311,7 +316,8 @@ class WPGenerator:
         # Looping through plugins to install
         for plugin_name, config_dict in plugin_list.plugins(self.wp_site.name).items():
 
-            # Fectch proper PluginConfig class and create instance
+            # Fetch proper PluginConfig class and create instance
+            # TODO: read class from YML
             plugin_class_name = settings.WP_PLUGIN_CONFIG_CLASS_BY_NAME.get(
                 plugin_name, settings.WP_DEFAULT_PLUGIN_CONFIG)
             plugin_class = Utils.import_class_from_string(plugin_class_name)

@@ -11,16 +11,16 @@ Usage:
     [--wp-title=<WP_TITLE> --admin-password=<PASSWORD>]
     [--owner-id=<SCIPER> --responsible-id=<SCIPER>]
     [--theme=<THEME> --theme_faculty=<THEME-FACULTY>]
+<<<<<<< HEAD
     [--installs-locked=<INSTALLS_LOCKED> --automatic-updates=<UPDATES_AUTOMATIC>]
+=======
+    [--installs-locked=<BOOLEAN> --automatic-updates=<BOOLEAN>]
+    [--unit=<UNIT>]
+>>>>>>> master
   jahia2wp.py backup                <wp_env> <wp_url>               [--debug | --quiet]
     [--backup-type=<BACKUP_TYPE>]
   jahia2wp.py version               <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py admins                <wp_env> <wp_url>               [--debug | --quiet]
-  jahia2wp.py check-one             <wp_env> <wp_url>               [--debug | --quiet] [DEPRECATED]
-  jahia2wp.py clean-one             <wp_env> <wp_url>               [--debug | --quiet] [DEPRECATED]
-  jahia2wp.py generate-one          <wp_env> <wp_url>               [--debug | --quiet] [DEPRECATED]
-    [--wp-title=<WP_TITLE> --admin-password=<PASSWORD>]
-    [--owner-id=<SCIPER> --responsible-id=<SCIPER>]
   jahia2wp.py generate-many         <csv_file>                      [--debug | --quiet]
   jahia2wp.py backup-many           <csv_file>                      [--debug | --quiet]
     [--backup-type=<BACKUP_TYPE>]
@@ -46,8 +46,8 @@ from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
 from crawler import JahiaCrawler
 
-from settings import VERSION, DEFAULT_THEME_NAME
-from utils import Utils, deprecated
+from settings import VERSION, DEFAULT_THEME_NAME, SUPPORTED_TRUE_STRINGS
+from utils import Utils
 
 
 @dispatch.on('download')
@@ -71,12 +71,6 @@ def _check_site(wp_env, wp_url, **kwargs):
     return wp_config
 
 
-@dispatch.on('check-one')
-@deprecated("Use 'check' instead")
-def check_one(wp_env, wp_url, **kwargs):
-    return check(wp_env, wp_url, **kwargs)
-
-
 @dispatch.on('check')
 def check(wp_env, wp_url, **kwargs):
     wp_config = _check_site(wp_env, wp_url, **kwargs)
@@ -85,12 +79,6 @@ def check(wp_env, wp_url, **kwargs):
         raise SystemExit("Could not login or use site at {}".format(wp_config.wp_site.url))
     # success case
     print("WordPress site valid and accessible at {}".format(wp_config.wp_site.url))
-
-
-@dispatch.on('clean-one')
-@deprecated("Use 'clean' instead")
-def clean_one(wp_env, wp_url, **kwargs):
-    return clean(wp_env, wp_url, **kwargs)
 
 
 @dispatch.on('clean')
@@ -104,12 +92,6 @@ def clean(wp_env, wp_url, force=False, **kwargs):
         print("Successfully cleaned WordPress site {}".format(wp_generator.wp_site.url))
 
 
-@dispatch.on('generate-one')
-@deprecated("Use 'generate' instead")
-def generate_one(wp_env, wp_url, wp_title=None, admin_password=None, **kwargs):
-    return generate(wp_env, wp_url, wp_title=wp_title, admin_password=admin_password, **kwargs)
-
-
 @dispatch.on('generate')
 def generate(wp_env, wp_url, unit_name,
              wp_title=None, admin_password=None,
@@ -120,10 +102,14 @@ def generate(wp_env, wp_url, unit_name,
     # if nothing is specified we want a locked install
     if installs_locked is None:
         installs_locked = True
+    else:
+        installs_locked = installs_locked.lower() in SUPPORTED_TRUE_STRINGS
 
     # if nothing is specified we want automatic updates
     if updates_automatic is None:
         updates_automatic = True
+    else:
+        updates_automatic = updates_automatic.lower() in SUPPORTED_TRUE_STRINGS
 
     wp_generator = WPGenerator(
         wp_env,

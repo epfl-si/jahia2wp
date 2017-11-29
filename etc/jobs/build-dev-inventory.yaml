@@ -1,10 +1,11 @@
 apiVersion: batch/v2alpha1
 kind: CronJob
 metadata:
-  name: build-dev-inventory
+  name: build-subdomains-inventory
 spec:
   concurrencyPolicy: Forbid
-  schedule: '*/5 * * * *'
+  # every hour on the tenth minute
+  schedule: '10 */1 * * *'
   suspend: false
   jobTemplate:
      metadata:
@@ -19,11 +20,11 @@ spec:
              - bash
              args:
              - -c
-             - source /srv/${WP_ENV}/venv/bin/activate && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src && cd /srv/${WP_ENV}/jahia2wp && set -o allexport && source .env && set +o allexport && python src/jahia2wp.py inventory dev /srv/dev > /srv/dev/wp1-os-exopge.epfl.ch/htdocs/inventory.csv
+             - source /srv/${WP_ENV}/venv/bin/activate && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src && cd /srv/${WP_ENV}/jahia2wp && set -o allexport && source .env && set +o allexport && python src/jahia2wp.py inventory ${WP_ENV} /srv/${WP_ENV} > /srv/manager/wp-manager.epfl.ch/htdocs/inventory-${WP_ENV}.csv
              env:
              - name: WP_ENV
-               value: ebreton
-             image: epflidevelop/os-wp-cronjob:latest
+               value: subdomains
+             image: docker-registry.default.svc:5000/exopge/cronjob:latest
              imagePullPolicy: Always
              name: inventory
              resources: {}
@@ -33,7 +34,7 @@ spec:
              - mountPath: /srv
                name: wordpress
            dnsPolicy: ClusterFirst
-           restartPolicy: OnFailure
+           restartPolicy: Never
            schedulerName: default-scheduler
            securityContext: {}
            serviceAccount: wwp 

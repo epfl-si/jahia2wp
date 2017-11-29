@@ -58,10 +58,6 @@ class TestWPUser:
         user.set_password()
         assert len(user.password) == WPUser.WP_PASSWORD_LENGTH
 
-    def test_from_sciper(self):
-        # TODO: mock LDAP calls get_username & get_email
-        pass
-
 
 class TestWPConfig:
 
@@ -72,15 +68,6 @@ class TestWPConfig:
             wp_site_url="http://localhost/folder",
             wp_default_site_title="My test")
         return WPConfig(wordpress)
-
-    def test_is_installed(self, wp_config):
-        pass
-
-    def test_is_install_valid(self, wp_config):
-        pass
-
-    def test_add_wp_user(self, wp_config):
-        pass
 
 
 class TestWPGenerator:
@@ -102,12 +89,3 @@ class TestWPGenerator:
     def test_config(self, wp_generator):
         assert wp_generator.wp_config.installs_locked == settings.DEFAULT_CONFIG_INSTALLS_LOCKED
         assert wp_generator.wp_config.updates_automatic is False
-
-    def test_prepare_db(self, wp_generator):
-        pass
-
-    def test_install_wp(self, wp_generator):
-        pass
-
-    def test_generate(self, wp_generator):
-        assert wp_generator.generate()
