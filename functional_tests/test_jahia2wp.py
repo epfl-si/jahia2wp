@@ -12,6 +12,7 @@ SCRIPT_FILE = os.path.join(SRC_DIR_PATH, 'jahia2wp.py')
 SITE_URL_SPECIFIC = "http://{0}/{1}".format(DOCKER_IP, TEST_SITE)
 UNIT_NAME = "idevelop"
 
+
 @pytest.fixture(scope="module")
 def setup():
     wp_env = OPENSHIFT_ENV
@@ -61,16 +62,6 @@ class TestCommandLine:
         expected = "WordPress site valid and accessible at {}".format(SITE_URL_SPECIFIC)
         assert Utils.run_command('python %s check %s %s'
                                  % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC)) == expected
-
-    def test_wp_version(self):
-        expected = Utils.get_mandatory_env(key="WP_VERSION")
-
-        # we do the check only if a specific version was given
-        # (e.g. "4.9"), because "latest" will depend on when
-        # the test is run
-        if expected != "latest":
-            assert Utils.run_command('python %s version %s %s'
-                                     % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC)) == expected
 
     def test_wp_admins(self):
         user = WPUser(

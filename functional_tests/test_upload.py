@@ -25,9 +25,9 @@ class TestWpUploadTest:
     @pytest.fixture()
     def wp_generator(self):
         generator = MockedWPGenerator(
-            openshift_env=OPENSHIFT_ENV,
-            wp_site_url="http://" + DOCKER_IP + "/folder",
-            unit_name="idevelop",
+            OPENSHIFT_ENV,
+            "http://" + DOCKER_IP + "/folder",
+            "idevelop",
             wp_default_site_title="Upload test",
             admin_password="admin")
         generator.clean()

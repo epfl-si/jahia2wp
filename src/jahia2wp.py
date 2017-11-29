@@ -223,10 +223,8 @@ def extract_plugin_config(wp_env, wp_url, output_file, **kwargs):
 
 @dispatch.on('list-plugins')
 def list_plugins(wp_env, wp_url, config=False, plugin=None, **kwargs):
-
-    print(WPGenerator(
-            wp_env,
-            wp_url).list_plugins(config, plugin))
+    # FIXME: Il faut faire un list_plugins qui n'a pas besoin de unit_name
+    print(WPGenerator(wp_env, wp_url, 'idevelop').list_plugins(config, plugin))
 
 
 if __name__ == '__main__':
