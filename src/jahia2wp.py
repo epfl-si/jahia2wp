@@ -11,12 +11,7 @@ Usage:
     [--wp-title=<WP_TITLE> --admin-password=<PASSWORD>]
     [--owner-id=<SCIPER> --responsible-id=<SCIPER>]
     [--theme=<THEME> --theme_faculty=<THEME-FACULTY>]
-<<<<<<< HEAD
-    [--installs-locked=<INSTALLS_LOCKED> --automatic-updates=<UPDATES_AUTOMATIC>]
-=======
     [--installs-locked=<BOOLEAN> --automatic-updates=<BOOLEAN>]
-    [--unit=<UNIT>]
->>>>>>> master
   jahia2wp.py backup                <wp_env> <wp_url>               [--debug | --quiet]
     [--backup-type=<BACKUP_TYPE>]
   jahia2wp.py version               <wp_env> <wp_url>               [--debug | --quiet]
