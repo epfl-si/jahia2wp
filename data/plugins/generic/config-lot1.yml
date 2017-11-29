@@ -19,3 +19,5 @@ plugins:
     config: !include tequila/v1/config-plugin.yml
   - name: accred
     config: !include accred/v1/config-plugin.yml
+  - name: coming-soon
+    config: !include coming-soon/v1/config-plugin.yml
