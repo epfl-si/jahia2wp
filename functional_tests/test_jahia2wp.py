@@ -10,12 +10,13 @@ from wordpress.generator import MockedWPGenerator
 
 SCRIPT_FILE = os.path.join(SRC_DIR_PATH, 'jahia2wp.py')
 SITE_URL_SPECIFIC = "http://{0}/{1}".format(DOCKER_IP, TEST_SITE)
+UNIT_NAME = "idevelop"
 
 @pytest.fixture(scope="module")
 def setup():
     wp_env = OPENSHIFT_ENV
     wp_url = SITE_URL_SPECIFIC
-    wp_generator = MockedWPGenerator(wp_env, wp_url, "idevelop")
+    wp_generator = MockedWPGenerator(wp_env, wp_url, UNIT_NAME)
     if wp_generator.wp_config.is_installed:
         wp_generator.clean()
 
@@ -34,8 +35,8 @@ class TestCommandLine:
 
     def test_generate_one_success(self):
         expected = "Successfully created new WordPress site at {}".format(SITE_URL_SPECIFIC)
-        assert Utils.run_command('python %s generate %s %s'
-                                 % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC)) == expected
+        assert Utils.run_command('python %s generate %s %s %s'
+                                 % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC, UNIT_NAME)) == expected
 
     def test_backup_full(self):
         expected = "Successfully backed-up WordPress site for {}".format(SITE_URL_SPECIFIC)
