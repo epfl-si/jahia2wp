@@ -33,7 +33,7 @@ class TestWpUploadTest:
         generator.clean()
         generator.generate()
         command = "option add plugin:epfl_tequila:has_dual_auth 1"
-        if not generator.wp_site.run_wp_cli(command):
+        if not generator.run_wp_cli(command):
             raise ValueError("Could not set option on generated site")
         return generator
 
