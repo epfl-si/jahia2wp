@@ -87,6 +87,7 @@ Table of releases
 1. (#113) new entries in makefile and makefile.mgmt to run pytest in newly created dir above
 1. (#113) new var OPENSHIFT_ENV in settings.py to define which pod to use
 1. (#128) review tests to use mocks for LDAP
+1. (#128) added label on httpd container and use it in test_upload instead of DOCKER_IP
 
 
 ## [0.2.14] - 2017-11-17
