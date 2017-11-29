@@ -7,12 +7,11 @@ Usage:
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--force]
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
-  jahia2wp.py generate              <wp_env> <wp_url>               [--debug | --quiet]
+  jahia2wp.py generate              <wp_env> <wp_url> <unit_name>        [--debug | --quiet]
     [--wp-title=<WP_TITLE> --admin-password=<PASSWORD>]
     [--owner-id=<SCIPER> --responsible-id=<SCIPER>]
     [--theme=<THEME> --theme_faculty=<THEME-FACULTY>]
     [--installs-locked=<BOOLEAN> --automatic-updates=<BOOLEAN>]
-    [--unit=<UNIT>]
   jahia2wp.py backup                <wp_env> <wp_url>               [--debug | --quiet]
     [--backup-type=<BACKUP_TYPE>]
   jahia2wp.py version               <wp_env> <wp_url>               [--debug | --quiet]
@@ -89,12 +88,11 @@ def clean(wp_env, wp_url, force=False, **kwargs):
 
 
 @dispatch.on('generate')
-def generate(wp_env, wp_url,
+def generate(wp_env, wp_url, unit_name,
              wp_title=None, admin_password=None,
-             owner_id=None, responsible_id=None,
              theme=DEFAULT_THEME_NAME, theme_faculty=None,
              installs_locked=None, updates_automatic=None,
-             unit=None, **kwargs):
+             **kwargs):
 
     # if nothing is specified we want a locked install
     if installs_locked is None:
@@ -111,15 +109,13 @@ def generate(wp_env, wp_url,
     wp_generator = WPGenerator(
         wp_env,
         wp_url,
+        unit_name,
         wp_default_site_title=wp_title,
         admin_password=admin_password,
-        owner_id=owner_id,
-        responsible_id=responsible_id,
         theme=theme,
         theme_faculty=theme_faculty,
         installs_locked=installs_locked,
-        updates_automatic=updates_automatic,
-        unit=unit,
+        updates_automatic=updates_automatic
     )
     if not wp_generator.generate():
         raise SystemExit("Generation failed. More info above")
@@ -165,8 +161,6 @@ def generate_many(csv_file, **kwargs):
             row["openshift_env"],
             row["wp_site_url"],
             wp_default_site_title=row["wp_default_site_title"],
-            owner_id=row["owner_id"],
-            responsible_id=row["responsible_id"],
             updates_automatic=row["updates_automatic"],
             installs_locked=row["installs_locked"],
             theme=row["theme"],

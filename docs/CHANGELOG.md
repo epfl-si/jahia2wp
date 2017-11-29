@@ -40,6 +40,7 @@ Table of releases
 **[PR #105](https://github.com/epfl-idevelop/jahia2wp/pull/105)**
 **[PR #112](https://github.com/epfl-idevelop/jahia2wp/pull/112)**
 **[PR #113](https://github.com/epfl-idevelop/jahia2wp/pull/113)**
+**[PR #125](https://github.com/epfl-idevelop/jahia2wp/pull/125)**
 
 **High level:**
 
@@ -53,6 +54,8 @@ Table of releases
 1. (#112) enriched [INSTALL_DETAILED](https://github.com/epfl-idevelop/jahia2wp/blob/setup-prod/docs/INSTALL_DETAILED.md#setting-up-a-brand-new-infra-new-pods-new-nas-new-everything) documentation with setup of brand new servers
 1. (#112) change validation of openshift environments: validation is now done checking for the appropriate directory on the file system, instead of checking against a list of hardcoded values
 1. (#113) New command: `make functional-tests`, launching `test_upload.py` and `test_jahia2wp.py`
+1. (#125) Delete owner_id and responsible_id
+1. (#125) unit_name parameter is now mandatory
 
 **Low level:**
 
