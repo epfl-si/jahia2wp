@@ -14,7 +14,7 @@ FIXME: Can be improved. Information can be found here :
 - https://docs.pytest.org/en/2.7.3/xunit_setup.html
 - http://agiletesting.blogspot.ch/2005/01/python-unit-testing-part-3-pytest-tool.html
 """
-os.environ["PLUGINS_CONFIG_BASE_PATH"] = os.path.join(settings.SRC_DIR_PATH, "wordpress/tests/plugins")
+os.environ["PLUGINS_CONFIG_BASE_PATH"] = "wordpress/tests/plugins"
 reload(settings)
 
 """
