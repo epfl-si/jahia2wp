@@ -4,7 +4,7 @@ import logging
 from django.core.validators import URLValidator, ValidationError
 
 from utils import Utils
-from .validators import validate_integer, validate_string, validate_yes_or_no, \
+from .validators import validate_string, validate_yes_or_no, \
     validate_openshift_env, validate_site_type, validate_theme, validate_theme_faculty, validate_languages, \
     validate_unit, mock_validate_unit
 
@@ -20,8 +20,6 @@ BASE_COLUMNS = [
     ("installs_locked", validate_yes_or_no, False),
     ("updates_automatic", validate_yes_or_no, False),
     ("langs", validate_languages, False),
-    ("owner_id", validate_integer, False),
-    ("responsible_id", validate_integer, False),
     # comment => no validation
 ]
 

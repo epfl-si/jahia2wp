@@ -94,8 +94,6 @@ class TestWPGenerator:
             openshift_env=settings.OPENSHIFT_ENV,
             wp_site_url="http://localhost/folder",
             wp_default_site_title=self.TITLE_WITH_ACCENT,
-            owner_id=self.SAME_SCIPER_ID,
-            responsible_id=self.SAME_SCIPER_ID,
             updates_automatic=False)
         generator.clean()
         return generator

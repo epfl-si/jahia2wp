@@ -107,17 +107,13 @@ def clean(wp_env, wp_url, force=False, **kwargs):
 
 @dispatch.on('generate-one')
 @deprecated("Use 'generate' instead")
-def generate_one(wp_env, wp_url, wp_title=None,
-                 admin_password=None, owner_id=None, responsible_id=None, **kwargs):
-    return generate(
-        wp_env, wp_url, wp_title=wp_title, admin_password=admin_password,
-        owner_id=owner_id, responsible_id=responsible_id, **kwargs)
+def generate_one(wp_env, wp_url, wp_title=None, admin_password=None, **kwargs):
+    return generate(wp_env, wp_url, wp_title=wp_title, admin_password=admin_password, **kwargs)
 
 
 @dispatch.on('generate')
 def generate(wp_env, wp_url,
              wp_title=None, admin_password=None,
-             owner_id=None, responsible_id=None,
              theme=DEFAULT_THEME_NAME, theme_faculty=None,
              installs_locked=None, updates_automatic=None,
              unit=None, **kwargs):
@@ -135,8 +131,6 @@ def generate(wp_env, wp_url,
         wp_url,
         wp_default_site_title=wp_title,
         admin_password=admin_password,
-        owner_id=owner_id,
-        responsible_id=responsible_id,
         theme=theme,
         theme_faculty=theme_faculty,
         installs_locked=installs_locked,
@@ -187,8 +181,6 @@ def generate_many(csv_file, **kwargs):
             row["openshift_env"],
             row["wp_site_url"],
             wp_default_site_title=row["wp_default_site_title"],
-            owner_id=row["owner_id"],
-            responsible_id=row["responsible_id"],
             updates_automatic=row["updates_automatic"],
             installs_locked=row["installs_locked"],
             theme=row["theme"],

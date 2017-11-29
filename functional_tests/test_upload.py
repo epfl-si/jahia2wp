@@ -28,9 +28,7 @@ class TestWpUploadTest:
             openshift_env=OPENSHIFT_ENV,
             wp_site_url="http://" + DOCKER_IP + "/folder",
             wp_default_site_title="Upload test",
-            admin_password="admin",
-            owner_id=self.SAME_SCIPER_ID,
-            responsible_id=self.SAME_SCIPER_ID)
+            admin_password="admin")
         generator.clean()
         generator.generate()
         return generator
