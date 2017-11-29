@@ -17,7 +17,7 @@ VALID_LINE = {
         'status': 'asked',
         'theme': 'epfl',
         'theme_faculty': '',
-        'unit': 'VPR',
+        'unit_name': 'VPR',
         'updates_automatic': 'no',
         'wp_default_site_title': 'Recherche',
         'wp_site_url': 'htt://www.epfl.ch/recherche'}

@@ -26,11 +26,11 @@ BASE_COLUMNS = [
 ]
 
 JAHIA2WP_COLUMNS = BASE_COLUMNS + [
-    ("unit", validate_unit, False),
+    ("unit_name", validate_unit, False),
 ]
 
 MOCK_JAHIA2WP_COLUMNS = BASE_COLUMNS + [
-    ("unit", mock_validate_unit, False),
+    ("unit_name", mock_validate_unit, False),
 ]
 
 
