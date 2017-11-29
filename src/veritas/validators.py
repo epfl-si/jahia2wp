@@ -56,7 +56,7 @@ def validate_string(text):
 
 
 def validate_yes_or_no(text):
-    return ChoiceValidator(choices=['yes', 'no'])(text)
+    return ChoiceValidator(choices=['yes', 'no'])(text.lower())
 
 
 def validate_gaspar_username(name):
@@ -81,7 +81,7 @@ def validate_theme(text):
 
 
 def validate_theme_faculty(text):
-    return RegexValidator(regex="^(|cdh|cdm|enac|ic|sb|sti|sv)$")(text)
+    return RegexValidator(regex="^(|cdh|cdm|enac|ic|sb|sti|sv)$")(text.lower())
 
 
 def validate_languages(text):
