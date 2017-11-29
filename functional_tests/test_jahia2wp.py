@@ -10,14 +10,12 @@ from wordpress.generator import MockedWPGenerator
 
 SCRIPT_FILE = os.path.join(SRC_DIR_PATH, 'jahia2wp.py')
 SITE_URL_SPECIFIC = "http://{0}/{1}".format(DOCKER_IP, TEST_SITE)
-UNIT_NAME = "idevelop"
 
 @pytest.fixture(scope="module")
 def setup():
     wp_env = OPENSHIFT_ENV
     wp_url = SITE_URL_SPECIFIC
-    unit_name = UNIT_NAME
-    wp_generator = MockedWPGenerator(wp_env, wp_url, unit_name)
+    wp_generator = MockedWPGenerator(wp_env, wp_url, "idevelop")
     if wp_generator.wp_config.is_installed:
         wp_generator.clean()
 
