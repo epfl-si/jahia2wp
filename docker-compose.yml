@@ -19,6 +19,8 @@ services:
       - /sessions
       
   httpd:
+    labels:
+      ch.epfl.jahia2wp.httpd.env: ${WP_ENV}
     image: epflidevelop/os-wp-httpd
     volumes:
       - ./volumes/srv:/srv

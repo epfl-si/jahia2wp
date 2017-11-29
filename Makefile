@@ -30,6 +30,8 @@ functional-tests: check-env
 vars: check-env
 	@echo 'Environment-related vars:'
 	@echo '  WP_ENV=${WP_ENV}'
+	@echo '  _mgmt_container=${_mgmt_container}'
+	@echo '  _httpd_container=${_httpd_container}'
 	
 	@echo ''
 	@echo DB-related vars:
