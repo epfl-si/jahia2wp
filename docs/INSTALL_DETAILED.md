@@ -149,6 +149,7 @@ The last lines provide you with usable values for your `.env`. You still can mod
     MYSQL_SUPER_PASSWORD=db-secret
 
     BACKUP_PATH=../data/backups
+    # relative to jahia2wp/src
     PLUGINS_CONFIG_BASE_PATH=../data/plugins/
 
 Set up your virtual environment with `make -f Makefile.c2c`

@@ -3,21 +3,22 @@ import os
 
 import pytest
 
-from settings import DOCKER_IP, OPENSHIFT_ENV, TEST_SITE, SRC_DIR_PATH
+from settings import OPENSHIFT_ENV, TEST_SITE, SRC_DIR_PATH
 from utils import Utils
 from wordpress import WPUser
 from wordpress.generator import MockedWPGenerator
 
 SCRIPT_FILE = os.path.join(SRC_DIR_PATH, 'jahia2wp.py')
-SITE_URL_SPECIFIC = "http://{0}/{1}".format(DOCKER_IP, TEST_SITE)
+TEST_HOST = 'localhost'
+SITE_URL_SPECIFIC = "http://{0}/{1}".format(TEST_HOST, TEST_SITE)
+
 
 @pytest.fixture(scope="module")
 def setup():
     wp_env = OPENSHIFT_ENV
     wp_url = SITE_URL_SPECIFIC
-    wp_generator = MockedWPGenerator(wp_env, wp_url, "idevelop")
-    if wp_generator.wp_config.is_installed:
-        wp_generator.clean()
+    wp_generator = MockedWPGenerator(wp_env, wp_url)
+    wp_generator.clean()
 
 
 class TestCommandLine:
@@ -29,7 +30,7 @@ class TestCommandLine:
                                      % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC))
 
     def test_clean_one_fails(self):
-        assert not Utils.run_command('python %s clean %s %s'
+        assert not Utils.run_command('python %s clean %s %s --stop-on-errors'
                                      % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC))
 
     def test_generate_one_success(self):
@@ -61,16 +62,6 @@ class TestCommandLine:
         assert Utils.run_command('python %s check %s %s'
                                  % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC)) == expected
 
-    def test_wp_version(self):
-        expected = Utils.get_mandatory_env(key="WP_VERSION")
-
-        # we do the check only if a specific version was given
-        # (e.g. "4.9"), because "latest" will depend on when
-        # the test is run
-        if expected != "latest":
-            assert Utils.run_command('python %s version %s %s'
-                                     % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC)) == expected
-
     def test_wp_admins(self):
         user = WPUser(
             Utils.get_mandatory_env(key="WP_ADMIN_USER"),
@@ -87,16 +78,16 @@ class TestCommandLine:
         expected_lines = [
             "path;valid;url;version;db_name;db_user;admins",
             "/srv/{0}/{1}/htdocs/{2};ok;{3};{4};wp_".format(
-                OPENSHIFT_ENV, DOCKER_IP, TEST_SITE, SITE_URL_SPECIFIC, version),
+                OPENSHIFT_ENV, TEST_HOST, TEST_SITE, SITE_URL_SPECIFIC, version),
         ]
 
         output = Utils.run_command(
             'python {0} inventory {1} /srv/{1}/{2}'.format(
-                SCRIPT_FILE, OPENSHIFT_ENV, DOCKER_IP))
+                SCRIPT_FILE, OPENSHIFT_ENV, TEST_HOST))
 
         for expected_line in expected_lines:
             assert expected_line in output
 
     def test_clean_one(self):
-        assert Utils.run_command('python %s clean %s %s'
+        assert Utils.run_command('python %s clean %s %s --stop-on-errors'
                                  % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC))

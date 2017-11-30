@@ -5,7 +5,8 @@ import collections
 import settings
 
 from utils import Utils
-
+from veritas.validators import validate_yes_or_no
+from veritas.casters import cast_yes_or_no
 from .models import WPException, WPUser, WPSite
 
 
@@ -33,9 +34,15 @@ class WPConfig:
         self._config_infos = None
         self._user_infos = None
 
+        # validate input
+        if installs_locked is not None:
+            validate_yes_or_no(installs_locked)
+        if updates_automatic is not None:
+            validate_yes_or_no(updates_automatic)
+
         # set additionnal options
-        self.installs_locked = installs_locked
-        self.updates_automatic = updates_automatic
+        self.installs_locked = cast_yes_or_no(installs_locked)
+        self.updates_automatic = cast_yes_or_no(updates_automatic)
 
     def __repr__(self):
         installed_string = '[ok]' if self.is_installed else '[ko]'

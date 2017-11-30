@@ -13,12 +13,14 @@ class WPAccredConfig(WPPluginConfig):
         Notice: unit_id will be used in the future.
         """
         # configure options
-        cmd = "option update plugin:epfl_accred:unit {}".format(unit_name.upper())
-        self.run_wp_cli(cmd)
+        if unit_name is not None:
+            cmd = "option update plugin:epfl_accred:unit {}".format(unit_name.upper())
+            self.run_wp_cli(cmd)
 
-        cmd = "option add plugin:epfl_accred:unit_id {}".format(unit_id)
-        self.run_wp_cli(cmd)
-        logging.info("All accred options added")
+        if unit_id is not None:
+            cmd = "option add plugin:epfl_accred:unit_id {}".format(unit_id)
+            self.run_wp_cli(cmd)
+            logging.info("All accred options added")
 
         # configure raw plugin
         super(WPAccredConfig, self).configure()

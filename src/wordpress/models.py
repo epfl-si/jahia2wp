@@ -5,7 +5,7 @@ import logging
 from urllib.parse import urlparse
 from epflldap.ldap_search import get_username, get_email
 
-from django.core.validators import URLValidator, EmailValidator, ValidationError
+from django.core.validators import EmailValidator, ValidationError
 from veritas.validators import validate_string, validate_openshift_env, validate_gaspar_username
 
 from utils import Utils
@@ -27,9 +27,8 @@ class WPSite:
 
     def __init__(self, openshift_env, wp_site_url, wp_default_site_title=None):
 
-        # validate input
+        # validate env and title
         validate_openshift_env(openshift_env)
-        URLValidator()(wp_site_url)
         if wp_default_site_title is not None:
             validate_string(wp_default_site_title)
 

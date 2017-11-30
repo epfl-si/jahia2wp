@@ -214,7 +214,7 @@ class WPPluginConfigInfos:
                     self.zip_path = None
                 else:
                     # Generate full path to plugin ZIP file
-                    zip_full_path = os.path.join(settings.PLUGINS_CONFIG_BASE_PATH, plugin_config['src'])
+                    zip_full_path = os.path.join(settings.PLUGINS_CONFIG_BASE_FOLDER, plugin_config['src'])
                     if not os.path.exists(zip_full_path):
                         logging.error("%s - ZIP file not exists: %s", repr(self), zip_full_path)
                     self.zip_path = zip_full_path
@@ -254,7 +254,7 @@ class WPPluginConfigInfos:
                 self.zip_path = None
             else:
                 # Generate full path to plugin ZIP file
-                zip_full_path = os.path.join(settings.PLUGINS_CONFIG_BASE_PATH, specific_plugin_config['src'])
+                zip_full_path = os.path.join(settings.PLUGINS_CONFIG_BASE_FOLDER, specific_plugin_config['src'])
                 if not os.path.exists(zip_full_path):
                     logging.error("%s - ZIP file not exists: %s", repr(self), zip_full_path)
                 self.zip_path = zip_full_path

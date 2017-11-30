@@ -1,5 +1,4 @@
 FROM debian:stretch
-MAINTAINER Christophe Burki, christophe.burki@camptocamp.com
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apache2 \
