@@ -7,7 +7,7 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
-from settings import DOCKER_IP, OPENSHIFT_ENV
+from settings import HTTPD_CONTAINER, OPENSHIFT_ENV
 from wordpress.generator import MockedWPGenerator
 
 
@@ -25,13 +25,15 @@ class TestWpUploadTest:
     @pytest.fixture()
     def wp_generator(self):
         generator = MockedWPGenerator(
-            openshift_env=OPENSHIFT_ENV,
-            wp_site_url="http://" + DOCKER_IP + "/folder",
-            unit_name="idevelop",
+            OPENSHIFT_ENV,
+            "http://" + HTTPD_CONTAINER + "/folder",
             wp_default_site_title="Upload test",
             admin_password="admin")
         generator.clean()
         generator.generate()
+        command = "option add plugin:epfl_tequila:has_dual_auth 1"
+        if not generator.run_wp_cli(command):
+            raise ValueError("Could not set option on generated site")
         return generator
 
     def test_upload_image_to_wordpress(self, wp_generator, session):
