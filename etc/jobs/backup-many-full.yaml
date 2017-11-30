@@ -1,0 +1,46 @@
+apiVersion: batch/v2alpha1
+kind: CronJob
+metadata:
+  name: backup-many-full
+spec:
+  concurrencyPolicy: Forbid
+  # every day at midnight 
+  schedule: '* 0 * * *'
+  suspend: false
+  jobTemplate:
+     metadata:
+       creationTimestamp: null
+     spec:
+       template:
+         metadata:
+           creationTimestamp: null
+         spec:
+           containers:
+           - command:
+             - bash
+             args:
+             - -c
+             - source /srv/${WP_ENV}/venv/bin/activate && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src && cd /srv/${WP_ENV}/jahia2wp && set -o allexport && source .env && set +o allexport && python src/jahia2wp.py backup-many /srv/data.csv
+             env:
+             - name: WP_ENV
+               value: subdomains
+             image: docker-registry.default.svc:5000/exopge/cronjob:latest
+             imagePullPolicy: Always
+             name: inventory
+             resources: {}
+             terminationMessagePath: /dev/termination-log
+             terminationMessagePolicy: File
+             volumeMounts:
+             - mountPath: /srv
+               name: wordpress
+           dnsPolicy: ClusterFirst
+           restartPolicy: Never
+           schedulerName: default-scheduler
+           securityContext: {}
+           serviceAccount: wwp 
+           serviceAccountName: wwp
+           terminationGracePeriodSeconds: 30
+           volumes:
+           - name: wordpress
+             persistentVolumeClaim:
+               claimName: wordpress-0
