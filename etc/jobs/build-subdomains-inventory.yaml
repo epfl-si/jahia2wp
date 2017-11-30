@@ -24,7 +24,7 @@ spec:
              env:
              - name: WP_ENV
                value: subdomains
-             image: docker-registry.default.svc:5000/exopge/cronjob:latest
+             image: docker-registry.default.svc:5000/wwp/cronjob:latest
              imagePullPolicy: Always
              name: inventory
              resources: {}
