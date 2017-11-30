@@ -14,7 +14,7 @@ FIXME: Can be improved. Information can be found here :
 - https://docs.pytest.org/en/2.7.3/xunit_setup.html
 - http://agiletesting.blogspot.ch/2005/01/python-unit-testing-part-3-pytest-tool.html
 """
-os.environ["PLUGINS_CONFIG_BASE_PATH"] = os.path.join(settings.SRC_DIR_PATH, "wordpress/tests/plugins")
+os.environ["PLUGINS_CONFIG_BASE_PATH"] = "wordpress/tests/plugins"
 reload(settings)
 
 """
@@ -37,10 +37,10 @@ def wp_plugin_list():
 def wp_generator_generic():
     # To generate website with generic plugin list/configuration
     generator = MockedWPGenerator(
-                openshift_env=settings.OPENSHIFT_ENV,
-                wp_site_url=SITE_URL_GENERIC,
-                unit_name='idevelop',
-                wp_default_site_title="My test")
+                settings.OPENSHIFT_ENV,
+                SITE_URL_GENERIC,
+                wp_default_site_title="My test",
+                unit_name='idevelop')
     generator.clean()
     generator.generate()
     return generator
@@ -50,13 +50,13 @@ def wp_generator_generic():
 def wp_generator_specific():
     # To generate website with specific plugin list/configuration
     generator = MockedWPGenerator(
-                openshift_env=settings.OPENSHIFT_ENV,
-                wp_site_url=SITE_URL_SPECIFIC,
-                unit_name='idevelop',
+                settings.OPENSHIFT_ENV,
+                SITE_URL_SPECIFIC,
                 wp_default_site_title="My test")
     generator.clean()
     generator.generate()
     return generator
+
 
 class TestWPPluginConfig:
 

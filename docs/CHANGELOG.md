@@ -41,14 +41,16 @@ Table of releases
 **[PR #112](https://github.com/epfl-idevelop/jahia2wp/pull/112)**
 **[PR #113](https://github.com/epfl-idevelop/jahia2wp/pull/113)**
 **[PR #125](https://github.com/epfl-idevelop/jahia2wp/pull/125)**
+**[PR #127](https://github.com/epfl-idevelop/jahia2wp/pull/127)**
+**[PR #128](https://github.com/epfl-idevelop/jahia2wp/pull/128)**
 
 **High level:**
 
 1. (#69) New WP site has EPFL look and feel
 1. (#69) Columns `installs_locked` and `updates_automatic` from source of trust are now taken into account
+1. (#99) Add plugin tequila and plugin accred with accred rights 
 1. (#100) Ajout de 2 paramètres optionnels à `generate` pour pouvoir dire quel thème et quelle faculté de thème (couleur) on veut pour le site.
 1. (#102) Suppression de la sidebar
-1. (#99) Add plugin tequila and plugin accred with accred rights 
 1. (#105) Amélioration de la sécurité selon [les recommendations de l'OWASP](https://www.owasp.org/index.php/OWASP_Wordpress_Security_Implementation_Guideline).
 1. (#105) Nouveaux sites installé avec la version `latest` de WordPress au lieu de `4.8`
 1. (#112) enriched [INSTALL_DETAILED](https://github.com/epfl-idevelop/jahia2wp/blob/setup-prod/docs/INSTALL_DETAILED.md#setting-up-a-brand-new-infra-new-pods-new-nas-new-everything) documentation with setup of brand new servers
@@ -56,21 +58,25 @@ Table of releases
 1. (#113) New command: `make functional-tests`, launching `test_upload.py` and `test_jahia2wp.py`
 1. (#125) Delete owner_id and responsible_id
 1. (#125) unit_name parameter is now mandatory
+1. (#127) Disable deactivate option in bulk action plugins
+1. (#128) Command `clean` do not stop on errors anymore. Replaced option `--force` by `--stop-on-errors`.
+1. (#128) Command `generate` takes `--unit_name` as an optional option
+
 
 **Low level:**
 
 1. (#69) PluginList takes into account the values from `installs_locked` and `updates_automatic`
 1. (#69) If installed, those two plugins are installed in mu-plugin (in order to forbid their removal)
 1. (#69) In tests, replaced epfl_infoscience.zip with redirection.zip in order to avoid conflict with mu-plugin EPFL-SC-Infoscience
+1. (#99) Ajout d'un super admin par défaut
+1. (#99) Ajout de l'unité à partir de la source de vérité
+1. (#99) Les menus de configurations de ces 2 plugins sont cachés
 1. (#100) Ajout d'un champ `theme_faculty` dans la source de vérité + gestion de celui-ci dans le code.
 1. (#100) Modification du champ `theme` dans la source de vérité pour le mettre en minuscule (afin de réellement correspondre au nom du thème) + modif de la RegEx de contrôle
 1. (#100) Le nom du thème par défaut a été mis dans une variable (`settings.DEFAULT_THEME_NAME`) car il commençait à se retrouver à plein d'endroits. 
 1. (#100) Mise à jour des fichiers "source de vérité" pour que ça fonctionne avec le nouveau champ.
 1. (#100) Modification du fichier du thème pour voir que la classe (=`theme_faculty`) est bien ajoutée à la balise `<body>` (cette modif va aussi être faite dans les fichiers du thème gérés par Aline).
 1. (#102) Suppression des widgets de la sidebar de la homepage
-1. (#99) Ajout d'un super admin par défaut
-1. (#99) Ajout de l'unité à partir de la source de vérité
-1. (#99) Les menus de configurations de ces 2 plugins sont cachés
 1. (#105) Mises-à-jour automatiques du Core, des plugins et thèmes
 1. (#105) Ajout du module Apache ModSecurity
 1. (#105) Modification de la configuration WordPress pour empêcher l'édition en ligne des plugins et thèmes
@@ -80,6 +86,9 @@ Table of releases
 1. (#113) test_uploads moved out of `jahia2wp/src/.../tests` into `jahia2wp/functional_tests`
 1. (#113) new entries in makefile and makefile.mgmt to run pytest in newly created dir above
 1. (#113) new var OPENSHIFT_ENV in settings.py to define which pod to use
+1. (#128) review tests to use mocks for LDAP
+1. (#128) added label on httpd container and use it in test_upload instead of DOCKER_IP
+
 
 ## [0.2.14] - 2017-11-17
 

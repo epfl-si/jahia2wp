@@ -43,28 +43,26 @@ class MultipleChoicesValidator(RegexValidator):
         super(MultipleChoicesValidator, self).__init__(regex=regex, **kwargs)
 
 
-# TODO: Delete all return below
-# validate functions should not return anything
-
-
 def validate_integer(text):
-    return RegexValidator(regex="^[0-9]+$")(text)
+    if not type(text) is int:
+        RegexValidator(regex="^[0-9]+$")(text)
 
 
 def validate_string(text):
-    return RegexValidator(regex="^.+$")(text)
+    RegexValidator(regex="^.+$")(text)
 
 
 def validate_yes_or_no(text):
-    return ChoiceValidator(choices=['yes', 'no'])(text)
+    if not type(text) is bool:
+        ChoiceValidator(choices=['yes', 'no'])(text.lower())
 
 
 def validate_gaspar_username(name):
-    return RegexValidator(regex="^[_\-\.a-zA-Z0-9]+$")(name)
+    RegexValidator(regex="^[_\-\.a-zA-Z0-9]+$")(name)
 
 
 def validate_db_name(name):
-    return RegexValidator(regex="^[a-z0-9]{8,16}$")(name)
+    RegexValidator(regex="^[a-z0-9]{8,16}$")(name)
 
 
 def validate_openshift_env(text):
@@ -73,27 +71,27 @@ def validate_openshift_env(text):
 
 
 def validate_site_type(text):
-    return RegexValidator(regex="^wordpress$")(text)
+    RegexValidator(regex="^wordpress$")(text)
 
 
 def validate_theme(text):
-    return RegexValidator(regex="^[a-zA-Z0-9_-]+$")(text)
+    RegexValidator(regex="^[a-zA-Z0-9_-]+$")(text)
 
 
 def validate_theme_faculty(text):
-    return RegexValidator(regex="^(|cdh|cdm|enac|ic|sb|sti|sv)$")(text)
+    RegexValidator(regex="^(|cdh|cdm|enac|ic|sb|sti|sv)$")(text.lower())
 
 
 def validate_languages(text):
-    return MultipleChoicesValidator(SUPPORTED_LANGUAGES)(text)
+    MultipleChoicesValidator(SUPPORTED_LANGUAGES)(text)
 
 
 def validate_backup_type(text):
-    return ChoiceValidator(choices=['inc', 'full'])(text)
+    ChoiceValidator(choices=['inc', 'full'])(text)
 
 
 def validate_unit(unit_name):
-    # FIXME: epfl-ldap should return a LDAP Exception
+    # FIXME: epfl-ldap should a LDAP Exception
     try:
         get_unit_id(unit_name)
     except Exception:
@@ -101,4 +99,4 @@ def validate_unit(unit_name):
 
 
 def mock_validate_unit(unit_name):
-    return 42
+    pass

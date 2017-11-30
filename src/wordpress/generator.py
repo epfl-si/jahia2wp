@@ -36,8 +36,9 @@ class WPGenerator:
     WP_ADMIN_USER = Utils.get_mandatory_env(key="WP_ADMIN_USER")
     WP_ADMIN_EMAIL = Utils.get_mandatory_env(key="WP_ADMIN_EMAIL")
 
-    def __init__(self, openshift_env, wp_site_url, unit_name,
+    def __init__(self, openshift_env, wp_site_url,
                  wp_default_site_title=None,
+                 unit_name=None,
                  installs_locked=settings.DEFAULT_CONFIG_INSTALLS_LOCKED,
                  updates_automatic=settings.DEFAULT_CONFIG_UPDATES_AUTOMATIC,
                  admin_password=None,
@@ -55,9 +56,8 @@ class WPGenerator:
         theme_faculty -- (optional) Faculty name to use with theme (to select color)
         """
         # validate input
+        self.validate_mockable_args(wp_site_url, unit_name)
         validate_openshift_env(openshift_env)
-        URLValidator()(wp_site_url)
-        validate_unit(unit_name)
         if wp_default_site_title is not None:
             validate_string(wp_default_site_title)
         if theme is not None:
@@ -66,7 +66,10 @@ class WPGenerator:
             validate_theme_faculty(theme_faculty)
 
         # create WordPress site and config
-        self.wp_site = WPSite(openshift_env, wp_site_url, wp_default_site_title=wp_default_site_title)
+        self.wp_site = WPSite(
+            openshift_env,
+            wp_site_url,
+            wp_default_site_title=wp_default_site_title)
         self.wp_config = WPConfig(
             self.wp_site,
             installs_locked=installs_locked,
@@ -261,11 +264,18 @@ class WPGenerator:
             self.run_wp_cli(cmd)
         logging.info("All widgets deleted")
 
+    def validate_mockable_args(self, wp_site_url, unit_name):
+        """ Call validators in an independant function to allow mocking them """
+        URLValidator()(wp_site_url)
+        if unit_name is not None:
+            validate_unit(unit_name)
+
     def get_the_unit_id(self, unit_name):
         """
         Get unit id via LDAP Search
         """
-        return get_unit_id(unit_name)
+        if unit_name is not None:
+            return get_unit_id(unit_name)
 
     def delete_inactive_themes(self):
         """
@@ -394,9 +404,11 @@ class MockedWPGenerator(WPGenerator):
     calling LDAP.
     """
 
-    def get_unit_id(self):
+    def validate_mockable_args(self, wp_site_url, unit_name):
+        pass
+
+    def get_the_unit_id(self, unit_name):
         """
         Return a fake unit id without querying LDAP
         """
-        unit_id = 42
-        return unit_id
+        return 42

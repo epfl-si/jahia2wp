@@ -9,7 +9,7 @@ OPENSHIFT_ENV = Utils.get_mandatory_env("WP_ENV")
 
 # This Docker IP address is used for automatic testing.
 # Docker may change it in the future, which will cause some tests to fail.
-DOCKER_IP = Utils.get_optional_env("DOCKER_IP", "172.17.0.1")
+HTTPD_CONTAINER = Utils.get_optional_env("HTTPD_CONTAINER", "httpd")
 TEST_SITE = 'unittest'
 
 DATA_PATH = os.path.abspath(os.path.sep.join([SRC_DIR_PATH, '..', 'data']))
@@ -71,7 +71,7 @@ SUPPORTED_LANGUAGES = [
     "it"
 ]
 
-SUPPORTED_TRUE_STRINGS = ['true', 'yes', 'on', '1']
+SUPPORTED_TRUE_STRINGS = ['true', 'yes', 'y', 'on', '1']
 
 DEFAULT_CONFIG_INSTALLS_LOCKED = True
 DEFAULT_CONFIG_UPDATES_AUTOMATIC = True
@@ -79,9 +79,14 @@ DEFAULT_CONFIG_UPDATES_AUTOMATIC = True
 DEFAULT_THEME_NAME = 'epfl-master'
 
 PLUGINS_CONFIG_BASE_PATH = Utils.get_optional_env(
-    "PLUGINS_CONFIG_BASE_PATH", os.path.sep.join([SRC_DIR_PATH, '..', 'data', 'plugins']))
-PLUGINS_CONFIG_GENERIC_FOLDER = os.path.join(PLUGINS_CONFIG_BASE_PATH, 'generic')
-PLUGINS_CONFIG_SPECIFIC_FOLDER = os.path.join(PLUGINS_CONFIG_BASE_PATH, 'specific')
+    "PLUGINS_CONFIG_BASE_PATH", os.path.sep.join(['..', 'data', 'plugins']))
+
+PLUGINS_CONFIG_BASE_FOLDER = os.path.abspath(os.path.join(
+    SRC_DIR_PATH, PLUGINS_CONFIG_BASE_PATH))
+PLUGINS_CONFIG_GENERIC_FOLDER = os.path.abspath(os.path.join(
+    PLUGINS_CONFIG_BASE_FOLDER, 'generic'))
+PLUGINS_CONFIG_SPECIFIC_FOLDER = os.path.abspath(os.path.join(
+    PLUGINS_CONFIG_BASE_FOLDER, 'specific'))
 
 PLUGIN_SOURCE_WP_STORE = 'web'
 PLUGIN_ACTION_INSTALL = 'install'
