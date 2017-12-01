@@ -1,0 +1,101 @@
+{
+    "name": "diggy/polylang-cli",
+    "description": "CLI for the Polylang plugin",
+    "type": "wp-cli-package",
+    "homepage": "https://github.com/diggy/polylang-cli",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Peter J. Herrel",
+            "email": "peterherrel@gmail.com",
+            "homepage": "https://github.com/diggy",
+            "role": "Developer"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload": {
+        "files": ["command.php"]
+    },
+    "require": {
+        "wp-cli/wp-cli": "~1.3.0"
+    },
+    "require-dev": {
+        "behat/behat": "~2.5"
+    },
+    "extra": {
+        "commands": [
+            "pll api",
+            "pll api list",
+            "pll cache",
+            "pll cache clear",
+            "pll cache get",
+            "pll doctor",
+            "pll doctor check",
+            "pll doctor language",
+            "pll doctor recount",
+            "pll doctor translate",
+            "pll flag",
+            "pll flag list",
+            "pll flag set",
+            "pll lang",
+            "pll lang create",
+            "pll lang delete",
+            "pll lang generate",
+            "pll lang get",
+            "pll lang list",
+            "pll lang update",
+            "pll lang url",
+            "pll menu",
+            "pll menu create",
+            "pll option",
+            "pll option default",
+            "pll option get",
+            "pll option list",
+            "pll option reset",
+            "pll option sync",
+            "pll option unsync",
+            "pll option update",
+            "pll post",
+            "pll post count",
+            "pll post generate",
+            "pll post create",
+            "pll post get",
+            "pll post update",
+            "pll post delete",
+            "pll post duplicate",
+            "pll post list",
+            "pll post-type",
+            "pll post-type disable",
+            "pll post-type enable",
+            "pll post-type list",
+            "pll plugin uninstall",
+            "pll string",
+            "pll string list",
+            "pll taxonomy",
+            "pll taxonomy disable",
+            "pll taxonomy enable",
+            "pll taxonomy list",
+            "pll term",
+            "pll term get",
+            "pll term duplicate",
+            "pll term delete",
+            "pll term list",
+            "pll term generate"
+        ],
+        "readme": {
+            "sections": [
+                "Installation",
+                "Using",
+                "Contributing",
+                "Development"
+            ],
+            "installation": {
+                "body": "Installing this package requires WP-CLI v1.3.0 or greater. Update to the latest stable release with `wp cli update`. \nOnce you've done so, you can install this package with `wp package install git@github.com:diggy/polylang-cli.git`."
+            },
+            "development": {
+                "body": "### Behat Tests\nTo run the Behat tests for polylang-cli, `cd` into the package directory and run `$ ./vendor/bin/behat --expand` from the command line. To run a specific group of tests use the `tags` parameter; e.g.: `$ ./vendor/bin/behat --expand --tags @pll-lang`"
+            }
+        }
+    }
+}

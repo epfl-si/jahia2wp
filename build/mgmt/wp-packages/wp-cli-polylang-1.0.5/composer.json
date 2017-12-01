@@ -1,0 +1,35 @@
+{
+	"name" : "exozet/wp-cli-polylang",
+	"type" : "command",
+	"description" : "Add wp polylang command to support Polylang plug-in",
+	"keywords" : [
+		"wp-cli",
+		"polylang",
+		"i18n"
+	],
+	"homepage" : "https://github.com/exozet/wp-cli-polylang",
+	"license" : "GPLv2",
+	"authors" : [{
+			"name" : "F.A. Fiebig",
+			"email" : "",
+			"homepage" : "http://exozet.com",
+			"role" : "Sen. Developer"
+		}
+	],
+	"require" : {
+		"php" : ">=5.3.0",
+		"wp-cli/wp-cli" : "0.23.*"
+	},
+	"autoload" : {
+		"files" : [
+			"PolylangHelperFunctions.php",
+			"Polylang_Command.php"
+		]
+	},
+	"repositories" : [{
+			"type" : "git",
+			"url" : "https://github.com/exozet/wp-cli-polylang",
+			"name" : "exozet/wp-cli-polylang"
+		}
+	]
+}

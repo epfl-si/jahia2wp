@@ -21,8 +21,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     screen \
     unzip \
     vim && \
-    curl -k -o /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
-    chmod a+x /usr/local/bin/wp && \
     apt-get clean
 
 RUN mkdir /var/run/sshd && \
@@ -42,14 +40,22 @@ RUN mkdir /var/run/sshd && \
 COPY ./bash_profile /var/www/.bash_profile
 COPY ./docker-entrypoint.sh /
 
+# setup access rights
+RUN sed -ir 's#www-data.*:/usr/sbin/nologin#www-data:x:33:33:www-data:/var/www:/bin/bash#' /etc/passwd && \
+    mkdir -p /var/www/.ssh && \
+    chown -R www-data: /var/www && \
+    chmod 700 /var/www/.ssh
 
-RUN sed -ir 's#www-data.*:/usr/sbin/nologin#www-data:x:33:33:www-data:/var/www:/bin/bash#' /etc/passwd
-RUN mkdir -p /var/www/.ssh
-RUN chown -R www-data: /var/www
-RUN chmod 700 /var/www/.ssh
-
-RUN su www-data -c "/usr/local/bin/wp package install git@github.com:diggy/polylang-cli.git"
-RUN su www-data -c "/usr/local/bin/wp package install git@github.com:cortneyray/wp-cli-polylang.git"
+# install wp-cli packages, downloaded from
+# https://github.com/wp-cli/wp-cli/releases
+# https://github.com/diggy/polylang-cli/releases
+# https://github.com/cortneyray/wp-cli-polylang/releases
+COPY ./wp-packages/wp-cli-1.4.1.phar /usr/local/bin/wp
+COPY ./wp-packages/polylang-cli-1.0.0-prealpha.5 /tmp/polylang-cli-1.0.0-prealpha.5
+COPY ./wp-packages/wp-cli-polylang-1.0.5 /tmp/wp-cli-polylang-1.0.5
+RUN chmod a+x /usr/local/bin/wp && \
+    su www-data -c "/usr/local/bin/wp package install /tmp/polylang-cli-1.0.0-prealpha.5" && \
+    su www-data -c "/usr/local/bin/wp package install /tmp/wp-cli-polylang-1.0.5"
 
 # this line should come after the installation of other packages
 # otherwise, it creates /var/www/.wp-cli with incorrect permission
