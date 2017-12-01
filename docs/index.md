@@ -86,19 +86,14 @@ In the process, not only shall you **not** loose your data, but you shall also b
 
 We will first focus on automation and maintenance, with the objective of driving all the creation process from one shared spreadsheet (aka configuration source).
 
-Icons are used to mark the progress as follows: :balloon:, :tada:, :champagne: or :gift_heart: when available, :construction: when work in progress, :tent: when implemented as prototype in [jahiap repo](https://github.com/epfl-idevelop/jahiap) 
-
-1. :balloon: installing a functional WordPress to any given URL
-1. :tada: configuring the website with supported plugins and the EPFL theme
-1. :champagne: applying those first two steps to every row of our configuration source
-1. :construction: maintaining the website and the plugins
+This phase ended on the 30th of November, with the [release 0.3.0](https://github.com/epfl-idevelop/jahia2wp/releases/tag/0.3.0)
 
 We will secondly add support for migration of a simple site:
 
-1. :gift_heart: Export the content of a Jahia website as a zipped package
-1. :tent: Parse zipped package (XML and files) as python objects
-1. :tent: Import parsed pages into WordPress (raw content)
-1. :tent: Support translation, hierarchy, menu, sidebar
+1. Export the content of a Jahia website as a zipped package
+1. Parse zipped package (XML and files) as python objects
+1. Import parsed pages into WordPress (raw content)
+1. Support translation, hierarchy, menu, sidebar
 
 And lastly we will extend the support to other Jahia boxes, mainly thanks to WordPress shortcodes
 
@@ -159,7 +154,7 @@ Did we mention that would you be looking for a more explicit process, feel free 
 You will need to ask C2C to add your public key in `authorized_keys` on the server.
 You will also need to know what environment (pod) you wish to connect into (and set `WP_ENV` accordingly)
 
-    you@host:~$ WP_ENV=c2c-env && ssh -A -o SendEnv=WP_ENV www-data@exopgesrv55.epfl.ch -p 32222
+    you@host:~$ WP_ENV=c2c-env && ssh -A -o SendEnv=WP_ENV www-data@ssh-wwp.epfl.ch -p 32222
     
     www-data@mgmt-x-xxx:/srv/c2c-env$ git clone git@github.com:epfl-idevelop/jahia2wp.git
     www-data@mgmt-x-xxx:/srv/c2c-env$ cd jahia2wp
