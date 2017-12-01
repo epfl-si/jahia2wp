@@ -3,7 +3,7 @@ import os
 
 from utils import Utils
 
-VERSION = "0.2.15"
+VERSION = "0.3.0"
 SRC_DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 OPENSHIFT_ENV = Utils.get_mandatory_env("WP_ENV")
 

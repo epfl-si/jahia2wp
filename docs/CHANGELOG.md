@@ -11,7 +11,7 @@ Table of releases
 
 <!-- TOC depthFrom:2 depthTo:2 orderedList:false -->
 
-- [[0.2.15] - 2017-11-30](#0215---2017-11-30)
+- [[0.3.0] - 2017-11-30](#030---2017-11-30)
 - [[0.2.14] - 2017-11-17](#0214---2017-11-17)
 - [[0.2.13] - 2017-11-14/15](#0213---2017-11-1415)
 - [[0.2.12] - 2017-11-09](#0212---2017-11-09)
@@ -32,7 +32,7 @@ Table of releases
 <!-- /TOC -->
 
 
-## [0.2.15] - 2017-11-30
+## [0.3.0] - 2017-11-30
 **[PR #99](https://github.com/epfl-idevelop/jahia2wp/pull/99)**
 **[PR #69](https://github.com/epfl-idevelop/jahia2wp/pull/69)**
 **[PR #100](https://github.com/epfl-idevelop/jahia2wp/pull/100)**
