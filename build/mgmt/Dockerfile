@@ -41,12 +41,12 @@ RUN mkdir /var/run/sshd && \
 
 COPY ./bash_profile /var/www/.bash_profile
 COPY ./docker-entrypoint.sh /
-COPY ./config.yml /var/www/.wp-cli/config.yml
 
 RUN sed -ir 's#www-data.*:/usr/sbin/nologin#www-data:x:33:33:www-data:/var/www:/bin/bash#' /etc/passwd
 RUN mkdir -p /var/www/.ssh
 RUN chown -R www-data: /var/www
 RUN chmod 700 /var/www/.ssh
+COPY ./config.yml /var/www/.wp-cli/config.yml
 
 RUN su www-data -c "/usr/local/bin/wp package install git@github.com:diggy/polylang-cli.git"
 RUN su www-data -c "/usr/local/bin/wp package install git@github.com:cortneyray/wp-cli-polylang.git"
