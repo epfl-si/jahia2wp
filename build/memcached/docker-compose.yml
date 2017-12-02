@@ -30,6 +30,7 @@ services:
     ports:
       - 8081:80
     environment:
+      - WORDPRESS_PORT=8081
       - WORDPRESS_DB_NAME=wp1
       - WORDPRESS_DB_PASSWORD=secret
     external_links:
@@ -41,6 +42,7 @@ services:
     ports:
       - 8082:80
     environment:
+      - WORDPRESS_PORT=8082
       - WORDPRESS_DB_NAME=wp2
       - WORDPRESS_DB_PASSWORD=secret
     external_links:
