@@ -51,6 +51,17 @@ function my_custom_bulk_actions($actions){
 	        return $actions;
 }
 
+
+
+/* Hide apparence backround and header menu
+ * 
+ */
+add_action( 'after_setup_theme','EPFL_remove_background_header_options', 100 );
+function EPFL_remove_background_header_options() {    
+	 remove_custom_background();
+ 	 remove_custom_image_header();
+}
+
 /* Hide plugin configuration
  * https://codex.wordpress.org/Plugin_API/Action_Reference/admin_menu
  */
