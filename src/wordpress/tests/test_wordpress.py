@@ -78,10 +78,10 @@ class TestWPGenerator:
     @pytest.fixture()
     def wp_generator(self):
         generator = MockedWPGenerator(
-            openshift_env=settings.OPENSHIFT_ENV,
-            wp_site_url="http://localhost/folder",
-            unit_name="idevelop",
+            settings.OPENSHIFT_ENV,
+            "http://localhost/folder",
             wp_default_site_title=self.TITLE_WITH_ACCENT,
+            unit_name="idevelop",
             updates_automatic=False)
         generator.clean()
         return generator

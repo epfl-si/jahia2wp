@@ -41,7 +41,7 @@ RUN mkdir /var/run/sshd && \
 
 COPY ./bash_profile /var/www/.bash_profile
 COPY ./docker-entrypoint.sh /
-COPY ./config.yml /var/www/.wp-cli/config.yml
+
 
 RUN sed -ir 's#www-data.*:/usr/sbin/nologin#www-data:x:33:33:www-data:/var/www:/bin/bash#' /etc/passwd
 RUN mkdir -p /var/www/.ssh
@@ -50,6 +50,11 @@ RUN chmod 700 /var/www/.ssh
 
 RUN su www-data -c "/usr/local/bin/wp package install git@github.com:diggy/polylang-cli.git"
 RUN su www-data -c "/usr/local/bin/wp package install git@github.com:cortneyray/wp-cli-polylang.git"
+
+# this line should come after the installation of other packages
+# otherwise, it creates /var/www/.wp-cli with incorrect permission
+# and makes the other installations fail
+COPY ./config.yml /var/www/.wp-cli/config.yml
 
 EXPOSE 22
 ENTRYPOINT ["/docker-entrypoint.sh"]

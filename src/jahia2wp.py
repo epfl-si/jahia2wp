@@ -5,12 +5,11 @@ Usage:
   jahia2wp.py download              <site>                          [--debug | --quiet]
     [--username=<USERNAME> --host=<HOST> --zip-path=<ZIP_PATH> --force]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
-    [--force]
+    [--stop-on-errors]
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
-  jahia2wp.py generate              <wp_env> <wp_url> <unit_name>        [--debug | --quiet]
-    [--wp-title=<WP_TITLE> --admin-password=<PASSWORD>]
-    [--owner-id=<SCIPER> --responsible-id=<SCIPER>]
-    [--theme=<THEME> --theme_faculty=<THEME-FACULTY>]
+  jahia2wp.py generate              <wp_env> <wp_url>               [--debug | --quiet]
+    [--wp-title=<WP_TITLE> --admin-password=<PASSWORD> --unit-name=<NAME>]
+    [--theme=<THEME> --theme-faculty=<THEME-FACULTY>]
     [--installs-locked=<BOOLEAN> --automatic-updates=<BOOLEAN>]
   jahia2wp.py backup                <wp_env> <wp_url>               [--debug | --quiet]
     [--backup-type=<BACKUP_TYPE>]
@@ -38,10 +37,12 @@ from docopt import docopt
 from docopt_dispatch import dispatch
 
 from veritas.veritas import VeritasValidor
+from veritas.casters import cast_boolean
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
 from crawler import JahiaCrawler
 
-from settings import VERSION, DEFAULT_THEME_NAME, SUPPORTED_TRUE_STRINGS
+from settings import VERSION, DEFAULT_THEME_NAME, \
+    DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
 from utils import Utils
 
 
@@ -77,9 +78,9 @@ def check(wp_env, wp_url, **kwargs):
 
 
 @dispatch.on('clean')
-def clean(wp_env, wp_url, force=False, **kwargs):
+def clean(wp_env, wp_url, stop_on_errors=False, **kwargs):
     # when forced, do not check the status of the config -> just remove everything possible
-    if not force:
+    if stop_on_errors:
         _check_site(wp_env, wp_url, **kwargs)
     # config found: proceed with cleaning
     # FIXME: Il faut faire un clean qui n'a pas besoin de unit_name
@@ -89,31 +90,31 @@ def clean(wp_env, wp_url, force=False, **kwargs):
 
 
 @dispatch.on('generate')
-def generate(wp_env, wp_url, unit_name,
-             wp_title=None, admin_password=None,
-             theme=DEFAULT_THEME_NAME, theme_faculty=None,
+def generate(wp_env, wp_url,
+             wp_title=None, admin_password=None, unit_name=None,
+             theme=None, theme_faculty=None,
              installs_locked=None, updates_automatic=None,
              **kwargs):
 
     # if nothing is specified we want a locked install
     if installs_locked is None:
-        installs_locked = True
+        installs_locked = DEFAULT_CONFIG_INSTALLS_LOCKED
     else:
-        installs_locked = installs_locked.lower() in SUPPORTED_TRUE_STRINGS
+        installs_locked = cast_boolean(installs_locked)
 
     # if nothing is specified we want automatic updates
     if updates_automatic is None:
-        updates_automatic = True
+        updates_automatic = DEFAULT_CONFIG_UPDATES_AUTOMATIC
     else:
-        updates_automatic = updates_automatic.lower() in SUPPORTED_TRUE_STRINGS
+        updates_automatic = cast_boolean(updates_automatic)
 
     wp_generator = WPGenerator(
         wp_env,
         wp_url,
-        unit_name,
         wp_default_site_title=wp_title,
         admin_password=admin_password,
-        theme=theme,
+        unit_name=unit_name,
+        theme=theme or DEFAULT_THEME_NAME,
         theme_faculty=theme_faculty,
         installs_locked=installs_locked,
         updates_automatic=updates_automatic
@@ -163,6 +164,7 @@ def generate_many(csv_file, **kwargs):
             row["wp_site_url"],
             row["unit_name"],
             wp_default_site_title=row["wp_default_site_title"],
+            unit_name=row["unit_name"],
             updates_automatic=row["updates_automatic"],
             installs_locked=row["installs_locked"],
             theme=row["theme"],
@@ -223,10 +225,7 @@ def extract_plugin_config(wp_env, wp_url, output_file, **kwargs):
 
 @dispatch.on('list-plugins')
 def list_plugins(wp_env, wp_url, config=False, plugin=None, **kwargs):
-
-    print(WPGenerator(
-            wp_env,
-            wp_url).list_plugins(config, plugin))
+    print(WPGenerator(wp_env, wp_url).list_plugins(config, plugin))
 
 
 if __name__ == '__main__':
