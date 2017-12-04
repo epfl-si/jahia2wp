@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     php7.0-mysql \
     php7.0-mbstring \
     php7.0-xml \
+    vim \
   && \
     apt-get -y autoremove && \
     apt-get clean
