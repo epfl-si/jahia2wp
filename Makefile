@@ -78,6 +78,9 @@ exec: check-env
 	  -e MYSQL_DB_HOST=${MYSQL_DB_HOST} \
 	  $(_mgmt_container) bash -l
 
+httpd: check-env
+	@docker exec -it $(_httpd_container) bash -l
+
 down: check-env
 	@WP_PORT_HTTP=${WP_PORT_HTTP} \
 	 WP_PORT_HTTPS=${WP_PORT_HTTPS} \
