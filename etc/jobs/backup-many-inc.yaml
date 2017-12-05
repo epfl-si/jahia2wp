@@ -1,11 +1,11 @@
 apiVersion: batch/v2alpha1
 kind: CronJob
 metadata:
-  name: build-subdomains-inventory
+  name: backup-many-inc
 spec:
   concurrencyPolicy: Forbid
-  # every hour on the tenth minute
-  schedule: '10 */1 * * *'
+  # every hour at the 5th minute
+  schedule: '5 * * * *'
   suspend: false
   jobTemplate:
      metadata:
@@ -20,11 +20,11 @@ spec:
              - bash
              args:
              - -c
-             - source /srv/${WP_ENV}/venv/bin/activate && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src && cd /srv/${WP_ENV}/jahia2wp && set -o allexport && source .env && set +o allexport && python src/jahia2wp.py inventory ${WP_ENV} /srv/${WP_ENV} > /srv/manager/wp-manager.epfl.ch/htdocs/inventory-${WP_ENV}.csv
+             - source /srv/${WP_ENV}/venv/bin/activate && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src && cd /srv/${WP_ENV}/jahia2wp && set -o allexport && source .env && set +o allexport && python src/jahia2wp.py backup-many /srv/data.csv --backup-type=inc
              env:
              - name: WP_ENV
                value: subdomains
-             image: docker-registry.default.svc:5000/exopge/cronjob:latest
+             image: docker-registry.default.svc:5000/wwp/cronjob:latest
              imagePullPolicy: Always
              name: inventory
              resources: {}
