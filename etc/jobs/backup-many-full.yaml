@@ -10,6 +10,7 @@ spec:
   jobTemplate:
      metadata:
        creationTimestamp: null
+     successfulJobsHistoryLimit: 3
      spec:
        template:
          metadata:
