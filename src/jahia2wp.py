@@ -162,7 +162,6 @@ def generate_many(csv_file, **kwargs):
         WPGenerator(
             row["openshift_env"],
             row["wp_site_url"],
-            row["unit_name"],
             wp_default_site_title=row["wp_default_site_title"],
             unit_name=row["unit_name"],
             updates_automatic=row["updates_automatic"],
