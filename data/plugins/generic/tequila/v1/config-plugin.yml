@@ -1,6 +1,14 @@
 src: generic/tequila/v1/tequila.zip
 activate: yes
 # Waiting of domq
+#
+# in the meantime, dual_auth is disactivted by default, but you can enable it with wp cli:
+# Go into your root folder of your WP site, and run:
+# wp option add plugin:epfl_tequila:has_dual_auth 1
+#
+# If you need to change it letter, make sure to update it:
+# wp option update plugin:epfl_tequila:has_dual_auth 0
+#
 #tables:
 #  options:
 #  - autoload: 'yes'
