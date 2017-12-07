@@ -5,13 +5,13 @@ Please refer to the [official documentation](https://docs.openshift.org/latest/d
 
 ## Pre-requisite : login
 
-    $ oc login --token="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" --insecure-skip-tls-verify=true https://os-exopge.epfl.ch:443 
+    $ oc login https://pub-os-exopge.epfl.ch
 
 ## Creating a job
 
 You should have prepared a job description in YAML format. You will find examples in the directory `etc/cronjobs`. For instance [etc/jobs/build-dev-inventory.yaml](../../etc/jobs/build-dev-inventory.yaml)
 
-    $ oc create -f test-cronjob-definition.yaml
+    $ oc create -f path/to/cronjob-definition.yaml
 
 ## Listing jobs
 

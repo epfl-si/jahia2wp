@@ -5,7 +5,6 @@ Tools Installation
 
 - [Docker & rights](#docker--rights)
 - [Make](#make)
-- [Python virtualenv](#python-virtualenv)
 
 <!-- /TOC -->
 
@@ -52,35 +51,3 @@ Make will also simplify your tasks:
 
     $ make --version
     GNU Make 3.81
-
-## Python virtualenv
-
-Install virtualenv and create your first virtual environment:
-
-    $ sudo pip install virtualenv
-    $ which python3
-    /usr/bin/python3
-
-    $ cd
-    $ mkdir virtualenvs
-    $ cd virtualenvs
-    $ virtualenv -p /usr/bin/python3 jahia2wp
-
-    $ echo "
-    alias vjahia2wp='source ~/virtualenvs/jahia2wp/bin/activate && cd ~/jahia2wp && export PYTHONPATH=$PWD/src'
-    " >> ~/.bash_aliases
-
-    $ source ~/.bash_aliases
-    $ python --version
-    2.x
-    $ vjahia2wp
-    (jahia2wp) $ python --version
-    3.x
-
-    NB: pour sortir du virtualenv :
-    (jahiap) $ deactivate
-
-Upgrade pip (you have to upgrade it after installing requirements otherwise it will fail because of permissions denied on some folders).
-
-    $ pip install --upgrade pip
-    ...
