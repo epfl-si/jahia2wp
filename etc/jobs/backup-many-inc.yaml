@@ -11,7 +11,7 @@ spec:
      metadata:
        creationTimestamp: null
        labels:
-         parent: backup-many-full
+         parent: backup-many-inc
      successfulJobsHistoryLimit: 3
      spec:
        template:

@@ -10,6 +10,8 @@ spec:
   jobTemplate:
      metadata:
        creationTimestamp: null
+       labels:
+         parent: backup-many-full
      successfulJobsHistoryLimit: 3
      spec:
        template:
