@@ -5,13 +5,13 @@ set -e
 cat > /etc/apache2/conf-available/dyn-vhost.conf <<EOF
 UseCanonicalName Off
 
-SetEnvIf X-Forwarded-For "^(.*\..*\..*\..*)|(.*:.*:.*:.*:.*:.*:.*:.*)" proxied
-LogFormat "%V %h %l %u %t \"%r\" %s %b" vcommon
-LogFormat "%V %{X-Forwarded-For}i %l %u %t \"%r\" %s %b" vproxy
-CustomLog "| /usr/bin/rotatelogs /srv/${WP_ENV}/logs/access_log.%Y%m%d 86400" vcommon env=!proxied
-CustomLog "/dev/stdout" vcommon env=!proxied
-CustomLog "| /usr/bin/rotatelogs /srv/${WP_ENV}/logs/access_log.%Y%m%d 86400" vproxy env=proxied
-CustomLog "/dev/stdout" vproxy env=proxied
+RemoteIPHeader X-Forwarded-For
+RemoteIPInternalProxy 172.31.0.0/16 10.180.21.0/24
+
+LogFormat "%V %a %l %u %t \"%r\" %s %b %{ms}T" vcommon
+CustomLog "| /usr/bin/rotatelogs /srv/${WP_ENV}/logs/access_log.%Y%m%d 86400" vcommon
+CustomLog "/dev/stdout" vcommon
+
 ErrorLog "| /usr/bin/rotatelogs /srv/${WP_ENV}/logs/error_log.%Y%m%d 86400"
 
 VirtualDocumentRoot "/srv/${WP_ENV}/%0/htdocs"
@@ -33,6 +33,7 @@ EOF
 /usr/sbin/a2enmod ssl
 /usr/sbin/a2enmod rewrite
 /usr/sbin/a2enmod vhost_alias
+/usr/sbin/a2enmod remoteip
 /usr/sbin/a2enconf dyn-vhost
 
 /usr/sbin/apache2ctl -DFOREGROUND
