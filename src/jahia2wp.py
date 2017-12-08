@@ -23,6 +23,7 @@ Usage:
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
     [--config] [--plugin=<PLUGIN_NAME>]
+  jahia2wp.py update-plugin-list    <wp_env> <wp_url>               [--debug | --quiet]
 
 Options:
   -h --help                 Show this screen.
@@ -108,13 +109,17 @@ def generate(wp_env, wp_url,
     else:
         updates_automatic = cast_boolean(updates_automatic)
 
+    # If nothing is specified, we want default theme
+    if theme is None:
+        theme = DEFAULT_THEME_NAME
+
     wp_generator = WPGenerator(
         wp_env,
         wp_url,
         wp_default_site_title=wp_title,
         admin_password=admin_password,
         unit_name=unit_name,
-        theme=theme or DEFAULT_THEME_NAME,
+        theme=theme,
         theme_faculty=theme_faculty,
         installs_locked=installs_locked,
         updates_automatic=updates_automatic
@@ -225,6 +230,16 @@ def extract_plugin_config(wp_env, wp_url, output_file, **kwargs):
 @dispatch.on('list-plugins')
 def list_plugins(wp_env, wp_url, config=False, plugin=None, **kwargs):
     print(WPGenerator(wp_env, wp_url).list_plugins(config, plugin))
+
+
+@dispatch.on('update-plugin-list')
+def update_plugin_list(wp_env, wp_url, **kwargs):
+
+    wp_generator = WPGenerator(wp_env, wp_url)
+
+    wp_generator.generate_plugins()
+
+    print("Successfully updated WordPress plugin list at {}".format(wp_generator.wp_site.url))
 
 
 if __name__ == '__main__':
