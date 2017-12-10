@@ -89,7 +89,8 @@ def validate_languages(text):
 def validate_unit(unit_name):
     # FIXME: epfl-ldap should a LDAP Exception
     try:
-        get_unit_id(unit_name)
+        if unit_name:
+            get_unit_id(unit_name)
     except Exception:
         raise ValidationError("The unit name {} doesn't exist".format(unit_name))
 

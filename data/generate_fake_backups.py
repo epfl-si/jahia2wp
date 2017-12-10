@@ -11,18 +11,22 @@ if not os.path.isdir(FAKE_DIR):
 
 
 def main():
-    for index in range(100):
+    for index in range(200):
         random_day = datetime.datetime.fromordinal(random.randint(
             START_DATE.toordinal(), END_DATE.toordinal())) \
             + datetime.timedelta(minutes=random.randint(0, 60*24))
-        filename = "{}/test_{}_full{}.".format(
+        random_type = random.choice(['full', 'inc'])
+        filename = "{}/test_{}_{}".format(
             FAKE_DIR,
             random_day.strftime("%Y%m%d%H%M%S"),
-            random.randint(0, 10))
-        with open(filename+'tar', 'w') as tar:
+            random_type)
+        with open(filename+'.tar', 'w') as tar:
             tar.write("content for tar")
-        with open(filename+'sql', 'w') as sql:
+        with open(filename+'.sql', 'w') as sql:
             sql.write("content for SQL")
+        if random_type == 'full':
+            with open(filename+'.list', 'w') as sql:
+                sql.write("content for lsit")
 
 
 if __name__ == '__main__':

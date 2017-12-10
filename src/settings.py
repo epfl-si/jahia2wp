@@ -12,12 +12,20 @@ SRC_DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 DATA_PATH = os.path.abspath(os.path.sep.join([SRC_DIR_PATH, '..', 'data']))
 WP_FILES_PATH = os.path.join(DATA_PATH, 'wp')
 
-BACKUP_RETENTION_THEME = {
+FULL_BACKUP_RETENTION_THEME = {
     'hourly': 24,
     'daily': 7,
     'weekly': 4,
     'monthly': 12,
     'yearly': 'always',
+}
+
+INCREMENTAL_BACKUP_RETENTION_THEME = {
+    'hourly': 24,
+    'daily': 2,
+    'weekly': 0,
+    'monthly': 0,
+    'yearly': 0,
 }
 
 WP_DIRS = ['wp-admin', 'wp-content', 'wp-includes']

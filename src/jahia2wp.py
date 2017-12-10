@@ -42,8 +42,8 @@ from veritas.casters import cast_boolean
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
 from crawler import JahiaCrawler
 
-from settings import VERSION, BACKUP_RETENTION_THEME, DEFAULT_THEME_NAME, \
-    DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
+from settings import VERSION, FULL_BACKUP_RETENTION_THEME, INCREMENTAL_BACKUP_RETENTION_THEME, \
+    DEFAULT_THEME_NAME, DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
 from utils import Utils
 
 
@@ -195,9 +195,17 @@ def rotate_backup(csv_file, dry_run=False, **kwargs):
 
     for index, row in rows:
         path = WPBackup(row["openshift_env"], row["wp_site_url"]).path
-        for pattern in ["*full*.sql", "*full*.tar"]:
+        # rotate full backups first
+        for pattern in ["*.list", "*full.sql", "*full.tar"]:
             RotateBackups(
-                BACKUP_RETENTION_THEME,
+                FULL_BACKUP_RETENTION_THEME,
+                dry_run=dry_run,
+                include_list=[pattern]
+            ).rotate_backups(path)
+        # rotate incremental backups
+        for pattern in ["*inc.sql", "*inc.tar"]:
+            RotateBackups(
+                INCREMENTAL_BACKUP_RETENTION_THEME,
                 dry_run=dry_run,
                 include_list=[pattern]
             ).rotate_backups(path)
