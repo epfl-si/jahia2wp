@@ -97,9 +97,6 @@ We spent [6 sprints](https://github.com/epfl-idevelop/jahia2wp/projects/1?) to f
         $ python jahia2wp.py backup $WP_ENV http://localhost
         ...
 
-        $ python jahia2wp.py backup $WP_ENV http://localhost --backup-type=inc
-        ...
-
 4. :champagne: applying those them functionalities to every row of our configuration source
 
         $ python jahia2wp.py generate-many path/to/source.csv

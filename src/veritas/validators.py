@@ -86,10 +86,6 @@ def validate_languages(text):
     MultipleChoicesValidator(SUPPORTED_LANGUAGES)(text)
 
 
-def validate_backup_type(text):
-    ChoiceValidator(choices=['inc', 'full'])(text)
-
-
 def validate_unit(unit_name):
     # FIXME: epfl-ldap should a LDAP Exception
     try:

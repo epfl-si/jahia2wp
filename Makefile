@@ -52,7 +52,6 @@ vars: check-env
 	@echo 'WPManagement-related vars:'
 	@echo '  WP_PORT_PHPMA=${WP_PORT_PHPMA}'
 	@echo '  WP_PORT_SSHD=${WP_PORT_SSHD}'
-	@echo '  BACKUP_PATH=${BACKUP_PATH}'
 	@echo '  PLUGINS_CONFIG_BASE_PATH=${PLUGINS_CONFIG_BASE_PATH}'
 
 	@echo ''

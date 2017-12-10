@@ -12,12 +12,10 @@ Usage:
     [--theme=<THEME> --theme-faculty=<THEME-FACULTY>]
     [--installs-locked=<BOOLEAN> --automatic-updates=<BOOLEAN>]
   jahia2wp.py backup                <wp_env> <wp_url>               [--debug | --quiet]
-    [--backup-type=<BACKUP_TYPE>]
   jahia2wp.py version               <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py admins                <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate-many         <csv_file>                      [--debug | --quiet]
   jahia2wp.py backup-many           <csv_file>                      [--debug | --quiet]
-    [--backup-type=<BACKUP_TYPE>]
   jahia2wp.py rotate-backup         <csv_file>          [--dry-run] [--debug | --quiet]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
@@ -129,12 +127,13 @@ def generate(wp_env, wp_url,
 
 
 @dispatch.on('backup')
-def backup(wp_env, wp_url, backup_type=None, **kwargs):
-    wp_backup = WPBackup(wp_env, wp_url, backup_type=backup_type)
+def backup(wp_env, wp_url, **kwargs):
+    wp_backup = WPBackup(wp_env, wp_url)
     if not wp_backup.backup():
         raise SystemExit("Backup failed. More info above")
 
-    print("Successfully backed-up WordPress site for {}".format(wp_backup.wp_site.url))
+    print("Successfull {} backup for {}".format(
+        wp_backup.backup_pattern, wp_backup.wp_site.url))
 
 
 @dispatch.on('version')
@@ -175,7 +174,7 @@ def generate_many(csv_file, **kwargs):
 
 
 @dispatch.on('backup-many')
-def backup_many(csv_file, backup_type=None, **kwargs):
+def backup_many(csv_file, **kwargs):
     # use Veritas to get valid rows
     rows = VeritasValidor.filter_valid_rows(csv_file)
 
@@ -185,8 +184,7 @@ def backup_many(csv_file, backup_type=None, **kwargs):
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
         WPBackup(
             row["openshift_env"],
-            row["wp_site_url"],
-            backup_type=backup_type
+            row["wp_site_url"]
         ).backup()
 
 

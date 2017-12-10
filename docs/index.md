@@ -271,10 +271,9 @@ To look into the tree structure and list all valid/unvalid WordPress sites, with
 
 ### Backup a WordPress site
 
-To save a WordPress site, you can choose between a full or an incremental backup, and control the location of your backups with the environment variable `BACKUP_PATH`
+To save a WordPress site, simply run the following command. It will create either a full backup or an incremental one depending if there is already a full backup done in the same day.
 
     python jahia2wp.py backup $WP_ENV http://localhost/folder
-    python jahia2wp.py backup $WP_ENV http://localhost/folder --backup-type=inc
 
 
 ### Delete a WordPress site
