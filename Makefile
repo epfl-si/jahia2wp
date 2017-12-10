@@ -106,5 +106,3 @@ endif
 
 clean: down
 	@bin/clean.sh $(WP_ENV)
-
-	
