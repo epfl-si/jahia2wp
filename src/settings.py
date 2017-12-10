@@ -3,7 +3,7 @@ import os
 
 from utils import Utils
 
-VERSION = "0.3.0"
+VERSION = "0.3.1"
 
 OPENSHIFT_ENV = Utils.get_mandatory_env("WP_ENV")
 ENV_DIRS = ['logs', 'venv', 'jahia2wp']
