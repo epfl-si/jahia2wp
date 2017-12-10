@@ -5,3 +5,4 @@ django==1.11.5
 clint==0.5.1
 PyYAML==3.12
 PyMySQL==0.7.11
+rotate-backups==4.4

@@ -18,6 +18,14 @@ WP_FILES_PATH = os.path.join(DATA_PATH, 'wp')
 
 ENV_DIRS = ['logs', 'venv', 'jahia2wp']
 
+BACKUP_RETENTION_THEME = {
+    'hourly': 24,
+    'daily': 7,
+    'weekly': 4,
+    'monthly': 12,
+    'yearly': 'always',
+}
+
 WP_DIRS = ['wp-admin', 'wp-content', 'wp-includes']
 WP_FILES = [
     '.htaccess',

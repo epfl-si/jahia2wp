@@ -18,6 +18,7 @@ Usage:
   jahia2wp.py generate-many         <csv_file>                      [--debug | --quiet]
   jahia2wp.py backup-many           <csv_file>                      [--debug | --quiet]
     [--backup-type=<BACKUP_TYPE>]
+  jahia2wp.py rotate-backup         <csv_file>          [--dry-run] [--debug | --quiet]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
@@ -36,12 +37,14 @@ import getpass
 from docopt import docopt
 from docopt_dispatch import dispatch
 
+from rotate_backups import RotateBackups
+
 from veritas.veritas import VeritasValidor
 from veritas.casters import cast_boolean
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
 from crawler import JahiaCrawler
 
-from settings import VERSION, DEFAULT_THEME_NAME, \
+from settings import VERSION, BACKUP_RETENTION_THEME, DEFAULT_THEME_NAME, \
     DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
 from utils import Utils
 
@@ -181,11 +184,25 @@ def backup_many(csv_file, backup_type=None, **kwargs):
     for index, row in rows:
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
         WPBackup(
-            openshift_env=row["openshift_env"],
-            wp_site_url=row["wp_site_url"],
-            wp_default_site_title=row["wp_default_site_title"],
+            row["openshift_env"],
+            row["wp_site_url"],
             backup_type=backup_type
         ).backup()
+
+
+@dispatch.on('rotate-backup')
+def rotate_backup(csv_file, dry_run=False, **kwargs):
+    # use Veritas to get valid rows
+    rows = VeritasValidor.filter_valid_rows(csv_file)
+
+    for index, row in rows:
+        path = WPBackup(row["openshift_env"], row["wp_site_url"]).path
+        for pattern in ["*full*.sql", "*full*.tar"]:
+            RotateBackups(
+                BACKUP_RETENTION_THEME,
+                dry_run=dry_run,
+                include_list=[pattern]
+            ).rotate_backups(path)
 
 
 @dispatch.on('inventory')

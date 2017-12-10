@@ -7,7 +7,7 @@ from .models import WPException, WPSite
 from .config import WPConfig
 
 from django.core.validators import URLValidator
-from veritas.validators import validate_openshift_env, validate_string, validate_backup_type
+from veritas.validators import validate_openshift_env, validate_backup_type
 
 from utils import Utils
 import settings
@@ -50,28 +50,23 @@ class WPBackup:
     REGEX_FULL_NUMBER = ".+full([0-9]+)\.tar$"
     REGEX_INC_NUMBER = ".+full{}_inc([0-9]+)\.tar$"
 
-    def __init__(self, openshift_env, wp_site_url,
-                 wp_default_site_title=None,
-                 backup_type=None):
+    def __init__(self, openshift_env, wp_site_url, backup_type=None):
         """
         Class constructor
 
         Argument keywords:
         openshift_env -- Name of OpenShift environment on which script is executed
         wp_site_url -- URL to Website to backup
-        wp_default_site_title -- (optional) website title
         backup_type -- (optional) Backup type to do. 'inc' or 'full'
         """
         # validate input
         validate_openshift_env(openshift_env)
         URLValidator()(wp_site_url)
-        if wp_default_site_title is not None:
-            validate_string(wp_default_site_title)
         if backup_type is not None:
             validate_backup_type(backup_type)
 
         # setup site and config
-        self.wp_site = WPSite(openshift_env, wp_site_url, wp_default_site_title=wp_default_site_title)
+        self.wp_site = WPSite(openshift_env, wp_site_url)
         self.wp_config = WPConfig(self.wp_site)
         self.type = backup_type or self.DEFAULT_TYPE
 
