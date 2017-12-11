@@ -67,6 +67,7 @@ function EPFL_remove_background_header_options() {
  */
 add_action( 'admin_menu', 'EPFL_remove_admin_submenus',999 );
 function EPFL_remove_admin_submenus() {
+	remove_submenu_page( 'options-general.php', 'options-permalink.php' );
 	remove_submenu_page( 'options-general.php', 'addtoany' );
 	remove_submenu_page( 'options-general.php', 'mainwp_child_tab' );
 	remove_submenu_page( 'options-general.php', 'epfl_accred' );
