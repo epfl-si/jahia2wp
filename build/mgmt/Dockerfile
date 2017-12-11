@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     php7.0-cli \
     php7.0-curl \
     php7.0-mysql \
+    php7.0-zip \
     python3 \
     python3-pip \
     python3-virtualenv \
@@ -47,15 +48,19 @@ RUN sed -ir 's#www-data.*:/usr/sbin/nologin#www-data:x:33:33:www-data:/var/www:/
     chmod 700 /var/www/.ssh
 
 # install wp-cli packages, downloaded from
-# https://github.com/wp-cli/wp-cli/releases
-# https://github.com/diggy/polylang-cli/releases
-# https://github.com/cortneyray/wp-cli-polylang/releases
+# Do not use "Code -> Releases" page to download ZIP files. Use "Code -> Download" option on "Code" tab.
+# https://github.com/diggy/polylang-cli
+# https://github.com/cortneyray/wp-cli-polylang
+
 COPY ./wp-packages/wp-cli-1.4.1.phar /usr/local/bin/wp
-COPY ./wp-packages/polylang-cli-1.0.0-prealpha.5 /tmp/polylang-cli-1.0.0-prealpha.5
-COPY ./wp-packages/wp-cli-polylang-1.0.5 /tmp/wp-cli-polylang-1.0.5
+COPY ./wp-packages/polylang-cli-master.zip /tmp/polylang-cli-master.zip
+COPY ./wp-packages/wp-cli-polylang-master.zip /tmp/wp-cli-polylang-master.zip
+
 RUN chmod a+x /usr/local/bin/wp && \
-    su www-data -c "/usr/local/bin/wp package install /tmp/polylang-cli-1.0.0-prealpha.5" && \
-    su www-data -c "/usr/local/bin/wp package install /tmp/wp-cli-polylang-1.0.5"
+    su www-data -c "/usr/local/bin/wp package install /tmp/polylang-cli-master.zip" && \
+    su www-data -c "/usr/local/bin/wp package install /tmp/wp-cli-polylang-master.zip"
+
+
 
 # this line should come after the installation of other packages
 # otherwise, it creates /var/www/.wp-cli with incorrect permission
