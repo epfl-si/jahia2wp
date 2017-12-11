@@ -24,7 +24,7 @@ spec:
              - bash
              args:
              - -c
-             - source /srv/${WP_ENV}/venv/bin/activate && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src && cd /srv/${WP_ENV}/jahia2wp && set -o allexport && source .env && set +o allexport && python src/jahia2wp.py inventory /srv/ > /srv/manager/wp-manager.epfl.ch/htdocs/inventory.csv
+             - source /srv/${WP_ENV}/venv/bin/activate && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src && cd /srv/${WP_ENV}/jahia2wp && set -o allexport && source .env && set +o allexport && python src/jahia2wp.py inventory /srv/ > /srv/manager/wp-manager.epfl.ch/htdocs/wp-admin/inventory.csv
              env:
              - name: WP_ENV
                value: subdomains
