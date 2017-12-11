@@ -51,7 +51,7 @@ class WPConfig:
     @classmethod
     def inventory(cls, path):
         """
-        Parse path do an inventory of existing websites.
+        Parse path and do an inventory of existing websites.
 
         Argument keywords:
         path -- Path where to look for installed WordPress websites
