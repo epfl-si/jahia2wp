@@ -82,7 +82,7 @@ class TestCommandLine:
         ]
 
         output = Utils.run_command(
-            'python {0} inventory {1} /srv/{1}/{2}'.format(
+            'python {0} inventory /srv/{1}/{2}'.format(
                 SCRIPT_FILE, OPENSHIFT_ENV, TEST_HOST))
 
         for expected_line in expected_lines:
