@@ -13,7 +13,7 @@ DATA_PATH = os.path.abspath(os.path.sep.join([SRC_DIR_PATH, '..', 'data']))
 WP_FILES_PATH = os.path.join(DATA_PATH, 'wp')
 
 FULL_BACKUP_RETENTION_THEME = {
-    'hourly': 24,
+    'hourly': 0,
     'daily': 7,
     'weekly': 4,
     'monthly': 12,
@@ -21,8 +21,8 @@ FULL_BACKUP_RETENTION_THEME = {
 }
 
 INCREMENTAL_BACKUP_RETENTION_THEME = {
-    'hourly': 24,
-    'daily': 2,
+    'hourly': 48,
+    'daily': 0,
     'weekly': 0,
     'monthly': 0,
     'yearly': 0,

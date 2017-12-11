@@ -196,14 +196,14 @@ def rotate_backup(csv_file, dry_run=False, **kwargs):
     for index, row in rows:
         path = WPBackup(row["openshift_env"], row["wp_site_url"]).path
         # rotate full backups first
-        for pattern in ["*.list", "*full.sql", "*full.tar"]:
+        for pattern in ["*full.sql", "*full.tar"]:
             RotateBackups(
                 FULL_BACKUP_RETENTION_THEME,
                 dry_run=dry_run,
                 include_list=[pattern]
             ).rotate_backups(path)
         # rotate incremental backups
-        for pattern in ["*inc.sql", "*inc.tar"]:
+        for pattern in ["*.list", "*inc.sql", "*inc.tar"]:
             RotateBackups(
                 INCREMENTAL_BACKUP_RETENTION_THEME,
                 dry_run=dry_run,
