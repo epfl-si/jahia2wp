@@ -51,12 +51,23 @@ function my_custom_bulk_actions($actions){
 	        return $actions;
 }
 
+
+
+/* Hide apparence backround and header menu
+ * 
+ */
+add_action( 'after_setup_theme','EPFL_remove_background_header_options', 100 );
+function EPFL_remove_background_header_options() {    
+	 remove_custom_background();
+ 	 remove_custom_image_header();
+}
+
 /* Hide plugin configuration
  * https://codex.wordpress.org/Plugin_API/Action_Reference/admin_menu
  */
 add_action( 'admin_menu', 'EPFL_remove_admin_submenus',999 );
 function EPFL_remove_admin_submenus() {
-	remove_submenu_page( 'options-general.php', 'addtoany' );
+	remove_submenu_page( 'options-general.php', 'options-permalink.php' );
 	remove_submenu_page( 'options-general.php', 'mainwp_child_tab' );
 	remove_submenu_page( 'options-general.php', 'epfl_accred' );
 	remove_submenu_page( 'options-general.php', 'epfl_tequila' );

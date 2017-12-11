@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     php7.0-mysql \
     php7.0-mbstring \
     php7.0-xml \
+    vim \
   && \
     apt-get -y autoremove && \
     apt-get clean
@@ -19,6 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY apache2.conf /etc/apache2/
 COPY restrict-wp-admin.conf /etc/apache2/conf-enabled/
 COPY modsecurity.conf /etc/modsecurity/
+COPY modsecurity-whitelist.conf /etc/modsecurity/
 COPY docker-entrypoint.sh /
 RUN chmod a+x /docker-entrypoint.sh
 

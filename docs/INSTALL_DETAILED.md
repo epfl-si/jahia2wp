@@ -113,15 +113,12 @@ httpd-www | /srv/www
 httpd-intranet | /srv/intranet
 
 Add the following files in `/srv`:
-- .bashrc
-- .aliases
-- .config/.env 
 
-You should derive them from an other existing infrastructure (e.g test), or from the sample files found in the repo:
-
-- [etc/.bashrc](../etc/.bashrc)
-- [etc/.aliases_c2c](../etc/.aliases_c2c)
-- [.env.sample](../etc/.env.sample)
+File | Derived from
+-----|-------------
+.bashrc | [etc/.bashrc](../etc/.bashrc)
+.aliases | [etc/.aliases_c2c](../etc/.aliases_c2c)
+.config/.env | [.env.sample](../etc/.env.sample)
 
 
 ## Install in C2C infra
@@ -130,7 +127,7 @@ In order to work remotely, you need an access to C2C infra (your public SSH key 
 
 Login to the management container (within VPN) and go to your environment:
 
-    you@host:~$ ssh -A -o SendEnv=WP_ENV www-data@exopgesrv55.epfl.ch -p 32222
+    you@host:~$ ssh -A -o SendEnv=WP_ENV www-data@wwp-ssh.epfl.ch -p 32222
     www-data@mgmt-x-xxx:/srv/your-env$
 
 Clone the project:
@@ -143,15 +140,6 @@ The last lines provide you with usable values for your `.env`. You still can mod
 
     www-data@mgmt-x-xxx:/srv/your-env/jahia2wp$ vi .env
 
-    # DB credentials
-    MYSQL_DB_HOST=db-host
-    MYSQL_SUPER_USER=db-super-user
-    MYSQL_SUPER_PASSWORD=db-secret
-
-    BACKUP_PATH=../data/backups
-    # relative to jahia2wp/src
-    PLUGINS_CONFIG_BASE_PATH=../data/plugins/
-
 Set up your virtual environment with `make -f Makefile.c2c`
 
 
@@ -160,7 +148,7 @@ Set up your virtual environment with `make -f Makefile.c2c`
 Set up an alias on your host:
 
     $ echo "
-    alias managwp='echo ssh -A -o SendEnv=WP_ENV  www-data@exopgesrv55.epfl.ch -p 32222 && ssh -A -o SendEnv=WP_ENV www-data@exopgesrv55.epfl.ch -p 32222'" >> ~/.bashrc
+    alias managwp='echo ssh -A -o SendEnv=WP_ENV  www-data@wwp-ssh.epfl.ch -p 32222 && ssh -A -o SendEnv=WP_ENV www-data@wwp-ssh.epfl.ch -p 32222'" >> ~/.bashrc
 
 That will allow you to connect and move to your `src` dir in two commands:
 

@@ -19,7 +19,7 @@ Usage:
   jahia2wp.py backup-many           <csv_file>                      [--debug | --quiet]
     [--backup-type=<BACKUP_TYPE>]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
-  jahia2wp.py inventory             <wp_env> <path>                 [--debug | --quiet]
+  jahia2wp.py inventory             <path>                          [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
     [--config] [--plugin=<PLUGIN_NAME>]
@@ -162,7 +162,6 @@ def generate_many(csv_file, **kwargs):
         WPGenerator(
             row["openshift_env"],
             row["wp_site_url"],
-            row["unit_name"],
             wp_default_site_title=row["wp_default_site_title"],
             unit_name=row["unit_name"],
             updates_automatic=row["updates_automatic"],
@@ -190,10 +189,10 @@ def backup_many(csv_file, backup_type=None, **kwargs):
 
 
 @dispatch.on('inventory')
-def inventory(wp_env, path, **kwargs):
+def inventory(path, **kwargs):
     logging.info("Building inventory...")
     print(";".join(['path', 'valid', 'url', 'version', 'db_name', 'db_user', 'admins']))
-    for site_details in WPConfig.inventory(wp_env, path):
+    for site_details in WPConfig.inventory(path):
         print(";".join([
             site_details.path,
             site_details.valid,

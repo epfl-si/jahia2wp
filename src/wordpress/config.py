@@ -49,12 +49,11 @@ class WPConfig:
         return "config {0} for {1}".format(installed_string, repr(self.wp_site))
 
     @classmethod
-    def inventory(cls, wp_env, path):
+    def inventory(cls, path):
         """
-        Parse path in wp_env and do an inventory of existing websites.
+        Parse path and do an inventory of existing websites.
 
         Argument keywords:
-        wp_env -- Name of environment on which script is executed
         path -- Path where to look for installed WordPress websites
         """
         # helper function to filter out directories which are part or WP install
@@ -76,7 +75,7 @@ class WPConfig:
             dir_names[:] = [d for d in dir_names if keep_wp_sites(d)]
             for dir_name in dir_names:
                 logging.debug('checking %s/%s', parent_path, dir_name)
-                wp_site = WPSite.from_path(wp_env, os.path.join(parent_path, dir_name))
+                wp_site = WPSite.from_path(os.path.join(parent_path, dir_name))
                 if wp_site is None:
                     continue
                 wp_config = cls(wp_site)

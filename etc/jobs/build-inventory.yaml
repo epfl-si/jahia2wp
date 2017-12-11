@@ -1,0 +1,50 @@
+apiVersion: batch/v2alpha1
+kind: CronJob
+metadata:
+  name: build-inventory
+spec:
+  concurrencyPolicy: Forbid
+  # every hour on the tenth minute
+  schedule: '10 * * * *'
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  suspend: false
+  jobTemplate:
+     metadata:
+       creationTimestamp: null
+       labels:
+         parent: build-inventory
+     spec:
+       template:
+         metadata:
+           creationTimestamp: null
+         spec:
+           containers:
+           - command:
+             - bash
+             args:
+             - -c
+             - source /srv/${WP_ENV}/venv/bin/activate && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src && cd /srv/${WP_ENV}/jahia2wp && set -o allexport && source .env && set +o allexport && python src/jahia2wp.py inventory /srv/ > /srv/manager/wp-manager.epfl.ch/htdocs/wp-admin/inventory.csv
+             env:
+             - name: WP_ENV
+               value: subdomains
+             image: docker-registry.default.svc:5000/wwp/cronjob:latest
+             imagePullPolicy: Always
+             name: inventory
+             resources: {}
+             terminationMessagePath: /dev/termination-log
+             terminationMessagePolicy: File
+             volumeMounts:
+             - mountPath: /srv
+               name: wordpress
+           dnsPolicy: ClusterFirst
+           restartPolicy: Never
+           schedulerName: default-scheduler
+           securityContext: {}
+           serviceAccount: wwp 
+           serviceAccountName: wwp
+           terminationGracePeriodSeconds: 30
+           volumes:
+           - name: wordpress
+             persistentVolumeClaim:
+               claimName: wordpress-0

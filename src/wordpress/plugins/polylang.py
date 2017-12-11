@@ -33,6 +33,10 @@ class WPPolylangConfig(WPPluginConfig):
         logging.info("%s - setting polylang options ...", self.wp_site)
         self.run_wp_cli("pll option update media_support 0")
 
+        # Configure sync option
+        logging.info("%s - configuring option sync ...", self.wp_site)
+        self.run_wp_cli("pll option sync taxonomies")
+
         # create menus
         logging.info("%s - creating polylang menu ...", self.wp_site)
         self.run_wp_cli("pll menu create Main top")

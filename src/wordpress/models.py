@@ -67,38 +67,30 @@ class WPSite:
         return self.folder.split('/')[-1]
 
     @classmethod
-    def from_path(cls, openshift_env, path):
+    def from_path(cls, path):
         given_path = os.path.abspath(path).rstrip('/')
+
+        # extract openshift env
+        env_match = re.match("/srv/([^/]+)", given_path)
+        if env_match is None or not env_match.groups():
+            raise ValueError("given path '{}' should be included in a valid openshift_env".format(given_path))
+        openshift_env = env_match.groups()[0]
 
         # validate given path
         if not os.path.isdir(given_path):
             logging.warning("given path '{}' is not a valid dir".format(given_path))
 
-        # validate path within env
-        env_path = '/srv/{}'.format(openshift_env)
-        if not given_path.startswith(env_path):
-            raise ValueError("given path '{}' should be included in given openshift_env '{}'".format(
-                given_path, env_path
-            ))
-
-        # path is env
-        if env_path == given_path:
-            logging.debug("given path is openshift env: no site here")
+        # make sure we are in an apache root directory
+        if 'htdocs' not in given_path:
             return None
 
         # build URL from path
-        if 'htdocs' in given_path:
-            # extract domain and folder(s)
-            regex = re.compile("/([^/]*)")
-            directories = regex.findall(os.path.abspath(path))
-            htdocs_index = directories.index('htdocs')
-            domain = directories[htdocs_index-1]
-            folders = '/'.join(directories[htdocs_index+1:])
-            url = "{}://{}/{}".format(cls.PROTOCOL, domain, folders)
-        else:
-            # domain only
-            domain = os.path.basename(given_path)
-            url = "{}://{}".format(cls.PROTOCOL, domain)
+        regex = re.compile("/([^/]*)")
+        directories = regex.findall(os.path.abspath(path))
+        htdocs_index = directories.index('htdocs')
+        domain = directories[htdocs_index-1]
+        folders = '/'.join(directories[htdocs_index+1:])
+        url = "{}://{}/{}".format(cls.PROTOCOL, domain, folders)
 
         # return WPSite
         return cls(openshift_env, url)

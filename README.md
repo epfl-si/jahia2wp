@@ -36,11 +36,15 @@
 </p>
 <br>
 
+## Install and Usage
+
+Head to the [documentation](http://jahia2wp.readthedocs.io/en/master/) for next practical steps
+
 ## Roadmap and Overview
 
-We will first focus on automation and maintenance, with the objective of driving all the creation process from one shared spreadsheet (aka configuration source).
+### 30/11/2017, Naked WordPress : Went Live :airplane:
 
-Icons are used to mark the progress as follows: :balloon:, :tada:, :champagne: or :gift_heart: when available, :construction: when work in progress, :tent: when implemented as prototype in [jahiap repo](https://github.com/epfl-idevelop/jahiap)
+We spent [6 sprints](https://github.com/epfl-idevelop/jahia2wp/projects/1?) to focus on automation and maintenance, with the objective of driving all the creation process from one shared spreadsheet (aka configuration source).
 
 1. :balloon: installing a functional WordPress to any given URL
 
@@ -54,22 +58,49 @@ Icons are used to mark the progress as follows: :balloon:, :tada:, :champagne: o
         admin:admin@example.com <administrator>
         user123456:user@epfl.ch <administrator>
 
-2. :tada: extracting configuration for a given plugin
+2. :tada: add, list plugins
 
         $ python jahia2wp.py extract-plugin-config $WP_ENV http://localhost output_file
         ...
 
-3. :tada: once plugin structures (specific & generic) has been created, it's possible to check if plugin list is correct
-
         $ python jahia2wp.py list-plugins $WP_ENV http://localhost
+        Plugin list for site 'localhost':
+        - mainwp-child
+          - action   : install
+          - activated: True
+          - src      : web
+        - tequila
+          - action   : install
+          - activated: True
         ...
 
-Add `--config` to also see plugin configuration and `--plugin=<name>` to see a given plugin.
+        $ python jahia2wp.py list-plugins $WP_ENV http://localhost --config --plugin=tequila      - tequila
+        - action     : install
+          - activated: True
+          - src      : /srv/ebreton/jahia2wp/data/plugins/generic/tequila/v1/tequila.zip
+        - tables
+          + term_relationships
+          + termmeta
+          + terms
+          + options
+          + term_taxonomy
+          + postmeta
+        
+3. :construction: maintaining the website and the plugins
 
-        $ python jahia2wp.py list-plugins $WP_ENV http://localhost --config --plugin=<name>
+        $ python jahia2wp.py version $WP_ENV http://localhost
+        4.8
+
+        $ python jahia2wp.py clean $WP_ENV http://localhost
         ...
 
-4. :champagne: applying those first two steps to every row of our configuration source
+        $ python jahia2wp.py backup $WP_ENV http://localhost
+        ...
+
+        $ python jahia2wp.py backup $WP_ENV http://localhost --backup-type=inc
+        ...
+
+4. :champagne: applying those them functionalities to every row of our configuration source
 
         $ python jahia2wp.py generate-many path/to/source.csv
         ...
@@ -82,18 +113,7 @@ Add `--config` to also see plugin configuration and `--plugin=<name>` to see a g
         path;valid;url;version;db_name;db_user;admins
         ...
 
-5. :construction: maintaining the website and the plugins
-
-        $ python jahia2wp.py version $WP_ENV http://localhost
-        4.8
-
-        $ python jahia2wp.py clean $WP_ENV http://localhost
-        ...
-
-        $ python jahia2wp.py backup $WP_ENV http://localhost
-        ...
-
-We will secondly add support for migration of a simple site:
+### Migration
 
 1. :gift_heart: Export the content of a Jahia website as a zipped package
 
@@ -101,14 +121,13 @@ We will secondly add support for migration of a simple site:
         Jahia password for user 'foo':
         ...
 
-2. :tent: Parse zipped package (XML and files) as python objects
-3. :tent: Import parsed pages into WordPress (raw content)
-4. :tent: Support translation, hierarchy, menu, sidebar
-
-And lastly we will extend the support to other Jahia boxes, mainly thanks to WordPress shortcodes
-
+1. :tent: Parse zipped package (XML and files) as python objects
+1. :tent: Import parsed pages into WordPress (raw content)
+1. :tent: Support translation, hierarchy, menu, sidebar
 1. Import static Jahia boxes into WordPress (shortcodes)
-2. Import web-services powered Jahia boxes into WordPress (people, faq, actu, memento, infoscience, and so on ...)
+1. Import web-services powered Jahia boxes into WordPress (people, faq, actu, memento, infoscience, and so on ...)
+
+### Help
 
 Calling jahia2wp.py with `-h` will give you details on available options
 
@@ -118,10 +137,6 @@ Calling jahia2wp.py with `-h` will give you details on available options
 ## Changelog
 
 All notable changes to this project are documented in [CHANGELOG.md](./docs/CHANGELOG.md).
-
-## Install and Usage
-
-Head to the [documentation](http://jahia2wp.readthedocs.io/en/master/) for next practical steps
 
 ## Contribution
 
