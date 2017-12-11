@@ -14,15 +14,15 @@ WP_FILES_PATH = os.path.join(DATA_PATH, 'wp')
 
 FULL_BACKUP_RETENTION_THEME = {
     'hourly': 0,
-    'daily': 7,
-    'weekly': 4,
-    'monthly': 12,
+    'daily': 0,
+    'weekly': 8,
+    'monthly': 24,
     'yearly': 'always',
 }
 
 INCREMENTAL_BACKUP_RETENTION_THEME = {
-    'hourly': 48,
-    'daily': 0,
+    'hourly': 0,
+    'daily': 30,
     'weekly': 0,
     'monthly': 0,
     'yearly': 0,
