@@ -12,6 +12,7 @@ SRC_DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 DATA_PATH = os.path.abspath(os.path.sep.join([SRC_DIR_PATH, '..', 'data']))
 WP_FILES_PATH = os.path.join(DATA_PATH, 'wp')
 
+NB_DAYS_BEFORE_NEW_FULL = 7
 FULL_BACKUP_RETENTION_THEME = {
     'hourly': 0,
     'daily': 0,

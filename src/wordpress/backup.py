@@ -1,6 +1,6 @@
 import datetime
 import logging
-import glob
+import re
 import os
 
 from .models import WPException, WPSite
@@ -18,8 +18,8 @@ class WPBackup:
     Class that handles the backups.
 
     There are 2 types of backup, that will be automatically made according the following :
-    - full : Full backup, when no other full backup found for the same day
-    - inc : Incremental backup (for files only, not the DB), when a fulle backup already exists for the same day
+    - full : Full backup, when no other full backup found in the NB_DAYS_BEFORE_NEW_FULL
+    - inc : Incremental backup (for files only, not the DB), when full backup found (in NB_DAYS_BEFORE_NEW_FULL)
 
     A full backup generates 3 files :
     - "<wp_site_name>_<timestamp>.list": reference for incremental backup
@@ -33,7 +33,6 @@ class WPBackup:
 
     FULL_PATTERN = "full"
     INCREMENTAL_PATTERN = "inc"
-    DAYLY_LIST_PATTERN = "%Y%m%d*.list"
     TIMESTAMP_FORMAT = "%Y%m%d%H%M%S"
     # allow to override BACKUP_PATH in var env for travis (which uses a read-only system)
     BACKUP_PATH = Utils.get_optional_env("BACKUP_PATH", os.path.join(settings.DATA_PATH, 'backups'))
@@ -60,14 +59,15 @@ class WPBackup:
         self.path = os.path.join(self.BACKUP_PATH, self.wp_site.name)
 
         # set backup type, and name for list file
-        self.listfile = self.get_daily_list()
-        if self.listfile is None:
+        listfile = self.get_daily_list()
+        if listfile is None:
             self.backup_pattern = self.FULL_PATTERN
             self.listfile = os.path.join(
                 self.path,
                 "_".join((self.wp_site.name, self.timestamp)) + ".list")
         else:
             self.backup_pattern = self.INCREMENTAL_PATTERN
+            self.listfile = os.path.join(self.path, listfile)
 
         # set filenames
         self.tarfile = os.path.join(
@@ -78,12 +78,23 @@ class WPBackup:
                 "_".join((self.wp_site.name, self.timestamp, self.backup_pattern)) + ".sql")
 
     def get_daily_list(self):
-        file_pattern = os.path.join(
-                self.path,
-                "_".join((self.wp_site.name, self.datetime.strftime(self.DAYLY_LIST_PATTERN))))
+        # shortcut if directory does not exist yet
+        if not os.path.exists(self.path):
+            return None
 
-        logging.debug("%s - Seeking backups with %s", repr(self.wp_site), file_pattern)
-        matches = glob.glob(file_pattern)
+        # list all dates when we could use a full backup
+        valid_dates = [self.datetime - datetime.timedelta(days=delta)
+                       for delta in range(settings.NB_DAYS_BEFORE_NEW_FULL)]
+
+        # build regex for filenames with found dates
+        matches = "|".join([valid_date.strftime("%Y%m%d")
+                            for valid_date in valid_dates])
+        file_regex = re.compile("({})\d+.list".format(matches))
+
+        # list directory, filtering out files with appropriate dates
+        logging.debug("%s - Seeking backups with regex: %s", repr(self.wp_site), file_regex)
+        matches = [name for name in os.listdir(self.path)
+                   if file_regex.search(name)]
 
         # returns oldest match
         if matches:
