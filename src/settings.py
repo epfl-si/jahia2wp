@@ -4,19 +4,30 @@ import os
 from utils import Utils
 
 VERSION = "0.3.1"
-SRC_DIR_PATH = os.path.dirname(os.path.realpath(__file__))
+
 OPENSHIFT_ENV = Utils.get_mandatory_env("WP_ENV")
+ENV_DIRS = ['logs', 'venv', 'jahia2wp']
 
-# This Docker IP address is used for automatic testing.
-# Docker may change it in the future, which will cause some tests to fail.
-HTTPD_CONTAINER = Utils.get_optional_env("HTTPD_CONTAINER", "httpd")
-TEST_SITE = 'unittest'
-
+SRC_DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 DATA_PATH = os.path.abspath(os.path.sep.join([SRC_DIR_PATH, '..', 'data']))
-BACKUP_PATH = Utils.get_optional_env("BACKUP_PATH", os.path.join(DATA_PATH, 'backups'))
 WP_FILES_PATH = os.path.join(DATA_PATH, 'wp')
 
-ENV_DIRS = ['logs', 'venv', 'jahia2wp']
+NB_DAYS_BEFORE_NEW_FULL = 7
+FULL_BACKUP_RETENTION_THEME = {
+    'hourly': 0,
+    'daily': 0,
+    'weekly': 8,
+    'monthly': 24,
+    'yearly': 'always',
+}
+
+INCREMENTAL_BACKUP_RETENTION_THEME = {
+    'hourly': 0,
+    'daily': 30,
+    'weekly': 0,
+    'monthly': 0,
+    'yearly': 0,
+}
 
 WP_DIRS = ['wp-admin', 'wp-content', 'wp-includes']
 WP_FILES = [

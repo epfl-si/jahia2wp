@@ -7,8 +7,13 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
-from settings import HTTPD_CONTAINER, OPENSHIFT_ENV
+from settings import OPENSHIFT_ENV
 from wordpress.generator import MockedWPGenerator
+from utils import Utils
+
+# This Docker IP address is used for automatic testing.
+# Docker may change it in the future, which will cause some tests to fail.
+HTTPD_CONTAINER = Utils.get_optional_env("HTTPD_CONTAINER", "httpd")
 
 
 class TestWpUploadTest:

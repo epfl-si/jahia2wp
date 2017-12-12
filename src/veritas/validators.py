@@ -86,14 +86,11 @@ def validate_languages(text):
     MultipleChoicesValidator(SUPPORTED_LANGUAGES)(text)
 
 
-def validate_backup_type(text):
-    ChoiceValidator(choices=['inc', 'full'])(text)
-
-
 def validate_unit(unit_name):
     # FIXME: epfl-ldap should a LDAP Exception
     try:
-        get_unit_id(unit_name)
+        if unit_name:
+            get_unit_id(unit_name)
     except Exception:
         raise ValidationError("The unit name {} doesn't exist".format(unit_name))
 
