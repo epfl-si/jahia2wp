@@ -21,7 +21,7 @@ class WPSite:
         its title is optionnal, just to provide a default value to the final user
     """
 
-    PROTOCOL = "http"
+    PROTOCOL = "https"
     DEFAULT_TITLE = "New WordPress"
     WP_VERSION = Utils.get_mandatory_env(key="WP_VERSION")
 
