@@ -13,24 +13,24 @@ class TestWPSite:
     def wordpress(self):
         return WPSite(
             openshift_env=settings.OPENSHIFT_ENV,
-            wp_site_url="http://localhost/folder",
+            wp_site_url="https://localhost/folder",
             wp_default_site_title="My test")
 
     def test_path(self, wordpress):
         assert wordpress.path == ROOT_PATH + "htdocs/folder"
 
     def test_url(self, wordpress):
-        assert wordpress.url == "http://localhost/folder"
+        assert wordpress.url == "https://localhost/folder"
 
     def test_name(self, wordpress):
         assert wordpress.name == "folder"
         assert WPSite(
             openshift_env=settings.OPENSHIFT_ENV,
-            wp_site_url="http://localhost/") \
+            wp_site_url="https://localhost/") \
             .name == "localhost"
         assert WPSite(
             openshift_env=settings.OPENSHIFT_ENV,
-            wp_site_url="http://www.epfl.ch/") \
+            wp_site_url="https://www.epfl.ch/") \
             .name == "www"
 
     def test_failing_url_from_path(self):
@@ -39,9 +39,9 @@ class TestWPSite:
 
     def test_valid_url_from_path(self):
         assert WPSite.from_path(ROOT_PATH + "htdocs/folder") \
-            .url == "http://localhost/folder"
+            .url == "https://localhost/folder"
         assert WPSite.from_path(ROOT_PATH + "htdocs/folder/sub") \
-            .url == "http://localhost/folder/sub"
+            .url == "https://localhost/folder/sub"
 
 
 class TestWPUser:
@@ -59,7 +59,7 @@ class TestWPConfig:
     def wp_config(self):
         wordpress = WPSite(
             openshift_env=settings.OPENSHIFT_ENV,
-            wp_site_url="http://localhost/folder",
+            wp_site_url="https://localhost/folder",
             wp_default_site_title="My test")
         return WPConfig(wordpress)
 
@@ -73,7 +73,7 @@ class TestWPGenerator:
     def wp_generator(self):
         generator = MockedWPGenerator(
             settings.OPENSHIFT_ENV,
-            "http://localhost/folder",
+            "https://localhost/folder",
             wp_default_site_title=self.TITLE_WITH_ACCENT,
             unit_name="idevelop",
             updates_automatic=False)
