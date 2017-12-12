@@ -24,6 +24,7 @@ class TestWpUploadTest:
     def session(self):
         logging.debug("Starting new session")
         session = requests.session()
+        # TODO close the session properly
         return session
 
     @pytest.fixture()
@@ -138,6 +139,5 @@ class TestWpUploadTest:
         image_page = session.get(image_url)
         assert image_page.status_code == 404
 
-        session.close()
         # clean WP site
         wp_generator.clean()
