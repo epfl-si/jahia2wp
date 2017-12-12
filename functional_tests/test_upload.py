@@ -24,7 +24,8 @@ class TestWpUploadTest:
     def session(self):
         logging.debug("Starting new session")
         session = requests.session()
-        # TODO close the session properly
+        # To close session properly
+        session.config['keep-alive'] = False
         return session
 
     @pytest.fixture()
@@ -54,7 +55,8 @@ class TestWpUploadTest:
                       "redirect_to": "{base_path}/wp-admin".format(base_path=wp_generator.wp_site.url),
                       "redirect_to_automatic": "1"
                       }
-
+        # 'verify=False' is to ignore SSL certificate error because we are accessing using HTTPS but without
+        # any valid certificate \o/
         page_login = session.post(link, login_data, verify=False)
         assert page_login.status_code is 200
 
