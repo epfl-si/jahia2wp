@@ -1,16 +1,19 @@
 apiVersion: batch/v2alpha1
 kind: CronJob
 metadata:
-  name: build-subdomains-inventory
+  name: build-inventory
 spec:
   concurrencyPolicy: Forbid
   # every hour on the tenth minute
-  schedule: '10 */1 * * *'
+  schedule: '10 * * * *'
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
   suspend: false
   jobTemplate:
      metadata:
        creationTimestamp: null
-     successfulJobsHistoryLimit: 3
+       labels:
+         parent: build-inventory
      spec:
        template:
          metadata:
@@ -21,7 +24,7 @@ spec:
              - bash
              args:
              - -c
-             - source /srv/${WP_ENV}/venv/bin/activate && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src && cd /srv/${WP_ENV}/jahia2wp && set -o allexport && source .env && set +o allexport && python src/jahia2wp.py inventory ${WP_ENV} /srv/${WP_ENV} > /srv/manager/wp-manager.epfl.ch/htdocs/inventory-${WP_ENV}.csv
+             - source /srv/${WP_ENV}/venv/bin/activate && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src && cd /srv/${WP_ENV}/jahia2wp && set -o allexport && source .env && set +o allexport && python src/jahia2wp.py inventory /srv/ > /srv/manager/wp-manager.epfl.ch/htdocs/wp-admin/inventory.csv
              env:
              - name: WP_ENV
                value: subdomains

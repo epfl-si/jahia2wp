@@ -11,6 +11,7 @@ Table of releases
 
 <!-- TOC depthFrom:2 depthTo:2 orderedList:false -->
 
+- [[0.3.1] - 2017-12-07](#031---2017-12-07)
 - [[0.3.0] - 2017-11-30](#030---2017-11-30)
 - [[0.2.14] - 2017-11-17](#0214---2017-11-17)
 - [[0.2.13] - 2017-11-14/15](#0213---2017-11-1415)
@@ -31,6 +32,38 @@ Table of releases
 
 <!-- /TOC -->
 
+## [0.3.1] - 2017-12-07
+
+**[PR #129](https://github.com/epfl-idevelop/jahia2wp/pull/129)**
+**[PR #134](https://github.com/epfl-idevelop/jahia2wp/pull/134)**
+**[PR #137](https://github.com/epfl-idevelop/jahia2wp/pull/137)**
+**[PR #139](https://github.com/epfl-idevelop/jahia2wp/pull/139)**
+**[PR #140](https://github.com/epfl-idevelop/jahia2wp/pull/140)**
+**[PR #141](https://github.com/epfl-idevelop/jahia2wp/pull/141)**
+**[PR #144](https://github.com/epfl-idevelop/jahia2wp/pull/144)**
+
+**High level:**
+
+1. (#129) cronjobs running every day for full backup, every hour for incremental backups
+1. (#134) Updated documentation with information related to go-live (production!)
+1. (#137) disable header and background from admin apprence menu
+1. (#141) Activate coming soon mode by default for each site
+1. (#140) Enable mod_remoteip: allows to use "Require ip" apache2 httpd ACL and logs correct client IP.
+1. (#140) Permet de restreindre wp_admin au réseau EPFL
+1. (#140) Permet à mod_security d'appliquer les règles sur la véritable IP client
+
+**Low level:**
+
+1. (#139) Shortcut command to log in to the httpd container : make httpd
+1. (#139) added the vim package
+1. (#140) enable mod_remoteip 
+1. (#140) configure X-Forwarded-For Header
+1. (#140) configure SLB and Openshift routers as trusted proxies
+1. (#140) change logging format to not use raw header but processed data
+1. (#144) Limit number of pods that (successfully) run the jobs 
+1. (#144) fix args passed to generate_many
+1. (#144) fixed schedule of cronjob
+1. (#144) added label to cronjob
 
 ## [0.3.0] - 2017-11-30
 **[PR #99](https://github.com/epfl-idevelop/jahia2wp/pull/99)**
