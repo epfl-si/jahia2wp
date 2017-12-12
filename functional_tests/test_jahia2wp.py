@@ -10,7 +10,7 @@ from wordpress.generator import MockedWPGenerator
 
 SCRIPT_FILE = os.path.join(SRC_DIR_PATH, 'jahia2wp.py')
 TEST_HOST = 'localhost'
-SITE_URL_SPECIFIC = "http://{0}/{1}".format(TEST_HOST, TEST_SITE)
+SITE_URL_SPECIFIC = "https://{0}/{1}".format(TEST_HOST, TEST_SITE)
 
 
 @pytest.fixture(scope="module")
