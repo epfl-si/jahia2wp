@@ -1,24 +1,30 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
 import os
+import shutil
 
 import pytest
 
-from settings import OPENSHIFT_ENV, TEST_SITE, SRC_DIR_PATH
+from settings import OPENSHIFT_ENV, SRC_DIR_PATH
 from utils import Utils
-from wordpress import WPUser
+from wordpress import WPUser, WPBackup
 from wordpress.generator import MockedWPGenerator
 
 SCRIPT_FILE = os.path.join(SRC_DIR_PATH, 'jahia2wp.py')
 TEST_HOST = 'localhost'
+TEST_SITE = 'unittest'
 SITE_URL_SPECIFIC = "https://{0}/{1}".format(TEST_HOST, TEST_SITE)
 
 
 @pytest.fixture(scope="module")
 def setup():
+    # clean WP site
     wp_env = OPENSHIFT_ENV
     wp_url = SITE_URL_SPECIFIC
     wp_generator = MockedWPGenerator(wp_env, wp_url)
     wp_generator.clean()
+    # clean backups
+    backup_path = WPBackup(wp_env, wp_url).path
+    shutil.rmtree(backup_path, ignore_errors=True)
 
 
 class TestCommandLine:
@@ -39,13 +45,13 @@ class TestCommandLine:
                                  % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC)) == expected
 
     def test_backup_full(self):
-        expected = "Successfully backed-up WordPress site for {}".format(SITE_URL_SPECIFIC)
+        expected = "Successfull full backup for {}".format(SITE_URL_SPECIFIC)
         assert Utils.run_command('python %s backup %s %s'
                                  % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC)) == expected
 
     def test_backup_incremental(self):
-        expected = "Successfully backed-up WordPress site for {}".format(SITE_URL_SPECIFIC)
-        assert Utils.run_command('python %s backup %s %s --backup-type=inc'
+        expected = "Successfull inc backup for {}".format(SITE_URL_SPECIFIC)
+        assert Utils.run_command('python %s backup %s %s'
                                  % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC)) == expected
 
     def test_list_plugins(self):

@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     php7.0-cli \
     php7.0-curl \
     php7.0-mysql \
+    php7.0-zip \
     python3 \
     python3-pip \
     python3-virtualenv \
@@ -21,8 +22,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     screen \
     unzip \
     vim && \
-    curl -k -o /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
-    chmod a+x /usr/local/bin/wp && \
     apt-get clean
 
 RUN mkdir /var/run/sshd && \
@@ -42,14 +41,26 @@ RUN mkdir /var/run/sshd && \
 COPY ./bash_profile /var/www/.bash_profile
 COPY ./docker-entrypoint.sh /
 
+# setup access rights
+RUN sed -ir 's#www-data.*:/usr/sbin/nologin#www-data:x:33:33:www-data:/var/www:/bin/bash#' /etc/passwd && \
+    mkdir -p /var/www/.ssh && \
+    chown -R www-data: /var/www && \
+    chmod 700 /var/www/.ssh
 
-RUN sed -ir 's#www-data.*:/usr/sbin/nologin#www-data:x:33:33:www-data:/var/www:/bin/bash#' /etc/passwd
-RUN mkdir -p /var/www/.ssh
-RUN chown -R www-data: /var/www
-RUN chmod 700 /var/www/.ssh
+# install wp-cli packages, downloaded from
+# Do not use "Code -> Releases" page to download ZIP files. Use "Code -> Download" option on "Code" tab.
+# https://github.com/diggy/polylang-cli
+# https://github.com/cortneyray/wp-cli-polylang
 
-RUN su www-data -c "/usr/local/bin/wp package install git@github.com:diggy/polylang-cli.git"
-RUN su www-data -c "/usr/local/bin/wp package install git@github.com:cortneyray/wp-cli-polylang.git"
+COPY ./wp-packages/wp-cli-1.4.1.phar /usr/local/bin/wp
+COPY ./wp-packages/polylang-cli-master.zip /tmp/polylang-cli-master.zip
+COPY ./wp-packages/wp-cli-polylang-master.zip /tmp/wp-cli-polylang-master.zip
+
+RUN chmod a+x /usr/local/bin/wp && \
+    su www-data -c "/usr/local/bin/wp package install /tmp/polylang-cli-master.zip" && \
+    su www-data -c "/usr/local/bin/wp package install /tmp/wp-cli-polylang-master.zip"
+
+
 
 # this line should come after the installation of other packages
 # otherwise, it creates /var/www/.wp-cli with incorrect permission
