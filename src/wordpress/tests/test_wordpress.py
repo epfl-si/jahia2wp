@@ -13,7 +13,7 @@ class TestWPSite:
     def wordpress(self):
         return WPSite(
             openshift_env=settings.OPENSHIFT_ENV,
-            wp_site_url="https://localhost/folder",
+            wp_site_url="http://localhost/folder",
             wp_default_site_title="My test")
 
     def test_path(self, wordpress):
@@ -26,11 +26,11 @@ class TestWPSite:
         assert wordpress.name == "folder"
         assert WPSite(
             openshift_env=settings.OPENSHIFT_ENV,
-            wp_site_url="https://localhost/") \
+            wp_site_url="http://localhost/") \
             .name == "localhost"
         assert WPSite(
             openshift_env=settings.OPENSHIFT_ENV,
-            wp_site_url="https://www.epfl.ch/") \
+            wp_site_url="http://www.epfl.ch/") \
             .name == "www"
 
     def test_failing_url_from_path(self):
@@ -59,7 +59,7 @@ class TestWPConfig:
     def wp_config(self):
         wordpress = WPSite(
             openshift_env=settings.OPENSHIFT_ENV,
-            wp_site_url="https://localhost/folder",
+            wp_site_url="http://localhost/folder",
             wp_default_site_title="My test")
         return WPConfig(wordpress)
 
@@ -73,7 +73,7 @@ class TestWPGenerator:
     def wp_generator(self):
         generator = MockedWPGenerator(
             settings.OPENSHIFT_ENV,
-            "https://localhost/folder",
+            "http://localhost/folder",
             wp_default_site_title=self.TITLE_WITH_ACCENT,
             unit_name="idevelop",
             updates_automatic=False)
