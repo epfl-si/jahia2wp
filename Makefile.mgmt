@@ -20,6 +20,7 @@ functional-tests-raw: /srv/${WP_ENV}/venv
 test-travis: /srv/${WP_ENV}/venv
 	. /srv/${WP_ENV}/venv/bin/activate \
 	  && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src \
+	  && export BACKUP_PATH=/tmp/backups \
 	  && flake8 --max-line-length=120 src \
 	  && pytest --cov=./ . \
 	  && codecov

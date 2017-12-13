@@ -5,8 +5,9 @@ from importlib import reload
 import settings
 from wordpress import WPPluginList
 
+TEST_SITE = 'unittest'
 SITE_URL_GENERIC = "http://localhost/"
-SITE_URL_SPECIFIC = "http://localhost/{}".format(settings.TEST_SITE)
+SITE_URL_SPECIFIC = "http://localhost/{}".format(TEST_SITE)
 os.environ["PLUGINS_CONFIG_BASE_PATH"] = "wordpress/tests/plugins"
 reload(settings)
 
@@ -47,7 +48,7 @@ class TestWPPluginList:
     def test_specific_plugin_list(self, wp_plugin_list):
         plugins_to_test = ['add-to-any', 'hello', 'redirection', 'akismet']
 
-        plugin_list = wp_plugin_list.plugins(settings.TEST_SITE)
+        plugin_list = wp_plugin_list.plugins(TEST_SITE)
         assert len(plugin_list) == len(plugins_to_test)
         for plugin_name in plugins_to_test:
             assert plugin_name in plugin_list
