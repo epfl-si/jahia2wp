@@ -22,7 +22,8 @@ Usage:
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
     [--config] [--plugin=<PLUGIN_NAME>]
-  jahia2wp.py update-plugin-list    <wp_env> <wp_url>               [--debug | --quiet]
+  jahia2wp.py update-plugins        <wp_env> <wp_url>               [--debug | --quiet]
+    [--force] [--plugin=<PLUGIN_NAME>]
 
 Options:
   -h --help                 Show this screen.
@@ -255,12 +256,12 @@ def list_plugins(wp_env, wp_url, config=False, plugin=None, **kwargs):
     print(WPGenerator(wp_env, wp_url).list_plugins(config, plugin))
 
 
-@dispatch.on('update-plugin-list')
-def update_plugin_list(wp_env, wp_url, **kwargs):
+@dispatch.on('update-plugins')
+def update_plugins(wp_env, wp_url, plugin=None, force=False, **kwargs):
 
     wp_generator = WPGenerator(wp_env, wp_url)
 
-    wp_generator.generate_plugins()
+    wp_generator.update_plugins(plugin, force)
 
     print("Successfully updated WordPress plugin list at {}".format(wp_generator.wp_site.url))
 
