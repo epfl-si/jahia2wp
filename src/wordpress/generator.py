@@ -241,7 +241,7 @@ class WPGenerator:
             return False
 
         # Configure TimeZone
-        command = "option update timezone_string Europe/Zurich"
+        command = "option update timezone_string    "
         if not self.run_wp_cli(command):
             logging.error("%s - could not configure time zone", repr(self))
             return False
@@ -250,13 +250,13 @@ class WPGenerator:
         command = "option update time_format H:i"
         if not self.run_wp_cli(command):
             logging.error("%s - could not configure time format", repr(self))
-            return False    
+            return False
 
-        # Configure Date Format d.m.Y       
+        # Configure Date Format d.m.Y
         command = "option update date_format d.m.Y"
         if not self.run_wp_cli(command):
             logging.error("%s - could not configure date format", repr(self))
-            return False  
+            return False
 
         # Add french for the admin interface
         command = "language core install fr_FR"
