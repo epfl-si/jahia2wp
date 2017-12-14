@@ -9,7 +9,7 @@ from .validators import validate_string, validate_yes_or_no, \
     validate_unit, mock_validate_unit
 
 BASE_COLUMNS = [
-    ("wp_site_url", URLValidator(), True),
+    ("wp_site_url", URLValidator(schemes=['https']), True),
     ("wp_default_site_title", validate_string, False),
     ("site_type", validate_site_type, False),
     ("openshift_env", validate_openshift_env, False),

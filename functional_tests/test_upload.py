@@ -31,7 +31,7 @@ class TestWpUploadTest:
     def wp_generator(self):
         generator = MockedWPGenerator(
             OPENSHIFT_ENV,
-            "http://" + HTTPD_CONTAINER + "/folder",
+            "https://" + HTTPD_CONTAINER + "/folder",
             wp_default_site_title="Upload test",
             admin_password="admin")
         generator.clean()
@@ -54,8 +54,9 @@ class TestWpUploadTest:
                       "redirect_to": "{base_path}/wp-admin".format(base_path=wp_generator.wp_site.url),
                       "redirect_to_automatic": "1"
                       }
-
-        page_login = session.post(link, login_data)
+        # 'verify=False' is to ignore SSL certificate error because we are accessing using HTTPS but without
+        # any valid certificate \o/
+        page_login = session.post(link, login_data, verify=False)
         assert page_login.status_code is 200
 
         # check that the user is correctly logged in (i.e. his name shows up correctly on the page
