@@ -241,6 +241,24 @@ class WPGenerator:
             logging.error("%s - could not configure permalinks", repr(self))
             return False
 
+        # Configure TimeZone
+        command = "option update timezone_string Europe/Zurich"
+        if not self.run_wp_cli(command):
+            logging.error("%s - could not configure time zone", repr(self))
+            return False
+
+        # Configure Time Format 24H
+        command = "option update time_format H:i"
+        if not self.run_wp_cli(command):
+            logging.error("%s - could not configure time format", repr(self))
+            return False
+
+        # Configure Date Format d.m.Y
+        command = "option update date_format d.m.Y"
+        if not self.run_wp_cli(command):
+            logging.error("%s - could not configure date format", repr(self))
+            return False
+
         # Add french for the admin interface
         command = "language core install fr_FR"
         self.run_wp_cli(command)

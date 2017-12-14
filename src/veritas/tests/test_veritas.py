@@ -43,6 +43,7 @@ def test_validate():
     assert "wp_site_url is not unique" in errors[6].message
     assert "invalid openshift_env" in errors[7].message
     assert "wp_site_url is not unique" in errors[8].message
+    assert "invalid wp_site_url" in errors[9].message
 
 
 def test_get_valid_rows():

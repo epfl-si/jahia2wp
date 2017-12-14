@@ -21,21 +21,19 @@ class WPSite:
         its title is optionnal, just to provide a default value to the final user
     """
 
-    PROTOCOL = "http"
+    PROTOCOL = "https"
     DEFAULT_TITLE = "New WordPress"
     WP_VERSION = Utils.get_mandatory_env(key="WP_VERSION")
 
     def __init__(self, openshift_env, wp_site_url, wp_default_site_title=None):
 
-        # validate env and title
-        validate_openshift_env(openshift_env)
+        # validate & transform args
+        self.openshift_env = openshift_env.lower()
+        url = urlparse(wp_site_url.lower())
+
+        validate_openshift_env(self.openshift_env)
         if wp_default_site_title is not None:
             validate_string(wp_default_site_title)
-
-        # extract domain and folder from given url
-        url = urlparse(wp_site_url)
-
-        self.openshift_env = openshift_env
 
         # set WP informations
         self.domain = url.netloc.strip('/')

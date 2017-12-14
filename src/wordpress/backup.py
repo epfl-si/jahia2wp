@@ -110,7 +110,7 @@ class WPBackup:
 
         raises WPException on failures
         """
-        if not os.listdir(self.wp_site.path):
+        if not os.path.exists(self.wp_site.path):
             raise WPException("The WordPress site {} is not properly installed".format(repr(self.wp_site)))
 
         if not Utils.generate_tar_file(self.tarfile, self.listfile, self.wp_site.path):

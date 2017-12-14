@@ -20,7 +20,7 @@ class TestWPSite:
         assert wordpress.path == ROOT_PATH + "htdocs/folder"
 
     def test_url(self, wordpress):
-        assert wordpress.url == "http://localhost/folder"
+        assert wordpress.url == "https://localhost/folder"
 
     def test_name(self, wordpress):
         assert wordpress.name == "folder"
@@ -39,9 +39,9 @@ class TestWPSite:
 
     def test_valid_url_from_path(self):
         assert WPSite.from_path(ROOT_PATH + "htdocs/folder") \
-            .url == "http://localhost/folder"
+            .url == "https://localhost/folder"
         assert WPSite.from_path(ROOT_PATH + "htdocs/folder/sub") \
-            .url == "http://localhost/folder/sub"
+            .url == "https://localhost/folder/sub"
 
 
 class TestWPUser:
