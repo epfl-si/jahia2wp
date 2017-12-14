@@ -241,7 +241,7 @@ class WPGenerator:
             return False
 
         # Configure TimeZone
-        command = "option update timezone_string    "
+        command = "option update timezone_string Europe/Zurich"
         if not self.run_wp_cli(command):
             logging.error("%s - could not configure time zone", repr(self))
             return False
