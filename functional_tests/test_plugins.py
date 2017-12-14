@@ -140,7 +140,7 @@ class TestWPPluginConfigRestore:
 
         # Then, reinstall plugin and configure it
         wp_plugin_config.install()
-        wp_plugin_config.configure()
+        wp_plugin_config.configure(force=True)
 
         # Check plugin options
         wp_config = WPConfig(wp_generator_generic.wp_site)
@@ -155,7 +155,7 @@ class TestWPPluginConfigRestore:
 
         # Then, reinstall and configure it
         wp_plugin_config.install()
-        wp_plugin_config.configure()
+        wp_plugin_config.configure(force=True)
 
         # Check plugin options
         wp_config = WPConfig(wp_generator_generic.wp_site)
