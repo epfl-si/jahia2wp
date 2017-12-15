@@ -21,7 +21,7 @@ Usage:
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
-     --unit-name=<NAME> [--config] [--plugin=<PLUGIN_NAME>]
+     --unit-name=<NAME> [--unit-id=<ID>] [--config] [--plugin=<PLUGIN_NAME>]
 
 Options:
   -h --help                 Show this screen.
@@ -236,12 +236,15 @@ def extract_plugin_config(wp_env, wp_url, output_file, **kwargs):
 
 
 @dispatch.on('list-plugins')
-def list_plugins(wp_env, wp_url, unit_name, config=False, plugin=None, **kwargs):
+def list_plugins(wp_env, wp_url, unit_name, unit_id=None, config=False, plugin=None, **kwargs):
 
     # FIXME: When we will use 'unit_id' from CSV file, add parameter here OR dynamically get it from AD
-    print(WPGenerator({'openshift_env': wp_env,
-                       'wp_site_url': wp_url,
-                       'unit_name': unit_name}).list_plugins(config, plugin))
+    params = {'openshift_env': wp_env,
+              'wp_site_url': wp_url,
+              'unit_name': unit_name}
+    if unit_id is not None:
+        params['unit_id'] = unit_id
+    print(WPGenerator(params).list_plugins(config, plugin))
 
 
 if __name__ == '__main__':
