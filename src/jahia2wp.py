@@ -22,7 +22,7 @@ Usage:
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
-     --unit-name=<NAME> [--unit-id=<ID>] [--config] [--plugin=<PLUGIN_NAME>]
+     [--unit-name=<NAME> --unit-id=<ID>] [--config] [--plugin=<PLUGIN_NAME>]
 
 Options:
   -h --help                 Show this screen.
