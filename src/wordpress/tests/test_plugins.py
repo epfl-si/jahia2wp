@@ -27,7 +27,7 @@ def wp_plugin_list():
         settings.PLUGINS_CONFIG_GENERIC_FOLDER,
         'config-lot1.yml',
         settings.PLUGINS_CONFIG_SPECIFIC_FOLDER,
-        {'unit_name': UNIT_NAME})
+        {'unit_name': UNIT_NAME, 'unit_id': UNIT_ID})
 
 
 def test_yaml_include(wp_plugin_list):

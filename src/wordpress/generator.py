@@ -53,10 +53,9 @@ class WPGenerator:
 
         else:  # FIXME: this has to be changed later when we will have a 'unit_id' in CSV file
             logging.info("WPGenerator.__init__(): Use 'unit_id' from CSV file")
-            self.csv_row['unit_id'] = self.get_the_unit_id(self.csv_row['unit_name'])
+            if 'unit_id' not in self.csv_row:
+                self.csv_row['unit_id'] = self.get_the_unit_id(self.csv_row['unit_name'])
 
-        if 'unit_id' not in self.csv_row:
-            self.csv_row['unit_id'] = None
 
         if 'wp_default_title' not in self.csv_row:
             self.csv_row['wp_default_title'] = None
