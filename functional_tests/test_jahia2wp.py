@@ -56,12 +56,13 @@ class TestCommandLine:
 
     def test_list_plugins(self):
         expected = "Plugin list for site '"
-        assert Utils.run_command('python %s list-plugins %s %s --unit-name=%s'
-                                 % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC, UNIT_NAME)).startswith(expected)
+        assert Utils.run_command('python %s list-plugins %s %s --unit-name=%s --unit-id=%s'
+                                 % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC, UNIT_NAME,
+                                 UNIT_ID)).startswith(expected)
 
     def test_generate_one_fails(self):
-        assert not Utils.run_command('python %s generate %s %s --unit-name=%s'
-                                     % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC, UNIT_NAME))
+        assert not Utils.run_command('python %s generate %s %s --unit-name=%s --unit-id=%s'
+                                     % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC, UNIT_NAME, UNIT_ID))
 
     def test_check_one_success(self):
         expected = "WordPress site valid and accessible at {}".format(SITE_URL_SPECIFIC)
