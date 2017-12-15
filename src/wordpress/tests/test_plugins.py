@@ -9,7 +9,6 @@ TEST_SITE = 'unittest'
 SITE_URL_GENERIC = "http://localhost/"
 SITE_URL_SPECIFIC = "http://localhost/{}".format(TEST_SITE)
 UNIT_NAME = 'idevelop'
-UNIT_ID = 13030
 os.environ["PLUGINS_CONFIG_BASE_PATH"] = "wordpress/tests/plugins"
 reload(settings)
 
@@ -27,7 +26,7 @@ def wp_plugin_list():
         settings.PLUGINS_CONFIG_GENERIC_FOLDER,
         'config-lot1.yml',
         settings.PLUGINS_CONFIG_SPECIFIC_FOLDER,
-        {'unit_name': UNIT_NAME, 'unit_id': UNIT_ID})
+        {'unit_name': UNIT_NAME})
 
 
 def test_yaml_include(wp_plugin_list):

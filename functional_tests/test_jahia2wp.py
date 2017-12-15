@@ -13,6 +13,7 @@ SCRIPT_FILE = os.path.join(SRC_DIR_PATH, 'jahia2wp.py')
 TEST_HOST = 'localhost'
 TEST_SITE = 'unittest'
 UNIT_NAME = 'idevelop'
+UNIT_ID = 13030
 SITE_URL_SPECIFIC = "https://{0}/{1}".format(TEST_HOST, TEST_SITE)
 
 
@@ -40,8 +41,8 @@ class TestCommandLine:
 
     def test_generate_one_success(self):
         expected = "Successfully created new WordPress site at {}".format(SITE_URL_SPECIFIC)
-        assert Utils.run_command('python %s generate %s %s --unit-name=%s'
-                                 % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC, UNIT_NAME)) == expected
+        assert Utils.run_command('python %s generate %s %s --unit-name=%s --unit-id=%s'
+                                 % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC, UNIT_NAME, UNIT_ID)) == expected
 
     def test_backup_full(self):
         expected = "Successfull full backup for {}".format(SITE_URL_SPECIFIC)

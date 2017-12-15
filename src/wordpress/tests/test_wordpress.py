@@ -76,7 +76,6 @@ class TestWPGenerator:
              'wp_site_url': "http://localhost/folder",
              'wp_default_title': self.TITLE_WITH_ACCENT,
              'unit_name': 'idevelop',
-             'unit_id': 13030,
              'updates_automatic': False})
         generator.clean()
         return generator
