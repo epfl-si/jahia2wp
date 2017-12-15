@@ -57,7 +57,6 @@ class WPGenerator:
             if 'unit_id' not in self.csv_row:
                 self.csv_row['unit_id'] = self.get_the_unit_id(self.csv_row['unit_name'])
 
-
         if 'wp_default_title' not in self.csv_row:
             self.csv_row['wp_default_title'] = None
 
