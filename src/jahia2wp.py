@@ -8,8 +8,9 @@ Usage:
     [--stop-on-errors]
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate              <wp_env> <wp_url>               [--debug | --quiet]
-    [--wp-title=<WP_TITLE> --admin-password=<PASSWORD>] --unit-name=<NAME>
-    [--unit-id=<ID>] [--theme=<THEME> --theme-faculty=<THEME-FACULTY>]
+    [--wp-title=<WP_TITLE> --admin-password=<PASSWORD>]
+    [--unit-name=<NAME> --unit-id=<ID>]
+    [--theme=<THEME> --theme-faculty=<THEME-FACULTY>]
     [--installs-locked=<BOOLEAN> --automatic-updates=<BOOLEAN>]
   jahia2wp.py backup                <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py version               <wp_env> <wp_url>               [--debug | --quiet]
@@ -91,7 +92,7 @@ def clean(wp_env, wp_url, stop_on_errors=False, **kwargs):
 
 
 @dispatch.on('generate')
-def generate(wp_env, wp_url, unit_name, unit_id=None,
+def generate(wp_env, wp_url, unit_name=None, unit_id=None,
              wp_title=None, admin_password=None,
              theme=None, theme_faculty=None,
              installs_locked=None, updates_automatic=None,
@@ -112,8 +113,9 @@ def generate(wp_env, wp_url, unit_name, unit_id=None,
     # FIXME: When we will use 'unit_id' from CSV file, add parameter here OR dynamically get it from AD
     params = {'openshift_env': wp_env,
               'wp_site_url': wp_url,
-              'unit_name': unit_name,
               'theme': theme or DEFAULT_THEME_NAME}
+    if unit_name is not None:
+        params['unit_name'] = unit_name
     if unit_id is not None:
         params['unit_id'] = unit_id
 
@@ -235,12 +237,13 @@ def extract_plugin_config(wp_env, wp_url, output_file, **kwargs):
 
 
 @dispatch.on('list-plugins')
-def list_plugins(wp_env, wp_url, unit_name, unit_id=None, config=False, plugin=None, **kwargs):
+def list_plugins(wp_env, wp_url, unit_name=None, unit_id=None, config=False, plugin=None, **kwargs):
 
     # FIXME: When we will use 'unit_id' from CSV file, add parameter here OR dynamically get it from AD
     params = {'openshift_env': wp_env,
-              'wp_site_url': wp_url,
-              'unit_name': unit_name}
+              'wp_site_url': wp_url}
+    if unit_name is not None:
+        params['unit_name'] = unit_name
     if unit_id is not None:
         params['unit_id'] = unit_id
     print(WPGenerator(params).list_plugins(config, plugin))
