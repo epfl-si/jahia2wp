@@ -24,6 +24,8 @@ Usage:
     [--config] [--plugin=<PLUGIN_NAME>]
   jahia2wp.py update-plugins        <wp_env> <wp_url>               [--debug | --quiet]
     [--force] [--plugin=<PLUGIN_NAME>]
+  jahia2wp.py update-plugins-many   <csv_file>                      [--debug | --quiet]
+    [--force] [--plugin=<PLUGIN_NAME>]
 
 Options:
   -h --help                 Show this screen.
@@ -86,10 +88,8 @@ def clean(wp_env, wp_url, stop_on_errors=False, **kwargs):
     if stop_on_errors:
         _check_site(wp_env, wp_url, **kwargs)
     # config found: proceed with cleaning
-    # FIXME: Il faut faire un clean qui n'a pas besoin de unit_name
-    wp_generator = WPGenerator(wp_env, wp_url, 'idevelop')
-    if wp_generator.clean():
-        print("Successfully cleaned WordPress site {}".format(wp_generator.wp_site.url))
+    wp_generator = WPGenerator(wp_env, wp_url).clean()
+
 
 
 @dispatch.on('generate')
@@ -264,6 +264,28 @@ def update_plugins(wp_env, wp_url, plugin=None, force=False, **kwargs):
     wp_generator.update_plugins(plugin, force)
 
     print("Successfully updated WordPress plugin list at {}".format(wp_generator.wp_site.url))
+
+
+@dispatch.on('update-plugins-many')
+def update_plugins_many(csv_file, plugin=None, force=False, **kwargs):
+    # use Veritas to get valid rows
+    rows = VeritasValidor.filter_valid_rows(csv_file)
+
+    # Update WP site plugins for each row
+    print("\n{} websites will now be updated...".format(len(rows)))
+    for index, row in rows:
+        print("\nIndex #{}:\n---".format(index))
+        logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
+        WPGenerator(
+            row["openshift_env"],
+            row["wp_site_url"],
+            wp_default_site_title=row["wp_default_site_title"],
+            unit_name=row["unit_name"],
+            updates_automatic=row["updates_automatic"],
+            installs_locked=row["installs_locked"],
+            theme=row["theme"],
+            theme_faculty=row["theme_faculty"],
+        ).update_plugins(plugin, force)
 
 
 if __name__ == '__main__':
