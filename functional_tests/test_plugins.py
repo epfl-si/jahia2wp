@@ -33,7 +33,7 @@ def wp_plugin_list():
         settings.PLUGINS_CONFIG_GENERIC_FOLDER,
         'config-lot1.yml',
         settings.PLUGINS_CONFIG_SPECIFIC_FOLDER,
-        {})
+        {'unit_name': UNIT_NAME})
 
 
 @pytest.fixture(scope="class")
