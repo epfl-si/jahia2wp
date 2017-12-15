@@ -8,6 +8,8 @@ from wordpress import WPPluginList
 TEST_SITE = 'unittest'
 SITE_URL_GENERIC = "http://localhost/"
 SITE_URL_SPECIFIC = "http://localhost/{}".format(TEST_SITE)
+UNIT_NAME = 'idevelop'
+UNIT_ID = 13030
 os.environ["PLUGINS_CONFIG_BASE_PATH"] = "wordpress/tests/plugins"
 reload(settings)
 
@@ -24,16 +26,24 @@ def wp_plugin_list():
     return WPPluginList(
         settings.PLUGINS_CONFIG_GENERIC_FOLDER,
         'config-lot1.yml',
-        settings.PLUGINS_CONFIG_SPECIFIC_FOLDER)
+        settings.PLUGINS_CONFIG_SPECIFIC_FOLDER,
+        {'unit_name': UNIT_NAME})
 
 
-def test_yaml_include():
+def test_yaml_include(wp_plugin_list):
     # Generate filename to open regarding current script path
     yaml_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'yaml-root.yml')
     yaml_content = yaml.load(open(yaml_path, 'r'))
     assert yaml_content['root_value'] == 'root'
     assert yaml_content['included_value'] == 'included'
 
+
+def test_from_csv(wp_plugin_list):
+    # Generate filename to open regarding current script path
+    yaml_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'yaml-root.yml')
+    yaml_content = yaml.load(open(yaml_path, 'r'))
+    assert yaml_content['csv_unit_name'] == UNIT_NAME
+    
 
 class TestWPPluginList:
 

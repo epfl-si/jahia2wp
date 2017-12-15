@@ -12,18 +12,17 @@ from wordpress.generator import MockedWPGenerator
 SCRIPT_FILE = os.path.join(SRC_DIR_PATH, 'jahia2wp.py')
 TEST_HOST = 'localhost'
 TEST_SITE = 'unittest'
+UNIT_NAME = 'idevelop'
 SITE_URL_SPECIFIC = "https://{0}/{1}".format(TEST_HOST, TEST_SITE)
 
 
 @pytest.fixture(scope="module")
 def setup():
     # clean WP site
-    wp_env = OPENSHIFT_ENV
-    wp_url = SITE_URL_SPECIFIC
-    wp_generator = MockedWPGenerator(wp_env, wp_url)
+    wp_generator = MockedWPGenerator({'openshift_env': OPENSHIFT_ENV, 'wp_site_url': SITE_URL_SPECIFIC})
     wp_generator.clean()
     # clean backups
-    backup_path = WPBackup(wp_env, wp_url).path
+    backup_path = WPBackup(OPENSHIFT_ENV, SITE_URL_SPECIFIC).path
     shutil.rmtree(backup_path, ignore_errors=True)
 
 
@@ -41,8 +40,8 @@ class TestCommandLine:
 
     def test_generate_one_success(self):
         expected = "Successfully created new WordPress site at {}".format(SITE_URL_SPECIFIC)
-        assert Utils.run_command('python %s generate %s %s'
-                                 % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC)) == expected
+        assert Utils.run_command('python %s generate %s %s --unit-name=%s'
+                                 % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC, UNIT_NAME)) == expected
 
     def test_backup_full(self):
         expected = "Successfull full backup for {}".format(SITE_URL_SPECIFIC)
@@ -56,12 +55,12 @@ class TestCommandLine:
 
     def test_list_plugins(self):
         expected = "Plugin list for site '"
-        assert Utils.run_command('python %s list-plugins %s %s'
-                                 % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC)).startswith(expected)
+        assert Utils.run_command('python %s list-plugins %s %s --unit-name=%s'
+                                 % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC, UNIT_NAME)).startswith(expected)
 
     def test_generate_one_fails(self):
-        assert not Utils.run_command('python %s generate %s %s'
-                                     % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC))
+        assert not Utils.run_command('python %s generate %s %s --unit-name=%s'
+                                     % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC, UNIT_NAME))
 
     def test_check_one_success(self):
         expected = "WordPress site valid and accessible at {}".format(SITE_URL_SPECIFIC)
