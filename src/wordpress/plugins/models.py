@@ -94,7 +94,7 @@ class WPPluginList:
         my_key: !from_csv field_name
         """
         # If value not exists, raise an error
-        if node.value not in self._csv_row:
+        if node.value not in self._csv_row or self._csv_row[node.value] is None:
             error_message = "YAML from_csv in '%s' - CSV field doesn't exists: %s", loader.stream.name, node.value
             logging.error(error_message)
             raise WPException(error_message)
