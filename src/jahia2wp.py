@@ -9,7 +9,7 @@ Usage:
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate              <wp_env> <wp_url>               [--debug | --quiet]
     [--wp-title=<WP_TITLE> --admin-password=<PASSWORD>] --unit-name=<NAME>
-    [--theme=<THEME> --theme-faculty=<THEME-FACULTY>]
+    [--unit-id=<ID>] [--theme=<THEME> --theme-faculty=<THEME-FACULTY>]
     [--installs-locked=<BOOLEAN> --automatic-updates=<BOOLEAN>]
   jahia2wp.py backup                <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py version               <wp_env> <wp_url>               [--debug | --quiet]
@@ -91,7 +91,7 @@ def clean(wp_env, wp_url, stop_on_errors=False, **kwargs):
 
 
 @dispatch.on('generate')
-def generate(wp_env, wp_url, unit_name,
+def generate(wp_env, wp_url, unit_name, unit_id=None,
              wp_title=None, admin_password=None,
              theme=None, theme_faculty=None,
              installs_locked=None, updates_automatic=None,
@@ -110,12 +110,14 @@ def generate(wp_env, wp_url, unit_name,
         updates_automatic = cast_boolean(updates_automatic)
 
     # FIXME: When we will use 'unit_id' from CSV file, add parameter here OR dynamically get it from AD
-    wp_generator = WPGenerator(
-        {'openshift_env': wp_env,
-         'wp_site_url': wp_url,
-         'unit_name': unit_name,
-         'theme': theme or DEFAULT_THEME_NAME},
-        admin_password=admin_password
+    params = {'openshift_env': wp_env,
+              'wp_site_url': wp_url,
+              'unit_name': unit_name,
+              'theme': theme or DEFAULT_THEME_NAME}
+    if unit_id is not None:
+        params['unit_id'] = unit_id
+
+    wp_generator = WPGenerator(params, admin_password=admin_password
     )
     if not wp_generator.generate():
         raise SystemExit("Generation failed. More info above")
