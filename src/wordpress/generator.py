@@ -50,11 +50,13 @@ class WPGenerator:
         # Setting default values
         if 'unit_name' not in self.csv_row:
             self.csv_row['unit_name'] = None
+            self.csv_row['unit_id'] = None
 
         else:  # FIXME: this has to be changed later when we will have a 'unit_id' in CSV file
             logging.info("WPGenerator.__init__(): Use 'unit_id' from CSV file")
             if 'unit_id' not in self.csv_row:
                 self.csv_row['unit_id'] = self.get_the_unit_id(self.csv_row['unit_name'])
+
 
         if 'wp_default_title' not in self.csv_row:
             self.csv_row['wp_default_title'] = None
@@ -295,8 +297,8 @@ class WPGenerator:
     def validate_mockable_args(self, wp_site_url, unit_name):
         """ Call validators in an independant function to allow mocking them """
         URLValidator()(wp_site_url)
-        # if unit_name is not None:
-        #     validate_unit(unit_name)
+        if unit_name is not None:
+            validate_unit(unit_name)
 
     def get_the_unit_id(self, unit_name):
         """
