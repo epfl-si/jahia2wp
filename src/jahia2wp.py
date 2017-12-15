@@ -8,7 +8,7 @@ Usage:
     [--stop-on-errors]
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate              <wp_env> <wp_url>               [--debug | --quiet]
-    [--wp-title=<WP_TITLE> --admin-password=<PASSWORD> --unit-name=<NAME>]
+    [--wp-title=<WP_TITLE> --admin-password=<PASSWORD>] --unit-name=<NAME>
     [--theme=<THEME> --theme-faculty=<THEME-FACULTY>]
     [--installs-locked=<BOOLEAN> --automatic-updates=<BOOLEAN>]
   jahia2wp.py backup                <wp_env> <wp_url>               [--debug | --quiet]
@@ -21,7 +21,7 @@ Usage:
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
-    [--config] [--plugin=<PLUGIN_NAME>]
+     --unit-name=<NAME> [--config] [--plugin=<PLUGIN_NAME>]
 
 Options:
   -h --help                 Show this screen.
@@ -85,14 +85,14 @@ def clean(wp_env, wp_url, stop_on_errors=False, **kwargs):
         _check_site(wp_env, wp_url, **kwargs)
     # config found: proceed with cleaning
     # FIXME: Il faut faire un clean qui n'a pas besoin de unit_name
-    wp_generator = WPGenerator(wp_env, wp_url, 'idevelop')
+    wp_generator = WPGenerator({'openshift_env': wp_env, 'wp_site_url': wp_url})
     if wp_generator.clean():
         print("Successfully cleaned WordPress site {}".format(wp_generator.wp_site.url))
 
 
 @dispatch.on('generate')
-def generate(wp_env, wp_url,
-             wp_title=None, admin_password=None, unit_name=None,
+def generate(wp_env, wp_url, unit_name,
+             wp_title=None, admin_password=None,
              theme=None, theme_faculty=None,
              installs_locked=None, updates_automatic=None,
              **kwargs):
@@ -109,16 +109,13 @@ def generate(wp_env, wp_url,
     else:
         updates_automatic = cast_boolean(updates_automatic)
 
+    # FIXME: When we will use 'unit_id' from CSV file, add parameter here OR dynamically get it from AD
     wp_generator = WPGenerator(
-        wp_env,
-        wp_url,
-        wp_default_site_title=wp_title,
-        admin_password=admin_password,
-        unit_name=unit_name,
-        theme=theme or DEFAULT_THEME_NAME,
-        theme_faculty=theme_faculty,
-        installs_locked=installs_locked,
-        updates_automatic=updates_automatic
+        {'openshift_env': wp_env,
+         'wp_site_url': wp_url,
+         'unit_name': unit_name,
+         'theme': theme or DEFAULT_THEME_NAME},
+        admin_password=admin_password
     )
     if not wp_generator.generate():
         raise SystemExit("Generation failed. More info above")
@@ -161,16 +158,7 @@ def generate_many(csv_file, **kwargs):
     for index, row in rows:
         print("\nIndex #{}:\n---".format(index))
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
-        WPGenerator(
-            row["openshift_env"],
-            row["wp_site_url"],
-            wp_default_site_title=row["wp_default_site_title"],
-            unit_name=row["unit_name"],
-            updates_automatic=row["updates_automatic"],
-            installs_locked=row["installs_locked"],
-            theme=row["theme"],
-            theme_faculty=row["theme_faculty"],
-        ).generate()
+        WPGenerator(row).generate()
 
 
 @dispatch.on('backup-many')
@@ -246,8 +234,12 @@ def extract_plugin_config(wp_env, wp_url, output_file, **kwargs):
 
 
 @dispatch.on('list-plugins')
-def list_plugins(wp_env, wp_url, config=False, plugin=None, **kwargs):
-    print(WPGenerator(wp_env, wp_url).list_plugins(config, plugin))
+def list_plugins(wp_env, wp_url, unit_name, config=False, plugin=None, **kwargs):
+
+    # FIXME: When we will use 'unit_id' from CSV file, add parameter here OR dynamically get it from AD
+    print(WPGenerator({'openshift_env': wp_env,
+                       'wp_site_url': wp_url,
+                       'unit_name': unit_name}).list_plugins(config, plugin))
 
 
 if __name__ == '__main__':
