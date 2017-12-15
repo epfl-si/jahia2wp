@@ -43,7 +43,7 @@ def test_from_csv(wp_plugin_list):
     yaml_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'yaml-root.yml')
     yaml_content = yaml.load(open(yaml_path, 'r'))
     assert yaml_content['csv_unit_name'] == UNIT_NAME
-    
+
 
 class TestWPPluginList:
 
