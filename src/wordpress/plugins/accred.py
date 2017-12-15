@@ -1,13 +1,22 @@
 import logging
-
+import json
 from .config import WPPluginConfig
 
 
 class WPAccredConfig(WPPluginConfig):
 
     def _option_exists(self, option_name):
-        cmd = "option get {}".format(option_name)
-        return not type(self.run_wp_cli(cmd)) == str
+        """
+        Tells if an option exists.
+        Note: We don't use "wp option get" because even if it returns an empty string if option doesn't exists,
+              it also returns 1 as exit code so it generates an error.
+
+        Arguments keyword
+        option_name -- Name of the option we are looking for.
+        """
+        cmd = "option list --search={} --format=json".format(option_name)
+
+        return json.loads(self.run_wp_cli(cmd)) is not False
 
     def configure(self, force, unit_name=None, unit_id=None, **kwargs):
         """
