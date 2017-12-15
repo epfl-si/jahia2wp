@@ -117,8 +117,7 @@ def generate(wp_env, wp_url, unit_name, unit_id=None,
     if unit_id is not None:
         params['unit_id'] = unit_id
 
-    wp_generator = WPGenerator(params, admin_password=admin_password
-    )
+    wp_generator = WPGenerator(params, admin_password=admin_password)
     if not wp_generator.generate():
         raise SystemExit("Generation failed. More info above")
 
