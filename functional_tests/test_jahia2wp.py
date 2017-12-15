@@ -13,7 +13,6 @@ SCRIPT_FILE = os.path.join(SRC_DIR_PATH, 'jahia2wp.py')
 TEST_HOST = 'localhost'
 TEST_SITE = 'unittest'
 UNIT_NAME = 'idevelop'
-UNIT_ID = 13030
 SITE_URL_SPECIFIC = "https://{0}/{1}".format(TEST_HOST, TEST_SITE)
 
 
@@ -41,8 +40,8 @@ class TestCommandLine:
 
     def test_generate_one_success(self):
         expected = "Successfully created new WordPress site at {}".format(SITE_URL_SPECIFIC)
-        assert Utils.run_command('python %s generate %s %s --unit-name=%s --unit-id=%s'
-                                 % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC, UNIT_NAME, UNIT_ID)) == expected
+        assert Utils.run_command('python %s generate %s %s'
+                                 % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC)) == expected
 
     def test_backup_full(self):
         expected = "Successfull full backup for {}".format(SITE_URL_SPECIFIC)
@@ -56,13 +55,12 @@ class TestCommandLine:
 
     def test_list_plugins(self):
         expected = "Plugin list for site '"
-        assert Utils.run_command('python %s list-plugins %s %s --unit-name=%s --unit-id=%s'
-                                 % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC, UNIT_NAME,
-                                 UNIT_ID)).startswith(expected)
+        assert Utils.run_command('python %s list-plugins %s %s'
+                                 % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC)).startswith(expected)
 
     def test_generate_one_fails(self):
-        assert not Utils.run_command('python %s generate %s %s --unit-name=%s --unit-id=%s'
-                                     % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC, UNIT_NAME, UNIT_ID))
+        assert not Utils.run_command('python %s generate %s %s'
+                                     % (SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC))
 
     def test_check_one_success(self):
         expected = "WordPress site valid and accessible at {}".format(SITE_URL_SPECIFIC)
