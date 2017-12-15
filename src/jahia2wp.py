@@ -88,8 +88,7 @@ def clean(wp_env, wp_url, stop_on_errors=False, **kwargs):
     if stop_on_errors:
         _check_site(wp_env, wp_url, **kwargs)
     # config found: proceed with cleaning
-    wp_generator = WPGenerator(wp_env, wp_url).clean()
-
+    WPGenerator(wp_env, wp_url).clean()
 
 
 @dispatch.on('generate')
