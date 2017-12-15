@@ -8,48 +8,21 @@ import settings
 from wordpress import WPException
 
 
-def yaml_include(loader, node):
-    """ Defining necessary to allow usage of "!include" in YAML files.
-    Given path to include file can be relative to :
-    - Python script location
-    - YAML file from which "include" is done
-
-    This can be use to include a value for a key. This value can be just a string or a complex (hiearchical) YAML file
-    Ex:
-    my_key: !include file/with/value.yml
-    """
-    local_file = os.path.join(os.path.dirname(loader.stream.name), node.value)
-
-    # if file to include exists with given valu
-    if os.path.exists(node.value):
-        include_file = node.value
-    # if file exists with relative path to current YAML file
-    elif os.path.exists(local_file):
-        include_file = local_file
-    else:
-        error_message = "YAML include in '%s' - file to include doesn't exists: %s", loader.stream.name, node.value
-        logging.error(error_message)
-        raise WPException(error_message)
-
-    with open(include_file) as inputfile:
-        return yaml.load(inputfile)
-
-
-yaml.add_constructor("!include", yaml_include)
-
-
 class WPPluginList:
     """ Use to manage plugin list for a WordPress site """
 
-    def __init__(self, generic_config_path, generic_plugin_yaml, specific_config_path):
+    def __init__(self, generic_config_path, generic_plugin_yaml, specific_config_path, csv_row):
         """ Contructor
 
         Keyword arguments:
         generic_config_path -- Path where generic plugin configuration is stored
         generic_plugin_yaml -- name of YAML file containing generic plugin list we want to use.
         specific_config_path -- Path where specific sites plugin configuration is stored
+        csv_row -- Row coming from CSV file acting as source of truth. This will be used to populate values in
+                   YAML files containg plugins configuration using !from_csv functionality
         """
         self._specific_config_path = specific_config_path
+        self._csv_row = csv_row
 
         if not os.path.exists(generic_config_path):
             logging.error("%s - Generic config path not exists: %s", repr(self), generic_config_path)
@@ -63,6 +36,10 @@ class WPPluginList:
 
         # For specific plugins configuration
         self._generic_plugins = {}
+
+        # Extend possibilities of YAML reader
+        yaml.add_constructor("!include", self._yaml_include)
+        yaml.add_constructor("!from_csv", self._yaml_from_csv)
 
         # Reading YAML file containing generic plugins
         plugin_list = yaml.load(open(generic_plugin_file, 'r'))
@@ -81,6 +58,37 @@ class WPPluginList:
 
     def __repr__(self):
         return "WPPluginList"
+
+    def _yaml_include(self, loader, node):
+        """ Defining necessary to allow usage of "!include" in YAML files.
+        Given path to include file can be relative to :
+        - Python script location
+        - YAML file from which "include" is done
+
+        This can be use to include a value for a key. This value can be just a string or a complex (hiearchical)
+        YAML file.
+        Ex:
+        my_key: !include file/with/value.yml
+        """
+        local_file = os.path.join(os.path.dirname(loader.stream.name), node.value)
+
+        # if file to include exists with given valu
+        if os.path.exists(node.value):
+            include_file = node.value
+        # if file exists with relative path to current YAML file
+        elif os.path.exists(local_file):
+            include_file = local_file
+        else:
+            error_message = "YAML include in '%s' - file to include doesn't exists: %s", loader.stream.name, node.value
+            logging.error(error_message)
+            raise WPException(error_message)
+
+        with open(include_file) as inputfile:
+            return yaml.load(inputfile)
+
+    def _yaml_from_csv(self, loader, node):
+
+        return self._csv_row[node.value]
 
     def __build_plugins_for_site(self, wp_site_id):
         """ Build specific plugin configuration for website if exists
