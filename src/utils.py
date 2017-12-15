@@ -43,6 +43,18 @@ class Utils(object):
 
     @staticmethod
     def run_command(command, encoding=sys.stdout.encoding):
+        """
+        Execute the given command in a shell
+
+        Argument keywords
+        command -- command to execute
+        encoding -- encoding to use
+
+        Return
+        False if error
+        True if OK but no output from command
+        Command output if there is one
+        """
         try:
             # encode command properly for subprocess
             command_bytes = command.encode(encoding)
@@ -62,7 +74,7 @@ class Utils(object):
 
         except subprocess.CalledProcessError as err:
             # log error with content of stderr
-            logging.error("command failed (code %s) with error <%s> => %s",
+            logging.error("command failed :\n\tReturn code: %s\n\tError: %s\n\tError (stderr): %s",
                           err.returncode,
                           err,
                           err.stderr)
