@@ -9,9 +9,13 @@ activate: yes
 # If you need to change it letter, make sure to update it:
 # wp option update plugin:epfl_tequila:has_dual_auth 0
 #
-#tables:
-#  options:
+tables:
+  options:
 #  - autoload: 'yes'
 #    option_id: 275
 #    option_name: plugin:epfl_tequila:has_dual_auth
 #    option_value: 0
+  - autoload: 'yes'
+    option_id: 276
+    option_name: plugin:epfl:tequila_allowed_request_hosts
+    option_value: 128.178.224.0/24 
