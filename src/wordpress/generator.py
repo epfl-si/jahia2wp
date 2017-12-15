@@ -295,8 +295,8 @@ class WPGenerator:
     def validate_mockable_args(self, wp_site_url, unit_name):
         """ Call validators in an independant function to allow mocking them """
         URLValidator()(wp_site_url)
-        if unit_name is not None:
-            validate_unit(unit_name)
+        # if unit_name is not None:
+        #     validate_unit(unit_name)
 
     def get_the_unit_id(self, unit_name):
         """
