@@ -260,7 +260,7 @@ def update_plugins(wp_env, wp_url, plugin=None, force=False, **kwargs):
 
     wp_generator = WPGenerator(wp_env, wp_url)
 
-    wp_generator.update_plugins(plugin, force)
+    wp_generator.update_plugins(only_plugin_name=plugin, force=force)
 
     print("Successfully updated WordPress plugin list at {}".format(wp_generator.wp_site.url))
 
@@ -284,7 +284,7 @@ def update_plugins_many(csv_file, plugin=None, force=False, **kwargs):
             installs_locked=row["installs_locked"],
             theme=row["theme"],
             theme_faculty=row["theme_faculty"],
-        ).update_plugins(plugin, force)
+        ).update_plugins(only_plugin_name=plugin, force=force)
 
 
 if __name__ == '__main__':
