@@ -115,10 +115,12 @@ class WPPluginConfigManager:
                                            autocommit=True)
 
         cur = mysql_connection.cursor()
-        # To "hide" warning message in console when doing "INSERT IGNORE" and primary key already exists.
-        # MySQL default behaviour when doing "INSERT IGNORE" on existing row is to raise a Warning.
+
         with warnings.catch_warnings():
-            warnings.simplefilter('ignore', pymysql.Warning)
+            # To "hide" warning message in console when doing "INSERT IGNORE" and primary key already exists.
+            # MySQL default behaviour when doing "INSERT IGNORE" on existing row is to raise a Warning.
+            if "insert ignore" in request.lower():
+                warnings.simplefilter('ignore', pymysql.Warning)
             cur.execute(request)
         result = cur.fetchall()
 
