@@ -1,6 +1,7 @@
 import logging
 import json
 from .config import WPPluginConfig
+from .models import WPException
 
 
 class WPAccredConfig(WPPluginConfig):
@@ -16,7 +17,12 @@ class WPAccredConfig(WPPluginConfig):
         """
         cmd = "option list --search={} --format=json".format(option_name)
 
-        return json.loads(self.run_wp_cli(cmd)) is not False
+        result = self.run_wp_cli(cmd)
+
+        if not result:
+            raise WPException("Error defining if option exists '%s'".format(option_name))
+
+        return json.loads(result) is not False
 
     def configure(self, force, unit_name=None, unit_id=None, **kwargs):
         """
