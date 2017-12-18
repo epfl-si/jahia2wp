@@ -332,7 +332,7 @@ class WPGenerator:
         else:
             WPMuPluginConfig(self.wp_site, "EPFL_disable_updates_automatic.php").install()
 
-    def generate_plugins(self, only_plugin_name=None, force=True, **kwargs):
+    def generate_plugins(self, only_one=None, force=True, **kwargs):
         """
         Get plugin list for WP site and do appropriate actions on them
         - During WordPress site creation, 'only_plugin_name' and 'force' are not given. Plugins are installed/configured
@@ -343,7 +343,7 @@ class WPGenerator:
         deactivate AND delete)
 
         Arguments keywords
-        only_plugin_name -- Plugin name for which we do the action. If not given, all plugins are processed
+        only_one -- Plugin name for which we do the action. If not given, all plugins are processed
         force -- True|False
            - if False
               - Plugin(s) to be uninstalled will be only deactivated
@@ -362,7 +362,7 @@ class WPGenerator:
         for plugin_name, config_dict in plugin_list.plugins(self.wp_site.name).items():
 
             # If a filter on plugin was given and it's not the current plugin, we skip
-            if only_plugin_name is not None and only_plugin_name != plugin_name:
+            if only_one is not None and only_one != plugin_name:
                 continue
 
             # Fetch proper PluginConfig class and create instance
@@ -410,7 +410,7 @@ class WPGenerator:
                 # Configure plugin
                 plugin_config.configure(force=force, **self.plugin_config_custom)
 
-    def update_plugins(self, only_plugin_name=None, force=False):
+    def update_plugins(self, only_one=None, force=False):
         """
         Update plugin list:
         - Install missing plugins
@@ -422,12 +422,14 @@ class WPGenerator:
           + if force -> Overwrite existing options
           + not force -> only add new options
 
+        Note: This function exists to be overriden if necessary in a child class.
+
         Arguments keywords
-        only_plugin_name -- (optional) given plugin to update.
+        only_one -- (optional) given plugin to update.
         force -- True|False tells if we have to really uninstall a plugin marked as "uninstall".
                            If not given, plugin is only deactivated
         """
-        self.generate_plugins(only_plugin_name=only_plugin_name, force=force)
+        self.generate_plugins(only_one=only_one, force=force)
 
     def clean(self):
         """
