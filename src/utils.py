@@ -74,7 +74,7 @@ class Utils(object):
 
         except subprocess.CalledProcessError as err:
             # log error with content of stderr
-            logging.error("command failed :\n\tReturn code: %s\n\tError: %s\n\tError (stderr): %s",
+            logging.error("command failed (code %s) with error <%s> => %s",
                           err.returncode,
                           err,
                           err.stderr)
