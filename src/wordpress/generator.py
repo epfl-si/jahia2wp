@@ -48,14 +48,10 @@ class WPGenerator:
         self.csv_row = csv_row
 
         # Setting default values
-        if 'unit_name' not in self.csv_row:
-            self.csv_row['unit_name'] = None
-            self.csv_row['unit_id'] = None
 
-        else:  # FIXME: this has to be changed later when we will have a 'unit_id' in CSV file
+        if 'unit_name' in self.csv_row and 'unit_id' not in self.csv_row:
             logging.info("WPGenerator.__init__(): Use 'unit_id' from CSV file")
-            if 'unit_id' not in self.csv_row:
-                self.csv_row['unit_id'] = self.get_the_unit_id(self.csv_row['unit_name'])
+            self.csv_row['unit_id'] = self.get_the_unit_id(self.csv_row['unit_name'])
 
         if 'wp_default_title' not in self.csv_row:
             self.csv_row['wp_default_title'] = None
@@ -74,7 +70,7 @@ class WPGenerator:
             self.csv_row['theme_faculty'] = None
 
         # validate input
-        self.validate_mockable_args(self.csv_row['wp_site_url'], self.csv_row['unit_name'])
+        self.validate_mockable_args(self.csv_row['wp_site_url'])
         validate_openshift_env(self.csv_row['openshift_env'])
 
         if self.csv_row['wp_default_title'] is not None:
@@ -293,11 +289,10 @@ class WPGenerator:
             self.run_wp_cli(cmd)
         logging.info("All widgets deleted")
 
-    def validate_mockable_args(self, wp_site_url, unit_name):
+    def validate_mockable_args(self, wp_site_url):
         """ Call validators in an independant function to allow mocking them """
         URLValidator()(wp_site_url)
-        if unit_name is not None:
-            validate_unit(unit_name)
+
 
     def get_the_unit_id(self, unit_name):
         """
