@@ -231,6 +231,10 @@ class WPPluginConfigInfos:
             # Add try catch if exception ?
             self.tables = plugin_config['tables']
 
+        # defining if we have to use a dedicated configuration class for plugin
+        self.config_class = plugin_config['config_class'] if 'config_class' in plugin_config \
+            else settings.WP_DEFAULT_PLUGIN_CONFIG
+
     def __repr__(self):
         return "Plugin {} config".format(self.plugin_name)
 
@@ -289,6 +293,10 @@ class WPPluginConfigInfos:
                     else:
                         # We add the option for current table
                         self.tables['options'] = [specific_option]
+
+        # If specific class to use to configure plugin,
+        if 'config_class' in specific_plugin_config:
+            self.config_class = specific_plugin_config['config_class']
 
     def table_rows(self, table_name):
         """ Return rows (options) for specific table
