@@ -40,6 +40,7 @@ class WPPluginList:
         # Extend possibilities of YAML reader
         yaml.add_constructor("!include", self._yaml_include)
         yaml.add_constructor("!from_csv", self._yaml_from_csv)
+        self._yaml_from_csv_missing = []
 
         # Reading YAML file containing generic plugins
         plugin_list = yaml.load(open(generic_plugin_file, 'r'))
@@ -48,13 +49,20 @@ class WPPluginList:
         if plugin_list is None:
             logging.error("%s - YAML file seems to be empty: %s", repr(self), generic_plugin_file)
 
-        # If we have plugins,
-        if plugin_list['plugins'] is not None:
-            # Going through plugins
-            for plugin_infos in plugin_list['plugins']:
-                # Extracting plugin configuration
-                self._generic_plugins[plugin_infos['name']] = WPPluginConfigInfos(plugin_infos['name'],
-                                                                                  plugin_infos['config'])
+        else:
+            # If we have missing informations
+            for missing_csv_field in self._yaml_from_csv_missing:
+                logging.error("%s - YAML file CSV reference '%s' missing. Can be given with option \
+'--extra-config=<YAML>'. YAML content example: '%s: <value>'", repr(self), missing_csv_field,
+                              missing_csv_field)
+
+            # If we have plugins,
+            if plugin_list['plugins'] is not None:
+                # Going through plugins
+                for plugin_infos in plugin_list['plugins']:
+                    # Extracting plugin configuration
+                    self._generic_plugins[plugin_infos['name']] = WPPluginConfigInfos(plugin_infos['name'],
+                                                                                      plugin_infos['config'])
 
     def __repr__(self):
         return "WPPluginList"
@@ -93,13 +101,18 @@ class WPPluginList:
         Ex (in YAML file):
         my_key: !from_csv field_name
         """
-        # If value not exists, raise an error
+        # If value not exists, store the error
         if node.value not in self._csv_row or self._csv_row[node.value] is None:
-            error_message = "YAML from_csv in '%s' - CSV field doesn't exists: %s", loader.stream.name, node.value
-            logging.error(error_message)
-            raise WPException(error_message)
+            try:
+                self._yaml_from_csv_missing.index(node.value)
 
-        return self._csv_row[node.value]
+            except ValueError:  # If exception, element not in list, we add it
+                self._yaml_from_csv_missing.append(node.value)
+
+            # We don't replace value because we can't...
+            return node.value
+        else:  # No error, we return the value
+            return self._csv_row[node.value]
 
     def __build_plugins_for_site(self, wp_site_id):
         """ Build specific plugin configuration for website if exists
