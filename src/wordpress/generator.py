@@ -9,7 +9,7 @@ from utils import Utils
 import settings
 
 from django.core.validators import URLValidator
-from veritas.validators import validate_string, validate_openshift_env, validate_unit, \
+from veritas.validators import validate_string, validate_openshift_env, \
     validate_theme_faculty, validate_theme
 from .models import WPSite, WPUser
 from .config import WPConfig
@@ -50,19 +50,19 @@ class WPGenerator:
         # Setting default values
 
         if 'unit_name' in self.csv_row and 'unit_id' not in self.csv_row:
-            logging.info("WPGenerator.__init__(): Use 'unit_id' from CSV file")
+            logging.info("WPGenerator.__init__(): Please use 'unit_id' from CSV file (now recovered from 'unit_name')")
             self.csv_row['unit_id'] = self.get_the_unit_id(self.csv_row['unit_name'])
 
         if 'wp_default_title' not in self.csv_row:
             self.csv_row['wp_default_title'] = None
 
-        if 'installs_locked' not in self.csv_row:
+        if 'installs_locked' not in self.csv_row or self.csv_row['installs_locked'] is None:
             self.csv_row['installs_locked'] = settings.DEFAULT_CONFIG_INSTALLS_LOCKED
 
-        if 'updates_automatic' not in self.csv_row:
+        if 'updates_automatic' not in self.csv_row or self.csv_row['updates_automatic'] is None:
             self.csv_row['updates_automatic'] = settings.DEFAULT_CONFIG_UPDATES_AUTOMATIC
 
-        if 'theme' not in self.csv_row:
+        if 'theme' not in self.csv_row or self.csv_row['theme'] is None:
             self.csv_row['theme'] = settings.DEFAULT_THEME_NAME
 
         if ('theme_faculty' not in self.csv_row or
@@ -76,8 +76,7 @@ class WPGenerator:
         if self.csv_row['wp_default_title'] is not None:
             validate_string(self.csv_row['wp_default_title'])
 
-        if self.csv_row['theme'] is not None:
-            validate_theme(self.csv_row['theme'])
+        validate_theme(self.csv_row['theme'])
 
         if self.csv_row['theme_faculty'] is not None:
             validate_theme_faculty(self.csv_row['theme_faculty'])
@@ -293,7 +292,6 @@ class WPGenerator:
         """ Call validators in an independant function to allow mocking them """
         URLValidator()(wp_site_url)
 
-
     def get_the_unit_id(self, unit_name):
         """
         Get unit id via LDAP Search
@@ -428,7 +426,7 @@ class MockedWPGenerator(WPGenerator):
     calling LDAP.
     """
 
-    def validate_mockable_args(self, wp_site_url, unit_name):
+    def validate_mockable_args(self, wp_site_url):
         pass
 
     def get_the_unit_id(self, unit_name):
