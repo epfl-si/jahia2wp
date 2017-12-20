@@ -38,9 +38,8 @@ class WPPluginList:
         self._generic_plugins = {}
 
         # Extend possibilities of YAML reader
-        yaml.add_constructor("!include", Utils.yaml_include)
-        yaml.add_constructor("!from_csv", self._yaml_from_csv)
-        self._yaml_from_csv_missing = set()
+        yaml.add_constructor("!include", Utils.yaml_include())
+        yaml.add_constructor("!from_csv", Utils.yaml_from_csv(self._site_params))
 
         # Reading YAML file containing generic plugins
         plugin_list = yaml.load(open(generic_plugin_file, 'r'))
@@ -50,12 +49,6 @@ class WPPluginList:
             logging.error("%s - YAML file seems to be empty: %s", repr(self), generic_plugin_file)
 
         else:
-            # If we have missing informations
-            for missing_csv_field in self._yaml_from_csv_missing:
-                logging.error("%s - YAML file CSV reference '%s' missing. Can be given with option \
-'--extra-config=<YAML>'. YAML content example: '%s: <value>'", repr(self), missing_csv_field,
-                              missing_csv_field)
-
             # If we have plugins,
             if plugin_list['plugins'] is not None:
                 # Going through plugins
@@ -66,18 +59,6 @@ class WPPluginList:
 
     def __repr__(self):
         return "WPPluginList"
-
-    def _yaml_from_csv(self, loader, node):
-        """
-        Retrieve a value (given by field name) from CSV row containing WP Site information
-        Consolidate errors in set self._yaml_from_csv_missing
-        """
-        try:
-            return Utils.yaml_from_csv(loader, node, self._site_params, raise_error=True)
-        except KeyError:
-            self._yaml_from_csv_missing.add(node.value)
-            # We don't replace value because we can't...
-            return node.value
 
     def __build_plugins_for_site(self, wp_site_id):
         """ Build specific plugin configuration for website if exists
