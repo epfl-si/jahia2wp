@@ -4,7 +4,7 @@ metadata:
   name: backup-many
 spec:
   concurrencyPolicy: Forbid
-  # every day at 1:05am
+  # every day at 01:05
   schedule: '5 1 * * *'
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
