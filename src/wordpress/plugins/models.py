@@ -11,18 +11,18 @@ from utils import Utils
 class WPPluginList:
     """ Use to manage plugin list for a WordPress site """
 
-    def __init__(self, generic_config_path, generic_plugin_yaml, specific_config_path, csv_row):
+    def __init__(self, generic_config_path, generic_plugin_yaml, specific_config_path, site_params):
         """ Contructor
 
         Keyword arguments:
         generic_config_path -- Path where generic plugin configuration is stored
         generic_plugin_yaml -- name of YAML file containing generic plugin list we want to use.
         specific_config_path -- Path where specific sites plugin configuration is stored
-        csv_row -- Row coming from CSV file acting as source of truth. This will be used to populate values in
+        site_params -- Dict from CSV file acting as source of truth. This will be used to populate values in
                    YAML files containg plugins configuration using !from_csv functionality
         """
         self._specific_config_path = specific_config_path
-        self._csv_row = csv_row
+        self._site_params = site_params
 
         if not os.path.exists(generic_config_path):
             logging.error("%s - Generic config path not exists: %s", repr(self), generic_config_path)
@@ -73,11 +73,14 @@ class WPPluginList:
         Consolidate errors in set self._yaml_from_csv_missing
         """
         try:
-            return Utils.yaml_from_csv(loader, node, self._csv_row, raise_error=True)
+            return Utils.yaml_from_csv(loader, node, self._site_params, raise_error=True)
         except KeyError:
             self._yaml_from_csv_missing.add(node.value)
             # We don't replace value because we can't...
             return node.value
+        else:
+            # No error, we return the value
+            return self._site_params[node.value]
 
     def __build_plugins_for_site(self, wp_site_id):
         """ Build specific plugin configuration for website if exists

@@ -36,60 +36,60 @@ class WPGenerator:
     WP_ADMIN_USER = Utils.get_mandatory_env(key="WP_ADMIN_USER")
     WP_ADMIN_EMAIL = Utils.get_mandatory_env(key="WP_ADMIN_EMAIL")
 
-    def __init__(self, csv_row, admin_password=None):
+    def __init__(self, site_params, admin_password=None):
         """
         Class constructor
 
         Argument keywords:
-        csv_row -- dict with row coming from CSV file (source of truth)
+        site_params -- dict with row coming from CSV file (source of truth)
         admin_password -- (optional) Password to use for 'admin' account
         """
 
-        self.csv_row = csv_row
+        self._site_params = site_params
 
         # Setting default values
 
-        if 'unit_name' in self.csv_row and 'unit_id' not in self.csv_row:
+        if 'unit_name' in self._site_params and 'unit_id' not in self._site_params:
             logging.info("WPGenerator.__init__(): Please use 'unit_id' from CSV file (now recovered from 'unit_name')")
-            self.csv_row['unit_id'] = self.get_the_unit_id(self.csv_row['unit_name'])
+            self._site_params['unit_id'] = self.get_the_unit_id(self._site_params['unit_name'])
 
-        if 'wp_default_title' not in self.csv_row:
-            self.csv_row['wp_default_title'] = None
+        if 'wp_default_title' not in self._site_params:
+            self._site_params['wp_default_title'] = None
 
-        if self.csv_row.get('installs_locked', None) is None:
-            self.csv_row['installs_locked'] = settings.DEFAULT_CONFIG_INSTALLS_LOCKED
+        if self._site_params.get('installs_locked', None) is None:
+            self._site_params['installs_locked'] = settings.DEFAULT_CONFIG_INSTALLS_LOCKED
 
-        if self.csv_row.get('updates_automatic', None) is None:
-            self.csv_row['updates_automatic'] = settings.DEFAULT_CONFIG_UPDATES_AUTOMATIC
+        if self._site_params.get('updates_automatic', None) is None:
+            self._site_params['updates_automatic'] = settings.DEFAULT_CONFIG_UPDATES_AUTOMATIC
 
-        if self.csv_row.get('theme', None) is None:
-            self.csv_row['theme'] = settings.DEFAULT_THEME_NAME
+        if self._site_params.get('theme', None) is None:
+            self._site_params['theme'] = settings.DEFAULT_THEME_NAME
 
-        if ('theme_faculty' not in self.csv_row or
-           ('theme_faculty' in self.csv_row and self.csv_row['theme_faculty'] == '')):
-            self.csv_row['theme_faculty'] = None
+        if ('theme_faculty' not in self._site_params or
+           ('theme_faculty' in self._site_params and self._site_params['theme_faculty'] == '')):
+            self._site_params['theme_faculty'] = None
 
         # validate input
-        self.validate_mockable_args(self.csv_row['wp_site_url'])
-        validate_openshift_env(self.csv_row['openshift_env'])
+        self.validate_mockable_args(self._site_params['wp_site_url'])
+        validate_openshift_env(self._site_params['openshift_env'])
 
-        if self.csv_row['wp_default_title'] is not None:
-            validate_string(self.csv_row['wp_default_title'])
+        if self._site_params['wp_default_title'] is not None:
+            validate_string(self._site_params['wp_default_title'])
 
-        validate_theme(self.csv_row['theme'])
+        validate_theme(self._site_params['theme'])
 
-        if self.csv_row['theme_faculty'] is not None:
-            validate_theme_faculty(self.csv_row['theme_faculty'])
+        if self._site_params['theme_faculty'] is not None:
+            validate_theme_faculty(self._site_params['theme_faculty'])
 
         # create WordPress site and config
         self.wp_site = WPSite(
-            self.csv_row['openshift_env'],
-            self.csv_row['wp_site_url'],
-            wp_default_site_title=self.csv_row['wp_default_title'])
+            self._site_params['openshift_env'],
+            self._site_params['wp_site_url'],
+            wp_default_site_title=self._site_params['wp_default_title'])
         self.wp_config = WPConfig(
             self.wp_site,
-            installs_locked=self.csv_row['installs_locked'],
-            updates_automatic=self.csv_row['updates_automatic'])
+            installs_locked=self._site_params['installs_locked'],
+            updates_automatic=self._site_params['updates_automatic'])
 
         # prepare admin for exploitation/maintenance
         self.wp_admin = WPUser(self.WP_ADMIN_USER, self.WP_ADMIN_EMAIL)
@@ -135,7 +135,7 @@ class WPGenerator:
         # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"
         # information in the source of trousse !
         plugin_list = WPPluginList(settings.PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml',
-                                   settings.PLUGINS_CONFIG_SPECIFIC_FOLDER, self.csv_row)
+                                   settings.PLUGINS_CONFIG_SPECIFIC_FOLDER, self._site_params)
 
         return plugin_list.list_plugins(self.wp_site.name, with_config, for_plugin)
 
@@ -164,7 +164,7 @@ class WPGenerator:
         logging.info("%s - Installing all themes...", repr(self))
         WPThemeConfig.install_all(self.wp_site)
         logging.info("%s - Activating theme...", repr(self))
-        theme = WPThemeConfig(self.wp_site, self.csv_row['theme'], self.csv_row['theme_faculty'])
+        theme = WPThemeConfig(self.wp_site, self._site_params['theme'], self._site_params['theme_faculty'])
         if not theme.activate():
             logging.error("%s - could not activate theme", repr(self))
             return False
@@ -343,7 +343,7 @@ class WPGenerator:
         # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"
         # information in the source of trousse !
         plugin_list = WPPluginList(settings.PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml',
-                                   settings.PLUGINS_CONFIG_SPECIFIC_FOLDER, self.csv_row)
+                                   settings.PLUGINS_CONFIG_SPECIFIC_FOLDER, self._site_params)
 
         # Looping through plugins to install
         for plugin_name, config_dict in plugin_list.plugins(self.wp_site.name).items():
