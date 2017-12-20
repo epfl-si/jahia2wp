@@ -232,8 +232,7 @@ class WPPluginConfigInfos:
             self.tables = plugin_config['tables']
 
         # defining if we have to use a dedicated configuration class for plugin
-        self.config_class = plugin_config['config_class'] if 'config_class' in plugin_config \
-            else settings.WP_DEFAULT_PLUGIN_CONFIG
+        self.config_class = plugin_config.get('config_class', settings.WP_DEFAULT_PLUGIN_CONFIG)
 
     def __repr__(self):
         return "Plugin {} config".format(self.plugin_name)
