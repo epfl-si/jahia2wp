@@ -8,6 +8,7 @@ import io
 import os
 import csv
 import string
+import yaml
 import binascii
 import random
 
@@ -114,6 +115,20 @@ class Utils(object):
         """
         with open(file_path, 'r', encoding=encoding) as stream:
             return cls.csv_stream_do_dict(stream, delimiter=delimiter)
+
+    @classmethod
+    def yaml_file_to_dict(cls, config_file, base_config=None):
+        """ Adds extra configuration information to given base_config """
+        # validate input
+        base_config = base_config or {}
+        if not os.path.exists(config_file):
+            raise SystemExit("Extra config file not found: {}".format(config_file))
+
+        # load config from yaml
+        extra_config = yaml.load(open(config_file, 'r'))
+
+        # return base config enriched (and overriden) with yaml config
+        return {**base_config, **extra_config}
 
     @classmethod
     def get_optional_env(cls, key, default):

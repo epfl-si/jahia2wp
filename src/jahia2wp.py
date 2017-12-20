@@ -32,8 +32,6 @@ Options:
 """
 import logging
 import getpass
-import yaml
-import os
 
 from docopt import docopt
 from docopt_dispatch import dispatch
@@ -69,16 +67,6 @@ def _check_site(wp_env, wp_url, **kwargs):
     if not wp_config.is_config_valid:
         raise SystemExit("Configuration not valid for {}".format(wp_site.url))
     return wp_config
-
-
-def _add_extra_config(extra_config_file, current_config, **kwargs):
-    """ Adds extra configuration information to current config """
-    if not os.path.exists(extra_config_file):
-        raise SystemExit("Extra config file not found: {}".format(extra_config_file))
-
-    extra_config = yaml.load(open(extra_config_file, 'r'))
-
-    return {**current_config, **extra_config}
 
 
 @dispatch.on('check')
@@ -133,7 +121,7 @@ def generate(wp_env, wp_url,
 
     # if we have extra configuration to load,
     if extra_config is not None:
-        all_params = _add_extra_config(extra_config, all_params)
+        all_params = Utils.yaml_file_to_dict(extra_config, all_params)
 
     wp_generator = WPGenerator(all_params, admin_password=admin_password)
     if not wp_generator.generate():
@@ -265,7 +253,7 @@ def list_plugins(wp_env, wp_url, config=False, plugin=None, extra_config=None, *
 
     # if we have extra configuration to load,
     if extra_config is not None:
-        all_params = _add_extra_config(extra_config, all_params)
+        all_params = Utils.yaml_file_to_dict(extra_config, all_params)
 
     print(WPGenerator(all_params).list_plugins(config, plugin))
 
