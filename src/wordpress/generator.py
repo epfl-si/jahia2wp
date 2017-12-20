@@ -56,13 +56,13 @@ class WPGenerator:
         if 'wp_default_title' not in self.csv_row:
             self.csv_row['wp_default_title'] = None
 
-        if 'installs_locked' not in self.csv_row or self.csv_row['installs_locked'] is None:
+        if self.csv_row.get('installs_locked', None) is None:
             self.csv_row['installs_locked'] = settings.DEFAULT_CONFIG_INSTALLS_LOCKED
 
-        if 'updates_automatic' not in self.csv_row or self.csv_row['updates_automatic'] is None:
+        if self.csv_row.get('updates_automatic', None) is None:
             self.csv_row['updates_automatic'] = settings.DEFAULT_CONFIG_UPDATES_AUTOMATIC
 
-        if 'theme' not in self.csv_row or self.csv_row['theme'] is None:
+        if self.csv_row.get('theme', None) is None:
             self.csv_row['theme'] = settings.DEFAULT_THEME_NAME
 
         if ('theme_faculty' not in self.csv_row or
