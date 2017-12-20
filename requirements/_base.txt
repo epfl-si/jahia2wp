@@ -1,6 +1,6 @@
 docopt==0.6.2
 docopt-dispatch==0.0.2
-epfl-ldap==0.0.4
+epfl-ldap==0.0.6
 django==1.11.5
 clint==0.5.1
 PyYAML==3.12
