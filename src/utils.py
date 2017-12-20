@@ -131,6 +131,52 @@ class Utils(object):
         return {**base_config, **extra_config}
 
     @classmethod
+    def yaml_include(cls, loader, node):
+        """ Defining necessary to allow usage of "!include" in YAML files.
+        Given path to include file can be relative to :
+        - Python script location
+        - YAML file from which "include" is done
+
+        This can be use to include a value for a key. This value can be just a string or a complex (hiearchical)
+        YAML file.
+        Ex:
+        my_key: !include file/with/value.yml
+        """
+        local_file = os.path.join(os.path.dirname(loader.stream.name), node.value)
+
+        # if file to include exists with given valu
+        if os.path.exists(node.value):
+            include_file = node.value
+        # if file exists with relative path to current YAML file
+        elif os.path.exists(local_file):
+            include_file = local_file
+        else:
+            error_message = "YAML include in '%s' - file to include doesn't exists: %s", loader.stream.name, node.value
+            logging.error(error_message)
+            raise ValueError(error_message)
+
+        with open(include_file) as inputfile:
+            return yaml.load(inputfile)
+
+    @classmethod
+    def yaml_from_csv(cls, loader, node, csv_dict, raise_error=False):
+        """
+        Defining necessary to retrieve a value (given by field name) from a dict
+
+        Ex (in YAML file):
+        my_key: !from_csv field_name
+        """
+        # If value not exists, store the error
+        if csv_dict.get(node.value, None) is None:
+            if raise_error:
+                raise KeyError(node.value)
+            # We don't replace value because we can't...
+            return node.value
+        else:
+            # No error, we return the value
+            return csv_dict[node.value]
+
+    @classmethod
     def get_optional_env(cls, key, default):
         """
         Return the value of an optional environment variable, and use
