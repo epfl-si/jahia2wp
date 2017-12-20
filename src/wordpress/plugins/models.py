@@ -78,9 +78,6 @@ class WPPluginList:
             self._yaml_from_csv_missing.add(node.value)
             # We don't replace value because we can't...
             return node.value
-        else:
-            # No error, we return the value
-            return self._site_params[node.value]
 
     def __build_plugins_for_site(self, wp_site_id):
         """ Build specific plugin configuration for website if exists
