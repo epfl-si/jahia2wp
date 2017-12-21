@@ -13,7 +13,8 @@
  *
  * https://codex.wordpress.org/Editing_wp-config.php
  */
-define( 'DISALLOW_FILE_MODS', true );
+//Plus utils? pour le moment car coupe également ls automatic update des plugins et des traductions
+//define( 'DISALLOW_FILE_MODS', true );
 
 /* Disable descativation and edit plug link
  * https://codex.wordpress.org/Plugin_API/Filter_Reference/plugin_action_links_(plugin_file_name)
@@ -22,7 +23,7 @@ add_filter( 'plugin_action_links', 'disable_plugin_deactivation', 10, 4 );
 function disable_plugin_deactivation( $actions, $plugin_file, $plugin_data, $context ) {
    // Remove edit link for all
    if ( array_key_exists( 'edit', $actions ) )
-     	unset( $actions['edit'] );
+      unset( $actions['edit'] );
    // Remove deactivate link for crucial plugins
    //if ( array_key_exists( 'deactivate', $actions ) && in_array( $plugin_file, array(
    //      'mainwp-child/mainwp-child.php' ,'miniorange-saml-20-single-sign-on/login.php'
@@ -39,27 +40,33 @@ function disable_plugin_deactivation( $actions, $plugin_file, $plugin_data, $con
  */
 add_action( 'admin_init', 'EPFL_remove_menu_pages' );
 function EPFL_remove_menu_pages() {
-	remove_menu_page( 'mo_saml_settings' ); 
+   remove_menu_page( 'plugins.php' );
 }
+
+/* Hide apparence editor menu
+ *
+ */
+function EPFL_remove_menu_editor() {
+   remove_action('admin_menu', '_add_themes_utility_last', 101);
+}
+add_action('_admin_menu', 'EPFL_remove_menu_editor', 1);
 
 /* Hide plugin bulk deactivate action
  * https://codex.wordpress.org/Plugin_API/Filter_Reference/bulk_actions
  */
 add_filter('bulk_actions-plugins','my_custom_bulk_actions');
 function my_custom_bulk_actions($actions){
-	    unset( $actions[ 'deactivate-selected' ] );
-	        return $actions;
+       unset( $actions[ 'deactivate-selected' ] );
+           return $actions;
 }
-
-
 
 /* Hide apparence backround and header menu
  * 
  */
 add_action( 'after_setup_theme','EPFL_remove_background_header_options', 100 );
 function EPFL_remove_background_header_options() {    
-	 remove_custom_background();
- 	 remove_custom_image_header();
+   remove_theme_support( 'custom-header');
+   remove_theme_support( 'custom-background');
 }
 
 /* Hide plugin configuration
@@ -67,9 +74,9 @@ function EPFL_remove_background_header_options() {
  */
 add_action( 'admin_menu', 'EPFL_remove_admin_submenus',999 );
 function EPFL_remove_admin_submenus() {
-	remove_submenu_page( 'options-general.php', 'options-permalink.php' );
-	remove_submenu_page( 'options-general.php', 'mainwp_child_tab' );
-	remove_submenu_page( 'options-general.php', 'epfl_accred' );
-	remove_submenu_page( 'options-general.php', 'epfl_tequila' );
+   remove_submenu_page( 'options-general.php', 'options-permalink.php' );
+   remove_submenu_page( 'options-general.php', 'mainwp_child_tab' );
+   remove_submenu_page( 'options-general.php', 'epfl_accred' );
+   remove_submenu_page( 'options-general.php', 'epfl_tequila' );
 }
 ?>
