@@ -411,7 +411,7 @@ class WPGenerator:
                     logging.info("%s - Plugins - %s: Deactivated!", repr(self), plugin_name)
 
                 # Configure plugin
-                plugin_config.configure(force=force, **self.plugin_config_custom)
+                plugin_config.configure(force=force)
 
     def update_plugins(self, only_one=None, force=False):
         """
