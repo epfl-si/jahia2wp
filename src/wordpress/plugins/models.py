@@ -267,6 +267,9 @@ class WPPluginConfigInfos:
         # defining if we have to use a dedicated configuration class for plugin
         self.config_class = plugin_config.get('config_class', settings.WP_DEFAULT_PLUGIN_CONFIG)
 
+        # Getting custom config if exists (dict)
+        self.config_custom = plugin_config.get('config_custom', {})
+
     def __repr__(self):
         return "Plugin {} config".format(self.plugin_name)
 
@@ -329,6 +332,10 @@ class WPPluginConfigInfos:
         # If specific class to use to configure plugin,
         if 'config_class' in specific_plugin_config:
             self.config_class = specific_plugin_config['config_class']
+
+        # If specific custom configuration,
+        if 'config_custom' in specific_plugin_config:
+            self.config_custom = specific_plugin_config['config_custom']
 
     def table_rows(self, table_name):
         """ Return rows (options) for specific table
