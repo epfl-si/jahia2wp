@@ -335,9 +335,25 @@ class WPGenerator:
         else:
             WPMuPluginConfig(self.wp_site, "EPFL_disable_updates_automatic.php").install()
 
-    def generate_plugins(self):
+    def generate_plugins(self, only_one=None, force=True, **kwargs):
         """
-        Get plugin list for WP site, install them, activate them if needed, configure them
+        Get plugin list for WP site and do appropriate actions on them
+        - During WordPress site creation, 'only_plugin_name' and 'force' are not given. Plugins are installed/configured
+        as described in plugin structure (generic+specific)
+        - If WordPress site already exists, update are performed on installed plugins, depending on information
+        present in plugin structure. Those updates can be specific to one plugin ('only_plugin_name') and not
+        intrusive (only add new options, deactivate instead of delete) or intrusive (overwrite existing options,
+        deactivate AND delete)
+
+        Arguments keywords
+        only_one -- Plugin name for which we do the action. If not given, all plugins are processed
+        force -- True|False
+           - if False
+              - Plugin(s) to be uninstalled will be only deactivated
+              - Only new options will be added to plugin(s)
+           - if True
+              - Plugin(s) to be uninstalled will be deactivated AND uninstalled (deleted)
+              - New plugin options will be added and existing ones will be overwritten
         """
         logging.info("WPGenerator.generate_plugins(): Add parameter for 'batch file' (YAML)")
         # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"
@@ -348,20 +364,31 @@ class WPGenerator:
         # Looping through plugins to install
         for plugin_name, config_dict in plugin_list.plugins(self.wp_site.name).items():
 
-            # Fetch proper PluginConfig class (in YAML) and create instance.
+            # If a filter on plugin was given and it's not the current plugin, we skip
+            if only_one is not None and only_one != plugin_name:
+                continue
+
+            # Fetch proper PluginConfig class and create instance
             plugin_class = Utils.import_class_from_string(config_dict.config_class)
             plugin_config = plugin_class(self.wp_site, plugin_name, config_dict)
 
             # If we have to uninstall the plugin
             if config_dict.action == settings.PLUGIN_ACTION_UNINSTALL:
+
                 logging.info("{} - Plugins - {}: Uninstalling...".format(repr(self), plugin_name))
                 if plugin_config.is_installed:
-                    plugin_config.uninstall()
-                    logging.info("{} - Plugins - {}: Uninstalled!".format(repr(self), plugin_name))
+                    if force:
+                        plugin_config.uninstall()
+                        logging.info("{} - Plugins - {}: Uninstalled!".format(repr(self), plugin_name))
+                    else:
+                        logging.info("{} - Plugins - {}: Deactivated only! (use --force to uninstall)".format(
+                                     repr(self), plugin_name))
+                        plugin_config.set_state(False)
                 else:
                     logging.info("{} - Plugins - {}: Not installed!".format(repr(self), plugin_name))
 
-            else:  # We have to install the plugin
+            else:  # We have to install the plugin (or it is already installed)
+
                 # We may have to install or do nothing (if we only want to deactivate plugin)
                 if config_dict.action == settings.PLUGIN_ACTION_INSTALL:
                     logging.info("{} - Plugins - {}: Installing...".format(repr(self), plugin_name))
@@ -380,7 +407,28 @@ class WPGenerator:
                     logging.info("{} - Plugins - {}: Deactivated!".format(repr(self), plugin_name))
 
                 # Configure plugin
-                plugin_config.configure()
+                plugin_config.configure(force=force)
+
+    def update_plugins(self, only_one=None, force=False):
+        """
+        Update plugin list:
+        - Install missing plugins
+        - Update plugin state (active/inactive)
+        - For plugins that are not required anymore
+          + if force -> Deactivate & uninstall
+          + if not force -> Deactivate only
+        - For plugin options
+          + if force -> Overwrite existing options
+          + not force -> only add new options
+
+        Note: This function exists to be overriden if necessary in a child class.
+
+        Arguments keywords
+        only_one -- (optional) given plugin to update.
+        force -- True|False tells if we have to really uninstall a plugin marked as "uninstall".
+                           If not given, plugin is only deactivated
+        """
+        self.generate_plugins(only_one=only_one, force=force)
 
     def clean(self):
         """
