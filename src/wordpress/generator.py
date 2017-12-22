@@ -369,10 +369,7 @@ class WPGenerator:
                 continue
 
             # Fetch proper PluginConfig class and create instance
-            # TODO: read class from YML
-            plugin_class_name = settings.WP_PLUGIN_CONFIG_CLASS_BY_NAME.get(
-                plugin_name, settings.WP_DEFAULT_PLUGIN_CONFIG)
-            plugin_class = Utils.import_class_from_string(plugin_class_name)
+            plugin_class = Utils.import_class_from_string(config_dict.config_class)
             plugin_config = plugin_class(self.wp_site, plugin_name, config_dict)
 
             # If we have to uninstall the plugin

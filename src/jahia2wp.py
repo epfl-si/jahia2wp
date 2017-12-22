@@ -22,15 +22,11 @@ Usage:
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
-<<<<<<< HEAD
-    [--config] [--plugin=<PLUGIN_NAME>]
+    [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
   jahia2wp.py update-plugins        <wp_env> <wp_url>               [--debug | --quiet]
     [--force] [--plugin=<PLUGIN_NAME>]
   jahia2wp.py update-plugins-many   <csv_file>                      [--debug | --quiet]
     [--force] [--plugin=<PLUGIN_NAME>]
-=======
-     [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
->>>>>>> ebcb9e758b873c2dea19f67e2b7db1ec23ffda93
 
 Options:
   -h --help                 Show this screen.
