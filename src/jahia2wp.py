@@ -301,7 +301,7 @@ def update_plugins_many(csv_file, plugin=None, force=False, **kwargs):
     print("\n{} websites will now be updated...".format(len(rows)))
     for index, row in rows:
         print("\nIndex #{}:\n---".format(index))
-        logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
+        logging.debug("{} - row {}: {}".format(row["wp_site_url"], index, row))
         WPGenerator(
             row["openshift_env"],
             row["wp_site_url"],
