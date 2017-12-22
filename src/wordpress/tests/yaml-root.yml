@@ -1,2 +1,3 @@
 root_value: root
 included_value: !include 'yaml-included.yml'
+csv_unit_name: !from_csv unit_name

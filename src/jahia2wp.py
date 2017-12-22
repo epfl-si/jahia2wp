@@ -8,9 +8,10 @@ Usage:
     [--stop-on-errors]
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate              <wp_env> <wp_url>               [--debug | --quiet]
-    [--wp-title=<WP_TITLE> --admin-password=<PASSWORD> --unit-name=<NAME>]
+    [--wp-title=<WP_TITLE> --admin-password=<PASSWORD>]
     [--theme=<THEME> --theme-faculty=<THEME-FACULTY>]
     [--installs-locked=<BOOLEAN> --automatic-updates=<BOOLEAN>]
+    [--extra-config=<YAML_FILE>]
   jahia2wp.py backup                <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py version               <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py admins                <wp_env> <wp_url>               [--debug | --quiet]
@@ -21,7 +22,7 @@ Usage:
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
-    [--config] [--plugin=<PLUGIN_NAME>]
+     [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
 
 Options:
   -h --help                 Show this screen.
@@ -31,6 +32,8 @@ Options:
 """
 import logging
 import getpass
+import yaml
+import os
 
 from docopt import docopt
 from docopt_dispatch import dispatch
@@ -68,6 +71,23 @@ def _check_site(wp_env, wp_url, **kwargs):
     return wp_config
 
 
+def _add_extra_config(extra_config_file, current_config, **kwargs):
+    """ Adds extra configuration information to current config
+
+    Arguments keywords:
+    extra_config_file -- YAML file in which is extra config
+    current_config -- dict with current configuration
+
+    Return:
+    current_config dict merge with YAML file content"""
+    if not os.path.exists(extra_config_file):
+        raise SystemExit("Extra config file not found: {}".format(extra_config_file))
+
+    extra_config = yaml.load(open(extra_config_file, 'r'))
+
+    return {**current_config, **extra_config}
+
+
 @dispatch.on('check')
 def check(wp_env, wp_url, **kwargs):
     wp_config = _check_site(wp_env, wp_url, **kwargs)
@@ -85,18 +105,22 @@ def clean(wp_env, wp_url, stop_on_errors=False, **kwargs):
         _check_site(wp_env, wp_url, **kwargs)
     # config found: proceed with cleaning
     # FIXME: Il faut faire un clean qui n'a pas besoin de unit_name
-    wp_generator = WPGenerator(wp_env, wp_url, 'idevelop')
+    wp_generator = WPGenerator({'openshift_env': wp_env, 'wp_site_url': wp_url})
     if wp_generator.clean():
         print("Successfully cleaned WordPress site {}".format(wp_generator.wp_site.url))
 
 
 @dispatch.on('generate')
 def generate(wp_env, wp_url,
-             wp_title=None, admin_password=None, unit_name=None,
+             wp_title=None, admin_password=None,
              theme=None, theme_faculty=None,
              installs_locked=None, updates_automatic=None,
+             extra_config=None,
              **kwargs):
-
+    """
+    This command may need more params if reference to them are done in YAML file. In this case, you'll see an
+    error explaining which params are needed and how they can be added to command line
+    """
     # if nothing is specified we want a locked install
     if installs_locked is None:
         installs_locked = DEFAULT_CONFIG_INSTALLS_LOCKED
@@ -109,17 +133,16 @@ def generate(wp_env, wp_url,
     else:
         updates_automatic = cast_boolean(updates_automatic)
 
-    wp_generator = WPGenerator(
-        wp_env,
-        wp_url,
-        wp_default_site_title=wp_title,
-        admin_password=admin_password,
-        unit_name=unit_name,
-        theme=theme or DEFAULT_THEME_NAME,
-        theme_faculty=theme_faculty,
-        installs_locked=installs_locked,
-        updates_automatic=updates_automatic
-    )
+    # FIXME: When we will use 'unit_id' from CSV file, add parameter here OR dynamically get it from AD
+    all_params = {'openshift_env': wp_env,
+                  'wp_site_url': wp_url,
+                  'theme': theme or DEFAULT_THEME_NAME}
+
+    # if we have extra configuration to load,
+    if extra_config is not None:
+        all_params = _add_extra_config(extra_config, all_params)
+
+    wp_generator = WPGenerator(all_params, admin_password=admin_password)
     if not wp_generator.generate():
         raise SystemExit("Generation failed. More info above")
 
@@ -161,16 +184,7 @@ def generate_many(csv_file, **kwargs):
     for index, row in rows:
         print("\nIndex #{}:\n---".format(index))
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
-        WPGenerator(
-            row["openshift_env"],
-            row["wp_site_url"],
-            wp_default_site_title=row["wp_default_site_title"],
-            unit_name=row["unit_name"],
-            updates_automatic=row["updates_automatic"],
-            installs_locked=row["installs_locked"],
-            theme=row["theme"],
-            theme_faculty=row["theme_faculty"],
-        ).generate()
+        WPGenerator(row).generate()
 
 
 @dispatch.on('backup-many')
@@ -246,8 +260,21 @@ def extract_plugin_config(wp_env, wp_url, output_file, **kwargs):
 
 
 @dispatch.on('list-plugins')
-def list_plugins(wp_env, wp_url, config=False, plugin=None, **kwargs):
-    print(WPGenerator(wp_env, wp_url).list_plugins(config, plugin))
+def list_plugins(wp_env, wp_url, config=False, plugin=None, extra_config=None, **kwargs):
+    """
+    This command may need more params if reference to them are done in YAML file. In this case, you'll see an
+    error explaining which params are needed and how they can be added to command line
+    """
+
+    # FIXME: When we will use 'unit_id' from CSV file, add parameter here OR dynamically get it from AD
+    all_params = {'openshift_env': wp_env,
+                  'wp_site_url': wp_url}
+
+    # if we have extra configuration to load,
+    if extra_config is not None:
+        all_params = _add_extra_config(extra_config, all_params)
+
+    print(WPGenerator(all_params).list_plugins(config, plugin))
 
 
 if __name__ == '__main__':
