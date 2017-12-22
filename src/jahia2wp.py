@@ -141,23 +141,6 @@ def generate(wp_env, wp_url,
     else:
         updates_automatic = cast_boolean(updates_automatic)
 
-<<<<<<< HEAD
-    # If nothing is specified, we want default theme
-    if theme is None:
-        theme = DEFAULT_THEME_NAME
-
-    wp_generator = WPGenerator(
-        wp_env,
-        wp_url,
-        wp_default_site_title=wp_title,
-        admin_password=admin_password,
-        unit_name=unit_name,
-        theme=theme,
-        theme_faculty=theme_faculty,
-        installs_locked=installs_locked,
-        updates_automatic=updates_automatic
-    )
-=======
     # FIXME: When we will use 'unit_id' from CSV file, add parameter here OR dynamically get it from AD
     all_params = {'openshift_env': wp_env,
                   'wp_site_url': wp_url,
@@ -168,7 +151,7 @@ def generate(wp_env, wp_url,
         all_params = _add_extra_config(extra_config, all_params)
 
     wp_generator = WPGenerator(all_params, admin_password=admin_password)
->>>>>>> ebcb9e758b873c2dea19f67e2b7db1ec23ffda93
+
     if not wp_generator.generate():
         raise SystemExit("Generation failed. More info above")
 
