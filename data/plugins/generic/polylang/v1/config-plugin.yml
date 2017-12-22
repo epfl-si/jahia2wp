@@ -1,2 +1,3 @@
 src: web
 activate: yes
+config_class: wordpress.plugins.polylang.WPPolylangConfig

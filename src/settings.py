@@ -127,9 +127,6 @@ WP_PLUGIN_TABLES_RELATIONS = {
 
 # What class to use for given plugin_name
 WP_DEFAULT_PLUGIN_CONFIG = "wordpress.plugins.config.WPPluginConfig"
-WP_PLUGIN_CONFIG_CLASS_BY_NAME = {
-    "polylang": "wordpress.plugins.polylang.WPPolylangConfig",
-}
 
 JAHIA_USER = Utils.get_optional_env("JAHIA_USER", "admin")
 JAHIA_HOST = Utils.get_optional_env("JAHIA_HOST", "localhost")
