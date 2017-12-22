@@ -22,7 +22,11 @@ Usage:
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
-     [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
+    [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
+  jahia2wp.py update-plugins        <wp_env> <wp_url>               [--debug | --quiet]
+    [--force] [--plugin=<PLUGIN_NAME>]
+  jahia2wp.py update-plugins-many   <csv_file>                      [--debug | --quiet]
+    [--force] [--plugin=<PLUGIN_NAME>]
 
 Options:
   -h --help                 Show this screen.
@@ -143,6 +147,7 @@ def generate(wp_env, wp_url,
         all_params = _add_extra_config(extra_config, all_params)
 
     wp_generator = WPGenerator(all_params, admin_password=admin_password)
+
     if not wp_generator.generate():
         raise SystemExit("Generation failed. More info above")
 
@@ -275,6 +280,38 @@ def list_plugins(wp_env, wp_url, config=False, plugin=None, extra_config=None, *
         all_params = _add_extra_config(extra_config, all_params)
 
     print(WPGenerator(all_params).list_plugins(config, plugin))
+
+
+@dispatch.on('update-plugins')
+def update_plugins(wp_env, wp_url, plugin=None, force=False, **kwargs):
+
+    wp_generator = WPGenerator(wp_env, wp_url)
+
+    wp_generator.update_plugins(only_plugin_name=plugin, force=force)
+
+    print("Successfully updated WordPress plugin list at {}".format(wp_generator.wp_site.url))
+
+
+@dispatch.on('update-plugins-many')
+def update_plugins_many(csv_file, plugin=None, force=False, **kwargs):
+    # use Veritas to get valid rows
+    rows = VeritasValidor.filter_valid_rows(csv_file)
+
+    # Update WP site plugins for each row
+    print("\n{} websites will now be updated...".format(len(rows)))
+    for index, row in rows:
+        print("\nIndex #{}:\n---".format(index))
+        logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
+        WPGenerator(
+            row["openshift_env"],
+            row["wp_site_url"],
+            wp_default_site_title=row["wp_default_site_title"],
+            unit_name=row["unit_name"],
+            updates_automatic=row["updates_automatic"],
+            installs_locked=row["installs_locked"],
+            theme=row["theme"],
+            theme_faculty=row["theme_faculty"],
+        ).update_plugins(only_plugin_name=plugin, force=force)
 
 
 if __name__ == '__main__':
