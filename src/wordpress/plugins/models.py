@@ -5,7 +5,7 @@ import yaml
 
 import settings
 
-from utils import Utils
+from wordpress import WPException
 
 
 class WPPluginList:
@@ -25,30 +25,37 @@ class WPPluginList:
         self._site_params = site_params
 
         if not os.path.exists(generic_config_path):
-            logging.error("%s - Generic config path not exists: %s", repr(self), generic_config_path)
+            logging.error("{} - Generic config path not exists: {}".format(repr(self), generic_config_path))
 
         generic_plugin_file = os.path.join(generic_config_path, generic_plugin_yaml)
         if not os.path.exists(generic_plugin_file):
-            logging.error("%s - Generic plugin list not exists: %s", repr(self), generic_plugin_file)
+            logging.error("{} - Generic plugin list not exists: {}".format(repr(self), generic_plugin_file))
 
         if not os.path.exists(specific_config_path):
-            logging.error("%s - Specific config path not exists: %s", repr(self), specific_config_path)
+            logging.error("{} - Specific config path not exists: {}".format(repr(self), specific_config_path))
 
         # For specific plugins configuration
         self._generic_plugins = {}
 
         # Extend possibilities of YAML reader
-        yaml.add_constructor("!include", Utils.yaml_include())
-        yaml.add_constructor("!from_csv", Utils.yaml_from_csv(self._site_params))
+        yaml.add_constructor("!include", self._yaml_include)
+        yaml.add_constructor("!from_csv", self._yaml_from_csv)
+        self._yaml_from_csv_missing = []
 
         # Reading YAML file containing generic plugins
         plugin_list = yaml.load(open(generic_plugin_file, 'r'))
 
         # If nothing in file
         if plugin_list is None:
-            logging.error("%s - YAML file seems to be empty: %s", repr(self), generic_plugin_file)
+            logging.error("{} - YAML file seems to be empty: {}".format(repr(self), generic_plugin_file))
 
         else:
+            # If we have missing informations
+            for missing_csv_field in self._yaml_from_csv_missing:
+                logging.error("{} - YAML file CSV reference '{}' missing. Can be given with option \
+--extra-config=<YAML>'. YAML content example: '{}: <value>'".format(
+                                repr(self), missing_csv_field, missing_csv_field))
+
             # If we have plugins,
             if plugin_list['plugins'] is not None:
                 # Going through plugins
@@ -59,6 +66,54 @@ class WPPluginList:
 
     def __repr__(self):
         return "WPPluginList"
+
+    def _yaml_include(self, loader, node):
+        """ Defining necessary to allow usage of "!include" in YAML files.
+        Given path to include file can be relative to :
+        - Python script location
+        - YAML file from which "include" is done
+
+        This can be use to include a value for a key. This value can be just a string or a complex (hiearchical)
+        YAML file.
+        Ex:
+        my_key: !include file/with/value.yml
+        """
+        local_file = os.path.join(os.path.dirname(loader.stream.name), node.value)
+
+        # if file to include exists with given valu
+        if os.path.exists(node.value):
+            include_file = node.value
+        # if file exists with relative path to current YAML file
+        elif os.path.exists(local_file):
+            include_file = local_file
+        else:
+            error_message = "YAML include in '{}' - file to include doesn't exists: {}".format(
+                                loader.stream.name, node.value)
+            logging.error(error_message)
+            raise WPException(error_message)
+
+        with open(include_file) as inputfile:
+            return yaml.load(inputfile)
+
+    def _yaml_from_csv(self, loader, node):
+        """
+        Defining necessary to retrieve a value (given by field name) from CSV row containing WP Site information
+
+        Ex (in YAML file):
+        my_key: !from_csv field_name
+        """
+        # If value not exists, store the error
+        if self._site_params.get(node.value, None) is None:
+            try:
+                self._yaml_from_csv_missing.index(node.value)
+
+            except ValueError:  # If exception, element not in list, we add it
+                self._yaml_from_csv_missing.append(node.value)
+
+            # We don't replace value because we can't...
+            return node.value
+        else:  # No error, we return the value
+            return self._site_params[node.value]
 
     def __build_plugins_for_site(self, wp_site_id):
         """ Build specific plugin configuration for website if exists
@@ -82,12 +137,12 @@ class WPPluginList:
 
         # If nothing in file
         if plugin_list is None:
-            logging.error("%s - YAML file seems to be empty: %s", repr(self), site_specific_plugin_file)
+            logging.error("{} - YAML file seems to be empty: {}".format(repr(self), site_specific_plugin_file))
 
         # Check if exists
         if 'plugins' not in plugin_list:
-            logging.error("%s - YAML format error. 'plugins' key not found in file: %s",
-                          repr(self), site_specific_plugin_file)
+            logging.error("{} - YAML format error. 'plugins' key not found in file: {}".format(
+                          repr(self), site_specific_plugin_file))
 
         # Going through directory containing specific plugin configuration for site 'site_name'
         for plugin_infos in plugin_list['plugins']:
@@ -194,7 +249,7 @@ class WPPluginConfigInfos:
                     # Generate full path to plugin ZIP file
                     zip_full_path = os.path.join(settings.PLUGINS_CONFIG_BASE_FOLDER, plugin_config['src'])
                     if not os.path.exists(zip_full_path):
-                        logging.error("%s - ZIP file not exists: %s", repr(self), zip_full_path)
+                        logging.error("{} - ZIP file not exists: {}".format(repr(self), zip_full_path))
                     self.zip_path = zip_full_path
 
             else:  # Plugin has to be deactivated
@@ -234,7 +289,7 @@ class WPPluginConfigInfos:
                 # Generate full path to plugin ZIP file
                 zip_full_path = os.path.join(settings.PLUGINS_CONFIG_BASE_FOLDER, specific_plugin_config['src'])
                 if not os.path.exists(zip_full_path):
-                    logging.error("%s - ZIP file not exists: %s", repr(self), zip_full_path)
+                    logging.error("{} - ZIP file not exists: {}".format(repr(self), zip_full_path))
                 self.zip_path = zip_full_path
 
         # If activation has been overrided
