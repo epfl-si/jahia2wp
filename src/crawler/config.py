@@ -15,7 +15,7 @@ class JahiaConfig(object):
 
     # elements of URI
     JAHIA_DOWNLOAD_URI = "administration/engineName/export"
-    FILE_PATTERN = "%s_export_%s.zip"
+    FILE_PATTERN = "{}_export_{}.zip"
 
     def __init__(self, site, host=None, date=None, zip_path=None):
         # site to crawl (jahia key)
@@ -38,7 +38,7 @@ class JahiaConfig(object):
             self.file_path = self.existing_files[-1]
             self.file_name = os.path.basename(self.file_path)
         else:
-            self.file_name = self.FILE_PATTERN % (self.site, self.date)
+            self.file_name = self.FILE_PATTERN.format(self.site, self.date)
             self.file_path = os.path.join(self.zip_path, self.file_name)
 
     @property
@@ -51,4 +51,4 @@ class JahiaConfig(object):
 
     def check_existing_files(self):
         path = Path(self.zip_path)
-        return [str(file_path) for file_path in path.glob("%s_export*" % self.site)]
+        return [str(file_path) for file_path in path.glob("{}_export*".format(self.site))]
