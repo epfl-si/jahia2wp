@@ -9,7 +9,7 @@ from utils import Utils
 import settings
 
 from django.core.validators import URLValidator
-from veritas.validators import validate_string, validate_openshift_env, validate_unit, \
+from veritas.validators import validate_string, validate_openshift_env, \
     validate_theme_faculty, validate_theme
 from .models import WPSite, WPUser
 from .config import WPConfig
@@ -36,58 +36,64 @@ class WPGenerator:
     WP_ADMIN_USER = Utils.get_mandatory_env(key="WP_ADMIN_USER")
     WP_ADMIN_EMAIL = Utils.get_mandatory_env(key="WP_ADMIN_EMAIL")
 
-    def __init__(self, openshift_env, wp_site_url,
-                 wp_default_site_title=None,
-                 unit_name=None,
-                 installs_locked=settings.DEFAULT_CONFIG_INSTALLS_LOCKED,
-                 updates_automatic=settings.DEFAULT_CONFIG_UPDATES_AUTOMATIC,
-                 admin_password=None,
-                 theme=settings.DEFAULT_THEME_NAME,
-                 theme_faculty=None):
+    def __init__(self, site_params, admin_password=None):
         """
         Class constructor
 
         Argument keywords:
-        openshift_env -- Name of OpenShift environment on which script is executed
-        wp_site_url -- Website URL
-        wp_default_site_title -- (optional) website title
+        site_params -- dict with row coming from CSV file (source of truth)
         admin_password -- (optional) Password to use for 'admin' account
-        theme -- (optional) WordPress Theme name
-        theme_faculty -- (optional) Faculty name to use with theme (to select color)
         """
+
+        self._site_params = site_params
+
+        # Setting default values
+
+        if 'unit_name' in self._site_params and 'unit_id' not in self._site_params:
+            logging.info("WPGenerator.__init__(): Please use 'unit_id' from CSV file (now recovered from 'unit_name')")
+            self._site_params['unit_id'] = self.get_the_unit_id(self._site_params['unit_name'])
+
+        if 'wp_default_title' not in self._site_params:
+            self._site_params['wp_default_title'] = None
+
+        if self._site_params.get('installs_locked', None) is None:
+            self._site_params['installs_locked'] = settings.DEFAULT_CONFIG_INSTALLS_LOCKED
+
+        if self._site_params.get('updates_automatic', None) is None:
+            self._site_params['updates_automatic'] = settings.DEFAULT_CONFIG_UPDATES_AUTOMATIC
+
+        if self._site_params.get('theme', None) is None:
+            self._site_params['theme'] = settings.DEFAULT_THEME_NAME
+
+        if ('theme_faculty' not in self._site_params or
+           ('theme_faculty' in self._site_params and self._site_params['theme_faculty'] == '')):
+            self._site_params['theme_faculty'] = None
+
         # validate input
-        self.validate_mockable_args(wp_site_url, unit_name)
-        validate_openshift_env(openshift_env)
-        if wp_default_site_title is not None:
-            validate_string(wp_default_site_title)
-        if theme is not None:
-            validate_theme(theme)
-        if theme_faculty is not None:
-            validate_theme_faculty(theme_faculty)
+        self.validate_mockable_args(self._site_params['wp_site_url'])
+        validate_openshift_env(self._site_params['openshift_env'])
+
+        if self._site_params['wp_default_title'] is not None:
+            validate_string(self._site_params['wp_default_title'])
+
+        validate_theme(self._site_params['theme'])
+
+        if self._site_params['theme_faculty'] is not None:
+            validate_theme_faculty(self._site_params['theme_faculty'])
 
         # create WordPress site and config
         self.wp_site = WPSite(
-            openshift_env,
-            wp_site_url,
-            wp_default_site_title=wp_default_site_title)
+            self._site_params['openshift_env'],
+            self._site_params['wp_site_url'],
+            wp_default_site_title=self._site_params['wp_default_title'])
         self.wp_config = WPConfig(
             self.wp_site,
-            installs_locked=installs_locked,
-            updates_automatic=updates_automatic)
+            installs_locked=self._site_params['installs_locked'],
+            updates_automatic=self._site_params['updates_automatic'])
 
         # prepare admin for exploitation/maintenance
         self.wp_admin = WPUser(self.WP_ADMIN_USER, self.WP_ADMIN_EMAIL)
         self.wp_admin.set_password(password=admin_password)
-
-        # plugin configuration
-        self.plugin_config_custom = {
-            'unit_name': unit_name,
-            'unit_id': self.get_the_unit_id(unit_name)
-        }
-
-        # Theme configuration
-        self.theme = theme or settings.DEFAULT_THEME_NAME
-        self.theme_faculty = None if theme_faculty == '' else theme_faculty
 
         # create mysql credentials
         self.wp_db_name = Utils.generate_name(self.DB_NAME_LENGTH, prefix='wp_').lower()
@@ -129,7 +135,7 @@ class WPGenerator:
         # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"
         # information in the source of trousse !
         plugin_list = WPPluginList(settings.PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml',
-                                   settings.PLUGINS_CONFIG_SPECIFIC_FOLDER)
+                                   settings.PLUGINS_CONFIG_SPECIFIC_FOLDER, self._site_params)
 
         return plugin_list.list_plugins(self.wp_site.name, with_config, for_plugin)
 
@@ -158,7 +164,7 @@ class WPGenerator:
         logging.info("%s - Installing all themes...", repr(self))
         WPThemeConfig.install_all(self.wp_site)
         logging.info("%s - Activating theme...", repr(self))
-        theme = WPThemeConfig(self.wp_site, self.theme, self.theme_faculty)
+        theme = WPThemeConfig(self.wp_site, self._site_params['theme'], self._site_params['theme_faculty'])
         if not theme.activate():
             logging.error("%s - could not activate theme", repr(self))
             return False
@@ -282,11 +288,9 @@ class WPGenerator:
             self.run_wp_cli(cmd)
         logging.info("All widgets deleted")
 
-    def validate_mockable_args(self, wp_site_url, unit_name):
+    def validate_mockable_args(self, wp_site_url):
         """ Call validators in an independant function to allow mocking them """
         URLValidator()(wp_site_url)
-        if unit_name is not None:
-            validate_unit(unit_name)
 
     def get_the_unit_id(self, unit_name):
         """
@@ -339,7 +343,7 @@ class WPGenerator:
         # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"
         # information in the source of trousse !
         plugin_list = WPPluginList(settings.PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml',
-                                   settings.PLUGINS_CONFIG_SPECIFIC_FOLDER)
+                                   settings.PLUGINS_CONFIG_SPECIFIC_FOLDER, self._site_params)
 
         # Looping through plugins to install
         for plugin_name, config_dict in plugin_list.plugins(self.wp_site.name).items():
@@ -379,7 +383,7 @@ class WPGenerator:
                     logging.info("%s - Plugins - %s: Deactivated!", repr(self), plugin_name)
 
                 # Configure plugin
-                plugin_config.configure(**self.plugin_config_custom)
+                plugin_config.configure()
 
     def clean(self):
         """
@@ -422,7 +426,7 @@ class MockedWPGenerator(WPGenerator):
     calling LDAP.
     """
 
-    def validate_mockable_args(self, wp_site_url, unit_name):
+    def validate_mockable_args(self, wp_site_url):
         pass
 
     def get_the_unit_id(self, unit_name):
