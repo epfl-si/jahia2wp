@@ -1,0 +1,2 @@
+wp_site_url,wp_default_site_title,site_type,openshift_env,category,theme,theme_faculty,status,installs_locked,updates_automatic,langs,unit_name,comment
+https://vpsi-next.epfl.ch,Systèmes d'information VPSI,wordpress,lchaboudez,GeneralPublic,epfl-master,,yes,yes,yes,"fr,en",VPSI,site de service pour la VPSI
