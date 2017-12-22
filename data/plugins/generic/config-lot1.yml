@@ -21,3 +21,5 @@ plugins:
     config: !include coming-soon/v1/config-plugin.yml
   - name: varnish-http-purge
     config: !include varnish-http-purge/v1/config-plugin.yml
+  - name: sassy-social-share
+    config: !include sassy-social-share/v1/config-plugin.yml
