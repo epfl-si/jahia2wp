@@ -126,7 +126,7 @@ class WPUser:
         except IndexError:
             raise WPException("could not get user details for sciper {}".format(sciper_id))
         except ValidationError as err:
-            raise WPException("username or email '{}': {}"format(err.params, err.code))
+            raise WPException("username or email '{}': {}".format(err.params, err.code))
 
     def set_password(self, password=None):
         self.password = password or Utils.generate_password(self.WP_PASSWORD_LENGTH)
