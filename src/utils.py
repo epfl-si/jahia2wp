@@ -48,7 +48,7 @@ class Utils(object):
             command_bytes = command.encode(encoding)
             # run command and log output
             proc = subprocess.run(command_bytes, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
-            logging.debug("%s => %s", command, proc.stdout)
+            logging.debug("{} => {}".format(command, proc.stdout))
             # return output if got any, True otherwise
             if proc.stdout:
                 # Second parameter "ignore" has been added because some plugins have 'strange' characters in their
@@ -62,10 +62,10 @@ class Utils(object):
 
         except subprocess.CalledProcessError as err:
             # log error with content of stderr
-            logging.error("command failed (code %s) with error <%s> => %s",
+            logging.error("command failed (code {}) with error <{}> => {}".format(
                           err.returncode,
                           err,
-                          err.stderr)
+                          err.stderr))
             return False
 
     @classmethod
@@ -127,7 +127,7 @@ class Utils(object):
         """
         if not os.environ.get(key):
             logging.warning(
-                "The optional environment variable %s is not set, using '%s' as default", key, default)
+                "The optional environment variable {} is not set, using '{}' as default".format(key, default))
 
         return os.environ.get(key, default)
 
@@ -140,8 +140,7 @@ class Utils(object):
         key -- Name of mandatory variable we want to get the value
         """
         if not os.environ.get(key):
-            msg = "The mandatory environment variable {} is not set".format(
-                key)
+            msg = "The mandatory environment variable {} is not set".format(key)
             logging.error(msg)
             raise Exception(msg)
 
