@@ -25,20 +25,21 @@ class WPPolylangConfig(WPPluginConfig):
             is_default = 1 if language == default else 0
             command = "polylang language add {} {}".format(language, is_default)
             if not self.run_wp_cli(command):
-                logging.warning("%s - could not install language %s", self.wp_site, language)
+                logging.warning("{} - could not install language {}".format(self.wp_site, language))
             else:
-                logging.info("%s - installed language %s %s", self.wp_site, language, is_default and "[default]" or "")
+                logging.info("{} - installed language {} {}".format(self.wp_site, language,
+                             is_default and "[default]" or ""))
 
         # configure options
-        logging.info("%s - setting polylang options ...", self.wp_site)
+        logging.info("{} - setting polylang options ...".format(self.wp_site))
         self.run_wp_cli("pll option update media_support 0")
 
         # Configure sync option
-        logging.info("%s - configuring option sync ...", self.wp_site)
+        logging.info("{} - configuring option sync ...".format(self.wp_site))
         self.run_wp_cli("pll option sync taxonomies")
 
         # create menus
-        logging.info("%s - creating polylang menu ...", self.wp_site)
+        logging.info("{} - creating polylang menu ...".format(self.wp_site))
         self.run_wp_cli("pll menu create Main top")
         self.run_wp_cli("pll menu create footer_nav footer_nav")
 

@@ -139,33 +139,33 @@ class WPGenerator:
         """
         # check we have a clean place first
         if self.wp_config.is_installed:
-            logging.error("%s - WordPress files already found", repr(self))
+            logging.error("{} - WordPress files already found".format(repr(self)))
             return False
 
         # create specific mysql db and user
-        logging.info("%s - Setting up DB...", repr(self))
+        logging.info("{} - Setting up DB...".format(repr(self)))
         if not self.prepare_db():
-            logging.error("%s - could not set up DB", repr(self))
+            logging.error("{} - could not set up DB".format(repr(self)))
             return False
 
         # download, config and install WP
-        logging.info("%s - Downloading WP...", repr(self))
+        logging.info("{} - Downloading WP...".format(repr(self)))
         if not self.install_wp():
-            logging.error("%s - could not install WP", repr(self))
+            logging.error("{} - could not install WP".format(repr(self)))
             return False
 
         # install and configure theme (default is settings.DEFAULT_THEME_NAME)
-        logging.info("%s - Installing all themes...", repr(self))
+        logging.info("{} - Installing all themes...".format(repr(self)))
         WPThemeConfig.install_all(self.wp_site)
-        logging.info("%s - Activating theme...", repr(self))
+        logging.info("{} - Activating theme...".format(repr(self)))
         theme = WPThemeConfig(self.wp_site, self.theme, self.theme_faculty)
         if not theme.activate():
-            logging.error("%s - could not activate theme", repr(self))
+            logging.error("{} - could not activate theme".format(repr(self)))
             return False
 
         # install, activate and config mu-plugins
         # must be done before plugins if automatic updates are disabled
-        logging.info("%s - Installing mu-plugins...", repr(self))
+        logging.info("{} - Installing mu-plugins...".format(repr(self)))
         self.generate_mu_plugins()
 
         # Delete all widgets, inactive themes
@@ -174,7 +174,7 @@ class WPGenerator:
         self.delete_demo_posts()
 
         # install, activate and config plugins
-        logging.info("%s - Installing plugins...", repr(self))
+        logging.info("{} - Installing plugins...".format(repr(self)))
         self.generate_plugins()
 
         # flag success
@@ -186,25 +186,25 @@ class WPGenerator:
         """
         # create htdocs path
         if not Utils.run_command("mkdir -p {}".format(self.wp_site.path)):
-            logging.error("%s - could not create tree structure", repr(self))
+            logging.error("{} - could not create tree structure".format(repr(self)))
             return False
 
         # create MySQL DB
         command = "-e \"CREATE DATABASE {0.wp_db_name};\""
         if not self.run_mysql(command.format(self)):
-            logging.error("%s - could not create DB", repr(self))
+            logging.error("{} - could not create DB".format(repr(self)))
             return False
 
         # create MySQL user
         command = "-e \"CREATE USER '{0.mysql_wp_user}' IDENTIFIED BY '{0.mysql_wp_password}';\""
         if not self.run_mysql(command.format(self)):
-            logging.error("%s - could not create user", repr(self))
+            logging.error("{} - could not create user".format(repr(self)))
             return False
 
         # grant privileges
         command = "-e \"GRANT ALL PRIVILEGES ON \`{0.wp_db_name}\`.* TO \`{0.mysql_wp_user}\`@'%';\""
         if not self.run_mysql(command.format(self)):
-            logging.error("%s - could not grant privileges to user", repr(self))
+            logging.error("{} - could not grant privileges to user".format(repr(self)))
             return False
 
         # flag success by returning True
@@ -216,14 +216,14 @@ class WPGenerator:
         """
         # install WordPress
         if not self.run_wp_cli("core download --version={}".format(self.wp_site.WP_VERSION)):
-            logging.error("%s - could not download", repr(self))
+            logging.error("{} - could not download".format(repr(self)))
             return False
 
         # config WordPress
         command = "config create --dbname='{0.wp_db_name}' --dbuser='{0.mysql_wp_user}'" \
             " --dbpass='{0.mysql_wp_password}' --dbhost={0.MYSQL_DB_HOST}"
         if not self.run_wp_cli(command.format(self)):
-            logging.error("%s - could not create config", repr(self))
+            logging.error("{} - could not create config".format(repr(self)))
             return False
 
         # fill out first form in install process (setting admin user and permissions)
@@ -231,31 +231,31 @@ class WPGenerator:
             " --admin_user={1.username} --admin_password='{1.password}'"\
             " --admin_email='{1.email}'"
         if not self.run_wp_cli(command.format(self.wp_site, self.wp_admin)):
-            logging.error("%s - could not setup WP site", repr(self))
+            logging.error("{} - could not setup WP site".format(repr(self)))
             return False
 
         # Configure permalinks
         command = "rewrite structure '/%postname%/' --hard"
         if not self.run_wp_cli(command):
-            logging.error("%s - could not configure permalinks", repr(self))
+            logging.error("{} - could not configure permalinks".format(repr(self)))
             return False
 
         # Configure TimeZone
         command = "option update timezone_string Europe/Zurich"
         if not self.run_wp_cli(command):
-            logging.error("%s - could not configure time zone", repr(self))
+            logging.error("{} - could not configure time zone".format(repr(self)))
             return False
 
         # Configure Time Format 24H
         command = "option update time_format H:i"
         if not self.run_wp_cli(command):
-            logging.error("%s - could not configure time format", repr(self))
+            logging.error("{} - could not configure time format".format(repr(self)))
             return False
 
         # Configure Date Format d.m.Y
         command = "option update date_format d.m.Y"
         if not self.run_wp_cli(command):
-            logging.error("%s - could not configure date format", repr(self))
+            logging.error("{} - could not configure date format".format(repr(self)))
             return False
 
         # Add french for the admin interface
@@ -353,30 +353,30 @@ class WPGenerator:
 
             # If we have to uninstall the plugin
             if config_dict.action == settings.PLUGIN_ACTION_UNINSTALL:
-                logging.info("%s - Plugins - %s: Uninstalling...", repr(self), plugin_name)
+                logging.info("{} - Plugins - {}: Uninstalling...".format(repr(self), plugin_name))
                 if plugin_config.is_installed:
                     plugin_config.uninstall()
-                    logging.info("%s - Plugins - %s: Uninstalled!", repr(self), plugin_name)
+                    logging.info("{} - Plugins - {}: Uninstalled!".format(repr(self), plugin_name))
                 else:
-                    logging.info("%s - Plugins - %s: Not installed!", repr(self), plugin_name)
+                    logging.info("{} - Plugins - {}: Not installed!".format(repr(self), plugin_name))
 
             else:  # We have to install the plugin
                 # We may have to install or do nothing (if we only want to deactivate plugin)
                 if config_dict.action == settings.PLUGIN_ACTION_INSTALL:
-                    logging.info("%s - Plugins - %s: Installing...", repr(self), plugin_name)
+                    logging.info("{} - Plugins - {}: Installing...".format(repr(self), plugin_name))
                     if not plugin_config.is_installed:
                         plugin_config.install()
-                        logging.info("%s - Plugins - %s: Installed!", repr(self), plugin_name)
+                        logging.info("{} - Plugins - {}: Installed!".format(repr(self), plugin_name))
                     else:
-                        logging.info("%s - Plugins - %s: Already installed!", repr(self), plugin_name)
+                        logging.info("{} - Plugins - {}: Already installed!".format(repr(self), plugin_name))
 
-                logging.info("%s - Plugins - %s: Setting state...", repr(self), plugin_name)
+                logging.info("{} - Plugins - {}: Setting state...".format(repr(self), plugin_name))
                 plugin_config.set_state()
 
                 if plugin_config.is_activated:
-                    logging.info("%s - Plugins - %s: Activated!", repr(self), plugin_name)
+                    logging.info("{} - Plugins - {}: Activated!".format(repr(self), plugin_name))
                 else:
-                    logging.info("%s - Plugins - %s: Deactivated!", repr(self), plugin_name)
+                    logging.info("{} - Plugins - {}: Deactivated!".format(repr(self), plugin_name))
 
                 # Configure plugin
                 plugin_config.configure(**self.plugin_config_custom)
@@ -391,19 +391,19 @@ class WPGenerator:
             db_user = self.wp_config.db_user
 
             # clean db
-            logging.info("%s - cleaning up DB", repr(self))
+            logging.info("{} - cleaning up DB".format(repr(self)))
             if not self.run_mysql('-e "DROP DATABASE IF EXISTS {};"'.format(db_name)):
-                logging.error("%s - could not drop DATABASE %s", repr(self), db_name)
+                logging.error("{} - could not drop DATABASE {}".format(repr(self), db_name))
 
             if not self.run_mysql('-e "DROP USER {};"'.format(db_user)):
-                logging.error("%s - could not drop USER %s", repr(self), db_name)
+                logging.error("{} - could not drop USER ".format(repr(self), db_name))
 
         # handle case where no wp_config found
         except ValueError as err:
-            logging.warning("%s - could not clean DB: %s", repr(self), err)
+            logging.warning("{} - could not clean DB: {}".format(repr(self), err))
 
         # clean directories before files
-        logging.info("%s - removing files", repr(self))
+        logging.info("{} - removing files".format(repr(self)))
         for dir_path in settings.WP_DIRS:
             path = os.path.join(self.wp_site.path, dir_path)
             if os.path.exists(path):

@@ -92,16 +92,15 @@ class WPBackup:
         file_regex = re.compile("({})\d+.list".format(matches))
 
         # list directory, filtering out files with appropriate dates
-        logging.debug("%s - Seeking backups with regex: %s", repr(self.wp_site), file_regex)
+        logging.debug("{} - Seeking backups with regex: {}".format(repr(self.wp_site), file_regex))
         matches = [name for name in os.listdir(self.path)
                    if file_regex.search(name)]
 
         # returns oldest match
         if matches:
             matches.sort()
-            logging.info(
-                "%s - Existing full backup %s. Making incremental new one",
-                repr(self.wp_site), matches[0])
+            logging.info("{} - Existing full backup {}. Making incremental new one".format(
+                         repr(self.wp_site), matches[0]))
             return matches[0]
 
     def generate_wp_files(self):
@@ -116,7 +115,7 @@ class WPBackup:
         if not Utils.generate_tar_file(self.tarfile, self.listfile, self.wp_site.path):
             raise WPException("WP tar {} could not be created".format(self.tarfile))
 
-        logging.debug("%s - WP tar %s is created", repr(self.wp_site), self.tarfile)
+        logging.debug("{} - WP tar {} is created".format(repr(self.wp_site), self.tarfile))
 
     def generate_db_dump(self):
         """
@@ -142,9 +141,9 @@ class WPBackup:
         try:
             self.generate_wp_files()
             self.generate_db_dump()
-            logging.info("%s - %s WP backup is created", repr(self.wp_site), self.backup_pattern)
+            logging.info("{} - {} WP backup is created".format(repr(self.wp_site), self.backup_pattern))
             return True
 
         except WPException as err:
-            logging.error("%s - WP backup failed: %s", repr(self.wp_site), err)
+            logging.error("{} - WP backup failed: {}".format(repr(self.wp_site), err))
             return False

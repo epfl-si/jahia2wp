@@ -27,7 +27,7 @@ class WPPluginConfigManager:
         wp_config_file = os.path.join(self.wp_site.path, "wp-config.php")
 
         if not os.path.exists(wp_config_file):
-            logging.error("WordPress config file not exists: %s", wp_config_file)
+            logging.error("WordPress config file not exists: {}".format(wp_config_file))
 
         wp_config_file = open(wp_config_file, 'r')
         wp_config_file_content = wp_config_file.read()
@@ -50,7 +50,7 @@ class WPPluginConfigManager:
         # Check if we have all needed 'define'
         for define_name in WP_CONFIG_DEFINE_NAMES:
             if define_name not in self.wp_defined:
-                logging.error("Missing 'define' for '%s' in WordPress config file", define_name)
+                logging.error("Missing 'define' for '{}' in WordPress config file".format(define_name))
 
     def _wp_table_name(self, table_short_name):
         """ Returns 'Full' WordPress table name for a table short name (which is stored in YAML file)
