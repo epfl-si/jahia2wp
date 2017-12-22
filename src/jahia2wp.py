@@ -183,7 +183,7 @@ def generate_many(csv_file, **kwargs):
     print("\n{} websites will now be generated...".format(len(rows)))
     for index, row in rows:
         print("\nIndex #{}:\n---".format(index))
-        logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
+        logging.debug("{} - row {}: {}".format(row["wp_site_url"], index, row))
         WPGenerator(row).generate()
 
 

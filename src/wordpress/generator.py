@@ -163,7 +163,7 @@ class WPGenerator:
         # install and configure theme (default is settings.DEFAULT_THEME_NAME)
         logging.info("{} - Installing all themes...".format(repr(self)))
         WPThemeConfig.install_all(self.wp_site)
-        logging.info("%s - Activating theme...", repr(self))
+        logging.info("{}} - Activating theme...".format(repr(self)))
         theme = WPThemeConfig(self.wp_site, self._site_params['theme'], self._site_params['theme_faculty'])
         if not theme.activate():
             logging.error("{} - could not activate theme".format(repr(self)))
