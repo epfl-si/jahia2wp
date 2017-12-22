@@ -1,7 +1,7 @@
 import logging
 import json
 from wordpress import WPException
-from .config import WPPluginConfig
+from wordpress.plugins.config import WPPluginConfig
 
 
 class WPPolylangConfig(WPPluginConfig):
@@ -58,20 +58,17 @@ class WPPolylangConfig(WPPluginConfig):
                 return existing_language['slug']
         return None
 
-    def configure(self, force, languages=None, default=None, **kwargs):
+    def configure(self, force, **kwargs):
         """ kwargs:
-            - `languages`, array: all languages to install
-            - `default`, string: default language should be in `languages`
-                If no default is provided, uses the first item of the array
+            - force -- True|False to tell if we have to erase configuration if already exists
         """
-        # validate input (we keep en_GB instead of en_us to get UK flag, in admin)
-        # FIXME: Parameters are never given so it's always default languages that are taken
-        languages = languages or ["fr_FR", "en_GB"]
-        default = default or languages[0]
-        if default not in languages:
-            raise WPException("Default language {} not found in list of supported languages {}".format(
-                default, languages
-            ))
+        languages = self.config.config_custom.get('lang_list', None)
+        if languages is None:
+            raise WPException("No 'lang_list' key found under 'config_custom' key in plugin YAML file")
+
+        languages = languages.split(',')
+        # First language is default
+        default = languages[0]
 
         # adding languages
         for language in languages:
