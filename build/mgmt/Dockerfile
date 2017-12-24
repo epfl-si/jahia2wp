@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     php7.0-curl \
     php7.0-mysql \
     php7.0-zip \
+    php7.0-xml \
     python3 \
     python3-pip \
     python3-virtualenv \
