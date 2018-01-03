@@ -2,6 +2,7 @@ import logging
 import json
 from wordpress import WPException
 from wordpress.plugins.config import WPPluginConfig
+import settings
 
 
 class WPPolylangConfig(WPPluginConfig):
@@ -40,31 +41,17 @@ class WPPolylangConfig(WPPluginConfig):
                 return True
         return False
 
-    def _get_language_slug(self, locale):
-        """
-        Returns existing language slug based on given locale.
-        Note: all languages have to be installed before calling this function
-
-        Argument keywords
-        locale -- Local of language for which we want the slug.
-        """
-        lang_list = json.loads(self.run_wp_cli("pll lang list --format=json"))
-        # If no language installed
-        if not lang_list:
-            return None
-        # Looping through existing languages
-        for existing_language in lang_list:
-            if existing_language['locale'] == locale:
-                return existing_language['slug']
-        return None
-
     def configure(self, force, **kwargs):
         """ kwargs:
             - force -- True|False to tell if we have to erase configuration if already exists
         """
+        # Retrieving languages slug list (short names)
         languages = self.config.config_custom.get('lang_list', None)
         if languages is None:
-            raise WPException("No 'lang_list' key found under 'config_custom' key in plugin YAML file")
+            raise WPException("Polylang - No 'lang_list' key found under 'config_custom' key in plugin YAML file")
+
+        if not languages:
+            raise WPException("Polylang - Empty language list")
 
         languages = languages.split(',')
         # First language is default
@@ -72,27 +59,32 @@ class WPPolylangConfig(WPPluginConfig):
 
         # adding languages
         for language in languages:
-            # If language doesn't already exists
-            if not self._language_exists(language):
-                command = "polylang language add {}".format(language)
+            # If language is not supported
+            if language not in settings.SUPPORTED_LANGUAGES:
+                raise WPException("Polylang - Language not supported: {}".format(language))
+
+            # Getting language locale (needed by Polylang 'pll' WPCLI command)
+            language_locale = settings.SUPPORTED_LANGUAGES[language]
+            # If language locale doesn't already exists
+            if not self._language_exists(language_locale):
+                command = "polylang language add {}".format(language_locale)
                 if not self.run_wp_cli(command):
-                    logging.warning("{} - could not install language {}".format(self.wp_site, language))
+                    logging.warning("{} - Polylang - Could not install language {}".format(self.wp_site, language))
                 else:
-                    logging.info("{} - installed language {}".format(self.wp_site, language))
+                    logging.info("{} - Polylang - Language installed: {}".format(self.wp_site, language))
 
         if force:
-            # configure default language
-            default = self._get_language_slug(default)
-            logging.info("{} - setting default language to {}...".format(self.wp_site, default))
+            # configure default language (using slug, not using locale)
+            logging.info("{} - Polylang - Setting default language to {}...".format(self.wp_site, default))
             self.run_wp_cli("pll option default {}".format(default))
 
         # configure options
-        logging.info("{} - setting options...".format(self.wp_site))
+        logging.info("{} - Polylang - Setting options...".format(self.wp_site))
         self.run_wp_cli("pll option update media_support 0")
         self.run_wp_cli("pll option sync taxonomies")
 
         # create menus if they don't exist
-        logging.info("{} - creating polylang menu...".format(self.wp_site))
+        logging.info("{} - Polylang - Creating menus...".format(self.wp_site))
         if not self._menu_exists("Main"):
             self.run_wp_cli("pll menu create Main top")
 
