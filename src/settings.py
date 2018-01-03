@@ -72,15 +72,17 @@ WP_CONFIG_KEYS = [
     'NONCE_SALT',
 ]
 
-SUPPORTED_LANGUAGES = [
-    "fr",
-    "en",
-    "de",
-    "es",
-    "ro",
-    "gr",
-    "it"
-]
+# Format <short_lang_id>: <lang_locale>
+# Have a look at Polylang plugin to know correct locale corresponding to wished lang
+SUPPORTED_LANGUAGES = {
+    "fr": "fr_FR",
+    "en": "en_GB",
+    "de": "de_CH",
+    "es": "es_ES",
+    "ro": "ro_RO",
+    "gr": "el",
+    "it": "it_IT"
+}
 
 SUPPORTED_TRUE_STRINGS = ['true', 'yes', 'y', 'on', '1']
 
