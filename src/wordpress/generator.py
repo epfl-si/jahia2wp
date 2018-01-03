@@ -286,7 +286,7 @@ class WPGenerator:
         for widget_id in widgets_id_list:
             cmd = "widget delete " + widget_id
             self.run_wp_cli(cmd)
-        logging.info("All widgets deleted")
+        logging.info("{} - All widgets deleted".format(repr(self)))
 
     def validate_mockable_args(self, wp_site_url):
         """ Call validators in an independant function to allow mocking them """
@@ -308,7 +308,7 @@ class WPGenerator:
         for theme_name in themes_name_list:
             cmd = "theme delete {}".format(theme_name)
             self.run_wp_cli(cmd)
-        logging.info("All inactive themes deleted")
+        logging.info("{} - All inactive themes deleted".format(repr(self)))
 
     def delete_demo_posts(self):
         """
@@ -319,7 +319,7 @@ class WPGenerator:
         for post in posts_list:
             cmd = "post delete {}".format(post)
             self.run_wp_cli(cmd)
-        logging.info("All demo posts deleted")
+        logging.info("{} - All demo posts deleted".format(repr(self)))
 
     def generate_mu_plugins(self):
         # TODO: add those plugins into the general list of plugins (with the class WPMuPluginConfig)
@@ -355,7 +355,7 @@ class WPGenerator:
               - Plugin(s) to be uninstalled will be deactivated AND uninstalled (deleted)
               - New plugin options will be added and existing ones will be overwritten
         """
-        logging.info("WPGenerator.generate_plugins(): Add parameter for 'batch file' (YAML)")
+        logging.warning("{} - Add parameter for 'batch file' (YAML)".format(repr(self)))
         # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"
         # information in the source of trousse !
         plugin_list = WPPluginList(settings.PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml',
