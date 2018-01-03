@@ -110,8 +110,8 @@ class WPPluginList:
             except ValueError:  # If exception, element not in list, we add it
                 self._yaml_from_csv_missing.append(node.value)
 
-            # We don't replace value because we can't...
-            return node.value
+            # Returning 'None' so dict key won't be present
+            return None
         else:  # No error, we return the value
             return self._site_params[node.value]
 
