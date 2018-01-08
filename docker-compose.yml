@@ -8,6 +8,7 @@ services:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
       - ./volumes/db:/var/lib/mysql
+    restart: always
 
   phpmyadmin:
       image: phpmyadmin/phpmyadmin
@@ -17,6 +18,7 @@ services:
       - ${WP_PORT_PHPMA}:80
       volumes:
       - /sessions
+      restart: always
       
   httpd:
     labels:
@@ -31,6 +33,7 @@ services:
     ports:
       - "${WP_PORT_HTTP}:80"
       - "${WP_PORT_HTTPS}:443"
+    restart: always
 
   mgmt:
     labels:
@@ -54,3 +57,4 @@ services:
       - .env:/srv/${WP_ENV}/jahia2wp/.env
     ports:
       - "${WP_PORT_SSHD}:22"
+    restart: always
