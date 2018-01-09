@@ -79,23 +79,23 @@ class WPPolylangConfig(WPPluginConfig):
             if not self._language_exists(language):
                 command = "polylang language add {}".format(language)
                 if not self.run_wp_cli(command):
-                    logging.warning("{} - could not install language {}".format(self.wp_site, language))
+                    logging.warning("%s - could not install language %s", self.wp_site, language)
                 else:
-                    logging.info("{} - installed language {}".format(self.wp_site, language))
+                    logging.info("%s - installed language %s", self.wp_site, language)
 
         if force:
             # configure default language
             default = self._get_language_slug(default)
-            logging.info("{} - setting default language to {}...".format(self.wp_site, default))
+            logging.info("%s - setting default language to %s...", self.wp_site, default)
             self.run_wp_cli("pll option default {}".format(default))
 
         # configure options
-        logging.info("{} - setting options...".format(self.wp_site))
+        logging.info("%s - setting options...", self.wp_site)
         self.run_wp_cli("pll option update media_support 0")
         self.run_wp_cli("pll option sync taxonomies")
 
         # create menus if they don't exist
-        logging.info("{} - creating polylang menu...".format(self.wp_site))
+        logging.info("%s - creating polylang menu...", self.wp_site)
         if not self._menu_exists("Main"):
             self.run_wp_cli("pll menu create Main top")
 

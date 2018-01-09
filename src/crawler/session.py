@@ -36,7 +36,7 @@ class SessionHandler(object):
         """ Make a POST on Jahia administration to get a valid session """
         if self._session is None:
             # lazy initialization
-            logging.info("{} - authenticating {}...".format(self.post_url, self.username))
+            logging.info("%s - authenticating %s...", self.post_url, self.username)
             session = requests.Session()
             response = session.post(
                 self.post_url,
@@ -45,7 +45,7 @@ class SessionHandler(object):
             )
 
             # log and set session
-            logging.debug("{} => {}".format(response.url, response.status_code))
+            logging.debug("%s => %s", response.url, response.status_code)
             self._session = session
 
         # cls.session is set, return it

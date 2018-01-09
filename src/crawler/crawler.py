@@ -28,28 +28,28 @@ class JahiaCrawler(object):
         if self.skip_download:
             files = self.config.existing_files
             file_path = files[-1]
-            logging.info("{} - zip already downloaded {}x. Last one is {}".format(
-                         self.site, len(files), file_path))
+            logging.info("%s - zip already downloaded %sx. Last one is %s",
+                         self.site, len(files), file_path)
             return file_path
 
         # set timer to measure execution time
         start_time = timeit.default_timer()
 
         # make query
-        logging.info("{} - downloading {}...".format(self.site, self.config.file_name))
+        logging.info("%s - downloading %s...", self.site, self.config.file_name)
         response = self.session_handler.session.post(
             self.config.file_url,
             params=self.config.download_params,
             stream=True
         )
-        logging.debug("{} - {} => {}".format(self.site, response.url, response.status_code))
+        logging.debug("%s - %s => %s", self.site, response.url, response.status_code)
 
         # raise exception in case of error
         if not response.status_code == requests.codes.ok:
             response.raise_for_status()
 
         # adapt streaming function to content-length in header
-        logging.debug("{} - headers {}".format(self.site, response.headers))
+        logging.debug("%s - headers %s", self.site, response.headers)
         total_length = response.headers.get('content-length')
         if total_length is not None:
             def read_stream():
@@ -61,7 +61,7 @@ class JahiaCrawler(object):
                 return response.iter_content(chunk_size=4096)
 
         # download file
-        logging.info("{} - saving response into {}...".format(self.site, self.config.file_path))
+        logging.info("%s - saving response into %s...", self.site, self.config.file_path)
         with open(self.config.file_path, 'wb') as output:
             for chunk in read_stream():
                 if chunk:
@@ -70,7 +70,7 @@ class JahiaCrawler(object):
 
         # log execution time and return path to downloaded file
         elapsed = timedelta(seconds=timeit.default_timer() - start_time)
-        logging.info("{} - file downloaded in {}".format(self.site, elapsed))
+        logging.info("%s - file downloaded in %s", self.site, elapsed)
 
         # return PosixPath converted to string
         return str(self.config.file_path)
@@ -90,7 +90,7 @@ def download_many(sites, session=None, username=None, password=None, host=None, 
             crawler = JahiaCrawler(site, session=session, zip_path=zip_path, force=force)
             downloaded_files[site] = crawler.download_site()
         except Exception as err:
-            logging.error("{} - crawl - Could not crawl Jahia - Exception: {}".format(site, err))
+            logging.error("%s - crawl - Could not crawl Jahia - Exception: %s", site, err)
 
     # return results, as strings
     return downloaded_files
