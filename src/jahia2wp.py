@@ -181,38 +181,58 @@ def admins(wp_env, wp_url, **kwargs):
 
 @dispatch.on('generate-many')
 def generate_many(csv_file, **kwargs):
-    # use Veritas to get valid rows
-    rows = VeritasValidor.filter_valid_rows(csv_file)
+
+    validator = VeritasValidor(csv_file)
+
+    # If errors found during validation
+    if not validator.validate():
+        validator.print_errors()
+        raise SystemExit("Invalid CSV file!")
 
     # create a new WP site for each row
-    print("\n{} websites will now be generated...".format(len(rows)))
-    for index, row in rows:
+    print("\n{} websites will now be generated...".format(len(validator.rows)))
+    index = 1
+    for row in validator.rows:
         print("\nIndex #{}:\n---".format(index))
         logging.debug("{} - row {}: {}".format(row["wp_site_url"], index, row))
         WPGenerator(row).generate()
+        index += 1
 
 
 @dispatch.on('backup-many')
 def backup_many(csv_file, **kwargs):
-    # use Veritas to get valid rows
-    rows = VeritasValidor.filter_valid_rows(csv_file)
+
+    validator = VeritasValidor(csv_file)
+
+    # If errors found during validation
+    if not validator.validate():
+        validator.print_errors()
+        raise SystemExit("Invalid CSV file!")
 
     # create a new WP site backup for each row
-    print("\n{} websites will now be backuped...".format(len(rows)))
-    for index, row in rows:
+    print("\n{} websites will now be backuped...".format(len(validator.rows)))
+    index = 1
+    for row in validator.rows:
         logging.debug("{} - row {}: {}".format(row["wp_site_url"], index, row))
         WPBackup(
             row["openshift_env"],
             row["wp_site_url"]
         ).backup()
+        index += 1
 
 
 @dispatch.on('rotate-backup')
 def rotate_backup(csv_file, dry_run=False, **kwargs):
-    # use Veritas to get valid rows
-    rows = VeritasValidor.filter_valid_rows(csv_file)
 
-    for index, row in rows:
+    validator = VeritasValidor(csv_file)
+
+    # If errors found during validation
+    if not validator.validate():
+        validator.print_errors()
+        raise SystemExit("Invalid CSV file!")
+
+    index = 1
+    for row in validator.rows:
         path = WPBackup(row["openshift_env"], row["wp_site_url"]).path
         # rotate full backups first
         for pattern in ["*full.sql", "*full.tar"]:
@@ -228,6 +248,8 @@ def rotate_backup(csv_file, dry_run=False, **kwargs):
                 dry_run=dry_run,
                 include_list=[pattern]
             ).rotate_backups(path)
+
+        index += 1
 
 
 @dispatch.on('inventory')
@@ -251,9 +273,10 @@ def inventory(path, **kwargs):
 def veritas(csv_file, **kwargs):
     validator = VeritasValidor(csv_file)
 
-    validator.validate()
-
-    validator.print_errors()
+    if not validator.validate():
+        validator.print_errors()
+    else:
+        print("CSV file validated!")
 
 
 @dispatch.on('extract-plugin-config')
@@ -294,12 +317,18 @@ def update_plugins(wp_env, wp_url, plugin=None, force=False, **kwargs):
 
 @dispatch.on('update-plugins-many')
 def update_plugins_many(csv_file, plugin=None, force=False, **kwargs):
-    # use Veritas to get valid rows
-    rows = VeritasValidor.filter_valid_rows(csv_file)
+
+    validator = VeritasValidor(csv_file)
+
+    # If errors found during validation
+    if not validator.validate():
+        validator.print_errors()
+        raise SystemExit("Invalid CSV file!")
 
     # Update WP site plugins for each row
-    print("\n{} websites will now be updated...".format(len(rows)))
-    for index, row in rows:
+    print("\n{} websites will now be updated...".format(len(validator.rows)))
+    index = 1
+    for row in validator.rows:
         print("\nIndex #{}:\n---".format(index))
         logging.debug("{} - row {}: {}".format(row["wp_site_url"], index, row))
         WPGenerator(
@@ -312,6 +341,7 @@ def update_plugins_many(csv_file, plugin=None, force=False, **kwargs):
             theme=row["theme"],
             theme_faculty=row["theme_faculty"],
         ).update_plugins(only_plugin_name=plugin, force=force)
+        index += 1
 
 
 if __name__ == '__main__':
