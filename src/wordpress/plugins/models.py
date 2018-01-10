@@ -52,9 +52,9 @@ class WPPluginList:
         else:
             # If we have missing informations
             for missing_csv_field in self._yaml_from_csv_missing:
-                logging.error("%s - YAML file CSV reference '%s' missing. Can be given with option \
---extra-config=<YAML>'. YAML content example: '%s: <value>'",
-                                repr(self), missing_csv_field, missing_csv_field)
+                logging.error('%s - YAML file CSV reference \'%s\' missing. Can be given with option '
+                              '--extra-config=<YAML>\'. YAML content example: \'%s: <value>\'',
+                              repr(self), missing_csv_field, missing_csv_field)
 
             # If we have plugins,
             if plugin_list['plugins'] is not None:
