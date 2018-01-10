@@ -221,7 +221,7 @@ class WPGenerator:
         Execute WordPress installation
         """
         # install WordPress
-        if not self.run_wp_cli("core download --version=%s".format(self.wp_site.WP_VERSION)):
+        if not self.run_wp_cli("core download --version={}".format(self.wp_site.WP_VERSION)):
             logging.error("%s - could not download", repr(self))
             return False
 
