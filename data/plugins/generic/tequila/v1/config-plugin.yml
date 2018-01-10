@@ -11,10 +11,10 @@ activate: yes
 #
 tables:
   options:
-#  - autoload: 'yes'
-#    option_id: 275
-#    option_name: plugin:epfl_tequila:has_dual_auth
-#    option_value: 0
+  - autoload: 'yes'
+    option_id: 275
+    option_name: plugin:epfl_tequila:has_dual_auth
+    option_value: '0'
   - autoload: 'yes'
     option_id: 276
     option_name: plugin:epfl:tequila_allowed_request_hosts
