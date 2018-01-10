@@ -285,15 +285,21 @@ def list_plugins(wp_env, wp_url, config=False, plugin=None, extra_config=None, *
 @dispatch.on('update-plugins')
 def update_plugins(wp_env, wp_url, plugin=None, force=False, **kwargs):
 
-    wp_generator = WPGenerator(wp_env, wp_url)
+    _check_site(wp_env, wp_url, **kwargs)
 
-    wp_generator.update_plugins(only_plugin_name=plugin, force=force)
+    all_params = {'openshift_env': wp_env,
+                  'wp_site_url': wp_url}
+
+    wp_generator = WPGenerator(all_params)
+
+    wp_generator.update_plugins(only_one=plugin, force=force)
 
     print("Successfully updated WordPress plugin list at {}".format(wp_generator.wp_site.url))
 
 
 @dispatch.on('update-plugins-many')
 def update_plugins_many(csv_file, plugin=None, force=False, **kwargs):
+
     # use Veritas to get valid rows
     rows = VeritasValidor.filter_valid_rows(csv_file)
 
@@ -302,16 +308,7 @@ def update_plugins_many(csv_file, plugin=None, force=False, **kwargs):
     for index, row in rows:
         print("\nIndex #{}:\n---".format(index))
         logging.debug("{} - row {}: {}".format(row["wp_site_url"], index, row))
-        WPGenerator(
-            row["openshift_env"],
-            row["wp_site_url"],
-            wp_default_site_title=row["wp_default_site_title"],
-            unit_name=row["unit_name"],
-            updates_automatic=row["updates_automatic"],
-            installs_locked=row["installs_locked"],
-            theme=row["theme"],
-            theme_faculty=row["theme_faculty"],
-        ).update_plugins(only_plugin_name=plugin, force=force)
+        WPGenerator(row).update_plugins(only_one=plugin, force=force)
 
 
 if __name__ == '__main__':
