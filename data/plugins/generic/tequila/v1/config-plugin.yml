@@ -18,4 +18,4 @@ tables:
   - autoload: 'yes'
     option_id: 276
     option_name: plugin:epfl:tequila_allowed_request_hosts
-    option_value: 128.178.224.0/24 
+    option_value: 10.180.21.0/24 
