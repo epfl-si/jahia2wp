@@ -428,7 +428,13 @@ class WPGenerator:
         force -- True|False tells if we have to really uninstall a plugin marked as "uninstall".
                            If not given, plugin is only deactivated
         """
+        # check we have a clean place first
+        if not self.wp_config.is_installed:
+            logging.error("{} - Wordpress site doesn't exists".format(repr(self)))
+            return False
+
         self.generate_plugins(only_one=only_one, force=force)
+        return True
 
     def clean(self):
         """
