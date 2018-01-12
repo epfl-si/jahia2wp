@@ -1,5 +1,5 @@
-wp_site_url,wp_default_site_title,site_type,openshift_env,category,theme,theme_faculty,status,installs_locked,updates_automatic,langs,unit_name,comment
-https://www.epfl.ch/recherche,Recherche,wordpress,dev,GeneralPublic,epfl-master,,asked,yes,no,"fr,en",VPR,je mets ici
-https://www.epfl.ch/education,Education,wordpress,dev,GeneralPublic,epfl-master,enac,yes,yes,no,"fr,en",VPE,ce qui me plait
-https://www.epfl.ch/education/master,Master,wordpress,dev,GeneralPublic,epfl-master,sti,yes,yes,no,"fr,en",VPE,des infos que l'utilisateur m'a donné par ex
-https://www.epfl.ch/atelierweb,WWW,wordpress,dev,GeneralPublic,epfl-master,ic,no,yes,no,"fr,en",VPSI,
+wp_site_url,wp_tagline,wp_site_title,site_type,openshift_env,category,theme,theme_faculty,status,installs_locked,updates_automatic,langs,unit_name,comment
+https://www.epfl.ch/recherche,Recherche,RSR,wordpress,dev,GeneralPublic,epfl-master,,asked,yes,no,"fr,en",VPR,je mets ici
+https://www.epfl.ch/education,Education,EDU,wordpress,dev,GeneralPublic,epfl-master,enac,yes,yes,no,"fr,en",VPE,ce qui me plait
+https://www.epfl.ch/education/master,Master's Studies,EPFL,wordpress,dev,GeneralPublic,epfl-master,sti,yes,yes,no,"fr,en",VPE,des infos que l'utilisateur m'a donné par ex
+https://www.epfl.ch/atelierweb,Atelier Web,WEB-EPFL,wordpress,dev,GeneralPublic,epfl-master,ic,no,yes,no,"fr,en",VPSI,
