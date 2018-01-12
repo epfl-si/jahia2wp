@@ -42,7 +42,8 @@ def wp_generator_generic():
     generator = MockedWPGenerator(
                 {'openshift_env': settings.OPENSHIFT_ENV,
                  'wp_site_url': SITE_URL_GENERIC,
-                 'wp_default_title': "My test",
+                 'wp_site_title': "TEST",
+                 'wp_tagline': "My Test",
                  'unit_name': UNIT_NAME})
     generator.clean()
     generator.generate()
@@ -55,7 +56,8 @@ def wp_generator_specific():
     generator = MockedWPGenerator(
                 {'openshift_env': settings.OPENSHIFT_ENV,
                  'wp_site_url': SITE_URL_SPECIFIC,
-                 'wp_default_title': "My test",
+                 'wp_site_title': "TEST",
+                 'wp_tagline': "My Test",
                  'unit_name': UNIT_NAME})
     generator.clean()
     generator.generate()
