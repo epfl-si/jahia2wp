@@ -23,22 +23,24 @@ class WPSite:
 
     PROTOCOL = "https"
     DEFAULT_TITLE = "New WordPress"
+    DEFAULT_TAGLINE = "EPFL"
     WP_VERSION = Utils.get_mandatory_env(key="WP_VERSION")
 
-    def __init__(self, openshift_env, wp_site_url, wp_default_site_title=None):
+    def __init__(self, openshift_env, wp_site_url, wp_site_title=None, wp_tagline=None):
 
         # validate & transform args
         self.openshift_env = openshift_env.lower()
         url = urlparse(wp_site_url.lower())
 
         validate_openshift_env(self.openshift_env)
-        if wp_default_site_title is not None:
-            validate_string(wp_default_site_title)
+        if wp_site_title is not None:
+            validate_string(wp_site_title)
 
         # set WP informations
         self.domain = url.netloc.strip('/')
         self.folder = url.path.strip('/')
-        self.wp_default_site_title = wp_default_site_title or self.DEFAULT_TITLE
+        self.wp_site_title = wp_site_title or self.DEFAULT_TITLE
+        self.wp_tagline = wp_tagline or self.DEFAULT_TAGLINE
 
     def __repr__(self):
         return self.url

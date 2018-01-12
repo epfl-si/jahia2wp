@@ -8,7 +8,7 @@ Usage:
     [--stop-on-errors]
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate              <wp_env> <wp_url>               [--debug | --quiet]
-    [--wp-title=<WP_TITLE> --admin-password=<PASSWORD>]
+    [--wp-title=<WP_TITLE> --wp-tagline=<WP_TAGLINE> --admin-password=<PASSWORD>]
     [--theme=<THEME> --theme-faculty=<THEME-FACULTY>]
     [--installs-locked=<BOOLEAN> --automatic-updates=<BOOLEAN>]
     [--extra-config=<YAML_FILE>]
@@ -66,7 +66,7 @@ def download(site, username=None, host=None, zip_path=None, force=False, **kwarg
 
 def _check_site(wp_env, wp_url, **kwargs):
     """ Helper function to validate wp site given arguments """
-    wp_site = WPSite(wp_env, wp_url, wp_default_site_title=kwargs.get('wp_title'))
+    wp_site = WPSite(wp_env, wp_url, wp_site_title=kwargs.get('wp_title'))
     wp_config = WPConfig(wp_site)
     if not wp_config.is_installed:
         raise SystemExit("No files found for {}".format(wp_site.url))
@@ -116,7 +116,7 @@ def clean(wp_env, wp_url, stop_on_errors=False, **kwargs):
 
 @dispatch.on('generate')
 def generate(wp_env, wp_url,
-             wp_title=None, admin_password=None,
+             wp_title=None, wp_tagline=None, admin_password=None,
              theme=None, theme_faculty=None,
              installs_locked=None, updates_automatic=None,
              extra_config=None,
@@ -125,6 +125,7 @@ def generate(wp_env, wp_url,
     This command may need more params if reference to them are done in YAML file. In this case, you'll see an
     error explaining which params are needed and how they can be added to command line
     """
+
     # if nothing is specified we want a locked install
     if installs_locked is None:
         installs_locked = DEFAULT_CONFIG_INSTALLS_LOCKED
@@ -140,7 +141,19 @@ def generate(wp_env, wp_url,
     # FIXME: When we will use 'unit_id' from CSV file, add parameter here OR dynamically get it from AD
     all_params = {'openshift_env': wp_env,
                   'wp_site_url': wp_url,
-                  'theme': theme or DEFAULT_THEME_NAME}
+                  'theme': theme or DEFAULT_THEME_NAME,
+                  'installs_locked': installs_locked,
+                  'updates_automatic': updates_automatic}
+
+    # Adding parameters if given
+    if theme_faculty is not None:
+        all_params['theme_faculty'] = theme_faculty
+
+    if wp_title is not None:
+        all_params['wp_site_title'] = wp_title
+
+    if wp_tagline is not None:
+        all_params['wp_tagline'] = wp_tagline
 
     # if we have extra configuration to load,
     if extra_config is not None:
@@ -188,7 +201,9 @@ def generate_many(csv_file, **kwargs):
     print("\n{} websites will now be generated...".format(len(rows)))
     for index, row in rows:
         print("\nIndex #{}:\n---".format(index))
-        logging.debug("{} - row {}: {}".format(row["wp_site_url"], index, row))
+        # CSV file is utf-8 so we encode correctly the string to avoid errors during logging.debug display
+        row_bytes = repr(row).encode('utf-8')
+        logging.debug("{} - row {}: {}".format(row["wp_site_url"], index, row_bytes))
         WPGenerator(row).generate()
 
 

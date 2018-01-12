@@ -2,6 +2,7 @@
 import os
 import shutil
 import logging
+import sys
 
 from epflldap.ldap_search import get_unit_id
 
@@ -53,8 +54,11 @@ class WPGenerator:
             logging.info("WPGenerator.__init__(): Please use 'unit_id' from CSV file (now recovered from 'unit_name')")
             self._site_params['unit_id'] = self.get_the_unit_id(self._site_params['unit_name'])
 
-        if 'wp_default_title' not in self._site_params:
-            self._site_params['wp_default_title'] = None
+        if 'wp_site_title' not in self._site_params:
+            self._site_params['wp_site_title'] = None
+
+        if 'wp_tagline' not in self._site_params:
+            self._site_params['wp_tagline'] = None
 
         if self._site_params.get('installs_locked', None) is None:
             self._site_params['installs_locked'] = settings.DEFAULT_CONFIG_INSTALLS_LOCKED
@@ -73,8 +77,11 @@ class WPGenerator:
         self.validate_mockable_args(self._site_params['wp_site_url'])
         validate_openshift_env(self._site_params['openshift_env'])
 
-        if self._site_params['wp_default_title'] is not None:
-            validate_string(self._site_params['wp_default_title'])
+        if self._site_params['wp_site_title'] is not None:
+            validate_string(self._site_params['wp_site_title'])
+
+        if self._site_params['wp_tagline'] is not None:
+            validate_string(self._site_params['wp_tagline'])
 
         validate_theme(self._site_params['theme'])
 
@@ -85,7 +92,8 @@ class WPGenerator:
         self.wp_site = WPSite(
             self._site_params['openshift_env'],
             self._site_params['wp_site_url'],
-            wp_default_site_title=self._site_params['wp_default_title'])
+            wp_site_title=self._site_params['wp_site_title'],
+            wp_tagline=self._site_params['wp_tagline'])
         self.wp_config = WPConfig(
             self.wp_site,
             installs_locked=self._site_params['installs_locked'],
@@ -103,14 +111,15 @@ class WPGenerator:
     def __repr__(self):
         return repr(self.wp_site)
 
-    def run_wp_cli(self, command):
+    def run_wp_cli(self, command, encoding=sys.stdout.encoding):
         """
         Execute a WP-CLI command using method present in WPConfig instance.
 
         Argument keywords:
         command -- WP-CLI command to execute. The command doesn't have to start with "wp ".
+        encoding -- encoding to use
         """
-        return self.wp_config.run_wp_cli(command)
+        return self.wp_config.run_wp_cli(command, encoding=encoding)
 
     def run_mysql(self, command):
         """
@@ -233,11 +242,17 @@ class WPGenerator:
             return False
 
         # fill out first form in install process (setting admin user and permissions)
-        command = "--allow-root core install --url={0.url} --title='{0.wp_default_site_title}'" \
+        command = "--allow-root core install --url={0.url} --title='{0.wp_site_title}'" \
             " --admin_user={1.username} --admin_password='{1.password}'"\
             " --admin_email='{1.email}'"
-        if not self.run_wp_cli(command.format(self.wp_site, self.wp_admin)):
+        if not self.run_wp_cli(command.format(self.wp_site, self.wp_admin), 'utf-8'):
             logging.error("{} - could not setup WP site".format(repr(self)))
+            return False
+
+        # Set Tagline (blog description)
+        if not self.run_wp_cli("option update blogdescription '{}'".format(self.wp_site.wp_tagline),
+                               encoding="utf-8"):
+            logging.error("{} - could not configure blog description".format(repr(self)))
             return False
 
         # Configure permalinks
