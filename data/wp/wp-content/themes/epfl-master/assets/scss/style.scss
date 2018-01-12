@@ -723,8 +723,6 @@ a.a2a_button_{
 
 .site-branding a {
 	text-decoration: none;
-	-webkit-transition: opacity 0.2s;
-	transition: opacity 0.2s;
 }
 
 .site-branding a:hover,
@@ -747,7 +745,11 @@ a.a2a_button_{
 .site-title,
 .site-title a {
 	color: #222;
-	opacity: 1; /* Prevent opacity from changing during selective refreshes in the customize preview */
+	opacity: 1 !important; /* Prevent opacity from changing during selective refreshes in the customize preview */
+}
+
+.site-title .title {
+  @include color-text;
 }
 
 .custom-logo-link {
@@ -778,9 +780,6 @@ a.a2a_button_{
   font-size: 1.625em /* 26px */;
   letter-spacing: 1px;
   text-transform: uppercase;
-}
-.site-description {
-  display: none;
 }
 
 /* --- Main navigation --- */
