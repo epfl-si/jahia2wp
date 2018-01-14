@@ -3,6 +3,7 @@ import logging
 import re
 import yaml
 import pymysql
+import warnings
 
 from settings import WP_PLUGIN_TABLES_RELATIONS, WP_PLUGIN_CONFIG_TABLES
 from wordpress import WPSite
@@ -27,7 +28,7 @@ class WPPluginConfigManager:
         wp_config_file = os.path.join(self.wp_site.path, "wp-config.php")
 
         if not os.path.exists(wp_config_file):
-            logging.error("WordPress config file not exists: %s", wp_config_file)
+            logging.error("WordPress config file not exists: {}".format(wp_config_file))
 
         wp_config_file = open(wp_config_file, 'r')
         wp_config_file_content = wp_config_file.read()
@@ -50,7 +51,7 @@ class WPPluginConfigManager:
         # Check if we have all needed 'define'
         for define_name in WP_CONFIG_DEFINE_NAMES:
             if define_name not in self.wp_defined:
-                logging.error("Missing 'define' for '%s' in WordPress config file", define_name)
+                logging.error("Missing 'define' for '{}' in WordPress config file".format(define_name))
 
     def _wp_table_name(self, table_short_name):
         """ Returns 'Full' WordPress table name for a table short name (which is stored in YAML file)
@@ -114,7 +115,13 @@ class WPPluginConfigManager:
                                            autocommit=True)
 
         cur = mysql_connection.cursor()
-        cur.execute(request)
+
+        with warnings.catch_warnings():
+            # To "hide" warning message in console when doing "INSERT IGNORE" and primary key already exists.
+            # MySQL default behaviour when doing "INSERT IGNORE" on existing row is to raise a Warning.
+            if "insert ignore" in request.lower():
+                warnings.simplefilter('ignore', pymysql.Warning)
+            cur.execute(request)
         result = cur.fetchall()
 
         # If nothing to return,
@@ -134,7 +141,7 @@ class WPPluginConfigManager:
 
         Arguments keyword:
         s -- String in which to add slashes"""
-        return re.sub("(\\\\|'|\")", lambda o: "\\" + o.group(1), s)
+        return re.sub("(\\\\|'|\")", lambda o: "\\" + o.group(1), str(s))
 
 
 class WPPluginConfigExtractor(WPPluginConfigManager):
@@ -273,11 +280,12 @@ class WPPluginConfigRestore(WPPluginConfigManager):
         """
         WPPluginConfigManager.__init__(self, wp_env, wp_url)
 
-    def restore_config(self, config_infos):
+    def restore_config(self, config_infos, force):
         """ Restore a plugin configuration. Configuration information are stored in parameter.
 
         Arguments keyword:
         config_infos -- Instance of class WPPluginConfigInfos
+        force -- True|False if option exists, tells if it will be overrided with new value or not
         """
         table_id_mapping = {}
 
@@ -330,10 +338,20 @@ class WPPluginConfigRestore(WPPluginConfigManager):
 
                             update_values.append("{}='{}'".format(field, current_value))
 
+                # Determining which insert type to use
+                insert_type = "INSERT" if force else "INSERT IGNORE"
+
                 # Creating request to insert row or to update it if already exists
-                request = "INSERT INTO {} ({}) VALUES('{}') ON DUPLICATE KEY UPDATE {}".format(
-                          self._wp_table_name(table_name), ",".join(insert_values.keys()),
-                          "','".join(insert_values.values()), ",".join(update_values))
+                request = "{} INTO {} ({}) VALUES('{}')".format(
+                          insert_type, self._wp_table_name(table_name), ",".join(insert_values.keys()),
+                          "','".join(insert_values.values()))
+
+                if force:
+                    request = "{} ON DUPLICATE KEY UPDATE {}".format(request, ",".join(update_values))
+
+                # request = "INSERT INTO {} ({}) VALUES('{}') ON DUPLICATE KEY UPDATE {}".format(
+                #           self._wp_table_name(table_name), ",".join(insert_values.keys()),
+                #           "','".join(insert_values.values()), ",".join(update_values))
 
                 logging.debug("Request: {}".format(request))
 

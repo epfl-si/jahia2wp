@@ -9,7 +9,7 @@ from .validators import validate_string, validate_yes_or_no, \
     validate_unit, mock_validate_unit
 
 BASE_COLUMNS = [
-    ("wp_site_url", URLValidator(), True),
+    ("wp_site_url", URLValidator(schemes=['https']), True),
     ("wp_default_site_title", validate_string, False),
     ("site_type", validate_site_type, False),
     ("openshift_env", validate_openshift_env, False),
@@ -137,7 +137,7 @@ class VeritasValidor:
 
         unique = {}
         column_name = column.name
-        message = message or "%s is not unique" % column_name
+        message = message or "{} is not unique".format(column_name)
 
         for index, row in enumerate(self.rows, start=1):
             text = row[column_name]
@@ -175,4 +175,4 @@ class VeritasError:
 
         self.line = line
         self.column_name = column_name
-        self.message = "Error line %s for column %s : %s" % (line, column_name, message)
+        self.message = "Error line {} for column {} : {}".format(line, column_name, message)

@@ -1,11 +1,11 @@
 apiVersion: batch/v2alpha1
 kind: CronJob
 metadata:
-  name: backup-many
+  name: rotate-backup
 spec:
   concurrencyPolicy: Forbid
-  # every day at 01:05
-  schedule: '5 1 * * *'
+  # every sunday at 02:00
+  schedule: '0 2 * * 0'
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
   suspend: false
@@ -13,7 +13,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        parent: backup-many
+        parent: rotate-backup
     spec:
       template:
         metadata:
@@ -24,7 +24,7 @@ spec:
             - bash
             args:
             - -c
-            - source /srv/${WP_ENV}/venv/bin/activate && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src && cd /srv/${WP_ENV}/jahia2wp && set -o allexport && source .env && set +o allexport && python src/jahia2wp.py backup-many /srv/data.csv
+            - source /srv/${WP_ENV}/venv/bin/activate && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src && cd /srv/${WP_ENV}/jahia2wp && set -o allexport && source .env && set +o allexport && python src/jahia2wp.py rotate-backup /srv/data.csv
             env:
             - name: WP_ENV
               value: subdomains

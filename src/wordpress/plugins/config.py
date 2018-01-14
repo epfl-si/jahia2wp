@@ -57,19 +57,27 @@ class WPPluginConfig(WPConfig):
         self.run_wp_cli('plugin deactivate {}'.format(self.name))
         self.run_wp_cli('plugin uninstall {}'.format(self.name))
 
-    def configure(self, **kwargs):
+    def configure(self, force, **kwargs):
         """
             Config plugin via wp-cli.
 
+        Arguments keywords
+        force -- True|False if option exists, tells if it will be overrided with new value or not
         """
         # Creating object to do plugin configuration restore and lauch restore right after !
-        WPPluginConfigRestore(self.wp_site.openshift_env, self.wp_site.url).restore_config(self.config)
+        WPPluginConfigRestore(self.wp_site.openshift_env, self.wp_site.url).restore_config(self.config, force=force)
 
-    def set_state(self):
+    def set_state(self, forced_state=None):
         """
-        Change plugin state (activated, deactivated)
+        Change plugin state (activated, deactivated) depending on configuration
+
+        Arguments Keyword:
+        forced_state -- None|True|False Use this to override configuration and set wanted status to plugin
         """
-        if self.config.is_active:
+
+        state = self.config.is_active if forced_state is None else forced_state
+
+        if state:
             # activation through wp-cli
             self.run_wp_cli('plugin activate {}'.format(self.name))
         else:
@@ -102,10 +110,10 @@ class WPMuPluginConfig(WPConfig):
         src_path = os.path.sep.join([settings.WP_FILES_PATH, self.PLUGINS_PATH, self.name])
         shutil.copyfile(src_path, self.path)
 
-        logging.debug("%s - Plugins - %s: Copied file from %s to %s",
+        logging.debug("{} - Plugins - {}: Copied file from {} to {}".format(
                       repr(self.wp_site),
                       self.name, src_path,
-                      self.path)
+                      self.path))
 
     @property
     def dir_path(self):

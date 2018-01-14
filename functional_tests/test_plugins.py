@@ -8,6 +8,7 @@ from wordpress.generator import MockedWPGenerator
 TEST_SITE = 'unittest'
 SITE_URL_GENERIC = "http://localhost/"
 SITE_URL_SPECIFIC = "http://localhost/{}".format(TEST_SITE)
+UNIT_NAME = 'idevelop'
 
 """
 Load fake environment variables for every test
@@ -31,17 +32,18 @@ def wp_plugin_list():
     return WPPluginList(
         settings.PLUGINS_CONFIG_GENERIC_FOLDER,
         'config-lot1.yml',
-        settings.PLUGINS_CONFIG_SPECIFIC_FOLDER)
+        settings.PLUGINS_CONFIG_SPECIFIC_FOLDER,
+        {'unit_name': UNIT_NAME})
 
 
 @pytest.fixture(scope="class")
 def wp_generator_generic():
     # To generate website with generic plugin list/configuration
     generator = MockedWPGenerator(
-                settings.OPENSHIFT_ENV,
-                SITE_URL_GENERIC,
-                wp_default_site_title="My test",
-                unit_name='idevelop')
+                {'openshift_env': settings.OPENSHIFT_ENV,
+                 'wp_site_url': SITE_URL_GENERIC,
+                 'wp_default_title': "My test",
+                 'unit_name': UNIT_NAME})
     generator.clean()
     generator.generate()
     return generator
@@ -51,9 +53,10 @@ def wp_generator_generic():
 def wp_generator_specific():
     # To generate website with specific plugin list/configuration
     generator = MockedWPGenerator(
-                settings.OPENSHIFT_ENV,
-                SITE_URL_SPECIFIC,
-                wp_default_site_title="My test")
+                {'openshift_env': settings.OPENSHIFT_ENV,
+                 'wp_site_url': SITE_URL_SPECIFIC,
+                 'wp_default_title': "My test",
+                 'unit_name': UNIT_NAME})
     generator.clean()
     generator.generate()
     return generator
@@ -140,7 +143,7 @@ class TestWPPluginConfigRestore:
 
         # Then, reinstall plugin and configure it
         wp_plugin_config.install()
-        wp_plugin_config.configure()
+        wp_plugin_config.configure(force=True)
 
         # Check plugin options
         wp_config = WPConfig(wp_generator_generic.wp_site)
@@ -155,7 +158,7 @@ class TestWPPluginConfigRestore:
 
         # Then, reinstall and configure it
         wp_plugin_config.install()
-        wp_plugin_config.configure()
+        wp_plugin_config.configure(force=True)
 
         # Check plugin options
         wp_config = WPConfig(wp_generator_generic.wp_site)
