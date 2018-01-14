@@ -22,4 +22,4 @@ plugins:
   - name: varnish-http-purge
     config: !include varnish-http-purge/v1/config-plugin.yml
   - name: EPFL-settings
-    config: !include EPFL-settings/config-plugin.yml
+    config: !include EPFL-settings/v1/config-plugin.yml
