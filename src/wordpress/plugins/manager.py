@@ -141,7 +141,7 @@ class WPPluginConfigManager:
 
         Arguments keyword:
         s -- String in which to add slashes"""
-        return re.sub("(\\\\|'|\")", lambda o: "\\" + o.group(1), s)
+        return re.sub("(\\\\|'|\")", lambda o: "\\" + o.group(1), str(s))
 
 
 class WPPluginConfigExtractor(WPPluginConfigManager):

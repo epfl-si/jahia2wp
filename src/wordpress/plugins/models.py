@@ -110,8 +110,8 @@ class WPPluginList:
             except ValueError:  # If exception, element not in list, we add it
                 self._yaml_from_csv_missing.append(node.value)
 
-            # We don't replace value because we can't...
-            return node.value
+            # Returning 'None' so dict key won't be present
+            return None
         else:  # No error, we return the value
             return self._site_params[node.value]
 
@@ -267,6 +267,9 @@ class WPPluginConfigInfos:
         # defining if we have to use a dedicated configuration class for plugin
         self.config_class = plugin_config.get('config_class', settings.WP_DEFAULT_PLUGIN_CONFIG)
 
+        # Getting custom config if exists (dict)
+        self.config_custom = plugin_config.get('config_custom', {})
+
     def __repr__(self):
         return "Plugin {} config".format(self.plugin_name)
 
@@ -329,6 +332,10 @@ class WPPluginConfigInfos:
         # If specific class to use to configure plugin,
         if 'config_class' in specific_plugin_config:
             self.config_class = specific_plugin_config['config_class']
+
+        # If specific custom configuration,
+        if 'config_custom' in specific_plugin_config:
+            self.config_custom = specific_plugin_config['config_custom']
 
     def table_rows(self, table_name):
         """ Return rows (options) for specific table

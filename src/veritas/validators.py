@@ -79,11 +79,11 @@ def validate_theme(text):
 
 
 def validate_theme_faculty(text):
-    RegexValidator(regex="^(|cdh|cdm|enac|ic|sb|sti|sv)$")(text.lower())
+    RegexValidator(regex="^(|cdh|cdm|enac|ic|sb|sti|sv|assoc)$")(text.lower())
 
 
 def validate_languages(text):
-    MultipleChoicesValidator(SUPPORTED_LANGUAGES)(text)
+    MultipleChoicesValidator(SUPPORTED_LANGUAGES.keys())(text)
 
 
 def validate_unit(unit_name):
