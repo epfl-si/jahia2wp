@@ -36,6 +36,9 @@ class WPSite:
         if wp_site_title is not None:
             validate_string(wp_site_title)
 
+        if wp_tagline is not None:
+            validate_string(wp_tagline)
+
         # set WP informations
         self.domain = url.netloc.strip('/')
         self.folder = url.path.strip('/')
