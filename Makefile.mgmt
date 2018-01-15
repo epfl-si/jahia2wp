@@ -15,7 +15,7 @@ test-raw: /srv/${WP_ENV}/venv
 functional-tests-raw: /srv/${WP_ENV}/venv
 	. /srv/${WP_ENV}/venv/bin/activate \
 	  && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src \
-	  && pytest functional_tests 
+	  && pytest -v functional_tests 
 
 test-travis: /srv/${WP_ENV}/venv
 	. /srv/${WP_ENV}/venv/bin/activate \
@@ -34,4 +34,3 @@ bootstrap-mgmt pip-install: /srv/${WP_ENV}/venv
 	. /srv/${WP_ENV}/venv/bin/activate \
 	  && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src \
 	  && pip install -r requirements/local.txt
-
