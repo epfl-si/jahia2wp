@@ -81,7 +81,7 @@ class WPSite:
 
         # validate given path
         if not os.path.isdir(given_path):
-            logging.warning("given path '{}' is not a valid dir".format(given_path))
+            logging.warning("given path '%s' is not a valid dir", given_path)
 
         # make sure we are in an apache root directory
         if 'htdocs' not in given_path:

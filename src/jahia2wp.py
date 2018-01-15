@@ -203,7 +203,7 @@ def generate_many(csv_file, **kwargs):
         print("\nIndex #{}:\n---".format(index))
         # CSV file is utf-8 so we encode correctly the string to avoid errors during logging.debug display
         row_bytes = repr(row).encode('utf-8')
-        logging.debug("{} - row {}: {}".format(row["wp_site_url"], index, row_bytes))
+        logging.debug("%s - row %s: %s", row["wp_site_url"], index, row_bytes)
         WPGenerator(row).generate()
 
 
@@ -215,7 +215,7 @@ def backup_many(csv_file, **kwargs):
     # create a new WP site backup for each row
     print("\n{} websites will now be backuped...".format(len(rows)))
     for index, row in rows:
-        logging.debug("{} - row {}: {}".format(row["wp_site_url"], index, row))
+        logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
         WPBackup(
             row["openshift_env"],
             row["wp_site_url"]
@@ -259,7 +259,7 @@ def inventory(path, **kwargs):
             site_details.db_user,
             site_details.admins
         ]))
-    logging.info("Inventory made for {}".format(path))
+    logging.info("Inventory made for %s", path)
 
 
 @dispatch.on('veritas')
@@ -322,7 +322,7 @@ def update_plugins_many(csv_file, plugin=None, force=False, **kwargs):
     print("\n{} websites will now be updated...".format(len(rows)))
     for index, row in rows:
         print("\nIndex #{}:\n---".format(index))
-        logging.debug("{} - row {}: {}".format(row["wp_site_url"], index, row))
+        logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
         WPGenerator(row).update_plugins(only_one=plugin, force=force)
 
 
