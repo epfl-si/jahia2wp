@@ -43,6 +43,11 @@ class TestCommandLine:
         assert Utils.run_command('python {} generate {} {} --extra-config={}'.format(
                                  SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC, EXTRA_CONFIG_YAML)) == expected
 
+    def test_update_plugins_one_success(self):
+        expected = "Successfully updated WordPress plugin list at {}".format(SITE_URL_SPECIFIC)
+        assert Utils.run_command('python {} update-plugins {} {}'.format(
+                                 SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC)) == expected
+
     def test_backup_full(self):
         expected = "Successfull full backup for {}".format(SITE_URL_SPECIFIC)
         assert Utils.run_command('python {} backup {} {}'.format(
