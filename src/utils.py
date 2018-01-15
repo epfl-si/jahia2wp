@@ -93,7 +93,8 @@ class Utils(object):
         Return: list of dictionnaries
         """
         rows = []
-        reader = csv.DictReader(stream, delimiter=delimiter)
+        # Getting stream content and ignoring lines beginning with # (treated as comment lines)
+        reader = csv.DictReader(filter(lambda row: row[0] != '#', stream), delimiter=delimiter)
         for row in reader:
             rows.append(row)
         return rows
