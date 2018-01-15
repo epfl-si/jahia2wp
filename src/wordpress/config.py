@@ -66,7 +66,7 @@ class WPConfig:
 
         # set initial path
         given_path = os.path.abspath(path)
-        logging.debug('walking through {}'.format(given_path))
+        logging.debug('walking through %s', given_path)
 
         # walk through all subdirs of given path
         # topdown is true in order modify the dirnames list in-place (and exclude WP dirs)
@@ -74,7 +74,7 @@ class WPConfig:
             # only keep potential WP sites
             dir_names[:] = [d for d in dir_names if keep_wp_sites(d)]
             for dir_name in dir_names:
-                logging.debug('checking {}/{}'.format(parent_path, dir_name))
+                logging.debug('checking %s/%s', parent_path, dir_name)
                 wp_site = WPSite.from_path(os.path.join(parent_path, dir_name))
                 if wp_site is None:
                     continue
@@ -174,7 +174,7 @@ class WPConfig:
             for infos in Utils.csv_string_to_dict(raw_infos):
                 self._config_infos[infos['key']] = infos['value']
 
-            logging.debug("{} - config => {}".format(repr(self.wp_site), self._config_infos))
+            logging.debug("%s - config => %s", repr(self.wp_site), self._config_infos)
 
         # filter if necessary
         if field is None:
@@ -239,7 +239,7 @@ class WPConfig:
 
                 self._user_infos[user_infos['user_login']] = wp_user
 
-            logging.debug("{} - user list => {}".format(repr(self.wp_site), self._user_infos))
+            logging.debug("%s - user list => %s", repr(self.wp_site), self._user_infos)
 
         # return only one user if username is given
         if username is not None:
@@ -288,7 +288,7 @@ class WPConfig:
         try:
             return self._add_user(WPUser.from_sciper(sciper_id, role=role))
         except WPException as err:
-            logging.error("{} - LDAP call failed {}".format(repr(self.wp_site), err))
+            logging.error("%s - LDAP call failed %s", repr(self.wp_site), err)
             return None
 
     def _add_user(self, user):
@@ -302,5 +302,5 @@ class WPConfig:
             user.set_password()
         cmd = "user create {0.username} {0.email} --user_pass=\"{0.password}\" --role={0.role}".format(user)
         if self.run_wp_cli(cmd) is False:
-            logging.error("{} - wp user create failed. More details in the logs above".format(repr(self.wp_site)))
+            logging.error("%s - wp user create failed. More details in the logs above", repr(self.wp_site))
         return user
