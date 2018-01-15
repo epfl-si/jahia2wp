@@ -14,6 +14,11 @@ TEST_HOST = 'localhost'
 TEST_SITE = 'unittest'
 SITE_URL_SPECIFIC = "https://{0}/{1}".format(TEST_HOST, TEST_SITE)
 EXTRA_CONFIG_YAML = os.path.join(SRC_DIR_PATH, '..', 'functional_tests', 'extra.yaml')
+# For 'generate-many' tests
+SITE_URL_MANY = "https://{0}/test_many".format(TEST_HOST)
+CSV_FILE_MANY = os.path.join(SRC_DIR_PATH, '..', 'functional_tests', 'one_site.csv')
+# Must be identical as WP_ENV defined on Travis-ci and also be reported in CSV_FILE_MANY file
+OPENSHIFT_ENV_MANY = 'test'
 
 
 @pytest.fixture(scope="module")
@@ -100,6 +105,11 @@ class TestCommandLine:
         for expected_line in expected_lines:
             assert expected_line in output
 
+    def test_generate_many_success(self):
+        assert Utils.run_command('python {} generate-many {}'.format(SCRIPT_FILE, CSV_FILE_MANY))
+
     def test_clean_one(self):
         assert Utils.run_command('python {} clean {} {} --stop-on-errors'.format(
                                  SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC))
+        assert Utils.run_command('python {} clean {} {} --stop-on-errors'.format(
+                                 SCRIPT_FILE, OPENSHIFT_ENV_MANY, SITE_URL_MANY))
