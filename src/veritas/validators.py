@@ -83,7 +83,7 @@ def validate_theme_faculty(text):
 
 
 def validate_languages(text):
-    MultipleChoicesValidator(SUPPORTED_LANGUAGES)(text)
+    MultipleChoicesValidator(SUPPORTED_LANGUAGES.keys())(text)
 
 
 def validate_unit(unit_name):

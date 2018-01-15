@@ -5,7 +5,7 @@ import pytest
 from utils import Utils
 
 from wordpress import WPSite
-from wordpress.plugins.polylang import WPPolylangConfig
+from wordpress.plugins.custom.polylang import WPPolylangConfig
 
 
 CURRENT_DIR = os.path.dirname(__file__)
@@ -82,7 +82,7 @@ class TestImport:
 
     def test_low_level_import(self):
         assert WPPolylangConfig == Utils.import_class_from_string(
-            "wordpress.plugins.polylang.WPPolylangConfig")
+            "wordpress.plugins.custom.polylang.WPPolylangConfig")
 
 
 class TestTar:
