@@ -110,10 +110,10 @@ class WPMuPluginConfig(WPConfig):
         src_path = os.path.sep.join([settings.WP_FILES_PATH, self.PLUGINS_PATH, self.name])
         shutil.copyfile(src_path, self.path)
 
-        logging.debug("{} - Plugins - {}: Copied file from {} to {}".format(
+        logging.debug("%s - Plugins - %s: Copied file from %s to %s",
                       repr(self.wp_site),
                       self.name, src_path,
-                      self.path))
+                      self.path)
 
     @property
     def dir_path(self):

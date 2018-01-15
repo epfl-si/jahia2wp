@@ -445,7 +445,7 @@ class WPGenerator:
                 logging.error("%s - could not drop DATABASE %s", repr(self), db_name)
 
             if not self.run_mysql('-e "DROP USER {};"'.format(db_user)):
-                logging.error("%s - could not drop USER %s", repr(self), db_name)
+                logging.error("%s - could not drop USER %s", repr(self), db_name, db_user)
 
         # handle case where no wp_config found
         except ValueError as err:
