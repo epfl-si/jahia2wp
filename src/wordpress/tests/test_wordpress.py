@@ -14,7 +14,8 @@ class TestWPSite:
         return WPSite(
             openshift_env=settings.OPENSHIFT_ENV,
             wp_site_url="http://localhost/folder",
-            wp_default_site_title="My test")
+            wp_site_title="TST",
+            wp_tagline="Test site")
 
     def test_path(self, wordpress):
         assert wordpress.path == ROOT_PATH + "htdocs/folder"
@@ -60,13 +61,13 @@ class TestWPConfig:
         wordpress = WPSite(
             openshift_env=settings.OPENSHIFT_ENV,
             wp_site_url="http://localhost/folder",
-            wp_default_site_title="My test")
+            wp_site_title="My test")
         return WPConfig(wordpress)
 
 
 class TestWPGenerator:
 
-    TITLE_WITH_ACCENT = "démo"
+    TAGLINE_WITH_ACCENT = "démo"
     SAME_SCIPER_ID = 157489
 
     @pytest.fixture()
@@ -74,7 +75,8 @@ class TestWPGenerator:
         generator = MockedWPGenerator(
             {'openshift_env': settings.OPENSHIFT_ENV,
              'wp_site_url': "http://localhost/folder",
-             'wp_default_title': self.TITLE_WITH_ACCENT,
+             'wp_site_title': 'DM',
+             'wp_tagline': self.TAGLINE_WITH_ACCENT,
              'unit_name': 'idevelop',
              'updates_automatic': False})
         generator.clean()

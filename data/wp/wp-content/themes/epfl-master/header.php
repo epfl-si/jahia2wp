@@ -77,19 +77,18 @@
 		<div class="site-branding">
   		<div class="wrap">
   			<?php
-  			the_custom_logo();
-  			if ( is_front_page() && is_home() ) : ?>
-  				<h1 class="site-title"><a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a></h1>
-  			<?php else : ?>
-  				<p class="site-title"><a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a></p>
-  			<?php
-  			endif;
-  
-  			$description = get_bloginfo( 'description', 'display' );
-  			if ( $description || is_customize_preview() ) : ?>
-  				<p class="site-description"><?php echo $description; /* WPCS: xss ok. */ ?></p>
-  			<?php
-  			endif; ?>
+    			$title_tag = is_front_page()?"h1":"p";
+    		?>
+  				<<?php echo $title_tag; ?> class="site-title">
+    				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">
+      				<?php $description = get_bloginfo( 'description', 'display' );
+                if ( $description || is_customize_preview() ) : ?>
+        				  <span class="site-description"><?php echo $description; /* WPCS: xss ok. */ ?></span>
+                <?php endif; ?>
+      				<span class="title"><?php bloginfo( 'name' ); ?></span>
+    				</a>
+    		</<?php echo $title_tag; ?>>
+  			
   		</div><!-- .wrap -->
 		</div><!-- .site-branding -->
 		

@@ -10,7 +10,8 @@ from .validators import validate_string, validate_yes_or_no, \
 
 BASE_COLUMNS = [
     ("wp_site_url", URLValidator(schemes=['https']), True),
-    ("wp_default_site_title", validate_string, False),
+    ("wp_site_title", validate_string, False),
+    ("wp_tagline", validate_string, False),
     ("site_type", validate_site_type, False),
     ("openshift_env", validate_openshift_env, False),
     # category => no validation

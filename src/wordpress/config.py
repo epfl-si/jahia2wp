@@ -1,6 +1,7 @@
 import os
 import logging
 import collections
+import sys
 
 import settings
 
@@ -92,16 +93,17 @@ class WPConfig:
                 else:
                     yield WPResult(wp_config.wp_site.path, "KO", "", "", "", "", "")
 
-    def run_wp_cli(self, command):
+    def run_wp_cli(self, command, encoding=sys.stdout.encoding):
         """
         Execute a WP-CLI command. The command doesn't have to start with 'wp '. It will be added automatically, and
         it's the same for --path option.
 
         Argument keywords:
         command -- WP-CLI command to execute
+        encoding -- encoding to use
         """
         cmd = "wp {} --path='{}'".format(command, self.wp_site.path)
-        return Utils.run_command(cmd)
+        return Utils.run_command(cmd, encoding=encoding)
 
     @property
     def is_installed(self):
