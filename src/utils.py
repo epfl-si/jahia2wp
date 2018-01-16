@@ -60,7 +60,7 @@ class Utils(object):
             command_bytes = command.encode(encoding)
             # run command and log output
             proc = subprocess.run(command_bytes, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
-            logging.debug("{} => {}".format(command, proc.stdout))
+            logging.debug("%s => %s", command, proc.stdout)
             # return output if got any, True otherwise
             if proc.stdout:
                 # Second parameter "ignore" has been added because some plugins have 'strange' characters in their
@@ -74,10 +74,10 @@ class Utils(object):
 
         except subprocess.CalledProcessError as err:
             # log error with content of stderr
-            logging.error("command failed (code {}) with error <{}> => {}".format(
+            logging.error("command failed (code %s) with error <%s> => %s",
                           err.returncode,
                           err,
-                          err.stderr))
+                          err.stderr)
             return False
 
     @classmethod
@@ -93,7 +93,8 @@ class Utils(object):
         Return: list of dictionnaries
         """
         rows = []
-        reader = csv.DictReader(stream, delimiter=delimiter)
+        # Getting stream content and ignoring lines beginning with # (treated as comment lines)
+        reader = csv.DictReader(filter(lambda row: row[0] != '#', stream), delimiter=delimiter)
         for row in reader:
             rows.append(row)
         return rows
