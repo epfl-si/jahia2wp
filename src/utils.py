@@ -10,6 +10,7 @@ import csv
 import string
 import binascii
 import random
+import xml.dom.minidom
 
 
 def deprecated(message):
@@ -40,6 +41,19 @@ def deprecated(message):
 
 class Utils(object):
     """Generic and all-purpose helpers"""
+
+    # the cache with all the doms
+    dom_cache = {}
+
+    @staticmethod
+    def get_tag_attribute(dom, tag, attribute):
+        """Returns the given attribute of the given tag"""
+        elements = dom.getElementsByTagName(tag)
+
+        if not elements:
+            return ""
+
+        return elements[0].getAttribute(attribute)
 
     @staticmethod
     def run_command(command, encoding=sys.stdout.encoding):
