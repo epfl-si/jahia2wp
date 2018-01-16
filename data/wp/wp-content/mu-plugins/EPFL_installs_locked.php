@@ -79,4 +79,16 @@ function EPFL_remove_admin_submenus() {
    remove_submenu_page( 'options-general.php', 'epfl_accred' );
    remove_submenu_page( 'options-general.php', 'epfl_tequila' );
 }
+
+
+/* Hide customize menu in admin bar
+ * 
+ */
+add_action( 'wp_before_admin_bar_render', 'EPFL_remove_customize_admin_bar_render' ); 
+function EPFL_remove_customize_admin_bar_render()
+{
+    global $wp_admin_bar;
+    $wp_admin_bar->remove_menu('customize');
+}
+
 ?>
