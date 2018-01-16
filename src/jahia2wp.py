@@ -91,8 +91,6 @@ def _check_csv(csv_file, **kwargs):
     if not validator.validate():
         for error in validator.errors:
             logging.error(error.message)
-
-        #validator.print_errors()
         raise SystemExit("Invalid CSV file!")
 
     return validator
