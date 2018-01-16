@@ -21,7 +21,6 @@ test-travis: /srv/${WP_ENV}/venv
 	. /srv/${WP_ENV}/venv/bin/activate \
 	  && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src \
 	  && export BACKUP_PATH=/tmp/backups \
-		&& printenv \
 	  && flake8 --max-line-length=120 src \
 	  && pytest -vv --cov=./ . \
 	  && codecov
