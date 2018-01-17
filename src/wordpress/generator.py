@@ -250,6 +250,8 @@ class WPGenerator:
             return False
 
         # Set Tagline (blog description)
+        # Command is in simple quotes and tagline between double quotes to avoid problems in case of simple quote
+        # in tagline text.
         if not self.run_wp_cli('option update blogdescription "{}"'.format(self.wp_site.wp_tagline),
                                encoding="utf-8"):
             logging.error("%s - could not configure blog description", repr(self))
