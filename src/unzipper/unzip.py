@@ -5,6 +5,18 @@ import zipfile
 
 
 def unzip_one(output_dir, site_name, zip_file):
+    """
+    Unzip a jahia zip file
+
+    A jahia zip file contains many files including a zip file <site-name>.zip.
+    This file will be unzipped too and the path of the unzipped root directory
+    will be return.
+
+    :param output_dir: directory where the jahia zip file will be unzipped
+    :param site_name: WordPress name site
+    :param zip_file: name of jahia zip file
+    """
+
     # create subdir in output_dir
     output_subdir = os.path.join(output_dir, site_name)
     if output_subdir:
