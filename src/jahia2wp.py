@@ -4,6 +4,9 @@ jahia2wp: an amazing tool !
 Usage:
   jahia2wp.py download              <site>                          [--debug | --quiet]
     [--username=<USERNAME> --host=<HOST> --zip-path=<ZIP_PATH> --force]
+  jahia2wp.py unzip                 <site>                          [--debug | --quiet]
+    [--username=<USERNAME> --host=<HOST> --zip-path=<ZIP_PATH> --force]
+    [--output-dir=<OUTPUT_DIR>]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--stop-on-errors]
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
@@ -44,6 +47,7 @@ from docopt_dispatch import dispatch
 
 from rotate_backups import RotateBackups
 
+from unzipper.unzip import unzip_one
 from veritas.veritas import VeritasValidor
 from veritas.casters import cast_boolean
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
@@ -52,16 +56,6 @@ from crawler import JahiaCrawler
 from settings import VERSION, FULL_BACKUP_RETENTION_THEME, INCREMENTAL_BACKUP_RETENTION_THEME, \
     DEFAULT_THEME_NAME, DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
 from utils import Utils
-
-
-@dispatch.on('download')
-def download(site, username=None, host=None, zip_path=None, force=False, **kwargs):
-    # prompt for password if username is provided
-    password = None
-    if username is not None:
-        password = getpass.getpass(prompt="Jahia password for user '{}': ".format(username))
-    crawler = JahiaCrawler(site, username=username, password=password, host=host, zip_path=zip_path, force=force)
-    crawler.download_site()
 
 
 def _check_site(wp_env, wp_url, **kwargs):
@@ -90,6 +84,30 @@ def _add_extra_config(extra_config_file, current_config, **kwargs):
     extra_config = yaml.load(open(extra_config_file, 'r'))
 
     return {**current_config, **extra_config}
+
+
+@dispatch.on('download')
+def download(site, username=None, host=None, zip_path=None, force=False, **kwargs):
+    # prompt for password if username is provided
+    password = None
+    if username is not None:
+        password = getpass.getpass(prompt="Jahia password for user '{}': ".format(username))
+    crawler = JahiaCrawler(site, username=username, password=password, host=host, zip_path=zip_path, force=force)
+    return crawler.download_site()
+
+@dispatch.on('unzip')
+def unzip(site, username=None, host=None, zip_path=None, force=False, output_dir=None, **kwargs):
+
+    # get zip file
+    zip_file = download(site, username, host, zip_path, force)
+
+    try:
+        unzipped_files = unzip_one(output_dir, site, zip_file)
+    except Exception as err:
+        logging.error("%s - unzip - Could not unzip file - Exception: %s", site, err)
+
+    # return results
+    return unzipped_files
 
 
 @dispatch.on('check')
