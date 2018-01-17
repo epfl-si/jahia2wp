@@ -14,6 +14,7 @@ import xml.dom.minidom
 
 from bs4 import BeautifulSoup
 
+
 def deprecated(message):
     """ This is a decorator which can be used to mark functions as deprecated. It will result in a
         warning being emmitted when the function is used.
@@ -126,7 +127,7 @@ class Utils(object):
                   For stream information, have a look here: https://docs.python.org/3.5/library/io.html
         delimiter -- character to use to split infos coming from stream (CSV)
 
-        Return: list of dictionnaries
+        Return: list of dictionaries
         """
         rows = []
         # Getting stream content and ignoring lines beginning with # (treated as comment lines)
