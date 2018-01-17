@@ -43,10 +43,10 @@ class Site:
         # the site languages
         self.languages = []
 
-        for file in os.listdir(base_path):
+        for file in os.listdir(self.base_path):
             if file.startswith("export_"):
                 language = file[7:9]
-                path = base_path + "/" + file
+                path = self.base_path + "/" + file
                 self.export_files[language] = path
                 self.languages.append(language)
 
