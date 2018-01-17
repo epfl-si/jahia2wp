@@ -12,6 +12,9 @@ SRC_DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 DATA_PATH = os.path.abspath(os.path.sep.join([SRC_DIR_PATH, '..', 'data']))
 WP_FILES_PATH = os.path.join(DATA_PATH, 'wp')
 
+WP_SUPERADMIN_USER = Utils.get_optional_env("WP_ADMIN_USER", "admin")
+WP_SUPERADMIN_PASSWORD = Utils.get_mandatory_env("WP_ADMIN_PASSWORD")
+
 NB_DAYS_BEFORE_NEW_FULL = 7
 FULL_BACKUP_RETENTION_THEME = {
     'hourly': 0,

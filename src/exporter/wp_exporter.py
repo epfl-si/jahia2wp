@@ -1,7 +1,6 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
 import logging
 import os
-import subprocess
 import timeit
 from collections import OrderedDict
 from datetime import timedelta, datetime
@@ -11,7 +10,7 @@ from bs4 import BeautifulSoup
 from wordpress_json import WordpressJsonWrapper, WordpressError
 
 from exporter.utils import Utils
-from settings import WP_SUPERADMIN_USER, WP_SUPERADMIN_PASSWORD, WP_PATH, CONFIGURED_LANGUAGES
+from settings import WP_SUPERADMIN_USER, WP_SUPERADMIN_PASSWORD
 
 
 class WPExporter:
