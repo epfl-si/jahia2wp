@@ -96,6 +96,7 @@ def download(site, username=None, host=None, zip_path=None, force=False, **kwarg
     crawler = JahiaCrawler(site, username=username, password=password, host=host, zip_path=zip_path, force=force)
     return crawler.download_site()
 
+
 @dispatch.on('unzip')
 def unzip(site, username=None, host=None, zip_path=None, force=False, output_dir=None, **kwargs):
 
