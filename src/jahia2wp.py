@@ -75,6 +75,27 @@ def _check_site(wp_env, wp_url, **kwargs):
     return wp_config
 
 
+def _check_csv(csv_file, **kwargs):
+    """
+    Check validity of CSV file containing sites information
+
+    Arguments keywords
+    csv_file -- Path to CSV file
+
+    Return
+    Instance of VeritasValidator
+    """
+    validator = VeritasValidor(csv_file)
+
+    # If errors found during validation
+    if not validator.validate():
+        for error in validator.errors:
+            logging.error(error.message)
+        raise SystemExit("Invalid CSV file!")
+
+    return validator
+
+
 def _add_extra_config(extra_config_file, current_config, **kwargs):
     """ Adds extra configuration information to current config
 
@@ -194,12 +215,13 @@ def admins(wp_env, wp_url, **kwargs):
 
 @dispatch.on('generate-many')
 def generate_many(csv_file, **kwargs):
-    # use Veritas to get valid rows
-    rows = VeritasValidor.filter_valid_rows(csv_file)
+
+    # CSV file validation
+    validator = _check_csv(csv_file)
 
     # create a new WP site for each row
-    print("\n{} websites will now be generated...".format(len(rows)))
-    for index, row in rows:
+    print("\n{} websites will now be generated...".format(len(validator.rows)))
+    for index, row in enumerate(validator.rows):
         print("\nIndex #{}:\n---".format(index))
         # CSV file is utf-8 so we encode correctly the string to avoid errors during logging.debug display
         row_bytes = repr(row).encode('utf-8')
@@ -209,12 +231,13 @@ def generate_many(csv_file, **kwargs):
 
 @dispatch.on('backup-many')
 def backup_many(csv_file, **kwargs):
-    # use Veritas to get valid rows
-    rows = VeritasValidor.filter_valid_rows(csv_file)
+
+    # CSV file validation
+    validator = _check_csv(csv_file)
 
     # create a new WP site backup for each row
-    print("\n{} websites will now be backuped...".format(len(rows)))
-    for index, row in rows:
+    print("\n{} websites will now be backuped...".format(len(validator.rows)))
+    for index, row in enumerate(validator.rows):
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
         WPBackup(
             row["openshift_env"],
@@ -224,10 +247,11 @@ def backup_many(csv_file, **kwargs):
 
 @dispatch.on('rotate-backup')
 def rotate_backup(csv_file, dry_run=False, **kwargs):
-    # use Veritas to get valid rows
-    rows = VeritasValidor.filter_valid_rows(csv_file)
 
-    for index, row in rows:
+    # CSV file validation
+    validator = _check_csv(csv_file)
+
+    for index, row in enumerate(validator.rows):
         path = WPBackup(row["openshift_env"], row["wp_site_url"]).path
         # rotate full backups first
         for pattern in ["*full.sql", "*full.tar"]:
@@ -266,9 +290,10 @@ def inventory(path, **kwargs):
 def veritas(csv_file, **kwargs):
     validator = VeritasValidor(csv_file)
 
-    validator.validate()
-
-    validator.print_errors()
+    if not validator.validate():
+        validator.print_errors()
+    else:
+        print("CSV file validated!")
 
 
 @dispatch.on('extract-plugin-config')
@@ -302,10 +327,8 @@ def update_plugins(wp_env, wp_url, plugin=None, force=False, **kwargs):
 
     _check_site(wp_env, wp_url, **kwargs)
 
-    all_params = {'openshift_env': wp_env,
-                  'wp_site_url': wp_url}
-
-    wp_generator = WPGenerator(all_params)
+    wp_generator = WPGenerator({'openshift_env': wp_env,
+                                'wp_site_url': wp_url})
 
     wp_generator.update_plugins(only_one=plugin, force=force)
 
@@ -315,12 +338,12 @@ def update_plugins(wp_env, wp_url, plugin=None, force=False, **kwargs):
 @dispatch.on('update-plugins-many')
 def update_plugins_many(csv_file, plugin=None, force=False, **kwargs):
 
-    # use Veritas to get valid rows
-    rows = VeritasValidor.filter_valid_rows(csv_file)
+    # CSV file validation
+    validator = _check_csv(csv_file)
 
     # Update WP site plugins for each row
-    print("\n{} websites will now be updated...".format(len(rows)))
-    for index, row in rows:
+    print("\n{} websites will now be updated...".format(len(validator.rows)))
+    for index, row in enumerate(validator.rows):
         print("\nIndex #{}:\n---".format(index))
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
         WPGenerator(row).update_plugins(only_one=plugin, force=force)
