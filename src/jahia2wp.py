@@ -47,6 +47,7 @@ from docopt_dispatch import dispatch
 
 from rotate_backups import RotateBackups
 
+import settings
 from unzipper.unzip import unzip_one
 from veritas.veritas import VeritasValidor
 from veritas.casters import cast_boolean
@@ -100,6 +101,9 @@ def unzip(site, username=None, host=None, zip_path=None, force=False, output_dir
 
     # get zip file
     zip_file = download(site, username, host, zip_path, force)
+
+    if output_dir is None:
+        output_dir = settings.JAHIA_DATA_PATH
 
     try:
         unzipped_files = unzip_one(output_dir, site, zip_file)
