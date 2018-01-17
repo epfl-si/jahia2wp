@@ -14,10 +14,10 @@ def unzip_one(output_dir, site_name, zip_file):
     # check if unzipped files already exists
     unzip_path = os.path.join(output_subdir, site_name)
     if os.path.isdir(unzip_path):
-        logging.info("Already unzipped %s" % unzip_path)
+        logging.info("Already unzipped %s", unzip_path)
         return unzip_path
 
-    logging.info("Unzipping %s..." % zip_file)
+    logging.info("Unzipping %s...", zip_file)
 
     # make sure we have an input file
     if not zip_file or not os.path.isfile(zip_file):
@@ -42,5 +42,5 @@ def unzip_one(output_dir, site_name, zip_file):
     zip_ref_with_files = zipfile.ZipFile(zip_path, 'r')
     zip_ref_with_files.extractall(unzip_path)
 
-    logging.info("Site successfully extracted in %s" % unzip_path)
+    logging.info("Site successfully extracted in %s", unzip_path)
     return unzip_path
