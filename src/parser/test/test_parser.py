@@ -20,7 +20,11 @@ def site(request):
     Load site only once
     """
     site_name = request.param
-    site_data_path = os.path.join(DATA_PATH, request.param)
+    #site_data_path = os.path.join(DATA_PATH, request.param)
+
+    # fix me
+    site_data_path = os.path.join("/mnt/export/build-dev/", request.param, request.param)
+
     return Site(site_data_path, site_name)
 
 
