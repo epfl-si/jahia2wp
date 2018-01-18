@@ -1,6 +1,10 @@
 # flake8: noqa
 import datetime
 
+# Data generated with:
+# jahia2wp.py export $(site_name) --output-dir $(output_dir) --number $(number) --to-dictionary
+
+
 class Data:
 
     dcsl_data = {'pages_by_pid': {'115349': {'children__len': 6,

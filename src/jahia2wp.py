@@ -14,6 +14,8 @@ Usage:
     [--extra-config=<YAML_FILE>]
   jahia2wp.py backup                <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py version               <wp_env> <wp_url>               [--debug | --quiet]
+  jahia2wp.py parse <site> [--output-dir=<OUTPUT_DIR>] [--number=<NUMBER>] [--print-report]
+                           [--debug | --quiet] [--use-cache] [--site-path=<SITE_PATH>]
   jahia2wp.py admins                <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate-many         <csv_file>                      [--debug | --quiet]
   jahia2wp.py backup-many           <csv_file>                      [--debug | --quiet]
@@ -163,6 +165,10 @@ def backup(wp_env, wp_url, **kwargs):
     print("Successfull {} backup for {}".format(
         wp_backup.backup_pattern, wp_backup.wp_site.url))
 
+
+@dispatch.on('parse')
+def parse(wp_env, wp_url, **kwargs):
+    pass
 
 @dispatch.on('version')
 def version(wp_env, wp_url, **kwargs):
