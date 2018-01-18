@@ -66,7 +66,7 @@ class Utils(object):
             return cls.dom_cache[path]
 
         # load the xml
-        xml_file = open(path, "r")
+        xml_file = open(path, "r", encoding="UTF-8")
 
         # we use BeautifulSoup first because some XML files are invalid
         xml_soup = BeautifulSoup(xml_file.read(), 'xml')

@@ -7,6 +7,9 @@ Usage:
   jahia2wp.py unzip                 <site>                          [--debug | --quiet]
     [--username=<USERNAME> --host=<HOST> --zip-path=<ZIP_PATH> --force]
     [--output-dir=<OUTPUT_DIR>]
+  jahia2wp.py parse                 <site>                          [--debug | --quiet]
+    [--output-dir=<OUTPUT_DIR>] [--print-report] 
+    [--use-cache] [--site-path=<SITE_PATH>]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--stop-on-errors]
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
@@ -17,8 +20,6 @@ Usage:
     [--extra-config=<YAML_FILE>]
   jahia2wp.py backup                <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py version               <wp_env> <wp_url>               [--debug | --quiet]
-  jahia2wp.py parse <site> [--output-dir=<OUTPUT_DIR>] [--print-report]
-                           [--debug | --quiet] [--use-cache] [--site-path=<SITE_PATH>]
   jahia2wp.py admins                <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate-many         <csv_file>                      [--debug | --quiet]
   jahia2wp.py backup-many           <csv_file>                      [--debug | --quiet]
@@ -138,6 +139,51 @@ def unzip(site, username=None, host=None, zip_path=None, force=False, output_dir
     return unzipped_files
 
 
+@dispatch.on('parse')
+def parse(site, output_dir=None, print_report=None, use_cache=None, site_path=None, **kwargs):
+    """
+    Parse 
+    
+    :param site: 
+    :param output_dir: 
+    :param print_report: 
+    :param use_cache: 
+    :param site_path: 
+    :param kwargs: 
+    :return: 
+    """
+    try:
+        # create subdir in output_dir
+        site_dir = unzip(site, output_dir)
+
+        # where to cache our parsing
+        pickle_file = os.path.join(site_dir, 'parsed_%s.pkl' % site)
+
+        # when using-cache: check if already parsed
+        if use_cache:
+            if os.path.exists(pickle_file):
+                with open(pickle_file, 'rb') as input:
+                    logging.info("Loaded parsed site from %s" % pickle_file)
+
+        logging.info("Parsing Jahia xml files from %s...", site_dir)
+        site = Site(site_dir, site)
+
+        print(site.report)
+
+        # always save the parsed data on disk, so we can use the
+        # cache later if we want
+        with open(pickle_file, 'wb') as output:
+            logging.info("Parsed site saved into %s" % pickle_file)
+            pickle.dump(site, output, pickle.HIGHEST_PROTOCOL)
+
+        # log success
+        logging.info("Site %s successfully parsed" % site)
+
+    except Exception as err:
+        logging.error("%s - parse - Exception: %s", site, err)
+        raise err
+
+
 @dispatch.on('check')
 def check(wp_env, wp_url, **kwargs):
     wp_config = _check_site(wp_env, wp_url, **kwargs)
@@ -222,43 +268,6 @@ def backup(wp_env, wp_url, **kwargs):
     print("Successfull {} backup for {}".format(
         wp_backup.backup_pattern, wp_backup.wp_site.url))
 
-
-@dispatch.on('parse')
-def parse(site, **kwargs):
-    try:
-        # create subdir in output_dir
-        output_subdir = os.path.join(args['--output-dir'], site)
-
-        # where to cache our parsing
-        pickle_file = os.path.join(output_subdir, 'parsed_%s.pkl' % site)
-
-        # when using-cache: check if already parsed
-        if args['--use-cache']:
-            if os.path.exists(pickle_file):
-                with open(pickle_file, 'rb') as input:
-                    logging.info("Loaded parsed site from %s" % pickle_file)
-
-        # FIXME
-        site_dir = "/mnt/export/build-dev/%s/%s" % (site, site)
-
-        root_path = ""
-        logging.info("Parsing Jahia xml files from %s...", site_dir)
-        site = Site(site_dir, site, root_path=root_path)
-
-        print(site.report)
-
-        # always save the parsed data on disk, so we can use the
-        # cache later if we want
-        with open(pickle_file, 'wb') as output:
-            logging.info("Parsed site saved into %s" % pickle_file)
-            pickle.dump(site, output, pickle.HIGHEST_PROTOCOL)
-
-        # log success
-        logging.info("Site %s successfully parsed" % site)
-
-    except Exception as err:
-        logging.error("%s - parse - Exception: %s", site, err)
-        raise err
 
 @dispatch.on('version')
 def version(wp_env, wp_url, **kwargs):
