@@ -24,5 +24,11 @@ class TestUnzipper(object):
 
         assert unzip_path == unzip_path_expected
 
+        # test if the file on-site.zip exists
+        assert os.path.isfile(unzip_path + ".zip")
+
+        # test if the directory on-site/ exists
+        assert os.path.isdir(unzip_path)
+
         # some cleaning
         shutil.rmtree(TEST_JAHIA_SITE_PATH)
