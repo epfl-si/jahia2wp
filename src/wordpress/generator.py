@@ -245,12 +245,14 @@ class WPGenerator:
         command = "--allow-root core install --url={0.url} --title='{0.wp_site_title}'" \
             " --admin_user={1.username} --admin_password='{1.password}'"\
             " --admin_email='{1.email}'"
-        if not self.run_wp_cli(command.format(self.wp_site, self.wp_admin), 'utf-8'):
+        if not self.run_wp_cli(command.format(self.wp_site, self.wp_admin), encoding="utf-8"):
             logging.error("%s - could not setup WP site", repr(self))
             return False
 
         # Set Tagline (blog description)
-        if not self.run_wp_cli("option update blogdescription '{}'".format(self.wp_site.wp_tagline),
+        # Command is in simple quotes and tagline between double quotes to avoid problems in case of simple quote
+        # in tagline text.
+        if not self.run_wp_cli('option update blogdescription "{}"'.format(self.wp_site.wp_tagline),
                                encoding="utf-8"):
             logging.error("%s - could not configure blog description", repr(self))
             return False

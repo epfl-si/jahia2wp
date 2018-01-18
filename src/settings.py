@@ -10,6 +10,7 @@ ENV_DIRS = ['logs', 'venv', 'jahia2wp']
 
 SRC_DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 DATA_PATH = os.path.abspath(os.path.sep.join([SRC_DIR_PATH, '..', 'data']))
+JAHIA_DATA_PATH = os.path.join(DATA_PATH, 'jahia-data')
 WP_FILES_PATH = os.path.join(DATA_PATH, 'wp')
 
 WP_SUPERADMIN_USER = Utils.get_optional_env("WP_ADMIN_USER", "admin")
@@ -135,5 +136,5 @@ WP_DEFAULT_PLUGIN_CONFIG = "wordpress.plugins.config.WPPluginConfig"
 
 JAHIA_USER = Utils.get_optional_env("JAHIA_USER", "admin")
 JAHIA_HOST = Utils.get_optional_env("JAHIA_HOST", "localhost")
-JAHIA_PROTOCOL = "http"
+JAHIA_PROTOCOL = "https"
 JAHIA_ZIP_PATH = Utils.get_optional_env("JAHIA_ZIP_PATH", ".")
