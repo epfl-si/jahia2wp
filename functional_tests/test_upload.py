@@ -32,7 +32,8 @@ class TestWpUploadTest:
         generator = MockedWPGenerator(
             {'openshift_env': OPENSHIFT_ENV,
              'wp_site_url': "https://" + HTTPD_CONTAINER + "/folder",
-             'wp_default_title': "upload test"},
+             'wp_site_title': "UP",
+             'wp_tagline': "upload test"},
             admin_password="admin")
         generator.clean()
         generator.generate()

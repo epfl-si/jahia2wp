@@ -4,6 +4,9 @@
 WP_ENV ?= your-env
 WP_PORT_HTTP ?= 80
 WP_PORT_HTTPS ?= 443
+# Used to clean vEnv with name used by Travis because it is already used for 'generate-many' functional-tests locally
+# and we have to clean this vEnv correctly for the test to execute correctly
+WP_TRAVIS_TEST_ENV = 'test'
 
 check-env:
 ifeq ($(wildcard .env),)
@@ -32,7 +35,7 @@ vars: check-env
 	@echo '  WP_ENV=${WP_ENV}'
 	@echo '  _mgmt_container=${_mgmt_container}'
 	@echo '  _httpd_container=${_httpd_container}'
-	
+
 	@echo ''
 	@echo DB-related vars:
 	@echo '  MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}'
@@ -101,9 +104,9 @@ export WP_ENV=$(ENV)" >> ~/.bashrc
 	WP_ENV=$(ENV) make up
 endif
 	@echo ""
-	@echo "Done with your local env. You can now" 
+	@echo "Done with your local env. You can now"
 	@if test -z "${WP_ENV}"; then echo "    $ source ~/.bashrc (to update your environment with WP_ENV value)"; fi
 	@echo "    $ make exec        (to connect into your container)"
 
 clean: down
-	@bin/clean.sh $(WP_ENV)
+	@bin/clean.sh $(WP_ENV) ${WP_TRAVIS_TEST_ENV}

@@ -15,14 +15,14 @@ test-raw: /srv/${WP_ENV}/venv
 functional-tests-raw: /srv/${WP_ENV}/venv
 	. /srv/${WP_ENV}/venv/bin/activate \
 	  && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src \
-	  && pytest functional_tests 
+	  && pytest functional_tests
 
 test-travis: /srv/${WP_ENV}/venv
 	. /srv/${WP_ENV}/venv/bin/activate \
 	  && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src \
 	  && export BACKUP_PATH=/tmp/backups \
 	  && flake8 --max-line-length=120 src \
-	  && pytest --cov=./ . \
+	  && pytest -vv --cov=./ . \
 	  && codecov
 	bash -c 'bash <(curl -s https://codecov.io/bash)'
 
@@ -34,4 +34,3 @@ bootstrap-mgmt pip-install: /srv/${WP_ENV}/venv
 	. /srv/${WP_ENV}/venv/bin/activate \
 	  && export PYTHONPATH=/srv/${WP_ENV}/jahia2wp/src \
 	  && pip install -r requirements/local.txt
-

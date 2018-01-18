@@ -133,6 +133,6 @@ WP_DEFAULT_PLUGIN_CONFIG = "wordpress.plugins.config.WPPluginConfig"
 
 JAHIA_USER = Utils.get_optional_env("JAHIA_USER", "admin")
 JAHIA_HOST = Utils.get_optional_env("JAHIA_HOST", "localhost")
-JAHIA_PROTOCOL = "http"
+JAHIA_PROTOCOL = "https"
 JAHIA_ZIP_PATH = Utils.get_optional_env("JAHIA_ZIP_PATH", ".")
 JAHIA_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'

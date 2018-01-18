@@ -1,5 +1,4 @@
 """ All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017 """
-import logging
 
 from django.core.validators import URLValidator, ValidationError
 
@@ -10,7 +9,8 @@ from .validators import validate_string, validate_yes_or_no, \
 
 BASE_COLUMNS = [
     ("wp_site_url", URLValidator(schemes=['https']), True),
-    ("wp_default_site_title", validate_string, False),
+    ("wp_site_title", validate_string, False),
+    ("wp_tagline", validate_string, False),
     ("site_type", validate_site_type, False),
     ("openshift_env", validate_openshift_env, False),
     # category => no validation
@@ -23,9 +23,16 @@ BASE_COLUMNS = [
     # comment => no validation
 ]
 
-JAHIA2WP_COLUMNS = BASE_COLUMNS + [
-    ("unit_name", validate_unit, False),
-]
+if Utils.get_optional_env('TRAVIS', False):
+
+    JAHIA2WP_COLUMNS = BASE_COLUMNS + [
+        ("unit_name", mock_validate_unit, False),
+    ]
+else:
+    JAHIA2WP_COLUMNS = BASE_COLUMNS + [
+        ("unit_name", validate_unit, False),
+    ]
+
 
 MOCK_JAHIA2WP_COLUMNS = BASE_COLUMNS + [
     ("unit_name", mock_validate_unit, False),
@@ -81,7 +88,12 @@ class VeritasValidor:
         self.rows = Utils.csv_filepath_to_dict(file_path=self.csv_path, delimiter=self.DELIMITER)
 
     def validate(self):
-        """Validate the columns"""
+        """Validate the columns
+
+        Return
+        True -> no errors
+        False -> errors
+        """
 
         # check the regexp
         for column in self.columns:
@@ -94,7 +106,8 @@ class VeritasValidor:
 
         # sort the errors by the line number
         self.errors.sort(key=lambda x: x.line)
-        logging.info("The CSV file is validated !")
+
+        return not self.errors
 
     def print_errors(self):
         """Prints the errors"""

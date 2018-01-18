@@ -97,7 +97,7 @@ class Utils(object):
             command_bytes = command.encode(encoding)
             # run command and log output
             proc = subprocess.run(command_bytes, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
-            logging.debug("%s => %s", command, proc.stdout)
+            logging.debug("%s => %s", command_bytes, proc.stdout)
             # return output if got any, True otherwise
             if proc.stdout:
                 # Second parameter "ignore" has been added because some plugins have 'strange' characters in their
