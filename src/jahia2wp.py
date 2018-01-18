@@ -238,7 +238,7 @@ def parse(site, **kwargs):
                 with open(pickle_file, 'rb') as input:
                     logging.info("Loaded parsed site from %s" % pickle_file)
 
-        # TODO fix this
+        # FIXME
         site_dir = "/mnt/export/build-dev/%s/%s" % (site, site)
 
         root_path = ""
