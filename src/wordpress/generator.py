@@ -111,15 +111,17 @@ class WPGenerator:
     def __repr__(self):
         return repr(self.wp_site)
 
-    def run_wp_cli(self, command, encoding=sys.stdout.encoding):
+    def run_wp_cli(self, command, stdin_options=None, encoding=sys.stdout.encoding):
         """
         Execute a WP-CLI command using method present in WPConfig instance.
 
         Argument keywords:
         command -- WP-CLI command to execute. The command doesn't have to start with "wp ".
+        stdin_options -- Options to add at the end of the command line. There value is taken from STDIN so it
+                         has to be at the end of the command line (after --path)
         encoding -- encoding to use
         """
-        return self.wp_config.run_wp_cli(command, encoding=encoding)
+        return self.wp_config.run_wp_cli(command, stdin_options=stdin_options, encoding=encoding)
 
     def run_mysql(self, command):
         """
@@ -237,7 +239,11 @@ class WPGenerator:
         # config WordPress
         command = "config create --dbname='{0.wp_db_name}' --dbuser='{0.mysql_wp_user}'" \
             " --dbpass='{0.mysql_wp_password}' --dbhost={0.MYSQL_DB_HOST}"
-        if not self.run_wp_cli(command.format(self)):
+        # Generate options to add PHP code in wp-config.php file to switch to ssl if proxy is in SSL
+        stdin_options = "--extra-php <<PHP \n" \
+            "if (isset( \$_SERVER['HTTP_X_FORWARDED_PROTO'] ) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https'){\n" \
+            "\$_SERVER['HTTPS']='on';} \n"
+        if not self.run_wp_cli(command.format(self), stdin_options=stdin_options):
             logging.error("%s - could not create config", repr(self))
             return False
 
