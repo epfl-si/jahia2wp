@@ -1,0 +1,3 @@
+[submodule "jahia-data"]
+	path = data/jahia-data
+	url = https://github.com/epfl-idevelop/jahia2wp-data.git
