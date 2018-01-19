@@ -23,5 +23,5 @@ plugins:
     config: !include varnish-http-purge/v1/config-plugin.yml
   - name: EPFL-settings
     config: !include EPFL-settings/v1/config-plugin.yml
-  - name: sassy-social-share
-    config: !include sassy-social-share/v1/config-plugin.yml
+  - name: EPFL-Share
+    config: !include EPFL-Share/v1/config-plugin.yml
