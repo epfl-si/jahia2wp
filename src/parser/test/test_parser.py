@@ -11,7 +11,7 @@ def get_sites():
     """
     Return the list of jahia sites for which we have data
     """
-    return ['dcsl', 'master']
+    return ['atelierweb2']
 
 
 @pytest.fixture(scope='module', params=get_sites())
