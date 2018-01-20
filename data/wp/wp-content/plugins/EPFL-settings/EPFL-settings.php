@@ -1,9 +1,9 @@
 <?php
 /*
  * Plugin Name: EPFL General settings
- * Description: General settings for all	ow users
- * Version:     0.1
- * Author:      wwp-admin@epfl.ch
+ * Description: General settings for allow users
+ * Version:     0.2
+ * Author:      <a href="mailto:wwp-admin@epfl.ch">wwp-admin@epfl.ch</a>
  * Text Domain: EPFL-settings
  */
 
@@ -58,6 +58,12 @@ function EPFL_settings_options_page()
     <tr>
       <th scope="row"><label for="WPLANG"><?php echo __ ("Site administration Language", 'EPFL-settings'    );?></label></th>
       <td><?php wp_dropdown_languages(array('name' => 'WPLANG', 'id' => 'site-language', 'selected' => $lang, 'languages' => $languages, 'show_available_translations' => false)); ?></td>
+    </tr>
+        <tr>
+      <th scope="row"><label for="plugin:epfl_accred:unit"><?php echo __ ("Accred Unit", 'EPFL-settings');?></label></th>
+      <td><label for="plugin:epfl_accred:unit"><?php echo get_option('plugin:epfl_accred:unit'); ?></label></th>
+      <p class="description" id="tagline-description"><?php echo __ ("Accred unit allowed to manage this Wordpress site", 'EPFL-settings');?></p>
+      </td>
     </tr>
   </table>
   <?php  submit_button(); ?>
