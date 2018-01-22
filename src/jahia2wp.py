@@ -8,7 +8,7 @@ Usage:
     [--username=<USERNAME> --host=<HOST> --zip-path=<ZIP_PATH> --force]
     [--output-dir=<OUTPUT_DIR>]
   jahia2wp.py parse                 <site>                          [--debug | --quiet]
-    [--output-dir=<OUTPUT_DIR>] [--print-report] 
+    [--output-dir=<OUTPUT_DIR>] [--print-report]
     [--use-cache] [--site-path=<SITE_PATH>]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--stop-on-errors]
@@ -142,15 +142,7 @@ def unzip(site, username=None, host=None, zip_path=None, force=False, output_dir
 @dispatch.on('parse')
 def parse(site, output_dir=None, print_report=None, use_cache=None, site_path=None, **kwargs):
     """
-    Parse 
-    
-    :param site: 
-    :param output_dir: 
-    :param print_report: 
-    :param use_cache: 
-    :param site_path: 
-    :param kwargs: 
-    :return: 
+    Parse the give site.
     """
     try:
         # create subdir in output_dir
@@ -162,7 +154,7 @@ def parse(site, output_dir=None, print_report=None, use_cache=None, site_path=No
         # when using-cache: check if already parsed
         if use_cache:
             if os.path.exists(pickle_file):
-                with open(pickle_file, 'rb') as input:
+                with open(pickle_file, 'rb'):
                     logging.info("Loaded parsed site from %s" % pickle_file)
 
         logging.info("Parsing Jahia xml files from %s...", site_dir)
