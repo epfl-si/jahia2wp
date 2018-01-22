@@ -14,15 +14,15 @@ print("WP site {} is nice".format(wp_site))
 ```
 
 ### utils.py
-We will use 2 differents files for Utils:
+We will use 2 different files for Utils:
 - `utils.py` for all functions that can also be reused in other projects.
 - `utils-jahia2wp.py`
-  - For all functions used only in current project.
+  - For all functions used only in the current project.
   - Only for functions used X times in the project. If only used in one place, code proximity is privileged
 
 
 ### settins.py
-Code proximity is privileged. So all settings used only in one place _AND_ not subject to change in a near futur can be out of `settings.py` and located close to code in which it is used.
+Code proximity is privileged. So all settings used only in one place _AND_ not subject to change in the near future can be out of `settings.py` and located close to code in which it is used.
 
 
 ### Function headers
