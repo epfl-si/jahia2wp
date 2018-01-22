@@ -13,22 +13,25 @@ logging.info("WP site %s is nice", wp_site)
 print("WP site {} is nice".format(wp_site))
 ```
 
-## To discuss
-- Define criterias to decide if a function is in `utils.py` (reusable only in this/all project? number of use?)
-..- Function is used in more than one script file. If only used in one file (even several times), the function is
-located in the file to increase code proximity and readability.
+### utils.py
+We will use 2 differents files for Utils:
+- `utils.py` for all functions that can also be reused in other projects.
+- `utils-jahia2wp.py`
+  - For all functions used only in current project.
+  - Only for functions used X times in the project. If only used in one place, code proximity is privileged
 
 
-- Define criterias to decide which var declaration are in `settings.py` (if used x times? everything is here?)
-..- Var is used in more than one script file. If only used in one file (even several times), the var is
-located in the file to increase code proximity and readability.
+### settins.py
+Code proximity is privileged. So all settings used only in one place _AND_ not subject to change in a near futur can be out of `settings.py` and located close to code in which it is used.
 
 
-- Always write a function header (comments) to explain function, parameters and possible returns.
+### Function headers
+If a function is not obvious to understand, a small header to explain how it works, the list of parameters and return value needs to be added.
 
 
-- String on multilines:
-Example:
+### Multilines string.
+
+Use the following to write multilines strings:
 
 ```python
 example = Utils.something(
