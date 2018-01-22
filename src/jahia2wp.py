@@ -7,6 +7,9 @@ Usage:
   jahia2wp.py unzip                 <site>                          [--debug | --quiet]
     [--username=<USERNAME> --host=<HOST> --zip-path=<ZIP_PATH> --force]
     [--output-dir=<OUTPUT_DIR>]
+  jahia2wp.py parse                 <site>                          [--debug | --quiet]
+    [--output-dir=<OUTPUT_DIR>] [--print-report]
+    [--use-cache] [--site-path=<SITE_PATH>]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--stop-on-errors]
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
@@ -37,26 +40,26 @@ Options:
   --debug                   Set log level to DEBUG [default: INFO]
   --quiet                   Set log level to WARNING [default: INFO]
 """
-import logging
 import getpass
-import yaml
+import logging
 import os
+import pickle
 
+import yaml
 from docopt import docopt
 from docopt_dispatch import dispatch
-
 from rotate_backups import RotateBackups
 
 import settings
-from unzipper.unzip import unzip_one
-from veritas.veritas import VeritasValidor
-from veritas.casters import cast_boolean
-from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
 from crawler import JahiaCrawler
-
+from parser.jahia_site import Site
 from settings import VERSION, FULL_BACKUP_RETENTION_THEME, INCREMENTAL_BACKUP_RETENTION_THEME, \
     DEFAULT_THEME_NAME, DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
+from unzipper.unzip import unzip_one
 from utils import Utils
+from veritas.casters import cast_boolean
+from veritas.veritas import VeritasValidor
+from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
 
 
 def _check_site(wp_env, wp_url, **kwargs):
@@ -134,6 +137,43 @@ def unzip(site, username=None, host=None, zip_path=None, force=False, output_dir
 
     # return results
     return unzipped_files
+
+
+@dispatch.on('parse')
+def parse(site, output_dir=None, print_report=None, use_cache=None, site_path=None, **kwargs):
+    """
+    Parse the give site.
+    """
+    try:
+        # create subdir in output_dir
+        site_dir = unzip(site, output_dir)
+
+        # where to cache our parsing
+        pickle_file = os.path.join(site_dir, 'parsed_%s.pkl' % site)
+
+        # when using-cache: check if already parsed
+        if use_cache:
+            if os.path.exists(pickle_file):
+                with open(pickle_file, 'rb'):
+                    logging.info("Loaded parsed site from %s" % pickle_file)
+
+        logging.info("Parsing Jahia xml files from %s...", site_dir)
+        site = Site(site_dir, site)
+
+        print(site.report)
+
+        # always save the parsed data on disk, so we can use the
+        # cache later if we want
+        with open(pickle_file, 'wb') as output:
+            logging.info("Parsed site saved into %s" % pickle_file)
+            pickle.dump(site, output, pickle.HIGHEST_PROTOCOL)
+
+        # log success
+        logging.info("Site %s successfully parsed" % site)
+
+    except Exception as err:
+        logging.error("%s - parse - Exception: %s", site, err)
+        raise err
 
 
 @dispatch.on('check')

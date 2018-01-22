@@ -10,6 +10,9 @@ import csv
 import string
 import binascii
 import random
+import xml.dom.minidom
+
+from bs4 import BeautifulSoup
 
 
 def deprecated(message):
@@ -40,6 +43,40 @@ def deprecated(message):
 
 class Utils(object):
     """Generic and all-purpose helpers"""
+
+    # the cache with all the doms
+    dom_cache = {}
+
+    @staticmethod
+    def get_tag_attribute(dom, tag, attribute):
+        """Returns the given attribute of the given tag"""
+        elements = dom.getElementsByTagName(tag)
+
+        if not elements:
+            return ""
+
+        return elements[0].getAttribute(attribute)
+
+    @classmethod
+    def get_dom(cls, path):
+        """Returns the dom of the given XML file path"""
+
+        # we check the cache first
+        if path in cls.dom_cache:
+            return cls.dom_cache[path]
+
+        # load the xml
+        xml_file = open(path, "r", encoding="UTF-8")
+
+        # we use BeautifulSoup first because some XML files are invalid
+        xml_soup = BeautifulSoup(xml_file.read(), 'xml')
+
+        dom = xml.dom.minidom.parseString(str(xml_soup))
+
+        # save in the cache
+        cls.dom_cache[path] = dom
+
+        return dom
 
     @staticmethod
     def run_command(command, encoding=sys.stdout.encoding):
@@ -90,7 +127,7 @@ class Utils(object):
                   For stream information, have a look here: https://docs.python.org/3.5/library/io.html
         delimiter -- character to use to split infos coming from stream (CSV)
 
-        Return: list of dictionnaries
+        Return: list of dictionaries
         """
         rows = []
         # Getting stream content and ignoring lines beginning with # (treated as comment lines)
