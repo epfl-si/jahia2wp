@@ -98,7 +98,7 @@ class EPFLShare
 
     $post_title = $this->sanitize_post_title($post->post_title);
 
-    $code = '<div class="EPFLShareHorizontal">\n'.
+    $code = '<div class="EPFLShareHorizontal">'.
             '<ul class="EPFLShareUl">';
 
     foreach($this->sharing_networks as $network)
