@@ -112,10 +112,10 @@
   		<?php if ( is_single() || is_page() || is_home() ) : ?>
   		
   		<section class="toolbar wrap">
-    		<?php if ( function_exists( 'ADDTOANY_SHARE_SAVE_KIT' ) ) : ?>
+    		<?php if ( function_exists( 'EPFLShareButtonDisplay' ) ) : ?>
     		<div class="social-share">
       		<p class="label"><?php _e( 'Share', 'epfl' ); ?>:</p>
-    		  <?php ADDTOANY_SHARE_SAVE_KIT(); ?>
+    		  <?php EPFLShareButtonDisplay (); ?>
     		</div><!-- .social-share -->
     		<?php endif; ?>
   		</section><!-- .toolbox -->

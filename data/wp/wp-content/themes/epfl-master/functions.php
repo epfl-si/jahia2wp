@@ -41,6 +41,7 @@ if ( ! function_exists( 'epfl_setup' ) ) :
 		 * @link https://developer.wordpress.org/themes/functionality/featured-images-post-thumbnails/
 		 */
 		add_theme_support( 'post-thumbnails' );
+        add_image_size( 'epfl-list-thumb', 480, 270, true );
 
 		/**
      * Register menus

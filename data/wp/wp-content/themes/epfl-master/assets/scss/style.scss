@@ -602,6 +602,25 @@ a.a2a_button_{
 }
 .epflnav .nav-link {
   color: #000;
+  
+  .icon-arrow-bottom-right {
+    display: inline-block;
+    
+    &:before {
+      display: none;
+    }
+    
+    &:after {
+      @include icon;
+      content: "\f063";
+      background: transparent;
+      font-size: 10px;
+      margin: 0 0 0 .5em;
+      padding: 0;
+      transform: rotate(-45deg);
+    }
+    
+  }
 }
 
 .epflnav .icon-menu {
@@ -618,6 +637,25 @@ a.a2a_button_{
     padding: 0;
     text-align: center;
   }
+}
+
+.site-header.epfl nav {
+  
+  h2,
+  h3 {
+    margin: 0 0 4px 0;
+    padding: 0;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 13px;
+    line-height: 14px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    
+    a {
+      color: red;
+    }
+  }
+  
 }
 
 .search .icon {
@@ -640,19 +678,35 @@ a.a2a_button_{
   display: block;
   float: left;
   width: 150px;
-  width: calc(100% - 145px - 18px);
+  width: calc(100% - 120px - 25px);
   
   .search-query {
     height: 25px;
     line-height: 25px;
     padding: 0 5px;
     width: 100%;
+    
+    &:focus {
+      border-color: #000;
+    }
   }
   
   &.form-input-mini {
+    min-width: 0;
     width: 25px;
   }
 }
+
+#epfl-header .autocomplete-suggestions {
+  border-top: 0;
+  margin-top: -0.5em;
+  width: 329px !important;
+  
+  .autocomplete-suggestion {
+    font-size: 14px;
+  }
+}
+
 #epfl-header .form-select {
   background: #fff;
   float: left;
@@ -1192,12 +1246,57 @@ a.a2a_button_{
   margin-bottom: 8px;
 }
 
-.social-share .label {
-  display: inline-block;
-  font: italic .75em Georgia, 'Times New Roman', Times, serif;
-  margin: 0 .5em 0 0;
-  vertical-align: middle;
+.social-share {
+  
+  .label {
+    display: inline-block;
+    font: italic .75em Georgia, 'Times New Roman', Times, serif;
+    margin: 0 .5em 0 0;
+    position: relative;
+    top: 1px;
+    vertical-align: middle;
+  }
+  
+  .EPFLShareHorizontal {
+    display: inline-block;
+    vertical-align: middle;
+  }
+  
 }
+
+.EPFLShareUl {
+  @include clearfix;
+  
+  .EPFLShare {
+    @include transition-colors;
+    background: darken( $light-grey, 6%);
+    
+    &.EPFLShareFacebookBackground:hover {
+       background-color: #3C589A
+    }
+    
+    &.EPFLShareTwitterBackground:hover {
+       background-color: #55acee
+    }
+    
+    &.EPFLShareLinkedinBackground:hover {
+       background-color: #0077B5
+    }
+    
+    &.EPFLShareGoogleplusBackground:hover {
+       background-color: #dd4b39
+    }
+    
+    &.EPFLShareEmailBackground:hover {
+       background-color: #649A3F
+    }
+    
+    
+  }
+}
+
+
+
 
 /* Page title */
 
