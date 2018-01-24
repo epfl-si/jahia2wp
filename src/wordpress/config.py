@@ -93,27 +93,36 @@ class WPConfig:
                 else:
                     yield WPResult(wp_config.wp_site.path, "KO", "", "", "", "", "")
 
-    def run_wp_cli(self, command, encoding=sys.stdout.encoding, stdin=None):
+    def run_wp_cli(self, command, stdin_options=None, encoding=sys.stdout.encoding):
         """
         Execute a WP-CLI command. The command doesn't have to start with 'wp '. It will be added automatically, and
         it's the same for --path option.
 
         Argument keywords:
         command -- WP-CLI command to execute
+        stdin_options -- Options to add at the end of the command line. There value is taken from STDIN so it
+                         has to be at the end of the command line (after --path)
         encoding -- encoding to use
         stdin -- display json in standard input. This json is used by wpcli commands
         """
         cmd = ""
 
-        if stdin:
+        if stdin_options:
             cmd += " sh -c 'echo '\"'\"'"
-            cmd += stdin
+            cmd += stdin_options
             cmd += "'\"'\"' |"
 
         cmd += "wp {} --path='{}'".format(command, self.wp_site.path)
 
-        if stdin:
+        if stdin_options:
             cmd += "'"
+
+        # FIXME: Merge à discuter
+        # cmd = "wp {} --path='{}' {}".format(
+        #     command,
+        #     self.wp_site.path,
+        #     "" if stdin_options is None else stdin_options
+        # )
 
         return Utils.run_command(cmd, encoding=encoding)
 

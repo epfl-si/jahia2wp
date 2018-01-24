@@ -148,15 +148,7 @@ def unzip(site, username=None, host=None, zip_path=None, force=False, output_dir
 @dispatch.on('parse')
 def parse(site, output_dir=None, print_report=None, use_cache=None, site_path=None, **kwargs):
     """
-    Parse
-
-    :param site:
-    :param output_dir:
-    :param print_report:
-    :param use_cache:
-    :param site_path:
-    :param kwargs:
-    :return:
+    Parse the give site.
     """
     try:
         # create subdir in output_dir

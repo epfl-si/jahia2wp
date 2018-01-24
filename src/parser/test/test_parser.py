@@ -11,7 +11,7 @@ def get_sites():
     """
     Return the list of jahia sites for which we have data
     """
-    return ['dcsl', 'master']
+    return ['atelierweb2']
 
 
 @pytest.fixture(scope='module', params=get_sites())
@@ -20,10 +20,8 @@ def site(request):
     Load site only once
     """
     site_name = request.param
-    #site_data_path = os.path.join(DATA_PATH, request.param)
 
-    # FIXME
-    site_data_path = os.path.join("/mnt/export/build-dev/", request.param, request.param)
+    site_data_path = os.path.join(DATA_PATH, "jahia", request.param)
 
     return Site(site_data_path, site_name)
 
@@ -54,7 +52,7 @@ class TestSiteProperties:
     #     assert site.export_files == data['properties']['export_files']
 
     def test_languages(self, site, data):
-        assert site.languages == data['properties']['languages']
+        assert site.languages.sort() == data['properties']['languages'].sort()
 
     def test_title(self, site, data):
         assert site.title == data['properties']['title']
