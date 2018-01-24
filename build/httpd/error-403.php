@@ -1,6 +1,6 @@
 <?php
 
-  // Custom error page for ModSecurity errors.
+  /* Custom error page for 403 errors */
 
  $msg = $_SERVER["UNIQUE_ID"];
 ?>
