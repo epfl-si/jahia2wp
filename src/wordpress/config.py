@@ -93,7 +93,7 @@ class WPConfig:
                 else:
                     yield WPResult(wp_config.wp_site.path, "KO", "", "", "", "", "")
 
-    def run_wp_cli(self, command, encoding=sys.stdout.encoding):
+    def run_wp_cli(self, command, encoding=sys.stdout.encoding, stdin=None):
         """
         Execute a WP-CLI command. The command doesn't have to start with 'wp '. It will be added automatically, and
         it's the same for --path option.
@@ -101,8 +101,20 @@ class WPConfig:
         Argument keywords:
         command -- WP-CLI command to execute
         encoding -- encoding to use
+        stdin -- display json in standard input. This json is used by wpcli commands
         """
-        cmd = "wp {} --path='{}'".format(command, self.wp_site.path)
+        cmd = ""
+
+        if stdin:
+            cmd += " sh -c 'echo '\"'\"'"
+            cmd += stdin
+            cmd += "'\"'\"' |"
+
+        cmd += "wp {} --path='{}'".format(command, self.wp_site.path)
+
+        if stdin:
+            cmd += "'"
+
         return Utils.run_command(cmd, encoding=encoding)
 
     @property

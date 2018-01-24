@@ -1,4 +1,6 @@
 # pylint: disable=W1306
+from urllib.parse import urlsplit
+
 import os
 import shutil
 import logging
@@ -74,8 +76,11 @@ class WPGenerator:
             self._site_params['theme_faculty'] = None
 
         # validate input
-        self.validate_mockable_args(self._site_params['wp_site_url'])
-        validate_openshift_env(self._site_params['openshift_env'])
+        url = self._site_params['wp_site_url']
+        domain = urlsplit(url)[1].split(':')[0]
+        if domain != settings.HTTPD_CONTAINER:
+            self.validate_mockable_args(self._site_params['wp_site_url'])
+            validate_openshift_env(self._site_params['openshift_env'])
 
         if self._site_params['wp_site_title'] is not None:
             validate_string(self._site_params['wp_site_title'])
@@ -111,7 +116,7 @@ class WPGenerator:
     def __repr__(self):
         return repr(self.wp_site)
 
-    def run_wp_cli(self, command, encoding=sys.stdout.encoding):
+    def run_wp_cli(self, command, encoding=sys.stdout.encoding, stdin=None):
         """
         Execute a WP-CLI command using method present in WPConfig instance.
 
@@ -119,7 +124,7 @@ class WPGenerator:
         command -- WP-CLI command to execute. The command doesn't have to start with "wp ".
         encoding -- encoding to use
         """
-        return self.wp_config.run_wp_cli(command, encoding=encoding)
+        return self.wp_config.run_wp_cli(command, encoding=encoding, stdin=stdin)
 
     def run_mysql(self, command):
         """
@@ -154,7 +159,7 @@ class WPGenerator:
         """
         # check we have a clean place first
         if self.wp_config.is_installed:
-            logging.error("%s - WordPress files already found", repr(self))
+            logging.warning("%s - WordPress files already found", repr(self))
             return False
 
         # create specific mysql db and user

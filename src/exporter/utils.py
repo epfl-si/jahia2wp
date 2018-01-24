@@ -9,8 +9,8 @@ class Utils:
         return str.replace('"', '\\"')
 
     @staticmethod
-    def get_menu_id(b):
-        return b.decode("utf-8").replace('\n', '')
+    def get_menu_id(str):
+        return str.replace('\n', '')
 
     @staticmethod
     def convert_bytes(num):

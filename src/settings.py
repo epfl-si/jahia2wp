@@ -13,8 +13,7 @@ DATA_PATH = os.path.abspath(os.path.sep.join([SRC_DIR_PATH, '..', 'data']))
 JAHIA_DATA_PATH = os.path.join(DATA_PATH, 'jahia-data')
 WP_FILES_PATH = os.path.join(DATA_PATH, 'wp')
 
-WP_SUPERADMIN_USER = Utils.get_optional_env("WP_ADMIN_USER", "admin")
-WP_SUPERADMIN_PASSWORD = Utils.get_mandatory_env("WP_ADMIN_PASSWORD")
+HTTPD_CONTAINER = Utils.get_mandatory_env("HTTPD_CONTAINER")
 
 NB_DAYS_BEFORE_NEW_FULL = 7
 FULL_BACKUP_RETENTION_THEME = {

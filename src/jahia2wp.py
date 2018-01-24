@@ -8,8 +8,13 @@ Usage:
     [--username=<USERNAME> --host=<HOST> --zip-path=<ZIP_PATH> --force]
     [--output-dir=<OUTPUT_DIR>]
   jahia2wp.py parse                 <site>                          [--debug | --quiet]
-    [--output-dir=<OUTPUT_DIR>] [--print-report] 
+    [--output-dir=<OUTPUT_DIR>] [--print-report]
     [--use-cache] [--site-path=<SITE_PATH>]
+  jahia2wp.py export                <site>                          [--debug | --quiet]
+    [--to-wordpress | --clean-wordpress]
+    [--admin-password=<PASSWORD>]
+    [--site-host=<SITE_HOST> --site-path=<SITE_PATH>]
+    [--output-dir=<OUTPUT_DIR>]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--stop-on-errors]
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
@@ -42,9 +47,9 @@ Options:
 """
 import getpass
 import logging
-import os
 import pickle
 
+import os
 import yaml
 from docopt import docopt
 from docopt_dispatch import dispatch
@@ -52,6 +57,7 @@ from rotate_backups import RotateBackups
 
 import settings
 from crawler import JahiaCrawler
+from exporter.wp_exporter import WPExporter
 from parser.jahia_site import Site
 from settings import VERSION, FULL_BACKUP_RETENTION_THEME, INCREMENTAL_BACKUP_RETENTION_THEME, \
     DEFAULT_THEME_NAME, DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
@@ -142,15 +148,15 @@ def unzip(site, username=None, host=None, zip_path=None, force=False, output_dir
 @dispatch.on('parse')
 def parse(site, output_dir=None, print_report=None, use_cache=None, site_path=None, **kwargs):
     """
-    Parse 
-    
-    :param site: 
-    :param output_dir: 
-    :param print_report: 
-    :param use_cache: 
-    :param site_path: 
-    :param kwargs: 
-    :return: 
+    Parse
+
+    :param site:
+    :param output_dir:
+    :param print_report:
+    :param use_cache:
+    :param site_path:
+    :param kwargs:
+    :return:
     """
     try:
         # create subdir in output_dir
@@ -162,7 +168,7 @@ def parse(site, output_dir=None, print_report=None, use_cache=None, site_path=No
         # when using-cache: check if already parsed
         if use_cache:
             if os.path.exists(pickle_file):
-                with open(pickle_file, 'rb') as input:
+                with open(pickle_file, 'rb'):
                     logging.info("Loaded parsed site from %s" % pickle_file)
 
         logging.info("Parsing Jahia xml files from %s...", site_dir)
@@ -179,9 +185,90 @@ def parse(site, output_dir=None, print_report=None, use_cache=None, site_path=No
         # log success
         logging.info("Site %s successfully parsed" % site)
 
+        return site
+
     except Exception as err:
         logging.error("%s - parse - Exception: %s", site, err)
         raise err
+
+
+@dispatch.on('export')
+def export(site, to_wordpress=False, clean_wordpress=False, site_host=None,
+           site_path=None, output_dir=None, admin_password=None, **kwargs):
+
+    def get_lang_by_default(languages):
+        """
+        Return the default language
+        """
+        if len(languages) == 1:
+            return languages[0]
+        else:
+            # FIXME: Pour fixer cela, on doit savoir comment est définie la langue par défaut ?
+            return languages[0]
+
+    def get_host(site_host):
+        """
+        Return the host of the WordPress site
+        """
+        if site_host is None or 'localhost' in site_host:
+            return settings.HTTPD_CONTAINER
+        return site_host
+
+    # Download, Unzip the jahia zip and parse the xml data
+    site = parse(site)
+    site_host = get_host(site_host)
+
+    info = {
+
+        # FIXME: unit id et unit name devrait provenir de la source de vérité
+        'unit_id': "11122",
+        'unit_name': "dcsl",
+        'langs': ",".join(site.languages),
+        'wp_site_title': site.acronym[get_lang_by_default(site.languages)],
+        'wp_tagline': site.title[get_lang_by_default(site.languages)],
+
+        'openshift_env': settings.OPENSHIFT_ENV,
+        'wp_site_url': "http://{}/{}".format(site_host, site.name),
+
+        'updates_automatic': False,
+        'installs_locked': False,
+    }
+
+    wp_generator = WPGenerator(info, admin_password)
+    wp_generator.generate()
+
+    # TODO Install basic-auth
+
+    # FIXME pour le dev j'ai besoin de me connecter à l'admin sans Tequila
+    if site_host == settings.HTTPD_CONTAINER:
+        cmd = "option update plugin:epfl_tequila:has_dual_auth 1"
+        wp_generator.run_wp_cli(cmd)
+
+    if to_wordpress:
+        logging.info("Exporting %s to WordPress...", site.name)
+        wp_exporter = WPExporter(
+            site,
+            site_host,
+            site_path,
+            output_dir,
+            wp_generator
+        )
+        wp_exporter.import_all_data_to_wordpress()
+        logging.info("Site %s successfully exported to WordPress", site.name)
+
+    if clean_wordpress:
+        logging.info("Cleaning WordPress for %s...", site.name)
+        wp_exporter = WPExporter(
+            site,
+            site_host,
+            site_path,
+            output_dir,
+            wp_generator
+        )
+        wp_exporter.delete_all_content()
+        logging.info("Data of WordPress site %s successfully deleted", site.name)
+
+    # TODO Uninstall basic-auth
 
 
 @dispatch.on('check')

@@ -1,6 +1,7 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
 import logging
 import os
+import sys
 import timeit
 from collections import OrderedDict
 from datetime import timedelta, datetime
@@ -8,25 +9,24 @@ from datetime import timedelta, datetime
 import simplejson
 from bs4 import BeautifulSoup
 from wordpress_json import WordpressJsonWrapper, WordpressError
-
 from exporter.utils import Utils
-from settings import WP_SUPERADMIN_USER, WP_SUPERADMIN_PASSWORD
 
 
 class WPExporter:
+
     # this file is used to save data for importing data
     TRACER_FILE_NAME = "tracer_importing.csv"
 
     # list of mapping Jahia url and Wordpress url
     urls_mapping = []
 
-    def __init__(self, site, site_host, site_path, output_dir, wp_cli=None):
+    def __init__(self, site, site_host, site_path, output_dir, wp_generator):
         """
         site is the python object resulting from the parsing of Jahia XML.
         site_host is the domain name.
         site_path is the url part of the site without the site_name.
         output_dir is the path where information files will be generated.
-        wp_cli is the name of the container docker which contains wpcli.
+        wp_generator is an instance of WP_Generator and is used to call wpcli and admin user info.
         """
         self.site = site
         self.host = site_host
@@ -40,15 +40,26 @@ class WPExporter:
             'failed_menus': 0,
             'failed_widgets': 0,
         }
+
         # dictionary with the key 'wp_page_id' and the value 'wp_menu_id'
         self.menu_id_dict = {}
-        self.cli_container = wp_cli or "wp-cli-%s" % self.site.name
         self.output_dir = output_dir
+        self.wp_generator = wp_generator
 
         # we use the python-wordpress-json library to interact with the wordpress REST API
-        rest_api_url = "http://%s/%s/?rest_route=/wp/v2" % (self.host, self.path)
-        logging.info("setting up API on '%s', with %s:xxxxxx", rest_api_url, WP_SUPERADMIN_USER)
-        self.wp = WordpressJsonWrapper(rest_api_url, WP_SUPERADMIN_USER, WP_SUPERADMIN_PASSWORD)
+        rest_api_url = "http://{}/{}/?rest_route=/wp/v2".format(site_host, self.site.name)
+        logging.info("setting up API on '%s', with %s:xxxxxx", rest_api_url, wp_generator.wp_admin.username)
+        self.wp = WordpressJsonWrapper(rest_api_url, wp_generator.wp_admin.username, wp_generator.wp_admin.password)
+
+    def run_wp_cli(self, command, encoding=sys.stdout.encoding, stdin=None):
+        """
+        Execute a WP-CLI command using method present in WP_Generator instance.
+
+        Argument keywords:
+        command -- WP-CLI command to execute. The command doesn't have to start with "wp ".
+        encoding -- encoding to use
+        """
+        return self.wp_generator.run_wp_cli(command, encoding=encoding, stdin=stdin)
 
     def import_all_data_to_wordpress(self):
         """
@@ -58,7 +69,6 @@ class WPExporter:
             start_time = timeit.default_timer()
             tracer_path = os.path.join(self.output_dir, self.TRACER_FILE_NAME)
 
-            self.align_languages()
             self.import_medias()
             self.import_pages()
             self.set_frontpage()
@@ -72,7 +82,7 @@ class WPExporter:
 
             # write a csv file
             with open(tracer_path, 'a', newline='\n') as tracer:
-                tracer.write("%s, %s, %s, %s, %s, %s\n" % (
+                tracer.write("{}, {}, {}, {}, {}, {}\n".format(
                     '{0:%Y-%m-%d %H:%M:%S}'.format(datetime.now()),
                     self.site.name,
                     str(elapsed),
@@ -85,30 +95,20 @@ class WPExporter:
         except WordpressError as err:
             logging.error("%s - WP export - Exception while importing all data: %s", self.site.name, err)
             with open(tracer_path, 'a', newline='\n') as tracer:
-                tracer.write("%s, ERROR %s\n" % (self.site.name, str(err)))
+                tracer.write("{}, ERROR {}\n".format(self.site.name, str(err)))
                 tracer.flush()
-
-    def align_languages(self):
-        """
-        In docker configuration we create 2 languages (fr, en) by default.
-        If the current site is only in 1 language we need to delete the 'bad' language.
-        """
-        if len(self.site.languages) == 1:
-            for lang in (CONFIGURED_LANGUAGES - set(self.site.languages)):
-                logging.info("Deleting language %s", lang)
-                self.wp_cli('pll lang delete %s' % lang)
 
     def import_medias(self):
         """
         Import medias to Wordpress
         """
-        logging.info("{0:%Y-%m-%d %H:%M:%S} WP medias import start".format(datetime.now()))
+        logging.info("WP medias import start")
         for file in self.site.files:
             wp_media = self.import_media(file)
             if wp_media:
                 self.fix_file_links(file, wp_media)
                 self.report['files'] += 1
-        logging.info("{0:%Y-%m-%d %H:%M:%S} WP medias imported".format(datetime.now()))
+        logging.info("WP medias imported")
 
     def import_media(self, media):
         """
@@ -310,16 +310,16 @@ class WPExporter:
             cmd = "pll post create --post_type=page --stdin --porcelain"
             stdin = simplejson.dumps(info_page)
 
-            result = self.wp_cli(command=cmd, stdin=stdin)
+            result = self.run_wp_cli(command=cmd, stdin=stdin)
             if not result:
                 error_msg = "Could not created page"
                 logging.error(error_msg)
                 continue
 
-            wp_ids = result.decode("utf-8").split()
+            wp_ids = result.split()
 
             if len(wp_ids) != len(contents):
-                error_msg = "%s page created is not expected : %s" % (len(wp_ids), len(contents))
+                error_msg = "{} page created is not expected : {}".format(len(wp_ids), len(contents))
                 logging.error(error_msg)
                 continue
 
@@ -377,9 +377,9 @@ class WPExporter:
 
         cmd = "pll post create --post_type=page --stdin --porcelain"
         stdin = simplejson.dumps(info_page)
-        result = self.wp_cli(command=cmd, stdin=stdin)
+        result = self.run_wp_cli(command=cmd, stdin=stdin)
 
-        sitemap_ids = result.decode("utf-8").split()
+        sitemap_ids = result.split()
         for sitemap_wp_id, lang in zip(sitemap_ids, info_page.keys()):
             wp_page = self.update_page(
                 page_id=sitemap_wp_id,
@@ -398,7 +398,7 @@ class WPExporter:
                     content = Utils.escape_quotes(box.content)
                     cmd = 'widget add black-studio-tinymce page-widgets ' \
                           '--title="%s" --text="%s"' % (box.title, content)
-                    self.wp_cli(cmd)
+                    self.run_wp_cli(cmd)
 
                 # Import sidebar for one language only
                 break
@@ -414,17 +414,18 @@ class WPExporter:
         Create footer menu for sitemap page
         """
         footer_name = "footer_nav"
-        if lang != 'fr':
-            footer_name += "-%s" % lang
-        self.wp_cli('menu item add-post %s %s --porcelain' % (footer_name, sitemap_wp_id))
+        # FIXME: Pour fixer cela, on doit savoir comment est définie la langue par défaut
+        # if lang != 'fr':
+        #    footer_name += "-{}".format(lang)
+        self.run_wp_cli('menu item add-post {} {} --porcelain'.format(footer_name, sitemap_wp_id))
 
         # Create footer menu
-        cmd = "menu item add-custom %s Accessibility http://www.epfl.ch/accessibility.en.shtml​" % footer_name
-        self.wp_cli(cmd)
+        cmd = "menu item add-custom {} Accessibility http://www.epfl.ch/accessibility.en.shtml​".format(footer_name)
+        self.run_wp_cli(cmd)
 
         # legal notice
-        cmd = "menu item add-custom %s 'Legal Notice' http://mediacom.epfl.ch/disclaimer-en​" % footer_name
-        self.wp_cli(cmd)
+        cmd = "menu item add-custom {} 'Legal Notice' http://mediacom.epfl.ch/disclaimer-en​".format(footer_name)
+        self.run_wp_cli(cmd)
 
         # Report
         self.report['menus'] += 2
@@ -439,9 +440,9 @@ class WPExporter:
 
             parent_menu_id = self.menu_id_dict[page.parent.contents[lang].wp_id]
 
-            command = 'menu item add-post %s %s --parent-id=%s --porcelain' \
-                      % (menu_name, page.contents[lang].wp_id, parent_menu_id)
-            menu_id = self.wp_cli(command)
+            command = 'menu item add-post {} {} --parent-id={} --porcelain' \
+                      .format(menu_name, page.contents[lang].wp_id, parent_menu_id)
+            menu_id = self.run_wp_cli(command)
             if not menu_id:
                 logging.warning("Menu not created for page %s" % page.pid)
             else:
@@ -462,11 +463,13 @@ class WPExporter:
             for lang, page_content in self.site.homepage.contents.items():
 
                 menu_name = "Main"
-                if lang != 'fr':
-                    menu_name += '-%s' % lang
 
-                cmd = 'menu item add-post %s %s --classes=link-home --porcelain'
-                menu_id = self.wp_cli(cmd % (menu_name, page_content.wp_id))
+                # FIXME: Pour fixer cela, on doit savoir comment est définie la langue par défaut
+                # if lang != 'fr':
+                #    menu_name += '-{}'.format(lang)
+
+                cmd = 'menu item add-post {} {} --classes=link-home --porcelain'.format(menu_name, page_content.wp_id)
+                menu_id = self.run_wp_cli(cmd)
                 if not menu_id:
                     logging.warning("Menu not created for page  %s" % page_content.pid)
                 else:
@@ -481,8 +484,9 @@ class WPExporter:
                         continue
 
                     if homepage_child.contents[lang].wp_id:
-                        cmd = 'menu item add-post %s %s --porcelain'
-                        menu_id = self.wp_cli(cmd % (menu_name, homepage_child.contents[lang].wp_id))
+                        cmd = 'menu item add-post {} {} --porcelain' \
+                              .format(menu_name, homepage_child.contents[lang].wp_id)
+                        menu_id = self.run_wp_cli(cmd)
                         if not menu_id:
                             logging.warning("Menu not created %s for page " % homepage_child.pid)
                         else:
@@ -507,11 +511,11 @@ class WPExporter:
             raise Exception("No homepage defined for site")
 
         # call wp-cli
-        self.wp_cli('option update show_on_front page')
+        self.run_wp_cli('option update show_on_front page')
 
         for lang in self.site.homepage.contents.keys():
             frontpage_id = self.site.homepage.contents[lang].wp_id
-            result = self.wp_cli('option update page_on_front %s' % frontpage_id)
+            result = self.run_wp_cli('option update page_on_front {}'.format(frontpage_id))
             if result is not None:
                 # Set on only one language is sufficient
                 logging.info("WP frontpage setted")
@@ -555,11 +559,21 @@ class WPExporter:
         Delete all widgets
         """
         cmd = "widget list page-widgets --fields=id --format=csv"
-        widgets_id_list = self.wp_cli(cmd).decode("UTF-8").split("\n")[1:-1]
+        widgets_id_list = self.run_wp_cli(cmd).split("\n")[1:]
         for widget_id in widgets_id_list:
-            cmd = "widget delete " + widget_id
-            self.wp_cli(cmd)
+            cmd = "widget delete {}".format(widget_id)
+            self.run_wp_cli(cmd)
         logging.info("All widgets deleted")
+
+    def delete_menu(self):
+        """
+        Delete all menus
+        """
+        cmd = "wp menu list --fields=term_id --format=csv"
+        menus_id_list = self.run_wp_cli(cmd).split("\n")[1:]
+        for menu_id in menus_id_list:
+            cmd = "wp menu delete {}".format(menu_id)
+            self.run_wp_cli(cmd)
 
     def display_report(self):
         """
