@@ -196,11 +196,51 @@ function get_breadcrumb() {
        
     // Build the breadcrums
     echo '<ol id="' . $breadcrums_id . '" class="' . $breadcrums_class . '">';
-       
-    // Home page
-    echo '<li class="item-home"><a class="bread-link bread-home" href="' . get_home_url() . '" title="' . $home_title . '">' . $home_title . '</a></li>';
-    //echo '<li class="separator separator-home"> ' . $separator . ' </li>';
-       
+
+
+    // On a sub-site like https://localhost/site1/site2, on the page https://localhost/site1/site2/page
+    // the default breadcrum looks like "Homepage > page" because the instance of wordpress for site2
+    // considers https://localhost/site1/site2 to be the Homepage.
+    //
+    // So the following code parses the URL and creates a base breadcrum that looks like :
+    // "localhost > site1 > site2".
+    // Then this base breadcrum is used as a prefix replacing "Homepage" in the original breadcrum.
+    //
+    // The value is cached during one hour to avoid parsing the url on every page load.
+    //
+    // The transient API is used because the basic Cache Object does not persist data if no persistant
+    // cache plugin is used. The transient API uses the Cache Object if such a plugin is setup, otherwise
+    // it stores the value in the database as an option.
+    if (false === ($base_breadcrum = get_transient('base_breadcrum'))) {
+
+        $site_url = site_url();
+        $breadcrum_parts = Array();
+
+        $temp_url = $site_url;
+        while ($temp_url != 'http:/' && $temp_url != 'https:/') {
+            $name = basename($temp_url);
+            $breadcrum_parts[$temp_url] = $name;
+            $temp_url = substr($temp_url, 0, strrpos($temp_url, "/"));
+        }
+
+        $breadcrum_parts = array_reverse($breadcrum_parts);
+        $base_breadcrum = '';
+
+        $i = 0;
+        foreach($breadcrum_parts as $url => $name){
+            if ($i == 0) {
+                $base_breadcrum .= '<li class="item-home"><a class="bread-link bread-home" href="' . $url . '" title="' . $name . '">' . $name . '</a></li>';
+            } else {
+                $base_breadcrum .= '<li class="item-parent"><a class="bread-parent" href="' . $url . '" title="' . $name . '">' . $name . '</a></li>';
+            }
+            $i++;
+        }
+
+        set_transient('base_breadcrum', $base_breadcrum, 1 * HOUR_IN_SECONDS);
+    }
+
+    echo $base_breadcrum;
+
     if ( is_archive() && !is_tax() && !is_category() && !is_tag() ) {
           
         echo '<li class="item-current item-archive"><strong class="bread-current bread-archive">' . post_type_archive_title($prefix, false) . '</strong></li>';
