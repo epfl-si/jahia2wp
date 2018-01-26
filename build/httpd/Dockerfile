@@ -24,7 +24,7 @@ RUN mkdir /var/www/error
 COPY apache2.conf /etc/apache2/
 COPY restrict-wp-admin.conf /etc/apache2/conf-enabled/
 COPY error-pages.conf /etc/apache2/conf-enabled/
-COPY error-403.php /var/www/error/
+COPY 403.php /var/www/error/
 COPY modsecurity.conf /etc/modsecurity/
 COPY modsecurity-whitelist.conf /etc/modsecurity/
 COPY docker-entrypoint.sh /
