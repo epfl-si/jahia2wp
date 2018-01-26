@@ -15,6 +15,9 @@ Usage:
     [--admin-password=<PASSWORD>]
     [--site-host=<SITE_HOST> --site-path=<SITE_PATH>]
     [--output-dir=<OUTPUT_DIR>]
+    [--installs-locked=<BOOLEAN> --updates-automatic=<BOOLEAN>]
+    [--openshift-env=<OPENSHIFT_ENV>]
+    [--theme=<THEME> --unit-name=<UNIT_NAME> --wp-site-url=<WP_SITE_URL>]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--stop-on-errors]
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
@@ -27,6 +30,7 @@ Usage:
   jahia2wp.py version               <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py admins                <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate-many         <csv_file>                      [--debug | --quiet]
+  jahia2wp.py export-many           <csv_file>                      [--debug | --quiet]
   jahia2wp.py backup-many           <csv_file>                      [--debug | --quiet]
   jahia2wp.py rotate-backup         <csv_file>          [--dry-run] [--debug | --quiet]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
@@ -53,6 +57,7 @@ import os
 import yaml
 from docopt import docopt
 from docopt_dispatch import dispatch
+from epflldap.ldap_search import get_unit_id
 from rotate_backups import RotateBackups
 
 import settings
@@ -185,17 +190,44 @@ def parse(site, output_dir=None, print_report=None, use_cache=None, site_path=No
 
 
 @dispatch.on('export')
-def export(site, to_wordpress=False, clean_wordpress=False, site_host=None,
-           site_path=None, output_dir=None, admin_password=None, **kwargs):
+def export(
+        site,
+        to_wordpress=False, clean_wordpress=False,
+        admin_password=None,
+        site_host=None, site_path=None,
+        output_dir=None,
+        theme=None, unit_name=None, wp_site_url=None, installs_locked=False, updates_automatic=False, openshift_env=None,
+        **kwargs):
+
+    """
+    :param site: 
+    :param to_wordpress: 
+    :param clean_wordpress: 
+    :param admin_password: 
+    :param site_host: 
+    :param site_path: 
+    :param output_dir: 
+    :param theme: 
+    :param unit_name: 
+    :param wp_site_url: 
+    :param installs_locked: 
+    :param updates_automatic: 
+    :param openshift_env: 
+    :param kwargs: 
+    :return: 
+    """
 
     def get_lang_by_default(languages):
         """
         Return the default language
+        
+        If the site is in multiple languages, English is the default language
         """
         if len(languages) == 1:
             return languages[0]
+        elif "en" in languages:
+            return "en"
         else:
-            # FIXME: Pour fixer cela, on doit savoir comment est définie la langue par défaut ?
             return languages[0]
 
     def get_host(site_host):
@@ -221,6 +253,8 @@ def export(site, to_wordpress=False, clean_wordpress=False, site_host=None,
         """
         Active dual authenticate for development only
         """
+
+        # FIXME: Si on est en DEV mais cette condition est pourri
         if site_host == settings.HTTPD_CONTAINER:
             cmd = "option update plugin:epfl_tequila:has_dual_auth 1"
             wp_generator.run_wp_cli(cmd)
@@ -247,22 +281,31 @@ def export(site, to_wordpress=False, clean_wordpress=False, site_host=None,
     site = parse(site)
     site_host = get_host(site_host)
 
-    info = {
+    # FIXME: Si on est en DEV mais cette condition est pourri
+    if site_host == settings.HTTPD_CONTAINER:
+        openshift_env = settings.OPENSHIFT_ENV
+        wp_site_url = "http://{}/{}".format(site_host, site.name)
+        installs_locked = False
+        updates_automatic = False
+        unit_name = "dcsl"
 
-        # FIXME: unit id et unit name devrait provenir de la source de vérité
-        'unit_id': "11122",
-        'unit_name': "dcsl",
+    info = {
+        # info from parser
         'langs': ",".join(site.languages),
         'wp_site_title': site.acronym[get_lang_by_default(site.languages)],
         'wp_tagline': site.title[get_lang_by_default(site.languages)],
+        'theme_faculty': site.theme[get_lang_by_default(site.languages)],
+        'unit_name': unit_name,
 
-        'openshift_env': settings.OPENSHIFT_ENV,
-        'wp_site_url': "http://{}/{}".format(site_host, site.name),
+        # info from source of truth
+        'openshift_env': openshift_env,
+        'wp_site_url': wp_site_url,
+        'theme': theme,
+        'updates_automatic': updates_automatic,
+        'installs_locked': installs_locked,
 
-        'theme': "epfl-master",
-        'theme_faculty': "ic",
-        'updates_automatic': False,
-        'installs_locked': False,
+        # info determined
+        'unit_id': get_unit_id(unit_name),
     }
 
     # Generate a WordPress site
@@ -297,6 +340,42 @@ def export(site, to_wordpress=False, clean_wordpress=False, site_host=None,
         logging.info("Data of WordPress site %s successfully deleted", site.name)
 
     uninstall_basic_auth_plugin()
+
+
+@dispatch.on('export-many')
+def export_many(csv_file, **kwargs):
+
+    # CSV file validation
+    # validator = _check_csv(csv_file)
+
+    rows = Utils.csv_filepath_to_dict(csv_file)
+
+    # create a new WP site for each row
+
+    # FIXME: dès que veritas a été adapté
+    # print("\n{} websites will now be generated...".format(len(validator.rows)))
+    # for index, row in enumerate(validator.rows):
+    for index, row in enumerate(rows):
+
+        print("\nIndex #{}:\n---".format(index))
+        # CSV file is utf-8 so we encode correctly the string to avoid errors during logging.debug display
+        row_bytes = repr(row).encode('utf-8')
+        logging.debug("%s - row %s: %s", row["wp_site_url"], index, row_bytes)
+
+        export(
+            site=row['Jahia_zip'],
+            to_wordpress=True,
+            clean_wordpress=False,
+            site_host=None,
+            site_path=None,
+            output_dir=None,
+            unit_name=row['unit_name'],
+            theme=row['theme'],
+            installs_locked=row['installs_locked'],
+            updates_automatic=row['updates_automatic'],
+            wp_site_url=row['wp_site_url'],
+            openshift_env= row['openshift_env'],
+        )
 
 
 @dispatch.on('check')
