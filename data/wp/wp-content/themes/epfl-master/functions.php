@@ -196,11 +196,55 @@ function get_breadcrumb() {
        
     // Build the breadcrums
     echo '<ol id="' . $breadcrums_id . '" class="' . $breadcrums_class . '">';
-       
-    // Home page
-    echo '<li class="item-home"><a class="bread-link bread-home" href="' . get_home_url() . '" title="' . $home_title . '">' . $home_title . '</a></li>';
-    //echo '<li class="separator separator-home"> ' . $separator . ' </li>';
-       
+
+
+    // On a sub-site like https://localhost/site1/site2, on the page https://localhost/site1/site2/page
+    // the default breadcrumb looks like "Homepage > page" because the instance of wordpress for site2
+    // considers https://localhost/site1/site2 to be the Homepage.
+    //
+    // So the following code parses the URL and creates a base breadcrumb that looks like :
+    // "localhost > site1 > site2".
+    // Then this base breadcrumb is used as a prefix replacing "Homepage" in the original breadcrumb.
+    //
+    // The value is cached during one hour to avoid parsing the url on every page load.
+    //
+    // The transient API is used because the basic Cache Object does not persist data if no persistent
+    // cache plugin is used. The transient API uses the Cache Object if such a plugin is setup, otherwise
+    // it stores the value in the database as an option.
+    if (false === ($base_breadcrumb = get_transient('base_breadcrumb'))) {
+
+        $site_url = site_url();
+        $breadcrumb_parts = Array();
+
+        $temp_url = $site_url;
+        // Constructs an array mapping URLs to names. For example, on the site https://localhost/site1 :
+        // ["https://localhost/site1" => "site1", "https://localhost" => "locahost"]
+        while ($temp_url != 'http:/' && $temp_url != 'https:/') {
+            $name = basename($temp_url);
+            $breadcrumb_parts[$temp_url] = $name;
+            // Remove the last part of the URL :
+            // "https://localhost/site1" => "https://localhost"
+            $temp_url = substr($temp_url, 0, strrpos($temp_url, "/"));
+        }
+
+        $breadcrumb_parts = array_reverse($breadcrumb_parts);
+        $base_breadcrumb = '';
+
+        $i = 0;
+        foreach($breadcrumb_parts as $url => $name){
+            if ($i == 0) {
+                $base_breadcrumb .= '<li class="item-home"><a class="bread-link bread-home" href="' . $url . '" title="' . $name . '">' . $name . '</a></li>';
+            } else {
+                $base_breadcrumb .= '<li class="item-parent"><a class="bread-parent" href="' . $url . '" title="' . $name . '">' . $name . '</a></li>';
+            }
+            $i++;
+        }
+
+        set_transient('base_breadcrumb', $base_breadcrumb, 1 * HOUR_IN_SECONDS);
+    }
+
+    echo $base_breadcrumb;
+
     if ( is_archive() && !is_tax() && !is_category() && !is_tag() ) {
           
         echo '<li class="item-current item-archive"><strong class="bread-current bread-archive">' . post_type_archive_title($prefix, false) . '</strong></li>';
