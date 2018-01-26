@@ -24,6 +24,7 @@ services:
     image: epflidevelop/os-wp-httpd
     volumes:
       - ./volumes/srv:/srv
+      - ./build/httpd:/srv/httpd
     links:
       - db:db
     environment:

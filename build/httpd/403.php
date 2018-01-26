@@ -2,16 +2,20 @@
 
   /* Custom error page for 403 errors */
 
+  // request variables
   $request_id  = $_SERVER["UNIQUE_ID"];
   $request_uri = $_SERVER["REQUEST_URI"];
   $request_ip  = $_SERVER["REMOTE_ADDR"];
 
-  $error_type = "other";
-
   // is the requested page the login or wp-admin?
   $is_login = strpos($request_uri, "wp-login.php") !== false;
   $is_wp_admin = strpos($request_uri, "wp-admin") !== false;
+
+  // are we inside the EPFL campus?
   $is_inside_epfl = strpos($request_ip, "128.17") !== false;
+
+  // the error type
+  $error_type = "other";
 
   // check if
   if (($is_login || $is_wp_admin) && !$is_inside_epfl)
