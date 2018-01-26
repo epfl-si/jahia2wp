@@ -211,35 +211,35 @@ function get_breadcrumb() {
     // The transient API is used because the basic Cache Object does not persist data if no persistant
     // cache plugin is used. The transient API uses the Cache Object if such a plugin is setup, otherwise
     // it stores the value in the database as an option.
-    if (false === ($base_breadcrum = get_transient('base_breadcrum'))) {
+    if (false === ($base_breadcrumb = get_transient('base_breadcrumb'))) {
 
         $site_url = site_url();
-        $breadcrum_parts = Array();
+        $breadcrumb_parts = Array();
 
         $temp_url = $site_url;
         while ($temp_url != 'http:/' && $temp_url != 'https:/') {
             $name = basename($temp_url);
-            $breadcrum_parts[$temp_url] = $name;
+            $breadcrumb_parts[$temp_url] = $name;
             $temp_url = substr($temp_url, 0, strrpos($temp_url, "/"));
         }
 
-        $breadcrum_parts = array_reverse($breadcrum_parts);
-        $base_breadcrum = '';
+        $breadcrumb_parts = array_reverse($breadcrumb_parts);
+        $base_breadcrumb = '';
 
         $i = 0;
-        foreach($breadcrum_parts as $url => $name){
+        foreach($breadcrumb_parts as $url => $name){
             if ($i == 0) {
-                $base_breadcrum .= '<li class="item-home"><a class="bread-link bread-home" href="' . $url . '" title="' . $name . '">' . $name . '</a></li>';
+                $base_breadcrumb .= '<li class="item-home"><a class="bread-link bread-home" href="' . $url . '" title="' . $name . '">' . $name . '</a></li>';
             } else {
-                $base_breadcrum .= '<li class="item-parent"><a class="bread-parent" href="' . $url . '" title="' . $name . '">' . $name . '</a></li>';
+                $base_breadcrumb .= '<li class="item-parent"><a class="bread-parent" href="' . $url . '" title="' . $name . '">' . $name . '</a></li>';
             }
             $i++;
         }
 
-        set_transient('base_breadcrum', $base_breadcrum, 1 * HOUR_IN_SECONDS);
+        set_transient('base_breadcrumb', $base_breadcrumb, 1 * HOUR_IN_SECONDS);
     }
 
-    echo $base_breadcrum;
+    echo $base_breadcrumb;
 
     if ( is_archive() && !is_tax() && !is_category() && !is_tag() ) {
           
