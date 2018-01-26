@@ -208,7 +208,7 @@ function get_breadcrumb() {
     //
     // The value is cached during one hour to avoid parsing the url on every page load.
     //
-    // The transient API is used because the basic Cache Object does not persist data if no persistant
+    // The transient API is used because the basic Cache Object does not persist data if no persistent
     // cache plugin is used. The transient API uses the Cache Object if such a plugin is setup, otherwise
     // it stores the value in the database as an option.
     if (false === ($base_breadcrumb = get_transient('base_breadcrumb'))) {
