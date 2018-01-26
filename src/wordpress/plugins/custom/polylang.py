@@ -85,11 +85,15 @@ class WPPolylangConfig(WPPluginConfig):
 
         # create menus if they don't exist
         logging.info("{} - Polylang - Creating menus...".format(self.wp_site))
-        if not self._menu_exists("Main"):
-            self.run_wp_cli("pll menu create Main top")
+        for language in languages:
 
-        if not self._menu_exists("footer_nav"):
-            self.run_wp_cli("pll menu create footer_nav footer_nav")
+            main_menu = "Main-{}".format(language)
+            if not self._menu_exists(main_menu):
+                self.run_wp_cli("pll menu create {} top".format(main_menu))
+
+            footer_nav_menu = "footer_nav-{}".format(language)
+            if not self._menu_exists(footer_nav_menu):
+                self.run_wp_cli("pll menu create {} footer_nav".format(footer_nav_menu))
 
         # configure raw plugin
         super(WPPolylangConfig, self).configure(force)

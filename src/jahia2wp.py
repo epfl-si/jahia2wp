@@ -206,6 +206,43 @@ def export(site, to_wordpress=False, clean_wordpress=False, site_host=None,
             return settings.HTTPD_CONTAINER
         return site_host
 
+    def install_basic_auth_plugin():
+        """
+        Install basic auth plugin
+
+        This plugin is used to communicate with REST API of WordPress site.
+        """
+        zip_path = os.path.join(settings.EXPORTER_DATA_PATH, 'Basic-Auth.zip')
+        cmd = "plugin install --activate {}".format(zip_path)
+        wp_generator.run_wp_cli(cmd)
+        logging.debug("Basic-Auth plugin is installed and activated")
+
+    def active_dual_auth_for_dev_only():
+        """
+        Active dual authenticate for development only
+        """
+        if site_host == settings.HTTPD_CONTAINER:
+            cmd = "option update plugin:epfl_tequila:has_dual_auth 1"
+            wp_generator.run_wp_cli(cmd)
+            logging.debug("Dual authenticate is activated")
+
+    def uninstall_basic_auth_plugin():
+        """
+        Uninstall basic auth plugin
+
+        This plugin is used to communicate with REST API of WordPress site.
+        """
+        # Deactivate basic-auth plugin
+        cmd = "plugin deactivate Basic-Auth"
+        wp_generator.run_wp_cli(cmd)
+        logging.debug("Basic-Auth plugin is deactivated")
+
+        # Uninstall basic-auth plugin
+        cmd = "plugin uninstall Basic-Auth"
+        wp_generator.run_wp_cli(cmd)
+        logging.debug("Basic-Auth plugin is uninstalled")
+
+
     # Download, Unzip the jahia zip and parse the xml data
     site = parse(site)
     site_host = get_host(site_host)
@@ -222,19 +259,18 @@ def export(site, to_wordpress=False, clean_wordpress=False, site_host=None,
         'openshift_env': settings.OPENSHIFT_ENV,
         'wp_site_url': "http://{}/{}".format(site_host, site.name),
 
+        'theme': "epfl-master",
+        'theme_faculty': "ic",
         'updates_automatic': False,
         'installs_locked': False,
     }
 
+    # Generate a WordPress site
     wp_generator = WPGenerator(info, admin_password)
     wp_generator.generate()
 
-    # TODO Install basic-auth
-
-    # FIXME pour le dev j'ai besoin de me connecter à l'admin sans Tequila
-    if site_host == settings.HTTPD_CONTAINER:
-        cmd = "option update plugin:epfl_tequila:has_dual_auth 1"
-        wp_generator.run_wp_cli(cmd)
+    install_basic_auth_plugin()
+    active_dual_auth_for_dev_only()
 
     if to_wordpress:
         logging.info("Exporting %s to WordPress...", site.name)
@@ -260,7 +296,7 @@ def export(site, to_wordpress=False, clean_wordpress=False, site_host=None,
         wp_exporter.delete_all_content()
         logging.info("Data of WordPress site %s successfully deleted", site.name)
 
-    # TODO Uninstall basic-auth
+    uninstall_basic_auth_plugin()
 
 
 @dispatch.on('check')

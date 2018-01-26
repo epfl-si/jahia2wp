@@ -51,7 +51,7 @@ class WPExporter:
         logging.info("setting up API on '%s', with %s:xxxxxx", rest_api_url, wp_generator.wp_admin.username)
         self.wp = WordpressJsonWrapper(rest_api_url, wp_generator.wp_admin.username, wp_generator.wp_admin.password)
 
-    def run_wp_cli(self, command, encoding=sys.stdout.encoding, stdin=None):
+    def run_wp_cli(self, command, encoding=sys.stdout.encoding, stdin_options=None):
         """
         Execute a WP-CLI command using method present in WP_Generator instance.
 
@@ -59,7 +59,7 @@ class WPExporter:
         command -- WP-CLI command to execute. The command doesn't have to start with "wp ".
         encoding -- encoding to use
         """
-        return self.wp_generator.run_wp_cli(command, encoding=encoding, stdin=stdin)
+        return self.wp_generator.run_wp_cli(command, encoding=encoding, stdin_options=stdin_options)
 
     def import_all_data_to_wordpress(self):
         """
@@ -310,7 +310,7 @@ class WPExporter:
             cmd = "pll post create --post_type=page --stdin --porcelain"
             stdin = simplejson.dumps(info_page)
 
-            result = self.run_wp_cli(command=cmd, stdin=stdin)
+            result = self.run_wp_cli(command=cmd, stdin_options=stdin)
             if not result:
                 error_msg = "Could not created page"
                 logging.error(error_msg)
@@ -377,7 +377,7 @@ class WPExporter:
 
         cmd = "pll post create --post_type=page --stdin --porcelain"
         stdin = simplejson.dumps(info_page)
-        result = self.run_wp_cli(command=cmd, stdin=stdin)
+        result = self.run_wp_cli(command=cmd, stdin_options=stdin)
 
         sitemap_ids = result.split()
         for sitemap_wp_id, lang in zip(sitemap_ids, info_page.keys()):
@@ -413,10 +413,8 @@ class WPExporter:
         """
         Create footer menu for sitemap page
         """
-        footer_name = "footer_nav"
-        # FIXME: Pour fixer cela, on doit savoir comment est définie la langue par défaut
-        # if lang != 'fr':
-        #    footer_name += "-{}".format(lang)
+        # FIXME: est ce bien fait pour toutes les langues ?
+        footer_name = "footer_nav-{}".format(lang)
         self.run_wp_cli('menu item add-post {} {} --porcelain'.format(footer_name, sitemap_wp_id))
 
         # Create footer menu
@@ -456,17 +454,14 @@ class WPExporter:
     def populate_menu(self):
         """
         Add pages into the menu in wordpress.
-        This menu needs to be created before hand.
+        This menu was created when configuring the polylang plugin.
         """
         try:
             # Create homepage menu
             for lang, page_content in self.site.homepage.contents.items():
 
-                menu_name = "Main"
-
-                # FIXME: Pour fixer cela, on doit savoir comment est définie la langue par défaut
-                # if lang != 'fr':
-                #    menu_name += '-{}'.format(lang)
+                # FIXME: Est ce bien fait pour toutes les langues ?
+                menu_name = 'Main-{}'.format(lang)
 
                 cmd = 'menu item add-post {} {} --classes=link-home --porcelain'.format(menu_name, page_content.wp_id)
                 menu_id = self.run_wp_cli(cmd)
