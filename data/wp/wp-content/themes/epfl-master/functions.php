@@ -199,12 +199,12 @@ function get_breadcrumb() {
 
 
     // On a sub-site like https://localhost/site1/site2, on the page https://localhost/site1/site2/page
-    // the default breadcrum looks like "Homepage > page" because the instance of wordpress for site2
+    // the default breadcrumb looks like "Homepage > page" because the instance of wordpress for site2
     // considers https://localhost/site1/site2 to be the Homepage.
     //
-    // So the following code parses the URL and creates a base breadcrum that looks like :
+    // So the following code parses the URL and creates a base breadcrumb that looks like :
     // "localhost > site1 > site2".
-    // Then this base breadcrum is used as a prefix replacing "Homepage" in the original breadcrum.
+    // Then this base breadcrumb is used as a prefix replacing "Homepage" in the original breadcrumb.
     //
     // The value is cached during one hour to avoid parsing the url on every page load.
     //
@@ -217,9 +217,13 @@ function get_breadcrumb() {
         $breadcrumb_parts = Array();
 
         $temp_url = $site_url;
+        // Constructs an array mapping URLs to names. For example, on the site https://localhost/site1 :
+        // ["https://localhost/site1" => "site1", "https://localhost" => "locahost"]
         while ($temp_url != 'http:/' && $temp_url != 'https:/') {
             $name = basename($temp_url);
             $breadcrumb_parts[$temp_url] = $name;
+            // Remove the last part of the URL :
+            // "https://localhost/site1" => "https://localhost"
             $temp_url = substr($temp_url, 0, strrpos($temp_url, "/"));
         }
 
