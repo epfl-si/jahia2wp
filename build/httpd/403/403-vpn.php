@@ -5,7 +5,7 @@
 ?>
 
 <p>
-  You cannot access the administration pages from outside the EPFL campus.
+  You cannot access the administration pages from outside EPFL.
 </p>
 
 <p>
@@ -14,6 +14,6 @@
 </p>
 
 <p>
-  If you have troubles using the VPN you can
-  <a href="https://it.epfl.ch/help/">contact the help desk.</a>
+  If you have troubles using VPN, you can
+  <a href="mailto:1234@epfl.ch?Subject=VPN%20access">contact the help desk.</a>
 </p>
