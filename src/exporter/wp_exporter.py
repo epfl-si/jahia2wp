@@ -300,7 +300,12 @@ class WPExporter:
 
                 # create the page content
                 for box in page.contents[lang].boxes:
+
+                    contents[lang] += '<div class="{}">'.format(box.type + "Box")
+                    if box.title:
+                        contents[lang] += '<h3 id="{0}">{0}</h3>'.format(box.title)
                     contents[lang] += box.content
+                    contents[lang] += "</div>"
 
                 info_page[lang] = {
                     'post_name': page.contents[lang].path,
@@ -395,9 +400,12 @@ class WPExporter:
         try:
             for lang in self.site.homepage.contents.keys():
                 for box in self.site.homepage.contents[lang].sidebar.boxes:
-                    content = Utils.escape_quotes(box.content)
+                    content = "<div class='box box-flat-panel home-navpanel local-color coloredTextBox'>"
+                    content += Utils.escape_quotes(box.content)
+                    content += "</div>"
                     cmd = 'widget add black-studio-tinymce page-widgets ' \
                           '--title="%s" --text="%s"' % (box.title, content)
+
                     self.run_wp_cli(cmd)
 
                 # Import sidebar for one language only

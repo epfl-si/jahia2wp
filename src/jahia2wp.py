@@ -31,6 +31,7 @@ Usage:
   jahia2wp.py admins                <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate-many         <csv_file>                      [--debug | --quiet]
   jahia2wp.py export-many           <csv_file>                      [--debug | --quiet]
+    [--output-dir=<OUTPUT_DIR>]
   jahia2wp.py backup-many           <csv_file>                      [--debug | --quiet]
   jahia2wp.py rotate-backup         <csv_file>          [--dry-run] [--debug | --quiet]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
@@ -253,9 +254,7 @@ def export(
         """
         Active dual authenticate for development only
         """
-
-        # FIXME: Si on est en DEV mais cette condition est pourri
-        if site_host == settings.HTTPD_CONTAINER:
+        if settings.LOCAL_ENVIRONMENT:
             cmd = "option update plugin:epfl_tequila:has_dual_auth 1"
             wp_generator.run_wp_cli(cmd)
             logging.debug("Dual authenticate is activated")
@@ -276,18 +275,17 @@ def export(
         wp_generator.run_wp_cli(cmd)
         logging.debug("Basic-Auth plugin is uninstalled")
 
-
     # Download, Unzip the jahia zip and parse the xml data
     site = parse(site)
-    site_host = get_host(site_host)
 
-    # FIXME: Si on est en DEV mais cette condition est pourri
-    if site_host == settings.HTTPD_CONTAINER:
+    if settings.LOCAL_ENVIRONMENT:
+        site_host = get_host(site_host=None)
         openshift_env = settings.OPENSHIFT_ENV
         wp_site_url = "http://{}/{}".format(site_host, site.name)
         installs_locked = False
         updates_automatic = False
-        unit_name = "dcsl"
+        admin_password = "admin"
+        unit_name = site.name
 
     info = {
         # info from parser
@@ -343,11 +341,13 @@ def export(
 
 
 @dispatch.on('export-many')
-def export_many(csv_file, **kwargs):
+def export_many(csv_file, output_dir=None, **kwargs):
 
+    # FIXME: output_dir is None, read a environment variable
+
+    # FIXME : validation
     # CSV file validation
     # validator = _check_csv(csv_file)
-
     rows = Utils.csv_filepath_to_dict(csv_file)
 
     # create a new WP site for each row
@@ -368,7 +368,7 @@ def export_many(csv_file, **kwargs):
             clean_wordpress=False,
             site_host=None,
             site_path=None,
-            output_dir=None,
+            output_dir=output_dir,
             unit_name=row['unit_name'],
             theme=row['theme'],
             installs_locked=row['installs_locked'],
