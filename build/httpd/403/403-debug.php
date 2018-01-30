@@ -4,7 +4,7 @@
 
  ?>
 
- <br/><br/><br/><br/>
+ <table style="margin-top:10em">
  <table>
    <tr><th>Request ID</th><td><?php echo $request_id ?></td></tr>
    <tr><th>Request URI</th><td><?php echo htmlentities($request_uri) ?></td></tr>
