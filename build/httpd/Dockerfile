@@ -19,12 +19,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-get clean
 
 COPY apache2.conf /etc/apache2/
+COPY ports.conf /etc/apache2/
 COPY restrict-wp-admin.conf /etc/apache2/conf-enabled/
 COPY modsecurity.conf /etc/modsecurity/
 COPY modsecurity-whitelist.conf /etc/modsecurity/
 COPY docker-entrypoint.sh /
 RUN chmod a+x /docker-entrypoint.sh
 
-EXPOSE 80 443
+EXPOSE 8080 8443
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
