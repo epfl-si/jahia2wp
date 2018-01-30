@@ -51,7 +51,7 @@ class WPExporter:
         logging.info("setting up API on '%s', with %s:xxxxxx", rest_api_url, wp_generator.wp_admin.username)
         self.wp = WordpressJsonWrapper(rest_api_url, wp_generator.wp_admin.username, wp_generator.wp_admin.password)
 
-    def run_wp_cli(self, command, encoding=sys.stdout.encoding, stdin_options=None):
+    def run_wp_cli(self, command, encoding=sys.stdout.encoding, pipe_input=None, stdin_options=None):
         """
         Execute a WP-CLI command using method present in WP_Generator instance.
 
@@ -59,7 +59,7 @@ class WPExporter:
         command -- WP-CLI command to execute. The command doesn't have to start with "wp ".
         encoding -- encoding to use
         """
-        return self.wp_generator.run_wp_cli(command, encoding=encoding, stdin_options=stdin_options)
+        return self.wp_generator.run_wp_cli(command, encoding=encoding, pipe_input=pipe_input, stdin_options=stdin_options)
 
     def import_all_data_to_wordpress(self):
         """
@@ -315,7 +315,7 @@ class WPExporter:
             cmd = "pll post create --post_type=page --stdin --porcelain"
             stdin = simplejson.dumps(info_page)
 
-            result = self.run_wp_cli(command=cmd, stdin_options=stdin)
+            result = self.run_wp_cli(command=cmd, pipe_input=stdin)
             if not result:
                 error_msg = "Could not created page"
                 logging.error(error_msg)
@@ -382,7 +382,7 @@ class WPExporter:
 
         cmd = "pll post create --post_type=page --stdin --porcelain"
         stdin = simplejson.dumps(info_page)
-        result = self.run_wp_cli(command=cmd, stdin_options=stdin)
+        result = self.run_wp_cli(command=cmd, pipe_input=stdin)
 
         sitemap_ids = result.split()
         for sitemap_wp_id, lang in zip(sitemap_ids, info_page.keys()):
