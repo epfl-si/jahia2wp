@@ -152,13 +152,13 @@ def unzip(site, username=None, host=None, zip_path=None, force=False, output_dir
 
 
 @dispatch.on('parse')
-def parse(site, output_dir=None, print_report=None, use_cache=None, site_path=None, **kwargs):
+def parse(site, output_dir=None, print_report=None, use_cache=None, host=None, site_path=None, **kwargs):
     """
     Parse the give site.
     """
     try:
         # create subdir in output_dir
-        site_dir = unzip(site, output_dir)
+        site_dir = unzip(site=site, output_dir=output_dir, host=host)
 
         # where to cache our parsing
         pickle_file = os.path.join(site_dir, 'parsed_%s.pkl' % site)
@@ -276,7 +276,7 @@ def export(
         logging.debug("Basic-Auth plugin is uninstalled")
 
     # Download, Unzip the jahia zip and parse the xml data
-    site = parse(site)
+    site = parse(site=site, host=site_host)
 
     if settings.LOCAL_ENVIRONMENT:
         site_host = get_host(site_host=None)
