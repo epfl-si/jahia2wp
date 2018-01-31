@@ -116,7 +116,7 @@ class WPGenerator:
     def __repr__(self):
         return repr(self.wp_site)
 
-    def run_wp_cli(self, command, pipe_input=None, extra_options=None, encoding=sys.stdout.encoding):
+    def run_wp_cli(self, command,  encoding=sys.stdout.encoding, pipe_input=None, extra_options=None):
         """
         Execute a WP-CLI command using method present in WPConfig instance.
 
@@ -127,7 +127,7 @@ class WPGenerator:
                          has to be at the end of the command line (after --path)
         encoding -- encoding to use
         """
-        return self.wp_config.run_wp_cli(command, extra_options=extra_options, pipe_input=pipe_input, encoding=encoding)
+        return self.wp_config.run_wp_cli(command, encoding=encoding, pipe_input=pipe_input, extra_options=extra_options)
 
     def run_mysql(self, command):
         """

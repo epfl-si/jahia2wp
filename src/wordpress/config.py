@@ -93,7 +93,7 @@ class WPConfig:
                 else:
                     yield WPResult(wp_config.wp_site.path, "KO", "", "", "", "", "")
 
-    def run_wp_cli(self, command, pipe_input=None, extra_options=None, encoding=sys.stdout.encoding):
+    def run_wp_cli(self, command, encoding=sys.stdout.encoding, pipe_input=None, extra_options=None):
         """
         Execute a WP-CLI command. The command doesn't have to start with 'wp '. It will be added automatically, and
         it's the same for --path option.
