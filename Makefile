@@ -21,7 +21,7 @@ _httpd_container = $(shell docker ps -q --filter "label=ch.epfl.jahia2wp.httpd.e
 
 test: check-env
 # The "test-raw" target is in Makefile.mgmt
-	docker exec --user=www-data $(_mgmt_container) make -C /srv/$$WP_ENV/jahia2wp test-raw
+	docker exec --user=www-data -e HTTPD_CONTAINER=$(_httpd_container) $(_mgmt_container) make -C /srv/$$WP_ENV/jahia2wp test-raw
 
 functional-tests: check-env
 # The "functional-tests-raw" target is in Makefile.mgmt
@@ -80,6 +80,7 @@ exec: check-env
 	  -e WP_ENV=${WP_ENV} \
 	  -e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
 	  -e MYSQL_DB_HOST=${MYSQL_DB_HOST} \
+	  -e HTTPD_CONTAINER=$(_httpd_container) \
 	  $(_mgmt_container) bash -l
 
 httpd: check-env

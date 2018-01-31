@@ -1,22 +1,22 @@
 # pylint: disable=W1306
-import os
-import shutil
 import logging
 import sys
+from urllib.parse import urlsplit
 
+import os
+import shutil
+from django.core.validators import URLValidator
 from epflldap.ldap_search import get_unit_id
 
-from utils import Utils
 import settings
-
-from django.core.validators import URLValidator
+from utils import Utils
 from veritas.validators import validate_string, validate_openshift_env, \
     validate_theme_faculty, validate_theme
-from .models import WPSite, WPUser
 from .config import WPConfig
-from .themes import WPThemeConfig
-from .plugins.models import WPPluginList
+from .models import WPSite, WPUser
 from .plugins.config import WPMuPluginConfig
+from .plugins.models import WPPluginList
+from .themes import WPThemeConfig
 
 
 class WPGenerator:
@@ -74,8 +74,11 @@ class WPGenerator:
             self._site_params['theme_faculty'] = None
 
         # validate input
-        self.validate_mockable_args(self._site_params['wp_site_url'])
-        validate_openshift_env(self._site_params['openshift_env'])
+        url = self._site_params['wp_site_url']
+        domain = urlsplit(url)[1].split(':')[0]
+        if domain != settings.HTTPD_CONTAINER:
+            self.validate_mockable_args(self._site_params['wp_site_url'])
+            validate_openshift_env(self._site_params['openshift_env'])
 
         if self._site_params['wp_site_title'] is not None:
             validate_string(self._site_params['wp_site_title'])
