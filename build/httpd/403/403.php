@@ -17,6 +17,7 @@
 
   // is the user's IP inside the EPFL campus?
   $is_inside_epfl = preg_match('/^128\.17(8|9)/', $request_ip) == 1;
+  $is_inside_epfl_string = $is_inside_epfl ? "Yes" : "No";
 
   // the error type
   $error_type = "default";
