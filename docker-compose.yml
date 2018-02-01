@@ -17,7 +17,7 @@ services:
       - ${WP_PORT_PHPMA}:80
       volumes:
       - /sessions
-      
+
   httpd:
     labels:
       ch.epfl.jahia2wp.httpd.env: ${WP_ENV}
@@ -29,8 +29,8 @@ services:
     environment:
       - WP_ENV=${WP_ENV}
     ports:
-      - "${WP_PORT_HTTP}:80"
-      - "${WP_PORT_HTTPS}:443"
+      - "${WP_PORT_HTTP}:8080"
+      - "${WP_PORT_HTTPS}:8443"
 
   mgmt:
     labels:
