@@ -49,7 +49,11 @@ class WPExporter:
         self.wp_generator = wp_generator
 
         # we use the python-wordpress-json library to interact with the wordpress REST API
-        rest_api_url = "http://{}:8080/{}/?rest_route=/wp/v2".format(self.host, self.site.name)
+        # FIXME: #balance ton port !
+        if settings.LOCAL_ENVIRONMENT:
+            rest_api_url = "http://{}:8080/{}/?rest_route=/wp/v2".format(self.host, self.site.name)
+        else:
+            rest_api_url = "http://{}/{}/?rest_route=/wp/v2".format(self.host, self.site.name)
         logging.info("setting up API on '%s', with %s:xxxxxx", rest_api_url, wp_generator.wp_admin.username)
         self.wp = WordpressJsonWrapper(rest_api_url, wp_generator.wp_admin.username, wp_generator.wp_admin.password)
 

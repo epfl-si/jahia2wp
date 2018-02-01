@@ -233,10 +233,11 @@ def export(
         """
         Active dual authenticate for development only
         """
-        if settings.LOCAL_ENVIRONMENT:
-            cmd = "option update plugin:epfl_tequila:has_dual_auth 1"
-            wp_generator.run_wp_cli(cmd)
-            logging.debug("Dual authenticate is activated")
+        # FIXME: ça c'est MAL !
+        # if settings.LOCAL_ENVIRONMENT:
+        cmd = "option update plugin:epfl_tequila:has_dual_auth 1"
+        wp_generator.run_wp_cli(cmd)
+        logging.debug("Dual authenticate is activated")
 
     def uninstall_basic_auth_plugin():
         """
