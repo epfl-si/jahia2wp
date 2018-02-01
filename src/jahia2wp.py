@@ -218,14 +218,6 @@ def export(
             languages.insert(0, default_language)
         return languages
 
-    def get_host(site_host):
-        """
-        Return the host of the WordPress site
-        """
-        if site_host is None or 'localhost' in site_host:
-            return settings.HTTPD_CONTAINER
-        return site_host
-
     def install_basic_auth_plugin():
         """
         Install basic auth plugin
@@ -263,10 +255,10 @@ def export(
         logging.debug("Basic-Auth plugin is uninstalled")
 
     # Download, Unzip the jahia zip and parse the xml data
-    site = parse(site=site, host=site_host)
+    site = parse(site=site)
 
     if settings.LOCAL_ENVIRONMENT:
-        site_host = get_host(site_host=None)
+        site_host = settings.HTTPD_CONTAINER
         openshift_env = settings.OPENSHIFT_ENV
         wp_site_url = "http://{}/{}".format(site_host, site.name)
         installs_locked = False
@@ -308,10 +300,8 @@ def export(
         logging.info("Exporting %s to WordPress...", site.name)
         wp_exporter = WPExporter(
             site,
-            site_host,
-            site_path,
-            output_dir,
-            wp_generator
+            wp_generator,
+            output_dir
         )
         wp_exporter.import_all_data_to_wordpress()
         logging.info("Site %s successfully exported to WordPress", site.name)
@@ -320,10 +310,8 @@ def export(
         logging.info("Cleaning WordPress for %s...", site.name)
         wp_exporter = WPExporter(
             site,
-            site_host,
-            site_path,
-            output_dir,
-            wp_generator
+            wp_generator,
+            output_dir
         )
         wp_exporter.delete_all_content()
         logging.info("Data of WordPress site %s successfully deleted", site.name)
