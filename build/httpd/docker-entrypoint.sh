@@ -29,6 +29,11 @@ EOF
 /bin/mkdir -p /etc/apache2/ssl
 /usr/bin/openssl req -x509 -sha256 -nodes -days 3650 -newkey rsa:4096 -keyout /etc/apache2/ssl/server.key -out /etc/apache2/ssl/server.cert -subj "/C=CH/ST=Vaud/L=Lausanne/O=Ecole Polytechnique Federale de Lausanne (EPFL)/CN=*.epfl.ch"
 
+# Change max upload size for http requests
+sed -i "s/upload_max_filesize = .*/upload_max_filesize = 300M/" /etc/php/7.0/apache2/php.ini
+# Change max upload size for CLI requests
+sed -i "s/upload_max_filesize = .*/upload_max_filesize = 300M/" /etc/php/7.0/cli/php.ini
+
 /usr/sbin/a2dissite 000-default
 /usr/sbin/a2enmod ssl
 /usr/sbin/a2enmod rewrite
