@@ -15,7 +15,7 @@ JAHIA_DATA_PATH = os.path.join(DATA_PATH, 'jahia-data')
 EXPORTER_DATA_PATH = os.path.join(DATA_PATH, 'exporter')
 WP_FILES_PATH = os.path.join(DATA_PATH, 'wp')
 
-HTTPD_CONTAINER = Utils.get_mandatory_env("HTTPD_CONTAINER")
+HTTPD_CONTAINER = Utils.get_optional_env("HTTPD_CONTAINER", "no-local-env")
 
 NB_DAYS_BEFORE_NEW_FULL = 7
 FULL_BACKUP_RETENTION_THEME = {
