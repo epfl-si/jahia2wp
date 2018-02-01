@@ -193,35 +193,16 @@ def parse(site, output_dir=None, print_report=None, use_cache=None, host=None, s
 @dispatch.on('export')
 def export(
         site,
-        to_wordpress=False, clean_wordpress=False,
-        admin_password=None,
-        site_host=None, site_path=None,
-        output_dir=None,
-        theme=None, unit_name=None, wp_site_url=None, installs_locked=False, updates_automatic=False, openshift_env=None,
+        to_wordpress=False, clean_wordpress=False, admin_password=None,
+        site_host=None, site_path=None, output_dir=None,
+        theme=None, unit_name=None, wp_site_url=None, installs_locked=False,
+        updates_automatic=False, openshift_env=None,
         **kwargs):
-
-    """
-    :param site: 
-    :param to_wordpress: 
-    :param clean_wordpress: 
-    :param admin_password: 
-    :param site_host: 
-    :param site_path: 
-    :param output_dir: 
-    :param theme: 
-    :param unit_name: 
-    :param wp_site_url: 
-    :param installs_locked: 
-    :param updates_automatic: 
-    :param openshift_env: 
-    :param kwargs: 
-    :return: 
-    """
 
     def get_lang_by_default(languages):
         """
         Return the default language
-        
+
         If the site is in multiple languages, English is the default language
         """
         if len(languages) == 1:
@@ -230,6 +211,12 @@ def export(
             return "en"
         else:
             return languages[0]
+
+    def lang_by_default_on_first_position(default_language, languages):
+        if len(languages) > 1:
+            languages.remove(default_language)
+            languages.insert(0, default_language)
+        return languages
 
     def get_host(site_host):
         """
@@ -287,12 +274,16 @@ def export(
         admin_password = "admin"
         unit_name = site.name
 
+    default_language = get_lang_by_default(site.languages)
+    # For polylang plugin, we need position default lang in first position
+    languages = lang_by_default_on_first_position(default_language, site.languages)
+
     info = {
         # info from parser
-        'langs': ",".join(site.languages),
-        'wp_site_title': site.acronym[get_lang_by_default(site.languages)],
-        'wp_tagline': site.title[get_lang_by_default(site.languages)],
-        'theme_faculty': site.theme[get_lang_by_default(site.languages)],
+        'langs': ",".join(languages),
+        'wp_site_title': site.acronym[default_language],
+        'wp_tagline': site.title[default_language],
+        'theme_faculty': site.theme[default_language],
         'unit_name': unit_name,
 
         # info from source of truth
@@ -374,7 +365,7 @@ def export_many(csv_file, output_dir=None, **kwargs):
             installs_locked=row['installs_locked'],
             updates_automatic=row['updates_automatic'],
             wp_site_url=row['wp_site_url'],
-            openshift_env= row['openshift_env'],
+            openshift_env=row['openshift_env'],
         )
 
 

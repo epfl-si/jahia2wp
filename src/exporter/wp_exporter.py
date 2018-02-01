@@ -9,6 +9,8 @@ from datetime import timedelta, datetime
 import simplejson
 from bs4 import BeautifulSoup
 from wordpress_json import WordpressJsonWrapper, WordpressError
+
+import settings
 from exporter.utils import Utils
 
 
@@ -59,7 +61,12 @@ class WPExporter:
         command -- WP-CLI command to execute. The command doesn't have to start with "wp ".
         encoding -- encoding to use
         """
-        return self.wp_generator.run_wp_cli(command, encoding=encoding, pipe_input=pipe_input, extra_options=extra_options)
+        return self.wp_generator.run_wp_cli(
+            command,
+            encoding=encoding,
+            pipe_input=pipe_input,
+            extra_options=extra_options
+        )
 
     def import_all_data_to_wordpress(self):
         """
@@ -421,8 +428,13 @@ class WPExporter:
         """
         Create footer menu for sitemap page
         """
-        # FIXME: est ce bien fait pour toutes les langues ?
-        footer_name = "footer_nav-{}".format(lang)
+        # FIXME: add an attribut default_language to wp_generator.wp_site class
+        default_language = self.wp_generator._site_params['langs'].split(",")[0]
+        if default_language == lang:
+            footer_name = settings.FOOTER_MENU
+        else:
+            footer_name = "{}-{}".format(settings.FOOTER_MENU, default_language)
+
         self.run_wp_cli('menu item add-post {} {} --porcelain'.format(footer_name, sitemap_wp_id))
 
         # Create footer menu
@@ -468,8 +480,12 @@ class WPExporter:
             # Create homepage menu
             for lang, page_content in self.site.homepage.contents.items():
 
-                # FIXME: Est ce bien fait pour toutes les langues ?
-                menu_name = 'Main-{}'.format(lang)
+                # FIXME: add an attribut default_language to wp_generator.wp_site class
+                default_language = self.wp_generator._site_params['langs'].split(",")[0]
+                if default_language == lang:
+                    menu_name = settings.MAIN_MENU
+                else:
+                    menu_name = "{}-{}".format(settings.MAIN_MENU, default_language)
 
                 cmd = 'menu item add-post {} {} --classes=link-home --porcelain'.format(menu_name, page_content.wp_id)
                 menu_id = self.run_wp_cli(cmd)

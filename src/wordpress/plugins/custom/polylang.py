@@ -54,6 +54,7 @@ class WPPolylangConfig(WPPluginConfig):
             raise WPException("Polylang - Empty language list")
 
         languages = languages.split(',')
+
         # First language is default
         default = languages[0]
 
@@ -85,15 +86,11 @@ class WPPolylangConfig(WPPluginConfig):
 
         # create menus if they don't exist
         logging.info("{} - Polylang - Creating menus...".format(self.wp_site))
-        for language in languages:
+        if not self._menu_exists(settings.MAIN_MENU):
+            self.run_wp_cli("pll menu create {} top".format(settings.MAIN_MENU))
 
-            main_menu = "Main-{}".format(language)
-            if not self._menu_exists(main_menu):
-                self.run_wp_cli("pll menu create {} top".format(main_menu))
-
-            footer_nav_menu = "footer_nav-{}".format(language)
-            if not self._menu_exists(footer_nav_menu):
-                self.run_wp_cli("pll menu create {} footer_nav".format(footer_nav_menu))
+        if not self._menu_exists(settings.FOOTER_MENU):
+                self.run_wp_cli("pll menu create {} footer_nav".format(settings.FOOTER_MENU))
 
         # configure raw plugin
         super(WPPolylangConfig, self).configure(force)

@@ -140,3 +140,6 @@ JAHIA_HOST = Utils.get_optional_env("JAHIA_HOST", "localhost")
 JAHIA_PROTOCOL = "https"
 JAHIA_ZIP_PATH = Utils.get_optional_env("JAHIA_ZIP_PATH", ".")
 JAHIA_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
+
+MAIN_MENU = "Main"
+FOOTER_MENU = "footer_nav"

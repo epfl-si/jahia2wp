@@ -51,7 +51,6 @@ class WPGenerator:
         self._site_params = site_params
 
         # Setting default values
-
         if 'unit_name' in self._site_params and 'unit_id' not in self._site_params:
             logging.info("WPGenerator.__init__(): Please use 'unit_id' from CSV file (now recovered from 'unit_name')")
             self._site_params['unit_id'] = self.get_the_unit_id(self._site_params['unit_name'])
