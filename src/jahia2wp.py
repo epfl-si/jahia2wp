@@ -29,7 +29,7 @@ Usage:
   jahia2wp.py admins                <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate-many         <csv_file>                      [--debug | --quiet]
   jahia2wp.py export-many           <csv_file>                      [--debug | --quiet]
-    [--output-dir=<OUTPUT_DIR>]
+    [--output-dir=<OUTPUT_DIR>] [--environment=<ENVIRONMENT>]
   jahia2wp.py backup-many           <csv_file>                      [--debug | --quiet]
   jahia2wp.py rotate-backup         <csv_file>          [--dry-run] [--debug | --quiet]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
@@ -335,9 +335,11 @@ def export(site, to_wordpress=False, clean_wordpress=False, admin_password=None,
 
     uninstall_basic_auth_plugin(wp_generator)
 
+    return wp_exporter
+
 
 @dispatch.on('export-many')
-def export_many(csv_file, output_dir=None, **kwargs):
+def export_many(csv_file, output_dir=None, environment=None, **kwargs):
 
     rows = Utils.csv_filepath_to_dict(csv_file)
 
@@ -363,6 +365,7 @@ def export_many(csv_file, output_dir=None, **kwargs):
             updates_automatic=row['updates_automatic'],
             wp_site_url=row['wp_site_url'],
             openshift_env=row['openshift_env'],
+            environment=environment,
         )
 
 

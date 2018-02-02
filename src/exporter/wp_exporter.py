@@ -588,10 +588,10 @@ class WPExporter:
         """
         Delete all menus
         """
-        cmd = "wp menu list --fields=term_id --format=csv"
+        cmd = "menu list --fields=term_id --format=csv"
         menus_id_list = self.run_wp_cli(cmd).split("\n")[1:]
         for menu_id in menus_id_list:
-            cmd = "wp menu delete {}".format(menu_id)
+            cmd = "menu delete {}".format(menu_id)
             self.run_wp_cli(cmd)
 
     def display_report(self):
