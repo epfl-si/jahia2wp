@@ -12,7 +12,6 @@ Usage:
   jahia2wp.py export                <site>                          [--debug | --quiet]
     [--to-wordpress | --clean-wordpress]
     [--admin-password=<PASSWORD>]
-    [--site-host=<SITE_HOST> --site-path=<SITE_PATH>]
     [--output-dir=<OUTPUT_DIR>]
     [--installs-locked=<BOOLEAN> --updates-automatic=<BOOLEAN>]
     [--openshift-env=<OPENSHIFT_ENV>] [--environment=<ENVIRONMENT>]
@@ -255,7 +254,7 @@ def export(site, to_wordpress=False, clean_wordpress=False, admin_password=None,
             wp_generator.run_wp_cli(cmd)
             logging.debug("Dual authenticate is activated")
 
-    def uninstall_basic_auth_plugin():
+    def uninstall_basic_auth_plugin(wp_generator):
         """
         Uninstall basic auth plugin
 
@@ -334,7 +333,7 @@ def export(site, to_wordpress=False, clean_wordpress=False, admin_password=None,
         wp_exporter.delete_all_content()
         logging.info("Data of WordPress site %s successfully deleted", site.name)
 
-    uninstall_basic_auth_plugin()
+    uninstall_basic_auth_plugin(wp_generator)
 
 
 @dispatch.on('export-many')

@@ -301,7 +301,8 @@ class Utils(object):
         module = importlib.import_module(module_name)
         return getattr(module, class_name)
 
-    def get_domain(self, url):
+    @staticmethod
+    def get_domain(url):
         """
         Return the domain name of url parameter
         """
