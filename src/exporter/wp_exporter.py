@@ -22,7 +22,7 @@ class WPExporter:
     # list of mapping Jahia url and Wordpress url
     urls_mapping = []
 
-    def __init__(self, site, wp_generator, output_dir, ):
+    def __init__(self, site, wp_generator, output_dir=None):
         """
         site is the python object resulting from the parsing of Jahia XML.
         site_host is the domain name.
@@ -45,15 +45,11 @@ class WPExporter:
 
         # dictionary with the key 'wp_page_id' and the value 'wp_menu_id'
         self.menu_id_dict = {}
-        self.output_dir = output_dir
+        self.output_dir = output_dir or settings.JAHIA_DATA_PATH
         self.wp_generator = wp_generator
 
         # we use the python-wordpress-json library to interact with the wordpress REST API
-        # FIXME: #balance ton port !
-        if settings.LOCAL_ENVIRONMENT:
-            rest_api_url = "http://{}:8080/{}/?rest_route=/wp/v2".format(self.host, self.site.name)
-        else:
-            rest_api_url = "http://{}/{}/?rest_route=/wp/v2".format(self.host, self.site.name)
+        rest_api_url = "http://{}:8080/{}/?rest_route=/wp/v2".format(self.host, self.site.name)
         logging.info("setting up API on '%s', with %s:xxxxxx", rest_api_url, wp_generator.wp_admin.username)
         self.wp = WordpressJsonWrapper(rest_api_url, wp_generator.wp_admin.username, wp_generator.wp_admin.password)
 

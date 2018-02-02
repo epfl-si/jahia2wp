@@ -16,7 +16,7 @@ Usage:
     [--site-host=<SITE_HOST> --site-path=<SITE_PATH>]
     [--output-dir=<OUTPUT_DIR>]
     [--installs-locked=<BOOLEAN> --updates-automatic=<BOOLEAN>]
-    [--openshift-env=<OPENSHIFT_ENV>]
+    [--openshift-env=<OPENSHIFT_ENV>] [--environment=<ENVIRONMENT>]
     [--theme=<THEME> --unit-name=<UNIT_NAME> --wp-site-url=<WP_SITE_URL>]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--stop-on-errors]
@@ -191,13 +191,25 @@ def parse(site, output_dir=None, print_report=None, use_cache=None, host=None, s
 
 
 @dispatch.on('export')
-def export(
-        site,
-        to_wordpress=False, clean_wordpress=False, admin_password=None,
-        site_host=None, site_path=None, output_dir=None,
-        theme=None, unit_name=None, wp_site_url=None, installs_locked=False,
-        updates_automatic=False, openshift_env=None,
-        **kwargs):
+def export(site, to_wordpress=False, clean_wordpress=False, admin_password=None, output_dir=None, theme=None,
+           unit_name=None, wp_site_url=None, installs_locked=False, updates_automatic=False, openshift_env=None,
+           environment=None, **kwargs):
+
+    """
+    Export the jahia content into a WordPress site.
+
+    :param site: the name of the WordPress site
+    :param to_wordpress: to migrate data
+    :param clean_wordpress: to clean data
+    :param admin_password: an admin password
+    :param output_dir: directory where the jahia zip file will be unzipped
+    :param theme: WordPress theme used for the WordPress site
+    :param unit_name: unit name of the WordPress site
+    :param wp_site_url: URL of WordPress site
+    :param installs_locked: boolean
+    :param updates_automatic: boolean
+    :param openshift_env: openshift environment (prod, int, gcharmier ...)
+    """
 
     def get_lang_by_default(languages):
         """
@@ -212,7 +224,15 @@ def export(
         else:
             return languages[0]
 
-    def lang_by_default_on_first_position(default_language, languages):
+    def set_default_language_in_first_position(default_language, languages):
+        """
+        Set the default language in first position.
+        It is important for the Polylang plugin that the default language is
+        in first position.
+
+        :param default_language: the default language
+        :param languages: the list of languages
+        """
         if len(languages) > 1:
             languages.remove(default_language)
             languages.insert(0, default_language)
@@ -229,15 +249,14 @@ def export(
         wp_generator.run_wp_cli(cmd)
         logging.debug("Basic-Auth plugin is installed and activated")
 
-    def active_dual_auth_for_dev_only():
+    def active_dual_auth_for_dev_only(environment):
         """
         Active dual authenticate for development only
         """
-        # FIXME: ça c'est MAL !
-        # if settings.LOCAL_ENVIRONMENT:
-        cmd = "option update plugin:epfl_tequila:has_dual_auth 1"
-        wp_generator.run_wp_cli(cmd)
-        logging.debug("Dual authenticate is activated")
+        if environment == settings.LOCAL_ENVIRONMENT:
+            cmd = "option update plugin:epfl_tequila:has_dual_auth 1"
+            wp_generator.run_wp_cli(cmd)
+            logging.debug("Dual authenticate is activated")
 
     def uninstall_basic_auth_plugin():
         """
@@ -258,7 +277,8 @@ def export(
     # Download, Unzip the jahia zip and parse the xml data
     site = parse(site=site)
 
-    if settings.LOCAL_ENVIRONMENT:
+    environment = environment or settings.ENVIRONMENT
+    if environment == settings.LOCAL_ENVIRONMENT:
         site_host = settings.HTTPD_CONTAINER
         openshift_env = settings.OPENSHIFT_ENV
         wp_site_url = "http://{}/{}".format(site_host, site.name)
@@ -269,7 +289,7 @@ def export(
 
     default_language = get_lang_by_default(site.languages)
     # For polylang plugin, we need position default lang in first position
-    languages = lang_by_default_on_first_position(default_language, site.languages)
+    languages = set_default_language_in_first_position(default_language, site.languages)
 
     info = {
         # info from parser
@@ -295,7 +315,7 @@ def export(
     wp_generator.generate()
 
     install_basic_auth_plugin()
-    active_dual_auth_for_dev_only()
+    active_dual_auth_for_dev_only(environment)
 
     if to_wordpress:
         logging.info("Exporting %s to WordPress...", site.name)
@@ -322,8 +342,6 @@ def export(
 
 @dispatch.on('export-many')
 def export_many(csv_file, output_dir=None, **kwargs):
-
-    # FIXME: output_dir is None, read a environment variable
 
     # FIXME : validation
     # CSV file validation

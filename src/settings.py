@@ -5,7 +5,8 @@ from utils import Utils
 
 VERSION = "0.3.1"
 
-LOCAL_ENVIRONMENT = False
+LOCAL_ENVIRONMENT = "local"
+ENVIRONMENT = Utils.get_optional_env("ENVIRONMENT", "prod")
 OPENSHIFT_ENV = Utils.get_mandatory_env("WP_ENV")
 ENV_DIRS = ['logs', 'venv', 'jahia2wp']
 
