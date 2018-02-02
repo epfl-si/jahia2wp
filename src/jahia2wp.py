@@ -8,8 +8,7 @@ Usage:
     [--username=<USERNAME> --host=<HOST> --zip-path=<ZIP_PATH> --force]
     [--output-dir=<OUTPUT_DIR>]
   jahia2wp.py parse                 <site>                          [--debug | --quiet]
-    [--output-dir=<OUTPUT_DIR>] [--print-report]
-    [--use-cache] [--site-path=<SITE_PATH>]
+    [--output-dir=<OUTPUT_DIR>] [--use-cache] [--host=<HOST>]
   jahia2wp.py export                <site>                          [--debug | --quiet]
     [--to-wordpress | --clean-wordpress]
     [--admin-password=<PASSWORD>]
@@ -152,13 +151,13 @@ def unzip(site, username=None, host=None, zip_path=None, force=False, output_dir
 
 
 @dispatch.on('parse')
-def parse(site, output_dir=None, print_report=None, use_cache=None, host=None, site_path=None, **kwargs):
+def parse(site, output_dir=None, use_cache=None, **kwargs):
     """
     Parse the give site.
     """
     try:
         # create subdir in output_dir
-        site_dir = unzip(site=site, output_dir=output_dir, host=host)
+        site_dir = unzip(site, output_dir)
 
         # where to cache our parsing
         pickle_file = os.path.join(site_dir, 'parsed_%s.pkl' % site)
