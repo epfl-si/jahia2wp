@@ -12,6 +12,7 @@ import binascii
 import random
 import xml.dom.minidom
 
+from urllib.parse import urlsplit
 from bs4 import BeautifulSoup
 
 
@@ -299,3 +300,9 @@ class Utils(object):
         module_name, class_name = class_string.rsplit('.', 1)
         module = importlib.import_module(module_name)
         return getattr(module, class_name)
+
+    def get_domain(self, url):
+        """
+        Return the domain name of url parameter
+        """
+        return urlsplit(url)[1].split(':')[0]

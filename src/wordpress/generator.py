@@ -1,6 +1,4 @@
 # pylint: disable=W1306
-from urllib.parse import urlsplit
-
 import os
 import shutil
 import logging
@@ -75,9 +73,7 @@ class WPGenerator:
             self._site_params['theme_faculty'] = None
 
         # validate input
-        url = self._site_params['wp_site_url']
-        domain = urlsplit(url)[1].split(':')[0]
-        if domain != settings.HTTPD_CONTAINER:
+        if Utils.get_domain(url=self._site_params['wp_site_url']) != settings.HTTPD_CONTAINER:
             self.validate_mockable_args(self._site_params['wp_site_url'])
             validate_openshift_env(self._site_params['openshift_env'])
 

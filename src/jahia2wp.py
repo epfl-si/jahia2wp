@@ -210,15 +210,13 @@ def export(site, to_wordpress=False, clean_wordpress=False, admin_password=None,
     :param openshift_env: openshift environment (prod, int, gcharmier ...)
     """
 
-    def get_lang_by_default(languages):
+    def get_default_language(languages):
         """
         Return the default language
 
         If the site is in multiple languages, English is the default language
         """
-        if len(languages) == 1:
-            return languages[0]
-        elif "en" in languages:
+        if "en" in languages:
             return "en"
         else:
             return languages[0]
@@ -237,7 +235,7 @@ def export(site, to_wordpress=False, clean_wordpress=False, admin_password=None,
             languages.insert(0, default_language)
         return languages
 
-    def install_basic_auth_plugin():
+    def install_basic_auth_plugin(wp_generator):
         """
         Install basic auth plugin
 
@@ -248,7 +246,7 @@ def export(site, to_wordpress=False, clean_wordpress=False, admin_password=None,
         wp_generator.run_wp_cli(cmd)
         logging.debug("Basic-Auth plugin is installed and activated")
 
-    def active_dual_auth_for_dev_only(environment):
+    def active_dual_auth_for_dev_only(wp_generator, environment):
         """
         Active dual authenticate for development only
         """
@@ -286,7 +284,7 @@ def export(site, to_wordpress=False, clean_wordpress=False, admin_password=None,
         admin_password = "admin"
         unit_name = site.name
 
-    default_language = get_lang_by_default(site.languages)
+    default_language = get_default_language(site.languages)
     # For polylang plugin, we need position default lang in first position
     languages = set_default_language_in_first_position(default_language, site.languages)
 
@@ -313,8 +311,8 @@ def export(site, to_wordpress=False, clean_wordpress=False, admin_password=None,
     wp_generator = WPGenerator(info, admin_password)
     wp_generator.generate()
 
-    install_basic_auth_plugin()
-    active_dual_auth_for_dev_only(environment)
+    install_basic_auth_plugin(wp_generator)
+    active_dual_auth_for_dev_only(wp_generator, environment)
 
     if to_wordpress:
         logging.info("Exporting %s to WordPress...", site.name)
@@ -342,16 +340,10 @@ def export(site, to_wordpress=False, clean_wordpress=False, admin_password=None,
 @dispatch.on('export-many')
 def export_many(csv_file, output_dir=None, **kwargs):
 
-    # FIXME : validation
-    # CSV file validation
-    # validator = _check_csv(csv_file)
     rows = Utils.csv_filepath_to_dict(csv_file)
 
     # create a new WP site for each row
-
-    # FIXME: dès que veritas a été adapté
-    # print("\n{} websites will now be generated...".format(len(validator.rows)))
-    # for index, row in enumerate(validator.rows):
+    print("\n{} websites will now be generated...".format(len(rows)))
     for index, row in enumerate(rows):
 
         print("\nIndex #{}:\n---".format(index))
