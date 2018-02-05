@@ -110,13 +110,15 @@ class Utils(object):
                 return text.strip()
             return True
 
-        except (subprocess.CalledProcessError, UnicodeEncodeError) as err:
+        except subprocess.CalledProcessErroras err:
             # log error with content of stderr
             logging.error("command failed (code %s) with error <%s> => %s",
                           err.returncode,
                           err,
                           err.stderr)
             return False
+        except UnicodeEncodeError:
+            logging.debug("command: %s", command)
 
     @classmethod
     def csv_stream_do_dict(cls, stream, delimiter=','):
