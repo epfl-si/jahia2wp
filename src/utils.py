@@ -95,7 +95,9 @@ class Utils(object):
         """
         try:
             # encode command properly for subprocess
+            command = command.replace('\u200b', '')
             command_bytes = command.encode(encoding)
+
             # run command and log output
             proc = subprocess.run(command_bytes, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
             logging.debug("%s => %s", command_bytes, proc.stdout)
@@ -116,9 +118,6 @@ class Utils(object):
                           err.returncode,
                           err,
                           err.stderr)
-            return False
-        except UnicodeEncodeError:
-            logging.debug("command: %s", command)
             return False
 
     @classmethod
