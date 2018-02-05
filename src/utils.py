@@ -94,6 +94,7 @@ class Utils(object):
         Command output if there is one
         """
         try:
+            logging.debug("Command: %s", command)
             # encode command properly for subprocess
             command = command.replace('\u200b', '')
             command_bytes = command.encode(encoding)
