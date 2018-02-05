@@ -96,8 +96,7 @@ class Utils(object):
         try:
             logging.debug("Command: %s", command)
             # encode command properly for subprocess
-            command = command.replace('\u200b', '')
-            command_bytes = command #.encode(encoding)
+            command_bytes = command.encode(encoding)
 
             # run command and log output
             proc = subprocess.run(command_bytes, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
