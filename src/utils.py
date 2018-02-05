@@ -110,7 +110,7 @@ class Utils(object):
                 return text.strip()
             return True
 
-        except subprocess.CalledProcessErroras err:
+        except subprocess.CalledProcessErroras as err:
             # log error with content of stderr
             logging.error("command failed (code %s) with error <%s> => %s",
                           err.returncode,
