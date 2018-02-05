@@ -415,11 +415,11 @@ class WPExporter:
                     content += Utils.escape_quotes(box.content)
                     content += "</div>"
 
-                    # FIXME
-                    cmd = cmd.replace(u'\xa0', u' ')
-
                     cmd = 'widget add black-studio-tinymce page-widgets ' \
                           '--title="{}" --text="{}"'.format(box.title, content)
+
+                    # FIXME
+                    cmd = cmd.replace(u'\xa0', u' ')
 
                     self.run_wp_cli(cmd)
 
