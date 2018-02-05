@@ -119,6 +119,7 @@ class Utils(object):
             return False
         except UnicodeEncodeError:
             logging.debug("command: %s", command)
+            return False
 
     @classmethod
     def csv_stream_do_dict(cls, stream, delimiter=','):
