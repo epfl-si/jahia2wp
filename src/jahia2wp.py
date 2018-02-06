@@ -26,6 +26,7 @@ Usage:
   jahia2wp.py rotate-backup         <csv_file>          [--dry-run] [--debug | --quiet]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
+  jahia2wp.py consolidate-hierarchy <path>                          [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
     [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
@@ -44,6 +45,8 @@ import getpass
 import logging
 import os
 import pickle
+import json
+from urllib.parse import urlparse
 
 import yaml
 from docopt import docopt
@@ -347,6 +350,28 @@ def inventory(path, **kwargs):
             site_details.admins
         ]))
     logging.info("Inventory made for %s", path)
+
+
+@dispatch.on('consolidate-hierarchy')
+def consolidate_hierarchy(path, **kwargs):
+    logging.info("Consolidating hierarchy...")
+    sites_hierarchy = {}
+    for site_details in WPConfig.inventory(path):
+        site_url = site_details.url
+        parsed_url = urlparse(site_url)
+        root = parsed_url.netloc
+        if parsed_url.path in ['/', '']:
+            sites_hierarchy[root] = {}
+        else:
+            splitted_path = parsed_url.path.split('/')
+            splitted_path = list(filter(None, splitted_path))
+            current_depth = sites_hierarchy[root]
+            for sub_site in splitted_path[:-1]:
+                current_depth = current_depth[sub_site]
+            current_depth[splitted_path[-1]] = {}
+    with open('consolidation.json', 'w+') as f:
+        json.dump(sites_hierarchy, f)
+    logging.info("Consolidation made for %s", path)
 
 
 @dispatch.on('veritas')
