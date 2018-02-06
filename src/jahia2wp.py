@@ -357,20 +357,20 @@ def consolidate_hierarchy(path, **kwargs):
     logging.info("Consolidating hierarchy...")
     sites_hierarchy = {}
     for site_details in WPConfig.inventory(path):
-        site_url = site_details.url
-        parsed_url = urlparse(site_url)
+        parsed_url = urlparse(site_details.url)
         root = parsed_url.netloc
+        pages_hierarchy = WPConfig(site_details).get_page_hierarchy()
         if parsed_url.path in ['/', '']:
-            sites_hierarchy[root] = {}
+            sites_hierarchy[root] = {'path': site_details.path, 'url': site_details.url, **pages_hierarchy}
         else:
             splitted_path = parsed_url.path.split('/')
             splitted_path = list(filter(None, splitted_path))
             current_depth = sites_hierarchy[root]
             for sub_site in splitted_path[:-1]:
                 current_depth = current_depth[sub_site]
-            current_depth[splitted_path[-1]] = {}
+            current_depth[splitted_path[-1]] = {'path': site_details.path, 'url': site_details.url, **pages_hierarchy}
     with open('consolidation.json', 'w+') as f:
-        json.dump(sites_hierarchy, f)
+        json.dump(sites_hierarchy, f, indent=4)
     logging.info("Consolidation made for %s", path)
 
 

@@ -2,6 +2,8 @@ import os
 import logging
 import collections
 import sys
+import json
+from urllib.parse import urlparse
 
 import settings
 
@@ -325,3 +327,17 @@ class WPConfig:
         if self.run_wp_cli(cmd) is False:
             logging.error("%s - wp user create failed. More details in the logs above", repr(self.wp_site))
         return user
+
+    def get_page_hierarchy(self):
+        pages = self.run_wp_cli('post list --post_type=page --fields=ID,post_title,url --format=json --order=asc')
+        pages = json.loads(pages)
+        pages_hierarchy = {}
+        for page in pages:
+            parsed_url = urlparse(page['url'].replace(self.wp_site.url, ''))
+            splitted_path = parsed_url.path.split('/')
+            splitted_path = list(filter(None, splitted_path))
+            current_depth = pages_hierarchy
+            for parent_page in splitted_path[:-1]:
+                current_depth = current_depth[parent_page]
+            current_depth[splitted_path[-1]] = {'url': page['url']}
+        return pages_hierarchy
