@@ -412,11 +412,12 @@ class WPExporter:
             for lang in self.site.homepage.contents.keys():
                 for box in self.site.homepage.contents[lang].sidebar.boxes:
                     content = "[colored-box]"
+                    content += "<h3>{}</h3>".format(box.title)
                     content += Utils.escape_quotes(box.content)
                     content += "[/colored-box]"
 
                     cmd = 'widget add black-studio-tinymce page-widgets ' \
-                          '--title="{}" --text="{}"'.format(box.title, content)
+                          '--text="{}"'.format(content)
 
                     # FIXME
                     cmd = cmd.replace(u'\xa0', u' ')
