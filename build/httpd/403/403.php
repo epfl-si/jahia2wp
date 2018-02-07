@@ -27,7 +27,7 @@
 
   // is the user's IP inside the EPFL campus?
   $is_inside_epfl = preg_match($ip_regex, $request_ip) == 1;
-  $is_inside_epfl_string = $is_inside_epfl ? "Yes" : "No";
+  $is_inside_epfl_string = $is_inside_epfl ? "inside EPFL" : "outside EPFL";
 
   // the error type
   $error_type = "default";
