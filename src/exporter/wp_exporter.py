@@ -450,6 +450,11 @@ class WPExporter:
 
         # Create footer menu
         cmd = "menu item add-custom {} Accessibility http://www.epfl.ch/accessibility.en.shtml​".format(footer_name)
+        logging.debug("COMMAND: %s", cmd)
+        cmd = cmd.replace('\u200b', '')
+        logging.debug("COMMAND: %s", cmd)
+        cmd = cmd.replace(u'\u200b', u'')
+        logging.debug("COMMAND: %s", cmd)
         self.run_wp_cli(cmd)
 
         # legal notice
