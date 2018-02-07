@@ -95,8 +95,6 @@ class Utils(object):
         """
         try:
             logging.debug("Command: %s", command)
-            # FIXME
-            command = command.replace('\u200b', '')
             # encode command properly for subprocess
             command_bytes = command.encode(encoding)
 
