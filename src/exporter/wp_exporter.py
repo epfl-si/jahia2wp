@@ -408,6 +408,9 @@ class WPExporter:
         """
         import sidebar via wpcli
         """
+        def clean_sidebar_html():
+            return cmd.replace(u'\xa0', u' ')
+
         try:
             for lang in self.site.homepage.contents.keys():
                 for box in self.site.homepage.contents[lang].sidebar.boxes:
@@ -419,8 +422,7 @@ class WPExporter:
                     cmd = 'widget add black-studio-tinymce page-widgets ' \
                           '--text="{}"'.format(content)
 
-                    # FIXME
-                    cmd = cmd.replace(u'\xa0', u' ')
+                    cmd = self.clean_sidebar_html()
 
                     self.run_wp_cli(cmd)
 
@@ -452,10 +454,7 @@ class WPExporter:
 
         # legal notice
         cmd = "menu item add-custom {} 'Legal Notice' http://mediacom.epfl.ch/disclaimer-en​".format(footer_name)
-
-        # FIXME
-        cmd = cmd.replace('\u200b', '')
-
+        logging.debug("COMMAND: %s", cmd)
         self.run_wp_cli(cmd)
 
         # Report
