@@ -24,6 +24,7 @@ services:
     image: epflidevelop/os-wp-httpd
     volumes:
       - ./volumes/srv:/srv
+      - ./build/httpd/403:/var/www/error
     links:
       - db:db
     environment:

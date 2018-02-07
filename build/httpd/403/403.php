@@ -12,12 +12,12 @@
   $request_ip  = $_SERVER["REMOTE_ADDR"];
 
   // ip protocol version & regex to check if inside EPFL campus
-  $ip_v = "ipv4";
+  $ip_v = "IPv4";
   $ip_regex = "/^128\.17(8|9)/";
 
   if (filter_var($request_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6))
   {
-    $ip_v = "ipv6";
+    $ip_v = "IPv6";
     $ip_regex = "/^2001:620:618:/";
   }
 
