@@ -439,6 +439,10 @@ class WPExporter:
         """
         Create footer menu for sitemap page
         """
+
+        def clean_menu_html(cmd):
+            return cmd.replace('\u200b', '')
+
         # FIXME: add an attribut default_language to wp_generator.wp_site class
         default_language = self.wp_generator._site_params['langs'].split(",")[0]
         if default_language == lang:
@@ -450,21 +454,12 @@ class WPExporter:
 
         # Create footer menu
         cmd = "menu item add-custom {} Accessibility http://www.epfl.ch/accessibility.en.shtml​".format(footer_name)
-        logging.debug("COMMAND: %s", cmd)
-        cmd = cmd.replace('\u200b', '')
-        logging.debug("COMMAND: %s", cmd)
-        cmd = cmd.replace(u'\u200b', u'')
-        logging.debug("COMMAND: %s", cmd)
+        cmd = clean_menu_html(cmd)
         self.run_wp_cli(cmd)
 
         # legal notice
         cmd = "menu item add-custom {} 'Legal Notice' http://mediacom.epfl.ch/disclaimer-en".format(footer_name)
-        logging.debug("COMMAND: %s", cmd)
-        cmd = cmd.replace('\u200b', '')
-        logging.debug("COMMAND: %s", cmd)
-        cmd = cmd.replace(u'\u200b', u'')
-        logging.debug("COMMAND: %s", cmd)
-
+        cmd = clean_menu_html(cmd)
         self.run_wp_cli(cmd)
 
         # Report
