@@ -329,15 +329,26 @@ class WPConfig:
         return user
 
     def get_page_hierarchy(self):
+        """
+        Returns a Dict object representing the hierarchy of all the published pages of the site linked
+        to this WPConfig object.
+
+        Return:
+        dictionnary of pages hierarchy for the current site.
+        """
         pages = self.run_wp_cli('post list --post_type=page --fields=ID,post_title,url --format=json --order=asc')
         pages = json.loads(pages)
         pages_hierarchy = {}
         for page in pages:
+            # Next line keeps the part of the URL corresponding to the page localtion:
+            # https://localhost/site1/page -> /page
             parsed_url = urlparse(page['url'].replace(self.wp_site.url, ''))
             splitted_path = parsed_url.path.split('/')
+            # Remove empty elements
             splitted_path = list(filter(None, splitted_path))
             current_depth = pages_hierarchy
-            for parent_page in splitted_path[:-1]:
-                current_depth = current_depth[parent_page]
+            # Go to the right level in the hierarchy
+            for ancestor_page in splitted_path[:-1]:
+                current_depth = current_depth[ancestor_page]
             current_depth[splitted_path[-1]] = {'url': page['url']}
         return pages_hierarchy

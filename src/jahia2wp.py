@@ -354,7 +354,11 @@ def inventory(path, **kwargs):
 
 @dispatch.on('consolidate-hierarchy')
 def consolidate_hierarchy(path, **kwargs):
-    logging.info("Consolidating hierarchy...")
+    """
+    Consolidates the hierarchy of wordpress sites and sub-sites found in `path`. Also includes the pages of the
+    sites in the consolidated hierarchy.
+    """
+    logging.info("Consolidating sites and pages hierarchy...")
     sites_hierarchy = {}
     for site_details in WPConfig.inventory(path):
         parsed_url = urlparse(site_details.url)
@@ -364,8 +368,10 @@ def consolidate_hierarchy(path, **kwargs):
             sites_hierarchy[root] = {'path': site_details.path, 'url': site_details.url, **pages_hierarchy}
         else:
             splitted_path = parsed_url.path.split('/')
+            # Remove empty elements
             splitted_path = list(filter(None, splitted_path))
             current_depth = sites_hierarchy[root]
+            # Go to the right level in the hierarchy
             for sub_site in splitted_path[:-1]:
                 current_depth = current_depth[sub_site]
             current_depth[splitted_path[-1]] = {'path': site_details.path, 'url': site_details.url, **pages_hierarchy}
