@@ -125,7 +125,6 @@ def download(site, username=None, host=None, zip_path=None, force=False, **kwarg
 @dispatch.on('download-many')
 def download_many(csv_file, **kwargs):
 
-    # CSV file validation
     rows = Utils.csv_filepath_to_dict(csv_file)
 
     # create a new WP site for each row
