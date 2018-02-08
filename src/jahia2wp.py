@@ -128,7 +128,7 @@ def download_many(csv_file, **kwargs):
     rows = Utils.csv_filepath_to_dict(csv_file)
 
     # download jahia zip file for each row
-    print("\n{} jahia zip files will now be downloaded...".format(rows))
+    print("\nJahia  zip files will now be downloaded...")
     for index, row in enumerate(rows):
         print("\nIndex #{}:\n---".format(index))
         download(site=row['Jahia_zip'])
