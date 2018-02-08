@@ -4,6 +4,7 @@ jahia2wp: an amazing tool !
 Usage:
   jahia2wp.py download              <site>                          [--debug | --quiet]
     [--username=<USERNAME> --host=<HOST> --zip-path=<ZIP_PATH> --force]
+  jahia2wp.py download-many         <csv_file>                      [--debug | --quiet]
   jahia2wp.py unzip                 <site>                          [--debug | --quiet]
     [--username=<USERNAME> --host=<HOST> --zip-path=<ZIP_PATH> --force]
     [--output-dir=<OUTPUT_DIR>]
@@ -119,6 +120,20 @@ def download(site, username=None, host=None, zip_path=None, force=False, **kwarg
         password = getpass.getpass(prompt="Jahia password for user '{}': ".format(username))
     crawler = JahiaCrawler(site, username=username, password=password, host=host, zip_path=zip_path, force=force)
     return crawler.download_site()
+
+
+@dispatch.on('download-many')
+def download_many(csv_file, **kwargs):
+
+    # CSV file validation
+    rows = Utils.csv_filepath_to_dict(csv_file)
+
+    # create a new WP site for each row
+    print("\n{} zip files will now be downloaded...".format(rows))
+    for index, row in enumerate(rows):
+        print("\nIndex #{}:\n---".format(index))
+        # CSV file is utf-8 so we encode correctly the string to avoid errors during logging.debug display
+        download(site=row['Jahia_zip'])
 
 
 @dispatch.on('unzip')
