@@ -127,11 +127,10 @@ def download_many(csv_file, **kwargs):
 
     rows = Utils.csv_filepath_to_dict(csv_file)
 
-    # create a new WP site for each row
-    print("\n{} zip files will now be downloaded...".format(rows))
+    # download jahia zip file for each row
+    print("\n{} jahia zip files will now be downloaded...".format(rows))
     for index, row in enumerate(rows):
         print("\nIndex #{}:\n---".format(index))
-        # CSV file is utf-8 so we encode correctly the string to avoid errors during logging.debug display
         download(site=row['Jahia_zip'])
 
 
