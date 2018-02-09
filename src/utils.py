@@ -15,6 +15,8 @@ import xml.dom.minidom
 from urllib.parse import urlsplit
 from bs4 import BeautifulSoup
 
+import settings
+
 
 def deprecated(message):
     """ This is a decorator which can be used to mark functions as deprecated. It will result in a
@@ -309,3 +311,39 @@ class Utils(object):
         Return the domain name of url parameter
         """
         return urlsplit(url)[1].split(':')[0]
+
+    @staticmethod
+    def is_local_environment(host):
+        """
+        Return True if the host is the HTTPD container name.
+
+        Note: we use the name of HTTPD container to work in local
+        """
+        return host == settings.HTTPD_CONTAINER_NAME
+
+    @staticmethod
+    def get_default_language(languages):
+        """
+        Return the default language
+
+        If the site is in multiple languages, English is the default language
+        """
+        if "en" in languages:
+            return "en"
+        else:
+            return languages[0]
+
+    @staticmethod
+    def set_default_language_in_first_position(default_language, languages):
+        """
+        Set the default language in first position.
+        It is important for the Polylang plugin that the default language is
+        in first position.
+
+        :param default_language: the default language
+        :param languages: the list of languages
+        """
+        if len(languages) > 1:
+            languages.remove(default_language)
+            languages.insert(0, default_language)
+        return languages

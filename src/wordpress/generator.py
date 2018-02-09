@@ -72,10 +72,12 @@ class WPGenerator:
            ('theme_faculty' in self._site_params and self._site_params['theme_faculty'] == '')):
             self._site_params['theme_faculty'] = None
 
+        if self._site_params.get('openshift_env') is None:
+            self._site_params['openshift_env'] = settings.OPENSHIFT_ENV
+
         # validate input
-        if Utils.get_domain(url=self._site_params['wp_site_url']) != settings.HTTPD_CONTAINER:
-            self.validate_mockable_args(self._site_params['wp_site_url'])
-            validate_openshift_env(self._site_params['openshift_env'])
+        self.validate_mockable_args(self._site_params['wp_site_url'])
+        validate_openshift_env(self._site_params['openshift_env'])
 
         if self._site_params['wp_site_title'] is not None:
             validate_string(self._site_params['wp_site_title'])
@@ -314,7 +316,8 @@ class WPGenerator:
 
     def validate_mockable_args(self, wp_site_url):
         """ Call validators in an independant function to allow mocking them """
-        URLValidator()(wp_site_url)
+        if Utils.get_domain(wp_site_url) != settings.HTTPD_CONTAINER_NAME:
+            URLValidator()(wp_site_url)
 
     def get_the_unit_id(self, unit_name):
         """
@@ -493,6 +496,41 @@ class WPGenerator:
             path = os.path.join(self.wp_site.path, file_path)
             if os.path.exists(path):
                 os.remove(path)
+
+    def active_dual_auth(self):
+        """
+        Active dual authenticate for development only
+        """
+        cmd = "option update plugin:epfl_tequila:has_dual_auth 1"
+        self.run_wp_cli(cmd)
+        logging.debug("Dual authenticate is activated")
+
+    def install_basic_auth_plugin(self):
+        """
+        Install basic auth plugin
+
+        This plugin is used to communicate with REST API of WordPress site.
+        """
+        zip_path = os.path.join(settings.EXPORTER_DATA_PATH, 'Basic-Auth.zip')
+        cmd = "plugin install --activate {}".format(zip_path)
+        self.run_wp_cli(cmd)
+        logging.debug("Basic-Auth plugin is installed and activated")
+
+    def uninstall_basic_auth_plugin(self):
+        """
+        Uninstall basic auth plugin
+
+        This plugin is used to communicate with REST API of WordPress site.
+        """
+        # Deactivate basic-auth plugin
+        cmd = "plugin deactivate Basic-Auth"
+        self.run_wp_cli(cmd)
+        logging.debug("Basic-Auth plugin is deactivated")
+
+        # Uninstall basic-auth plugin
+        cmd = "plugin uninstall Basic-Auth"
+        self.run_wp_cli(cmd)
+        logging.debug("Basic-Auth plugin is uninstalled")
 
 
 class MockedWPGenerator(WPGenerator):

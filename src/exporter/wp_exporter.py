@@ -12,6 +12,7 @@ from wordpress_json import WordpressJsonWrapper, WordpressError
 
 import settings
 from exporter.utils import Utils
+from utils import Utils as MainUtils
 
 
 class WPExporter:
@@ -21,6 +22,23 @@ class WPExporter:
 
     # list of mapping Jahia url and Wordpress url
     urls_mapping = []
+
+    def _build_rest_api_url(self):
+        """
+        Build the rest API URL of WordPress site
+        """
+        if MainUtils.is_local_environment(self.host):
+            # when we are in the docker container we must specify the port number
+            rest_api_url = "http://{}:8080/".format(self.host)
+        else:
+            rest_api_url = "https://{}/".format(self.host)
+
+        if self.path:
+            rest_api_url += "{}/".format(self.path)
+
+        rest_api_url += "?rest_route=/wp/v2"
+
+        return rest_api_url
 
     def __init__(self, site, wp_generator, output_dir=None):
         """
@@ -49,10 +67,8 @@ class WPExporter:
         self.wp_generator = wp_generator
 
         # we use the python-wordpress-json library to interact with the wordpress REST API
-        if settings.ENVIRONMENT == settings.LOCAL_ENVIRONMENT:
-            rest_api_url = "http://{}:8080/{}/?rest_route=/wp/v2".format(self.host, self.site.name)
-        else:
-            rest_api_url = "https://{}/{}/?rest_route=/wp/v2".format(self.host, self.site.name)
+        # FIXME : http://<host>/prout/?rest_route=/wp/v2 fonctionne ???
+        rest_api_url = self._build_rest_api_url()
 
         logging.info("setting up API on '%s', with %s:xxxxxx", rest_api_url, wp_generator.wp_admin.username)
         self.wp = WordpressJsonWrapper(rest_api_url, wp_generator.wp_admin.username, wp_generator.wp_admin.password)
