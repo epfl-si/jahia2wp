@@ -12,7 +12,6 @@ from wordpress_json import WordpressJsonWrapper, WordpressError
 
 import settings
 from exporter.utils import Utils
-from utils import Utils as MainUtils
 
 
 class WPExporter:
@@ -27,7 +26,7 @@ class WPExporter:
         """
         Build the rest API URL of WordPress site
         """
-        if MainUtils.is_local_environment(self.host):
+        if self.is_local_environment():
             # when we are in the docker container we must specify the port number
             rest_api_url = "http://{}:8080/".format(self.host)
         else:
@@ -87,6 +86,14 @@ class WPExporter:
             pipe_input=pipe_input,
             extra_options=extra_options
         )
+
+    def is_local_environment(self):
+        """
+        Return True if the host is the HTTPD container name.
+
+        Note: we use the name of HTTPD container to work in local
+        """
+        return self.host == settings.HTTPD_CONTAINER_NAME
 
     def import_all_data_to_wordpress(self):
         """

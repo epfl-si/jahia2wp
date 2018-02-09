@@ -104,6 +104,33 @@ def _check_csv(csv_file):
     return validator
 
 
+def _get_default_language(languages):
+    """
+    Return the default language
+
+    If the site is in multiple languages, English is the default language
+    """
+    if "en" in languages:
+        return "en"
+    else:
+        return languages[0]
+
+
+def _set_default_language_in_first_position(default_language, languages):
+    """
+    Set the default language in first position.
+    It is important for the Polylang plugin that the default language is
+    in first position.
+
+    :param default_language: the default language
+    :param languages: the list of languages
+    """
+    if len(languages) > 1:
+        languages.remove(default_language)
+        languages.insert(0, default_language)
+    return languages
+
+
 def _add_extra_config(extra_config_file, current_config):
     """ Adds extra configuration information to current config
 
@@ -210,10 +237,10 @@ def export(site, to_wordpress=False, clean_wordpress=False, admin_password=None,
     site = parse(site=site)
 
     # Define the default language
-    default_language = Utils.get_default_language(site.languages)
+    default_language = _get_default_language(site.languages)
 
     # For polylang plugin, we need position default lang in first position
-    languages = Utils.set_default_language_in_first_position(default_language, site.languages)
+    languages = _set_default_language_in_first_position(default_language, site.languages)
 
     info = {
         # information from parser
