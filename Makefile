@@ -21,13 +21,12 @@ _httpd_container = $(shell docker ps -q --filter "label=ch.epfl.jahia2wp.httpd.e
 
 test: check-env
 # The "test-raw" target is in Makefile.mgmt
-	docker exec --user=www-data -e HTTPD_CONTAINER=$(_httpd_container) $(_mgmt_container) make -C /srv/$$WP_ENV/jahia2wp test-raw
+	docker exec --user=www-data $(_mgmt_container) make -C /srv/$$WP_ENV/jahia2wp test-raw
 
 functional-tests: check-env
 # The "functional-tests-raw" target is in Makefile.mgmt
 # WP_ENV hardcoded to 'test'
 	docker exec --user=www-data \
-	  -e HTTPD_CONTAINER=$(_httpd_container) \
 	  $(_mgmt_container) make -C /srv/$$WP_ENV/jahia2wp functional-tests-raw
 
 vars: check-env

@@ -1,3 +1,0 @@
-wp_site_url,wp_tagline,wp_site_title,site_type,openshift_env,category,theme,theme_faculty,status,installs_locked,updates_automatic,langs,unit_name,Jahia_zip,comment
-https://migration.epfl.ch/dcsl,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,DCSL,dcsl,site de la labo
-https://migration.epfl.ch/galatea,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,GALATEA,galatea,site de la labo
