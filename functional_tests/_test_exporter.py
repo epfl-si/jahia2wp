@@ -25,8 +25,7 @@ def wp_exporter():
         wp_site_url=SITE_URL_SPECIFIC,
         installs_locked=False,
         updates_automatic=False,
-        openshift_env=OPENSHIFT_ENV,
-        environment=ENVIRONMENT)
+        wp_env=OPENSHIFT_ENV)
 
     return wp_exporter
 

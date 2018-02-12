@@ -522,13 +522,8 @@ class WPGenerator:
 
         This plugin is used to communicate with REST API of WordPress site.
         """
-        # Deactivate basic-auth plugin
-        cmd = "plugin deactivate Basic-Auth"
-        self.run_wp_cli(cmd)
-        logging.debug("Basic-Auth plugin is deactivated")
-
         # Uninstall basic-auth plugin
-        cmd = "plugin uninstall Basic-Auth"
+        cmd = "plugin uninstall Basic-Auth --deactivate"
         self.run_wp_cli(cmd)
         logging.debug("Basic-Auth plugin is uninstalled")
 

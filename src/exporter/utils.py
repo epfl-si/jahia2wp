@@ -21,12 +21,3 @@ class Utils:
             if num < 1024.0:
                 return "%3.1f %s" % (num, x)
             num /= 1024.0
-
-    @classmethod
-    def file_size(cls, file_path):
-        """
-        This function will return the file size
-        """
-        if os.path.isfile(file_path):
-            file_info = os.stat(file_path)
-            return Utils.convert_bytes(file_info.st_size)

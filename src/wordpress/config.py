@@ -100,11 +100,9 @@ class WPConfig:
 
         Argument keywords:
         command -- WP-CLI command to execute
-        pipe_input -- Elements to give to the command using a pipe (ex: echo "elem" | wp command ...)
-        extra_options -- Options to add at the end of the command line. There value is taken from STDIN so it
-                         has to be at the end of the command line (after --path)
         encoding -- encoding to use
-        stdin -- display json in standard input. This json is used by wpcli commands
+        pipe_input -- Elements to give to the command using a pipe (ex: echo "elem" | wp command ...)        
+        extra_options -- display json in standard input. This json is used by wpcli commands
         """
         cmd = ""
 

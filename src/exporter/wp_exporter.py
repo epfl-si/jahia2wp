@@ -148,7 +148,7 @@ class WPExporter:
         """
         Import a media to Wordpress
         """
-        file_path = media.path + '/' + media.name
+        file_path = os.path.join(media.path, media.name)
         file = open(file_path, 'rb')
 
         files = {
