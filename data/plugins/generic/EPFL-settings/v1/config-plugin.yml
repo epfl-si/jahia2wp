@@ -5,4 +5,4 @@ tables:
   - autoload: 'yes'
     option_id: 300
     option_name: epfl:custom_breadcrumb
-    option_value: 'EPFL'
+    option_value: ''
