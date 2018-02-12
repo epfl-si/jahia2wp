@@ -14,7 +14,7 @@ Usage:
     [--admin-password=<PASSWORD>]
     [--output-dir=<OUTPUT_DIR>]
     [--installs-locked=<BOOLEAN> --updates-automatic=<BOOLEAN>]
-    [--wp-env=<WP_ENV> --theme=<THEME>]
+    [--openshift-env=<OPENSHIFT_ENV> --theme=<THEME>]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--stop-on-errors]
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
@@ -214,7 +214,8 @@ def parse(site, output_dir=None, use_cache=None, **kwargs):
 
 @dispatch.on('export')
 def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=False, admin_password=None,
-           output_dir=None, theme=None, installs_locked=False, updates_automatic=False, wp_env=None, **kwargs):
+           output_dir=None, theme=None, installs_locked=False, updates_automatic=False, openshift_env=None,
+           **kwargs):
     """
     Export the jahia content into a WordPress site.
 
@@ -228,7 +229,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     :param theme: WordPress theme used for the WordPress site
     :param installs_locked: boolean
     :param updates_automatic: boolean
-    :param wp_env: wp_env environment (prod, int, gcharmier ...)
+    :param openshift_env: openshift_env environment (prod, int, gcharmier ...)
     """
 
     # Download, Unzip the jahia zip and parse the xml data
@@ -249,7 +250,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         'unit_name': unit_name,
 
         # information from source of truth
-        'openshift_env': wp_env,
+        'openshift_env': openshift_env,
         'wp_site_url': wp_site_url,
         'theme': theme,
         'updates_automatic': updates_automatic,
