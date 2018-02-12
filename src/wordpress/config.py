@@ -101,7 +101,7 @@ class WPConfig:
         Argument keywords:
         command -- WP-CLI command to execute
         encoding -- encoding to use
-        pipe_input -- Elements to give to the command using a pipe (ex: echo "elem" | wp command ...)        
+        pipe_input -- Elements to give to the command using a pipe (ex: echo "elem" | wp command ...)
         extra_options -- display json in standard input. This json is used by wpcli commands
         """
         cmd = ""
