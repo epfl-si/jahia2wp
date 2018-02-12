@@ -140,21 +140,29 @@ def _fix_menu_location(wp_generator, languages, default_language):
     """
     # Recovering installed theme
     theme = wp_generator.run_wp_cli("theme list --status=active --field=name --format=csv")
+    if not theme:
+        raise SystemExit("Cannot retrieve current active theme")
 
     nav_menus = {theme: {}}
     # Getting menu locations
-    locations = json.loads(wp_generator.run_wp_cli("menu location list --format=json"))
-    menu_list = json.loads(wp_generator.run_wp_cli("menu list --fields=slug,locations,term_id --format=json"))
+    locations = wp_generator.run_wp_cli("menu location list --format=json")
+    if not locations:
+        raise SystemExit("Cannot retrieve menu location list")
+
+    # Getting menu list
+    menu_list = wp_generator.run_wp_cli("menu list --fields=slug,locations,term_id --format=json")
+    if not menu_list:
+        raise SystemExit("Cannot get menu list")
 
     # Looping through menu locations
-    for location in locations:
+    for location in json.loads(locations):
 
         # To store menu's IDs for all language and current location
         menu_lang_to_id = {}
 
         base_menu_slug = None
         # We have location, we have to found base slug of the menus which are at this location
-        for menu in menu_list:
+        for menu in json.loads(menu_list):
 
             if location['location'] in menu['locations']:
                 base_menu_slug = menu['slug']
@@ -178,7 +186,7 @@ def _fix_menu_location(wp_generator, languages, default_language):
             # Value if not found
             menu_lang_to_id[language] = 0
             # Looking for menu ID for given slug
-            for menu in menu_list:
+            for menu in json.loads(menu_list):
                 if menu_slug == menu['slug']:
                     menu_lang_to_id[language] = menu['term_id']
                     break
@@ -187,7 +195,8 @@ def _fix_menu_location(wp_generator, languages, default_language):
         nav_menus[theme][location['location']] = menu_lang_to_id
 
     # We update polylang config
-    wp_generator.run_wp_cli("pll option update nav_menus '{}'".format(json.dumps(nav_menus)))
+    if not wp_generator.run_wp_cli("pll option update nav_menus '{}'".format(json.dumps(nav_menus))):
+        raise SystemExit("Cannot update polylang option")
 
 
 def _add_extra_config(extra_config_file, current_config):
