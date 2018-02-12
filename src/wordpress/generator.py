@@ -49,7 +49,6 @@ class WPGenerator:
         self._site_params = site_params
 
         # Setting default values
-
         if 'unit_name' in self._site_params and 'unit_id' not in self._site_params:
             logging.info("WPGenerator.__init__(): Please use 'unit_id' from CSV file (now recovered from 'unit_name')")
             self._site_params['unit_id'] = self.get_the_unit_id(self._site_params['unit_name'])
@@ -72,6 +71,9 @@ class WPGenerator:
         if ('theme_faculty' not in self._site_params or
            ('theme_faculty' in self._site_params and self._site_params['theme_faculty'] == '')):
             self._site_params['theme_faculty'] = None
+
+        if self._site_params.get('openshift_env') is None:
+            self._site_params['openshift_env'] = settings.OPENSHIFT_ENV
 
         # validate input
         self.validate_mockable_args(self._site_params['wp_site_url'])
@@ -111,7 +113,7 @@ class WPGenerator:
     def __repr__(self):
         return repr(self.wp_site)
 
-    def run_wp_cli(self, command, pipe_input=None, extra_options=None, encoding=sys.stdout.encoding):
+    def run_wp_cli(self, command,  encoding=sys.stdout.encoding, pipe_input=None, extra_options=None):
         """
         Execute a WP-CLI command using method present in WPConfig instance.
 
@@ -122,7 +124,7 @@ class WPGenerator:
                          has to be at the end of the command line (after --path)
         encoding -- encoding to use
         """
-        return self.wp_config.run_wp_cli(command, extra_options=extra_options, pipe_input=pipe_input, encoding=encoding)
+        return self.wp_config.run_wp_cli(command, encoding=encoding, pipe_input=pipe_input, extra_options=extra_options)
 
     def run_mysql(self, command):
         """
@@ -157,7 +159,7 @@ class WPGenerator:
         """
         # check we have a clean place first
         if self.wp_config.is_installed:
-            logging.error("%s - WordPress files already found", repr(self))
+            logging.warning("%s - WordPress files already found", repr(self))
             return False
 
         # create specific mysql db and user
@@ -314,7 +316,8 @@ class WPGenerator:
 
     def validate_mockable_args(self, wp_site_url):
         """ Call validators in an independant function to allow mocking them """
-        URLValidator()(wp_site_url)
+        if Utils.get_domain(wp_site_url) != settings.HTTPD_CONTAINER_NAME:
+            URLValidator()(wp_site_url)
 
     def get_the_unit_id(self, unit_name):
         """
@@ -493,6 +496,36 @@ class WPGenerator:
             path = os.path.join(self.wp_site.path, file_path)
             if os.path.exists(path):
                 os.remove(path)
+
+    def active_dual_auth(self):
+        """
+        Active dual authenticate for development only
+        """
+        cmd = "option update plugin:epfl_tequila:has_dual_auth 1"
+        self.run_wp_cli(cmd)
+        logging.debug("Dual authenticate is activated")
+
+    def install_basic_auth_plugin(self):
+        """
+        Install basic auth plugin
+
+        This plugin is used to communicate with REST API of WordPress site.
+        """
+        zip_path = os.path.join(settings.EXPORTER_DATA_PATH, 'Basic-Auth.zip')
+        cmd = "plugin install --activate {}".format(zip_path)
+        self.run_wp_cli(cmd)
+        logging.debug("Basic-Auth plugin is installed and activated")
+
+    def uninstall_basic_auth_plugin(self):
+        """
+        Uninstall basic auth plugin
+
+        This plugin is used to communicate with REST API of WordPress site.
+        """
+        # Uninstall basic-auth plugin
+        cmd = "plugin uninstall Basic-Auth --deactivate"
+        self.run_wp_cli(cmd)
+        logging.debug("Basic-Auth plugin is uninstalled")
 
 
 class MockedWPGenerator(WPGenerator):

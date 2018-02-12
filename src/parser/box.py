@@ -102,7 +102,7 @@ class Box:
         """set the attributes of a infoscience box"""
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.content = "[infoscience url=%s]" % url
+        self.content = "[epfl_infoscience url=%s]" % url
 
     def set_box_faq(self, element):
         """set the attributes of a faq box"""

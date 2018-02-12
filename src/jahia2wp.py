@@ -9,8 +9,13 @@ Usage:
     [--username=<USERNAME> --host=<HOST> --zip-path=<ZIP_PATH> --force]
     [--output-dir=<OUTPUT_DIR>]
   jahia2wp.py parse                 <site>                          [--debug | --quiet]
-    [--output-dir=<OUTPUT_DIR>] [--print-report]
-    [--use-cache] [--site-path=<SITE_PATH>]
+    [--output-dir=<OUTPUT_DIR>] [--use-cache] [--host=<HOST>]
+  jahia2wp.py export     <site>  <wp_site_url> <unit_name>          [--debug | --quiet]
+    [--to-wordpress | --clean-wordpress]
+    [--admin-password=<PASSWORD>]
+    [--output-dir=<OUTPUT_DIR>]
+    [--installs-locked=<BOOLEAN> --updates-automatic=<BOOLEAN>]
+    [--openshift-env=<OPENSHIFT_ENV> --theme=<THEME>]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--stop-on-errors]
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
@@ -23,6 +28,8 @@ Usage:
   jahia2wp.py version               <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py admins                <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate-many         <csv_file>                      [--debug | --quiet]
+  jahia2wp.py export-many           <csv_file>                      [--debug | --quiet]
+    [--output-dir=<OUTPUT_DIR> --admin-password=<PASSWORD>]
   jahia2wp.py backup-many           <csv_file>                      [--debug | --quiet]
   jahia2wp.py rotate-backup         <csv_file>          [--dry-run] [--debug | --quiet]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
@@ -43,16 +50,18 @@ Options:
 """
 import getpass
 import logging
-import os
 import pickle
 
+import os
 import yaml
 from docopt import docopt
 from docopt_dispatch import dispatch
+from epflldap.ldap_search import get_unit_id
 from rotate_backups import RotateBackups
 
 import settings
 from crawler import JahiaCrawler
+from exporter.wp_exporter import WPExporter
 from parser.jahia_site import Site
 from settings import VERSION, FULL_BACKUP_RETENTION_THEME, INCREMENTAL_BACKUP_RETENTION_THEME, \
     DEFAULT_THEME_NAME, DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
@@ -74,7 +83,7 @@ def _check_site(wp_env, wp_url, **kwargs):
     return wp_config
 
 
-def _check_csv(csv_file, **kwargs):
+def _check_csv(csv_file):
     """
     Check validity of CSV file containing sites information
 
@@ -95,7 +104,34 @@ def _check_csv(csv_file, **kwargs):
     return validator
 
 
-def _add_extra_config(extra_config_file, current_config, **kwargs):
+def _get_default_language(languages):
+    """
+    Return the default language
+
+    If the site is in multiple languages, English is the default language
+    """
+    if "en" in languages:
+        return "en"
+    else:
+        return languages[0]
+
+
+def _set_default_language_in_first_position(default_language, languages):
+    """
+    Set the default language in first position.
+    It is important for the Polylang plugin that the default language is
+    in first position.
+
+    :param default_language: the default language
+    :param languages: the list of languages
+    """
+    if len(languages) > 1:
+        languages.remove(default_language)
+        languages.insert(0, default_language)
+    return languages
+
+
+def _add_extra_config(extra_config_file, current_config):
     """ Adds extra configuration information to current config
 
     Arguments keywords:
@@ -144,16 +180,14 @@ def unzip(site, username=None, host=None, zip_path=None, force=False, output_dir
         output_dir = settings.JAHIA_DATA_PATH
 
     try:
-        unzipped_files = unzip_one(output_dir, site, zip_file)
+        return unzip_one(output_dir, site, zip_file)
+
     except Exception as err:
         logging.error("%s - unzip - Could not unzip file - Exception: %s", site, err)
 
-    # return results
-    return unzipped_files
-
 
 @dispatch.on('parse')
-def parse(site, output_dir=None, print_report=None, use_cache=None, site_path=None, **kwargs):
+def parse(site, output_dir=None, use_cache=None, **kwargs):
     """
     Parse the give site.
     """
@@ -184,9 +218,118 @@ def parse(site, output_dir=None, print_report=None, use_cache=None, site_path=No
         # log success
         logging.info("Site %s successfully parsed" % site)
 
+        return site
+
     except Exception as err:
         logging.error("%s - parse - Exception: %s", site, err)
         raise err
+
+
+@dispatch.on('export')
+def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=False, admin_password=None,
+           output_dir=None, theme=None, installs_locked=False, updates_automatic=False, openshift_env=None,
+           **kwargs):
+    """
+    Export the jahia content into a WordPress site.
+
+    :param site: the name of the WordPress site
+    :param wp_site_url: URL of WordPress site
+    :param unit_name: unit name of the WordPress site
+    :param to_wordpress: to migrate data
+    :param clean_wordpress: to clean data
+    :param admin_password: an admin password
+    :param output_dir: directory where the jahia zip file will be unzipped
+    :param theme: WordPress theme used for the WordPress site
+    :param installs_locked: boolean
+    :param updates_automatic: boolean
+    :param openshift_env: openshift_env environment (prod, int, gcharmier ...)
+    """
+
+    # Download, Unzip the jahia zip and parse the xml data
+    site = parse(site=site)
+
+    # Define the default language
+    default_language = _get_default_language(site.languages)
+
+    # For polylang plugin, we need position default lang in first position
+    languages = _set_default_language_in_first_position(default_language, site.languages)
+
+    info = {
+        # information from parser
+        'langs': ",".join(languages),
+        'wp_site_title': site.acronym[default_language],
+        'wp_tagline': site.title[default_language],
+        'theme_faculty': site.theme[default_language],
+        'unit_name': unit_name,
+
+        # information from source of truth
+        'openshift_env': openshift_env,
+        'wp_site_url': wp_site_url,
+        'theme': theme,
+        'updates_automatic': updates_automatic,
+        'installs_locked': installs_locked,
+
+        # determined information
+        'unit_id': get_unit_id(unit_name),
+    }
+
+    # Generate a WordPress site
+    wp_generator = WPGenerator(info, admin_password)
+    wp_generator.generate()
+
+    wp_generator.install_basic_auth_plugin()
+
+    if settings.ACTIVE_DUAL_AUTH:
+        wp_generator.active_dual_auth()
+
+    wp_exporter = WPExporter(
+        site,
+        wp_generator,
+        output_dir
+    )
+
+    if to_wordpress:
+        logging.info("Exporting %s to WordPress...", site.name)
+        wp_exporter.import_all_data_to_wordpress()
+        logging.info("Site %s successfully exported to WordPress", site.name)
+
+    if clean_wordpress:
+        logging.info("Cleaning WordPress for %s...", site.name)
+        wp_exporter.delete_all_content()
+        logging.info("Data of WordPress site %s successfully deleted", site.name)
+
+    wp_generator.uninstall_basic_auth_plugin()
+
+    return wp_exporter
+
+
+@dispatch.on('export-many')
+def export_many(csv_file, output_dir=None, admin_password=None, **kwargs):
+
+    rows = Utils.csv_filepath_to_dict(csv_file)
+
+    # create a new WP site for each row
+    print("\n{} websites will now be generated...".format(len(rows)))
+    for index, row in enumerate(rows):
+
+        print("\nIndex #{}:\n---".format(index))
+        # CSV file is utf-8 so we encode correctly the string to avoid errors during logging.debug display
+        row_bytes = repr(row).encode('utf-8')
+        logging.debug("%s - row %s: %s", row["wp_site_url"], index, row_bytes)
+
+        export(
+            site=row['Jahia_zip'],
+            wp_site_url=row['wp_site_url'],
+            unit_name=row['unit_name'],
+            to_wordpress=True,
+            clean_wordpress=False,
+            output_dir=output_dir,
+            theme=row['theme'],
+            installs_locked=row['installs_locked'],
+            updates_automatic=row['updates_automatic'],
+            wp_env=row['openshift_env'],
+            admin_password=admin_password
+        )
 
 
 @dispatch.on('check')
@@ -216,8 +359,7 @@ def generate(wp_env, wp_url,
              wp_title=None, wp_tagline=None, admin_password=None,
              theme=None, theme_faculty=None,
              installs_locked=None, updates_automatic=None,
-             extra_config=None,
-             **kwargs):
+             extra_config=None, **kwargs):
     """
     This command may need more params if reference to them are done in YAML file. In this case, you'll see an
     error explaining which params are needed and how they can be added to command line
