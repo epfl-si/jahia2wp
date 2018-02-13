@@ -52,8 +52,9 @@ Options:
 import getpass
 import logging
 import pickle
-from datetime import datetime
 
+from datetime import datetime
+import json
 import os
 import yaml
 from docopt import docopt
@@ -131,6 +132,74 @@ def _set_default_language_in_first_position(default_language, languages):
         languages.remove(default_language)
         languages.insert(0, default_language)
     return languages
+
+
+def _fix_menu_location(wp_generator, languages, default_language):
+    """
+    Fix menu location for Polylang. After import, menus aren't displayed correctly so we need to add polylang
+    config to fix this.
+
+    :param wp_generator: WPGenerator instance used to create website.
+    """
+    # Recovering installed theme
+    theme = wp_generator.run_wp_cli("theme list --status=active --field=name --format=csv")
+    if not theme:
+        raise SystemExit("Cannot retrieve current active theme")
+
+    nav_menus = {theme: {}}
+    # Getting menu locations
+    locations = wp_generator.run_wp_cli("menu location list --format=json")
+    if not locations:
+        raise SystemExit("Cannot retrieve menu location list")
+
+    # Getting menu list
+    menu_list = wp_generator.run_wp_cli("menu list --fields=slug,locations,term_id --format=json")
+    if not menu_list:
+        raise SystemExit("Cannot get menu list")
+
+    # Looping through menu locations
+    for location in json.loads(locations):
+
+        # To store menu's IDs for all language and current location
+        menu_lang_to_id = {}
+
+        base_menu_slug = None
+        # We have location, we have to found base slug of the menus which are at this location
+        for menu in json.loads(menu_list):
+
+            if location['location'] in menu['locations']:
+                base_menu_slug = menu['slug']
+                break
+
+        # If location doesn't contain any menu, we skip it
+        if base_menu_slug is None:
+            continue
+
+        # We now have location (loc) and menu base slug (slug)
+
+        # Looping through languages
+        for language in languages:
+
+            # Defining current slug name depending on language
+            if language == default_language:
+                menu_slug = base_menu_slug
+            else:
+                menu_slug = "{}-{}".format(base_menu_slug, language)
+
+            # Value if not found
+            menu_lang_to_id[language] = 0
+            # Looking for menu ID for given slug
+            for menu in json.loads(menu_list):
+                if menu_slug == menu['slug']:
+                    menu_lang_to_id[language] = menu['term_id']
+                    break
+
+        # We now have information for all menus in all languages for this location so we add infos
+        nav_menus[theme][location['location']] = menu_lang_to_id
+
+    # We update polylang config
+    if not wp_generator.run_wp_cli("pll option update nav_menus '{}'".format(json.dumps(nav_menus))):
+        raise SystemExit("Cannot update polylang option")
 
 
 def _add_extra_config(extra_config_file, current_config):
@@ -311,6 +380,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     if to_wordpress:
         logging.info("Exporting %s to WordPress...", site.name)
         wp_exporter.import_all_data_to_wordpress()
+        _fix_menu_location(wp_generator, languages, default_language)
         logging.info("Site %s successfully exported to WordPress", site.name)
 
     if clean_wordpress:
