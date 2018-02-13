@@ -187,8 +187,7 @@ def download_many(csv_file, output_dir=None, **kwargs):
                     )
                 )
                 tracer.flush()
-
-    logging.info(("All jahia zip files downloaded !")
+    logging.info("All jahia zip files downloaded !")
 
 
 @dispatch.on('unzip')
