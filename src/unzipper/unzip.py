@@ -2,6 +2,7 @@
 import os
 import logging
 import zipfile
+import sys
 
 
 def unzip_one(output_dir, site_name, zip_file):
@@ -28,6 +29,8 @@ def unzip_one(output_dir, site_name, zip_file):
     if os.path.isdir(unzip_path):
         logging.info("Already unzipped %s", unzip_path)
         return unzip_path
+    else:
+        os.makedirs(unzip_path)
 
     logging.info("Unzipping %s...", zip_file)
 
@@ -52,7 +55,28 @@ def unzip_one(output_dir, site_name, zip_file):
     # unzip the zip with the files
     zip_path = os.path.join(output_subdir, zip_name)
     zip_ref_with_files = zipfile.ZipFile(zip_path, 'r')
-    zip_ref_with_files.extractall(unzip_path)
+    #zip_ref_with_files.extractall(unzip_path)
+    for m in zip_ref_with_files.infolist():
+        data = zip_ref_with_files.read(m) # extract zipped data into memory
+        # convert unicode file path to utf8
+        disk_file_name = m.filename.encode('utf8')
+        dir_name = os.path.dirname(disk_file_name)
+        logging.info(disk_file_name)
+        logging.info(dir_name)
+        if dir_name:
+            try:
+                os.makedirs(os.path.join(unzip_path.encode('utf-8'), dir_name))
+            except OSError as e:
+                if e.errno == os.errno.EEXIST:
+                    pass
+                else:
+                    raise
+            except Exception as e:
+                raise
+
+        with open(os.path.join(unzip_path.encode('utf-8'), disk_file_name), 'wb') as fd:
+            fd.write(data)
+    zip_ref_with_files.close()
 
     logging.info("Site successfully extracted in %s", unzip_path)
     return unzip_path
