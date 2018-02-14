@@ -113,7 +113,7 @@ class WPGenerator:
     def __repr__(self):
         return repr(self.wp_site)
 
-    def run_wp_cli(self, command,  encoding=sys.stdout.encoding, pipe_input=None, extra_options=None):
+    def run_wp_cli(self, command, encoding='utf-8', pipe_input=None, extra_options=None):
         """
         Execute a WP-CLI command using method present in WPConfig instance.
 
