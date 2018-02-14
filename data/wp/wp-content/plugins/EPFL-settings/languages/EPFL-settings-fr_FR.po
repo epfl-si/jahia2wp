@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2018-02-12 17:58+0100\n"
-"PO-Revision-Date: 2018-02-12 22:24+0100\n"
+"POT-Creation-Date: 2018-02-14 17:19+0100\n"
+"PO-Revision-Date: 2018-02-14 17:19+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -15,46 +15,54 @@ msgstr ""
 "X-Poedit-KeywordsList: __;__e;_\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: EPFL-settings.php:41
+#: EPFL-settings.php:23
+msgid "Incorrect breadcrumb"
+msgstr "Breadcrumb invalide"
+
+#: EPFL-settings.php:56
 msgid "General Settings"
 msgstr "Paramètres généraux"
 
-#: EPFL-settings.php:48
+#: EPFL-settings.php:63
 msgid "Site Title"
 msgstr "Titre du site"
 
-#: EPFL-settings.php:50
+#: EPFL-settings.php:65
 msgid "Acronym (example : IC)"
 msgstr "Acronyme (exemple : IC)"
 
-#: EPFL-settings.php:51
+#: EPFL-settings.php:66
 msgid "Site Title translation"
 msgstr "Traduction du titre du site"
 
-#: EPFL-settings.php:54
+#: EPFL-settings.php:69
 msgid "Tagline"
 msgstr "Slogan"
 
-#: EPFL-settings.php:56
+#: EPFL-settings.php:71
 msgid "Explicit name (example : School of Computer and Communication Sciences)"
 msgstr "Nom explicite (exemple : Faculté Informatique et Communications)"
 
-#: EPFL-settings.php:60
+#: EPFL-settings.php:75
 msgid "Site administration Language"
 msgstr "Langue de l’interface d’administration"
 
-#: EPFL-settings.php:64
+#: EPFL-settings.php:79
 msgid "Accred Unit"
 msgstr "Unité d’accréditation"
 
-#: EPFL-settings.php:66
+#: EPFL-settings.php:81
 msgid "Accred unit allowed to manage this Wordpress site"
 msgstr "Unité d’accréditation autorisé à gérer ce site Wordpress"
 
-#: EPFL-settings.php:70
+#: EPFL-settings.php:85
 msgid "Custom Breadcrumb"
 msgstr "Fil d’Ariane personnalisé"
 
-#: EPFL-settings.php:72
-msgid "Exmple : ...."
+#: EPFL-settings.php:87
+msgid ""
+"Format [label|url]>[label|url]>[label|url] (Example : [EPFL|www.epfl."
+"ch]>[ENAC|www.enac.ch])"
 msgstr ""
+"Format [label|url]>[label|url]>[label|url] (Exemple : [EPFL|www.epfl."
+"ch]>[ENAC|www.enac.ch])"
