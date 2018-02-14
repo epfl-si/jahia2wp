@@ -28,8 +28,8 @@ add_filter('robots_txt', 'get_robots_txt');
  * coming by default to add wp-login.php.
  */
 function get_robots_txt($original) {
-    $text = "
-User-agent: *
+
+    $text = "User-agent: *
 Disallow: /wp-login.php
 Disallow: /wp-admin/
 ";
