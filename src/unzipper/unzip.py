@@ -3,6 +3,8 @@ import os
 import logging
 import zipfile
 
+from tracer.tracer import Tracer
+
 
 def unzip_one(output_dir, site_name, zip_file):
     """
@@ -55,4 +57,6 @@ def unzip_one(output_dir, site_name, zip_file):
     zip_ref_with_files.extractall(unzip_path)
 
     logging.info("Site successfully extracted in %s", unzip_path)
+    Tracer.write_row(site=site_name, step="unzip", status="OK")
+
     return unzip_path

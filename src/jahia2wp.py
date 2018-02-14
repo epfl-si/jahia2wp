@@ -65,6 +65,7 @@ from exporter.wp_exporter import WPExporter
 from parser.jahia_site import Site
 from settings import VERSION, FULL_BACKUP_RETENTION_THEME, INCREMENTAL_BACKUP_RETENTION_THEME, \
     DEFAULT_THEME_NAME, DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
+from tracer.tracer import Tracer
 from unzipper.unzip import unzip_one
 from utils import Utils
 from veritas.casters import cast_boolean
@@ -285,6 +286,7 @@ def parse(site, output_dir=None, use_cache=None, **kwargs):
 
         # log success
         logging.info("Site %s successfully parsed" % site)
+        Tracer.write_row(site=site, step="parse", status="OK")
 
         return site
 
@@ -361,6 +363,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         wp_exporter.import_all_data_to_wordpress()
         _fix_menu_location(wp_generator, languages, default_language)
         logging.info("Site %s successfully exported to WordPress", site.name)
+        Tracer.write_row(site=site, step="export", status="OK")
 
     if clean_wordpress:
         logging.info("Cleaning WordPress for %s...", site.name)
