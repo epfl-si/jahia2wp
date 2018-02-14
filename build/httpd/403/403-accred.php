@@ -19,7 +19,7 @@
 
 <ul>
   <li><a href="https://accred.epfl.ch/cgi-bin/adminsofunite.pl?unite=<?php echo $unit_id ?>">
-  Find who your accreditor is
+  Find out who your accreditor is
   </a></li>
   <li><a href="https://accreditation.epfl.ch/page-26654-fr.html">
   Accreditation FAQ (French only)
