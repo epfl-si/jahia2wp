@@ -2,7 +2,7 @@
 /*
  * Plugin Name: EPFL General settings
  * Description: General settings for allow users
- * Version:     0.3
+ * Version:     0.5
  * Author:      <a href="mailto:wwp-admin@epfl.ch">wwp-admin@epfl.ch</a>
  * Text Domain: EPFL-settings
  */
@@ -84,7 +84,7 @@ function EPFL_settings_options_page()
     <tr>
       <th scope="row"><label for="epfl:custom_breadcrumb"><?php echo __ ("Custom Breadcrumb", 'EPFL-settings');?></label></th>
       <td><input type="text" id="epfl:custom_breadcrumb" name="epfl:custom_breadcrumb" value="<?php echo get_option('epfl:custom_breadcrumb'); ?>" />
-      <p class="description" id="tagline-description"><?php echo __ ("Format [label|url]>[label|url]>[label|url] (Exemple : [EPFL|www.epfl.ch]>[ENAC|www.enac.ch])", 'EPFL-settings');?></p>
+      <p class="description" id="tagline-description"><?php echo __ ("Format [label|url]>[label|url]>[label|url] (Example : [EPFL|www.epfl.ch]>[ENAC|www.enac.ch])", 'EPFL-settings');?></p>
       </td>
     </tr>
   </table>
