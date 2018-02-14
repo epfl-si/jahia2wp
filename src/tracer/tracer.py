@@ -16,7 +16,7 @@ class Tracer:
     @staticmethod
     def write_row(cls, site, step, status):
 
-        with open(cls.get_tracer_path(), 'a', newline='\n') as tracer:
+        with open(cls.get_tracer_path(cls), 'a', newline='\n') as tracer:
             tracer.write(
                 "{}, {}, {}, {}\n".format(
                     '{0:%Y-%m-%d %H:%M:%S}'.format(datetime.now()),
