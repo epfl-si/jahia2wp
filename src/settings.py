@@ -5,13 +5,17 @@ from utils import Utils
 
 VERSION = "0.3.1"
 
+ACTIVE_DUAL_AUTH = False
 OPENSHIFT_ENV = Utils.get_mandatory_env("WP_ENV")
 ENV_DIRS = ['logs', 'venv', 'jahia2wp']
 
 SRC_DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 DATA_PATH = os.path.abspath(os.path.sep.join([SRC_DIR_PATH, '..', 'data']))
 JAHIA_DATA_PATH = os.path.join(DATA_PATH, 'jahia-data')
+EXPORTER_DATA_PATH = os.path.join(DATA_PATH, 'exporter')
 WP_FILES_PATH = os.path.join(DATA_PATH, 'wp')
+
+HTTPD_CONTAINER_NAME = "jahia2wp-httpd"
 
 NB_DAYS_BEFORE_NEW_FULL = 7
 FULL_BACKUP_RETENTION_THEME = {
@@ -136,3 +140,6 @@ JAHIA_HOST = Utils.get_optional_env("JAHIA_HOST", "localhost")
 JAHIA_PROTOCOL = "https"
 JAHIA_ZIP_PATH = Utils.get_optional_env("JAHIA_ZIP_PATH", ".")
 JAHIA_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
+
+MAIN_MENU = "Main"
+FOOTER_MENU = "footer_nav"

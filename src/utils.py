@@ -12,6 +12,7 @@ import binascii
 import random
 import xml.dom.minidom
 
+from urllib.parse import urlsplit
 from bs4 import BeautifulSoup
 
 
@@ -95,6 +96,7 @@ class Utils(object):
         try:
             # encode command properly for subprocess
             command_bytes = command.encode(encoding)
+
             # run command and log output
             proc = subprocess.run(command_bytes, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
             logging.debug("%s => %s", command_bytes, proc.stdout)
@@ -299,3 +301,10 @@ class Utils(object):
         module_name, class_name = class_string.rsplit('.', 1)
         module = importlib.import_module(module_name)
         return getattr(module, class_name)
+
+    @staticmethod
+    def get_domain(url):
+        """
+        Return the domain name of url parameter
+        """
+        return urlsplit(url)[1].split(':')[0]

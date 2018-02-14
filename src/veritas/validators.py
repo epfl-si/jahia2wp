@@ -67,7 +67,7 @@ def validate_db_name(name):
 
 def validate_openshift_env(text):
     if not os.path.isdir('/srv/{}'.format(text)):
-        raise ValidationError("Openshift environment not valid")
+        raise ValidationError("Openshift environment not valid: {}".format(text))
 
 
 def validate_site_type(text):

@@ -3,6 +3,8 @@ import pytest
 import uuid
 import logging
 import os
+from importlib import reload
+import settings
 
 import requests
 from bs4 import BeautifulSoup
@@ -15,6 +17,14 @@ from utils import Utils
 # Docker may change it in the future, which will cause some tests to fail.
 HTTPD_CONTAINER = Utils.get_optional_env("HTTPD_CONTAINER", "httpd")
 
+"""
+Load fake environment variables for every test
+FIXME: Can be improved. Information can be found here :
+- https://docs.pytest.org/en/2.7.3/xunit_setup.html
+- http://agiletesting.blogspot.ch/2005/01/python-unit-testing-part-3-pytest-tool.html
+"""
+os.environ["PLUGINS_CONFIG_BASE_PATH"] = "wordpress/tests/plugins"
+reload(settings)
 
 class TestWpUploadTest:
 
@@ -46,13 +56,16 @@ class TestWpUploadTest:
 
         username = wp_generator.wp_admin.username
 
+        lcbase_path = "https://" + HTTPD_CONTAINER + ":8443/folder"
+
         # login to WordPress
         logging.debug("Login in to WordPress")
-        link = "{base_path}/wp-login.php".format(base_path=wp_generator.wp_site.url)
+        link = "{base_path}/wp-login.php".format(base_path=lcbase_path)
+
         login_data = {"log": username,
                       "pwd": wp_generator.wp_admin.password,
                       "rememberme": "forever",
-                      "redirect_to": "{base_path}/wp-admin".format(base_path=wp_generator.wp_site.url),
+                      "redirect_to": "{base_path}/wp-admin".format(base_path=lcbase_path),
                       "redirect_to_automatic": "1"
                       }
         # 'verify=False' is to ignore SSL certificate error because we are accessing using HTTPS but without
@@ -69,7 +82,7 @@ class TestWpUploadTest:
 
         # go the media upload page (in order to generate a nonce)
         logging.debug("Getting the media upload page in order to get wp_nonce")
-        upload_page = session.get('{base_path}/wp-admin/media-new.php'.format(base_path=wp_generator.wp_site.url))
+        upload_page = session.get('{base_path}/wp-admin/media-new.php'.format(base_path=lcbase_path))
 
         # Grab the _wp_nonce
         logging.debug("Getting the wp_nonce")
@@ -96,7 +109,7 @@ class TestWpUploadTest:
                            'html-upload': 'Upload'}
             files = {'async-upload': (unique_file_name, f)}
             upload_result = session.post(
-                '{base_path}/wp-admin/media-new.php'.format(base_path=wp_generator.wp_site.url),
+                '{base_path}/wp-admin/media-new.php'.format(base_path=lcbase_path),
                 data=upload_data,
                 files=files
             )
@@ -105,7 +118,7 @@ class TestWpUploadTest:
         # checks if the image has really been uploaded
         logging.debug("Cross cjecking that the image was really uploaded")
         image_url = "{base_path}/wp-content/uploads/{timestamp:%Y/%m}/{filename}".format(
-            base_path=wp_generator.wp_site.url,
+            base_path=lcbase_path,
             timestamp=datetime.date.today(),
             filename=unique_file_name)
         print(image_url)
@@ -115,7 +128,7 @@ class TestWpUploadTest:
         # cleanup up the mess
         logging.debug("Starting cleanup the uploaded file")
         upload_management_page_url = "{base_path}/wp-admin/upload.php?mode=list".format(
-            base_path=wp_generator.wp_site.url)
+            base_path=lcbase_path)
         upload_management_page = session.get(upload_management_page_url)
         assert upload_management_page.status_code is 200
         soup = BeautifulSoup(upload_management_page.content, 'lxml')
@@ -129,7 +142,7 @@ class TestWpUploadTest:
                 table_cell_element = filename_element.parent
                 delete_link = table_cell_element.find('a', {'class': 'submitdelete'})
                 delete_link = delete_link['href']
-                delete_link = "{base_path}/wp-admin/{link}".format(base_path=wp_generator.wp_site.url, link=delete_link)
+                delete_link = "{base_path}/wp-admin/{link}".format(base_path=lcbase_path, link=delete_link)
 
                 logging.debug("Deleting the file")
                 delete_media_result = session.get(delete_link)
