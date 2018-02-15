@@ -650,14 +650,7 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
 
     sites = []
 
-    # create a new WP site for each row
-    print("\n{} websites will now be generated...".format(len(rows)))
     for index, row in enumerate(rows):
-        print("\nIndex #{}:\n---".format(index))
-        # CSV file is utf-8 so we encode correctly the string to avoid errors during logging.debug display
-        row_bytes = repr(row).encode('utf-8')
-        logging.debug("%s - row %s: %s", row["wp_site_url"], index, row_bytes)
-
         try:
             sites.append(parse(site=row['Jahia_zip'], use_cache=use_cache))
         except Exception as e:
