@@ -1,3 +1,4 @@
+tail -f /srv/test/logs/error_log.$(date +%Y%m%d)
 python jahia2wp.py clean-one $WP_ENV http://localhost
 python jahia2wp.py generate $WP_ENV http://localhost/folder
 python jahia2wp.py generate $WP_ENV http://localhost/folder/sub-folder
