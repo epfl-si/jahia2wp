@@ -19,6 +19,7 @@ services:
       volumes:
       - /sessions
       restart: always
+
   httpd:
     container_name: jahia2wp-httpd
     labels:
