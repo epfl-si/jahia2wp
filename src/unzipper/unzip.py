@@ -55,17 +55,15 @@ def unzip_one(output_dir, site_name, zip_file):
     # unzip the zip with the files
     zip_path = os.path.join(output_subdir, zip_name)
     zip_ref_with_files = zipfile.ZipFile(zip_path, 'r')
-    #zip_ref_with_files.extractall(unzip_path)
     for m in zip_ref_with_files.infolist():
-        data = zip_ref_with_files.read(m) # extract zipped data into memory
-        # convert unicode file path to utf8
-        disk_file_name = m.filename.encode('utf8')
+        data = zip_ref_with_files.read(m)  # extract zipped data into memory
+        # convert unicode file path to cp437 (encoding used by Jahia for the filenames in the zip files)
+        disk_file_name = m.filename.encode('cp437')
         dir_name = os.path.dirname(disk_file_name)
-        logging.info(disk_file_name)
-        logging.info(dir_name)
+        # If the file is in a subfolder, create the subolder if it does not exist
         if dir_name:
             try:
-                os.makedirs(os.path.join(unzip_path.encode('utf-8'), dir_name))
+                os.makedirs(os.path.join(unzip_path.encode('cp437'), dir_name))
             except OSError as e:
                 if e.errno == os.errno.EEXIST:
                     pass
@@ -74,7 +72,7 @@ def unzip_one(output_dir, site_name, zip_file):
             except Exception as e:
                 raise
 
-        with open(os.path.join(unzip_path.encode('utf-8'), disk_file_name), 'wb') as fd:
+        with open(os.path.join(unzip_path.encode('cp437'), disk_file_name), 'wb') as fd:
             fd.write(data)
     zip_ref_with_files.close()
 
