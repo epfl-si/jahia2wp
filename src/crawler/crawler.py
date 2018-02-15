@@ -52,8 +52,8 @@ class JahiaCrawler(object):
         logging.debug("%s - headers %s", self.site, response.headers)
 
         if len(response.content) < 200:
-            logging.error("The jahia zip file for WordPress site %s is empty", self.site)
-            raise Exception("The jahia zip file is empty. Check the name of jahia zip file: {}".format(self.site))
+            logging.error("The jahia zip file for WordPress site is empty")
+            raise Exception("Jahia zip is empty")
 
         total_length = response.headers.get('content-length')
         if total_length is not None:

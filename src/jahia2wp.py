@@ -247,7 +247,7 @@ def download_many(csv_file, output_dir=None, **kwargs):
         print("\nIndex #{}:\n---".format(index))
         try:
             download(site=row['Jahia_zip'])
-        except Exception as err:
+        except Exception:
             with open(tracer_path, 'a', newline='\n') as tracer:
                 tracer.write(
                     "{}, {}\n".format(
