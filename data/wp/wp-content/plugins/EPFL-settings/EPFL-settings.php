@@ -20,7 +20,7 @@ function validate_breadcrumb($input) {
     $matched = preg_match($breadcrumb_option_format, $input);
 
     if ($matched !== 1 && $input !== '') {
-        $error_message = __ ('Incorrect breadcrumb');
+        $error_message = __ ('Incorrect breadcrumb', 'EPFL-settings');
         add_settings_error(
             'epfl:custom_breadcrumb',
             'validationError',
