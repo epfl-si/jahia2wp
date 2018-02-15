@@ -661,8 +661,7 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
         try:
             sites.append(parse(site=row['Jahia_zip'], use_cache=use_cache))
         except Exception as e:
-            pass
-
+            logging.error("Site %s - Error %s", row['Jahia_zip'], e)
 
     # retrieve all the box types
     box_types = set()
