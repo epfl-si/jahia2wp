@@ -247,11 +247,11 @@ def unzip(site, username=None, host=None, zip_path=None, force=False, output_dir
     if output_dir is None:
         output_dir = settings.JAHIA_DATA_PATH
 
-    #try:
-    return unzip_one(output_dir, site, zip_file)
+    try:
+        return unzip_one(output_dir, site, zip_file)
 
-    #except Exception as err:
-    #    logging.error("%s - unzip - Could not unzip file - Exception: %s", site, err)
+    except Exception as err:
+        logging.error("%s - unzip - Could not unzip file - Exception: %s", site, err)
 
 
 @dispatch.on('parse')

@@ -2,7 +2,6 @@
 import os
 import logging
 import zipfile
-import sys
 
 
 def unzip_one(output_dir, site_name, zip_file):
