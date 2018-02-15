@@ -1,2 +1,25 @@
 wp_site_url,wp_tagline,wp_site_title,site_type,openshift_env,category,theme,theme_faculty,status,installs_locked,updates_automatic,langs,unit_name,Jahia_zip,comment
 https://jahia2wp-httpd/dcsl,#parser,#parser,wordpress,gcharmier,GeneralPublic,epfl-master,#parser,yes,no,yes,#parser,DCSL,dcsl,site de la labo
+https://jahia2wp-httpd/bubbles,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,lmh,bubbles,lmh
+https://jahia2wp-httpd/cnbi,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,cnbi,cnbi,cnbi
+https://jahia2wp-httpd/csqi,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,pde,csqi,pde
+https://jahia2wp-httpd/dcsl,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,dcsl,dcsl,dcsl
+https://jahia2wp-httpd/depalma-lab,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,updepalma,depalma-lab,updepalma
+https://jahia2wp-httpd/www.fix-the-leaky-pipeline.ch,#parser,#parser,wordpress,int,GeneralPublic,epfl-blank,#parser,yes,yes,yes,#parser,ega,fix-the-leaky-pipeline,ega
+https://jahia2wp-httpd/gfo,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,sci-sti-lt,gfo,sci-sti-lt
+https://jahia2wp-httpd/gr-ost,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,isic-ge,gr-ost,isic-ge
+https://jahia2wp-httpd/labos,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,labos,labos,labos
+https://jahia2wp-httpd/laspe,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,laspe,laspe,laspe
+https://jahia2wp-httpd/lei,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,sti-form,lei,sti-form
+https://jahia2wp-httpd/lme,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,pel,lme,pel
+https://jahia2wp-httpd/lsp,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,ph-ic,lsp,ph-ic
+https://jahia2wp-httpd/ltcm,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,edey,ltcm,edey
+https://jahia2wp-httpd/microbs,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,microbs,microbs,microbs
+https://jahia2wp-httpd/postal-innovation,#parser,#parser,wordpress,int,GeneralPublic,epfl-blank,#parser,yes,yes,yes,#parser,mir,postal-innovation,mir
+https://jahia2wp-httpd/mott-physics,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,lqm,mott-physics,lqm
+https://jahia2wp-httpd/nanolab,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,nanolab,nanolab,nanolab
+https://jahia2wp-httpd/naveiras-lab,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,gr-naveiras,naveiras-lab,gr-naveiras
+https://jahia2wp-httpd/pde,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,pde,pde,pde
+https://jahia2wp-httpd/persat-lab,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,uppersat,persat-lab,uppersat
+https://jahia2wp-httpd/react,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,sci-sti-dg,react,sci-sti-dg
+https://jahia2wp-httpd/suter-lab,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,upsuter,suter-lab,upsuter

@@ -286,7 +286,7 @@ def parse(site, output_dir=None, use_cache=None, **kwargs):
 
         # log success
         logging.info("Site %s successfully parsed" % site)
-        Tracer.write_row(site=site, step="parse", status="OK")
+        Tracer.write_row(site=site.name, step="parse", status="OK")
 
         return site
 
@@ -363,7 +363,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         wp_exporter.import_all_data_to_wordpress()
         _fix_menu_location(wp_generator, languages, default_language)
         logging.info("Site %s successfully exported to WordPress", site.name)
-        Tracer.write_row(site=site, step="export", status="OK")
+        Tracer.write_row(site=site.name, step="export", status="OK")
 
     if clean_wordpress:
         logging.info("Cleaning WordPress for %s...", site.name)
@@ -389,20 +389,22 @@ def export_many(csv_file, output_dir=None, admin_password=None, **kwargs):
         row_bytes = repr(row).encode('utf-8')
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row_bytes)
 
-        export(
-            site=row['Jahia_zip'],
-            wp_site_url=row['wp_site_url'],
-            unit_name=row['unit_name'],
-            to_wordpress=True,
-            clean_wordpress=False,
-            output_dir=output_dir,
-            theme=row['theme'],
-            installs_locked=row['installs_locked'],
-            updates_automatic=row['updates_automatic'],
-            wp_env=row['openshift_env'],
-            admin_password=admin_password
-        )
-
+        try:
+            export(
+                site=row['Jahia_zip'],
+                wp_site_url=row['wp_site_url'],
+                unit_name=row['unit_name'],
+                to_wordpress=True,
+                clean_wordpress=False,
+                output_dir=output_dir,
+                theme=row['theme'],
+                installs_locked=row['installs_locked'],
+                updates_automatic=row['updates_automatic'],
+                wp_env=row['openshift_env'],
+                admin_password=admin_password
+            )
+        except Exception as e:
+            Tracer.write_row(site=row['Jahia_zip'], step=e, status="KO")
 
 @dispatch.on('check')
 def check(wp_env, wp_url, **kwargs):
