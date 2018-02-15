@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     openssh-server \
     tree \
     php7.0 \
+    php7.0-gd \
     php7.0-cli \
     php7.0-curl \
     php7.0-mysql \
