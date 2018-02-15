@@ -27,6 +27,8 @@ function validate_breadcrumb($input) {
             $error_message,
             'error');
     }
+    // Delete cache entry to force reload of breqdcrumb when option is updated
+    delete_transient('base_breadcrumb');
     return $input;
 }
   
