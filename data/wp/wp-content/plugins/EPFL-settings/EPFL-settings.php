@@ -19,7 +19,7 @@ function validate_breadcrumb($input) {
     $breadcrumb_option_format = "/(^\[[^\|\[\]]+\|[^\|\[\]]+\]){1}(>(\[[^\|\[\]]+\|[^\|\[\]]+\]){1})*$/";
     $matched = preg_match($breadcrumb_option_format, $input);
 
-    if ($matched !== 1) {
+    if ($matched !== 1 && $input !== '') {
         $error_message = __ ('Incorrect breadcrumb');
         add_settings_error(
             'epfl:custom_breadcrumb',
