@@ -71,8 +71,9 @@ def unzip_one(output_dir, site_name, zip_file):
             except Exception as e:
                 raise
 
-        with open(os.path.join(unzip_path.encode('cp437'), disk_file_name), 'wb') as fd:
-            fd.write(data)
+        if os.path.basename(disk_file_name):
+            with open(os.path.join(unzip_path.encode('cp437'), disk_file_name), 'wb') as fd:
+                fd.write(data)
     zip_ref_with_files.close()
 
     logging.info("Site successfully extracted in %s", unzip_path)
