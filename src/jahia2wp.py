@@ -658,7 +658,10 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
         row_bytes = repr(row).encode('utf-8')
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row_bytes)
 
-        sites.append(parse(site=row['Jahia_zip'], use_cache=use_cache))
+        try:
+            sites.append(parse(site=row['Jahia_zip'], use_cache=use_cache))
+        except Exception as e:
+            pass
 
 
     # retrieve all the box types
