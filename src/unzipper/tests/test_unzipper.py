@@ -20,8 +20,6 @@ class TestUnzipper(object):
             zip_file=self.TEST_FILE
         )
 
-        print(unzip_path)
-
         TEST_JAHIA_SITE_PATH = os.path.join(self.OUTPUT_DIR, self.TEST_JAHIA_SITE)
         unzip_path_expected = os.path.join(TEST_JAHIA_SITE_PATH, self.TEST_JAHIA_SITE)
 
