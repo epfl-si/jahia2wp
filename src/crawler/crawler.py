@@ -31,6 +31,7 @@ class JahiaCrawler(object):
             file_path = files[-1]
             logging.info("%s - zip already downloaded %sx. Last one is %s",
                          self.site, len(files), file_path)
+            Tracer.write_row(site=self.site, step="download", status="OK")
             return file_path
 
         # set timer to measure execution time

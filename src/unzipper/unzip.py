@@ -29,6 +29,7 @@ def unzip_one(output_dir, site_name, zip_file):
     unzip_path = os.path.join(output_subdir, site_name)
     if os.path.isdir(unzip_path):
         logging.info("Already unzipped %s", unzip_path)
+        Tracer.write_row(site=site_name, step="unzip", status="OK")
         return unzip_path
 
     logging.info("Unzipping %s...", zip_file)
