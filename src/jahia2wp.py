@@ -638,6 +638,7 @@ def update_plugins_many(csv_file, plugin=None, force=False, **kwargs):
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
         WPGenerator(row).update_plugins(only_one=plugin, force=force)
 
+
 @dispatch.on('global-report')
 def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
 
