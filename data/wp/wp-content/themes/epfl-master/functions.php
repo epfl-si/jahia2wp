@@ -301,7 +301,7 @@ function get_breadcrumb() {
                 $base_breadcrumb .= '<li class="item-parent"><a class="bread-parent" href="' . $url . '" title="' . $label . '">' . $label . '</a></li>';
             }
         }
-        set_transient('base_breadcrumb', $base_breadcrumb, 30);
+        set_transient('base_breadcrumb', $base_breadcrumb, 1 * HOUR_IN_SECONDS);
     }
 
     echo $base_breadcrumb;
