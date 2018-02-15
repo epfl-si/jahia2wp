@@ -36,7 +36,7 @@ function EPFL_settings_register_settings() {
    register_setting( 'EPFL_settings_options_group', 'blogname' );
    register_setting( 'EPFL_settings_options_group', 'blogdescription' );
    register_setting( 'EPFL_settings_options_group', 'WPLANG' );
-   register_setting( 'EPFL_settings_options_group', 'epfl:custom_breadcrumb', array($this, 'validate_breadcrumb'));
+   register_setting( 'EPFL_settings_options_group', 'epfl:custom_breadcrumb', 'validate_breadcrumb');
 }
 add_action( 'admin_init', 'EPFL_settings_register_settings' );
 
