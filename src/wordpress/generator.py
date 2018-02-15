@@ -210,7 +210,7 @@ class WPGenerator:
             return False
 
         # create MySQL DB
-        command = "-e \"CREATE DATABASE {0.wp_db_name};\""
+        command = "-e \"CREATE DATABASE {0.wp_db_name} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\""
         if not self.run_mysql(command.format(self)):
             logging.error("%s - could not create DB", repr(self))
             return False
