@@ -1,0 +1,10 @@
+[mysqld]
+
+# https://dev.mysql.com/doc/refman/5.5/en/charset-unicode-utf8mb4.html
+# says: "The character set named utf8 uses a maximum of three bytes
+# per character and contains only BMP characters."
+# If you want emoji (which your users most probably do), you need to
+# use utf8mb4 instead.
+
+character-set-server=utf8mb4
+collation-server=utf8mb4_unicode_ci
