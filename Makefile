@@ -68,26 +68,15 @@ pull: check-env
 	docker-compose pull
 
 up: check-env
-	@WP_ENV=${WP_ENV} \
-		MYSQL_DB_HOST=${MYSQL_DB_HOST} \
-		MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
-		WP_PORT_HTTP=${WP_PORT_HTTP} \
-		WP_PORT_HTTPS=${WP_PORT_HTTPS} \
-		docker-compose up -d
+	docker-compose up -d
 
 exec: check-env
-	@docker exec --user www-data -it  \
-	  -e WP_ENV=${WP_ENV} \
-	  -e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
-	  -e MYSQL_DB_HOST=${MYSQL_DB_HOST} \
-	  $(_mgmt_container) bash -l
+	@docker exec --user www-data -it $(_mgmt_container) bash -l
 
 httpd: check-env
 	@docker exec -it $(_httpd_container) bash -l
 
 down: check-env
-	@WP_PORT_HTTP=${WP_PORT_HTTP} \
-	 WP_PORT_HTTPS=${WP_PORT_HTTPS} \
 	 docker-compose down
 
 bootstrap-local:
