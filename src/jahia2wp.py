@@ -335,7 +335,6 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     else:
         theme_faculty = site.theme[default_language]
 
-
     info = {
         # information from parser
         'langs': ",".join(languages),
