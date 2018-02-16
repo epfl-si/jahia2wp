@@ -5,8 +5,7 @@ import sys
 import timeit
 from collections import OrderedDict
 from datetime import timedelta, datetime
-
-import simplejson
+import json
 from bs4 import BeautifulSoup
 from wordpress_json import WordpressJsonWrapper, WordpressError
 
@@ -347,7 +346,7 @@ class WPExporter:
                 }
 
             cmd = "pll post create --post_type=page --stdin --porcelain"
-            stdin = simplejson.dumps(info_page)
+            stdin = json.dumps(info_page)
 
             result = self.run_wp_cli(cmd, pipe_input=stdin)
             if not result:
@@ -415,7 +414,7 @@ class WPExporter:
             }
 
         cmd = "pll post create --post_type=page --stdin --porcelain"
-        stdin = simplejson.dumps(info_page)
+        stdin = json.dumps(info_page)
         result = self.run_wp_cli(command=cmd, pipe_input=stdin)
 
         sitemap_ids = result.split()
@@ -442,15 +441,29 @@ class WPExporter:
                     content += Utils.escape_quotes(box.content)
                     content += "[/colored-box]"
 
-                    cmd = 'widget add black-studio-tinymce page-widgets ' \
-                          '--text="{}"'.format(content)
+                    content = clean_sidebar_html(content)
 
-                    cmd = clean_sidebar_html(cmd)
+                    cmd = 'widget add text page-widgets ' \
+                          '--text="{}"'.format(content)
 
                     self.run_wp_cli(cmd)
 
+                    # Looking for existing 'text' widgets
+                    widgets = json.loads(self.run_wp_cli('option get widget_text --format=json'))
+
+                    # looping through found widgets
+                    for widget_no in widgets:
+                        # If it is a widget (can be just an integer) and if it's the widget we just added
+                        if isinstance(widgets[widget_no], dict) and widgets[widget_no]['text'] == content:
+                            # Adding parameter to specify for which language it has to be displayed
+                            widgets[widget_no]['pll_lang'] = lang
+                            break
+
+                    # We replace information in DB with updated language for widget.
+                    self.run_wp_cli("option update widget_text '{}' --format=json".format(json.dumps(widgets)))
+
                 # Import sidebar for one language only
-                break
+                #break
 
             logging.info("WP all sidebar imported")
 
