@@ -325,12 +325,22 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     # For polylang plugin, we need position default lang in first position
     languages = _set_default_language_in_first_position(default_language, site.languages)
 
+    if not site.acronym[default_language]:
+        wp_site_title = "No-wp-site-title-in-{}".format(default_language)
+    else:
+        wp_site_title = site.acronym[default_language]
+
+    if not site.theme[default_language] or site.theme[default_language] == "epfl":
+        theme_faculty = ""
+    else:
+        theme_faculty = site.theme[default_language]
+
     info = {
         # information from parser
         'langs': ",".join(languages),
-        'wp_site_title': site.acronym[default_language],
+        'wp_site_title': wp_site_title,
         'wp_tagline': site.title[default_language],
-        'theme_faculty': site.theme[default_language],
+        'theme_faculty': theme_faculty,
         'unit_name': unit_name,
 
         # information from source of truth
