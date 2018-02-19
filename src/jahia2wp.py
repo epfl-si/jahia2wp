@@ -406,6 +406,7 @@ def export_many(csv_file, output_dir=None, admin_password=None, **kwargs):
         except Exception as e:
             Tracer.write_row(site=row['Jahia_zip'], step=e, status="KO")
 
+
 @dispatch.on('check')
 def check(wp_env, wp_url, **kwargs):
     wp_config = _check_site(wp_env, wp_url, **kwargs)
