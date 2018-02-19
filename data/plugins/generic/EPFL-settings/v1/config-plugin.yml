@@ -1,2 +1,8 @@
 src: generic/EPFL-settings/v1/EPFL-settings.zip
 activate: yes
+tables:
+  options:
+  - autoload: 'yes'
+    option_id: 300
+    option_name: epfl:custom_breadcrumb
+    option_value: ''
