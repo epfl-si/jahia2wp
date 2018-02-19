@@ -18,6 +18,7 @@ Usage:
     [--openshift-env=<OPENSHIFT_ENV> --theme=<THEME>]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--stop-on-errors]
+  jahia2wp.py clean-many            <csv_file>                      [--debug | --quiet] 
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate              <wp_env> <wp_url>               [--debug | --quiet]
     [--wp-title=<WP_TITLE> --wp-tagline=<WP_TAGLINE> --admin-password=<PASSWORD>]
@@ -435,6 +436,23 @@ def clean(wp_env, wp_url, stop_on_errors=False, **kwargs):
     wp_generator = WPGenerator({'openshift_env': wp_env, 'wp_site_url': wp_url})
     if wp_generator.clean():
         print("Successfully cleaned WordPress site {}".format(wp_generator.wp_site.url))
+
+
+@dispatch.on('clean-many')
+def clean_many(csv_file, **kwargs):
+
+    rows = Utils.csv_filepath_to_dict(csv_file)
+
+    # clean WP site for each row
+    print("\n{} websites will now be cleaned...".format(len(rows)))
+    for index, row in enumerate(rows):
+
+        print("\nIndex #{}:\n---".format(index))
+        # CSV file is utf-8 so we encode correctly the string to avoid errors during logging.debug display
+        row_bytes = repr(row).encode('utf-8')
+        logging.debug("%s - row %s: %s", row["wp_site_url"], index, row_bytes)
+
+        clean(row['openshift_env'],row['wp_site_url'])
 
 
 @dispatch.on('generate')
