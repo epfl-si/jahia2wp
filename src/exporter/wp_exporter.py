@@ -108,6 +108,7 @@ class WPExporter:
             self.set_frontpage()
             self.populate_menu()
             self.import_sidebar()
+            self.import_breadcrumb()
             self.display_report()
 
             # log execution time
@@ -179,6 +180,19 @@ class WPExporter:
         except Exception as e:
             logging.error("%s - WP export - media failed: %s", self.site.name, e)
             self.report['failed_files'] += 1
+
+    def import_breadcrumb(self):
+        """
+        Import breadcrumb in default language by setting correct option in DB
+        """
+        # FIXME: add an attribut default_language to wp_generator.wp_site class
+        default_lang = self.wp_generator._site_params['langs'].split(",")[0]
+
+        # Generatin breadcrumb to save in parameters
+        breadcrumb = "[EPFL|www.epfl.ch]>[{}|{}]".format(self.site.breadcrumb_title[default_lang],
+                                                         self.site.breadcrumb_url[default_lang])
+
+        self.run_wp_cli("option update epfl:custom_breadcrumb '{}'".format(breadcrumb))
 
     def fix_file_links(self, file, wp_media):
         """Fix the links pointing to the given file"""
