@@ -42,6 +42,7 @@ Usage:
     [--force] [--plugin=<PLUGIN_NAME>]
   jahia2wp.py update-plugins-many   <csv_file>                      [--debug | --quiet]
     [--force] [--plugin=<PLUGIN_NAME>]
+  jahia2wp.py global-report <csv_file> [--output-dir=<OUTPUT_DIR>] [--use-cache] [--debug | --quiet]
 
 Options:
   -h --help                 Show this screen.
@@ -55,6 +56,8 @@ import pickle
 
 from datetime import datetime
 import json
+
+import csv
 import os
 import yaml
 from docopt import docopt
@@ -276,7 +279,7 @@ def unzip(site, username=None, host=None, zip_path=None, force=False, output_dir
 
 
 @dispatch.on('parse')
-def parse(site, output_dir=None, use_cache=None, **kwargs):
+def parse(site, output_dir=None, use_cache=False, **kwargs):
     """
     Parse the give site.
     """
@@ -655,6 +658,50 @@ def update_plugins_many(csv_file, plugin=None, force=False, **kwargs):
         print("\nIndex #{}:\n---".format(index))
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
         WPGenerator(row).update_plugins(only_one=plugin, force=force)
+
+
+@dispatch.on('global-report')
+def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
+
+    "Generate a global report with stats like the number of pages, files and boxes"
+    path = os.path.join(output_dir, "global-report.csv")
+
+    logging.info("Generating global report at %s" % path)
+
+    rows = Utils.csv_filepath_to_dict(csv_file)
+
+    sites = []
+
+    for index, row in enumerate(rows):
+        try:
+            sites.append(parse(site=row['Jahia_zip'], use_cache=use_cache))
+        except Exception as e:
+            logging.error("Site %s - Error %s", row['Jahia_zip'], e)
+
+    # retrieve all the box types
+    box_types = set()
+
+    for site in sites:
+        for key in site.num_boxes.keys():
+            if key:
+                box_types.add(key)
+
+    # the base field names for the csv
+    fieldnames = ["name", "pages", "files"]
+
+    # add all the box types
+    fieldnames.extend(sorted(box_types))
+
+    # write the csv file
+    with open(path, 'w') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        # header
+        writer.writeheader()
+
+        # content
+        for site in sites:
+            writer.writerow(site.get_report_info(box_types))
 
 
 if __name__ == '__main__':

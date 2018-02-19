@@ -21,6 +21,22 @@ Author URI: http://www.alinekeller.ch
  * https://core.trac.wordpress.org/ticket/24661
 */ 
 
+add_filter('robots_txt', 'get_robots_txt');
+
+/**
+ * Returns the content of robots.txt. We override the one
+ * coming by default to add wp-login.php.
+ */
+function get_robots_txt($original) {
+
+    $text = "User-agent: *
+Disallow: /wp-login.php
+Disallow: /wp-admin/
+";
+
+    return $text;
+}
+
 add_filter( 'sanitize_file_name', 'remove_accents', 10, 1 );
 add_filter( 'sanitize_file_name_chars', 'sanitize_file_name_chars', 10, 1 );
  
