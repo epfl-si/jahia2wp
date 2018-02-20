@@ -283,7 +283,7 @@ class Utils(object):
         tar_listed_inc_file_path -- path to file containing incremental infos to help to create tar file
         source_path -- path to infos to put in TAR file
         """
-        command = "tar --create --file={} --listed-incremental={} {}".format(
+        command = "tar --create --no-check-device --file={} --listed-incremental={} {}".format(
             tar_file_path,
             tar_listed_inc_file_path,
             source_path
