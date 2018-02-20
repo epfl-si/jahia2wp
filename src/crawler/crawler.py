@@ -52,6 +52,11 @@ class JahiaCrawler(object):
 
         # adapt streaming function to content-length in header
         logging.debug("%s - headers %s", self.site, response.headers)
+
+        if len(response.content) < 200:
+            logging.error("The jahia zip file for WordPress site is empty")
+            raise Exception("Jahia zip is empty")
+
         total_length = response.headers.get('content-length')
         if total_length is not None:
             def read_stream():

@@ -2,7 +2,7 @@
 /*
  * Plugin Name: EPFL General settings
  * Description: General settings for allow users
- * Version:     0.3
+ * Version:     0.5
  * Author:      <a href="mailto:wwp-admin@epfl.ch">wwp-admin@epfl.ch</a>
  * Text Domain: EPFL-settings
  */
@@ -14,6 +14,23 @@ function EPFL_settings_load_plugin_textdomain() {
 }
 add_action( 'plugins_loaded', 'EPFL_settings_load_plugin_textdomain' );
 
+
+function validate_breadcrumb($input) {
+    $breadcrumb_option_format = "/(^\[[^\|\[\]]+\|[^\|\[\]]+\]){1}(>(\[[^\|\[\]]+\|[^\|\[\]]+\]){1})*$/";
+    $matched = preg_match($breadcrumb_option_format, $input);
+
+    if ($matched !== 1 && $input !== '') {
+        $error_message = __ ('Incorrect breadcrumb', 'EPFL-settings');
+        add_settings_error(
+            'epfl:custom_breadcrumb',
+            'validationError',
+            $error_message,
+            'error');
+    }
+    // Delete cache entry to force reload of breqdcrumb when option is updated
+    delete_transient('base_breadcrumb');
+    return $input;
+}
   
 function EPFL_settings_register_settings() {
    add_option( 'EPFL_settings_option_name', 'This is my option value.');
@@ -21,7 +38,7 @@ function EPFL_settings_register_settings() {
    register_setting( 'EPFL_settings_options_group', 'blogname' );
    register_setting( 'EPFL_settings_options_group', 'blogdescription' );
    register_setting( 'EPFL_settings_options_group', 'WPLANG' );
-   register_setting( 'EPFL_settings_options_group', 'epfl:custom_breadcrumb' );
+   register_setting( 'EPFL_settings_options_group', 'epfl:custom_breadcrumb', 'validate_breadcrumb');
 }
 add_action( 'admin_init', 'EPFL_settings_register_settings' );
 
@@ -69,7 +86,7 @@ function EPFL_settings_options_page()
     <tr>
       <th scope="row"><label for="epfl:custom_breadcrumb"><?php echo __ ("Custom Breadcrumb", 'EPFL-settings');?></label></th>
       <td><input type="text" id="epfl:custom_breadcrumb" name="epfl:custom_breadcrumb" value="<?php echo get_option('epfl:custom_breadcrumb'); ?>" />
-      <p class="description" id="tagline-description"><?php echo __ ("Format [label|url]>[label|url]>[label|url] (Exemple : [EPFL|www.epfl.ch]>[ENAC|www.enac.ch])", 'EPFL-settings');?></p>
+      <p class="description" id="tagline-description"><?php echo __ ("Format [label|url]>[label|url]>[label|url] (Example : [EPFL|www.epfl.ch]>[ENAC|www.enac.ch])", 'EPFL-settings');?></p>
       </td>
     </tr>
   </table>

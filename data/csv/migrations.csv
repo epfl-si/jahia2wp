@@ -166,7 +166,7 @@ https://migration-wp.epfl.ch/epnet,#parser,#parser,wordpress,int,GeneralPublic,e
 https://migration-wp.epfl.ch/epsl,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,epsl,epsl,epsl
 https://migration-wp.epfl.ch/equality,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,ega,equality,ega
 https://migration-wp.epfl.ch/esl,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,esl,esl,esl
-https://migration-wp.epfl.ch/eSpace,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,esc,espace,esc
+https://migration-wp.epfl.ch/eSpace,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,esc,eSpace,esc
 https://migration-wp.epfl.ch/esplab,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,esplab,esplab,esplab
 https://migration-wp.epfl.ch/ethique,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,ethique,ethique,ethique
 https://migration-wp.epfl.ch/euclid,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,lastro,euclid,lastro
@@ -225,7 +225,7 @@ https://migration-wp.epfl.ch/hantschel-lab,#parser,#parser,wordpress,int,General
 https://migration-wp.epfl.ch/harris-lab,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,upharris,harrislab,upharris
 https://migration-wp.epfl.ch/hcf,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,pth,hcf,pth
 https://migration-wp.epfl.ch/help-absences,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,drh,help-absences,drh
-https://migration-wp.epfl.ch/help-actu,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,exapp,help-actu,exapp
+https://migration-wp.epfl.ch/help-actu,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,exapp,outilactuhelp,exapp
 https://migration-wp.epfl.ch/help-gaspar,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,sigouv-ge,help-gaspar,sigouv-ge
 https://migration-wp.epfl.ch/help-infoscience,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,erp-ge,help-infoscience,erp-ge
 https://migration-wp.epfl.ch/help-memento,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,exapp,help-memento,exapp
@@ -254,7 +254,7 @@ https://migration-wp.epfl.ch/ieee,#parser,#parser,wordpress,int,GeneralPublic,ep
 https://migration-wp.epfl.ch/iig,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,sci-ic-rb,iig,sci-ic-rb
 https://migration-wp.epfl.ch/iipp,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,mtei-ge,iipp,mtei-ge
 https://migration-wp.epfl.ch/imac,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,enac-do,imac,enac-do
-https://migration-wp.epfl.ch/www.cibm.ch,#parser,#parser,wordpress,int,GeneralPublic,epfl-blank,#parser,yes,yes,yes,#parser,lifmet,cimb,lifmet
+https://migration-wp.epfl.ch/www.cibm.ch,#parser,#parser,wordpress,int,GeneralPublic,epfl-blank,#parser,yes,yes,yes,#parser,lifmet,cibm,lifmet
 https://migration-wp.epfl.ch/infogest,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,erp-camipro,infogest,erp-camipro
 https://migration-wp.epfl.ch/information,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,exapp,accueil,exapp
 https://migration-wp.epfl.ch/informationsystem,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,sigouv-ge,informationsystem,sigouv-ge
@@ -443,7 +443,7 @@ https://migration-wp.epfl.ch/m2c,#parser,#parser,wordpress,int,GeneralPublic,epf
 https://migration-wp.epfl.ch/macline,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,exterp,macline,exterp
 https://migration-wp.epfl.ch/man,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,cms,man,cms
 https://migration-wp.epfl.ch/manslab,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,lcc,manslab,lcc
-https://migration-wp.epfl.ch/markram-lab,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,lnmc,#N/A,lnmc
+https://migration-wp.epfl.ch/markram-lab,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,lnmc,lnmc,lnmc
 https://migration-wp.epfl.ch/master,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,spe,master,spe
 https://migration-wp.epfl.ch/master-architecture,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,sar-d,master-architecture,sar-d
 https://migration-wp.epfl.ch/math,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,gr-pi,math,gr-pi
@@ -463,7 +463,7 @@ https://migration-wp.epfl.ch/microbs,#parser,#parser,wordpress,int,GeneralPublic
 https://migration-wp.epfl.ch/microcity,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,imt-ge,microcity,imt-ge
 https://migration-wp.epfl.ch/mir,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,sie-ma3,mir,sie-ma5
 https://migration-wp.epfl.ch/mlo,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,mlo,UPJAGGI,mlo
-https://migration-wp.epfl.ch/mmspg,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,gr-eb,mmspg,gr-eb
+https://migration-wp.epfl.ch/mmspg,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,gr-eb,mmspl,gr-eb
 https://migration-wp.epfl.ch/mns,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,dcg,mns,dcg
 https://migration-wp.epfl.ch/moocs,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,cede-ge,moocs,cede-ge
 https://migration-wp.epfl.ch/postal-innovation,#parser,#parser,wordpress,int,GeneralPublic,epfl-blank,#parser,yes,yes,yes,#parser,mir,postal-innovation,mir

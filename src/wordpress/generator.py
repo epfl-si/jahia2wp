@@ -113,7 +113,7 @@ class WPGenerator:
     def __repr__(self):
         return repr(self.wp_site)
 
-    def run_wp_cli(self, command,  encoding=sys.stdout.encoding, pipe_input=None, extra_options=None):
+    def run_wp_cli(self, command, encoding=sys.getdefaultencoding(), pipe_input=None, extra_options=None):
         """
         Execute a WP-CLI command using method present in WPConfig instance.
 
@@ -210,7 +210,7 @@ class WPGenerator:
             return False
 
         # create MySQL DB
-        command = "-e \"CREATE DATABASE {0.wp_db_name};\""
+        command = "-e \"CREATE DATABASE {0.wp_db_name} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\""
         if not self.run_mysql(command.format(self)):
             logging.error("%s - could not create DB", repr(self))
             return False

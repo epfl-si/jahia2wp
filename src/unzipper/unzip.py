@@ -31,6 +31,8 @@ def unzip_one(output_dir, site_name, zip_file):
         logging.info("Already unzipped %s", unzip_path)
         Tracer.write_row(site=site_name, step="unzip", status="OK")
         return unzip_path
+    else:
+        os.makedirs(unzip_path)
 
     logging.info("Unzipping %s...", zip_file)
 
@@ -55,7 +57,27 @@ def unzip_one(output_dir, site_name, zip_file):
     # unzip the zip with the files
     zip_path = os.path.join(output_subdir, zip_name)
     zip_ref_with_files = zipfile.ZipFile(zip_path, 'r')
-    zip_ref_with_files.extractall(unzip_path)
+    for ziped_file in zip_ref_with_files.infolist():
+        data = zip_ref_with_files.read(ziped_file)  # extract zipped data into memory
+        # convert unicode file path to cp437 (encoding used by Jahia for the filenames in the zip files)
+        disk_file_name = ziped_file.filename.encode('cp437')
+        dir_name = os.path.dirname(disk_file_name)
+        # If the file is in a subfolder, create the subolder if it does not exist
+        if dir_name:
+            try:
+                os.makedirs(os.path.join(unzip_path.encode('cp437'), dir_name))
+            except OSError as e:
+                if e.errno == os.errno.EEXIST:
+                    pass
+                else:
+                    raise
+            except Exception as e:
+                raise
+
+        if os.path.basename(disk_file_name):
+            with open(os.path.join(unzip_path.encode('cp437'), disk_file_name), 'wb') as fd:
+                fd.write(data)
+    zip_ref_with_files.close()
 
     logging.info("Site successfully extracted in %s", unzip_path)
     Tracer.write_row(site=site_name, step="unzip", status="OK")
