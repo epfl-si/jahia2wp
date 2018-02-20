@@ -448,8 +448,8 @@ class WPExporter:
 
                     content = clean_sidebar_html(content)
 
-                    cmd = 'widget add text page-widgets ' \
-                          '--text="{}"'.format(content)
+                    cmd = 'widget add text page-widgets {} ' \
+                          '--text="{}"'.format(widget_pos, content)
 
                     self.run_wp_cli(cmd)
 
