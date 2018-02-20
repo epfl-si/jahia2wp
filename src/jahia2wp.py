@@ -5,6 +5,7 @@ Usage:
   jahia2wp.py download              <site>                          [--debug | --quiet]
     [--username=<USERNAME> --host=<HOST> --zip-path=<ZIP_PATH> --force]
   jahia2wp.py download-many         <csv_file>                      [--debug | --quiet]
+    [--output-dir=<OUTPUT_DIR>]
   jahia2wp.py unzip                 <site>                          [--debug | --quiet]
     [--username=<USERNAME> --host=<HOST> --zip-path=<ZIP_PATH> --force]
     [--output-dir=<OUTPUT_DIR>]
@@ -53,6 +54,8 @@ Options:
 import getpass
 import logging
 import pickle
+
+from datetime import datetime
 import json
 
 import csv
@@ -231,7 +234,14 @@ def download(site, username=None, host=None, zip_path=None, force=False, **kwarg
 
 
 @dispatch.on('download-many')
-def download_many(csv_file, **kwargs):
+def download_many(csv_file, output_dir=None, **kwargs):
+
+    TRACER_FILE_NAME = "tracer_empty_jahia_zip.csv"
+
+    if output_dir is None:
+        output_dir = settings.JAHIA_ZIP_PATH
+
+    tracer_path = os.path.join(output_dir, TRACER_FILE_NAME)
 
     rows = Utils.csv_filepath_to_dict(csv_file)
 
@@ -239,7 +249,18 @@ def download_many(csv_file, **kwargs):
     print("\nJahia  zip files will now be downloaded...")
     for index, row in enumerate(rows):
         print("\nIndex #{}:\n---".format(index))
-        download(site=row['Jahia_zip'])
+        try:
+            download(site=row['Jahia_zip'])
+        except Exception:
+            with open(tracer_path, 'a', newline='\n') as tracer:
+                tracer.write(
+                    "{}, {}\n".format(
+                        '{0:%Y-%m-%d %H:%M:%S}'.format(datetime.now()),
+                        row['Jahia_zip']
+                    )
+                )
+                tracer.flush()
+    logging.info("All jahia zip files downloaded !")
 
 
 @dispatch.on('unzip')
