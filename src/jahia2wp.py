@@ -427,20 +427,24 @@ def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None, 
         row_bytes = repr(row).encode('utf-8')
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row_bytes)
 
-        export(
-            site=row['Jahia_zip'],
-            wp_site_url=row['wp_site_url'],
-            unit_name=row['unit_name'],
-            to_wordpress=True,
-            clean_wordpress=False,
-            output_dir=output_dir,
-            theme=row['theme'],
-            installs_locked=row['installs_locked'],
-            updates_automatic=row['updates_automatic'],
-            wp_env=row['openshift_env'],
-            admin_password=admin_password,
-            use_cache=use_cache
-        )
+        try:
+            export(
+                site=row['Jahia_zip'],
+                wp_site_url=row['wp_site_url'],
+                unit_name=row['unit_name'],
+                to_wordpress=True,
+                clean_wordpress=False,
+                output_dir=output_dir,
+                theme=row['theme'],
+                installs_locked=row['installs_locked'],
+                updates_automatic=row['updates_automatic'],
+                wp_env=row['openshift_env'],
+                admin_password=admin_password,
+                use_cache=use_cache
+            )
+
+        except Exception as e:
+            logging.error(e)
 
 
 @dispatch.on('check')
