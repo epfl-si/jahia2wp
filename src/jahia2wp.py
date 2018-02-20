@@ -9,13 +9,14 @@ Usage:
     [--username=<USERNAME> --host=<HOST> --zip-path=<ZIP_PATH> --force]
     [--output-dir=<OUTPUT_DIR>]
   jahia2wp.py parse                 <site>                          [--debug | --quiet]
-    [--output-dir=<OUTPUT_DIR>] [--use-cache] [--host=<HOST>]
+    [--output-dir=<OUTPUT_DIR>] [--use-cache]
   jahia2wp.py export     <site>  <wp_site_url> <unit_name>          [--debug | --quiet]
     [--to-wordpress | --clean-wordpress]
     [--admin-password=<PASSWORD>]
     [--output-dir=<OUTPUT_DIR>]
     [--installs-locked=<BOOLEAN> --updates-automatic=<BOOLEAN>]
     [--openshift-env=<OPENSHIFT_ENV> --theme=<THEME>]
+    [--use-cache]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--stop-on-errors]
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
@@ -29,7 +30,7 @@ Usage:
   jahia2wp.py admins                <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate-many         <csv_file>                      [--debug | --quiet]
   jahia2wp.py export-many           <csv_file>                      [--debug | --quiet]
-    [--output-dir=<OUTPUT_DIR> --admin-password=<PASSWORD>]
+    [--output-dir=<OUTPUT_DIR> --admin-password=<PASSWORD>] [--use-cache]
   jahia2wp.py backup-many           <csv_file>                      [--debug | --quiet]
   jahia2wp.py rotate-backup         <csv_file>          [--dry-run] [--debug | --quiet]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
@@ -264,19 +265,24 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
     """
     try:
         # create subdir in output_dir
-        site_dir = unzip(site, output_dir)
+        site_dir = unzip(site, output_dir=output_dir)
 
         # where to cache our parsing
         pickle_file = os.path.join(site_dir, 'parsed_%s.pkl' % site)
 
         # when using-cache: check if already parsed
+        pickle_site = False
         if use_cache:
             if os.path.exists(pickle_file):
-                with open(pickle_file, 'rb'):
+                with open(pickle_file, 'rb') as pickle_content:
+                    pickle_site = pickle.load(pickle_content)
                     logging.info("Loaded parsed site from %s" % pickle_file)
 
         logging.info("Parsing Jahia xml files from %s...", site_dir)
-        site = Site(site_dir, site)
+        if pickle_site:
+            site = pickle_site
+        else:
+            site = Site(site_dir, site)
 
         print(site.report)
 
@@ -299,7 +305,7 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
 @dispatch.on('export')
 def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=False, admin_password=None,
            output_dir=None, theme=None, installs_locked=False, updates_automatic=False, openshift_env=None,
-           **kwargs):
+           use_cache=None, **kwargs):
     """
     Export the jahia content into a WordPress site.
 
@@ -317,7 +323,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     """
 
     # Download, Unzip the jahia zip and parse the xml data
-    site = parse(site=site)
+    site = parse(site=site, use_cache=use_cache)
 
     # Define the default language
     default_language = _get_default_language(site.languages)
@@ -386,7 +392,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
 
 
 @dispatch.on('export-many')
-def export_many(csv_file, output_dir=None, admin_password=None, **kwargs):
+def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None, **kwargs):
 
     rows = Utils.csv_filepath_to_dict(csv_file)
 
@@ -410,7 +416,8 @@ def export_many(csv_file, output_dir=None, admin_password=None, **kwargs):
             installs_locked=row['installs_locked'],
             updates_automatic=row['updates_automatic'],
             wp_env=row['openshift_env'],
-            admin_password=admin_password
+            admin_password=admin_password,
+            use_cache=use_cache
         )
 
 
