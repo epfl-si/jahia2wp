@@ -31,8 +31,10 @@ EOF
 
 # Change max upload size for http requests
 sed -i "s/upload_max_filesize = .*/upload_max_filesize = 300M/" /etc/php/7.0/apache2/php.ini
+sed -i "s/post_max_size = .*/post_max_size = 300M/" /etc/php/7.0/apache2/php.ini
 # Change max upload size for CLI requests
 sed -i "s/upload_max_filesize = .*/upload_max_filesize = 300M/" /etc/php/7.0/cli/php.ini
+sed -i "s/post_max_size = .*/post_max_size = 300M/" /etc/php/7.0/cli/php.ini
 
 /usr/sbin/a2dissite 000-default
 /usr/sbin/a2enmod ssl
