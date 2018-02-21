@@ -7,8 +7,6 @@ wp_site_url,wp_tagline,wp_site_title,site_type,openshift_env,category,theme,them
 #https://migration-wp.epfl.ch/depalma-lab,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,updepalma,depalma-lab,updepalma
 #https://migration-wp.epfl.ch/www.fix-the-leaky-pipeline.ch,#parser,#parser,wordpress,int,GeneralPublic,epfl-blank,#parser,yes,yes,yes,#parser,ega,fix-the-leaky-pipeline,ega
 #https://migration-wp.epfl.ch/gfo,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,sci-sti-lt,gfo,sci-sti-lt
-#https://migration-wp.epfl.ch/gr-ost,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,isic-ge,gr-ost,isic-ge
-#https://migration-wp.epfl.ch/labos,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,labos,labos,labos
 #https://migration-wp.epfl.ch/laspe,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,laspe,laspe,laspe
 #https://migration-wp.epfl.ch/lei,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,sti-form,lei,sti-form
 #https://migration-wp.epfl.ch/lme,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,pel,lme,pel
