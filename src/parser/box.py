@@ -5,23 +5,36 @@ from utils import Utils
 class Box:
     """A Jahia Box. Can be of type text, infoscience, etc."""
 
-    # the known box types
+    # WP box types
+    TYPE_TEXT = "text"
+    TYPE_COLORED_TEXT = "coloredText"
+    TYPE_INFOSCIENCE = "infoscience"
+    TYPE_ACTU = "actu"
+    TYPE_MEMENTO = "memento"
+    TYPE_FAQ = "faq"
+    TYPE_TOGGLE ="toggle"
+    TYPE_INCLUDE = "include"
+    TYPE_CONTACT = "contact"
+    TYPE_XML = "xml"
+
+    # Mapping of known box types from Jahia to WP
     types = {
-        "epfl:textBox": "text",
-        "epfl:coloredTextBox": "coloredText",
-        "epfl:infoscienceBox": "infoscience",
-        "epfl:actuBox": "actu",
-        "epfl:mementoBox": "memento",
-        "epfl:faqContainer": "faq",
-        "epfl:toggleBox": "toggle",
-        "epfl:htmlBox": "include",
-        "epfl:contactBox": "contact",
-        "epfl:xmlBox": "xml"
+        "epfl:textBox": TYPE_TEXT,
+        "epfl:coloredTextBox": TYPE_COLORED_TEXT,
+        "epfl:infoscienceBox": TYPE_INFOSCIENCE,
+        "epfl:actuBox": TYPE_ACTU,
+        "epfl:mementoBox": TYPE_MEMENTO,
+        "epfl:faqContainer": TYPE_FAQ,
+        "epfl:toggleBox": TYPE_TOGGLE,
+        "epfl:htmlBox": TYPE_INCLUDE,
+        "epfl:contactBox": TYPE_CONTACT,
+        "epfl:xmlBox": TYPE_XML
     }
 
     def __init__(self, site, page_content, element, multibox=False):
         self.site = site
         self.page_content = page_content
+        self.type = ""
         self.set_type(element)
         self.title = Utils.get_tag_attribute(element, "boxTitle", "jahia:value")
         self.content = ""
@@ -43,31 +56,31 @@ class Box:
         """set the box attributes"""
 
         # text
-        if "text" == self.type or "coloredText" == self.type:
+        if self.TYPE_TEXT == self.type or self.TYPE_COLORED_TEXT == self.type:
             self.set_box_text(element, multibox)
         # infoscience
-        elif "infoscience" == self.type:
+        elif self.TYPE_INFOSCIENCE == self.type:
             self.set_box_infoscience(element)
         # actu
-        elif "actu" == self.type:
+        elif self.TYPE_ACTU == self.type:
             self.set_box_actu(element)
         # memento
-        elif "memento" == self.type:
+        elif self.TYPE_MEMENTO == self.type:
             self.set_box_memento(element)
         # faq
-        elif "faq" == self.type:
+        elif self.TYPE_FAQ == self.type:
             self.set_box_faq(element)
         # toggle
-        elif "toggle" == self.type:
+        elif self.TYPE_TOGGLE == self.type:
             self.set_box_toggle(element)
         # include
-        elif "include" == self.type:
+        elif self.TYPE_INCLUDE == self.type:
             self.set_box_include(element)
         # contact
-        elif "contact" == self.type:
+        elif self.TYPE_CONTACT == self.type:
             self.set_box_contact(element)
         # xml
-        elif "xml" == self.type:
+        elif self.TYPE_XML == self.type:
             self.set_box_xml(element)
         # unknown
         else:
