@@ -12,7 +12,7 @@ class Box:
     TYPE_ACTU = "actu"
     TYPE_MEMENTO = "memento"
     TYPE_FAQ = "faq"
-    TYPE_TOGGLE ="toggle"
+    TYPE_TOGGLE = "toggle"
     TYPE_INCLUDE = "include"
     TYPE_CONTACT = "contact"
     TYPE_XML = "xml"

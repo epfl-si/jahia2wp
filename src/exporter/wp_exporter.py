@@ -468,13 +468,12 @@ class WPExporter:
                         content += prepare_html(box.content)
                         content += "[/colored-box]"
 
-                    else: # Box type not supported for now,
+                    # Box type not supported for now,
+                    else:
                         logging.warning("Box type currently not supported for sidebar (%s)", box.type)
                         widget_type = 'text'
                         title = prepare_html("TODO: {}".format(box.title))
                         content = prepare_html(box.content)
-
-
 
                     cmd = 'widget add {} page-widgets {} ' \
                           '--text="{}" --title="{}"'.format(widget_type, widget_pos, content, title)
