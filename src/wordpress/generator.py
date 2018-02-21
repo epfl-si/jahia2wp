@@ -297,6 +297,11 @@ class WPGenerator:
         command = "language core install fr_FR"
         self.run_wp_cli(command)
 
+        # remove unfiltered_upload capability. Will be reactivated during
+        # export if needed.
+        command = 'cap remove administrator unfiltered_upload'
+        self.run_wp_cli(command)
+
         # flag success by returning True
         return True
 
