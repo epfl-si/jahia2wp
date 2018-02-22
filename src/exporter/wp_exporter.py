@@ -185,11 +185,10 @@ class WPExporter:
         """
         Import breadcrumb in default language by setting correct option in DB
         """
-        # FIXME: add an attribut default_language to wp_generator.wp_site class
-        default_lang = self.wp_generator._site_params['langs'].split(",")[0]
-
         # If there is a custom breadrcrumb defined for this site
         if self.site.breadcrumb_title and self.site.breadcrumb_url:
+            # FIXME: add an attribut default_language to wp_generator.wp_site class
+            default_lang = self.wp_generator._site_params['langs'].split(",")[0]
             # Generatin breadcrumb to save in parameters
             breadcrumb = "[EPFL|www.epfl.ch]>[{}|{}]".format(self.site.breadcrumb_title[default_lang],
                                                             self.site.breadcrumb_url[default_lang])
