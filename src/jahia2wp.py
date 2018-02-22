@@ -36,6 +36,7 @@ Usage:
   jahia2wp.py rotate-backup         <csv_file>          [--dry-run] [--debug | --quiet]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
+  jahia2wp.py switch-auth-method    <path>                          [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
     [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
@@ -54,6 +55,10 @@ Options:
 import getpass
 import logging
 import pickle
+import random
+import string
+import csv
+import codecs
 
 from datetime import datetime
 import json
@@ -719,6 +724,37 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
         # content
         for site in sites:
             writer.writerow(site.get_report_info(box_types))
+
+
+@dispatch.on('switch-auth-method')
+def switch_auth_method(path, **kwargs):
+    """
+    Consolidates the hierarchy of wordpress sites and sub-sites found in `path`. Also includes the pages of the
+    sites in the consolidated hierarchy.
+    """
+    logging.info("Consolidating sites and pages hierarchy...")
+    passwords = {}
+    for site_details in WPConfig.inventory(path):
+        site_config = WPConfig(site_details)
+        site_config.run_wp_cli('plugin deactivate tequila accred')
+        password = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(10))
+        site_config.run_wp_cli('user create webmaster webmaster@migration-wp.epfl.ch --user_pass={}'.format(password))
+        passwords[site_details.url] = password
+    with open('passwords_lot1.csv', 'w') as f:
+        f.write('jahia_url,url,login,password, responsable\n')
+        for key, value in passwords.items():
+            jahia_url = '{}.epfl.ch'.format(key.split('/')[-1])
+            responsable = ''
+            with codecs.open('jahia_infos.csv', 'r', 'utf8') as csv_file:
+                reader = csv.DictReader(csv_file)
+                for row in reader:
+                    if row['url'].replace('http://', '').replace('https://', '') == jahia_url:
+                        responsable = row['responsable']
+                        responsable = responsable.replace(', ', '|')
+                        jahia_url = row['url']
+                        break
+            f.write('{},{},webmaster,{},{}\n'.format(jahia_url, key, value, responsable))
+
 
 
 if __name__ == '__main__':
