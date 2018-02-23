@@ -17,10 +17,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" data-header-version="0.26.0">
 <link rel="profile" href="http://gmpg.org/xfn/11">
 
-<script type="text/javascript" src="//www.epfl.ch/js/jquery-epfl.min.js"></script>
-<script type="text/javascript">jQuery.noConflict();</script>
-<script type="text/javascript" src="//www.epfl.ch/js/globalnav.js"></script>
-
 <link rel="shortcut icon" href="//www.epfl.ch/favicon.ico" type="image/x-icon" />
 <link rel="stylesheet" href="//www.epfl.ch/css/print.css" type="text/css" media="print" />
 
