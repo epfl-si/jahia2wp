@@ -593,13 +593,14 @@ class WPExporter:
                     self.menu_id_dict[page_content.wp_id] = Utils.get_menu_id(menu_id)
                     self.report['menus'] += 1
 
+                # FIXME: Handle menu entry position (see menu_url['pos']
                 # Create root hardcoded URL menu entries
-                for menu_url in self.site.root_menu_entries_url[lang]:
+                for menu_entry in self.site.root_menu_entries_url[lang]:
                     cmd = 'menu item add-custom {} "{}" "{}" --porcelain'\
-                          .format(menu_name, menu_url['txt'], menu_url['url'])
+                          .format(menu_name, menu_entry['txt'], menu_entry['url'])
                     menu_id = self.run_wp_cli(cmd)
                     if not menu_id:
-                        logging.warning("Root menu item not created for URL (%s) " % menu_url['url'])
+                        logging.warning("Root menu item not created for URL (%s) " % menu_entry['url'])
 
                 # Create root menu entries
                 for homepage_child in self.site.homepage.children:
