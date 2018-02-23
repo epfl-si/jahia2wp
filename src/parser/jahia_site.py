@@ -160,7 +160,7 @@ class Site:
                                                                  'pos': root_entry_pos})
                     self.num_url_menu_root += 1
 
-                root_entry_pos +=1
+                root_entry_pos += 1
 
     def get_report_info(self, box_types):
         """
