@@ -599,7 +599,7 @@ class WPExporter:
                           .format(menu_name, menu_url['txt'], menu_url['url'])
                     menu_id = self.run_wp_cli(cmd)
                     if not menu_id:
-                        logging.warning("Root menu item not created for URL (%s) " % url)
+                        logging.warning("Root menu item not created for URL (%s) " % menu_url['url'])
 
                 # Create root menu entries
                 for homepage_child in self.site.homepage.children:

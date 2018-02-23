@@ -157,7 +157,6 @@ class Site:
                     self.root_menu_entries_url[language].append({'txt': link_txt, 'url': link_url})
                     self.num_url_menu_root += 1
 
-
     def get_report_info(self, box_types):
         """
         Return the report info as a dict. As an argument you can
