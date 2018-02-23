@@ -2,7 +2,7 @@
 import logging
 import os
 import sys
-
+from parser.box import Box
 import timeit
 from collections import OrderedDict
 from datetime import timedelta, datetime
@@ -188,11 +188,14 @@ class WPExporter:
         # FIXME: add an attribut default_language to wp_generator.wp_site class
         default_lang = self.wp_generator._site_params['langs'].split(",")[0]
 
-        # Generatin breadcrumb to save in parameters
-        breadcrumb = "[EPFL|www.epfl.ch]>[{}|{}]".format(self.site.breadcrumb_title[default_lang],
-                                                         self.site.breadcrumb_url[default_lang])
+        # If there is a custom breadrcrumb defined for this site and the default language
+        if self.site.breadcrumb_title and self.site.breadcrumb_url and \
+                default_lang in self.site.breadcrumb_title and default_lang in self.site.breadcrumb_url:
+            # Generatin breadcrumb to save in parameters
+            breadcrumb = "[EPFL|www.epfl.ch]>[{}|{}]".format(self.site.breadcrumb_title[default_lang],
+                                                             self.site.breadcrumb_url[default_lang])
 
-        self.run_wp_cli("option update epfl:custom_breadcrumb '{}'".format(breadcrumb))
+            self.run_wp_cli("option update epfl:custom_breadcrumb '{}'".format(breadcrumb))
 
     def fix_file_links(self, file, wp_media):
         """Fix the links pointing to the given file"""
@@ -445,8 +448,8 @@ class WPExporter:
         """
         import sidebar via wpcli
         """
-        def clean_sidebar_html(cmd):
-            return cmd.replace(u'\xa0', u' ')
+        def prepare_html(html):
+            return Utils.escape_quotes(html.replace(u'\xa0', u' '))
 
         widget_pos = 1
         widget_pos_to_lang = {}
@@ -455,15 +458,28 @@ class WPExporter:
             for lang in self.site.homepage.contents.keys():
 
                 for box in self.site.homepage.contents[lang].sidebar.boxes:
-                    content = "[colored-box]"
-                    content += "<h3>{}</h3>".format(box.title)
-                    content += Utils.escape_quotes(box.content)
-                    content += "[/colored-box]"
+                    if box.type == Box.TYPE_TEXT:
+                        widget_type = 'text'
+                        title = prepare_html(box.title)
+                        content = prepare_html(box.content)
 
-                    content = clean_sidebar_html(content)
+                    elif box.type == Box.TYPE_COLORED_TEXT:
+                        widget_type = 'text'
+                        title = ""
+                        content = "[colored-box]"
+                        content += "<h3>{}</h3>".format(box.title)
+                        content += prepare_html(box.content)
+                        content += "[/colored-box]"
 
-                    cmd = 'widget add text page-widgets {} ' \
-                          '--text="{}"'.format(widget_pos, content)
+                    # Box type not supported for now,
+                    else:
+                        logging.warning("Box type currently not supported for sidebar (%s)", box.type)
+                        widget_type = 'text'
+                        title = prepare_html("TODO: {}".format(box.title))
+                        content = prepare_html(box.content)
+
+                    cmd = 'widget add {} page-widgets {} ' \
+                          '--text="{}" --title="{}"'.format(widget_type, widget_pos, content, title)
 
                     self.run_wp_cli(cmd)
 
