@@ -559,7 +559,7 @@ class WPExporter:
                       .format(menu_name, page.contents[lang].wp_id, parent_menu_id)
             menu_id = self.run_wp_cli(command)
             if not menu_id:
-                logging.warning("Menu not created for page %s" % page.pid)
+                logging.warning("Submenu item not created for page %s" % page.pid)
             else:
                 self.menu_id_dict[page.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
                 self.report['menus'] += 1
@@ -584,15 +584,24 @@ class WPExporter:
                 else:
                     menu_name = "{}-{}".format(settings.MAIN_MENU, lang)
 
+                # Create root menu 'home' entry (with the house icon)
                 cmd = 'menu item add-post {} {} --classes=link-home --porcelain'.format(menu_name, page_content.wp_id)
                 menu_id = self.run_wp_cli(cmd)
                 if not menu_id:
-                    logging.warning("Menu not created for page  %s" % page_content.pid)
+                    logging.warning("Home roote menu not created for page  %s" % page_content.pid)
                 else:
                     self.menu_id_dict[page_content.wp_id] = Utils.get_menu_id(menu_id)
                     self.report['menus'] += 1
 
-                # Create children of homepage menu
+                # Create root hardcoded URL menu entries
+                for menu_url in self.site.root_menu_entries_url[lang]:
+                    cmd = 'menu item add-custom {} "{}" "{}" --porcelain'\
+                          .format(menu_name, menu_url['txt'], menu_url['url'])
+                    menu_id = self.run_wp_cli(cmd)
+                    if not menu_id:
+                        logging.warning("Root menu item not created for URL (%s) " % url)
+
+                # Create root menu entries
                 for homepage_child in self.site.homepage.children:
 
                     if lang not in homepage_child.contents:
@@ -604,7 +613,7 @@ class WPExporter:
                               .format(menu_name, homepage_child.contents[lang].wp_id)
                         menu_id = self.run_wp_cli(cmd)
                         if not menu_id:
-                            logging.warning("Menu not created %s for page " % homepage_child.pid)
+                            logging.warning("Root menu item not created %s for page " % homepage_child.pid)
                         else:
                             self.menu_id_dict[homepage_child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
                             self.report['menus'] += 1

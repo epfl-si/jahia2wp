@@ -40,6 +40,9 @@ class Site:
         # the dict value is the file absolute path
         self.export_files = {}
 
+        # Containing root menu entries (per language) with hard-coded URL as target
+        self.root_menu_entries_url = {}
+
         # the site languages
         self.languages = []
 
@@ -85,6 +88,7 @@ class Site:
         self.broken_links = 0
         self.unknown_links = 0
         self.num_boxes = {}
+        self.num_url_menu_root = 0
         # we have a SitemapNode for each language
         self.sitemaps = {}
         self.report = ""
@@ -132,6 +136,28 @@ class Site:
 
         self.server_name = properties["siteservername"]
 
+    def parse_root_menu_entries_url(self):
+        """
+        Parse 'export_<lang>.xml files to extract root menu entries
+        with hardcoded URL as targets
+        :return:
+        """
+        for language, dom_path in self.export_files.items():
+            dom = Utils.get_dom(dom_path)
+
+            self.root_menu_entries_url[language] = []
+            # Looping through navigation pages
+            for dom_page in dom.getElementsByTagName("navigationPage"):
+
+                # Looking for hardcoded URL
+                jahia_url = dom_page.getElementsByTagName("jahia:url")
+                if jahia_url:
+                    link_txt = jahia_url[0].getAttribute("jahia:title")
+                    link_url = jahia_url[0].getAttribute("jahia:value")
+                    self.root_menu_entries_url[language].append({'txt': link_txt, 'url': link_url})
+                    self.num_url_menu_root += 1
+
+
     def get_report_info(self, box_types):
         """
         Return the report info as a dict. As an argument you can
@@ -163,6 +189,7 @@ class Site:
 
         # do the parsing
         self.parse_site_params()
+        self.parse_root_menu_entries_url()
         self.parse_breadcrumb()
         self.parse_footer()
         self.parse_pages()
@@ -578,3 +605,4 @@ Parsed for %s :
         self.report += "    - %s anchor links\n" % self.anchor_links
         self.report += "    - %s broken links\n" % self.broken_links
         self.report += "    - %s unknown links\n" % self.unknown_links
+        self.report += "    - %s root menu entries with URLs\n" % self.num_url_menu_root
