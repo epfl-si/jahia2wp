@@ -145,6 +145,7 @@ class Site:
         for language, dom_path in self.export_files.items():
             dom = Utils.get_dom(dom_path)
 
+            root_entry_pos = 1
             self.root_menu_entries_url[language] = []
             # Looping through navigation pages
             for dom_page in dom.getElementsByTagName("navigationPage"):
@@ -154,8 +155,12 @@ class Site:
                 if jahia_url:
                     link_txt = jahia_url[0].getAttribute("jahia:title")
                     link_url = jahia_url[0].getAttribute("jahia:value")
-                    self.root_menu_entries_url[language].append({'txt': link_txt, 'url': link_url})
+                    self.root_menu_entries_url[language].append({'txt': link_txt,
+                                                                 'url': link_url,
+                                                                 'pos': root_entry_pos})
                     self.num_url_menu_root += 1
+
+                root_entry_pos +=1
 
     def get_report_info(self, box_types):
         """
