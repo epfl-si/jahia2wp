@@ -3,8 +3,6 @@ plugins:
     config: !include simple-sitemap/v1/config-plugin.yml
   - name: tinymce-advanced
     config: !include tinymce-advanced/v1/config-plugin.yml
-  - name: black-studio-tinymce-widget
-    config: !include black-studio-tinymce-widget/v1/config-plugin.yml
   - name: akismet
     config: !include akismet/config-plugin.yml
   - name: hello

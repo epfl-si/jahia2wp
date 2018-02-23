@@ -2,11 +2,11 @@
 import logging
 import os
 import sys
+from parser.box import Box
 import timeit
 from collections import OrderedDict
 from datetime import timedelta, datetime
-
-import simplejson
+import json
 from bs4 import BeautifulSoup
 from wordpress_json import WordpressJsonWrapper, WordpressError
 
@@ -188,11 +188,14 @@ class WPExporter:
         # FIXME: add an attribut default_language to wp_generator.wp_site class
         default_lang = self.wp_generator._site_params['langs'].split(",")[0]
 
-        # Generatin breadcrumb to save in parameters
-        breadcrumb = "[EPFL|www.epfl.ch]>[{}|{}]".format(self.site.breadcrumb_title[default_lang],
-                                                         self.site.breadcrumb_url[default_lang])
+        # If there is a custom breadrcrumb defined for this site and the default language
+        if self.site.breadcrumb_title and self.site.breadcrumb_url and \
+                default_lang in self.site.breadcrumb_title and default_lang in self.site.breadcrumb_url:
+            # Generatin breadcrumb to save in parameters
+            breadcrumb = "[EPFL|www.epfl.ch]>[{}|{}]".format(self.site.breadcrumb_title[default_lang],
+                                                             self.site.breadcrumb_url[default_lang])
 
-        self.run_wp_cli("option update epfl:custom_breadcrumb '{}'".format(breadcrumb))
+            self.run_wp_cli("option update epfl:custom_breadcrumb '{}'".format(breadcrumb))
 
     def fix_file_links(self, file, wp_media):
         """Fix the links pointing to the given file"""
@@ -361,7 +364,7 @@ class WPExporter:
                 }
 
             cmd = "pll post create --post_type=page --stdin --porcelain"
-            stdin = simplejson.dumps(info_page)
+            stdin = json.dumps(info_page)
 
             result = self.run_wp_cli(cmd, pipe_input=stdin)
             if not result:
@@ -429,7 +432,7 @@ class WPExporter:
             }
 
         cmd = "pll post create --post_type=page --stdin --porcelain"
-        stdin = simplejson.dumps(info_page)
+        stdin = json.dumps(info_page)
         result = self.run_wp_cli(command=cmd, pipe_input=stdin)
 
         sitemap_ids = result.split()
@@ -445,28 +448,71 @@ class WPExporter:
         """
         import sidebar via wpcli
         """
-        def clean_sidebar_html(cmd):
-            return cmd.replace(u'\xa0', u' ')
+        def prepare_html(html):
+            return Utils.escape_quotes(html.replace(u'\xa0', u' '))
+
+        widget_pos = 1
+        widget_pos_to_lang = {}
 
         try:
             for lang in self.site.homepage.contents.keys():
+
                 for box in self.site.homepage.contents[lang].sidebar.boxes:
-                    content = "[colored-box]"
-                    content += "<h3>{}</h3>".format(box.title)
-                    content += Utils.escape_quotes(box.content)
-                    content += "[/colored-box]"
+                    if box.type == Box.TYPE_TEXT:
+                        widget_type = 'text'
+                        title = prepare_html(box.title)
+                        content = prepare_html(box.content)
 
-                    cmd = 'widget add black-studio-tinymce page-widgets ' \
-                          '--text="{}"'.format(content)
+                    elif box.type == Box.TYPE_COLORED_TEXT:
+                        widget_type = 'text'
+                        title = ""
+                        content = "[colored-box]"
+                        content += "<h3>{}</h3>".format(box.title)
+                        content += prepare_html(box.content)
+                        content += "[/colored-box]"
 
-                    cmd = clean_sidebar_html(cmd)
+                    # Box type not supported for now,
+                    else:
+                        logging.warning("Box type currently not supported for sidebar (%s)", box.type)
+                        widget_type = 'text'
+                        title = prepare_html("TODO: {}".format(box.title))
+                        content = prepare_html(box.content)
+
+                    cmd = 'widget add {} page-widgets {} ' \
+                          '--text="{}" --title="{}"'.format(widget_type, widget_pos, content, title)
 
                     self.run_wp_cli(cmd)
 
-                # Import sidebar for one language only
-                break
+                    # Saving widget position for current widget (as string because this is a string that is
+                    # used to index informations in DB)
+                    widget_pos_to_lang[str(widget_pos)] = lang
+                    widget_pos += 1
 
-            logging.info("WP all sidebar imported")
+                logging.info("WP sidebar imported for '%s' language", lang)
+
+            # If widgets were added
+            if widget_pos_to_lang:
+                # Getting existing 'text' widget list
+                widgets = json.loads(self.run_wp_cli('option get widget_text --format=json'))
+
+                # Looping through widget to apply correct lang
+                for widget_index in widgets:
+                    # If it is a widget (can be just an integer)
+                    if isinstance(widgets[widget_index], dict):
+                        # Set correct lang
+                        widgets[widget_index]['pll_lang'] = widget_pos_to_lang[widget_index]
+
+                # Create unique file to save JSON to update widget languages
+                filename = "{}.json".format(self.site.name)
+                with open(filename, "wb") as f_json:
+                    widget_json = json.dumps(widgets)
+                    f_json.write(widget_json.encode('utf-8'))
+                    f_json.flush()
+
+                # Updating languages for all widgets
+                self.run_wp_cli('option update widget_text --format=json < {}'.format(filename))
+
+                os.remove(filename)
 
         except WordpressError as e:
             logging.error("%s - WP export - widget failed: %s", self.site.name, e)
@@ -485,7 +531,7 @@ class WPExporter:
         if default_language == lang:
             footer_name = settings.FOOTER_MENU
         else:
-            footer_name = "{}-{}".format(settings.FOOTER_MENU, default_language)
+            footer_name = "{}-{}".format(settings.FOOTER_MENU, lang)
 
         self.run_wp_cli('menu item add-post {} {} --porcelain'.format(footer_name, sitemap_wp_id))
 
@@ -539,7 +585,7 @@ class WPExporter:
                 if default_language == lang:
                     menu_name = settings.MAIN_MENU
                 else:
-                    menu_name = "{}-{}".format(settings.MAIN_MENU, default_language)
+                    menu_name = "{}-{}".format(settings.MAIN_MENU, lang)
 
                 cmd = 'menu item add-post {} {} --classes=link-home --porcelain'.format(menu_name, page_content.wp_id)
                 menu_id = self.run_wp_cli(cmd)
@@ -569,7 +615,7 @@ class WPExporter:
                     # create recursively submenus
                     self.create_submenu(homepage_child, lang, menu_name)
 
-                logging.info("WP menus populated")
+                logging.info("WP menus populated for '%s' language", lang)
 
         except Exception as e:
             logging.error("%s - WP export - menu failed: %s", self.site.name, e)
@@ -653,11 +699,11 @@ class WPExporter:
         Display report
         """
         print("Imported in WordPress:\n"
-              "- {files}s files\n"
-              "- {pages}s pages\n"
-              "- {menus}s menus\n"
+              "- {files} files\n"
+              "- {pages} pages\n"
+              "- {menus} menus\n"
               "\n"
               "Errors:\n"
-              "- {failed_files}s files\n"
-              "- {failed_menus}s menus\n"
-              "- {failed_widgets}s widgets\n".format(**self.report))
+              "- {failed_files} files\n"
+              "- {failed_menus} menus\n"
+              "- {failed_widgets} widgets\n".format(**self.report))

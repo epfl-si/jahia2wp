@@ -44,9 +44,9 @@
   	<section class="page-tools">
     	<div class="wrap">
   		
-    		<?php if ( !is_front_page() ): ?>
+
     		<div class="breadcrumb"><?php get_breadcrumb(); ?></div>
-    		<?php endif; ?>
+
     		
     		<div class="lang">
       		<ul class="language-switcher">
