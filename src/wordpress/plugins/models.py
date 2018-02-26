@@ -58,7 +58,7 @@ class WPPluginList:
                                   '--extra-config=<YAML>\'. YAML content example: \'%s: <value>\'',
                                   repr(self), missing_csv_field, missing_csv_field)
                 raise Exception('Please provide YAML file with needed configuration (list above) to fill missing '
-                                 'information for plugin configuration')
+                                'information for plugin configuration')
 
             # If we have plugins,
             if plugin_list['plugins'] is not None:
