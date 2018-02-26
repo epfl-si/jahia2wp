@@ -132,6 +132,7 @@ class WPExporter:
             with open(tracer_path, 'a', newline='\n') as tracer:
                 tracer.write("{}, ERROR {}\n".format(self.site.name, str(err)))
                 tracer.flush()
+            raise err
 
     def import_medias(self):
         """
@@ -180,6 +181,7 @@ class WPExporter:
         except Exception as e:
             logging.error("%s - WP export - media failed: %s", self.site.name, e)
             self.report['failed_files'] += 1
+            raise e
 
     def import_breadcrumb(self):
         """
@@ -517,6 +519,7 @@ class WPExporter:
         except WordpressError as e:
             logging.error("%s - WP export - widget failed: %s", self.site.name, e)
             self.report['failed_widgets'] += 1
+            raise e
 
     def create_footer_menu_for_sitemap(self, sitemap_wp_id, lang):
         """
@@ -620,6 +623,7 @@ class WPExporter:
         except Exception as e:
             logging.error("%s - WP export - menu failed: %s", self.site.name, e)
             self.report['failed_menus'] += 1
+            raise e
 
     def set_frontpage(self):
         """

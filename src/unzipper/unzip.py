@@ -70,9 +70,9 @@ def unzip_one(output_dir, site_name, zip_file):
                 if e.errno == os.errno.EEXIST:
                     pass
                 else:
-                    raise
+                    raise e
             except Exception as e:
-                raise
+                raise e
 
         if os.path.basename(disk_file_name):
             with open(os.path.join(unzip_path.encode('cp437'), disk_file_name), 'wb') as fd:

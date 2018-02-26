@@ -20,7 +20,7 @@ Usage:
     [--use-cache]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--stop-on-errors]
-  jahia2wp.py clean-many            <csv_file>                      [--debug | --quiet] 
+  jahia2wp.py clean-many            <csv_file>                      [--debug | --quiet]
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate              <wp_env> <wp_url>               [--debug | --quiet]
     [--wp-title=<WP_TITLE> --wp-tagline=<WP_TAGLINE> --admin-password=<PASSWORD>]
@@ -279,6 +279,7 @@ def unzip(site, username=None, host=None, zip_path=None, force=False, output_dir
 
     except Exception as err:
         logging.error("%s - unzip - Could not unzip file - Exception: %s", site, err)
+        raise err
 
 
 @dispatch.on('parse')
@@ -449,7 +450,6 @@ def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None, 
             Tracer.write_row(site=row['Jahia_zip'], step=e, status="KO")
 
 
-
 @dispatch.on('check')
 def check(wp_env, wp_url, **kwargs):
     wp_config = _check_site(wp_env, wp_url, **kwargs)
@@ -486,7 +486,7 @@ def clean_many(csv_file, **kwargs):
         row_bytes = repr(row).encode('utf-8')
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row_bytes)
 
-        clean(row['openshift_env'],row['wp_site_url'])
+        clean(row['openshift_env'], row['wp_site_url'])
 
 
 @dispatch.on('generate')

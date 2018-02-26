@@ -48,10 +48,11 @@ class PageContent:
 
         try:
             self.last_update = datetime.strptime(date, JAHIA_DATE_FORMAT)
-        except ValueError:
+        except ValueError as e:
             logging.error(
                 "%s - parse - Invalid last update date for page %s : '%s'",
                 self.site.name, self.page.pid, date)
+            raise e
 
     def parse_sidebar(self):
         """ Parse sidebar """
