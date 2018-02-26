@@ -36,18 +36,12 @@ class TestCommandLine:
     # ORDER matters
 
     def test_check_one_fails(self, setup):
-        try:
+        with pytest.raises(Exception):
             Utils.run_command('python {} check {} {}'.format(SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC))
-            assert False
-        except Exception:
-            assert True
 
     def test_clean_one_fails(self):
-        try:
+        with pytest.raises(Exception):
             Utils.run_command('python {} clean {} {} --stop-on-errors'.format(SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC))
-            assert False
-        except Exception:
-            assert True
 
     def test_generate_one_success(self):
         expected = "Successfully created new WordPress site at {}".format(SITE_URL_SPECIFIC)
@@ -76,12 +70,9 @@ class TestCommandLine:
                                  EXTRA_CONFIG_YAML)).startswith(expected)
 
     def test_generate_one_fails(self):
-        try:
+        with pytest.raises(Exception):
             Utils.run_command('python {} generate {} {} --extra-config={}'.format(
                 SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC, EXTRA_CONFIG_YAML))
-            assert False
-        except Exception:
-            assert True
 
     def test_check_one_success(self):
         expected = "WordPress site valid and accessible at {}".format(SITE_URL_SPECIFIC)
