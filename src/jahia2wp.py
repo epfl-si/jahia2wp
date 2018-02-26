@@ -86,9 +86,9 @@ def _check_site(wp_env, wp_url, **kwargs):
     wp_site = WPSite(wp_env, wp_url, wp_site_title=kwargs.get('wp_title'))
     wp_config = WPConfig(wp_site)
     if not wp_config.is_installed:
-        raise SystemExit("No files found for {}".format(wp_site.url))
+        raise Exception("No files found for {}".format(wp_site.url))
     if not wp_config.is_config_valid:
-        raise SystemExit("Configuration not valid for {}".format(wp_site.url))
+        raise Exception("Configuration not valid for {}".format(wp_site.url))
     return wp_config
 
 
@@ -108,7 +108,7 @@ def _check_csv(csv_file):
     if not validator.validate():
         for error in validator.errors:
             logging.error(error.message)
-        raise SystemExit("Invalid CSV file!")
+        raise Exception("Invalid CSV file!")
 
     return validator
 
@@ -150,18 +150,18 @@ def _fix_menu_location(wp_generator, languages, default_language):
     # Recovering installed theme
     theme = wp_generator.run_wp_cli("theme list --status=active --field=name --format=csv")
     if not theme:
-        raise SystemExit("Cannot retrieve current active theme")
+        raise Exception("Cannot retrieve current active theme")
 
     nav_menus = {theme: {}}
     # Getting menu locations
     locations = wp_generator.run_wp_cli("menu location list --format=json")
     if not locations:
-        raise SystemExit("Cannot retrieve menu location list")
+        raise Exception("Cannot retrieve menu location list")
 
     # Getting menu list
     menu_list = wp_generator.run_wp_cli("menu list --fields=slug,locations,term_id --format=json")
     if not menu_list:
-        raise SystemExit("Cannot get menu list")
+        raise Exception("Cannot get menu list")
 
     # Looping through menu locations
     for location in json.loads(locations):
@@ -205,7 +205,7 @@ def _fix_menu_location(wp_generator, languages, default_language):
 
     # We update polylang config
     if not wp_generator.run_wp_cli("pll option update nav_menus '{}'".format(json.dumps(nav_menus))):
-        raise SystemExit("Cannot update polylang option")
+        raise Exception("Cannot update polylang option")
 
 
 def _add_extra_config(extra_config_file, current_config):
@@ -218,7 +218,7 @@ def _add_extra_config(extra_config_file, current_config):
     Return:
     current_config dict merge with YAML file content"""
     if not os.path.exists(extra_config_file):
-        raise SystemExit("Extra config file not found: {}".format(extra_config_file))
+        raise Exception("Extra config file not found: {}".format(extra_config_file))
 
     extra_config = yaml.load(open(extra_config_file, 'r'))
 
@@ -455,7 +455,7 @@ def check(wp_env, wp_url, **kwargs):
     wp_config = _check_site(wp_env, wp_url, **kwargs)
     # run a few more tests
     if not wp_config.is_install_valid:
-        raise SystemExit("Could not login or use site at {}".format(wp_config.wp_site.url))
+        raise Exception("Could not login or use site at {}".format(wp_config.wp_site.url))
     # success case
     print("WordPress site valid and accessible at {}".format(wp_config.wp_site.url))
 
@@ -536,7 +536,7 @@ def generate(wp_env, wp_url,
     wp_generator = WPGenerator(all_params, admin_password=admin_password)
 
     if not wp_generator.generate():
-        raise SystemExit("Generation failed. More info above")
+        raise Exception("Generation failed. More info above")
 
     print("Successfully created new WordPress site at {}".format(wp_generator.wp_site.url))
 
@@ -545,7 +545,7 @@ def generate(wp_env, wp_url,
 def backup(wp_env, wp_url, **kwargs):
     wp_backup = WPBackup(wp_env, wp_url)
     if not wp_backup.backup():
-        raise SystemExit("Backup failed. More info above")
+        raise Exception("Backup failed. More info above")
 
     print("Successfull {} backup for {}".format(
         wp_backup.backup_pattern, wp_backup.wp_site.url))

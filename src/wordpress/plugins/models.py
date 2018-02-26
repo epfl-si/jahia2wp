@@ -57,7 +57,7 @@ class WPPluginList:
                     logging.error('%s - YAML file CSV reference \'%s\' missing. Can be given with option '
                                   '--extra-config=<YAML>\'. YAML content example: \'%s: <value>\'',
                                   repr(self), missing_csv_field, missing_csv_field)
-                raise SystemExit('Please provide YAML file with needed configuration (list above) to fill missing '
+                raise Exception('Please provide YAML file with needed configuration (list above) to fill missing '
                                  'information for plugin configuration')
 
             # If we have plugins,
