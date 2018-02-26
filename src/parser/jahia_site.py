@@ -11,6 +11,8 @@ from parser.link import Link
 from parser.page import Page
 from parser.page_content import PageContent
 from parser.sitemap_node import SitemapNode
+from parser.menu import Menu
+from parser.menu_item import MenuItem
 from utils import Utils
 
 """
@@ -42,6 +44,8 @@ class Site:
 
         # Containing root menu entries (per language) with hard-coded URL as target
         self.root_menu_entries_url = {}
+
+        self.menus = {}
 
         # the site languages
         self.languages = []
@@ -136,6 +140,71 @@ class Site:
 
         self.server_name = properties["siteservername"]
 
+    def parse_menu(self):
+        for language, dom_path in self.export_files.items():
+            dom = Utils.get_dom(dom_path)
+
+            self.menus[language] = Menu()
+
+            for nav_list_list in dom.getElementsByTagName("navigationListList"):
+
+                # If list is right under 'root'
+                if nav_list_list.parentNode.getAttribute("xmlns:jahia") != "":
+
+                    # Looping through root menu entries
+                    for nav_list in nav_list_list.childNodes:
+
+                        if nav_list.nodeName == "navigationList":
+
+                            for nav_page in nav_list.childNodes:
+
+                                if nav_page.nodeName == "navigationPage":
+
+                                    for jahia_type in nav_page.childNodes:
+
+                                        # If normal jahia page
+                                        if jahia_type.nodeName == "jahia:page":
+                                            # Page is a link to sitemap, we skip it
+                                            if jahia_type.getAttribute("jahia:template") == "sitemap":
+                                                continue
+                                            txt = jahia_type.getAttribute("jahia:title")
+                                            target = None
+                                        # If URL
+                                        elif jahia_type.nodeName == "jahia:url":
+                                            txt = jahia_type.getAttribute("jahia:title")
+                                            target = jahia_type.getAttribute("jahia:value")
+                                        else:
+                                            continue
+
+                                        entry_id = self.menus[language].add_main_entry(txt, target)
+
+                                        # Looping through subpages below main entry
+                                        for sub_page in jahia_type.getElementsByTagName("navigationPage"):
+
+                                            for jahia_sub_type in sub_page.childNodes:
+
+                                                # If normal jahia page
+                                                if jahia_sub_type.nodeName == "jahia:page":
+                                                    txt = jahia_sub_type.getAttribute("jahia:title")
+                                                    target = None
+                                                # If URL
+                                                elif jahia_sub_type.nodeName == "jahia:url":
+                                                    txt = jahia_sub_type.getAttribute("jahia:title")
+                                                    target = jahia_sub_type.getAttribute("jahia:value")
+                                                else:
+                                                    continue
+
+                                                sub_entry_id = self.menus[language].add_sub_entry(txt,
+                                                                                                  target,
+                                                                                                  entry_id)
+
+
+        
+
+
+
+
+
     def parse_root_menu_entries_url(self):
         """
         Parse 'export_<lang>.xml files to extract root menu entries
@@ -194,6 +263,7 @@ class Site:
         # do the parsing
         self.parse_site_params()
         self.parse_root_menu_entries_url()
+        self.parse_menu()
         self.parse_breadcrumb()
         self.parse_footer()
         self.parse_pages()
