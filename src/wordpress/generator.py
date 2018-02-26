@@ -242,10 +242,13 @@ class WPGenerator:
         # config WordPress
         command = "config create --dbname='{0.wp_db_name}' --dbuser='{0.mysql_wp_user}'" \
             " --dbpass='{0.mysql_wp_password}' --dbhost={0.MYSQL_DB_HOST}"
-        # Generate options to add PHP code in wp-config.php file to switch to ssl if proxy is in SSL
+        # Generate options to add PHP code in wp-config.php file to switch to ssl if proxy is in SSL.
+        # Also allow the unfiltered_upload capability to be set, this is used just during export, the
+        # capability is explicitly removed after the export.
         extra_options = "--extra-php <<PHP \n" \
             "if (isset( \$_SERVER['HTTP_X_FORWARDED_PROTO'] ) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https'){\n" \
-            "\$_SERVER['HTTPS']='on';} \n"
+            "\$_SERVER['HTTPS']='on';} \n" \
+            "define('ALLOW_UNFILTERED_UPLOADS', true);"
         if not self.run_wp_cli(command.format(self), extra_options=extra_options):
             logging.error("%s - could not create config", repr(self))
             return False
@@ -292,6 +295,11 @@ class WPGenerator:
 
         # Add french for the admin interface
         command = "language core install fr_FR"
+        self.run_wp_cli(command)
+
+        # remove unfiltered_upload capability. Will be reactivated during
+        # export if needed.
+        command = 'cap remove administrator unfiltered_upload'
         self.run_wp_cli(command)
 
         # flag success by returning True

@@ -138,11 +138,14 @@ class WPExporter:
         Import medias to Wordpress
         """
         logging.info("WP medias import start")
+        self.run_wp_cli('cap add administrator unfiltered_upload')
         for file in self.site.files:
             wp_media = self.import_media(file)
             if wp_media:
                 self.fix_file_links(file, wp_media)
                 self.report['files'] += 1
+        # Remove the capability "unfiltered_upload" to the administrator group.
+        self.run_wp_cli('cap remove administrator unfiltered_upload')
         logging.info("WP medias imported")
 
     def import_media(self, media):
