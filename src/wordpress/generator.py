@@ -3,6 +3,7 @@ import os
 import shutil
 import logging
 import sys
+import subprocess
 
 from epflldap.ldap_search import get_unit_id
 
@@ -480,22 +481,22 @@ class WPGenerator:
             if not self.run_mysql('-e "DROP USER {};"'.format(db_user)):
                 logging.error("%s - could not drop USER %s", repr(self), db_name, db_user)
 
+            # clean directories before files
+            logging.info("%s - removing files", repr(self))
+            for dir_path in settings.WP_DIRS:
+                path = os.path.join(self.wp_site.path, dir_path)
+                if os.path.exists(path):
+                    shutil.rmtree(path)
+
+            # clean files
+            for file_path in settings.WP_FILES:
+                path = os.path.join(self.wp_site.path, file_path)
+                if os.path.exists(path):
+                    os.remove(path)
+
         # handle case where no wp_config found
-        except ValueError as err:
-            logging.warning("%s - could not clean DB: %s", repr(self), err)
-
-        # clean directories before files
-        logging.info("%s - removing files", repr(self))
-        for dir_path in settings.WP_DIRS:
-            path = os.path.join(self.wp_site.path, dir_path)
-            if os.path.exists(path):
-                shutil.rmtree(path)
-
-        # clean files
-        for file_path in settings.WP_FILES:
-            path = os.path.join(self.wp_site.path, file_path)
-            if os.path.exists(path):
-                os.remove(path)
+        except (ValueError, subprocess.CalledProcessError) as err:
+            logging.warning("%s - could not clean DB or files: %s", repr(self), err)
 
     def active_dual_auth(self):
         """
