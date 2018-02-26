@@ -1723,9 +1723,9 @@ a.a2a_button_{
   }
   
   .main-navigation .menu {
+    @include clearfix;
     background: transparent;
     border: 0;
-    height: 24px;
     padding: 0;
   }
   
