@@ -593,8 +593,24 @@ a.a2a_button_{
 
 /* Responsive header */
 
-.site-header.epfl .logo {
-  margin-top: 10px;
+.site-header.epfl {
+  margin: 0;
+  padding: 5px 0 0;
+  
+  .logo {
+    margin-top: 10px;
+    padding: 0;
+    width: 16%;
+  }
+  
+  .epflnav {
+    width: 50%;
+  }
+  
+  .search {
+    float: right;
+    width: 33%;
+  }
 }
 
 .epflnav .nav-item {
