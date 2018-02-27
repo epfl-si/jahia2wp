@@ -86,9 +86,9 @@ def _check_site(wp_env, wp_url, **kwargs):
     wp_site = WPSite(wp_env, wp_url, wp_site_title=kwargs.get('wp_title'))
     wp_config = WPConfig(wp_site)
     if not wp_config.is_installed:
-        raise Exception("No files found for {}".format(wp_site.url))
+        raise SystemExit("No files found for {}".format(wp_site.url))
     if not wp_config.is_config_valid:
-        raise Exception("Configuration not valid for {}".format(wp_site.url))
+        raise SystemExit("Configuration not valid for {}".format(wp_site.url))
     return wp_config
 
 
@@ -108,7 +108,7 @@ def _check_csv(csv_file):
     if not validator.validate():
         for error in validator.errors:
             logging.error(error.message)
-        raise Exception("Invalid CSV file!")
+        raise SystemExit("Invalid CSV file!")
 
     return validator
 
@@ -455,7 +455,7 @@ def check(wp_env, wp_url, **kwargs):
     wp_config = _check_site(wp_env, wp_url, **kwargs)
     # run a few more tests
     if not wp_config.is_install_valid:
-        raise Exception("Could not login or use site at {}".format(wp_config.wp_site.url))
+        raise SystemExit("Could not login or use site at {}".format(wp_config.wp_site.url))
     # success case
     print("WordPress site valid and accessible at {}".format(wp_config.wp_site.url))
 
@@ -545,7 +545,7 @@ def generate(wp_env, wp_url,
 def backup(wp_env, wp_url, **kwargs):
     wp_backup = WPBackup(wp_env, wp_url)
     if not wp_backup.backup():
-        raise Exception("Backup failed. More info above")
+        raise SystemExit("Backup failed. More info above")
 
     print("Successfull {} backup for {}".format(
         wp_backup.backup_pattern, wp_backup.wp_site.url))
