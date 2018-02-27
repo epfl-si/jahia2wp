@@ -546,28 +546,32 @@ class WPExporter:
         # Report
         self.report['menus'] += 2
 
-    def create_submenu(self, page, lang, menu_name):
+    def create_submenu(self, children, lang, menu_name):
         """
-        Create recursively submenus.
+        Create recursively submenus for one main menu entry
+
+        children - children pages of main menu entry
+        lang - language
+        menu_name - name of WP menu where to put sub-menu entries
         """
-        if page not in self.site.homepage.children \
-                and lang in page.contents \
-                and page.parent.contents[lang].wp_id in self.menu_id_dict:
 
-            parent_menu_id = self.menu_id_dict[page.parent.contents[lang].wp_id]
+        for child in children:
 
-            command = 'menu item add-post {} {} --parent-id={} --porcelain' \
-                      .format(menu_name, page.contents[lang].wp_id, parent_menu_id)
-            menu_id = self.run_wp_cli(command)
-            if not menu_id:
-                logging.warning("Submenu item not created for page %s" % page.pid)
-            else:
-                self.menu_id_dict[page.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
-                self.report['menus'] += 1
+            if lang in child.contents \
+                and child.parent.contents[lang].wp_id in self.menu_id_dict:
 
-        if page.has_children():
-            for child in page.children:
-                self.create_submenu(child, lang, menu_name)
+                parent_menu_id = self.menu_id_dict[child.parent.contents[lang].wp_id]
+
+                command = 'menu item add-post {} {} --parent-id={} --porcelain' \
+                    .format(menu_name, child.contents[lang].wp_id, parent_menu_id)
+                menu_id = self.run_wp_cli(command)
+                if not menu_id:
+                    logging.warning("Menu not created for page %s" % child.pid)
+                else:
+                    self.menu_id_dict[child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
+                    self.report['menus'] += 1
+
+            self.create_submenu(child.children, lang, menu_name)
 
     def populate_menu(self):
         """
@@ -630,7 +634,7 @@ class WPExporter:
                                 self.report['menus'] += 1
 
                         # create recursively submenus
-                        self.create_submenu(homepage_child, lang, menu_name)
+                        self.create_submenu(homepage_child.children, lang, menu_name)
 
                 logging.info("WP menus populated for '%s' language", lang)
 
