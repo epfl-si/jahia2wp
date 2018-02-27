@@ -179,7 +179,8 @@ class WPExporter:
         files = files
         try:
             logging.debug("WP media information %s", wp_media_info)
-            wp_media = self.wp.post_media(data=wp_media_info, files=files)
+            headers = {'Content-Disposition': 'attachment;filename={}'.format(media.name)}
+            wp_media = self.wp.post_media(data=wp_media_info, files=files, headers=headers)
             return wp_media
         except Exception as e:
             logging.error("%s - WP export - media failed: %s", self.site.name, e)
