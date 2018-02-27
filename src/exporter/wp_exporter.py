@@ -368,6 +368,16 @@ class WPExporter:
                     'post_status': 'publish',
                 }
 
+            # if the page doesn't exist for all languages on the site
+            for lang in self.wp_generator._site_params['langs'].split(","):
+                if lang in info_page:
+                    continue
+                else:
+                    info_page[lang] = {
+                        'post_name': '',
+                        'post_status': 'draft'
+                    }
+            
             cmd = "pll post create --post_type=page --stdin --porcelain"
             stdin = json.dumps(info_page)
 
@@ -560,7 +570,8 @@ class WPExporter:
         """
         if page not in self.site.homepage.children \
                 and lang in page.contents \
-                and page.parent.contents[lang].wp_id in self.menu_id_dict:
+                and page.parent.contents[lang].wp_id in self.menu_id_dict\
+                and page.contents[lang].wp_id:
 
             parent_menu_id = self.menu_id_dict[page.parent.contents[lang].wp_id]
 
@@ -593,13 +604,15 @@ class WPExporter:
                 else:
                     menu_name = "{}-{}".format(settings.MAIN_MENU, lang)
 
-                cmd = 'menu item add-post {} {} --classes=link-home --porcelain'.format(menu_name, page_content.wp_id)
-                menu_id = self.run_wp_cli(cmd)
-                if not menu_id:
-                    logging.warning("Menu not created for page  %s" % page_content.pid)
-                else:
-                    self.menu_id_dict[page_content.wp_id] = Utils.get_menu_id(menu_id)
-                    self.report['menus'] += 1
+                if page_content.wp_id:
+                    cmd = 'menu item add-post {} {} --classes=link-home --porcelain'.format(menu_name, page_content.wp_id)
+                    menu_id = self.run_wp_cli(cmd)
+
+                    if not menu_id:
+                        logging.warning("Menu not created for page  %s" % page_content.pid)
+                    else:
+                        self.menu_id_dict[page_content.wp_id] = Utils.get_menu_id(menu_id)
+                        self.report['menus'] += 1
 
                 # Create children of homepage menu
                 for homepage_child in self.site.homepage.children:
