@@ -402,8 +402,10 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
 
     if to_wordpress:
         logging.info("Exporting %s to WordPress...", site.name)
-        wp_exporter.import_all_data_to_wordpress()
-        _fix_menu_location(wp_generator, languages, default_language)
+
+        if wp_generator.get_number_of_pages() > 0:
+            wp_exporter.import_all_data_to_wordpress()
+            _fix_menu_location(wp_generator, languages, default_language)
         logging.info("Site %s successfully exported to WordPress", site.name)
         Tracer.write_row(site=site.name, step="export", status="OK")
 
