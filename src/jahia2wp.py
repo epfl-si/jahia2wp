@@ -409,7 +409,8 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
             _fix_menu_location(wp_generator, languages, default_language)
         except (Exception, subprocess.CalledProcessError) as e:
             Tracer.write_row(site=site.name, step=e, status="KO")
-            wp_generator.clean()
+            if not settings.DEBUG:
+                wp_generator.clean()
 
         logging.info("Site %s successfully exported to WordPress", site.name)
         Tracer.write_row(site=site.name, step="export", status="OK")
