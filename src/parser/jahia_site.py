@@ -12,7 +12,6 @@ from parser.page import Page
 from parser.page_content import PageContent
 from parser.sitemap_node import SitemapNode
 from parser.menu import Menu
-from parser.menu_item import MenuItem
 from utils import Utils
 
 """
@@ -176,7 +175,7 @@ class Site:
                                         else:
                                             continue
 
-                                        entry_id = self.menus[language].add_main_entry(txt, target)
+                                        entry_index = self.menus[language].add_main_entry(txt, target)
 
                                         # Looping through subpages below main entry
                                         for sub_page in jahia_type.getElementsByTagName("navigationPage"):
@@ -194,16 +193,7 @@ class Site:
                                                 else:
                                                     continue
 
-                                                sub_entry_id = self.menus[language].add_sub_entry(txt,
-                                                                                                  target,
-                                                                                                  entry_id)
-
-
-        
-
-
-
-
+                                                self.menus[language].add_sub_entry(txt, target, entry_index)
 
     def parse_root_menu_entries_url(self):
         """

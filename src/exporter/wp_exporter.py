@@ -1,6 +1,7 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
 import logging
 import os
+import copy
 import sys
 from parser.box import Box
 import timeit
@@ -593,34 +594,43 @@ class WPExporter:
                     self.menu_id_dict[page_content.wp_id] = Utils.get_menu_id(menu_id)
                     self.report['menus'] += 1
 
-                # FIXME: Handle menu entry position (see menu_url['pos']
-                # Create root hardcoded URL menu entries
-                for menu_entry in self.site.root_menu_entries_url[lang]:
-                    cmd = 'menu item add-custom {} "{}" "{}" --porcelain'\
-                          .format(menu_name, menu_entry['txt'], menu_entry['url'])
-                    menu_id = self.run_wp_cli(cmd)
-                    if not menu_id:
-                        logging.warning("Root menu item not created for URL (%s) " % menu_entry['url'])
+                # We do a copy of the list because we will use "pop()" later and empty the list
+                children_copy = copy.deepcopy(self.site.homepage.children)
 
-                # Create root menu entries
-                for homepage_child in self.site.homepage.children:
+                # Looping through root menu entries
+                for root_entry_index in range(0, self.site.menus[lang].nb_main_entries()):
 
-                    if lang not in homepage_child.contents:
-                        logging.warning("Page not translated %s" % homepage_child.pid)
-                        continue
-
-                    if homepage_child.contents[lang].wp_id:
-                        cmd = 'menu item add-post {} {} --porcelain' \
-                              .format(menu_name, homepage_child.contents[lang].wp_id)
+                    # If root menu entry is an hardcoded URL
+                    if self.site.menus[lang].target_is_url(root_entry_index):
+                        cmd = 'menu item add-custom {} "{}" "{}" --porcelain' \
+                            .format(menu_name,
+                                    self.site.menus[lang].txt(root_entry_index),
+                                    self.site.menus[lang].target_url(root_entry_index))
                         menu_id = self.run_wp_cli(cmd)
                         if not menu_id:
-                            logging.warning("Root menu item not created %s for page " % homepage_child.pid)
-                        else:
-                            self.menu_id_dict[homepage_child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
-                            self.report['menus'] += 1
+                            logging.warning("Root menu item not created for URL (%s) " %
+                                            self.site.menus[lang].target_url())
 
-                    # create recursively submenus
-                    self.create_submenu(homepage_child, lang, menu_name)
+                    # root menu entry is page
+                    else:
+                        homepage_child = children_copy.pop(0)
+
+                        if lang not in homepage_child.contents:
+                            logging.warning("Page not translated %s" % homepage_child.pid)
+                            continue
+
+                        if homepage_child.contents[lang].wp_id:
+                            cmd = 'menu item add-post {} {} --porcelain' \
+                                  .format(menu_name, homepage_child.contents[lang].wp_id)
+                            menu_id = self.run_wp_cli(cmd)
+                            if not menu_id:
+                                logging.warning("Root menu item not created %s for page " % homepage_child.pid)
+                            else:
+                                self.menu_id_dict[homepage_child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
+                                self.report['menus'] += 1
+
+                        # create recursively submenus
+                        self.create_submenu(homepage_child, lang, menu_name)
 
                 logging.info("WP menus populated for '%s' language", lang)
 
