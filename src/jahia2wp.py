@@ -55,6 +55,7 @@ Options:
 import getpass
 import logging
 import pickle
+import subprocess
 
 from datetime import datetime
 import json
@@ -402,8 +403,14 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
 
     if to_wordpress:
         logging.info("Exporting %s to WordPress...", site.name)
-        wp_exporter.import_all_data_to_wordpress()
-        _fix_menu_location(wp_generator, languages, default_language)
+
+        try:
+            wp_exporter.import_all_data_to_wordpress()
+            _fix_menu_location(wp_generator, languages, default_language)
+        except (Exception, subprocess.CalledProcessError) as e:
+            Tracer.write_row(site=site, step=e, status="KO")
+            wp_generator.clean()
+
         logging.info("Site %s successfully exported to WordPress", site.name)
         Tracer.write_row(site=site.name, step="export", status="OK")
 
@@ -446,7 +453,7 @@ def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None, 
                 admin_password=admin_password,
                 use_cache=use_cache
             )
-        except Exception as e:
+        except (Exception, subprocess.CalledProcessError) as e:
             Tracer.write_row(site=row['Jahia_zip'], step=e, status="KO")
 
 
