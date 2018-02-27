@@ -3,6 +3,8 @@ import os
 import logging
 import zipfile
 
+from tracer.tracer import Tracer
+
 
 def unzip_one(output_dir, site_name, zip_file):
     """
@@ -27,6 +29,7 @@ def unzip_one(output_dir, site_name, zip_file):
     unzip_path = os.path.join(output_subdir, site_name)
     if os.path.isdir(unzip_path):
         logging.info("Already unzipped %s", unzip_path)
+        Tracer.write_row(site=site_name, step="unzip", status="OK")
         return unzip_path
     else:
         os.makedirs(unzip_path)
@@ -67,9 +70,9 @@ def unzip_one(output_dir, site_name, zip_file):
                 if e.errno == os.errno.EEXIST:
                     pass
                 else:
-                    raise
+                    raise e
             except Exception as e:
-                raise
+                raise e
 
         if os.path.basename(disk_file_name):
             with open(os.path.join(unzip_path.encode('cp437'), disk_file_name), 'wb') as fd:
@@ -77,4 +80,6 @@ def unzip_one(output_dir, site_name, zip_file):
     zip_ref_with_files.close()
 
     logging.info("Site successfully extracted in %s", unzip_path)
+    Tracer.write_row(site=site_name, step="unzip", status="OK")
+
     return unzip_path
