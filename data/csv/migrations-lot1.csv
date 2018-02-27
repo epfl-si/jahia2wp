@@ -35,7 +35,7 @@ https://migration-wp.epfl.ch/entrepreneurship,#parser,#parser,wordpress,int,Gene
 https://migration-wp.epfl.ch/entreprises,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,vpi,vpi,vpi
 https://migration-wp.epfl.ch/euclid,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,lastro,lastro,lastro
 https://migration-wp.epfl.ch/genomic-resources,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,lasig,lasig,lasig
-https://migration-wp.epfl.ch/ggsd,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,lcpm,lcpm,lcpm
+https://migration-wp.epfl.ch/ggsd,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,lcpm,ggsd,lcpm
 https://migration-wp.epfl.ch/bachelor,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,spe,bachelor2,spe
 https://migration-wp.epfl.ch/adsv,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,upsalathe1,adsv,upsalathe3
 https://migration-wp.epfl.ch/apc,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,spc-ge,apc,spc-ge
