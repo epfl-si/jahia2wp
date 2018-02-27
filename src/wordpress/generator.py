@@ -357,6 +357,13 @@ class WPGenerator:
             self.run_wp_cli(cmd)
         logging.info("%s - All demo posts deleted", repr(self))
 
+    def get_number_of_pages(self):
+        """
+        Return the number of pages
+        """
+        cmd = "post list --post_type=page --fields=ID --format=csv"
+        return len(self.run_wp_cli(cmd).split("\n")[1:])
+
     def generate_mu_plugins(self):
         # TODO: add those plugins into the general list of plugins (with the class WPMuPluginConfig)
         WPMuPluginConfig(self.wp_site, "epfl-functions.php").install()
