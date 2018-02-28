@@ -109,6 +109,7 @@ class WPExporter:
             self.populate_menu()
             self.import_sidebar()
             self.import_breadcrumb()
+            self.delete_draft_pages()
             self.display_report()
 
             # log execution time
@@ -680,6 +681,18 @@ class WPExporter:
                 self.wp.delete_media(media_id=media['id'], params={'force': 'true'})
             medias = self.wp.get_media(params={'per_page': '100'})
         logging.info("All medias deleted")
+
+    def delete_draft_pages(self):
+        """
+        Delete all pages in DRAFT status
+        """
+        cmd = "post list --post_type='page' --post_status=draft --format=csv"
+        pages_id_list = self.run_wp_cli(cmd).split("\n")[1:]
+        for page_id in pages_id_list:
+            cmd = "post delete {}".format(page_id)
+            self.run_wp_cli(cmd)
+        logging.info("All pages in DRAFT status deleted")
+
 
     def delete_pages(self):
         """
