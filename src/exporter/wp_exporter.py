@@ -278,11 +278,14 @@ class WPExporter:
             if not link:
                 continue
 
-            # Encoding in the export file (export_<lang>.xml) and encoding of the filenames in the zip are not the same.
-            # string.encode('ascii', 'replace') replaces all unknown characters by '?'. What happens here is that for
-            # a file named 'vidéo.mp4', the old_url, which is actually the path on the file system, will be 'vid??o.mp4'
-            # once converted to ascii; but, the links that reference the media in the export file will be converted to 'vid?o.mp4'.
-            # So we convert to ascii and remove the '?' character to compare the strings and see if there is a link to replace.
+            # Encoding in the export file (export_<lang>.xml) and encoding of the filenames
+            # in the zip are not the same. string.encode('ascii', 'replace') replaces all
+            # unknown characters by '?'. What happens here is that for a file named 'vidéo.mp4',
+            # the old_url, which is actually the path on the file system, will be 'vid??o.mp4'
+            # once converted to ascii; but, the links that reference the media in the export file
+            # will be converted to 'vid?o.mp4'.
+            # So we convert to ascii and remove the '?' character to compare the strings and see
+            # if there is a link to replace.
             if link.encode('ascii', 'replace').decode('ascii').replace('?', '') == old_url.replace('?', ''):
                 logging.debug("Changing link from %s to %s" % (old_url, new_url))
                 tag[tag_attribute] = new_url
