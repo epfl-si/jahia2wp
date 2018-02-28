@@ -557,8 +557,7 @@ class WPExporter:
 
         for child in children:
 
-            if lang in child.contents \
-                and child.parent.contents[lang].wp_id in self.menu_id_dict:
+            if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict:
 
                 parent_menu_id = self.menu_id_dict[child.parent.contents[lang].wp_id]
 
@@ -571,6 +570,7 @@ class WPExporter:
                     self.menu_id_dict[child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
                     self.report['menus'] += 1
 
+            # FIXME: Handle sub-sub-pages entries
             self.create_submenu(child.children, lang, menu_name)
 
     def populate_menu(self):

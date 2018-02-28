@@ -150,50 +150,50 @@ class Site:
                 # If list is right under 'root'
                 if nav_list_list.parentNode.getAttribute("xmlns:jahia") != "":
 
-                    # Looping through root menu entries
-                    for nav_list in nav_list_list.childNodes:
+                    nav_list_nodes = Utils.get_dom_next_level_children(nav_list_list, "navigationList")
 
-                        if nav_list.nodeName == "navigationList":
+                    for nav_list in nav_list_nodes:
 
-                            for nav_page in nav_list.childNodes:
+                        nav_page_nodes = Utils.get_dom_next_level_children(nav_list, "navigationPage")
 
-                                if nav_page.nodeName == "navigationPage":
+                        for nav_page in nav_page_nodes:
 
-                                    for jahia_type in nav_page.childNodes:
+                            for jahia_type in nav_page.childNodes:
+
+                                # If normal jahia page
+                                if jahia_type.nodeName == "jahia:page":
+                                    # Page is a link to sitemap, we skip it
+                                    if jahia_type.getAttribute("jahia:template") == "sitemap":
+                                        continue
+                                    txt = jahia_type.getAttribute("jahia:title")
+                                    target = None
+                                # If URL
+                                elif jahia_type.nodeName == "jahia:url":
+                                    txt = jahia_type.getAttribute("jahia:title")
+                                    target = jahia_type.getAttribute("jahia:value")
+                                else:
+                                    continue
+
+                                entry_index = self.menus[language].add_main_entry(txt, target)
+
+                                # FIXME: Handle sub-sub-pages in menu
+                                # Looping through subpages below main entry
+                                for sub_page in jahia_type.getElementsByTagName("navigationPage"):
+
+                                    for jahia_sub_type in sub_page.childNodes:
 
                                         # If normal jahia page
-                                        if jahia_type.nodeName == "jahia:page":
-                                            # Page is a link to sitemap, we skip it
-                                            if jahia_type.getAttribute("jahia:template") == "sitemap":
-                                                continue
-                                            txt = jahia_type.getAttribute("jahia:title")
+                                        if jahia_sub_type.nodeName == "jahia:page":
+                                            txt = jahia_sub_type.getAttribute("jahia:title")
                                             target = None
                                         # If URL
-                                        elif jahia_type.nodeName == "jahia:url":
-                                            txt = jahia_type.getAttribute("jahia:title")
-                                            target = jahia_type.getAttribute("jahia:value")
+                                        elif jahia_sub_type.nodeName == "jahia:url":
+                                            txt = jahia_sub_type.getAttribute("jahia:title")
+                                            target = jahia_sub_type.getAttribute("jahia:value")
                                         else:
                                             continue
 
-                                        entry_index = self.menus[language].add_main_entry(txt, target)
-
-                                        # Looping through subpages below main entry
-                                        for sub_page in jahia_type.getElementsByTagName("navigationPage"):
-
-                                            for jahia_sub_type in sub_page.childNodes:
-
-                                                # If normal jahia page
-                                                if jahia_sub_type.nodeName == "jahia:page":
-                                                    txt = jahia_sub_type.getAttribute("jahia:title")
-                                                    target = None
-                                                # If URL
-                                                elif jahia_sub_type.nodeName == "jahia:url":
-                                                    txt = jahia_sub_type.getAttribute("jahia:title")
-                                                    target = jahia_sub_type.getAttribute("jahia:value")
-                                                else:
-                                                    continue
-
-                                                self.menus[language].add_sub_entry(txt, target, entry_index)
+                                        self.menus[language].add_sub_entry(txt, target, entry_index)
 
     def parse_root_menu_entries_url(self):
         """

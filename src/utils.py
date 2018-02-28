@@ -80,6 +80,19 @@ class Utils(object):
         return dom
 
     @staticmethod
+    def get_dom_next_level_children(dom, child_name):
+        """
+        Returns next level children with name=<child_name>
+        """
+
+        child_list = []
+        for child in dom.childNodes:
+            if child.nodeName == child_name:
+                child_list.append(child)
+
+        return child_list
+
+    @staticmethod
     def run_command(command, encoding=sys.stdout.encoding):
         """
         Execute the given command in a shell
