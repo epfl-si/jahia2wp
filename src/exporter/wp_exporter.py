@@ -369,7 +369,8 @@ class WPExporter:
                     'post_status': 'publish',
                 }
 
-            # if the page doesn't exist for all languages on the site
+            # If the page doesn't exist for all languages on the site we create a blank page in draft status
+            # At the end of export we delete all draft pages
             for lang in self.wp_generator._site_params['langs'].split(","):
                 if lang in info_page:
                     continue
@@ -378,7 +379,7 @@ class WPExporter:
                         'post_name': '',
                         'post_status': 'draft'
                     }
-            
+
             cmd = "pll post create --post_type=page --stdin --porcelain"
             stdin = json.dumps(info_page)
 
@@ -606,7 +607,10 @@ class WPExporter:
                     menu_name = "{}-{}".format(settings.MAIN_MENU, lang)
 
                 if page_content.wp_id:
-                    cmd = 'menu item add-post {} {} --classes=link-home --porcelain'.format(menu_name, page_content.wp_id)
+                    cmd = 'menu item add-post {} {} --classes=link-home --porcelain'.format(
+                        menu_name,
+                        page_content.wp_id
+                    )
                     menu_id = self.run_wp_cli(cmd)
 
                     if not menu_id:
@@ -692,7 +696,6 @@ class WPExporter:
             cmd = "post delete {}".format(page_id)
             self.run_wp_cli(cmd)
         logging.info("All pages in DRAFT status deleted")
-
 
     def delete_pages(self):
         """
