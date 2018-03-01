@@ -570,8 +570,8 @@ class WPExporter:
         """
         if page not in self.site.homepage.children \
                 and lang in page.contents \
-                and page.parent.contents[lang].wp_id in self.menu_id_dict\
-                and page.contents[lang].wp_id:
+                and page.parent.contents[lang].wp_id in self.menu_id_dict \
+                and page.contents[lang].wp_id:  # For some unknown reason, wp_id is sometimes None
 
             parent_menu_id = self.menu_id_dict[page.parent.contents[lang].wp_id]
 
@@ -604,6 +604,7 @@ class WPExporter:
                 else:
                     menu_name = "{}-{}".format(settings.MAIN_MENU, lang)
 
+                # For some unknown reason, wp_id is sometimes None
                 if page_content.wp_id:
                     cmd = 'menu item add-post {} {} --classes=link-home --porcelain'.format(
                         menu_name,
