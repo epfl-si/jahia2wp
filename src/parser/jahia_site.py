@@ -612,7 +612,8 @@ class Site:
 
                 # integrity check
                 if child_node.page.pid == node.page.pid:
-                    raise Exception("Invalid sitemap")
+                    # raise Exception("Invalid sitemap")
+                    break
 
                 # recursive call
                 self._add_to_sitemap_node(child_node, language)
