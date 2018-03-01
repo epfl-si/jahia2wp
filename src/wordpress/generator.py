@@ -379,7 +379,7 @@ class WPGenerator:
 
         # If the site is created from a jahia export, the automatic update is disabled and will be re-enabled
         # after the export process is done.
-        if self.wp_config.updates_automatic and not self.config.from_export:
+        if self.wp_config.updates_automatic and not self.wp_config.from_export:
             WPMuPluginConfig(self.wp_site, "EPFL_enable_updates_automatic.php").install()
         else:
             WPMuPluginConfig(self.wp_site, "EPFL_disable_updates_automatic.php").install()
