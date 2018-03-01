@@ -1,6 +1,7 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
 import logging
 import os
+import copy
 import sys
 from parser.box import Box
 import timeit
@@ -587,29 +588,32 @@ class WPExporter:
         # Report
         self.report['menus'] += 2
 
-    def create_submenu(self, page, lang, menu_name):
+    def create_submenu(self, children, lang, menu_name):
         """
-        Create recursively submenus.
+        Create recursively submenus for one main menu entry
+
+        children - children pages of main menu entry
+        lang - language
+        menu_name - name of WP menu where to put sub-menu entries
         """
-        if page not in self.site.homepage.children \
-                and lang in page.contents \
-                and page.parent.contents[lang].wp_id in self.menu_id_dict \
-                and page.contents[lang].wp_id:  # FIXME For some unknown reason, wp_id is sometimes None
+        for child in children:
 
-            parent_menu_id = self.menu_id_dict[page.parent.contents[lang].wp_id]
+            if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict and \
+                    child.contents[lang].wp_id:  # FIXME For unknown reason, wp_id is sometimes None
 
-            command = 'menu item add-post {} {} --parent-id={} --porcelain' \
-                      .format(menu_name, page.contents[lang].wp_id, parent_menu_id)
-            menu_id = self.run_wp_cli(command)
-            if not menu_id:
-                logging.warning("Menu not created for page %s" % page.pid)
-            else:
-                self.menu_id_dict[page.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
-                self.report['menus'] += 1
+                parent_menu_id = self.menu_id_dict[child.parent.contents[lang].wp_id]
 
-        if page.has_children():
-            for child in page.children:
-                self.create_submenu(child, lang, menu_name)
+                command = 'menu item add-post {} {} --parent-id={} --porcelain' \
+                    .format(menu_name, child.contents[lang].wp_id, parent_menu_id)
+                menu_id = self.run_wp_cli(command)
+                if not menu_id:
+                    logging.warning("Menu not created for page %s" % child.pid)
+                else:
+                    self.menu_id_dict[child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
+                    self.report['menus'] += 1
+
+            # FIXME: Handle sub-sub-pages entries
+            self.create_submenu(child.children, lang, menu_name)
 
     def populate_menu(self):
         """
@@ -627,39 +631,57 @@ class WPExporter:
                 else:
                     menu_name = "{}-{}".format(settings.MAIN_MENU, lang)
 
-                # FIXME For some unknown reason, wp_id is sometimes None
+                # FIXME For unknown reason, wp_id is sometimes None
                 if page_content.wp_id:
+                    # Create root menu 'home' entry (with the house icon)
                     cmd = 'menu item add-post {} {} --classes=link-home --porcelain'.format(
                         menu_name,
                         page_content.wp_id
                     )
                     menu_id = self.run_wp_cli(cmd)
-
                     if not menu_id:
-                        logging.warning("Menu not created for page  %s" % page_content.pid)
+                        logging.warning("Home root menu not created for page  %s" % page_content.pid)
                     else:
                         self.menu_id_dict[page_content.wp_id] = Utils.get_menu_id(menu_id)
                         self.report['menus'] += 1
 
-                # Create children of homepage menu
-                for homepage_child in self.site.homepage.children:
+                # We do a copy of the list because we will use "pop()" later and empty the list
+                children_copy = copy.deepcopy(self.site.homepage.children)
 
-                    if lang not in homepage_child.contents:
-                        logging.warning("Page not translated %s" % homepage_child.pid)
-                        continue
+                # Looping through root menu entries
+                for root_entry_index in range(0, self.site.menus[lang].nb_main_entries()):
 
-                    if homepage_child.contents[lang].wp_id:
-                        cmd = 'menu item add-post {} {} --porcelain' \
-                              .format(menu_name, homepage_child.contents[lang].wp_id)
+                    # If root menu entry is an hardcoded URL
+                    if self.site.menus[lang].target_is_url(root_entry_index):
+                        cmd = 'menu item add-custom {} "{}" "{}" --porcelain' \
+                            .format(menu_name,
+                                    self.site.menus[lang].txt(root_entry_index),
+                                    self.site.menus[lang].target_url(root_entry_index))
                         menu_id = self.run_wp_cli(cmd)
                         if not menu_id:
-                            logging.warning("Menu not created %s for page " % homepage_child.pid)
-                        else:
-                            self.menu_id_dict[homepage_child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
-                            self.report['menus'] += 1
+                            logging.warning("Root menu item not created for URL (%s) " %
+                                            self.site.menus[lang].target_url())
 
-                    # create recursively submenus
-                    self.create_submenu(homepage_child, lang, menu_name)
+                    # root menu entry is page
+                    else:
+                        homepage_child = children_copy.pop(0)
+
+                        if lang not in homepage_child.contents:
+                            logging.warning("Page not translated %s" % homepage_child.pid)
+                            continue
+
+                        if homepage_child.contents[lang].wp_id:
+                            cmd = 'menu item add-post {} {} --porcelain' \
+                                  .format(menu_name, homepage_child.contents[lang].wp_id)
+                            menu_id = self.run_wp_cli(cmd)
+                            if not menu_id:
+                                logging.warning("Root menu item not created %s for page " % homepage_child.pid)
+                            else:
+                                self.menu_id_dict[homepage_child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
+                                self.report['menus'] += 1
+
+                        # create recursively submenus
+                        self.create_submenu(homepage_child.children, lang, menu_name)
 
                 logging.info("WP menus populated for '%s' language", lang)
 
