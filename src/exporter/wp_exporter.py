@@ -372,9 +372,7 @@ class WPExporter:
             # If the page doesn't exist for all languages on the site we create a blank page in draft status
             # At the end of export we delete all draft pages
             for lang in self.wp_generator._site_params['langs'].split(","):
-                if lang in info_page:
-                    continue
-                else:
+                if lang not in info_page:
                     info_page[lang] = {
                         'post_name': '',
                         'post_status': 'draft'
