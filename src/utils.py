@@ -403,6 +403,3 @@ class Utils(object):
                 fp.write(new_file_data)
                 fp.truncate(fp.tell())
                 fp.flush()
-
-
-
