@@ -415,6 +415,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
             Tracer.write_row(site=site.name, step=e, status="KO")
             if not settings.DEBUG:
                 wp_generator.clean()
+            raise e
 
         Tracer.write_row(site=site.name, step="export", status="OK")
 
