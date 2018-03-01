@@ -612,7 +612,6 @@ class Site:
 
                 # integrity check
                 if child_node.page.pid == node.page.pid:
-                    # raise Exception("Invalid sitemap")
                     break
 
                 # recursive call
