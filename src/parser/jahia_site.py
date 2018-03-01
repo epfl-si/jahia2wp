@@ -339,26 +339,10 @@ class Site:
         start = "%s/content/sites/%s/files" % (self.base_path, self.name)
 
         for (path, dirs, files) in os.walk(start):
-            # Try to encode the path in ascii, if it fails then the path contains non-ascii characters.
-            # In that case convert to ascii with 'replace' option which replaces unknown characters by '?',
-            # and rename the file with that new name.
-            try:
-                path.encode('ascii')
-            except UnicodeEncodeError:
-                ascii_path = path.encode('ascii', 'replace').decode('ascii')
-                os.rename(path, ascii_path)
-                path = ascii_path
             for file_name in files:
                 # we exclude the thumbnails
                 if file_name in ["thumbnail", "thumbnail2"]:
                     continue
-                # Same logic used for the path applied on the filename
-                try:
-                    file_name.encode('ascii')
-                except UnicodeEncodeError:
-                    ascii_file_name = file_name.encode('ascii', 'replace').decode('ascii')
-                    os.rename(os.path.join(path, file_name), os.path.join(path, ascii_file_name))
-                    file_name = ascii_file_name
 
                 self.files.append(File(name=file_name, path=path))
 
