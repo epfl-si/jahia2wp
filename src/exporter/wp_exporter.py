@@ -646,7 +646,7 @@ class WPExporter:
                         self.report['menus'] += 1
 
                 # We do a copy of the list because we will use "pop()" later and empty the list
-                children_copy = copy.deepcopy(self.site.homepage.children)
+                children_copy = copy.copy(self.site.homepage.children)
 
                 # Looping through root menu entries
                 for root_entry_index in range(0, self.site.menus[lang].nb_main_entries()):
