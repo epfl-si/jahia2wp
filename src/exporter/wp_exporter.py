@@ -409,14 +409,9 @@ class WPExporter:
             if not result:
                 error_msg = "Could not created page"
                 logging.error(error_msg)
-                continue
+                raise Exception(error_msg)
 
             wp_ids = result.split()
-
-            if len(wp_ids) != len(contents):
-                error_msg = "{} page created is not expected : {}".format(len(wp_ids), len(contents))
-                logging.error(error_msg)
-                continue
 
             for wp_id, (lang, content) in zip(wp_ids, contents.items()):
                 wp_page = self.update_page(page_id=wp_id, title=page.contents[lang].title, content=content)
