@@ -1,7 +1,6 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
 import logging
 import os
-import copy
 import sys
 from parser.box import Box
 import timeit
