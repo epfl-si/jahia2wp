@@ -367,11 +367,16 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     else:
         theme_faculty = site.theme[default_language]
 
+    if not site.title[default_language]:
+        wp_tagline = "No-tagline"
+    else:
+        wp_tagline = site.title[default_language]
+
     info = {
         # information from parser
         'langs': ",".join(languages),
         'wp_site_title': wp_site_title,
-        'wp_tagline': site.title[default_language],
+        'wp_tagline': wp_tagline,
         'theme_faculty': theme_faculty,
         'unit_name': unit_name,
 
