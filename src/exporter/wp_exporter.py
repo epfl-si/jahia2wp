@@ -598,7 +598,8 @@ class WPExporter:
         """
         for child in children:
 
-            if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict:
+            if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict and \
+                    child.contents[lang].wp_id:  # FIXME For unknown reason, wp_id is sometimes None
 
                 parent_menu_id = self.menu_id_dict[child.parent.contents[lang].wp_id]
 
@@ -630,7 +631,7 @@ class WPExporter:
                 else:
                     menu_name = "{}-{}".format(settings.MAIN_MENU, lang)
 
-                # FIXME For some unknown reason, wp_id is sometimes None
+                # FIXME For unknown reason, wp_id is sometimes None
                 if page_content.wp_id:
                   # Create root menu 'home' entry (with the house icon)
                   cmd = 'menu item add-post {} {} --classes=link-home --porcelain'.format(menu_name, page_content.wp_id)
