@@ -109,6 +109,7 @@ class WPExporter:
             self.populate_menu()
             self.import_sidebar()
             self.import_breadcrumb()
+            self.delete_draft_pages()
             self.display_report()
 
             # log execution time
@@ -391,6 +392,15 @@ class WPExporter:
                     'post_status': 'publish',
                 }
 
+            # If the page doesn't exist for all languages on the site we create a blank page in draft status
+            # At the end of export we delete all draft pages
+            for lang in self.wp_generator._site_params['langs'].split(","):
+                if lang not in info_page:
+                    info_page[lang] = {
+                        'post_name': '',
+                        'post_status': 'draft'
+                    }
+
             cmd = "pll post create --post_type=page --stdin --porcelain"
             stdin = json.dumps(info_page)
 
@@ -583,7 +593,8 @@ class WPExporter:
         """
         if page not in self.site.homepage.children \
                 and lang in page.contents \
-                and page.parent.contents[lang].wp_id in self.menu_id_dict:
+                and page.parent.contents[lang].wp_id in self.menu_id_dict \
+                and page.contents[lang].wp_id:  # FIXME For some unknown reason, wp_id is sometimes None
 
             parent_menu_id = self.menu_id_dict[page.parent.contents[lang].wp_id]
 
@@ -616,13 +627,19 @@ class WPExporter:
                 else:
                     menu_name = "{}-{}".format(settings.MAIN_MENU, lang)
 
-                cmd = 'menu item add-post {} {} --classes=link-home --porcelain'.format(menu_name, page_content.wp_id)
-                menu_id = self.run_wp_cli(cmd)
-                if not menu_id:
-                    logging.warning("Menu not created for page  %s" % page_content.pid)
-                else:
-                    self.menu_id_dict[page_content.wp_id] = Utils.get_menu_id(menu_id)
-                    self.report['menus'] += 1
+                # FIXME For some unknown reason, wp_id is sometimes None
+                if page_content.wp_id:
+                    cmd = 'menu item add-post {} {} --classes=link-home --porcelain'.format(
+                        menu_name,
+                        page_content.wp_id
+                    )
+                    menu_id = self.run_wp_cli(cmd)
+
+                    if not menu_id:
+                        logging.warning("Menu not created for page  %s" % page_content.pid)
+                    else:
+                        self.menu_id_dict[page_content.wp_id] = Utils.get_menu_id(menu_id)
+                        self.report['menus'] += 1
 
                 # Create children of homepage menu
                 for homepage_child in self.site.homepage.children:
@@ -690,6 +707,17 @@ class WPExporter:
                 self.wp.delete_media(media_id=media['id'], params={'force': 'true'})
             medias = self.wp.get_media(params={'per_page': '100'})
         logging.info("All medias deleted")
+
+    def delete_draft_pages(self):
+        """
+        Delete all pages in DRAFT status
+        """
+        cmd = "post list --post_type='page' --post_status=draft --format=csv"
+        pages_id_list = self.run_wp_cli(cmd).split("\n")[1:]
+        for page_id in pages_id_list:
+            cmd = "post delete {}".format(page_id)
+            self.run_wp_cli(cmd)
+        logging.info("All pages in DRAFT status deleted")
 
     def delete_pages(self):
         """
