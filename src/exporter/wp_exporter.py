@@ -153,6 +153,21 @@ class WPExporter:
         """
         Import a media to Wordpress
         """
+        # Try to encode the path in ascii, if it fails then the path contains non-ascii characters.
+        # In that case convert to ascii with 'replace' option which replaces unknown characters by '?',
+        # and rename the file with that new name.
+        try:
+            media.path.encode('ascii')
+        except UnicodeEncodeError:
+            ascii_path = media.path.encode('ascii', 'replace').decode('ascii')
+            os.rename(media.path, ascii_path)
+            media.path = ascii_path
+        try:
+            media.name.encode('ascii')
+        except UnicodeEncodeError:
+            ascii_file_name = media.name.encode('ascii', 'replace').decode('ascii')
+            os.rename(os.path.join(media.path, media.name), os.path.join(media.path, ascii_file_name))
+            media.name = ascii_file_name
         file_path = os.path.join(media.path, media.name)
         file = open(file_path, 'rb')
 
@@ -278,7 +293,15 @@ class WPExporter:
             if not link:
                 continue
 
-            if link == old_url:
+            # Encoding in the export file (export_<lang>.xml) and encoding of the filenames
+            # in the zip are not the same. string.encode('ascii', 'replace') replaces all
+            # unknown characters by '?'. What happens here is that for a file named 'vidéo.mp4',
+            # the old_url, which is actually the path on the file system, will be 'vid??o.mp4'
+            # once converted to ascii; but, the links that reference the media in the export file
+            # will be converted to 'vid?o.mp4'.
+            # So we convert to ascii and remove the '?' character to compare the strings and see
+            # if there is a link to replace.
+            if link.encode('ascii', 'replace').decode('ascii').replace('?', '') == old_url.replace('?', ''):
                 logging.debug("Changing link from %s to %s" % (old_url, new_url))
                 tag[tag_attribute] = new_url
 
