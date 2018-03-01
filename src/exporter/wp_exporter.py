@@ -397,6 +397,7 @@ class WPExporter:
             # At the end of export we delete all draft pages
             for lang in self.wp_generator._site_params['langs'].split(","):
                 if lang not in info_page:
+                    contents[lang] = ""
                     info_page[lang] = {
                         'post_name': '',
                         'post_status': 'draft'
@@ -413,7 +414,13 @@ class WPExporter:
 
             wp_ids = result.split()
 
+            if len(wp_ids) != len(contents):
+                error_msg = "{} page created is not expected : {}".format(len(wp_ids), len(contents))
+                logging.error(error_msg)
+                raise Exception(error_msg)
+
             for wp_id, (lang, content) in zip(wp_ids, contents.items()):
+                # FIXME page.contents[lang].title failed a cause des draft ? si oui supprimer directement les draft ?
                 wp_page = self.update_page(page_id=wp_id, title=page.contents[lang].title, content=content)
 
                 # prepare mapping for the nginx conf generation
