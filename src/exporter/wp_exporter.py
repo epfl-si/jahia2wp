@@ -132,17 +132,21 @@ class WPExporter:
             with open(tracer_path, 'a', newline='\n') as tracer:
                 tracer.write("{}, ERROR {}\n".format(self.site.name, str(err)))
                 tracer.flush()
+            raise err
 
     def import_medias(self):
         """
         Import medias to Wordpress
         """
         logging.info("WP medias import start")
+        self.run_wp_cli('cap add administrator unfiltered_upload')
         for file in self.site.files:
             wp_media = self.import_media(file)
             if wp_media:
                 self.fix_file_links(file, wp_media)
                 self.report['files'] += 1
+        # Remove the capability "unfiltered_upload" to the administrator group.
+        self.run_wp_cli('cap remove administrator unfiltered_upload')
         logging.info("WP medias imported")
 
     def import_media(self, media):
@@ -180,6 +184,7 @@ class WPExporter:
         except Exception as e:
             logging.error("%s - WP export - media failed: %s", self.site.name, e)
             self.report['failed_files'] += 1
+            raise e
 
     def import_breadcrumb(self):
         """
@@ -188,11 +193,14 @@ class WPExporter:
         # FIXME: add an attribut default_language to wp_generator.wp_site class
         default_lang = self.wp_generator._site_params['langs'].split(",")[0]
 
-        # Generatin breadcrumb to save in parameters
-        breadcrumb = "[EPFL|www.epfl.ch]>[{}|{}]".format(self.site.breadcrumb_title[default_lang],
-                                                         self.site.breadcrumb_url[default_lang])
+        # If there is a custom breadrcrumb defined for this site and the default language
+        if self.site.breadcrumb_title and self.site.breadcrumb_url and \
+                default_lang in self.site.breadcrumb_title and default_lang in self.site.breadcrumb_url:
+            # Generatin breadcrumb to save in parameters
+            breadcrumb = "[EPFL|www.epfl.ch]>[{}|{}]".format(self.site.breadcrumb_title[default_lang],
+                                                             self.site.breadcrumb_url[default_lang])
 
-        self.run_wp_cli("option update epfl:custom_breadcrumb '{}'".format(breadcrumb))
+            self.run_wp_cli("option update epfl:custom_breadcrumb '{}'".format(breadcrumb))
 
     def fix_file_links(self, file, wp_media):
         """Fix the links pointing to the given file"""
@@ -455,7 +463,7 @@ class WPExporter:
             for lang in self.site.homepage.contents.keys():
 
                 for box in self.site.homepage.contents[lang].sidebar.boxes:
-                    if box.type == Box.TYPE_TEXT:
+                    if box.type == Box.TYPE_TEXT or box.type == Box.TYPE_CONTACT:
                         widget_type = 'text'
                         title = prepare_html(box.title)
                         content = prepare_html(box.content)
@@ -514,6 +522,7 @@ class WPExporter:
         except WordpressError as e:
             logging.error("%s - WP export - widget failed: %s", self.site.name, e)
             self.report['failed_widgets'] += 1
+            raise e
 
     def create_footer_menu_for_sitemap(self, sitemap_wp_id, lang):
         """
@@ -617,6 +626,7 @@ class WPExporter:
         except Exception as e:
             logging.error("%s - WP export - menu failed: %s", self.site.name, e)
             self.report['failed_menus'] += 1
+            raise e
 
     def set_frontpage(self):
         """

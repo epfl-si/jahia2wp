@@ -20,6 +20,7 @@ Usage:
     [--use-cache]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--stop-on-errors]
+  jahia2wp.py clean-many            <csv_file>                      [--debug | --quiet]
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate              <wp_env> <wp_url>               [--debug | --quiet]
     [--wp-title=<WP_TITLE> --wp-tagline=<WP_TAGLINE> --admin-password=<PASSWORD>]
@@ -57,8 +58,8 @@ import logging
 import pickle
 import random
 import string
-import csv
 import codecs
+import subprocess
 
 from datetime import datetime
 import json
@@ -77,6 +78,7 @@ from exporter.wp_exporter import WPExporter
 from parser.jahia_site import Site
 from settings import VERSION, FULL_BACKUP_RETENTION_THEME, INCREMENTAL_BACKUP_RETENTION_THEME, \
     DEFAULT_THEME_NAME, DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
+from tracer.tracer import Tracer
 from unzipper.unzip import unzip_one
 from utils import Utils
 from veritas.casters import cast_boolean
@@ -153,18 +155,18 @@ def _fix_menu_location(wp_generator, languages, default_language):
     # Recovering installed theme
     theme = wp_generator.run_wp_cli("theme list --status=active --field=name --format=csv")
     if not theme:
-        raise SystemExit("Cannot retrieve current active theme")
+        raise Exception("Cannot retrieve current active theme")
 
     nav_menus = {theme: {}}
     # Getting menu locations
     locations = wp_generator.run_wp_cli("menu location list --format=json")
     if not locations:
-        raise SystemExit("Cannot retrieve menu location list")
+        raise Exception("Cannot retrieve menu location list")
 
     # Getting menu list
     menu_list = wp_generator.run_wp_cli("menu list --fields=slug,locations,term_id --format=json")
     if not menu_list:
-        raise SystemExit("Cannot get menu list")
+        raise Exception("Cannot get menu list")
 
     # Looping through menu locations
     for location in json.loads(locations):
@@ -208,7 +210,7 @@ def _fix_menu_location(wp_generator, languages, default_language):
 
     # We update polylang config
     if not wp_generator.run_wp_cli("pll option update nav_menus '{}'".format(json.dumps(nav_menus))):
-        raise SystemExit("Cannot update polylang option")
+        raise Exception("Cannot update polylang option")
 
 
 def _add_extra_config(extra_config_file, current_config):
@@ -221,7 +223,7 @@ def _add_extra_config(extra_config_file, current_config):
     Return:
     current_config dict merge with YAML file content"""
     if not os.path.exists(extra_config_file):
-        raise SystemExit("Extra config file not found: {}".format(extra_config_file))
+        raise Exception("Extra config file not found: {}".format(extra_config_file))
 
     extra_config = yaml.load(open(extra_config_file, 'r'))
 
@@ -282,6 +284,7 @@ def unzip(site, username=None, host=None, zip_path=None, force=False, output_dir
 
     except Exception as err:
         logging.error("%s - unzip - Could not unzip file - Exception: %s", site, err)
+        raise err
 
 
 @dispatch.on('parse')
@@ -320,6 +323,7 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
 
         # log success
         logging.info("Site %s successfully parsed" % site)
+        Tracer.write_row(site=site.name, step="parse", status="OK")
 
         return site
 
@@ -403,9 +407,20 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
 
     if to_wordpress:
         logging.info("Exporting %s to WordPress...", site.name)
-        wp_exporter.import_all_data_to_wordpress()
-        _fix_menu_location(wp_generator, languages, default_language)
-        logging.info("Site %s successfully exported to WordPress", site.name)
+        try:
+            if wp_generator.get_number_of_pages() == 0:
+                wp_exporter.import_all_data_to_wordpress()
+                _fix_menu_location(wp_generator, languages, default_language)
+                logging.info("Site %s successfully exported to WordPress", site.name)
+            else:
+                logging.info("Site %s already exported to WordPress", site.name)
+        except (Exception, subprocess.CalledProcessError) as e:
+            Tracer.write_row(site=site.name, step=e, status="KO")
+            if not settings.DEBUG:
+                wp_generator.clean()
+            raise e
+
+        Tracer.write_row(site=site.name, step="export", status="OK")
 
     if clean_wordpress:
         logging.info("Cleaning WordPress for %s...", site.name)
@@ -431,20 +446,23 @@ def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None, 
         row_bytes = repr(row).encode('utf-8')
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row_bytes)
 
-        export(
-            site=row['Jahia_zip'],
-            wp_site_url=row['wp_site_url'],
-            unit_name=row['unit_name'],
-            to_wordpress=True,
-            clean_wordpress=False,
-            output_dir=output_dir,
-            theme=row['theme'],
-            installs_locked=row['installs_locked'],
-            updates_automatic=row['updates_automatic'],
-            wp_env=row['openshift_env'],
-            admin_password=admin_password,
-            use_cache=use_cache
-        )
+        try:
+            export(
+                site=row['Jahia_zip'],
+                wp_site_url=row['wp_site_url'],
+                unit_name=row['unit_name'],
+                to_wordpress=True,
+                clean_wordpress=False,
+                output_dir=output_dir,
+                theme=row['theme'],
+                installs_locked=row['installs_locked'],
+                updates_automatic=row['updates_automatic'],
+                wp_env=row['openshift_env'],
+                admin_password=admin_password,
+                use_cache=use_cache
+            )
+        except (Exception, subprocess.CalledProcessError) as e:
+            Tracer.write_row(site=row['Jahia_zip'], step=e, status="KO")
 
 
 @dispatch.on('check')
@@ -467,6 +485,23 @@ def clean(wp_env, wp_url, stop_on_errors=False, **kwargs):
     wp_generator = WPGenerator({'openshift_env': wp_env, 'wp_site_url': wp_url})
     if wp_generator.clean():
         print("Successfully cleaned WordPress site {}".format(wp_generator.wp_site.url))
+
+
+@dispatch.on('clean-many')
+def clean_many(csv_file, **kwargs):
+
+    rows = Utils.csv_filepath_to_dict(csv_file)
+
+    # clean WP site for each row
+    print("\n{} websites will now be cleaned...".format(len(rows)))
+    for index, row in enumerate(rows):
+
+        print("\nIndex #{}:\n---".format(index))
+        # CSV file is utf-8 so we encode correctly the string to avoid errors during logging.debug display
+        row_bytes = repr(row).encode('utf-8')
+        logging.debug("%s - row %s: %s", row["wp_site_url"], index, row_bytes)
+
+        clean(row['openshift_env'], row['wp_site_url'])
 
 
 @dispatch.on('generate')
@@ -516,7 +551,7 @@ def generate(wp_env, wp_url,
     wp_generator = WPGenerator(all_params, admin_password=admin_password)
 
     if not wp_generator.generate():
-        raise SystemExit("Generation failed. More info above")
+        raise Exception("Generation failed. More info above")
 
     print("Successfully created new WordPress site at {}".format(wp_generator.wp_site.url))
 

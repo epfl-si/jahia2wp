@@ -177,6 +177,8 @@ class Site:
 
             self.title[language] = Utils.get_tag_attribute(dom, "siteName", "jahia:value")
             self.theme[language] = Utils.get_tag_attribute(dom, "theme", "jahia:value")
+            if self.theme[language] == 'associations':
+                self.theme[language] = 'assoc'
             self.acronym[language] = Utils.get_tag_attribute(dom, "acronym", "jahia:value")
             self.css_url[language] = "//static.epfl.ch/v0.23.0/styles/%s-built.css" % self.theme[language]
 

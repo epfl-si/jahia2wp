@@ -308,7 +308,7 @@ class WPConfig:
             return self._add_user(WPUser.from_sciper(sciper_id, role=role))
         except WPException as err:
             logging.error("%s - LDAP call failed %s", repr(self.wp_site), err)
-            return None
+            raise err
 
     def _add_user(self, user):
         """

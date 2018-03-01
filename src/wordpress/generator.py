@@ -3,6 +3,7 @@ import os
 import shutil
 import logging
 import sys
+import subprocess
 
 from epflldap.ldap_search import get_unit_id
 
@@ -242,10 +243,13 @@ class WPGenerator:
         # config WordPress
         command = "config create --dbname='{0.wp_db_name}' --dbuser='{0.mysql_wp_user}'" \
             " --dbpass='{0.mysql_wp_password}' --dbhost={0.MYSQL_DB_HOST}"
-        # Generate options to add PHP code in wp-config.php file to switch to ssl if proxy is in SSL
+        # Generate options to add PHP code in wp-config.php file to switch to ssl if proxy is in SSL.
+        # Also allow the unfiltered_upload capability to be set, this is used just during export, the
+        # capability is explicitly removed after the export.
         extra_options = "--extra-php <<PHP \n" \
             "if (isset( \$_SERVER['HTTP_X_FORWARDED_PROTO'] ) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https'){\n" \
-            "\$_SERVER['HTTPS']='on';} \n"
+            "\$_SERVER['HTTPS']='on';} \n" \
+            "define('ALLOW_UNFILTERED_UPLOADS', true);"
         if not self.run_wp_cli(command.format(self), extra_options=extra_options):
             logging.error("%s - could not create config", repr(self))
             return False
@@ -292,6 +296,11 @@ class WPGenerator:
 
         # Add french for the admin interface
         command = "language core install fr_FR"
+        self.run_wp_cli(command)
+
+        # remove unfiltered_upload capability. Will be reactivated during
+        # export if needed.
+        command = 'cap remove administrator unfiltered_upload'
         self.run_wp_cli(command)
 
         # flag success by returning True
@@ -347,6 +356,13 @@ class WPGenerator:
             cmd = "post delete {}".format(post)
             self.run_wp_cli(cmd)
         logging.info("%s - All demo posts deleted", repr(self))
+
+    def get_number_of_pages(self):
+        """
+        Return the number of pages
+        """
+        cmd = "post list --post_type=page --fields=ID --format=csv"
+        return len(self.run_wp_cli(cmd).split("\n")[1:])
 
     def generate_mu_plugins(self):
         # TODO: add those plugins into the general list of plugins (with the class WPMuPluginConfig)
@@ -480,22 +496,22 @@ class WPGenerator:
             if not self.run_mysql('-e "DROP USER {};"'.format(db_user)):
                 logging.error("%s - could not drop USER %s", repr(self), db_name, db_user)
 
+            # clean directories before files
+            logging.info("%s - removing files", repr(self))
+            for dir_path in settings.WP_DIRS:
+                path = os.path.join(self.wp_site.path, dir_path)
+                if os.path.exists(path):
+                    shutil.rmtree(path)
+
+            # clean files
+            for file_path in settings.WP_FILES:
+                path = os.path.join(self.wp_site.path, file_path)
+                if os.path.exists(path):
+                    os.remove(path)
+
         # handle case where no wp_config found
-        except ValueError as err:
-            logging.warning("%s - could not clean DB: %s", repr(self), err)
-
-        # clean directories before files
-        logging.info("%s - removing files", repr(self))
-        for dir_path in settings.WP_DIRS:
-            path = os.path.join(self.wp_site.path, dir_path)
-            if os.path.exists(path):
-                shutil.rmtree(path)
-
-        # clean files
-        for file_path in settings.WP_FILES:
-            path = os.path.join(self.wp_site.path, file_path)
-            if os.path.exists(path):
-                os.remove(path)
+        except (ValueError, subprocess.CalledProcessError) as err:
+            logging.warning("%s - could not clean DB or files: %s", repr(self), err)
 
     def active_dual_auth(self):
         """
