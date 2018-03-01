@@ -633,14 +633,17 @@ class WPExporter:
 
                 # FIXME For unknown reason, wp_id is sometimes None
                 if page_content.wp_id:
-                  # Create root menu 'home' entry (with the house icon)
-                  cmd = 'menu item add-post {} {} --classes=link-home --porcelain'.format(menu_name, page_content.wp_id)
-                  menu_id = self.run_wp_cli(cmd)
-                  if not menu_id:
-                      logging.warning("Home root menu not created for page  %s" % page_content.pid)
-                  else:
-                      self.menu_id_dict[page_content.wp_id] = Utils.get_menu_id(menu_id)
-                      self.report['menus'] += 1
+                    # Create root menu 'home' entry (with the house icon)
+                    cmd = 'menu item add-post {} {} --classes=link-home --porcelain'.format(
+                        menu_name,
+                        page_content.wp_id
+                    )
+                    menu_id = self.run_wp_cli(cmd)
+                    if not menu_id:
+                        logging.warning("Home root menu not created for page  %s" % page_content.pid)
+                    else:
+                        self.menu_id_dict[page_content.wp_id] = Utils.get_menu_id(menu_id)
+                        self.report['menus'] += 1
 
                 # We do a copy of the list because we will use "pop()" later and empty the list
                 children_copy = copy.deepcopy(self.site.homepage.children)
