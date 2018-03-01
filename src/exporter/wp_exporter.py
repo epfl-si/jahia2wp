@@ -110,6 +110,7 @@ class WPExporter:
             self.populate_menu()
             self.import_sidebar()
             self.import_breadcrumb()
+            self.delete_draft_pages()
             self.display_report()
 
             # log execution time
@@ -133,23 +134,42 @@ class WPExporter:
             with open(tracer_path, 'a', newline='\n') as tracer:
                 tracer.write("{}, ERROR {}\n".format(self.site.name, str(err)))
                 tracer.flush()
+            raise err
 
     def import_medias(self):
         """
         Import medias to Wordpress
         """
         logging.info("WP medias import start")
+        self.run_wp_cli('cap add administrator unfiltered_upload')
         for file in self.site.files:
             wp_media = self.import_media(file)
             if wp_media:
                 self.fix_file_links(file, wp_media)
                 self.report['files'] += 1
+        # Remove the capability "unfiltered_upload" to the administrator group.
+        self.run_wp_cli('cap remove administrator unfiltered_upload')
         logging.info("WP medias imported")
 
     def import_media(self, media):
         """
         Import a media to Wordpress
         """
+        # Try to encode the path in ascii, if it fails then the path contains non-ascii characters.
+        # In that case convert to ascii with 'replace' option which replaces unknown characters by '?',
+        # and rename the file with that new name.
+        try:
+            media.path.encode('ascii')
+        except UnicodeEncodeError:
+            ascii_path = media.path.encode('ascii', 'replace').decode('ascii')
+            os.rename(media.path, ascii_path)
+            media.path = ascii_path
+        try:
+            media.name.encode('ascii')
+        except UnicodeEncodeError:
+            ascii_file_name = media.name.encode('ascii', 'replace').decode('ascii')
+            os.rename(os.path.join(media.path, media.name), os.path.join(media.path, ascii_file_name))
+            media.name = ascii_file_name
         file_path = os.path.join(media.path, media.name)
         file = open(file_path, 'rb')
 
@@ -181,6 +201,7 @@ class WPExporter:
         except Exception as e:
             logging.error("%s - WP export - media failed: %s", self.site.name, e)
             self.report['failed_files'] += 1
+            raise e
 
     def import_breadcrumb(self):
         """
@@ -189,11 +210,14 @@ class WPExporter:
         # FIXME: add an attribut default_language to wp_generator.wp_site class
         default_lang = self.wp_generator._site_params['langs'].split(",")[0]
 
-        # Generatin breadcrumb to save in parameters
-        breadcrumb = "[EPFL|www.epfl.ch]>[{}|{}]".format(self.site.breadcrumb_title[default_lang],
-                                                         self.site.breadcrumb_url[default_lang])
+        # If there is a custom breadrcrumb defined for this site and the default language
+        if self.site.breadcrumb_title and self.site.breadcrumb_url and \
+                default_lang in self.site.breadcrumb_title and default_lang in self.site.breadcrumb_url:
+            # Generatin breadcrumb to save in parameters
+            breadcrumb = "[EPFL|www.epfl.ch]>[{}|{}]".format(self.site.breadcrumb_title[default_lang],
+                                                             self.site.breadcrumb_url[default_lang])
 
-        self.run_wp_cli("option update epfl:custom_breadcrumb '{}'".format(breadcrumb))
+            self.run_wp_cli("option update epfl:custom_breadcrumb '{}'".format(breadcrumb))
 
     def fix_file_links(self, file, wp_media):
         """Fix the links pointing to the given file"""
@@ -271,7 +295,15 @@ class WPExporter:
             if not link:
                 continue
 
-            if link == old_url:
+            # Encoding in the export file (export_<lang>.xml) and encoding of the filenames
+            # in the zip are not the same. string.encode('ascii', 'replace') replaces all
+            # unknown characters by '?'. What happens here is that for a file named 'vidéo.mp4',
+            # the old_url, which is actually the path on the file system, will be 'vid??o.mp4'
+            # once converted to ascii; but, the links that reference the media in the export file
+            # will be converted to 'vid?o.mp4'.
+            # So we convert to ascii and remove the '?' character to compare the strings and see
+            # if there is a link to replace.
+            if link.encode('ascii', 'replace').decode('ascii').replace('?', '') == old_url.replace('?', ''):
                 logging.debug("Changing link from %s to %s" % (old_url, new_url))
                 tag[tag_attribute] = new_url
 
@@ -360,6 +392,15 @@ class WPExporter:
                     'post_name': page.contents[lang].path,
                     'post_status': 'publish',
                 }
+
+            # If the page doesn't exist for all languages on the site we create a blank page in draft status
+            # At the end of export we delete all draft pages
+            for lang in self.wp_generator._site_params['langs'].split(","):
+                if lang not in info_page:
+                    info_page[lang] = {
+                        'post_name': '',
+                        'post_status': 'draft'
+                    }
 
             cmd = "pll post create --post_type=page --stdin --porcelain"
             stdin = json.dumps(info_page)
@@ -456,7 +497,7 @@ class WPExporter:
             for lang in self.site.homepage.contents.keys():
 
                 for box in self.site.homepage.contents[lang].sidebar.boxes:
-                    if box.type == Box.TYPE_TEXT:
+                    if box.type == Box.TYPE_TEXT or box.type == Box.TYPE_CONTACT:
                         widget_type = 'text'
                         title = prepare_html(box.title)
                         content = prepare_html(box.content)
@@ -515,6 +556,7 @@ class WPExporter:
         except WordpressError as e:
             logging.error("%s - WP export - widget failed: %s", self.site.name, e)
             self.report['failed_widgets'] += 1
+            raise e
 
     def create_footer_menu_for_sitemap(self, sitemap_wp_id, lang):
         """
@@ -554,7 +596,6 @@ class WPExporter:
         lang - language
         menu_name - name of WP menu where to put sub-menu entries
         """
-
         for child in children:
 
             if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict:
@@ -589,14 +630,16 @@ class WPExporter:
                 else:
                     menu_name = "{}-{}".format(settings.MAIN_MENU, lang)
 
-                # Create root menu 'home' entry (with the house icon)
-                cmd = 'menu item add-post {} {} --classes=link-home --porcelain'.format(menu_name, page_content.wp_id)
-                menu_id = self.run_wp_cli(cmd)
-                if not menu_id:
-                    logging.warning("Home roote menu not created for page  %s" % page_content.pid)
-                else:
-                    self.menu_id_dict[page_content.wp_id] = Utils.get_menu_id(menu_id)
-                    self.report['menus'] += 1
+                # FIXME For some unknown reason, wp_id is sometimes None
+                if page_content.wp_id:
+                  # Create root menu 'home' entry (with the house icon)
+                  cmd = 'menu item add-post {} {} --classes=link-home --porcelain'.format(menu_name, page_content.wp_id)
+                  menu_id = self.run_wp_cli(cmd)
+                  if not menu_id:
+                      logging.warning("Home root menu not created for page  %s" % page_content.pid)
+                  else:
+                      self.menu_id_dict[page_content.wp_id] = Utils.get_menu_id(menu_id)
+                      self.report['menus'] += 1
 
                 # We do a copy of the list because we will use "pop()" later and empty the list
                 children_copy = copy.deepcopy(self.site.homepage.children)
@@ -641,6 +684,7 @@ class WPExporter:
         except Exception as e:
             logging.error("%s - WP export - menu failed: %s", self.site.name, e)
             self.report['failed_menus'] += 1
+            raise e
 
     def set_frontpage(self):
         """
@@ -681,6 +725,17 @@ class WPExporter:
                 self.wp.delete_media(media_id=media['id'], params={'force': 'true'})
             medias = self.wp.get_media(params={'per_page': '100'})
         logging.info("All medias deleted")
+
+    def delete_draft_pages(self):
+        """
+        Delete all pages in DRAFT status
+        """
+        cmd = "post list --post_type='page' --post_status=draft --format=csv"
+        pages_id_list = self.run_wp_cli(cmd).split("\n")[1:]
+        for page_id in pages_id_list:
+            cmd = "post delete {}".format(page_id)
+            self.run_wp_cli(cmd)
+        logging.info("All pages in DRAFT status deleted")
 
     def delete_pages(self):
         """

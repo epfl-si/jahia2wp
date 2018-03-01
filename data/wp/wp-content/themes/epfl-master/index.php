@@ -18,19 +18,18 @@ get_header(); ?>
   <div class="grid">
 	<div id="primary" class="content-area col col-l-8">
 		<main id="main" class="site-main" role="main">
-    	<?php if ( is_home() && ! is_front_page() ) : ?>
+  		
+  		<?php if ( is_home() && ! is_front_page() ) : ?>
     		<header class="page-header">
-    			<h1 class="page-title"><?php _e( 'News', 'epfl' ); ?></h1>
+    			<h1 class="page-title"><?php single_post_title(); ?></h1>
     		</header>
     	<?php else : ?>
     	<header class="page-header">
-    		<h2 class="page-title"><?php _e( 'News', 'epfl' ); ?></h2>
+    		<h2 class="page-title"><?php _e( 'Posts', 'epfl' ); ?></h2>
     	</header>
     	<?php endif; ?>
     	
-    	<?php if ( is_home() || ( is_front_page() && is_home() ) ) : ?>
-        <section class="list-articles clearfix">
-      <?php endif; ?>
+      <section class="list-articles clearfix">
 
 			<?php
 			if ( have_posts() ) :
@@ -56,9 +55,7 @@ get_header(); ?>
 			endif;
 			?>
 			
-			<?php if ( is_home() || ( is_front_page() && is_home() ) ) : ?>
-        </section>
-      <?php endif; ?>
+      </section>
 
 		</main><!-- #main -->
 	</div><!-- #primary -->

@@ -130,7 +130,7 @@ class Utils(object):
                           err.returncode,
                           err,
                           err.stderr)
-            return False
+            raise err
 
     @classmethod
     def csv_stream_do_dict(cls, stream, delimiter=','):

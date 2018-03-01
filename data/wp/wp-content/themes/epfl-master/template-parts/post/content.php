@@ -24,19 +24,19 @@
 	</header><!-- .entry-header -->
 
 	<?php if ( has_post_thumbnail() && ! is_single() ) : ?>
-		<figure class="post-thumbnail">
+		<figure class="post-thumbnail post-list-thumbnail">
 			<a href="<?php the_permalink(); ?>">
 				<?php the_post_thumbnail( 'epfl-list-thumb' ); ?>
 			</a>
 		</figure><!-- .post-thumbnail -->
-  <?php elseif ( ! has_post_thumbnail() ) : ?>
-    <figure class="post-thumbnail">
+  <?php elseif ( ! has_post_thumbnail() && ! is_single()  ) : ?>
+    <figure class="post-thumbnail post-list-placeholder">
 			<a href="<?php the_permalink(); ?>">
 				<img src="<?php bloginfo( 'template_directory' ); ?>/assets/images/placeholder.png">
 			</a>
 		</figure><!-- .post-thumbnail -->
-  <?php elseif ( is_single() ) : ?>
-		<figure class="post-thumbnail">
+  <?php elseif ( has_post_thumbnail() && is_single() ) : ?>
+		<figure class="post-thumbnail single-post-thumbnail">
 			<a href="<?php the_permalink(); ?>">
 				<?php the_post_thumbnail( 'epfl-featured-img' ); ?>
 			</a>
