@@ -419,8 +419,10 @@ class WPExporter:
                 logging.error(error_msg)
                 raise Exception(error_msg)
 
+            # Delete draft pages as soon as possible to prevent them from being problems
+            self.delete_draft_pages()
+
             for wp_id, (lang, content) in zip(wp_ids, contents.items()):
-                # FIXME page.contents[lang].title failed a cause des draft ? si oui supprimer directement les draft ?
                 wp_page = self.update_page(page_id=wp_id, title=page.contents[lang].title, content=content)
 
                 # prepare mapping for the nginx conf generation
