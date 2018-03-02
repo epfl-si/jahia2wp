@@ -160,12 +160,14 @@ class Site:
 
                             for jahia_type in nav_page.childNodes:
 
+                                hidden = False
                                 # If normal jahia page
                                 if jahia_type.nodeName == "jahia:page":
                                     # Page is a link to sitemap, we skip it
                                     if jahia_type.getAttribute("jahia:template") == "sitemap":
                                         continue
                                     txt = jahia_type.getAttribute("jahia:title")
+                                    hidden = jahia_type.getAttribute("jahia:hideFromNavigationMenu") != ""
                                     target = None
                                 # If URL
                                 elif jahia_type.nodeName == "jahia:url":
@@ -174,7 +176,7 @@ class Site:
                                 else:
                                     continue
 
-                                entry_index = self.menus[language].add_main_entry(txt, target)
+                                entry_index = self.menus[language].add_main_entry(txt, target, hidden)
 
                                 # FIXME: Handle sub-sub-pages in menu
                                 # Looping through subpages below main entry
@@ -182,9 +184,11 @@ class Site:
 
                                     for jahia_sub_type in sub_page.childNodes:
 
+                                        hidden = False
                                         # If normal jahia page
                                         if jahia_sub_type.nodeName == "jahia:page":
                                             txt = jahia_sub_type.getAttribute("jahia:title")
+                                            hidden = jahia_sub_type.getAttribute("jahia:hideFromNavigationMenu") != ""
                                             target = None
                                         # If URL
                                         elif jahia_sub_type.nodeName == "jahia:url":
@@ -193,7 +197,7 @@ class Site:
                                         else:
                                             continue
 
-                                        self.menus[language].add_sub_entry(txt, target, entry_index)
+                                        self.menus[language].add_sub_entry(txt, target, hidden, entry_index)
 
     def parse_root_menu_entries_url(self):
         """
