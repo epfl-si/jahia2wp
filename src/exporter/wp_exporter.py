@@ -180,13 +180,15 @@ class WPExporter:
         logging.info("WP medias import start")
         self.run_wp_cli('cap add administrator unfiltered_upload')
 
-        start = "{}/content/sites/{}/files".format(self.site.base_path, self.site.name)
-        self.site.files = self._asciify_path(start)
-        for file in self.site.files:
-            wp_media = self.import_media(file)
-            if wp_media:
-                self.fix_file_links(file, wp_media)
-                self.report['files'] += 1
+        # No point if there are no files (apc site has no files for example)
+        if self.site.files:
+            start = "{}/content/sites/{}/files".format(self.site.base_path, self.site.name)
+            self.site.files = self._asciify_path(start)
+            for file in self.site.files:
+                wp_media = self.import_media(file)
+                if wp_media:
+                    self.fix_file_links(file, wp_media)
+                    self.report['files'] += 1
         # Remove the capability "unfiltered_upload" to the administrator group.
         self.run_wp_cli('cap remove administrator unfiltered_upload')
         logging.info("WP medias imported")
