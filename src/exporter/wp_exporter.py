@@ -180,7 +180,7 @@ class WPExporter:
         logging.info("WP medias import start")
         self.run_wp_cli('cap add administrator unfiltered_upload')
 
-        start = "%s/content/sites/%s/files" % (self.site.base_path, self.site.name)
+        start = "{}/content/sites/{}/files".format(self.site.base_path, self.site.name)
         self.site.files = self._asciify_path(start)
         for file in self.site.files:
             wp_media = self.import_media(file)
