@@ -41,9 +41,7 @@ class Site:
         # the dict value is the file absolute path
         self.export_files = {}
 
-        # Containing root menu entries (per language) with hard-coded URL as target
-        self.root_menu_entries_url = {}
-
+        # To store root menu entries and submenu entries (entries pointing to pages and entries which are URL)
         self.menus = {}
 
         # the site languages
@@ -171,6 +169,8 @@ class Site:
                                 elif jahia_type.nodeName == "jahia:url":
                                     txt = jahia_type.getAttribute("jahia:title")
                                     target = jahia_type.getAttribute("jahia:value")
+
+                                    self.num_url_menu_root += 1
                                 else:
                                     continue
 
@@ -194,32 +194,6 @@ class Site:
                                             continue
 
                                         self.menus[language].add_sub_entry(txt, target, entry_index)
-
-    def parse_root_menu_entries_url(self):
-        """
-        Parse 'export_<lang>.xml files to extract root menu entries
-        with hardcoded URL as targets
-        :return:
-        """
-        for language, dom_path in self.export_files.items():
-            dom = Utils.get_dom(dom_path)
-
-            root_entry_pos = 1
-            self.root_menu_entries_url[language] = []
-            # Looping through navigation pages
-            for dom_page in dom.getElementsByTagName("navigationPage"):
-
-                # Looking for hardcoded URL
-                jahia_url = dom_page.getElementsByTagName("jahia:url")
-                if jahia_url:
-                    link_txt = jahia_url[0].getAttribute("jahia:title")
-                    link_url = jahia_url[0].getAttribute("jahia:value")
-                    self.root_menu_entries_url[language].append({'txt': link_txt,
-                                                                 'url': link_url,
-                                                                 'pos': root_entry_pos})
-                    self.num_url_menu_root += 1
-
-                root_entry_pos += 1
 
     def get_report_info(self, box_types):
         """
@@ -252,7 +226,6 @@ class Site:
 
         # do the parsing
         self.parse_site_params()
-        self.parse_root_menu_entries_url()
         self.parse_menu()
         self.parse_breadcrumb()
         self.parse_footer()

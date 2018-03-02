@@ -1,7 +1,6 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
 import logging
 import os
-import copy
 import sys
 from parser.box import Box
 import timeit
@@ -645,8 +644,21 @@ class WPExporter:
                         self.menu_id_dict[page_content.wp_id] = Utils.get_menu_id(menu_id)
                         self.report['menus'] += 1
 
-                # We do a copy of the list because we will use "pop()" later and empty the list
-                children_copy = copy.deepcopy(self.site.homepage.children)
+                # In the following loop, we will have two differents sources for menu entries and their children.
+                # One is "self.site.menus[lang]" and is containing all the root menus and their submenus (only
+                # one level for now). Those menus entries are for existing WordPress pages OR are hardcoded URLs. For
+                # hardcoded URL, the URL has been recovered in the parser and is present in the structure. But for
+                # WordPress pages, we only have info about menu title but not about pointed page.
+                # The other is "self.site.homepage.children" and is containing pages and subpages existing in
+                # WordPress (used to build the menu) but we don't have any information about hardcoded URL here.
+                # So, all the information we need to create the menu is splitted between two different sources...
+                # and the goal of the following loop is to go through the first structure (which contains all the
+                # menu entries) and every time we encounter a WordPress page, we take the next available item in
+                # the second list (which contains information about pointed page). The information in the second
+                # structure is also used to build submenus.
+                # FIXME: If needed in the future, also use (and complete) information in the first structure to
+                # build submenus containing hardcoded URLs.
+                children_index = 0
 
                 # Looping through root menu entries
                 for root_entry_index in range(0, self.site.menus[lang].nb_main_entries()):
@@ -664,7 +676,9 @@ class WPExporter:
 
                     # root menu entry is page
                     else:
-                        homepage_child = children_copy.pop(0)
+                        # Getting next child containing information about pointed WordPress page.
+                        homepage_child = self.site.homepage.children[children_index]
+                        children_index += 1
 
                         if lang not in homepage_child.contents:
                             logging.warning("Page not translated %s" % homepage_child.pid)
