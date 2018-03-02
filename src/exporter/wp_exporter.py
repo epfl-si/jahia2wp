@@ -181,8 +181,8 @@ class WPExporter:
         self.run_wp_cli('cap add administrator unfiltered_upload')
 
         start = "%s/content/sites/%s/files" % (self.site.base_path, self.site.name)
-        site_files = self._asciify_path(start)
-        for file in site_files:
+        self.site.files = self._asciify_path(start)
+        for file in self.site.files:
             wp_media = self.import_media(file)
             if wp_media:
                 self.fix_file_links(file, wp_media)
