@@ -391,6 +391,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
 
         # determined information
         'unit_id': get_unit_id(unit_name),
+        'from_export': True
     }
 
     # Generate a WordPress site
@@ -431,6 +432,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         logging.info("Data of WordPress site %s successfully deleted", site.name)
 
     wp_generator.uninstall_basic_auth_plugin()
+    wp_generator.enable_updates_automatic_if_allowed()
 
     return wp_exporter
 
