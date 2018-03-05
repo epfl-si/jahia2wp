@@ -80,12 +80,6 @@ class WPGenerator:
         self.validate_mockable_args(self._site_params['wp_site_url'])
         validate_openshift_env(self._site_params['openshift_env'])
 
-        if self._site_params['wp_site_title'] is not None:
-            validate_string(self._site_params['wp_site_title'])
-
-        if self._site_params['wp_tagline'] is not None:
-            validate_string(self._site_params['wp_tagline'])
-
         validate_theme(self._site_params['theme'])
 
         if self._site_params['theme_faculty'] is not None:
