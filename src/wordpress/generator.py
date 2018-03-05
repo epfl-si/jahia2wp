@@ -1,23 +1,21 @@
 # pylint: disable=W1306
+import logging
+import subprocess
+import sys
+
 import os
 import shutil
-import logging
-import sys
-import subprocess
-
+from django.core.validators import URLValidator
 from epflldap.ldap_search import get_unit_id
 
-from utils import Utils
 import settings
-
-from django.core.validators import URLValidator
-from veritas.validators import validate_string, validate_openshift_env, \
-    validate_theme_faculty, validate_theme
-from .models import WPSite, WPUser
+from utils import Utils
+from veritas.validators import validate_openshift_env, validate_theme_faculty, validate_theme
 from .config import WPConfig
-from .themes import WPThemeConfig
-from .plugins.models import WPPluginList
+from .models import WPSite, WPUser
 from .plugins.config import WPMuPluginConfig
+from .plugins.models import WPPluginList
+from .themes import WPThemeConfig
 
 
 class WPGenerator:
