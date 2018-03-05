@@ -12,6 +12,7 @@ from wordpress_json import WordpressJsonWrapper, WordpressError
 
 import settings
 from exporter.utils import Utils
+from parser.file import File
 
 
 class WPExporter:
@@ -135,17 +136,58 @@ class WPExporter:
                 tracer.flush()
             raise err
 
+    def _asciify_path(self, path):
+        """
+        Recursive function that takes all files in path and rename them (if needed) with ascii-only characters.
+        Recurse in directories found in path (and rename them too if needed). We cannot use os.walk as the renaming
+        is done on-the-fly.
+        """
+        files = []
+        dirs = []
+        ignored_files = ['thumbnail', 'thumbnail2']
+        # Get all files in `path` except those named 'thumbnail' and 'thumbnail2'
+        files = [file_name for file_name in os.listdir(path) if os.path.isfile(os.path.join(path, file_name)) and
+                 file_name not in ignored_files]
+        ignored = ['.', '..']
+        # Get all directories in `path`
+        dirs = [dir_name for dir_name in os.listdir(path) if not os.path.isfile(os.path.join(path, dir_name)) and
+                dir_name not in ignored]
+        site_files = []
+        for file_name in files:
+            try:
+                file_name.encode('ascii')
+            except UnicodeEncodeError:
+                ascii_file_name = file_name.encode('ascii', 'replace').decode('ascii')
+                os.rename(os.path.join(path, file_name), os.path.join(path, ascii_file_name))
+                file_name = ascii_file_name
+            site_files.append(File(name=file_name, path=path))
+        for dir_name in dirs:
+            try:
+                dir_name.encode('ascii')
+            except UnicodeEncodeError:
+                ascii_dir_name = dir_name.encode('ascii', 'replace').decode('ascii')
+                os.rename(os.path.join(path, dir_name), os.path.join(path, ascii_dir_name))
+                dir_name = ascii_dir_name
+            # Recurse on each directory
+            site_files.extend(self._asciify_path(os.path.join(path, dir_name)))
+        return site_files
+
     def import_medias(self):
         """
         Import medias to Wordpress
         """
         logging.info("WP medias import start")
         self.run_wp_cli('cap add administrator unfiltered_upload')
-        for file in self.site.files:
-            wp_media = self.import_media(file)
-            if wp_media:
-                self.fix_file_links(file, wp_media)
-                self.report['files'] += 1
+
+        # No point if there are no files (apc site has no files for example)
+        if self.site.files:
+            start = "{}/content/sites/{}/files".format(self.site.base_path, self.site.name)
+            self.site.files = self._asciify_path(start)
+            for file in self.site.files:
+                wp_media = self.import_media(file)
+                if wp_media:
+                    self.fix_file_links(file, wp_media)
+                    self.report['files'] += 1
         # Remove the capability "unfiltered_upload" to the administrator group.
         self.run_wp_cli('cap remove administrator unfiltered_upload')
         logging.info("WP medias imported")
@@ -157,18 +199,6 @@ class WPExporter:
         # Try to encode the path in ascii, if it fails then the path contains non-ascii characters.
         # In that case convert to ascii with 'replace' option which replaces unknown characters by '?',
         # and rename the file with that new name.
-        try:
-            media.path.encode('ascii')
-        except UnicodeEncodeError:
-            ascii_path = media.path.encode('ascii', 'replace').decode('ascii')
-            os.rename(media.path, ascii_path)
-            media.path = ascii_path
-        try:
-            media.name.encode('ascii')
-        except UnicodeEncodeError:
-            ascii_file_name = media.name.encode('ascii', 'replace').decode('ascii')
-            os.rename(os.path.join(media.path, media.name), os.path.join(media.path, ascii_file_name))
-            media.name = ascii_file_name
         file_path = os.path.join(media.path, media.name)
         file = open(file_path, 'rb')
 
