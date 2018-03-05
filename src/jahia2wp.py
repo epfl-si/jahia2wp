@@ -370,7 +370,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
 
     if not site.title[default_language]:
         logging.warning("No wp tagline")
-        wp_tagline = "No-tagline"
+        wp_tagline = "No-tagline-in-{}".format(default_language)
     else:
         wp_tagline = site.title[default_language]
 

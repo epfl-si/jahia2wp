@@ -132,6 +132,11 @@ class Utils(object):
                           err.stderr)
             raise err
 
+        except Exception as err:
+            logging.error("command failed with error %s", err)
+            raise err
+
+
     @classmethod
     def csv_stream_do_dict(cls, stream, delimiter=','):
         """
