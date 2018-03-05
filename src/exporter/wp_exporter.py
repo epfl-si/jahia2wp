@@ -396,6 +396,7 @@ class WPExporter:
             # At the end of export we delete all draft pages
             for lang in self.wp_generator._site_params['langs'].split(","):
                 if lang not in info_page:
+                    contents[lang] = ""
                     info_page[lang] = {
                         'post_name': '',
                         'post_status': 'draft'
@@ -408,14 +409,17 @@ class WPExporter:
             if not result:
                 error_msg = "Could not created page"
                 logging.error(error_msg)
-                continue
+                raise Exception(error_msg)
 
             wp_ids = result.split()
 
             if len(wp_ids) != len(contents):
                 error_msg = "{} page created is not expected : {}".format(len(wp_ids), len(contents))
                 logging.error(error_msg)
-                continue
+                raise Exception(error_msg)
+
+            # Delete draft pages as soon as possible to prevent them from being problems
+            self.delete_draft_pages()
 
             for wp_id, (lang, content) in zip(wp_ids, contents.items()):
                 wp_page = self.update_page(page_id=wp_id, title=page.contents[lang].title, content=content)
