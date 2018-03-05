@@ -29,10 +29,15 @@ EOF
 /bin/mkdir -p /etc/apache2/ssl
 /usr/bin/openssl req -x509 -sha256 -nodes -days 3650 -newkey rsa:4096 -keyout /etc/apache2/ssl/server.key -out /etc/apache2/ssl/server.cert -subj "/C=CH/ST=Vaud/L=Lausanne/O=Ecole Polytechnique Federale de Lausanne (EPFL)/CN=*.epfl.ch"
 
+/bin/mkdir -p /var/www/html/probes/ready
+echo "OK" > /var/www/html/probes/ready/index.html
+
 # Change max upload size for http requests
 sed -i "s/upload_max_filesize = .*/upload_max_filesize = 300M/" /etc/php/7.0/apache2/php.ini
+sed -i "s/post_max_size = .*/post_max_size = 300M/" /etc/php/7.0/apache2/php.ini
 # Change max upload size for CLI requests
 sed -i "s/upload_max_filesize = .*/upload_max_filesize = 300M/" /etc/php/7.0/cli/php.ini
+sed -i "s/post_max_size = .*/post_max_size = 300M/" /etc/php/7.0/cli/php.ini
 
 /usr/sbin/a2dissite 000-default
 /usr/sbin/a2enmod ssl
@@ -41,7 +46,5 @@ sed -i "s/upload_max_filesize = .*/upload_max_filesize = 300M/" /etc/php/7.0/cli
 /usr/sbin/a2enmod status
 /usr/sbin/a2enmod remoteip
 /usr/sbin/a2enconf dyn-vhost
-
-echo "ready" > /tmp/status
 
 /usr/sbin/apache2ctl -DFOREGROUND

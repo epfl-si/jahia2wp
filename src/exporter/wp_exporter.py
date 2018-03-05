@@ -2,16 +2,17 @@
 import logging
 import os
 import sys
+from parser.box import Box
 import timeit
 from collections import OrderedDict
 from datetime import timedelta, datetime
-
-import simplejson
+import json
 from bs4 import BeautifulSoup
 from wordpress_json import WordpressJsonWrapper, WordpressError
 
 import settings
 from exporter.utils import Utils
+from parser.file import File
 
 
 class WPExporter:
@@ -72,7 +73,7 @@ class WPExporter:
         logging.info("setting up API on '%s', with %s:xxxxxx", rest_api_url, wp_generator.wp_admin.username)
         self.wp = WordpressJsonWrapper(rest_api_url, wp_generator.wp_admin.username, wp_generator.wp_admin.password)
 
-    def run_wp_cli(self, command, encoding=sys.stdout.encoding, pipe_input=None, extra_options=None):
+    def run_wp_cli(self, command, encoding=sys.getdefaultencoding(), pipe_input=None, extra_options=None):
         """
         Execute a WP-CLI command using method present in WP_Generator instance.
 
@@ -108,6 +109,8 @@ class WPExporter:
             self.set_frontpage()
             self.populate_menu()
             self.import_sidebar()
+            self.import_breadcrumb()
+            self.delete_draft_pages()
             self.display_report()
 
             # log execution time
@@ -131,23 +134,71 @@ class WPExporter:
             with open(tracer_path, 'a', newline='\n') as tracer:
                 tracer.write("{}, ERROR {}\n".format(self.site.name, str(err)))
                 tracer.flush()
+            raise err
+
+    def _asciify_path(self, path):
+        """
+        Recursive function that takes all files in path and rename them (if needed) with ascii-only characters.
+        Recurse in directories found in path (and rename them too if needed). We cannot use os.walk as the renaming
+        is done on-the-fly.
+        """
+        files = []
+        dirs = []
+        ignored_files = ['thumbnail', 'thumbnail2']
+        # Get all files in `path` except those named 'thumbnail' and 'thumbnail2'
+        files = [file_name for file_name in os.listdir(path) if os.path.isfile(os.path.join(path, file_name)) and
+                 file_name not in ignored_files]
+        ignored = ['.', '..']
+        # Get all directories in `path`
+        dirs = [dir_name for dir_name in os.listdir(path) if not os.path.isfile(os.path.join(path, dir_name)) and
+                dir_name not in ignored]
+        site_files = []
+        for file_name in files:
+            try:
+                file_name.encode('ascii')
+            except UnicodeEncodeError:
+                ascii_file_name = file_name.encode('ascii', 'replace').decode('ascii')
+                os.rename(os.path.join(path, file_name), os.path.join(path, ascii_file_name))
+                file_name = ascii_file_name
+            site_files.append(File(name=file_name, path=path))
+        for dir_name in dirs:
+            try:
+                dir_name.encode('ascii')
+            except UnicodeEncodeError:
+                ascii_dir_name = dir_name.encode('ascii', 'replace').decode('ascii')
+                os.rename(os.path.join(path, dir_name), os.path.join(path, ascii_dir_name))
+                dir_name = ascii_dir_name
+            # Recurse on each directory
+            site_files.extend(self._asciify_path(os.path.join(path, dir_name)))
+        return site_files
 
     def import_medias(self):
         """
         Import medias to Wordpress
         """
         logging.info("WP medias import start")
-        for file in self.site.files:
-            wp_media = self.import_media(file)
-            if wp_media:
-                self.fix_file_links(file, wp_media)
-                self.report['files'] += 1
+        self.run_wp_cli('cap add administrator unfiltered_upload')
+
+        # No point if there are no files (apc site has no files for example)
+        if self.site.files:
+            start = "{}/content/sites/{}/files".format(self.site.base_path, self.site.name)
+            self.site.files = self._asciify_path(start)
+            for file in self.site.files:
+                wp_media = self.import_media(file)
+                if wp_media:
+                    self.fix_file_links(file, wp_media)
+                    self.report['files'] += 1
+        # Remove the capability "unfiltered_upload" to the administrator group.
+        self.run_wp_cli('cap remove administrator unfiltered_upload')
         logging.info("WP medias imported")
 
     def import_media(self, media):
         """
         Import a media to Wordpress
         """
+        # Try to encode the path in ascii, if it fails then the path contains non-ascii characters.
+        # In that case convert to ascii with 'replace' option which replaces unknown characters by '?',
+        # and rename the file with that new name.
         file_path = os.path.join(media.path, media.name)
         file = open(file_path, 'rb')
 
@@ -179,6 +230,23 @@ class WPExporter:
         except Exception as e:
             logging.error("%s - WP export - media failed: %s", self.site.name, e)
             self.report['failed_files'] += 1
+            raise e
+
+    def import_breadcrumb(self):
+        """
+        Import breadcrumb in default language by setting correct option in DB
+        """
+        # FIXME: add an attribut default_language to wp_generator.wp_site class
+        default_lang = self.wp_generator._site_params['langs'].split(",")[0]
+
+        # If there is a custom breadrcrumb defined for this site and the default language
+        if self.site.breadcrumb_title and self.site.breadcrumb_url and \
+                default_lang in self.site.breadcrumb_title and default_lang in self.site.breadcrumb_url:
+            # Generatin breadcrumb to save in parameters
+            breadcrumb = "[EPFL|www.epfl.ch]>[{}|{}]".format(self.site.breadcrumb_title[default_lang],
+                                                             self.site.breadcrumb_url[default_lang])
+
+            self.run_wp_cli("option update epfl:custom_breadcrumb '{}'".format(breadcrumb))
 
     def fix_file_links(self, file, wp_media):
         """Fix the links pointing to the given file"""
@@ -256,7 +324,15 @@ class WPExporter:
             if not link:
                 continue
 
-            if link == old_url:
+            # Encoding in the export file (export_<lang>.xml) and encoding of the filenames
+            # in the zip are not the same. string.encode('ascii', 'replace') replaces all
+            # unknown characters by '?'. What happens here is that for a file named 'vidéo.mp4',
+            # the old_url, which is actually the path on the file system, will be 'vid??o.mp4'
+            # once converted to ascii; but, the links that reference the media in the export file
+            # will be converted to 'vid?o.mp4'.
+            # So we convert to ascii and remove the '?' character to compare the strings and see
+            # if there is a link to replace.
+            if link.encode('ascii', 'replace').decode('ascii').replace('?', '') == old_url.replace('?', ''):
                 logging.debug("Changing link from %s to %s" % (old_url, new_url))
                 tag[tag_attribute] = new_url
 
@@ -346,21 +422,34 @@ class WPExporter:
                     'post_status': 'publish',
                 }
 
+            # If the page doesn't exist for all languages on the site we create a blank page in draft status
+            # At the end of export we delete all draft pages
+            for lang in self.wp_generator._site_params['langs'].split(","):
+                if lang not in info_page:
+                    contents[lang] = ""
+                    info_page[lang] = {
+                        'post_name': '',
+                        'post_status': 'draft'
+                    }
+
             cmd = "pll post create --post_type=page --stdin --porcelain"
-            stdin = simplejson.dumps(info_page)
+            stdin = json.dumps(info_page)
 
             result = self.run_wp_cli(cmd, pipe_input=stdin)
             if not result:
                 error_msg = "Could not created page"
                 logging.error(error_msg)
-                continue
+                raise Exception(error_msg)
 
             wp_ids = result.split()
 
             if len(wp_ids) != len(contents):
                 error_msg = "{} page created is not expected : {}".format(len(wp_ids), len(contents))
                 logging.error(error_msg)
-                continue
+                raise Exception(error_msg)
+
+            # Delete draft pages as soon as possible to prevent them from being problems
+            self.delete_draft_pages()
 
             for wp_id, (lang, content) in zip(wp_ids, contents.items()):
                 wp_page = self.update_page(page_id=wp_id, title=page.contents[lang].title, content=content)
@@ -415,7 +504,7 @@ class WPExporter:
             }
 
         cmd = "pll post create --post_type=page --stdin --porcelain"
-        stdin = simplejson.dumps(info_page)
+        stdin = json.dumps(info_page)
         result = self.run_wp_cli(command=cmd, pipe_input=stdin)
 
         sitemap_ids = result.split()
@@ -431,32 +520,76 @@ class WPExporter:
         """
         import sidebar via wpcli
         """
-        def clean_sidebar_html(cmd):
-            return cmd.replace(u'\xa0', u' ')
+        def prepare_html(html):
+            return Utils.escape_quotes(html.replace(u'\xa0', u' '))
+
+        widget_pos = 1
+        widget_pos_to_lang = {}
 
         try:
             for lang in self.site.homepage.contents.keys():
+
                 for box in self.site.homepage.contents[lang].sidebar.boxes:
-                    content = "[colored-box]"
-                    content += "<h3>{}</h3>".format(box.title)
-                    content += Utils.escape_quotes(box.content)
-                    content += "[/colored-box]"
+                    if box.type == Box.TYPE_TEXT or box.type == Box.TYPE_CONTACT:
+                        widget_type = 'text'
+                        title = prepare_html(box.title)
+                        content = prepare_html(box.content)
 
-                    cmd = 'widget add black-studio-tinymce page-widgets ' \
-                          '--text="{}"'.format(content)
+                    elif box.type == Box.TYPE_COLORED_TEXT:
+                        widget_type = 'text'
+                        title = ""
+                        content = "[colored-box]"
+                        content += "<h3>{}</h3>".format(box.title)
+                        content += prepare_html(box.content)
+                        content += "[/colored-box]"
 
-                    cmd = clean_sidebar_html(cmd)
+                    # Box type not supported for now,
+                    else:
+                        logging.warning("Box type currently not supported for sidebar (%s)", box.type)
+                        widget_type = 'text'
+                        title = prepare_html("TODO: {}".format(box.title))
+                        content = prepare_html(box.content)
+
+                    cmd = 'widget add {} page-widgets {} ' \
+                          '--text="{}" --title="{}"'.format(widget_type, widget_pos, content, title)
 
                     self.run_wp_cli(cmd)
 
-                # Import sidebar for one language only
-                break
+                    # Saving widget position for current widget (as string because this is a string that is
+                    # used to index informations in DB)
+                    widget_pos_to_lang[str(widget_pos)] = lang
+                    widget_pos += 1
 
-            logging.info("WP all sidebar imported")
+                logging.info("WP sidebar imported for '%s' language", lang)
+
+            # If widgets were added
+            if widget_pos_to_lang:
+                # Getting existing 'text' widget list
+                widgets = json.loads(self.run_wp_cli('option get widget_text --format=json'))
+
+                # Looping through widget to apply correct lang
+                for widget_index in widgets:
+                    # If it is a widget (can be just an integer)
+                    if isinstance(widgets[widget_index], dict):
+                        # Set correct lang
+                        widgets[widget_index]['pll_lang'] = widget_pos_to_lang[widget_index]
+
+                # Create unique file to save JSON to update widget languages
+                filename = "{}.json".format(self.site.name)
+                with open(filename, "wb") as f_json:
+                    widget_json = json.dumps(widgets)
+                    f_json.write(widget_json.encode('utf-8'))
+                    f_json.flush()
+
+                # Updating languages for all widgets
+                self.run_wp_cli('option update widget_text --format=json < {}'.format(filename))
+
+                os.remove(filename)
 
         except WordpressError as e:
             logging.error("%s - WP export - widget failed: %s", self.site.name, e)
             self.report['failed_widgets'] += 1
+            raise e
 
     def create_footer_menu_for_sitemap(self, sitemap_wp_id, lang):
         """
@@ -471,7 +604,7 @@ class WPExporter:
         if default_language == lang:
             footer_name = settings.FOOTER_MENU
         else:
-            footer_name = "{}-{}".format(settings.FOOTER_MENU, default_language)
+            footer_name = "{}-{}".format(settings.FOOTER_MENU, lang)
 
         self.run_wp_cli('menu item add-post {} {} --porcelain'.format(footer_name, sitemap_wp_id))
 
@@ -488,28 +621,32 @@ class WPExporter:
         # Report
         self.report['menus'] += 2
 
-    def create_submenu(self, page, lang, menu_name):
+    def create_submenu(self, children, lang, menu_name):
         """
-        Create recursively submenus.
+        Create recursively submenus for one main menu entry
+
+        children - children pages of main menu entry
+        lang - language
+        menu_name - name of WP menu where to put sub-menu entries
         """
-        if page not in self.site.homepage.children \
-                and lang in page.contents \
-                and page.parent.contents[lang].wp_id in self.menu_id_dict:
+        for child in children:
 
-            parent_menu_id = self.menu_id_dict[page.parent.contents[lang].wp_id]
+            if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict and \
+                    child.contents[lang].wp_id:  # FIXME For unknown reason, wp_id is sometimes None
 
-            command = 'menu item add-post {} {} --parent-id={} --porcelain' \
-                      .format(menu_name, page.contents[lang].wp_id, parent_menu_id)
-            menu_id = self.run_wp_cli(command)
-            if not menu_id:
-                logging.warning("Menu not created for page %s" % page.pid)
-            else:
-                self.menu_id_dict[page.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
-                self.report['menus'] += 1
+                parent_menu_id = self.menu_id_dict[child.parent.contents[lang].wp_id]
 
-        if page.has_children():
-            for child in page.children:
-                self.create_submenu(child, lang, menu_name)
+                command = 'menu item add-post {} {} --parent-id={} --porcelain' \
+                    .format(menu_name, child.contents[lang].wp_id, parent_menu_id)
+                menu_id = self.run_wp_cli(command)
+                if not menu_id:
+                    logging.warning("Menu not created for page %s" % child.pid)
+                else:
+                    self.menu_id_dict[child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
+                    self.report['menus'] += 1
+
+            # FIXME: Handle sub-sub-pages entries
+            self.create_submenu(child.children, lang, menu_name)
 
     def populate_menu(self):
         """
@@ -525,41 +662,81 @@ class WPExporter:
                 if default_language == lang:
                     menu_name = settings.MAIN_MENU
                 else:
-                    menu_name = "{}-{}".format(settings.MAIN_MENU, default_language)
+                    menu_name = "{}-{}".format(settings.MAIN_MENU, lang)
 
-                cmd = 'menu item add-post {} {} --classes=link-home --porcelain'.format(menu_name, page_content.wp_id)
-                menu_id = self.run_wp_cli(cmd)
-                if not menu_id:
-                    logging.warning("Menu not created for page  %s" % page_content.pid)
-                else:
-                    self.menu_id_dict[page_content.wp_id] = Utils.get_menu_id(menu_id)
-                    self.report['menus'] += 1
+                # FIXME For unknown reason, wp_id is sometimes None
+                if page_content.wp_id:
+                    # Create root menu 'home' entry (with the house icon)
+                    cmd = 'menu item add-post {} {} --classes=link-home --porcelain'.format(
+                        menu_name,
+                        page_content.wp_id
+                    )
+                    menu_id = self.run_wp_cli(cmd)
+                    if not menu_id:
+                        logging.warning("Home root menu not created for page  %s" % page_content.pid)
+                    else:
+                        self.menu_id_dict[page_content.wp_id] = Utils.get_menu_id(menu_id)
+                        self.report['menus'] += 1
 
-                # Create children of homepage menu
-                for homepage_child in self.site.homepage.children:
+                # In the following loop, we will have two differents sources for menu entries and their children.
+                # One is "self.site.menus[lang]" and is containing all the root menus and their submenus (only
+                # one level for now). Those menus entries are for existing WordPress pages OR are hardcoded URLs. For
+                # hardcoded URL, the URL has been recovered in the parser and is present in the structure. But for
+                # WordPress pages, we only have info about menu title but not about pointed page.
+                # The other is "self.site.homepage.children" and is containing pages and subpages existing in
+                # WordPress (used to build the menu) but we don't have any information about hardcoded URL here.
+                # So, all the information we need to create the menu is splitted between two different sources...
+                # and the goal of the following loop is to go through the first structure (which contains all the
+                # menu entries) and every time we encounter a WordPress page, we take the next available item in
+                # the second list (which contains information about pointed page). The information in the second
+                # structure is also used to build submenus.
+                # FIXME: If needed in the future, also use (and complete) information in the first structure to
+                # build submenus containing hardcoded URLs.
+                children_index = 0
 
-                    if lang not in homepage_child.contents:
-                        logging.warning("Page not translated %s" % homepage_child.pid)
-                        continue
+                # Looping through root menu entries
+                for root_entry_index in range(0, self.site.menus[lang].nb_main_entries()):
 
-                    if homepage_child.contents[lang].wp_id:
-                        cmd = 'menu item add-post {} {} --porcelain' \
-                              .format(menu_name, homepage_child.contents[lang].wp_id)
+                    # If root menu entry is an hardcoded URL
+                    if self.site.menus[lang].target_is_url(root_entry_index):
+                        cmd = 'menu item add-custom {} "{}" "{}" --porcelain' \
+                            .format(menu_name,
+                                    self.site.menus[lang].txt(root_entry_index),
+                                    self.site.menus[lang].target_url(root_entry_index))
                         menu_id = self.run_wp_cli(cmd)
                         if not menu_id:
-                            logging.warning("Menu not created %s for page " % homepage_child.pid)
-                        else:
-                            self.menu_id_dict[homepage_child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
-                            self.report['menus'] += 1
+                            logging.warning("Root menu item not created for URL (%s) " %
+                                            self.site.menus[lang].target_url())
 
-                    # create recursively submenus
-                    self.create_submenu(homepage_child, lang, menu_name)
+                    # root menu entry is page
+                    else:
+                        # Getting next child containing information about pointed WordPress page.
+                        homepage_child = self.site.homepage.children[children_index]
+                        children_index += 1
 
-                logging.info("WP menus populated")
+                        if lang not in homepage_child.contents:
+                            logging.warning("Page not translated %s" % homepage_child.pid)
+                            continue
+
+                        if homepage_child.contents[lang].wp_id:
+                            cmd = 'menu item add-post {} {} --porcelain' \
+                                  .format(menu_name, homepage_child.contents[lang].wp_id)
+                            menu_id = self.run_wp_cli(cmd)
+                            if not menu_id:
+                                logging.warning("Root menu item not created %s for page " % homepage_child.pid)
+                            else:
+                                self.menu_id_dict[homepage_child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
+                                self.report['menus'] += 1
+
+                        # create recursively submenus
+                        self.create_submenu(homepage_child.children, lang, menu_name)
+
+                logging.info("WP menus populated for '%s' language", lang)
 
         except Exception as e:
             logging.error("%s - WP export - menu failed: %s", self.site.name, e)
             self.report['failed_menus'] += 1
+            raise e
 
     def set_frontpage(self):
         """
@@ -601,6 +778,17 @@ class WPExporter:
             medias = self.wp.get_media(params={'per_page': '100'})
         logging.info("All medias deleted")
 
+    def delete_draft_pages(self):
+        """
+        Delete all pages in DRAFT status
+        """
+        cmd = "post list --post_type='page' --post_status=draft --format=csv"
+        pages_id_list = self.run_wp_cli(cmd).split("\n")[1:]
+        for page_id in pages_id_list:
+            cmd = "post delete {}".format(page_id)
+            self.run_wp_cli(cmd)
+        logging.info("All pages in DRAFT status deleted")
+
     def delete_pages(self):
         """
         Delete all pages in Wordpress via WP REST API
@@ -639,11 +827,11 @@ class WPExporter:
         Display report
         """
         print("Imported in WordPress:\n"
-              "- {files}s files\n"
-              "- {pages}s pages\n"
-              "- {menus}s menus\n"
+              "- {files} files\n"
+              "- {pages} pages\n"
+              "- {menus} menus\n"
               "\n"
               "Errors:\n"
-              "- {failed_files}s files\n"
-              "- {failed_menus}s menus\n"
-              "- {failed_widgets}s widgets\n".format(**self.report))
+              "- {failed_files} files\n"
+              "- {failed_menus} menus\n"
+              "- {failed_widgets} widgets\n".format(**self.report))

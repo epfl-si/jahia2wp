@@ -80,6 +80,19 @@ class Utils(object):
         return dom
 
     @staticmethod
+    def get_dom_next_level_children(dom, child_name):
+        """
+        Returns next level children with name=<child_name>
+        """
+
+        child_list = []
+        for child in dom.childNodes:
+            if child.nodeName == child_name:
+                child_list.append(child)
+
+        return child_list
+
+    @staticmethod
     def run_command(command, encoding=sys.stdout.encoding):
         """
         Execute the given command in a shell
@@ -117,7 +130,11 @@ class Utils(object):
                           err.returncode,
                           err,
                           err.stderr)
-            return False
+            raise err
+
+        except Exception as err:
+            logging.error("command failed with error %s", err)
+            raise err
 
     @classmethod
     def csv_stream_do_dict(cls, stream, delimiter=','):
@@ -283,7 +300,7 @@ class Utils(object):
         tar_listed_inc_file_path -- path to file containing incremental infos to help to create tar file
         source_path -- path to infos to put in TAR file
         """
-        command = "tar --create --file={} --listed-incremental={} {}".format(
+        command = "tar --create --no-check-device --file={} --listed-incremental={} {}".format(
             tar_file_path,
             tar_listed_inc_file_path,
             source_path

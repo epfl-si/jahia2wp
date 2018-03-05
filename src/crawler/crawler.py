@@ -10,6 +10,7 @@ from collections import OrderedDict
 from datetime import timedelta
 from clint.textui import progress
 
+from tracer.tracer import Tracer
 from .config import JahiaConfig
 from .session import SessionHandler
 
@@ -30,6 +31,7 @@ class JahiaCrawler(object):
             file_path = files[-1]
             logging.info("%s - zip already downloaded %sx. Last one is %s",
                          self.site, len(files), file_path)
+            Tracer.write_row(site=self.site, step="download", status="OK")
             return file_path
 
         # set timer to measure execution time
@@ -50,6 +52,11 @@ class JahiaCrawler(object):
 
         # adapt streaming function to content-length in header
         logging.debug("%s - headers %s", self.site, response.headers)
+
+        if len(response.content) < 200:
+            logging.error("The jahia zip file for WordPress site is empty")
+            raise Exception("Jahia zip is empty")
+
         total_length = response.headers.get('content-length')
         if total_length is not None:
             def read_stream():
@@ -71,6 +78,7 @@ class JahiaCrawler(object):
         # log execution time and return path to downloaded file
         elapsed = timedelta(seconds=timeit.default_timer() - start_time)
         logging.info("%s - file downloaded in %s", self.site, elapsed)
+        Tracer.write_row(site=self.site, step="download", status="OK")
 
         # return PosixPath converted to string
         return str(self.config.file_path)
