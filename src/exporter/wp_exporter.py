@@ -666,7 +666,7 @@ class WPExporter:
                     # If root menu entry is an hardcoded URL
                     if self.site.menus[lang].target_is_url(root_entry_index):
                         # If root entry is visible
-                        if not self.site.menus[lang].hidden:
+                        if not self.site.menus[lang].is_hidden(root_entry_index):
                             cmd = 'menu item add-custom {} "{}" "{}" --porcelain' \
                                 .format(menu_name,
                                         self.site.menus[lang].txt(root_entry_index),
