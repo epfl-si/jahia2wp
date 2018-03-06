@@ -797,8 +797,14 @@ def switch_auth_method(path, input_csv=None, **kwargs):
         else:
             password = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits)
                                for _ in range(10))
-            site_config.run_wp_cli('user create webmaster webmaster@migration-wp.epfl.ch --user_pass={}'
-                                   '--role=administrator'.format(password))
+            try:
+                site_config.run_wp_cli('user create webmaster webmaster@migration-wp.epfl.ch --user_pass={}'
+                                       '--role=administrator'.format(password))
+            except:
+                try:
+                    site_config.run_wp_cli('user update webmaster --user_pass={}'.format(password))
+                except:
+                    continue
             passwords[site_details.url] = password
         logging.info('Site : {}'.format(site_details.url))
     with open('passwords.csv', 'w') as f:
