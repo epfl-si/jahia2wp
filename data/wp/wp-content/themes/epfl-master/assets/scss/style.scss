@@ -872,6 +872,7 @@ a.a2a_button_{
   li {
     border-bottom: 1px solid #000;
     margin: 0;
+    position: relative;
     
     &:last-child {
       border-bottom: 0;
@@ -879,6 +880,7 @@ a.a2a_button_{
   }
   
   a {
+    border: none !important;
     padding: .5em;
   }
 }
@@ -901,13 +903,33 @@ a.a2a_button_{
 /* --- Sub menu --- */
 
 .dropdown-toggle {
-  color: #fff;
-  padding: 2px .5em;
+  color: #000;
+  padding: 0;
   right: 0;
+  width: 25px;
+  
+  &:hover {
+    color: $primary-color;
+  }
+  
+  &:after {
+    @include icon;
+    content: "\f107";
+    font-size: 20px;
+    vertical-align: middle;
+  }
+  
+  &.toggled-on:after {
+    content: "\f106";
+  }
 }
 
 .main-navigation .sub-menu {
   padding-bottom: 10px;
+  
+  &.toggled-on {
+    display: block;
+  }
 }
 
 /* --- Mobile navigation --- */

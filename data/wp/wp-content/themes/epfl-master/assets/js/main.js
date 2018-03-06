@@ -55,7 +55,27 @@ jQuery(document).ready(function($){
       $(this).parent('.menu-item-has-children').toggleClass('open');
     });
   
-  } secondaryNavigation();
+  } secondaryNavigation();  
+  
+  
+	
+	// Add dropdown toggle that displays child menu items.
+  
+  var dropdownToggle = $( '<button />', { 'class': 'dropdown-toggle', 'aria-expanded': false })
+      .append( $( '<span />', { 'class': 'screen-reader-text', text: epfl_l10n.expand }) );
+  
+  $('.main-navigation').find( '.menu-item-has-children > a, .page_item_has_children > a' ).after( dropdownToggle );
+
+  $('.main-navigation').find('.dropdown-toggle').click( function(e) {
+    screenReaderSpan = $(this).find( '.screen-reader-text' );
+    e.preventDefault();
+    
+    $(this).toggleClass('toggled-on');
+    $(this).next( '.children, .sub-menu' ).toggleClass( 'toggled-on' );
+    $(this).attr( 'aria-expanded', $(this).attr( 'aria-expanded' ) === 'false' ? 'true' : 'false' );
+    
+    screenReaderSpan.text( screenReaderSpan.text() === epfl_l10n.expand ? epfl_l10n.collapse : epfl_l10n.expand );
+  } );
   
   
 });
