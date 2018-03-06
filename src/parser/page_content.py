@@ -6,6 +6,7 @@ from parser.navigation_page import NavigationPage
 from settings import JAHIA_DATE_FORMAT
 from parser.sidebar import Sidebar
 import logging
+import re
 
 
 class PageContent:
@@ -20,6 +21,7 @@ class PageContent:
         self.language = language
         # the relative path, e.g. /team.html
         self.path = ""
+        self.vanity_urls = []
         self.title = element.getAttribute("jahia:title")
         self.boxes = []
         self.sidebar = Sidebar()
@@ -91,20 +93,29 @@ class PageContent:
 
         if self.page.is_homepage():
             if "en" == self.language:
-                self.path = "/index.html"
+                self.vanity_urls = ["/index.html"]
             else:
-                self.path = "/index-%s.html" % self.language
+                self.vanity_urls = ["/index-{}.html".format(self.language)]
         else:
+            # Vanity URL can have the following content :
+            # one URL ==> '/sciences_donnees$$$true$$$true==='
+            # many URLs ==> '/sciences_donnees$$$true$$$true===/sciencesdonnees$$$true$$$false==='
+            # many URLs ==> '/sciences_donnees$$$true$$$false===/sciencesdonnees$$$true$$$false==='
             vanity_url = self.element.getAttribute("jahia:urlMappings")
             if vanity_url:
-                self.path = vanity_url.split('$$$')[0]
+                # Going through exploded parts
+                for url in vanity_url.split('$$$'):
+                    # Cleaning content
+                    url = re.sub(r'(true|false)(===)?', '', url)
+                    if url:
+                        self.vanity_urls.append(url)
             else:
                 # use the old Jahia page id
-                self.path = "/page-%s-%s.html" % (self.page.pid, self.language)
+                self.vanity_urls = ["/page-{}-{}.html".format(self.page.pid, self.language)]
 
         # FIXME, the prefixing part should be done in exporter
         # add the site root_path at the beginning
-        self.path = self.site.root_path + self.path
+        self.path = self.site.root_path + self.vanity_urls[0]
 
     def parse_navigation(self):
         """Parse the navigation"""

@@ -297,7 +297,8 @@ class WPExporter:
 
             for url_mapping in self.urls_mapping:
 
-                old_url = url_mapping["jahia_url"]
+                # 'jahia_urls' contains a list of all URLs pointing on page. We arbitrary take the first of the list
+                old_url = url_mapping["jahia_urls"][0]
                 new_url = url_mapping["wp_url"]
 
                 self.fix_links_in_tag(
@@ -456,9 +457,9 @@ class WPExporter:
             for wp_id, (lang, content) in zip(wp_ids, contents.items()):
                 wp_page = self.update_page(page_id=wp_id, title=page.contents[lang].title, content=content)
 
-                # prepare mapping for the nginx conf generation
+                # prepare mapping for htaccess redirection rules
                 mapping = {
-                    'jahia_url': page.contents[lang].path,
+                    'jahia_urls': page.contents[lang].vanity_urls,
                     'wp_url': wp_page['link']
                 }
 
@@ -842,19 +843,23 @@ class WPExporter:
         """
         Update .htaccess file with redirections
         """
-        content = []
+        redirect_list = []
 
         # Add all rewrite jahia URI to WordPress URI
         for element in self.urls_mapping:
-            # We skip this redirection to avoid infinite redirection...
-            if element['jahia_url'] != "/index.html":
 
-                content.append("Redirect 301 {} {}".format(element['jahia_url'][1:],
-                                                           urlparse(element['wp_url']).path))
+            wp_url = urlparse(element['wp_url']).path
 
-        if content:
+            # Going through vanity URLs
+            for jahia_url in element['jahia_urls']:
+
+                # We skip this redirection to avoid infinite redirection...
+                if jahia_url != "/index.html":
+                    redirect_list.append("Redirect 301 {} {}".format(jahia_url, wp_url))
+
+        if redirect_list:
             # Updating .htaccess file
             WPUtils.insert_in_htaccess(self.wp_generator.wp_site.path,
                                        "Jahia-Page-Redirect",
-                                       content,
+                                       redirect_list,
                                        at_beginning=True)
