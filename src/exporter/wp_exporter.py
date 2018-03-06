@@ -12,6 +12,8 @@ from wordpress_json import WordpressJsonWrapper, WordpressError
 
 import settings
 from exporter.utils import Utils
+from utils import Utils as WPUtils
+from urllib.parse import urlparse
 from parser.file import File
 
 
@@ -835,3 +837,24 @@ class WPExporter:
               "- {failed_files} files\n"
               "- {failed_menus} menus\n"
               "- {failed_widgets} widgets\n".format(**self.report))
+
+    def write_redirections(self):
+        """
+        Update .htaccess file with redirections
+        """
+        content = []
+
+        # Add all rewrite jahia URI to WordPress URI
+        for element in self.urls_mapping:
+            # We skip this redirection to avoid infinite redirection...
+            if element['jahia_url'] != "/index.html":
+
+                content.append("Redirect 301 {} {}".format(element['jahia_url'][1:],
+                                                           urlparse(element['wp_url']).path))
+
+        if content:
+            # Updating .htaccess file
+            WPUtils.insert_in_htaccess(self.wp_generator.wp_site.path,
+                                       "Jahia-Page-Redirect",
+                                       content,
+                                       at_beginning=True)

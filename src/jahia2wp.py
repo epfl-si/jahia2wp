@@ -414,6 +414,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         try:
             if wp_generator.get_number_of_pages() == 0:
                 wp_exporter.import_all_data_to_wordpress()
+                wp_exporter.write_redirections()
                 _fix_menu_location(wp_generator, languages, default_language)
                 logging.info("Site %s successfully exported to WordPress", site.name)
             else:
