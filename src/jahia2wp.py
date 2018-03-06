@@ -37,7 +37,7 @@ Usage:
   jahia2wp.py rotate-backup         <csv_file>          [--dry-run] [--debug | --quiet]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
-  jahia2wp.py switch-auth-method    <path>                          [--debug | --quiet]
+  jahia2wp.py switch-auth-method    <path> [--input-csv=<INPUT_CSV>][--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
     [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
@@ -762,21 +762,28 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
 
 
 @dispatch.on('switch-auth-method')
-def switch_auth_method(path, **kwargs):
+def switch_auth_method(path, input_csv=None, **kwargs):
     """
     Consolidates the hierarchy of wordpress sites and sub-sites found in `path`. Also includes the pages of the
     sites in the consolidated hierarchy.
     """
     logging.info("Consolidating sites and pages hierarchy...")
     passwords = {}
+    if input_csv:
+        with open(input_csv) as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                passwords[row['url']] = row['password']
     for site_details in WPConfig.inventory(path):
         site_config = WPConfig(site_details)
-        site_config.run_wp_cli('plugin deactivate tequila accred')
-        password = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(10))
-        site_config.run_wp_cli('user create webmaster webmaster@migration-wp.epfl.ch --user_pass={}'.format(password))
-        passwords[site_details.url] = password
+        if site_details.url in passwords and passwords[site_details.url]:
+            site_config.run_wp_cli('user update webmaster --user_pass={}'.format(passwords[site_details.url]))
+        else:
+            password = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(10))
+            site_config.run_wp_cli('user create webmaster webmaster@migration-wp.epfl.ch --user_pass={} --role=administrator'.format(password))
+            passwords[site_details.url] = password
     with open('passwords_lot1.csv', 'w') as f:
-        f.write('jahia_url,url,login,password, responsable\n')
+        f.write('jahia_url,url,login,password,responsable\n')
         for key, value in passwords.items():
             jahia_url = '{}.epfl.ch'.format(key.split('/')[-1])
             responsable = ''
@@ -789,7 +796,6 @@ def switch_auth_method(path, **kwargs):
                         jahia_url = row['url']
                         break
             f.write('{},{},webmaster,{},{}\n'.format(jahia_url, key, value, responsable))
-
 
 
 if __name__ == '__main__':
