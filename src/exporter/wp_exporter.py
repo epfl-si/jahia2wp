@@ -701,14 +701,16 @@ class WPExporter:
 
                     # If root menu entry is an hardcoded URL
                     if self.site.menus[lang].target_is_url(root_entry_index):
-                        cmd = 'menu item add-custom {} "{}" "{}" --porcelain' \
-                            .format(menu_name,
-                                    self.site.menus[lang].txt(root_entry_index),
-                                    self.site.menus[lang].target_url(root_entry_index))
-                        menu_id = self.run_wp_cli(cmd)
-                        if not menu_id:
-                            logging.warning("Root menu item not created for URL (%s) " %
-                                            self.site.menus[lang].target_url())
+                        # If root entry is visible
+                        if not self.site.menus[lang].is_hidden(root_entry_index):
+                            cmd = 'menu item add-custom {} "{}" "{}" --porcelain' \
+                                .format(menu_name,
+                                        self.site.menus[lang].txt(root_entry_index),
+                                        self.site.menus[lang].target_url(root_entry_index))
+                            menu_id = self.run_wp_cli(cmd)
+                            if not menu_id:
+                                logging.warning("Root menu item not created for URL (%s) " %
+                                                self.site.menus[lang].target_url())
 
                     # root menu entry is page
                     else:
@@ -720,18 +722,22 @@ class WPExporter:
                             logging.warning("Page not translated %s" % homepage_child.pid)
                             continue
 
-                        if homepage_child.contents[lang].wp_id:
-                            cmd = 'menu item add-post {} {} --porcelain' \
-                                  .format(menu_name, homepage_child.contents[lang].wp_id)
-                            menu_id = self.run_wp_cli(cmd)
-                            if not menu_id:
-                                logging.warning("Root menu item not created %s for page " % homepage_child.pid)
-                            else:
-                                self.menu_id_dict[homepage_child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
-                                self.report['menus'] += 1
+                        # If root entry is visible
+                        if not self.site.menus[lang].is_hidden(root_entry_index):
 
-                        # create recursively submenus
-                        self.create_submenu(homepage_child.children, lang, menu_name)
+                            if homepage_child.contents[lang].wp_id:
+                                cmd = 'menu item add-post {} {} --porcelain' \
+                                      .format(menu_name, homepage_child.contents[lang].wp_id)
+                                menu_id = self.run_wp_cli(cmd)
+                                if not menu_id:
+                                    logging.warning("Root menu item not created %s for page " % homepage_child.pid)
+                                else:
+                                    self.menu_id_dict[homepage_child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
+                                    self.report['menus'] += 1
+
+                            # create recursively submenus
+                            # FIXME: Also handle submenu visibility
+                            self.create_submenu(homepage_child.children, lang, menu_name)
 
                 logging.info("WP menus populated for '%s' language", lang)
 
