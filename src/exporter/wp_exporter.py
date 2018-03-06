@@ -855,7 +855,7 @@ class WPExporter:
             # We skip this redirection to avoid infinite redirection...
             if element['jahia_url'] != "/index.html":
 
-                content.append("Redirect 301 {} {}".format(element['jahia_url'][1:],
+                content.append("Redirect 301 {} {}".format(element['jahia_url'],
                                                            urlparse(element['wp_url']).path))
 
         if content:
