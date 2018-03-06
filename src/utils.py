@@ -323,17 +323,6 @@ class Utils(object):
         return urlsplit(url)[1].split(':')[0]
 
     @staticmethod
-    def same_lists(list_a, list_b):
-        """
-        Tells if given lists have same content
-        """
-
-        if len(list_a) != len(list_b):
-            return False
-
-        return len(set(list_a) & set(list_b)) == len(list_a)
-
-    @staticmethod
     def insert_in_htaccess(site_root_path, marker, insertion, at_beginning=False):
         """
         Add/update content in .htaccess file. Content is added between BEGIN and END markers (defined with 'marker')
@@ -392,7 +381,7 @@ class Utils(object):
                     existing_lines.append(line)
 
             # Check to see if there was a change
-            if not Utils.same_lists(existing_lines, insertion):
+            if set(existing_lines) != set(insertion):
 
                 if at_beginning and not found_marker:
                     new_file_data = "\n".join([start_marker] + insertion + [end_marker] + pre_lines + post_lines)
