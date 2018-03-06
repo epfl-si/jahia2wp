@@ -802,7 +802,7 @@ def switch_auth_method(path, input_csv=None, **kwargs):
                                        '--role=administrator'.format(password))
             except:
                 try:
-                    site_config.run_wp_cli('user update webmaster --user_pass={}'.format(password))
+                    site_config.run_wp_cli('user update webmaster --user_pass={} --role=administrator'.format(password))
                 except:
                     continue
             passwords[site_details.url] = password
