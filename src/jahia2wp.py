@@ -362,7 +362,8 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     languages = _set_default_language_in_first_position(default_language, site.languages)
 
     if not site.acronym[default_language]:
-        wp_site_title = "No-wp-site-title-in-{}".format(default_language)
+        logging.warning("No wp site title in %s", default_language)
+        wp_site_title = None
     else:
         wp_site_title = site.acronym[default_language]
 
@@ -371,11 +372,17 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     else:
         theme_faculty = site.theme[default_language]
 
+    if not site.title[default_language]:
+        logging.warning("No wp tagline in %s", default_language)
+        wp_tagline = None
+    else:
+        wp_tagline = site.title[default_language]
+
     info = {
         # information from parser
         'langs': ",".join(languages),
         'wp_site_title': wp_site_title,
-        'wp_tagline': site.title[default_language],
+        'wp_tagline': wp_tagline,
         'theme_faculty': theme_faculty,
         'unit_name': unit_name,
 
@@ -388,6 +395,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
 
         # determined information
         'unit_id': get_unit_id(unit_name),
+        'from_export': True
     }
 
     # Generate a WordPress site
@@ -428,6 +436,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         logging.info("Data of WordPress site %s successfully deleted", site.name)
 
     wp_generator.uninstall_basic_auth_plugin()
+    wp_generator.enable_updates_automatic_if_allowed()
 
     return wp_exporter
 

@@ -22,7 +22,8 @@ class WPConfig:
 
     def __init__(self, wp_site,
                  installs_locked=settings.DEFAULT_CONFIG_INSTALLS_LOCKED,
-                 updates_automatic=settings.DEFAULT_CONFIG_UPDATES_AUTOMATIC):
+                 updates_automatic=settings.DEFAULT_CONFIG_UPDATES_AUTOMATIC,
+                 from_export=False):
         """
         Class constructor
 
@@ -44,6 +45,7 @@ class WPConfig:
         # set additionnal options
         self.installs_locked = cast_yes_or_no(installs_locked)
         self.updates_automatic = cast_yes_or_no(updates_automatic)
+        self.from_export = from_export
 
     def __repr__(self):
         installed_string = '[ok]' if self.is_installed else '[ko]'

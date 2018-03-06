@@ -1,23 +1,21 @@
 # pylint: disable=W1306
+import logging
+import subprocess
+import sys
+
 import os
 import shutil
-import logging
-import sys
-import subprocess
-
+from django.core.validators import URLValidator
 from epflldap.ldap_search import get_unit_id
 
-from utils import Utils
 import settings
-
-from django.core.validators import URLValidator
-from veritas.validators import validate_string, validate_openshift_env, \
-    validate_theme_faculty, validate_theme
-from .models import WPSite, WPUser
+from utils import Utils
+from veritas.validators import validate_openshift_env, validate_theme_faculty, validate_theme
 from .config import WPConfig
-from .themes import WPThemeConfig
-from .plugins.models import WPPluginList
+from .models import WPSite, WPUser
 from .plugins.config import WPMuPluginConfig
+from .plugins.models import WPPluginList
+from .themes import WPThemeConfig
 
 
 class WPGenerator:
@@ -66,6 +64,9 @@ class WPGenerator:
         if self._site_params.get('updates_automatic', None) is None:
             self._site_params['updates_automatic'] = settings.DEFAULT_CONFIG_UPDATES_AUTOMATIC
 
+        if self._site_params.get('from_export', None) is None:
+            self._site_params['from_export'] = False
+
         if self._site_params.get('theme', None) is None:
             self._site_params['theme'] = settings.DEFAULT_THEME_NAME
 
@@ -79,12 +80,6 @@ class WPGenerator:
         # validate input
         self.validate_mockable_args(self._site_params['wp_site_url'])
         validate_openshift_env(self._site_params['openshift_env'])
-
-        if self._site_params['wp_site_title'] is not None:
-            validate_string(self._site_params['wp_site_title'])
-
-        if self._site_params['wp_tagline'] is not None:
-            validate_string(self._site_params['wp_tagline'])
 
         validate_theme(self._site_params['theme'])
 
@@ -100,7 +95,8 @@ class WPGenerator:
         self.wp_config = WPConfig(
             self.wp_site,
             installs_locked=self._site_params['installs_locked'],
-            updates_automatic=self._site_params['updates_automatic'])
+            updates_automatic=self._site_params['updates_automatic'],
+            from_export=self._site_params['from_export'])
 
         # prepare admin for exploitation/maintenance
         self.wp_admin = WPUser(self.WP_ADMIN_USER, self.WP_ADMIN_EMAIL)
@@ -373,10 +369,16 @@ class WPGenerator:
         if self.wp_config.installs_locked:
             WPMuPluginConfig(self.wp_site, "EPFL_installs_locked.php").install()
 
-        if self.wp_config.updates_automatic:
+        # If the site is created from a jahia export, the automatic update is disabled and will be re-enabled
+        # after the export process is done.
+        if self.wp_config.updates_automatic and not self.wp_config.from_export:
             WPMuPluginConfig(self.wp_site, "EPFL_enable_updates_automatic.php").install()
         else:
             WPMuPluginConfig(self.wp_site, "EPFL_disable_updates_automatic.php").install()
+
+    def enable_updates_automatic_if_allowed(self):
+        if self.wp_config.updates_automatic:
+            WPMuPluginConfig(self.wp_site, "EPFL_enable_updates_automatic.php").install()
 
     def generate_plugins(self, only_one=None, force=True, **kwargs):
         """

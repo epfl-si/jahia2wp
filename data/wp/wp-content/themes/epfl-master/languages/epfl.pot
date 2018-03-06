@@ -3,14 +3,14 @@ msgid ""
 msgstr ""
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 "Project-Id-Version: EPFL\n"
-"POT-Creation-Date: 2017-11-26 14:38+0100\n"
+"POT-Creation-Date: 2018-03-02 17:51+0100\n"
 "PO-Revision-Date: 2017-11-22 17:19+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.0.3\n"
+"X-Generator: Poedit 2.0.6\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-Flags-xgettext: --add-comments=translators:\n"
 "X-Poedit-WPHeader: style.css\n"
@@ -41,31 +41,39 @@ msgstr ""
 msgid "Login"
 msgstr ""
 
-#: functions.php:50
+#: functions.php:51
 msgid "Primary menu"
 msgstr ""
 
-#: functions.php:51
+#: functions.php:52
 msgid "Sidebar menu"
 msgstr ""
 
-#: functions.php:52
+#: functions.php:53
 msgid "Footer menu"
 msgstr ""
 
-#: functions.php:390
+#: functions.php:496
 msgid "Page"
 msgstr ""
 
-#: header.php:34
+#: functions.php:529
+msgid "Expand child menu"
+msgstr ""
+
+#: functions.php:530
+msgid "Collapse child menu"
+msgstr ""
+
+#: header.php:30
 msgid "Skip to content"
 msgstr ""
 
-#: header.php:99
+#: header.php:94
 msgid "Menu"
 msgstr ""
 
-#: header.php:118
+#: header.php:113
 msgid "Share"
 msgstr ""
 
@@ -118,8 +126,8 @@ msgstr ""
 msgid "Edit <span class=\"screen-reader-text\">%s</span>"
 msgstr ""
 
-#: index.php:23 index.php:27
-msgid "News"
+#: index.php:28
+msgid "Posts"
 msgstr ""
 
 #: search.php:22

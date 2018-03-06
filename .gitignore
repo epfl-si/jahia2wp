@@ -15,3 +15,5 @@ data/plugins/generic/miniorange-saml-20-single-sign-on/
 htmlcov/
 log/
 volumes/
+*.scssc
+*.map
