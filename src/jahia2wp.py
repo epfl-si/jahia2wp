@@ -773,10 +773,13 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
 @dispatch.on('switch-auth-method')
 def switch_auth_method(path, input_csv=None, **kwargs):
     """
-    Consolidates the hierarchy of wordpress sites and sub-sites found in `path`. Also includes the pages of the
-    sites in the consolidated hierarchy.
+    Goes through all the deployed wordpress sites in `path` and adds a user named `webmaster` with a random password.
+
+    :param path: the path to crawl in search of wordpress sites
+    :param input_csv: if some of the sites were already deployed and communicated to webmasters with some password,
+    the function reuse the password in the file input_csv instead of using a new one.
     """
-    logging.info("Consolidating sites and pages hierarchy...")
+    logging.info("Updating passwords...")
     passwords = {}
     if input_csv:
         with open(input_csv) as csvfile:
@@ -786,11 +789,15 @@ def switch_auth_method(path, input_csv=None, **kwargs):
     for site_details in WPConfig.inventory(path):
         site_config = WPConfig(site_details)
         if site_details.url in passwords and passwords[site_details.url]:
-            site_config.run_wp_cli('user update webmaster --user_pass={}'.format(passwords[site_details.url]))
+            site_config.run_wp_cli('user create webmaster webmaster@migration-wp.epfl.ch --user_pass={}'
+                                   '--role=administrator'.format(passwords[site_details.url]))
         else:
-            password = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(10))
-            site_config.run_wp_cli('user create webmaster webmaster@migration-wp.epfl.ch --user_pass={} --role=administrator'.format(password))
+            password = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits)
+                               for _ in range(10))
+            site_config.run_wp_cli('user create webmaster webmaster@migration-wp.epfl.ch --user_pass={}'
+                                   '--role=administrator'.format(password))
             passwords[site_details.url] = password
+        logging.info('Site : {}'.format(site_details.url))
     with open('passwords_lot1.csv', 'w') as f:
         f.write('jahia_url,url,login,password,responsable\n')
         for key, value in passwords.items():
@@ -799,7 +806,7 @@ def switch_auth_method(path, input_csv=None, **kwargs):
             with codecs.open('jahia_infos.csv', 'r', 'utf8') as csv_file:
                 reader = csv.DictReader(csv_file)
                 for row in reader:
-                    if row['url'].replace('http://', '').replace('https://', '') == jahia_url:
+                    if row['url'].replace('http://', '').replace('https://', '').replace('/', '') == jahia_url:
                         responsable = row['responsable']
                         responsable = responsable.replace(', ', '|')
                         jahia_url = row['url']
