@@ -779,11 +779,8 @@ def switch_auth_method(path, input_csv=None, **kwargs):
     :param input_csv: if some of the sites were already deployed and communicated to webmasters with some password,
     the function reuse the password in the file input_csv instead of using a new one.
 
-    The file jahia_infos.csv must be in the same folder and contain at least for each site its full jahia url and the name
-    of the webmaster to contact for this site. The file currently used is the Google Docs file given by Natalie.
-
-    The file jahia_infos.csv must be in the same folder and contain at least for each site its full jahia url and the name
-    of the webmaster to contact for this site. The file currently used is the Google Docs file given by Natalie.
+    The file jahia_infos.csv must be in the same folder and contain at least for each site its full jahia url and the
+    name of the webmaster to contact for this site. The file currently used is the Google Docs file given by Natalie.
     """
     logging.info("Updating passwords...")
     passwords = {}
