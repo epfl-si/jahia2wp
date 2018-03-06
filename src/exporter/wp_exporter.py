@@ -1,7 +1,6 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
 import logging
 import os
-import copy
 import sys
 from parser.box import Box
 import timeit
@@ -15,6 +14,7 @@ import settings
 from exporter.utils import Utils
 from utils import Utils as WPUtils
 from urllib.parse import urlparse
+from parser.file import File
 
 
 class WPExporter:
@@ -138,17 +138,58 @@ class WPExporter:
                 tracer.flush()
             raise err
 
+    def _asciify_path(self, path):
+        """
+        Recursive function that takes all files in path and rename them (if needed) with ascii-only characters.
+        Recurse in directories found in path (and rename them too if needed). We cannot use os.walk as the renaming
+        is done on-the-fly.
+        """
+        files = []
+        dirs = []
+        ignored_files = ['thumbnail', 'thumbnail2']
+        # Get all files in `path` except those named 'thumbnail' and 'thumbnail2'
+        files = [file_name for file_name in os.listdir(path) if os.path.isfile(os.path.join(path, file_name)) and
+                 file_name not in ignored_files]
+        ignored = ['.', '..']
+        # Get all directories in `path`
+        dirs = [dir_name for dir_name in os.listdir(path) if not os.path.isfile(os.path.join(path, dir_name)) and
+                dir_name not in ignored]
+        site_files = []
+        for file_name in files:
+            try:
+                file_name.encode('ascii')
+            except UnicodeEncodeError:
+                ascii_file_name = file_name.encode('ascii', 'replace').decode('ascii')
+                os.rename(os.path.join(path, file_name), os.path.join(path, ascii_file_name))
+                file_name = ascii_file_name
+            site_files.append(File(name=file_name, path=path))
+        for dir_name in dirs:
+            try:
+                dir_name.encode('ascii')
+            except UnicodeEncodeError:
+                ascii_dir_name = dir_name.encode('ascii', 'replace').decode('ascii')
+                os.rename(os.path.join(path, dir_name), os.path.join(path, ascii_dir_name))
+                dir_name = ascii_dir_name
+            # Recurse on each directory
+            site_files.extend(self._asciify_path(os.path.join(path, dir_name)))
+        return site_files
+
     def import_medias(self):
         """
         Import medias to Wordpress
         """
         logging.info("WP medias import start")
         self.run_wp_cli('cap add administrator unfiltered_upload')
-        for file in self.site.files:
-            wp_media = self.import_media(file)
-            if wp_media:
-                self.fix_file_links(file, wp_media)
-                self.report['files'] += 1
+
+        # No point if there are no files (apc site has no files for example)
+        if self.site.files:
+            start = "{}/content/sites/{}/files".format(self.site.base_path, self.site.name)
+            self.site.files = self._asciify_path(start)
+            for file in self.site.files:
+                wp_media = self.import_media(file)
+                if wp_media:
+                    self.fix_file_links(file, wp_media)
+                    self.report['files'] += 1
         # Remove the capability "unfiltered_upload" to the administrator group.
         self.run_wp_cli('cap remove administrator unfiltered_upload')
         logging.info("WP medias imported")
@@ -160,18 +201,6 @@ class WPExporter:
         # Try to encode the path in ascii, if it fails then the path contains non-ascii characters.
         # In that case convert to ascii with 'replace' option which replaces unknown characters by '?',
         # and rename the file with that new name.
-        try:
-            media.path.encode('ascii')
-        except UnicodeEncodeError:
-            ascii_path = media.path.encode('ascii', 'replace').decode('ascii')
-            os.rename(media.path, ascii_path)
-            media.path = ascii_path
-        try:
-            media.name.encode('ascii')
-        except UnicodeEncodeError:
-            ascii_file_name = media.name.encode('ascii', 'replace').decode('ascii')
-            os.rename(os.path.join(media.path, media.name), os.path.join(media.path, ascii_file_name))
-            media.name = ascii_file_name
         file_path = os.path.join(media.path, media.name)
         file = open(file_path, 'rb')
 
@@ -399,6 +428,7 @@ class WPExporter:
             # At the end of export we delete all draft pages
             for lang in self.wp_generator._site_params['langs'].split(","):
                 if lang not in info_page:
+                    contents[lang] = ""
                     info_page[lang] = {
                         'post_name': '',
                         'post_status': 'draft'
@@ -411,14 +441,17 @@ class WPExporter:
             if not result:
                 error_msg = "Could not created page"
                 logging.error(error_msg)
-                continue
+                raise Exception(error_msg)
 
             wp_ids = result.split()
 
             if len(wp_ids) != len(contents):
                 error_msg = "{} page created is not expected : {}".format(len(wp_ids), len(contents))
                 logging.error(error_msg)
-                continue
+                raise Exception(error_msg)
+
+            # Delete draft pages as soon as possible to prevent them from being problems
+            self.delete_draft_pages()
 
             for wp_id, (lang, content) in zip(wp_ids, contents.items()):
                 wp_page = self.update_page(page_id=wp_id, title=page.contents[lang].title, content=content)
@@ -647,8 +680,21 @@ class WPExporter:
                         self.menu_id_dict[page_content.wp_id] = Utils.get_menu_id(menu_id)
                         self.report['menus'] += 1
 
-                # We do a copy of the list because we will use "pop()" later and empty the list
-                children_copy = copy.deepcopy(self.site.homepage.children)
+                # In the following loop, we will have two differents sources for menu entries and their children.
+                # One is "self.site.menus[lang]" and is containing all the root menus and their submenus (only
+                # one level for now). Those menus entries are for existing WordPress pages OR are hardcoded URLs. For
+                # hardcoded URL, the URL has been recovered in the parser and is present in the structure. But for
+                # WordPress pages, we only have info about menu title but not about pointed page.
+                # The other is "self.site.homepage.children" and is containing pages and subpages existing in
+                # WordPress (used to build the menu) but we don't have any information about hardcoded URL here.
+                # So, all the information we need to create the menu is splitted between two different sources...
+                # and the goal of the following loop is to go through the first structure (which contains all the
+                # menu entries) and every time we encounter a WordPress page, we take the next available item in
+                # the second list (which contains information about pointed page). The information in the second
+                # structure is also used to build submenus.
+                # FIXME: If needed in the future, also use (and complete) information in the first structure to
+                # build submenus containing hardcoded URLs.
+                children_index = 0
 
                 # Looping through root menu entries
                 for root_entry_index in range(0, self.site.menus[lang].nb_main_entries()):
@@ -666,7 +712,9 @@ class WPExporter:
 
                     # root menu entry is page
                     else:
-                        homepage_child = children_copy.pop(0)
+                        # Getting next child containing information about pointed WordPress page.
+                        homepage_child = self.site.homepage.children[children_index]
+                        children_index += 1
 
                         if lang not in homepage_child.contents:
                             logging.warning("Page not translated %s" % homepage_child.pid)
