@@ -792,13 +792,13 @@ def switch_auth_method(path, input_csv=None, **kwargs):
     for site_details in WPConfig.inventory(path):
         site_config = WPConfig(site_details)
         if site_details.url in passwords and passwords[site_details.url]:
-            site_config.run_wp_cli('user create webmaster webmaster@migration-wp.epfl.ch --user_pass={}'
+            site_config.run_wp_cli('user create webmaster webmaster@migration-wp.epfl.ch --user_pass={} '
                                    '--role=administrator'.format(passwords[site_details.url]))
         else:
             password = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits)
                                for _ in range(10))
             try:
-                site_config.run_wp_cli('user create webmaster webmaster@migration-wp.epfl.ch --user_pass={}'
+                site_config.run_wp_cli('user create webmaster webmaster@migration-wp.epfl.ch --user_pass={} '
                                        '--role=administrator'.format(password))
             except:
                 try:
