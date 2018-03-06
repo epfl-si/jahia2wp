@@ -801,7 +801,7 @@ def switch_auth_method(path, input_csv=None, **kwargs):
                                    '--role=administrator'.format(password))
             passwords[site_details.url] = password
         logging.info('Site : {}'.format(site_details.url))
-    with open('passwords_lot1.csv', 'w') as f:
+    with open('passwords.csv', 'w') as f:
         f.write('jahia_url,url,login,password,responsable\n')
         for key, value in passwords.items():
             jahia_url = '{}.epfl.ch'.format(key.split('/')[-1])
