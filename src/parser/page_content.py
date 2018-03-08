@@ -49,6 +49,10 @@ class PageContent:
         try:
             if date:
                 self.last_update = datetime.strptime(date, JAHIA_DATE_FORMAT)
+            else:
+                logging.warning(
+                    "%s - parse - For the page id=%s the last update date is empty",
+                    self.site.name, self.page.pid)
         except ValueError as e:
             logging.error(
                 "%s - parse - Invalid last update date for page %s : '%s'",
