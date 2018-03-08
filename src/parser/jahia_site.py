@@ -293,8 +293,7 @@ class Site:
             self.breadcrumb_title[language] = []
 
             breadcrumb_links = dom.getElementsByTagName("breadCrumbLink")
-            nb_found = len(breadcrumb_links)
-            if nb_found == 0:
+            if len(breadcrumb_links) == 0:
                 continue
             breadcrumb_link = breadcrumb_links[0]
 
