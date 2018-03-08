@@ -47,7 +47,8 @@ class PageContent:
         date = self.element.getAttribute("jcr:lastModified")
 
         try:
-            self.last_update = datetime.strptime(date, JAHIA_DATE_FORMAT)
+            if date:
+                self.last_update = datetime.strptime(date, JAHIA_DATE_FORMAT)
         except ValueError as e:
             logging.error(
                 "%s - parse - Invalid last update date for page %s : '%s'",
