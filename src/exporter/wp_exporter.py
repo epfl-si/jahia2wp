@@ -552,8 +552,12 @@ class WPExporter:
                         title = prepare_html("TODO: {}".format(box.title))
                         content = prepare_html(box.content)
 
-                    cmd = 'widget add {} page-widgets {} ' \
-                          '--text="{}" --title="{}"'.format(widget_type, widget_pos, content, title)
+                    cmd = 'widget add {} page-widgets {} --text="{}" --title="{}"'.format(
+                        widget_type,
+                        widget_pos,
+                        WPUtils.clean_html_comments(content),
+                        title
+                    )
 
                     self.run_wp_cli(cmd)
 
