@@ -295,7 +295,6 @@ class Site:
             breadcrumb_links = dom.getElementsByTagName("breadCrumbLink")
             if len(breadcrumb_links) == 0:
                 continue
-            breadcrumb_link = breadcrumb_links[0]
 
             for breadcrumb_link in breadcrumb_links:
                 for child in breadcrumb_link.childNodes:
