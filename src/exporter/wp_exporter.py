@@ -245,8 +245,11 @@ class WPExporter:
         if self.site.breadcrumb_title and self.site.breadcrumb_url and \
                 default_lang in self.site.breadcrumb_title and default_lang in self.site.breadcrumb_url:
             # Generatin breadcrumb to save in parameters
-            breadcrumb = "[EPFL|www.epfl.ch]>[{}|{}]".format(self.site.breadcrumb_title[default_lang],
-                                                             self.site.breadcrumb_url[default_lang])
+            breadcrumb = "[EPFL|www.epfl.ch]"
+            breadcrumb_titles = self.site.breadcrumb_title[default_lang]
+            breadcrumb_urls = self.site.breadcrumb_url[default_lang]
+            for breadcrumb_title, breadcrumb_url in zip(breadcrumb_titles, breadcrumb_urls):
+                breadcrumb += ">[{}|{}]".format(breadcrumb_title, breadcrumb_url)
 
             self.run_wp_cli("option update epfl:custom_breadcrumb '{}'".format(breadcrumb))
 
