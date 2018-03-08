@@ -700,13 +700,21 @@ class WPExporter:
                 for root_entry_index in range(0, self.site.menus[lang].nb_main_entries()):
 
                     # If root menu entry is an hardcoded URL
-                    if self.site.menus[lang].target_is_url(root_entry_index):
+                    if self.site.menus[lang].target_is_url(root_entry_index) or \
+                            self.site.menus[lang].target_is_sitemap(root_entry_index):
                         # If root entry is visible
                         if not self.site.menus[lang].is_hidden(root_entry_index):
+                            # Recovering URL
+                            url = self.site.menus[lang].target_url(root_entry_index)
+
+                            # If menu entry is sitemap, we add WP site base URL
+                            if self.site.menus[lang].target_is_sitemap(root_entry_index):
+                                url = "{}{}".format(self.wp_generator.wp_site.url, url)
+
                             cmd = 'menu item add-custom {} "{}" "{}" --porcelain' \
                                 .format(menu_name,
                                         self.site.menus[lang].txt(root_entry_index),
-                                        self.site.menus[lang].target_url(root_entry_index))
+                                        url)
                             menu_id = self.run_wp_cli(cmd)
                             if not menu_id:
                                 logging.warning("Root menu item not created for URL (%s) " %

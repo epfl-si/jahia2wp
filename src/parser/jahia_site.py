@@ -161,12 +161,10 @@ class Site:
                                 hidden = False
                                 # If normal jahia page
                                 if jahia_type.nodeName == "jahia:page":
-                                    # Page is a link to sitemap, we skip it
-                                    if jahia_type.getAttribute("jahia:template") == "sitemap":
-                                        continue
                                     txt = jahia_type.getAttribute("jahia:title")
                                     hidden = jahia_type.getAttribute("jahia:hideFromNavigationMenu") != ""
-                                    target = None
+                                    target = "sitemap" if jahia_type.getAttribute("jahia:template") == "sitemap" \
+                                        else None
                                 # If URL
                                 elif jahia_type.nodeName == "jahia:url":
                                     txt = jahia_type.getAttribute("jahia:title")
