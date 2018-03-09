@@ -227,6 +227,45 @@ def _add_extra_config(extra_config_file, current_config):
     return {**current_config, **extra_config}
 
 
+def _generate_csv_line(wp_generator):
+    """
+    Generate a CSV line to add to source of truth. The line contains information about exported WP site.
+
+    :param wp_generator: Object used to create WP website
+    :return:
+    """
+    # CSV columns in correct order for source of truth line generation
+    csv_columns = OrderedDict()
+
+    # Recovering values from WPGenerator or hardcode some
+    csv_columns['wp_site_url'] = wp_generator._site_params['wp_site_url']  # from csv
+    csv_columns['wp_tagline'] = wp_generator._site_params['wp_tagline']  # from parser
+    csv_columns['wp_site_title'] = wp_generator._site_params['wp_site_title']  # from parser
+    csv_columns['site_type'] = 'wordpress'
+    csv_columns['openshift_env'] = 'subdomains'
+    csv_columns['category'] = 'GeneralPublic'  # from csv
+    csv_columns['theme'] = wp_generator._site_params['theme']  # from csv
+    csv_columns['theme_faculty'] = wp_generator._site_params['theme_faculty']  # from parser
+    csv_columns['status'] = 'yes'
+    csv_columns['installs_locked'] = wp_generator._site_params['installs_locked']  # from csv (bool)
+    csv_columns['updates_automatic'] = wp_generator._site_params['updates_automatic']  # from csv (bool)
+    csv_columns['langs'] = wp_generator._site_params['langs']  # from parser
+    csv_columns['unit_name'] = wp_generator._site_params['unit_name']  # from csv
+    csv_columns['comment'] = 'Migrated from Jahia to WP'
+
+    # Formatting values depending on their type/content
+    for col in csv_columns:
+        # Bool are translated to 'yes' or 'no'
+        if isinstance(csv_columns[col], bool):
+            csv_columns[col] = 'yes' if csv_columns[col] else 'no'
+        # None become empty string
+        elif csv_columns[col] is None:
+            csv_columns[col] = ''
+
+    print("\nHere is the line with up-to-date information to add in source of truth:\n")
+    print('"{}"'.format('","'.join(csv_columns.values())))
+
+
 @dispatch.on('download')
 def download(site, username=None, host=None, zip_path=None, force=False, **kwargs):
     # prompt for password if username is provided
@@ -436,36 +475,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     wp_generator.uninstall_basic_auth_plugin()
     wp_generator.enable_updates_automatic_if_allowed()
 
-    # CSV columns in correct order for source of truth line generation
-    csv_columns = OrderedDict()
-
-    # Recovering values from WPGenerator or hardcode some
-    csv_columns['wp_site_url'] = wp_generator._site_params['wp_site_url']  # from csv
-    csv_columns['wp_tagline'] = wp_generator._site_params['wp_tagline']  # from parser
-    csv_columns['wp_site_title'] = wp_generator._site_params['wp_site_title']  # from parser
-    csv_columns['site_type'] = 'wordpress'
-    csv_columns['openshift_env'] = 'subdomains'
-    csv_columns['category'] = 'GeneralPublic'  # from csv
-    csv_columns['theme'] = wp_generator._site_params['theme']  # from csv
-    csv_columns['theme_faculty'] = wp_generator._site_params['theme_faculty']  # from parser
-    csv_columns['status'] = 'yes'
-    csv_columns['installs_locked'] = wp_generator._site_params['installs_locked']  # from csv (bool)
-    csv_columns['updates_automatic'] = wp_generator._site_params['updates_automatic']  # from csv (bool)
-    csv_columns['langs'] = wp_generator._site_params['langs']  # from parser
-    csv_columns['unit_name'] = wp_generator._site_params['unit_name']  # from csv
-    csv_columns['comment'] = 'Migrated from Jahia to WP'
-
-    # Formatting values depending on their type/content
-    for col in csv_columns:
-        # Bool are translated to 'yes' or 'no'
-        if isinstance(csv_columns[col], bool):
-            csv_columns[col] = 'yes' if csv_columns[col] else 'no'
-        # None become empty string
-        elif csv_columns[col] is None:
-            csv_columns[col] = ''
-
-    print("\nHere is the line with up-to-date information to add in source of truth:\n")
-    print('"{}"'.format('","'.join(csv_columns.values())))
+    _generate_csv_line(wp_generator)
 
     return wp_exporter
 
