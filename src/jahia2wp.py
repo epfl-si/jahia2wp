@@ -262,8 +262,8 @@ def _generate_csv_line(wp_generator):
         elif csv_columns[col] is None:
             csv_columns[col] = ''
 
-    print("\nHere is the line with up-to-date information to add in source of truth:\n")
-    print('"{}"'.format('","'.join(csv_columns.values())))
+    logging.info("Here is the line with up-to-date information to add in source of truth:\n")
+    logging.info('"%s"', '","'.join(csv_columns.values()))
 
 
 @dispatch.on('download')
