@@ -11,6 +11,7 @@ import string
 import binascii
 import random
 import xml.dom.minidom
+import re
 
 from urllib.parse import urlsplit
 from bs4 import BeautifulSoup
@@ -396,3 +397,10 @@ class Utils(object):
                 fp.write(new_file_data)
                 fp.truncate(fp.tell())
                 fp.flush()
+
+    @staticmethod
+    def clean_html_comments(content):
+        """
+        Clean HTML comments
+        """
+        return re.sub("(<!--.*?-->)", "", content)
