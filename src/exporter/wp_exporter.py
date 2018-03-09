@@ -454,6 +454,11 @@ class WPExporter:
             self.delete_draft_pages()
 
             for wp_id, (lang, content) in zip(wp_ids, contents.items()):
+                # If page doesn't exists for current lang (but it was created as draft before and then deleted),
+                # we skip the update (because there is nothing to update and we don't have needed information...
+                if lang not in page.contents:
+                    continue
+                # Updating page in WordPress
                 wp_page = self.update_page(page_id=wp_id, title=page.contents[lang].title, content=content)
 
                 # prepare mapping for the nginx conf generation
