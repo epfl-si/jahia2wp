@@ -55,3 +55,9 @@ class Menu:
 
     def nb_main_entries(self):
         return len(self.root_menu)
+
+    def set_target_url(self, index, new_target_url):
+        self.root_menu[index].target_url = new_target_url
+
+    def target_is_file(self, index):
+        return self.root_menu[index].target_is_file()

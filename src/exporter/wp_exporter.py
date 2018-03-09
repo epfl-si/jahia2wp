@@ -286,6 +286,29 @@ class WPExporter:
             # save the new box content
             box.content = str(soup)
 
+        for lang in self.site.languages:
+            for root_entry_index in range(0, self.site.menus[lang].nb_main_entries()):
+                if self.site.menus[lang].target_is_file(root_entry_index):
+                    normalized_url = self.site.menus[lang].target_url(root_entry_index)
+                    normalized_url = normalized_url.encode('ascii', 'replace').decode('ascii').replace('?', '')
+                    normalized_url = normalized_url[normalized_url.rfind("/files"):]
+                    if normalized_url == old_url.replace('?', ''):
+                        self.site.menus[lang].set_target_url(root_entry_index, new_url)
+                self.fix_file_links_in_submenus(self.site.menus[lang].get_sub_entries(root_entry_index),
+                                                old_url,
+                                                new_url)
+
+    def fix_file_links_in_submenus(self, menu_item, old_url, new_url):
+        for child in menu_item.children:
+            if child.target_is_file():
+                logging.info("HEYHEY : {}".format(child.target_is_file()))
+                normalized_url = child.target_url.encode('ascii', 'replace').decode('ascii').replace('?', '')
+                normalized_url = normalized_url[normalized_url.rfind("/files"):]
+                if normalized_url == old_url.replace('?', ''):
+                    logging.info("COUUUUUUCOUUUUU : {} {}".format(old_url, new_url))
+                    child.target_url = new_url
+            self.fix_file_links_in_submenus(child, old_url, new_url)
+
     def fix_page_content_links(self, wp_pages):
         """
         Fix all the links once we know all the WordPress pages urls
