@@ -1,21 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 require('utils.php');
+
+use utils\Utils as NewsUtils;
 
 define("API_URL", "https://actu.epfl.ch/api/v1/channels/");
 
-/*
- * Minimal template (to be used in widget)
- */
-function display_widget($actus)
+function build_html($actus): string
 {
-    //utils\Utils::debug($actus);
+    //NewsUtils::debug($actus);
     $actu .= '<div>';
 
 	foreach ($actus->results as $item) {
 
 		$actu .= '<div style="height: 103px;">';
-		$actu .= '  <a style="float:left;" href="https://actu.epfl.ch/news/' . utils\Utils::get_anchor($item->title) . '">';
+		$actu .= '  <a style="float:left;" href="https://actu.epfl.ch/news/' . NewsUtils::get_anchor($item->title) . '">';
 		$actu .= '    <img style="width: 169px;" src="' . $item->visual_url . '" title="">';
 		$actu .= '  </a>';
 		$actu .= '  <div style="display:inline-block;margin-left:5px;">';
@@ -36,7 +37,7 @@ function display_widget($actus)
     return $actu;
 }
 
-function epfl_news_process_shortcode( $atts, $content = '', $tag) {
+function epfl_news_process_shortcode( $atts, $content = '', $tag): string {
 
         // extract shortcode parameter
         $atts = extract(shortcode_atts(array(
@@ -48,11 +49,12 @@ function epfl_news_process_shortcode( $atts, $content = '', $tag) {
         $url = API_URL.$channel.'/news/?format=json&lang='.$lang;
 
         // HTTP GET on REST API actus
-        $actus = utils\Utils::get_items($url);
+        $actus = NewsUtils::get_items($url);
+        //NewsUtils::debug($actus);
 
         // Build HTML
-        $result = display_widget($actus);
-        //utils\Utils::debug($result);
+        $result = build_html($actus);
+        //NewsUtils::debug($result);
 
         // return HTML result
         return $result;
