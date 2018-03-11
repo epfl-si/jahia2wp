@@ -101,9 +101,17 @@ class Box:
 
     def set_box_actu(self, element):
         """set the attributes of an actu box"""
-        url = Utils.get_tag_attribute(element, "url", "jahia:value")
+        old_url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.content = "[actu url=%s]" % url
+        #FIXME : extraction cidessous est "perfectible" car si le param est en dernière postion chamarchpas
+
+        # extract channel_id
+        channel_id = old_url.split("channel=")[1].split('&')[0]
+
+        # extract lang
+        lang = old_url.split("lang=")[1].split('&')[0]
+
+        self.content = '[epfl_news channel="{}" lang="{}" /]'.format(channel_id, lang)
 
     def set_box_memento(self, element):
         """set the attributes of a memento box"""
