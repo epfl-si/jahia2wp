@@ -105,7 +105,7 @@ class Box:
             start_date = Utils.get_tag_attribute(element, "comboList", "jahia:validFrom")
             end_date = Utils.get_tag_attribute(element, "comboList", "jahia:validTo")
 
-            self.content = "[epfl_scheduler start_date="{}" end_date="{}"]{}[/epfl_scheduler]".format(
+            self.content = '[epfl_scheduler start_date="{}" end_date="{}"]{}[/epfl_scheduler]'.format(
                 start_date,
                 end_date,
                 self.content
