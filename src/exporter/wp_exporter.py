@@ -301,11 +301,9 @@ class WPExporter:
     def fix_file_links_in_submenus(self, menu_item, old_url, new_url):
         for child in menu_item.children:
             if child.target_is_file():
-                logging.info("HEYHEY : {}".format(child.target_is_file()))
                 normalized_url = child.target_url.encode('ascii', 'replace').decode('ascii').replace('?', '')
                 normalized_url = normalized_url[normalized_url.rfind("/files"):]
                 if normalized_url == old_url.replace('?', ''):
-                    logging.info("COUUUUUUCOUUUUU : {} {}".format(old_url, new_url))
                     child.target_url = new_url
             self.fix_file_links_in_submenus(child, old_url, new_url)
 
