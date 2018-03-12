@@ -2,10 +2,13 @@
 
 declare(strict_types=1);
 
-function epfl_scheduler_shortcode($atts, $content = '', $tag)
+function epfl_scheduler_shortcode(
+    array $atts, 
+    string $content = '', 
+    string $tag): string 
 {
 
-    // extract shortcode parameter
+    // extract shortcode parameters
     $atts = extract(shortcode_atts(array(
         'start_date' => '',
         'end_date' => ''
@@ -17,10 +20,12 @@ function epfl_scheduler_shortcode($atts, $content = '', $tag)
 
     $now = time();
     
-    // check if we can display content
     if ($now > $start_date && $now < $end_date) {
         return $content;
+    } else {
+        return '';
     }
 }
 
 add_shortcode('epfl_scheduler', epfl_scheduler_shortcode);
+    
