@@ -95,9 +95,21 @@ class Box:
             # Concatenate HTML content of many boxes
             content = ""
             elements = element.getElementsByTagName("text")
-            for element in elements:
-                content += element.getAttribute("jahia:value")
+            for current_element in elements:
+                content += current_element.getAttribute("jahia:value")
             self.content = content
+
+        # scheduler shortcode
+        if Utils.get_tag_attribute(element, "comboList", "jahia:ruleType") == "START_AND_END_DATE":
+
+            start_date = Utils.get_tag_attribute(element, "comboList", "jahia:validFrom")
+            end_date = Utils.get_tag_attribute(element, "comboList", "jahia:validTo")
+
+            self.content = "[epfl_scheduler start_date="{}" end_date="{}"]{}[/epfl_scheduler]".format(
+                start_date,
+                end_date,
+                self.content
+            )
 
     def set_box_actu(self, element):
         """set the attributes of an actu box"""
