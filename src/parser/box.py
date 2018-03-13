@@ -159,6 +159,8 @@ class Box:
     def set_box_links(self, element):
         """set the attributes of a links box"""
         elements = element.getElementsByTagName("link")
+        # Remove the TEXT_NODES to keep only the ELEMENT_NODES, TEXT_NODES are invisible tags
+        # containing text like `\n`
         elements = list(filter(lambda x: x.nodeType != xml.dom.Node.TEXT_NODE, elements))
         content = "<ul>"
         for e in elements:
