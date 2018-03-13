@@ -19,18 +19,3 @@ class MenuItem:
 
     def target_is_file(self):
         return False if self.target_url is None else '/files/' in self.target_url
-
-    def add_child(self, txt, target_url, hidden):
-        """
-        Add child to current menu entry
-
-        txt - menu text
-        target - menu target (URL or page name)
-
-        Ret : sub menu entry index
-        """
-
-        menu_item = MenuItem(txt, target_url, hidden)
-        self.children.append(menu_item)
-
-        return len(self.children) - 1
