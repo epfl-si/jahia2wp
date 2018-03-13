@@ -1,5 +1,8 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
+import logging
+
 from utils import Utils
+from urllib import parse
 
 
 class Box:
@@ -99,19 +102,60 @@ class Box:
                 content += element.getAttribute("jahia:value")
             self.content = content
 
+    @staticmethod
+    def _extract_parameters(url):
+        """
+        Extract parameters form url
+        """
+        parameters = parse.parse_qs(parse.urlparse(url).query)
+
+        if 'channel' in parameters:
+            channel_id = parameters['channel'][0]
+        else:
+            channel_id = ""
+            logging.error("News Shortcode - channel ID is missing")
+
+        if 'lang' in parameters:
+            lang = parameters['lang'][0]
+        else:
+            lang = ""
+            logging.error("News Shortcode - lang is missing")
+
+        if 'template' in parameters:
+            template = parameters['template'][0]
+        else:
+            template = ""
+            logging.error("News Shortcode - template is missing")
+
+        category = ""
+        if 'category' in parameters:
+            category = parameters['category'][0]
+
+        themes = ""
+        if 'themes' in parameters:
+            themes = parameters['theme']
+
+        return template, channel_id, lang, template, category, themes
+
     def set_box_actu(self, element):
         """set the attributes of an actu box"""
-        old_url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        #FIXME : extraction cidessous est "perfectible" car si le param est en dernière postion chamarchpas
+        # extract parameters from the old url of webservice
+        template, channel_id, lang, template, category, themes = self._extract_parameters(
+            Utils.get_tag_attribute(element, "url", "jahia:value")
+        )
+        html_content = '[epfl_news channel="{}" lang="{}" template="{}" '.format(
+            channel_id,
+            lang,
+            template
+        )
+        if category:
+            html_content += 'category="{}" '.format(category)
+        if themes:
+            html_content += 'themes="{}" '.format(",".join(themes))
+            html_content += '/]'
 
-        # extract channel_id
-        channel_id = old_url.split("channel=")[1].split('&')[0]
-
-        # extract lang
-        lang = old_url.split("lang=")[1].split('&')[0]
-
-        self.content = '[epfl_news channel="{}" lang="{}" /]'.format(channel_id, lang)
+        self.content = html_content
 
     def set_box_memento(self, element):
         """set the attributes of a memento box"""
