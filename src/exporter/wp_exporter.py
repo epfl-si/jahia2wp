@@ -286,6 +286,8 @@ class WPExporter:
             # save the new box content
             box.content = str(soup)
 
+        self.fix_file_links_in_menus(old_url, new_url)
+
     def fix_file_links_in_menu_items(self, menu_item, old_url, new_url):
         if menu_item.target_is_file():
                 normalized_url = menu_item.target_url.encode('ascii', 'replace').decode('ascii').replace('?', '')
@@ -293,7 +295,7 @@ class WPExporter:
                 if normalized_url == old_url.replace('?', ''):
                     menu_item.target_url = new_url
 
-    def fix_file_links_in_menus(self, menu, old_url, new_url):
+    def fix_file_links_in_menus(self, old_url, new_url):
         for lang in self.site.languages:
             for root_entry_index, menu_item in enumerate(self.site.menus[lang]):
                 self.fix_file_links_in_menu_items(menu_item, old_url, new_url)
