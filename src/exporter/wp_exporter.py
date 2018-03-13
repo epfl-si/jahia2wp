@@ -2,7 +2,6 @@
 import logging
 import os
 import sys
-import re
 from parser.box import Box
 import timeit
 from collections import OrderedDict
