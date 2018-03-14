@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-require('utils.php');
+require_once('utils.php');
 
-use utils\Utils as NewsUtils;
+use utils\Utils as Utils;
 
 define("NEWS_API_URL", "https://actu.epfl.ch/api/v1/channels/");
 define("NEWS_API_URL_IFRAME", "https://actu.epfl.ch/webservice_iframe/");
@@ -12,12 +12,12 @@ define("NEWS_API_URL_IFRAME", "https://actu.epfl.ch/webservice_iframe/");
 /**
  * Build HTML. This template is waiting for Aline templates.
  */
-function build_html($actus): string
+function epfl_news_build_html($actus): string
 {
     $actu = '<div>';
 	foreach ($actus->results as $item) {
 		$actu .= '<div style="height: 103px;">';
-		$actu .= '  <a style="float:left;" href="https://actu.epfl.ch/news/' . NewsUtils::get_anchor($item->title) . '">';
+		$actu .= '  <a style="float:left;" href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
 		$actu .= '    <img style="width: 169px;" src="' . $item->visual_url . '" title="">';
 		$actu .= '  </a>';
 		$actu .= '  <div style="display:inline-block;margin-left:5px;">';
@@ -40,11 +40,11 @@ function build_html($actus): string
 /**
  * Build HTML. This template contains all news inside ifram tag
  */
-function built_html_pagination_template(string $channel, string $lang): string {
+function epfl_news_built_html_pagination_template(string $channel, string $lang): string {
 
     // call API to get the name of channel
     $url = NEWS_API_URL . $channel;
-    $channel = NewsUtils::get_items($url);
+    $channel = Utils::get_items($url);
 
     $url = NEWS_API_URL_IFRAME . $channel->name . "/" . $lang . "/nosticker";
 
@@ -57,7 +57,7 @@ function built_html_pagination_template(string $channel, string $lang): string {
 /**
  * Returns the number of news according to the template
  */
-function get_limit(string $template): int
+function epfl_news_get_limit(string $template): int
 {
     switch ($template):
         case "1":
@@ -84,7 +84,7 @@ function get_limit(string $template): int
 /**
  * Build api URL of news
  */
-function build_api_url(
+function epfl_news_build_api_url(
     string $channel,
     string $template,
     string $lang,
@@ -94,7 +94,7 @@ function build_api_url(
 {
 
     // returns the number of news according to the template
-    $limit = get_limit($template);
+    $limit = epfl_news_get_limit($template);
 
     // define API URL
     $url = NEWS_API_URL . $channel . '/news/?format=json&lang=' . $lang . '&limit=' . $limit;
@@ -117,7 +117,7 @@ function build_api_url(
 /**
  * Check the required parameters
  */
-function check_parameters(string $channel, string $lang): bool {
+function epfl_news_check_parameters(string $channel, string $lang): bool {
     return $channel !== "" && $lang !== "";
 }
 
@@ -126,7 +126,7 @@ function check_parameters(string $channel, string $lang): bool {
  */
 function epfl_news_process_shortcode(array $atts, string $content = '', string $tag): string {
 
-        // extract shortcode parameter
+        // extract shortcode paramepfl_newseter
         $atts = extract(shortcode_atts(array(
                 'channel' => '',
                 'lang' => '',
@@ -135,16 +135,16 @@ function epfl_news_process_shortcode(array $atts, string $content = '', string $
                 'themes' => '',
         ), $atts, $tag));
 
-        if (check_parameters($channel, $lang) == FALSE) {
+        if (epfl_news_check_parameters($channel, $lang) == FALSE) {
             return "";
         }
 
         // iframe template
         if ($template === "10") {
-            return built_html_pagination_template($channel, $lang);
+            return epfl_news_built_html_pagination_template($channel, $lang);
         }
 
-        $url = build_api_url(
+        $url = epfl_news_build_api_url(
             $channel,
             $template,
             $lang,
@@ -152,8 +152,8 @@ function epfl_news_process_shortcode(array $atts, string $content = '', string $
             $themes
         );
 
-        $actus = NewsUtils::get_items($url);
-        return build_html($actus);
+        $actus = Utils::get_items($url);
+        return epfl_news_build_html($actus);
 }
 
 // define the shortcode

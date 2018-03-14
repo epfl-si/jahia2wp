@@ -103,7 +103,7 @@ class Box:
             self.content = content
 
     @staticmethod
-    def _extract_parameters(url):
+    def _extract_epfl_news_parameters(url):
         """
         Extract parameters form url
         """
@@ -135,13 +135,13 @@ class Box:
         if 'themes' in parameters:
             themes = parameters['theme']
 
-        return template, channel_id, lang, template, category, themes
+        return channel_id, lang, template, category, themes
 
     def set_box_actu(self, element):
         """set the attributes of an actu box"""
 
         # extract parameters from the old url of webservice
-        template, channel_id, lang, template, category, themes = self._extract_parameters(
+        channel_id, lang, template, category, themes = self._extract_epfl_news_parameters(
             Utils.get_tag_attribute(element, "url", "jahia:value")
         )
         html_content = '[epfl_news channel="{}" lang="{}" template="{}" '.format(
@@ -153,15 +153,52 @@ class Box:
             html_content += 'category="{}" '.format(category)
         if themes:
             html_content += 'themes="{}" '.format(",".join(themes))
-            html_content += '/]'
+        html_content += '/]'
 
         self.content = html_content
 
+    @staticmethod
+    def _extract_epfl_memento_parameters(url):
+        """
+        Extract parameters form url
+        """
+        parameters = parse.parse_qs(parse.urlparse(url).query)
+
+        if 'memento' in parameters:
+            memento_name = parameters['memento'][0]
+        else:
+            memento_name = ""
+            logging.error("Memento Shortcode - event ID is missing")
+
+        if 'lang' in parameters:
+            lang = parameters['lang'][0]
+        else:
+            lang = ""
+            logging.error("Memento Shortcode - lang is missing")
+
+        if 'template' in parameters:
+            template = parameters['template'][0]
+        else:
+            template = ""
+            logging.error("Memento Shortcode - template is missing")
+
+        return memento_name, lang, template
+
     def set_box_memento(self, element):
         """set the attributes of a memento box"""
-        url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.content = "[memento url=%s]" % url
+        # extract parameters from the old url of webservice
+        memento_name, lang, template = self._extract_epfl_memento_parameters(
+            Utils.get_tag_attribute(element, "url", "jahia:value")
+        )
+        html_content = '[epfl_memento memento="{}" lang="{}" template="{}" '.format(
+            memento_name,
+            lang,
+            template
+        )
+        html_content += '/]'
+
+        self.content = html_content
 
     def set_box_infoscience(self, element):
         """set the attributes of a infoscience box"""
