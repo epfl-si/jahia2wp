@@ -5171,7 +5171,7 @@ class Data:
                                                   'anchor_links': 90,
                                                   'broken_links': 1,
                                                   'data_links': 0,
-                                                  'external_links': 322,
+                                                  'external_links': 326,
                                                   'file_links': 347,
                                                   'internal_links': 113,
                                                   'mailto_links': 162,
