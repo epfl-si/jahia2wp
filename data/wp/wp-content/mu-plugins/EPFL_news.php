@@ -10,11 +10,11 @@ define("NEWS_API_URL", "https://actu.epfl.ch/api/v1/channels/");
 define("NEWS_API_URL_IFRAME", "https://actu.epfl.ch/webservice_iframe/");
 
 /**
- *
+ * Build HTML. This template is waiting for Aline templates.
  */
 function build_html($actus): string
 {
-    $actu .= '<div>';
+    $actu = '<div>';
 	foreach ($actus->results as $item) {
 		$actu .= '<div style="height: 103px;">';
 		$actu .= '  <a style="float:left;" href="https://actu.epfl.ch/news/' . NewsUtils::get_anchor($item->title) . '">';
@@ -38,10 +38,17 @@ function build_html($actus): string
 }
 
 /**
- * Build HTML template with all news.
+ * Build HTML. This template contains all news inside ifram tag
  */
-function built_html_pagination_template(string $url): string {
-    $result .= '<IFRAME ';
+function built_html_pagination_template(string $channel, string $lang): string {
+
+    // call API to get the name of channel
+    $url = NEWS_API_URL . $channel;
+    $channel = NewsUtils::get_items($url);
+
+    $url = NEWS_API_URL_IFRAME . $channel->name . "/" . $lang . "/nosticker";
+
+    $result = '<IFRAME ';
     $result .= 'src="' . $url . '" ';
     $result .= 'width="700" height="1100" scrolling="no" frameborder="0"></IFRAME>';
     return $result;
@@ -105,13 +112,19 @@ function build_api_url(
         }
     }
     return $url;
+}
 
+/**
+ * Check the required parameters
+ */
+function check_parameters(string $channel, string $lang): bool {
+    return $channel !== "" && $lang !== "";
 }
 
 /**
  * Main function of shortcode
  */
-function epfl_news_process_shortcode( $atts, $content = '', $tag): string {
+function epfl_news_process_shortcode(array $atts, string $content = '', string $tag): string {
 
         // extract shortcode parameter
         $atts = extract(shortcode_atts(array(
@@ -122,16 +135,13 @@ function epfl_news_process_shortcode( $atts, $content = '', $tag): string {
                 'themes' => '',
         ), $atts, $tag));
 
+        if (check_parameters($channel, $lang) == FALSE) {
+            return "";
+        }
+
         // iframe template
         if ($template === "10") {
-
-            // call API to get the name of channel
-            $url = NEWS_API_URL . $channel;
-            $channel = NewsUtils::get_items($url);
-
-            // build the url for iframe template
-            $url = NEWS_API_URL_IFRAME . $channel->name . "/" . $lang . "/nosticker";
-            return built_html_pagination_template($url);
+            return built_html_pagination_template($channel, $lang);
         }
 
         $url = build_api_url(
@@ -142,14 +152,8 @@ function epfl_news_process_shortcode( $atts, $content = '', $tag): string {
             $themes
         );
 
-        // HTTP GET on REST API actus
         $actus = NewsUtils::get_items($url);
-
-        // Build HTML
-        $result = build_html($actus);
-
-        // return HTML result
-        return $result;
+        return build_html($actus);
 }
 
 // define the shortcode

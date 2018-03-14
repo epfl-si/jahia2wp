@@ -12,12 +12,12 @@ Class Utils
         print "</pre>";
     }
 
-  /*
-   * This allow to insert anchor before the element
-   *   i.e. '<a name="' . $ws->get_anchor($item->title) . '"></a>';
-   * and also to get the item link in case it's not provided by the API.
-   * e.g. https://actu.epfl.ch/news/a-12-million-franc-donation-to-create-a-center-for/
-   */
+    /*
+     * This allow to insert anchor before the element
+     *   i.e. '<a name="' . $ws->get_anchor($item->title) . '"></a>';
+     * and also to get the item link in case it's not provided by the API.
+     * e.g. https://actu.epfl.ch/news/a-12-million-franc-donation-to-create-a-center-for/
+     */
     public static function get_anchor(string $title): string {
 
         $unwanted_array = array(    'Š'=>'S', 'š'=>'s', 'Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A', 'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E',
@@ -49,5 +49,4 @@ Class Utils
         }
     }
 }
-
 ?>
