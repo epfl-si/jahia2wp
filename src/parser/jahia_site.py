@@ -90,6 +90,8 @@ class Site:
         self.unknown_links = 0
         self.num_boxes = {}
         self.num_templates = {}
+        # the number of each html tags, e.g. "br": 10
+        self.num_tags = {}
         self.num_url_menu_root = 0
         # we have a SitemapNode for each language
         self.sitemaps = {}
@@ -375,7 +377,21 @@ class Site:
                                    page_content=page_content,
                                    tag=tag)
 
+                # count the tags
+                self.count_tags(page_content)
+
                 page.contents[language] = page_content
+
+    def count_tags(self, page_content):
+        """Count each html tags"""
+
+        for box in page_content.boxes:
+            soup = BeautifulSoup(box.content, 'html.parser')
+
+            for tag in soup.find_all():
+                # we increment both at the page_content and at the site level
+                Utils.increment_count(page_content.num_tags, tag.name)
+                Utils.increment_count(self.num_tags, tag.name)
 
     def add_boxes(self, xml_page, page_content, tag):
         # add the boxes contained in the given tag to the given page_content
@@ -637,14 +653,15 @@ Parsed for %s :
         # order the dicts so they are always presented in the same order
         num_boxes_ordered = collections.OrderedDict(sorted(self.num_boxes.items()))
         num_templates_ordered = collections.OrderedDict(sorted(self.num_templates.items()))
+        num_tags_ordered = sorted(self.num_tags, key=self.num_tags.get, reverse=True)
 
         # templates
         for key, value in num_templates_ordered.items():
             self.report += "    - %s using the template %s\n" % (value, key)
 
         # boxes
-        for num, count in num_boxes_ordered.items():
-            self.report += "    - %s %s boxes\n" % (count, num)
+        for key, value in num_boxes_ordered.items():
+            self.report += "    - %s %s boxes\n" % (value, key)
 
         self.report += "    - %s internal links\n" % self.internal_links
         self.report += "    - %s absolute links\n" % self.absolute_links
@@ -656,3 +673,10 @@ Parsed for %s :
         self.report += "    - %s broken links\n" % self.broken_links
         self.report += "    - %s unknown links\n" % self.unknown_links
         self.report += "    - %s root menu entries with URLs\n" % self.num_url_menu_root
+
+        # tags
+        self.report += "\n"
+        self.report += "  - tags :\n\n"
+
+        for tag in num_tags_ordered:
+            self.report += "    - <%s> %s\n" % (tag, self.num_tags[tag])

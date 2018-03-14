@@ -26,6 +26,8 @@ class PageContent:
         self.last_update = ""
         # a list of NavigationPages
         self.navigation = []
+        # the number of occurrences of each tag, e.g. "br" : 10
+        self.num_tags = {}
 
         # last update
         self.parse_last_update()
