@@ -89,6 +89,7 @@ class Site:
         self.broken_links = 0
         self.unknown_links = 0
         self.num_boxes = {}
+        self.num_templates = {}
         self.num_url_menu_root = 0
         # we have a SitemapNode for each language
         self.sitemaps = {}
@@ -633,9 +634,15 @@ Parsed for %s :
 
 """ % (self.server_name, self.num_files, self.num_pages)
 
-        # order the dict so it's always presented in the same order
+        # order the dicts so they are always presented in the same order
         num_boxes_ordered = collections.OrderedDict(sorted(self.num_boxes.items()))
+        num_templates_ordered = collections.OrderedDict(sorted(self.num_templates.items()))
 
+        # templates
+        for key, value in num_templates_ordered.items():
+            self.report += "    - %s using the template %s\n" % (value, key)
+
+        # boxes
         for num, count in num_boxes_ordered.items():
             self.report += "    - %s %s boxes\n" % (count, num)
 
