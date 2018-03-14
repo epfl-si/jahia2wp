@@ -1,5 +1,7 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
 
+from utils import Utils
+
 
 class Page:
     """A Jahia Page. Has 1 to N Jahia Boxes"""
@@ -21,10 +23,7 @@ class Page:
         self.contents = {}
 
         # update the number of templates
-        if self.template in self.site.num_templates:
-            self.site.num_templates[self.template] = self.site.num_templates[self.template] + 1
-        else:
-            self.site.num_templates[self.template] = 1
+        Utils.increment_count(self.site.num_templates, self.template)
 
         # if we have a sitemap we don't want to parse the
         # page and add it to it's parent, so we stop here
