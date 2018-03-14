@@ -77,5 +77,9 @@ jQuery(document).ready(function($){
     screenReaderSpan.text( screenReaderSpan.text() === epfl_l10n.expand ? epfl_l10n.collapse : epfl_l10n.expand );
   } );
   
+  // Remove link border form around images
+  
+  $('a img').parent('a').css('border','none');
+  
   
 });
