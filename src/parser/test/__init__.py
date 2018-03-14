@@ -4713,9 +4713,9 @@ class Data:
                                                    'uuid': '02ddffaa-6238-4279-a633-a4bfb09c2703'}},
                         'properties': {'acronym': {'en': '', 'fr': 'WEB-EPFL'},
                                        'base_path': '/mnt/export/build-dev/atelierweb2/atelierweb2',
-                                       'breadcrumb_title': {'en': 'VPSI', 'fr': 'VPSI'},
-                                       'breadcrumb_url': {'en': 'http://direction.epfl.ch/VPSI',
-                                                          'fr': 'http://direction.epfl.ch/VPSI'},
+                                       'breadcrumb_title': {'en': ['VPSI', 'IT'], 'fr': ['VPSI', 'IT']},
+                                       'breadcrumb_url': {'en': ['http://direction.epfl.ch/VPSI', 'http://it.epfl.ch'],
+                                                          'fr': ['http://direction.epfl.ch/VPSI', 'http://it.epfl.ch']},
                                        'css_url': {'en': '//static.epfl.ch/v0.23.0/styles/epfl-built.css',
                                                    'fr': '//static.epfl.ch/v0.23.0/styles/epfl-built.css'},
                                        'export_files': {
