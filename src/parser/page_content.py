@@ -71,7 +71,8 @@ class PageContent:
                 for extra in child.childNodes:
                     if extra.ELEMENT_NODE != extra.nodeType:
                         continue
-                    box = Box(site=self.site, page_content=self, element=extra, multibox=True)
+                    multibox = extra.getElementsByTagName("text").length > 1
+                    box = Box(site=self.site, page_content=self, element=extra, multibox=multibox)
                     self.sidebar.boxes.append(box)
 
         nb_boxes = len(self.sidebar.boxes)

@@ -26,6 +26,7 @@ EOF
 /bin/mkdir -p /srv/${WP_ENV}/logs
 /bin/chown www-data: /srv/${WP_ENV}
 /bin/chown www-data: /srv/${WP_ENV}/logs
+/bin/chown www-data: /srv/${WP_ENV}/jahia2wp
 
 /bin/mkdir -p /etc/apache2/ssl
 /usr/bin/openssl req -x509 -sha256 -nodes -days 3650 -newkey rsa:4096 -keyout /etc/apache2/ssl/server.key -out /etc/apache2/ssl/server.cert -subj "/C=CH/ST=Vaud/L=Lausanne/O=Ecole Polytechnique Federale de Lausanne (EPFL)/CN=*.epfl.ch"
