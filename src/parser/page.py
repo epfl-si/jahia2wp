@@ -1,5 +1,7 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
 
+from utils import Utils
+
 
 class Page:
     """A Jahia Page. Has 1 to N Jahia Boxes"""
@@ -19,6 +21,9 @@ class Page:
         # the PageContents, one for each language. The dict key is the
         # language, the dict value is the PageContent
         self.contents = {}
+
+        # update the number of templates
+        Utils.increment_count(self.site.num_templates, self.template)
 
         # if we have a sitemap we don't want to parse the
         # page and add it to it's parent, so we stop here

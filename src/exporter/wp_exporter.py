@@ -347,6 +347,16 @@ class WPExporter:
 
         tags = soup.find_all(tag_name)
 
+        pid = ""
+        # If the old url points to a jahia page
+        if '/page-' in old_url:
+            # Try to get the PID of the page from the URL (usually jahia URLs are of the form
+            # /page-{PID}-{lang}.html
+            try:
+                pid = old_url.split("-")[1]
+            except IndexError:
+                pass
+
         for tag in tags:
             link = tag.get(tag_attribute)
 
@@ -361,7 +371,10 @@ class WPExporter:
             # will be converted to 'vid?o.mp4'.
             # So we convert to ascii and remove the '?' character to compare the strings and see
             # if there is a link to replace.
-            if link.encode('ascii', 'replace').decode('ascii').replace('?', '') == old_url.replace('?', ''):
+            # If the current link is a page PID and corresponds to the PID extracted from old_url then
+            # point the link to the new url of the page.
+            if link.encode('ascii', 'replace').decode('ascii').replace('?', '') == old_url.replace('?', '') \
+                    or (pid and link == pid):
                 logging.debug("Changing link from %s to %s" % (old_url, new_url))
                 tag[tag_attribute] = new_url
 
@@ -659,19 +672,24 @@ class WPExporter:
         # Report
         self.report['menus'] += 2
 
-    def create_submenu(self, children, menu_entries, lang, menu_name, parent_menu_id):
+    def create_submenu(self, children, parent_menu_item, lang, menu_name, parent_menu_id):
         """
         Create recursively submenus for one main menu entry
 
         children - children pages of main menu entry
-        menu_entries - Menu entries coming from self.menus
+        parent_menu_item - MenuItem object coming from self.menus and representing parent of submenu entries to create
         lang - language
         menu_name - name of WP menu where to put sub-menu entries
-        parent_menu_id - ID of parent menu of submenu we have to create
+        parent_menu_id - ID of parent menu (in WP) of submenu we have to create
         """
         child_index = 0
 
-        for sub_entry_index, menu_item in enumerate(menu_entries):
+        # If the sub-entries are sorted
+        if parent_menu_item.children_sort_way is not None:
+            # Sorting information in the other structure storing the menu information
+            children.sort(key=lambda x: x.contents[lang].title, reverse=(parent_menu_item.children_sort_way == 'desc'))
+
+        for sub_entry_index, menu_item in enumerate(parent_menu_item.children):
 
             # If menu entry is an hardcoded URL
             if menu_item.target_is_url() or menu_item.target_is_sitemap():
@@ -714,7 +732,7 @@ class WPExporter:
                             self.report['menus'] += 1
 
                         self.create_submenu(child.children,
-                                            menu_item.children,
+                                            menu_item,
                                             lang,
                                             menu_name,
                                             self.menu_id_dict[child.contents[lang].wp_id])
@@ -812,7 +830,7 @@ class WPExporter:
 
                                 # create recursively submenus
                                 self.create_submenu(homepage_child.children,
-                                                    menu_item.children,
+                                                    menu_item,
                                                     lang,
                                                     menu_name,
                                                     self.menu_id_dict[homepage_child.contents[lang].wp_id])

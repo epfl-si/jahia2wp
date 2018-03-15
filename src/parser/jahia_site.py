@@ -91,6 +91,10 @@ class Site:
         self.unknown_links = 0
         self.num_boxes = {}
         self.num_url_menu = 0
+        self.num_templates = {}
+        # the number of each html tags, e.g. "br": 10
+        self.num_tags = {}
+        self.num_url_menu_root = 0
         # we have a SitemapNode for each language
         self.sitemaps = {}
         self.report = ""
@@ -196,7 +200,6 @@ class Site:
                     # If we are parsing root menu entries
                     if parent_menu is None:
                         self.menus[language].append(menu_item)
-                        # Initializing parent menu for sub-menu entries parsing
 
                     else:  # We are parsing sub-menu entries
                         parent_menu.children.append(menu_item)
@@ -206,6 +209,16 @@ class Site:
                     if nav_list_list_nodes:
                         # Parsing sub menu entries
                         self.parse_menu_entries(language, nav_list_list_nodes[0], menu_item)
+
+        # Looking for sort information. If exists, the format is the following:
+        # epfl_simple_navigationList_navigationPage;asc;false;false
+        sort_infos = nav_list_list_node.getAttribute("jahia:sortHandler")
+        if sort_infos:
+            # FIXME: For now, root menu entries sorting is not handled because never encountered in a Jahia Website
+            # If we are parsing root sub-menu entries
+            if parent_menu is not None:
+                # Sorting children and store information about sort way
+                parent_menu.sort_children(sort_infos.split(";")[1])
 
     def parse_menu(self):
         for language, dom_path in self.export_files.items():
@@ -394,7 +407,21 @@ class Site:
                                    page_content=page_content,
                                    tag=tag)
 
+                # count the tags
+                self.count_tags(page_content)
+
                 page.contents[language] = page_content
+
+    def count_tags(self, page_content):
+        """Count each html tags"""
+
+        for box in page_content.boxes:
+            soup = BeautifulSoup(box.content, 'html.parser')
+
+            for tag in soup.find_all():
+                # we increment both at the page_content and at the site level
+                Utils.increment_count(page_content.num_tags, tag.name)
+                Utils.increment_count(self.num_tags, tag.name)
 
     def add_boxes(self, xml_page, page_content, tag):
         # add the boxes contained in the given tag to the given page_content
@@ -609,7 +636,8 @@ class Site:
 
                 # integrity check
                 if child_node.page.pid == node.page.pid:
-                    raise Exception("Invalid sitemap")
+                    logging.warning("Sitemap is corrupted")
+                    continue
 
                 # recursive call
                 self._add_to_sitemap_node(child_node, language)
@@ -653,9 +681,24 @@ Parsed for %s :
 
 """ % (self.server_name, self.num_files, self.num_pages)
 
-        # order the dict so it's always presented in the same order
+        # order the dicts so they are always presented in the same order
         num_boxes_ordered = collections.OrderedDict(sorted(self.num_boxes.items()))
+        num_templates_ordered = collections.OrderedDict(sorted(self.num_templates.items()))
+        num_tags_ordered = sorted(self.num_tags, key=self.num_tags.get, reverse=True)
 
+        # templates
+        for key, value in num_templates_ordered.items():
+            self.report += "    - %s using the template %s\n" % (value, key)
+
+        # boxes
+        for key, value in num_boxes_ordered.items():
+            self.report += "    - %s %s boxes\n" % (value, key)
+
+        # templates
+        for key, value in num_templates_ordered.items():
+            self.report += "    - %s using the template %s\n" % (value, key)
+
+        # boxes
         for num, count in num_boxes_ordered.items():
             self.report += "    - %s %s boxes\n" % (count, num)
 
@@ -668,4 +711,11 @@ Parsed for %s :
         self.report += "    - %s anchor links\n" % self.anchor_links
         self.report += "    - %s broken links\n" % self.broken_links
         self.report += "    - %s unknown links\n" % self.unknown_links
-        self.report += "    - %s menu entries with URLs\n" % self.num_url_menu
+        self.report += "    - %s root menu entries with URLs\n" % self.num_url_menu_root
+
+        # tags
+        self.report += "\n"
+        self.report += "  - tags :\n\n"
+
+        for tag in num_tags_ordered:
+            self.report += "    - <%s> %s\n" % (tag, self.num_tags[tag])
