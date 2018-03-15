@@ -103,7 +103,6 @@ class Box:
 
         if not multibox:
             content = Utils.get_tag_attribute(element, "text", "jahia:value")
-
             linksList = element.getElementsByTagName("linksList")
             if linksList:
                 content += self._parse_links_to_list(linksList[0])
