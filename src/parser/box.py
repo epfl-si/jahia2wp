@@ -99,7 +99,7 @@ class Box:
             or it contains a <comboListList> which contains <comboList> tags which
             contain <text>, <filesList>, <linksList> tags. The last two tags may miss from time
             to time because the jahia export is not perfect.
-            For now <filesList> are ignored because we did not find a site where
+            FIXME: For now <filesList> are ignored because we did not find a site where
             it is used yet.
         """
 
@@ -108,26 +108,18 @@ class Box:
 
             linksList = element.getElementsByTagName("linksList")
             if linksList:
-                content += self._box_text_links_list(linksList[0])
+                content += self._parse_links_to_list(linksList[0])
         else:
             # Concatenate HTML content of many boxes
             content = ""
-            elements = element.getElementsByTagName("text")
-            links = element.getElementsByTagName("linksList")
-
-            # For array a=[1,2,3] and b=[4,5], itertools.zip_longest returns
-            # [(1,4), (2,5), (3,None)]
-            for element, linksList in itertools.zip_longest(elements, links):
-                content += element.getAttribute("jahia:value")
-                if linksList:
-                    content += self._box_text_links_list(linksList)
+            comboLists = element.getElementsByTagName("comboList")
+            for element in comboLists:
+                content += Utils.get_tag_attribute(element, "text", "jahia:value")
+                # linksList contain <link> tags exactly like linksBox, so we can just reuse
+                # the same code used to parse linksBox.
+                content += self._parse_links_to_list(element)
 
         self.content = content
-
-    def _box_text_links_list(self, element):
-        content = self._parse_links_to_list(element)
-
-        return content
 
     def set_box_actu(self, element):
         """set the attributes of an actu box"""
