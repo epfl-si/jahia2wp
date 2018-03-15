@@ -102,7 +102,10 @@ class Box:
             content = ""
             elements = element.getElementsByTagName("text")
             for element in elements:
-                content += element.getAttribute("jahia:value")
+                # We have to skip 'text' element which are right under 'main' otherwise we have duplicated text
+                # displayed in page.
+                if element.parentNode.nodeName != 'main':
+                    content += element.getAttribute("jahia:value")
             self.content = content
 
     def set_box_actu(self, element):
