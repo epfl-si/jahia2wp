@@ -636,7 +636,8 @@ class Site:
 
                 # integrity check
                 if child_node.page.pid == node.page.pid:
-                    raise Exception("Invalid sitemap")
+                    logging.warning("Sitemap is corrupted")
+                    continue
 
                 # recursive call
                 self._add_to_sitemap_node(child_node, language)
