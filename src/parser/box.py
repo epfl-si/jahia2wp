@@ -16,6 +16,7 @@ class Box:
     TYPE_INCLUDE = "include"
     TYPE_CONTACT = "contact"
     TYPE_XML = "xml"
+    TYPE_LINKS = "links"
 
     # Mapping of known box types from Jahia to WP
     types = {
@@ -28,7 +29,8 @@ class Box:
         "epfl:toggleBox": TYPE_TOGGLE,
         "epfl:htmlBox": TYPE_INCLUDE,
         "epfl:contactBox": TYPE_CONTACT,
-        "epfl:xmlBox": TYPE_XML
+        "epfl:xmlBox": TYPE_XML,
+        "epfl:linksBox": TYPE_LINKS
     }
 
     def __init__(self, site, page_content, element, multibox=False):
@@ -82,6 +84,9 @@ class Box:
         # xml
         elif self.TYPE_XML == self.type:
             self.set_box_xml(element)
+        # links
+        elif self.TYPE_LINKS == self.type:
+            self.set_box_links(element)
         # unknown
         else:
             self.set_box_unknown(element)
@@ -96,7 +101,10 @@ class Box:
             content = ""
             elements = element.getElementsByTagName("text")
             for element in elements:
-                content += element.getAttribute("jahia:value")
+                # We have to skip 'text' element which are right under 'main' otherwise we have duplicated text
+                # displayed in page.
+                if element.parentNode.nodeName != 'main':
+                    content += element.getAttribute("jahia:value")
             self.content = content
 
     def set_box_actu(self, element):
@@ -149,6 +157,27 @@ class Box:
         xslt = Utils.get_tag_attribute(element, "xslt", "jahia:value")
 
         self.content = "[xml xml=%s xslt=%s]" % (xml, xslt)
+
+    def set_box_links(self, element):
+        """set the attributes of a links box"""
+        elements = element.getElementsByTagName("link")
+        content = "<ul>"
+        for e in elements:
+            if e.ELEMENT_NODE != e.nodeType:
+                continue
+            for jahia_tag in e.childNodes:
+                if jahia_tag.ELEMENT_NODE != jahia_tag.nodeType:
+                    continue
+                if jahia_tag.tagName == "jahia:link":
+                    page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
+                    content += "<li><a href={}>{}</a></li>".format(page.pid, jahia_tag.getAttribute("jahia:title"))
+                elif jahia_tag.tagName == "jahia:url":
+                    url = jahia_tag.getAttribute("jahia:value")
+                    title = jahia_tag.getAttribute("jahia:title")
+                    content += "<li><a href={}>{}</a></li>".format(url, title)
+        content += "</ul>"
+
+        self.content = content
 
     def set_box_unknown(self, element):
         """set the attributes of an unknown box"""
