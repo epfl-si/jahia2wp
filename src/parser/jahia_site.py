@@ -735,4 +735,3 @@ Parsed for %s :
 
         for tag in num_tags_ordered:
             self.report += "    - <%s> %s\n" % (tag, self.num_tags[tag])
-

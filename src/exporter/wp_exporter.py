@@ -240,7 +240,6 @@ class WPExporter:
             self.report['failed_files'] += 1
             raise e
 
-
     def import_breadcrumb(self):
         """
         Import breadcrumb in default language by setting correct option in DB

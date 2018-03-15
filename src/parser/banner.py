@@ -4,6 +4,7 @@
 from bs4 import BeautifulSoup
 import re
 
+
 class Banner:
     """ To store website banner information. """
 
