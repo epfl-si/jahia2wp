@@ -106,11 +106,14 @@ class WPExporter:
             start_time = timeit.default_timer()
             tracer_path = os.path.join(self.output_dir, self.TRACER_FILE_NAME)
 
+            # Existing widget deletion to start with empty sidebar contents
+            self.delete_widgets()
+
             self.import_medias()
             self.import_pages()
             self.set_frontpage()
             self.populate_menu()
-            self.import_sidebar()
+            self.import_sidebars()
             self.import_breadcrumb()
             self.delete_draft_pages()
             self.display_report()
@@ -237,6 +240,7 @@ class WPExporter:
             self.report['failed_files'] += 1
             raise e
 
+
     def import_breadcrumb(self):
         """
         Import breadcrumb in default language by setting correct option in DB
@@ -257,7 +261,11 @@ class WPExporter:
             self.run_wp_cli("option update epfl:custom_breadcrumb '{}'".format(breadcrumb))
 
     def fix_file_links(self, file, wp_media):
-        """Fix the links pointing to the given file"""
+        """
+        Fix the links pointing to the given file. Following elements are processed:
+        - All boxes
+        - All banners (headers)
+        """
 
         if "/files" not in file.path:
             return
@@ -270,6 +278,7 @@ class WPExporter:
 
         tag_attribute_tuples = [("a", "href"), ("img", "src"), ("script", "src")]
 
+        # Looping through boxes
         for box in self.site.get_all_boxes():
 
             soup = BeautifulSoup(box.content, 'html.parser')
@@ -285,6 +294,22 @@ class WPExporter:
 
             # save the new box content
             box.content = str(soup)
+
+        # Looping through banners
+        for lang, banner in self.site.banner.items():
+
+            soup = BeautifulSoup(banner.content, 'html.parser')
+
+            for tag_name, tag_attribute in tag_attribute_tuples:
+                self.fix_links_in_tag(
+                    soup=soup,
+                    old_url=old_url,
+                    new_url=new_url,
+                    tag_name=tag_name,
+                    tag_attribute=tag_attribute)
+
+            # save the new banner content
+            banner.content = str(soup)
 
     def fix_page_content_links(self, wp_pages):
         """
@@ -543,9 +568,14 @@ class WPExporter:
             )
             self.create_footer_menu_for_sitemap(sitemap_wp_id=wp_page['id'], lang=lang)
 
-    def import_sidebar(self):
+    def import_sidebars(self):
         """
-        import sidebar via wpcli
+        Import sidebars via wpcli
+        Sidebars are :
+        - homepage sidebar
+        - header sidebar (if site has custom banner).
+        All sidebars are imported in this function because we then have to se correct language for each sidebar widget
+        and doing everything in one place is more simple.
         """
         def prepare_html(html):
             return Utils.escape_quotes(html.replace(u'\xa0', u' '))
@@ -554,6 +584,20 @@ class WPExporter:
         widget_pos_to_lang = {}
 
         try:
+            # First, we import banners if exists
+            # Banner is only one text widget per lang in a dedicated sidebar
+            for lang, banner in self.site.banner.items():
+
+                cmd = 'widget add text header-widgets --text="{}"'.format(
+                    banner.content.replace('"', '\\"'))
+
+                self.run_wp_cli(cmd)
+                widget_pos_to_lang[str(widget_pos)] = lang
+                widget_pos += 1
+
+                logging.info("Banner imported for '%s' language" % lang)
+
+            # Then we import sidebar widgets
             for lang in self.site.homepage.contents.keys():
 
                 for box in self.site.homepage.contents[lang].sidebar.boxes:
@@ -887,13 +931,20 @@ class WPExporter:
 
     def delete_widgets(self):
         """
-        Delete all widgets
+        Delete all widgets in all existing sidebars
         """
-        cmd = "widget list page-widgets --fields=id --format=csv"
-        widgets_id_list = self.run_wp_cli(cmd).split("\n")[1:]
-        for widget_id in widgets_id_list:
-            cmd = "widget delete {}".format(widget_id)
-            self.run_wp_cli(cmd)
+        # List all sidebars
+        cmd = "sidebar list --fields=id --format=csv"
+        sidebar_id_list = self.run_wp_cli(cmd).split("\n")[1:]
+
+        for sidebar_id in sidebar_id_list:
+            cmd = "widget list {} --fields=id --format=csv".format(sidebar_id)
+            widgets_id_list = self.run_wp_cli(cmd).split("\n")[1:]
+            for widget_id in widgets_id_list:
+                cmd = "widget delete {}".format(widget_id)
+                self.run_wp_cli(cmd)
+            if widgets_id_list:
+                logging.info("Widgets deleted for sidebar '%s'", sidebar_id)
         logging.info("All widgets deleted")
 
     def delete_menu(self):
