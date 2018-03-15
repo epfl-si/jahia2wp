@@ -20,6 +20,12 @@ class Page:
         # language, the dict value is the PageContent
         self.contents = {}
 
+        # update the number of templates
+        if self.template in self.site.num_templates:
+            self.site.num_templates[self.template] = self.site.num_templates[self.template] + 1
+        else:
+            self.site.num_templates[self.template] = 1
+
         # if we have a sitemap we don't want to parse the
         # page and add it to it's parent, so we stop here
         if "sitemap" == self.template:
