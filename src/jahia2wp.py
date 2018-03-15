@@ -74,7 +74,7 @@ from crawler import JahiaCrawler
 from exporter.wp_exporter import WPExporter
 from parser.jahia_site import Site
 from settings import VERSION, FULL_BACKUP_RETENTION_THEME, INCREMENTAL_BACKUP_RETENTION_THEME, \
-    DEFAULT_THEME_NAME, DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
+    DEFAULT_THEME_NAME, BANNER_THEME_NAME, DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
 from tracer.tracer import Tracer
 from unzipper.unzip import unzip_one
 from utils import Utils
@@ -413,6 +413,10 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         wp_tagline = None
     else:
         wp_tagline = site.title[default_language]
+
+    if not theme:
+        # Setting correct theme depending on parsing result
+        theme = BANNER_THEME_NAME if default_language in site.banner else DEFAULT_THEME_NAME
 
     info = {
         # information from parser
