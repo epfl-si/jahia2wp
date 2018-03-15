@@ -4,27 +4,20 @@
 class MenuItem:
     """ To store menu item information """
 
-    def __init__(self, txt, target_url):
+    def __init__(self, txt, target_url, hidden):
 
         self.txt = txt
         self.target_url = target_url
+        self.hidden = hidden
         self.children = []
+        self.children_sort_way = None
 
     def target_is_url(self):
+        return False if self.target_url is None else self.target_url.startswith('http')
 
-        return self.target_url is not None
+    def target_is_sitemap(self):
+        return self.target_url == "sitemap"
 
-    def add_child(self, txt, target_url):
-        """
-        Add child to current menu entry
-
-        txt - menu text
-        target - menu target (URL or page name)
-
-        Ret : sub menu entry index
-        """
-
-        menu_item = MenuItem(txt, target_url)
-        self.children.append(menu_item)
-
-        return len(self.children) - 1
+    def sort_children(self, sort_way):
+        self.children_sort_way = sort_way
+        self.children.sort(key=lambda x: x.txt, reverse=(sort_way == 'desc'))

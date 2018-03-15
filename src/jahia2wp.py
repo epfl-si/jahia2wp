@@ -63,6 +63,7 @@ import json
 import csv
 import os
 import yaml
+from collections import OrderedDict
 from docopt import docopt
 from docopt_dispatch import dispatch
 from epflldap.ldap_search import get_unit_id
@@ -226,6 +227,45 @@ def _add_extra_config(extra_config_file, current_config):
     return {**current_config, **extra_config}
 
 
+def _generate_csv_line(wp_generator):
+    """
+    Generate a CSV line to add to source of truth. The line contains information about exported WP site.
+
+    :param wp_generator: Object used to create WP website
+    :return:
+    """
+    # CSV columns in correct order for source of truth line generation
+    csv_columns = OrderedDict()
+
+    # Recovering values from WPGenerator or hardcode some
+    csv_columns['wp_site_url'] = wp_generator._site_params['wp_site_url']  # from csv
+    csv_columns['wp_tagline'] = wp_generator._site_params['wp_tagline']  # from parser
+    csv_columns['wp_site_title'] = wp_generator._site_params['wp_site_title']  # from parser
+    csv_columns['site_type'] = 'wordpress'
+    csv_columns['openshift_env'] = 'subdomains'
+    csv_columns['category'] = 'GeneralPublic'  # from csv
+    csv_columns['theme'] = wp_generator._site_params['theme']  # from csv
+    csv_columns['theme_faculty'] = wp_generator._site_params['theme_faculty']  # from parser
+    csv_columns['status'] = 'yes'
+    csv_columns['installs_locked'] = wp_generator._site_params['installs_locked']  # from csv (bool)
+    csv_columns['updates_automatic'] = wp_generator._site_params['updates_automatic']  # from csv (bool)
+    csv_columns['langs'] = wp_generator._site_params['langs']  # from parser
+    csv_columns['unit_name'] = wp_generator._site_params['unit_name']  # from csv
+    csv_columns['comment'] = 'Migrated from Jahia to WP'
+
+    # Formatting values depending on their type/content
+    for col in csv_columns:
+        # Bool are translated to 'yes' or 'no'
+        if isinstance(csv_columns[col], bool):
+            csv_columns[col] = 'yes' if csv_columns[col] else 'no'
+        # None become empty string
+        elif csv_columns[col] is None:
+            csv_columns[col] = ''
+
+    logging.info("Here is the line with up-to-date information to add in source of truth:\n")
+    logging.info('"%s"', '","'.join(csv_columns.values()))
+
+
 @dispatch.on('download')
 def download(site, username=None, host=None, zip_path=None, force=False, **kwargs):
     # prompt for password if username is provided
@@ -358,7 +398,8 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     languages = _set_default_language_in_first_position(default_language, site.languages)
 
     if not site.acronym[default_language]:
-        wp_site_title = "No-wp-site-title-in-{}".format(default_language)
+        logging.warning("No wp site title in %s", default_language)
+        wp_site_title = None
     else:
         wp_site_title = site.acronym[default_language]
 
@@ -367,11 +408,17 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     else:
         theme_faculty = site.theme[default_language]
 
+    if not site.title[default_language]:
+        logging.warning("No wp tagline in %s", default_language)
+        wp_tagline = None
+    else:
+        wp_tagline = site.title[default_language]
+
     info = {
         # information from parser
         'langs': ",".join(languages),
         'wp_site_title': wp_site_title,
-        'wp_tagline': site.title[default_language],
+        'wp_tagline': wp_tagline,
         'theme_faculty': theme_faculty,
         'unit_name': unit_name,
 
@@ -384,6 +431,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
 
         # determined information
         'unit_id': get_unit_id(unit_name),
+        'from_export': True
     }
 
     # Generate a WordPress site
@@ -406,6 +454,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         try:
             if wp_generator.get_number_of_pages() == 0:
                 wp_exporter.import_all_data_to_wordpress()
+                wp_exporter.write_redirections()
                 _fix_menu_location(wp_generator, languages, default_language)
                 logging.info("Site %s successfully exported to WordPress", site.name)
             else:
@@ -424,6 +473,9 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         logging.info("Data of WordPress site %s successfully deleted", site.name)
 
     wp_generator.uninstall_basic_auth_plugin()
+    wp_generator.enable_updates_automatic_if_allowed()
+
+    _generate_csv_line(wp_generator)
 
     return wp_exporter
 

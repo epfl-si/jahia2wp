@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 "Project-Id-Version: EPFL\n"
-"POT-Creation-Date: 2018-02-26 18:50+0100\n"
+"POT-Creation-Date: 2018-03-02 17:51+0100\n"
 "PO-Revision-Date: 2017-11-22 17:19+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -55,6 +55,14 @@ msgstr ""
 
 #: functions.php:496
 msgid "Page"
+msgstr ""
+
+#: functions.php:529
+msgid "Expand child menu"
+msgstr ""
+
+#: functions.php:530
+msgid "Collapse child menu"
 msgstr ""
 
 #: header.php:30
