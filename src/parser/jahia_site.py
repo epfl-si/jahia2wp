@@ -197,7 +197,6 @@ class Site:
                     # If we are parsing root menu entries
                     if parent_menu is None:
                         self.menus[language].append(menu_item)
-                        # Initializing parent menu for sub-menu entries parsing
 
                     else:  # We are parsing sub-menu entries
                         parent_menu.children.append(menu_item)
@@ -207,6 +206,16 @@ class Site:
                     if nav_list_list_nodes:
                         # Parsing sub menu entries
                         self.parse_menu_entries(language, nav_list_list_nodes[0], menu_item)
+
+        # Looking for sort information. If exists, the format is the following:
+        # epfl_simple_navigationList_navigationPage;asc;false;false
+        sort_infos = nav_list_list_node.getAttribute("jahia:sortHandler")
+        if sort_infos:
+            # FIXME: For now, root menu entries sorting is not handled because never encountered in a Jahia Website
+            # If we are parsing root sub-menu entries
+            if parent_menu is not None:
+                # Sorting children and store information about sort way
+                parent_menu.sort_children(sort_infos.split(";")[1])
 
     def parse_menu(self):
         for language, dom_path in self.export_files.items():

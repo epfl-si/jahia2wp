@@ -652,19 +652,24 @@ class WPExporter:
         # Report
         self.report['menus'] += 2
 
-    def create_submenu(self, children, menu_entries, lang, menu_name, parent_menu_id):
+    def create_submenu(self, children, parent_menu_item, lang, menu_name, parent_menu_id):
         """
         Create recursively submenus for one main menu entry
 
         children - children pages of main menu entry
-        menu_entries - Menu entries coming from self.menus
+        parent_menu_item - MenuItem object coming from self.menus and representing parent of submenu entries to create
         lang - language
         menu_name - name of WP menu where to put sub-menu entries
-        parent_menu_id - ID of parent menu of submenu we have to create
+        parent_menu_id - ID of parent menu (in WP) of submenu we have to create
         """
         child_index = 0
 
-        for sub_entry_index, menu_item in enumerate(menu_entries):
+        # If the sub-entries are sorted
+        if parent_menu_item.children_sort_way is not None:
+            # Sorting information in the other structure storing the menu information
+            children.sort(key=lambda x: x.contents[lang].title, reverse=(parent_menu_item.children_sort_way == 'desc'))
+
+        for sub_entry_index, menu_item in enumerate(parent_menu_item.children):
 
             # If menu entry is an hardcoded URL
             if menu_item.target_is_url() or menu_item.target_is_sitemap():
@@ -707,7 +712,7 @@ class WPExporter:
                             self.report['menus'] += 1
 
                         self.create_submenu(child.children,
-                                            menu_item.children,
+                                            menu_item,
                                             lang,
                                             menu_name,
                                             self.menu_id_dict[child.contents[lang].wp_id])
@@ -805,7 +810,7 @@ class WPExporter:
 
                                 # create recursively submenus
                                 self.create_submenu(homepage_child.children,
-                                                    menu_item.children,
+                                                    menu_item,
                                                     lang,
                                                     menu_name,
                                                     self.menu_id_dict[homepage_child.contents[lang].wp_id])
