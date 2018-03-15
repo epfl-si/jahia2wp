@@ -164,12 +164,10 @@ class Site:
                                 hidden = False
                                 # If normal jahia page
                                 if jahia_type.nodeName == "jahia:page":
-                                    # Page is a link to sitemap, we skip it
-                                    if jahia_type.getAttribute("jahia:template") == "sitemap":
-                                        continue
                                     txt = jahia_type.getAttribute("jahia:title")
                                     hidden = jahia_type.getAttribute("jahia:hideFromNavigationMenu") != ""
-                                    target = None
+                                    target = "sitemap" if jahia_type.getAttribute("jahia:template") == "sitemap" \
+                                        else None
                                 # If URL
                                 elif jahia_type.nodeName == "jahia:url":
                                     txt = jahia_type.getAttribute("jahia:title")
@@ -292,23 +290,22 @@ class Site:
 
         for language, dom_path in self.export_files.items():
             dom = Utils.get_dom(dom_path)
+            self.breadcrumb_url[language] = []
+            self.breadcrumb_title[language] = []
 
             breadcrumb_links = dom.getElementsByTagName("breadCrumbLink")
-            nb_found = len(breadcrumb_links)
-            if nb_found != 1:
-                logging.warning("Found %s breadcrumb link(s) instead of 1", nb_found)
-                if nb_found == 0:
-                    continue
-            breadcrumb_link = breadcrumb_links[0]
+            if len(breadcrumb_links) == 0:
+                continue
 
-            for child in breadcrumb_link.childNodes:
-                if child.ELEMENT_NODE != child.nodeType:
-                    continue
+            for breadcrumb_link in breadcrumb_links:
+                for child in breadcrumb_link.childNodes:
+                    if child.ELEMENT_NODE != child.nodeType:
+                        continue
 
-                if 'jahia:url' == child.nodeName:
-                    self.breadcrumb_url[language] = child.getAttribute('jahia:value')
-                    self.breadcrumb_title[language] = child.getAttribute('jahia:title')
-                    break
+                    if 'jahia:url' == child.nodeName:
+                        self.breadcrumb_url[language].append(child.getAttribute('jahia:value'))
+                        self.breadcrumb_title[language].append(child.getAttribute('jahia:title'))
+                        break
 
     def parse_pages(self):
         """

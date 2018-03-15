@@ -22,7 +22,7 @@ class WPSite:
     """
 
     PROTOCOL = "https"
-    DEFAULT_TITLE = "New WordPress"
+    DEFAULT_TITLE = ""
     DEFAULT_TAGLINE = "EPFL"
     WP_VERSION = Utils.get_mandatory_env(key="WP_VERSION")
 

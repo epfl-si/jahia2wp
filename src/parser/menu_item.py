@@ -12,8 +12,10 @@ class MenuItem:
         self.children = []
 
     def target_is_url(self):
+        return False if self.target_url is None else self.target_url.startswith('http')
 
-        return self.target_url is not None
+    def target_is_sitemap(self):
+        return self.target_url == "sitemap"
 
     def add_child(self, txt, target_url, hidden):
         """

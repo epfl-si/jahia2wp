@@ -202,6 +202,9 @@ class WPExporter:
         # In that case convert to ascii with 'replace' option which replaces unknown characters by '?',
         # and rename the file with that new name.
         file_path = os.path.join(media.path, media.name)
+        # If the file is empty, do not try to import
+        if os.path.getsize(file_path) == 0:
+            return None
         file = open(file_path, 'rb')
 
         files = {
@@ -245,8 +248,11 @@ class WPExporter:
         if self.site.breadcrumb_title and self.site.breadcrumb_url and \
                 default_lang in self.site.breadcrumb_title and default_lang in self.site.breadcrumb_url:
             # Generatin breadcrumb to save in parameters
-            breadcrumb = "[EPFL|www.epfl.ch]>[{}|{}]".format(self.site.breadcrumb_title[default_lang],
-                                                             self.site.breadcrumb_url[default_lang])
+            breadcrumb = "[EPFL|www.epfl.ch]"
+            breadcrumb_titles = self.site.breadcrumb_title[default_lang]
+            breadcrumb_urls = self.site.breadcrumb_url[default_lang]
+            for breadcrumb_title, breadcrumb_url in zip(breadcrumb_titles, breadcrumb_urls):
+                breadcrumb += ">[{}|{}]".format(breadcrumb_title, breadcrumb_url)
 
             self.run_wp_cli("option update epfl:custom_breadcrumb '{}'".format(breadcrumb))
 
@@ -297,7 +303,8 @@ class WPExporter:
 
             for url_mapping in self.urls_mapping:
 
-                old_url = url_mapping["jahia_url"]
+                # 'jahia_urls' contains a list of all URLs pointing on page. We arbitrary take the first of the list
+                old_url = url_mapping["jahia_urls"][0]
                 new_url = url_mapping["wp_url"]
 
                 self.fix_links_in_tag(
@@ -454,11 +461,16 @@ class WPExporter:
             self.delete_draft_pages()
 
             for wp_id, (lang, content) in zip(wp_ids, contents.items()):
+                # If page doesn't exists for current lang (but it was created as draft before and then deleted),
+                # we skip the update (because there is nothing to update and we don't have needed information...
+                if lang not in page.contents:
+                    continue
+                # Updating page in WordPress
                 wp_page = self.update_page(page_id=wp_id, title=page.contents[lang].title, content=content)
 
-                # prepare mapping for the nginx conf generation
+                # prepare mapping for htaccess redirection rules
                 mapping = {
-                    'jahia_url': page.contents[lang].path,
+                    'jahia_urls': page.contents[lang].vanity_urls,
                     'wp_url': wp_page['link']
                 }
 
@@ -552,8 +564,12 @@ class WPExporter:
                         title = prepare_html("TODO: {}".format(box.title))
                         content = prepare_html(box.content)
 
-                    cmd = 'widget add {} page-widgets {} ' \
-                          '--text="{}" --title="{}"'.format(widget_type, widget_pos, content, title)
+                    cmd = 'widget add {} page-widgets {} --text="{}" --title="{}"'.format(
+                        widget_type,
+                        widget_pos,
+                        WPUtils.clean_html_comments(content),
+                        title
+                    )
 
                     self.run_wp_cli(cmd)
 
@@ -700,13 +716,21 @@ class WPExporter:
                 for root_entry_index in range(0, self.site.menus[lang].nb_main_entries()):
 
                     # If root menu entry is an hardcoded URL
-                    if self.site.menus[lang].target_is_url(root_entry_index):
+                    if self.site.menus[lang].target_is_url(root_entry_index) or \
+                            self.site.menus[lang].target_is_sitemap(root_entry_index):
                         # If root entry is visible
                         if not self.site.menus[lang].is_hidden(root_entry_index):
+                            # Recovering URL
+                            url = self.site.menus[lang].target_url(root_entry_index)
+
+                            # If menu entry is sitemap, we add WP site base URL
+                            if self.site.menus[lang].target_is_sitemap(root_entry_index):
+                                url = "{}{}".format(self.wp_generator.wp_site.url, url)
+
                             cmd = 'menu item add-custom {} "{}" "{}" --porcelain' \
                                 .format(menu_name,
                                         self.site.menus[lang].txt(root_entry_index),
-                                        self.site.menus[lang].target_url(root_entry_index))
+                                        url)
                             menu_id = self.run_wp_cli(cmd)
                             if not menu_id:
                                 logging.warning("Root menu item not created for URL (%s) " %
@@ -848,19 +872,23 @@ class WPExporter:
         """
         Update .htaccess file with redirections
         """
-        content = []
+        redirect_list = []
 
         # Add all rewrite jahia URI to WordPress URI
         for element in self.urls_mapping:
-            # We skip this redirection to avoid infinite redirection...
-            if element['jahia_url'] != "/index.html":
 
-                content.append("Redirect 301 {} {}".format(element['jahia_url'],
-                                                           urlparse(element['wp_url']).path))
+            wp_url = urlparse(element['wp_url']).path
 
-        if content:
+            # Going through vanity URLs
+            for jahia_url in element['jahia_urls']:
+
+                # We skip this redirection to avoid infinite redirection...
+                if jahia_url != "/index.html":
+                    redirect_list.append("Redirect 301 {} {}".format(jahia_url, wp_url))
+
+        if redirect_list:
             # Updating .htaccess file
             WPUtils.insert_in_htaccess(self.wp_generator.wp_site.path,
                                        "Jahia-Page-Redirect",
-                                       content,
+                                       redirect_list,
                                        at_beginning=True)

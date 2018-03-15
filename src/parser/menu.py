@@ -41,6 +41,9 @@ class Menu:
     def target_is_url(self, index):
         return self.root_menu[index].target_is_url()
 
+    def target_is_sitemap(self, index):
+        return self.root_menu[index].target_is_sitemap()
+
     def is_hidden(self, index):
         return self.root_menu[index].hidden
 
