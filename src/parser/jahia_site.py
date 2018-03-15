@@ -660,6 +660,14 @@ Parsed for %s :
         for key, value in num_boxes_ordered.items():
             self.report += "    - %s %s boxes\n" % (value, key)
 
+        # templates
+        for key, value in num_templates_ordered.items():
+            self.report += "    - %s using the template %s\n" % (value, key)
+
+        # boxes
+        for num, count in num_boxes_ordered.items():
+            self.report += "    - %s %s boxes\n" % (count, num)
+
         self.report += "    - %s internal links\n" % self.internal_links
         self.report += "    - %s absolute links\n" % self.absolute_links
         self.report += "    - %s external links\n" % self.external_links
