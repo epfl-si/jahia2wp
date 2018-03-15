@@ -1,4 +1,6 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
+from xml.dom import minidom
+
 from utils import Utils
 
 
@@ -8,6 +10,7 @@ class Box:
     # WP box types
     TYPE_TEXT = "text"
     TYPE_COLORED_TEXT = "coloredText"
+    TYPE_PEOPLE = "people"
     TYPE_INFOSCIENCE = "infoscience"
     TYPE_ACTU = "actu"
     TYPE_MEMENTO = "memento"
@@ -21,6 +24,7 @@ class Box:
     types = {
         "epfl:textBox": TYPE_TEXT,
         "epfl:coloredTextBox": TYPE_COLORED_TEXT,
+        "epfl:peopleListBox": TYPE_PEOPLE,
         "epfl:infoscienceBox": TYPE_INFOSCIENCE,
         "epfl:actuBox": TYPE_ACTU,
         "epfl:mementoBox": TYPE_MEMENTO,
@@ -58,6 +62,8 @@ class Box:
         # text
         if self.TYPE_TEXT == self.type or self.TYPE_COLORED_TEXT == self.type:
             self.set_box_text(element, multibox)
+        elif self.TYPE_PEOPLE == self.type:
+            self.set_box_people(element)
         # infoscience
         elif self.TYPE_INFOSCIENCE == self.type:
             self.set_box_infoscience(element)
@@ -98,6 +104,37 @@ class Box:
             for element in elements:
                 content += element.getAttribute("jahia:value")
             self.content = content
+
+    def set_box_people(self, element):
+        """ set the attibutes of an people box"""
+        """
+        https://people.epfl.ch/cgi-bin/getProfiles?unit=AUMONERIE&tmpl=default_bloc&lang=fr&responsive=1
+        """
+        def first_parameter():
+            if url[:1] == "?":
+                return url
+
+        unit = Utils.get_tag_attribute(element, "query", "jahia:value")
+
+        templace_html = Utils.get_tag_attribute(element, "template", "jahia:value")
+
+        template = Utils.get_tag_attribute(minidom.parseString(templace_html), "jahia-resource", "default-value")
+
+        url = "https://people.epfl.ch/cgi-bin/getProfiles?"
+
+        if unit:
+            if first_parameter():
+                url += "?"
+            else:
+                url += "&"
+                
+            url += "unit={}".format(unit)
+        if template:
+            url += "WP_tmpl={}".format(template)
+
+        # FIXME: la langue n'est pas dans le XML donc on prend la langue de la page quand on sera dans l'exporter ?
+
+        self.content = "[epfl_people url={}]".format(url)
 
     def set_box_actu(self, element):
         """set the attributes of an actu box"""
