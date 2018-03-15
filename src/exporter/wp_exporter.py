@@ -202,6 +202,9 @@ class WPExporter:
         # In that case convert to ascii with 'replace' option which replaces unknown characters by '?',
         # and rename the file with that new name.
         file_path = os.path.join(media.path, media.name)
+        # If the file is empty, do not try to import
+        if os.path.getsize(file_path) == 0:
+            return None
         file = open(file_path, 'rb')
 
         files = {
@@ -245,8 +248,11 @@ class WPExporter:
         if self.site.breadcrumb_title and self.site.breadcrumb_url and \
                 default_lang in self.site.breadcrumb_title and default_lang in self.site.breadcrumb_url:
             # Generatin breadcrumb to save in parameters
-            breadcrumb = "[EPFL|www.epfl.ch]>[{}|{}]".format(self.site.breadcrumb_title[default_lang],
-                                                             self.site.breadcrumb_url[default_lang])
+            breadcrumb = "[EPFL|www.epfl.ch]"
+            breadcrumb_titles = self.site.breadcrumb_title[default_lang]
+            breadcrumb_urls = self.site.breadcrumb_url[default_lang]
+            for breadcrumb_title, breadcrumb_url in zip(breadcrumb_titles, breadcrumb_urls):
+                breadcrumb += ">[{}|{}]".format(breadcrumb_title, breadcrumb_url)
 
             self.run_wp_cli("option update epfl:custom_breadcrumb '{}'".format(breadcrumb))
 
@@ -297,7 +303,8 @@ class WPExporter:
 
             for url_mapping in self.urls_mapping:
 
-                old_url = url_mapping["jahia_url"]
+                # 'jahia_urls' contains a list of all URLs pointing on page. We arbitrary take the first of the list
+                old_url = url_mapping["jahia_urls"][0]
                 new_url = url_mapping["wp_url"]
 
                 self.fix_links_in_tag(
@@ -320,6 +327,16 @@ class WPExporter:
 
         tags = soup.find_all(tag_name)
 
+        pid = ""
+        # If the old url points to a jahia page
+        if '/page-' in old_url:
+            # Try to get the PID of the page from the URL (usually jahia URLs are of the form
+            # /page-{PID}-{lang}.html
+            try:
+                pid = old_url.split("-")[1]
+            except IndexError:
+                pass
+
         for tag in tags:
             link = tag.get(tag_attribute)
 
@@ -334,7 +351,10 @@ class WPExporter:
             # will be converted to 'vid?o.mp4'.
             # So we convert to ascii and remove the '?' character to compare the strings and see
             # if there is a link to replace.
-            if link.encode('ascii', 'replace').decode('ascii').replace('?', '') == old_url.replace('?', ''):
+            # If the current link is a page PID and corresponds to the PID extracted from old_url then
+            # point the link to the new url of the page.
+            if link.encode('ascii', 'replace').decode('ascii').replace('?', '') == old_url.replace('?', '') \
+                    or (pid and link == pid):
                 logging.debug("Changing link from %s to %s" % (old_url, new_url))
                 tag[tag_attribute] = new_url
 
@@ -454,11 +474,16 @@ class WPExporter:
             self.delete_draft_pages()
 
             for wp_id, (lang, content) in zip(wp_ids, contents.items()):
+                # If page doesn't exists for current lang (but it was created as draft before and then deleted),
+                # we skip the update (because there is nothing to update and we don't have needed information...
+                if lang not in page.contents:
+                    continue
+                # Updating page in WordPress
                 wp_page = self.update_page(page_id=wp_id, title=page.contents[lang].title, content=content)
 
-                # prepare mapping for the nginx conf generation
+                # prepare mapping for htaccess redirection rules
                 mapping = {
-                    'jahia_url': page.contents[lang].path,
+                    'jahia_urls': page.contents[lang].vanity_urls,
                     'wp_url': wp_page['link']
                 }
 
@@ -552,8 +577,12 @@ class WPExporter:
                         title = prepare_html("TODO: {}".format(box.title))
                         content = prepare_html(box.content)
 
-                    cmd = 'widget add {} page-widgets {} ' \
-                          '--text="{}" --title="{}"'.format(widget_type, widget_pos, content, title)
+                    cmd = 'widget add {} page-widgets {} --text="{}" --title="{}"'.format(
+                        widget_type,
+                        widget_pos,
+                        WPUtils.clean_html_comments(content),
+                        title
+                    )
 
                     self.run_wp_cli(cmd)
 
@@ -623,32 +652,70 @@ class WPExporter:
         # Report
         self.report['menus'] += 2
 
-    def create_submenu(self, children, lang, menu_name):
+    def create_submenu(self, children, parent_menu_item, lang, menu_name, parent_menu_id):
         """
         Create recursively submenus for one main menu entry
 
         children - children pages of main menu entry
+        parent_menu_item - MenuItem object coming from self.menus and representing parent of submenu entries to create
         lang - language
         menu_name - name of WP menu where to put sub-menu entries
+        parent_menu_id - ID of parent menu (in WP) of submenu we have to create
         """
-        for child in children:
+        child_index = 0
 
-            if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict and \
-                    child.contents[lang].wp_id:  # FIXME For unknown reason, wp_id is sometimes None
+        # If the sub-entries are sorted
+        if parent_menu_item.children_sort_way is not None:
+            # Sorting information in the other structure storing the menu information
+            children.sort(key=lambda x: x.contents[lang].title, reverse=(parent_menu_item.children_sort_way == 'desc'))
 
-                parent_menu_id = self.menu_id_dict[child.parent.contents[lang].wp_id]
+        for sub_entry_index, menu_item in enumerate(parent_menu_item.children):
 
-                command = 'menu item add-post {} {} --parent-id={} --porcelain' \
-                    .format(menu_name, child.contents[lang].wp_id, parent_menu_id)
-                menu_id = self.run_wp_cli(command)
-                if not menu_id:
-                    logging.warning("Menu not created for page %s" % child.pid)
-                else:
-                    self.menu_id_dict[child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
-                    self.report['menus'] += 1
+            # If menu entry is an hardcoded URL
+            if menu_item.target_is_url() or menu_item.target_is_sitemap():
+                # If entry is visible
+                if not menu_item.hidden:
+                    # Recovering URL
+                    url = menu_item.target_url
 
-            # FIXME: Handle sub-sub-pages entries
-            self.create_submenu(child.children, lang, menu_name)
+                    # If menu entry is sitemap, we add WP site base URL
+                    if menu_item.target_is_sitemap():
+                        url = "{}{}".format(self.wp_generator.wp_site.url, url)
+
+                    cmd = 'menu item add-custom {} "{}" "{}" --parent-id={} --porcelain' \
+                        .format(menu_name, menu_item.txt, url, parent_menu_id)
+                    menu_id = self.run_wp_cli(cmd)
+                    if not menu_id:
+                        logging.warning("Root menu item not created for URL (%s) " % url)
+                    else:
+                        self.report['menus'] += 1
+
+            # menu entry is page
+            else:
+                child = children[child_index]
+                child_index += 1
+
+                if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict and \
+                        child.contents[lang].wp_id:  # FIXME For unknown reason, wp_id is sometimes None
+
+                    # If entry is visible
+                    if not menu_item.hidden:
+
+                        command = 'menu item add-post {} {} --parent-id={} --porcelain' \
+                            .format(menu_name, child.contents[lang].wp_id, parent_menu_id)
+
+                        menu_id = self.run_wp_cli(command)
+                        if not menu_id:
+                            logging.warning("Menu not created for page %s" % child.pid)
+                        else:
+                            self.menu_id_dict[child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
+                            self.report['menus'] += 1
+
+                        self.create_submenu(child.children,
+                                            menu_item,
+                                            lang,
+                                            menu_name,
+                                            self.menu_id_dict[child.contents[lang].wp_id])
 
     def populate_menu(self):
         """
@@ -692,38 +759,44 @@ class WPExporter:
                 # menu entries) and every time we encounter a WordPress page, we take the next available item in
                 # the second list (which contains information about pointed page). The information in the second
                 # structure is also used to build submenus.
-                # FIXME: If needed in the future, also use (and complete) information in the first structure to
-                # build submenus containing hardcoded URLs.
-                children_index = 0
+                child_index = 0
 
                 # Looping through root menu entries
-                for root_entry_index in range(0, self.site.menus[lang].nb_main_entries()):
+                for root_entry_index, menu_item in enumerate(self.site.menus[lang]):
 
+                    # FIXME: Sub menu entries for menu entries which are hardcoded URL are not handled here
                     # If root menu entry is an hardcoded URL
-                    if self.site.menus[lang].target_is_url(root_entry_index):
+                    if menu_item.target_is_url() or \
+                            menu_item.target_is_sitemap():
                         # If root entry is visible
-                        if not self.site.menus[lang].is_hidden(root_entry_index):
+                        if not menu_item.hidden:
+                            # Recovering URL
+                            url = menu_item.target_url
+
+                            # If menu entry is sitemap, we add WP site base URL
+                            if menu_item.target_is_sitemap():
+                                url = "{}{}".format(self.wp_generator.wp_site.url, url)
+
                             cmd = 'menu item add-custom {} "{}" "{}" --porcelain' \
-                                .format(menu_name,
-                                        self.site.menus[lang].txt(root_entry_index),
-                                        self.site.menus[lang].target_url(root_entry_index))
+                                .format(menu_name, menu_item.txt, url)
                             menu_id = self.run_wp_cli(cmd)
                             if not menu_id:
-                                logging.warning("Root menu item not created for URL (%s) " %
-                                                self.site.menus[lang].target_url())
+                                logging.warning("Root menu item not created for URL (%s) " % url)
+                            else:
+                                self.report['menus'] += 1
 
                     # root menu entry is page
                     else:
                         # Getting next child containing information about pointed WordPress page.
-                        homepage_child = self.site.homepage.children[children_index]
-                        children_index += 1
+                        homepage_child = self.site.homepage.children[child_index]
+                        child_index += 1
 
                         if lang not in homepage_child.contents:
                             logging.warning("Page not translated %s" % homepage_child.pid)
                             continue
 
                         # If root entry is visible
-                        if not self.site.menus[lang].is_hidden(root_entry_index):
+                        if not menu_item.hidden:
 
                             if homepage_child.contents[lang].wp_id:
                                 cmd = 'menu item add-post {} {} --porcelain' \
@@ -735,9 +808,12 @@ class WPExporter:
                                     self.menu_id_dict[homepage_child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
                                     self.report['menus'] += 1
 
-                            # create recursively submenus
-                            # FIXME: Also handle submenu visibility
-                            self.create_submenu(homepage_child.children, lang, menu_name)
+                                # create recursively submenus
+                                self.create_submenu(homepage_child.children,
+                                                    menu_item,
+                                                    lang,
+                                                    menu_name,
+                                                    self.menu_id_dict[homepage_child.contents[lang].wp_id])
 
                 logging.info("WP menus populated for '%s' language", lang)
 
@@ -848,19 +924,23 @@ class WPExporter:
         """
         Update .htaccess file with redirections
         """
-        content = []
+        redirect_list = []
 
         # Add all rewrite jahia URI to WordPress URI
         for element in self.urls_mapping:
-            # We skip this redirection to avoid infinite redirection...
-            if element['jahia_url'] != "/index.html":
 
-                content.append("Redirect 301 {} {}".format(element['jahia_url'],
-                                                           urlparse(element['wp_url']).path))
+            wp_url = urlparse(element['wp_url']).path
 
-        if content:
+            # Going through vanity URLs
+            for jahia_url in element['jahia_urls']:
+
+                # We skip this redirection to avoid infinite redirection...
+                if jahia_url != "/index.html":
+                    redirect_list.append("Redirect 301 {} {}".format(jahia_url, wp_url))
+
+        if redirect_list:
             # Updating .htaccess file
             WPUtils.insert_in_htaccess(self.wp_generator.wp_site.path,
                                        "Jahia-Page-Redirect",
-                                       content,
+                                       redirect_list,
                                        at_beginning=True)
