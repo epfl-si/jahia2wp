@@ -16,18 +16,3 @@ class MenuItem:
 
     def target_is_sitemap(self):
         return self.target_url == "sitemap"
-
-    def add_child(self, txt, target_url, hidden):
-        """
-        Add child to current menu entry
-
-        txt - menu text
-        target - menu target (URL or page name)
-
-        Ret : sub menu entry index
-        """
-
-        menu_item = MenuItem(txt, target_url, hidden)
-        self.children.append(menu_item)
-
-        return len(self.children) - 1
