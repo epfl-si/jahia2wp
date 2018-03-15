@@ -50,6 +50,14 @@ class Utils(object):
     dom_cache = {}
 
     @staticmethod
+    def increment_count(dictionary, key):
+        """Increments the value of the given key in the given dictionary by one"""
+        if key in dictionary:
+            dictionary[key] = dictionary[key] + 1
+        else:
+            dictionary[key] = 1
+
+    @staticmethod
     def get_tag_attribute(dom, tag, attribute):
         """Returns the given attribute of the given tag"""
         elements = dom.getElementsByTagName(tag)

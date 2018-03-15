@@ -2,7 +2,6 @@
 import itertools
 
 from utils import Utils
-import xml.dom
 
 
 class Box:
@@ -184,19 +183,20 @@ class Box:
     def _parse_links_to_list(self, element):
         """Handles link tags that can be found in linksBox and textBox"""
         elements = element.getElementsByTagName("link")
-        # Remove the TEXT_NODES to keep only the ELEMENT_NODES, TEXT_NODES are invisible tags
-        # containing text like `\n`
-        elements = list(filter(lambda x: x.nodeType != xml.dom.Node.TEXT_NODE, elements))
         content = "<ul>"
         for e in elements:
-            jahia_tag = list(filter(lambda x: x.nodeType != xml.dom.Node.TEXT_NODE, e.childNodes))[0]
-            if jahia_tag.tagName == "jahia:link":
-                page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
-                content += "<li><a href={}>{}</a></li>".format(page.pid, jahia_tag.getAttribute("jahia:title"))
-            elif jahia_tag.tagName == "jahia:url":
-                url = jahia_tag.getAttribute("jahia:value")
-                title = jahia_tag.getAttribute("jahia:title")
-                content += "<li><a href={}>{}</a></li>".format(url, title)
+            if e.ELEMENT_NODE != e.nodeType:
+                continue
+            for jahia_tag in e.childNodes:
+                if jahia_tag.ELEMENT_NODE != jahia_tag.nodeType:
+                    continue
+                if jahia_tag.tagName == "jahia:link":
+                    page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
+                    content += "<li><a href={}>{}</a></li>".format(page.pid, jahia_tag.getAttribute("jahia:title"))
+                elif jahia_tag.tagName == "jahia:url":
+                    url = jahia_tag.getAttribute("jahia:value")
+                    title = jahia_tag.getAttribute("jahia:title")
+                    content += "<li><a href={}>{}</a></li>".format(url, title)
         content += "</ul>"
 
         if content == "<ul></ul>":

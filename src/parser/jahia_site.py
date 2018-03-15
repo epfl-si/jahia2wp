@@ -11,7 +11,7 @@ from parser.link import Link
 from parser.page import Page
 from parser.page_content import PageContent
 from parser.sitemap_node import SitemapNode
-from parser.menu import Menu
+from parser.menu_item import MenuItem
 from utils import Utils
 
 """
@@ -42,6 +42,7 @@ class Site:
         self.export_files = {}
 
         # To store root menu entries and submenu entries (entries pointing to pages and entries which are URL)
+        # As key we have language and as value, a list with menu entries.
         self.menus = {}
 
         # the site languages
@@ -89,7 +90,10 @@ class Site:
         self.broken_links = 0
         self.unknown_links = 0
         self.num_boxes = {}
+        self.num_url_menu = 0
         self.num_templates = {}
+        # the number of each html tags, e.g. "br": 10
+        self.num_tags = {}
         self.num_url_menu_root = 0
         # we have a SitemapNode for each language
         self.sitemaps = {}
@@ -138,65 +142,96 @@ class Site:
 
         self.server_name = properties["siteservername"]
 
+    def parse_menu_entries(self, language, nav_list_list_node, parent_menu):
+        """
+        Parse menu entries, root and recursively sub entries of root.
+        DOM menu structure is like
+        <navigationListList>
+            <navigationList>
+                <navigationPage>
+                    <jahia:page>                                    -> root menu entry (level 1)
+                    <jahia:page>                                    -> root menu entry (level 1)
+                        <navigationListList>
+                            <navigationList>
+                                <navigationPage>
+                                    <jahia:page>                    -> Level 2 menu entry
+                                        <navigationListList>
+                                            <navigationList>
+                                                <navigationPage>
+                                                    <jahia:page>    -> Level 3 menu entry
+                                    <jahia:page>
+                                    ...
+                    <jahia:page>                                    -> root menu entry (level 1)
+                    ...
+
+        :param language: Language for which the menu is parsed
+        :param nav_list_list_node: DOM element of type 'navigationListList' from 'export_<lang>.xml' file
+        :param parent_menu: None if first call to this function and MenuItem instance if recursive call
+        :return:
+        """
+        nav_list_nodes = Utils.get_dom_next_level_children(nav_list_list_node, "navigationList")
+
+        for nav_list in nav_list_nodes:
+
+            nav_page_nodes = Utils.get_dom_next_level_children(nav_list, "navigationPage")
+
+            for nav_page in nav_page_nodes:
+
+                for jahia_type in nav_page.childNodes:
+
+                    hidden = False
+                    # If normal jahia page
+                    if jahia_type.nodeName == "jahia:page":
+                        txt = jahia_type.getAttribute("jahia:title")
+                        hidden = jahia_type.getAttribute("jahia:hideFromNavigationMenu") != ""
+                        target = "sitemap" if jahia_type.getAttribute("jahia:template") == "sitemap" \
+                            else None
+                    # If URL
+                    elif jahia_type.nodeName == "jahia:url":
+                        txt = jahia_type.getAttribute("jahia:title")
+                        target = jahia_type.getAttribute("jahia:value")
+
+                        self.num_url_menu += 1
+                    else:
+                        continue
+
+                    menu_item = MenuItem(txt, target, hidden)
+
+                    # If we are parsing root menu entries
+                    if parent_menu is None:
+                        self.menus[language].append(menu_item)
+
+                    else:  # We are parsing sub-menu entries
+                        parent_menu.children.append(menu_item)
+
+                    # If there are sub-menu entries
+                    nav_list_list_nodes = Utils.get_dom_next_level_children(jahia_type, "navigationListList")
+                    if nav_list_list_nodes:
+                        # Parsing sub menu entries
+                        self.parse_menu_entries(language, nav_list_list_nodes[0], menu_item)
+
+        # Looking for sort information. If exists, the format is the following:
+        # epfl_simple_navigationList_navigationPage;asc;false;false
+        sort_infos = nav_list_list_node.getAttribute("jahia:sortHandler")
+        if sort_infos:
+            # FIXME: For now, root menu entries sorting is not handled because never encountered in a Jahia Website
+            # If we are parsing root sub-menu entries
+            if parent_menu is not None:
+                # Sorting children and store information about sort way
+                parent_menu.sort_children(sort_infos.split(";")[1])
+
     def parse_menu(self):
         for language, dom_path in self.export_files.items():
             dom = Utils.get_dom(dom_path)
 
-            self.menus[language] = Menu()
+            self.menus[language] = []
 
             for nav_list_list in dom.getElementsByTagName("navigationListList"):
 
                 # If list is right under 'root'
                 if nav_list_list.parentNode.getAttribute("xmlns:jahia") != "":
 
-                    nav_list_nodes = Utils.get_dom_next_level_children(nav_list_list, "navigationList")
-
-                    for nav_list in nav_list_nodes:
-
-                        nav_page_nodes = Utils.get_dom_next_level_children(nav_list, "navigationPage")
-
-                        for nav_page in nav_page_nodes:
-
-                            for jahia_type in nav_page.childNodes:
-
-                                hidden = False
-                                # If normal jahia page
-                                if jahia_type.nodeName == "jahia:page":
-                                    txt = jahia_type.getAttribute("jahia:title")
-                                    hidden = jahia_type.getAttribute("jahia:hideFromNavigationMenu") != ""
-                                    target = "sitemap" if jahia_type.getAttribute("jahia:template") == "sitemap" \
-                                        else None
-                                # If URL
-                                elif jahia_type.nodeName == "jahia:url":
-                                    txt = jahia_type.getAttribute("jahia:title")
-                                    target = jahia_type.getAttribute("jahia:value")
-
-                                    self.num_url_menu_root += 1
-                                else:
-                                    continue
-
-                                entry_index = self.menus[language].add_main_entry(txt, target, hidden)
-
-                                # FIXME: Handle sub-sub-pages in menu
-                                # Looping through subpages below main entry
-                                for sub_page in jahia_type.getElementsByTagName("navigationPage"):
-
-                                    for jahia_sub_type in sub_page.childNodes:
-
-                                        hidden = False
-                                        # If normal jahia page
-                                        if jahia_sub_type.nodeName == "jahia:page":
-                                            txt = jahia_sub_type.getAttribute("jahia:title")
-                                            hidden = jahia_sub_type.getAttribute("jahia:hideFromNavigationMenu") != ""
-                                            target = None
-                                        # If URL
-                                        elif jahia_sub_type.nodeName == "jahia:url":
-                                            txt = jahia_sub_type.getAttribute("jahia:title")
-                                            target = jahia_sub_type.getAttribute("jahia:value")
-                                        else:
-                                            continue
-
-                                        self.menus[language].add_sub_entry(txt, target, hidden, entry_index)
+                    self.parse_menu_entries(language, nav_list_list, None)
 
     def get_report_info(self, box_types):
         """
@@ -372,7 +407,21 @@ class Site:
                                    page_content=page_content,
                                    tag=tag)
 
+                # count the tags
+                self.count_tags(page_content)
+
                 page.contents[language] = page_content
+
+    def count_tags(self, page_content):
+        """Count each html tags"""
+
+        for box in page_content.boxes:
+            soup = BeautifulSoup(box.content, 'html.parser')
+
+            for tag in soup.find_all():
+                # we increment both at the page_content and at the site level
+                Utils.increment_count(page_content.num_tags, tag.name)
+                Utils.increment_count(self.num_tags, tag.name)
 
     def add_boxes(self, xml_page, page_content, tag):
         # add the boxes contained in the given tag to the given page_content
@@ -634,6 +683,15 @@ Parsed for %s :
         # order the dicts so they are always presented in the same order
         num_boxes_ordered = collections.OrderedDict(sorted(self.num_boxes.items()))
         num_templates_ordered = collections.OrderedDict(sorted(self.num_templates.items()))
+        num_tags_ordered = sorted(self.num_tags, key=self.num_tags.get, reverse=True)
+
+        # templates
+        for key, value in num_templates_ordered.items():
+            self.report += "    - %s using the template %s\n" % (value, key)
+
+        # boxes
+        for key, value in num_boxes_ordered.items():
+            self.report += "    - %s %s boxes\n" % (value, key)
 
         # templates
         for key, value in num_templates_ordered.items():
@@ -653,3 +711,10 @@ Parsed for %s :
         self.report += "    - %s broken links\n" % self.broken_links
         self.report += "    - %s unknown links\n" % self.unknown_links
         self.report += "    - %s root menu entries with URLs\n" % self.num_url_menu_root
+
+        # tags
+        self.report += "\n"
+        self.report += "  - tags :\n\n"
+
+        for tag in num_tags_ordered:
+            self.report += "    - <%s> %s\n" % (tag, self.num_tags[tag])
