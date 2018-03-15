@@ -327,6 +327,16 @@ class WPExporter:
 
         tags = soup.find_all(tag_name)
 
+        pid = ""
+        # If the old url points to a jahia page
+        if '/page-' in old_url:
+            # Try to get the PID of the page from the URL (usually jahia URLs are of the form
+            # /page-{PID}-{lang}.html
+            try:
+                pid = old_url.split("-")[1]
+            except IndexError:
+                pass
+
         for tag in tags:
             link = tag.get(tag_attribute)
 
@@ -341,7 +351,10 @@ class WPExporter:
             # will be converted to 'vid?o.mp4'.
             # So we convert to ascii and remove the '?' character to compare the strings and see
             # if there is a link to replace.
-            if link.encode('ascii', 'replace').decode('ascii').replace('?', '') == old_url.replace('?', ''):
+            # If the current link is a page PID and corresponds to the PID extracted from old_url then
+            # point the link to the new url of the page.
+            if link.encode('ascii', 'replace').decode('ascii').replace('?', '') == old_url.replace('?', '') \
+                    or (pid and link == pid):
                 logging.debug("Changing link from %s to %s" % (old_url, new_url))
                 tag[tag_attribute] = new_url
 
