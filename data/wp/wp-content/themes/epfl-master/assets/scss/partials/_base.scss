@@ -261,6 +261,10 @@ ul {
   }
 }
 
+ul.list-unstyled li:before {
+  display: none;
+}
+
 dl dt {
   color: #000;
   font-weight: bold;
