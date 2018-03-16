@@ -24,6 +24,7 @@ VirtualDocumentRoot "/srv/${WP_ENV}/%0/htdocs"
 EOF
 
 /bin/mkdir -p /srv/${WP_ENV}/logs
+/bin/mkdir -p /srv/${WP_ENV}/jahia2wp
 /bin/chown www-data: /srv/${WP_ENV}
 /bin/chown www-data: /srv/${WP_ENV}/logs
 /bin/chown www-data: /srv/${WP_ENV}/jahia2wp
