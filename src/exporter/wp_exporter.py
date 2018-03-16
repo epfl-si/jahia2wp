@@ -389,31 +389,6 @@ class WPExporter:
         data = {"content": content}
         return self.wp.post_pages(page_id=page_id, data=data)
 
-    def import_page(self, slug, title, content):
-
-        wp_page_info = {
-            # date: auto => date/heure du jour
-            # date_gmt: auto => date/heure du jour GMT
-            'slug': slug,
-            'status': 'publish',
-            # password
-            'title': title,
-            'content': content,
-            # author
-            # excerpt
-            # featured_media
-            # comment_status: 'closed'
-            # ping_status: 'closed'
-            # format
-            # meta
-            # sticky
-            # template
-            # categories
-            # tags
-        }
-
-        return self.wp.post_pages(data=wp_page_info)
-
     def import_pages(self):
         """
         Import all pages of jahia site to Wordpress
