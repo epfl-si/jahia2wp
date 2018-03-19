@@ -92,20 +92,31 @@ class Box:
             self.set_box_unknown(element)
 
     def set_box_text(self, element, multibox=False):
-        """set the attributes of a text box"""
+        """set the attributes of a text box
+            A text box can have two forms, either it contains just a <text> tag
+            or it contains a <comboListList> which contains <comboList> tags which
+            contain <text>, <filesList>, <linksList> tags. The last two tags may miss from time
+            to time because the jahia export is not perfect.
+            FIXME: For now <filesList> are ignored because we did not find a site where
+            it is used yet.
+        """
 
         if not multibox:
-            self.content = Utils.get_tag_attribute(element, "text", "jahia:value")
+            content = Utils.get_tag_attribute(element, "text", "jahia:value")
+            linksList = element.getElementsByTagName("linksList")
+            if linksList:
+                content += self._parse_links_to_list(linksList[0])
         else:
             # Concatenate HTML content of many boxes
             content = ""
-            elements = element.getElementsByTagName("text")
-            for element in elements:
-                # We have to skip 'text' element which are right under 'main' otherwise we have duplicated text
-                # displayed in page.
-                if element.parentNode.nodeName != 'main':
-                    content += element.getAttribute("jahia:value")
-            self.content = content
+            comboLists = element.getElementsByTagName("comboList")
+            for element in comboLists:
+                content += Utils.get_tag_attribute(element, "text", "jahia:value")
+                # linksList contain <link> tags exactly like linksBox, so we can just reuse
+                # the same code used to parse linksBox.
+                content += self._parse_links_to_list(element)
+
+        self.content = content
 
     def set_box_actu(self, element):
         """set the attributes of an actu box"""
@@ -158,8 +169,8 @@ class Box:
 
         self.content = "[xml xml=%s xslt=%s]" % (xml, xslt)
 
-    def set_box_links(self, element):
-        """set the attributes of a links box"""
+    def _parse_links_to_list(self, element):
+        """Handles link tags that can be found in linksBox and textBox"""
         elements = element.getElementsByTagName("link")
         content = "<ul>"
         for e in elements:
@@ -177,7 +188,14 @@ class Box:
                     content += "<li><a href={}>{}</a></li>".format(url, title)
         content += "</ul>"
 
-        self.content = content
+        if content == "<ul></ul>":
+            return ""
+
+        return content
+
+    def set_box_links(self, element):
+        """set the attributes of a links box"""
+        self.content = self._parse_links_to_list(element)
 
     def set_box_unknown(self, element):
         """set the attributes of an unknown box"""
