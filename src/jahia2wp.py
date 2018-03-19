@@ -820,6 +820,10 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
             if box_type not in report:
                 report[box_type] = 0
 
+            # some reports have an empty string
+            if "" in report:
+                del report[""]
+
     # write the csv file
     with open(path, 'w') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
