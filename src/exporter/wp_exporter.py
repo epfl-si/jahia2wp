@@ -294,6 +294,8 @@ class WPExporter:
             # save the new box content
             box.content = str(soup)
 
+        self.fix_file_links_in_menus(old_url, new_url)
+
         # Looping through banners
         for lang, banner in self.site.banner.items():
 
@@ -309,6 +311,24 @@ class WPExporter:
 
             # save the new banner content
             banner.content = str(soup)
+
+    def fix_file_links_in_menu_items(self, menu_item, old_url, new_url):
+        if menu_item.target_is_file():
+                normalized_url = menu_item.target_url.encode('ascii', 'replace').decode('ascii').replace('?', '')
+                normalized_url = normalized_url[normalized_url.rfind("/files"):]
+                if normalized_url == old_url.replace('?', ''):
+                    menu_item.target_url = new_url
+
+    def fix_file_links_in_menus(self, old_url, new_url):
+        for lang in self.site.languages:
+            for root_entry_index, menu_item in enumerate(self.site.menus[lang]):
+                self.fix_file_links_in_menu_items(menu_item, old_url, new_url)
+                self.fix_file_links_in_submenus(menu_item, old_url, new_url)
+
+    def fix_file_links_in_submenus(self, menu_item, old_url, new_url):
+        for child in menu_item.children:
+            self.fix_file_links_in_menu_items(child, old_url, new_url)
+            self.fix_file_links_in_submenus(child, old_url, new_url)
 
     def fix_page_content_links(self, wp_pages):
         """
