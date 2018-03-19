@@ -17,3 +17,6 @@ log/
 volumes/
 *.scssc
 *.map
+.project
+.pydevproject
+.settings
