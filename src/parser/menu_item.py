@@ -18,6 +18,9 @@ class MenuItem:
     def target_is_sitemap(self):
         return self.target_url == "sitemap"
 
+    def target_is_file(self):
+        return False if self.target_url is None else '/files/' in self.target_url
+
     def sort_children(self, sort_way):
         self.children_sort_way = sort_way
         self.children.sort(key=lambda x: x.txt, reverse=(sort_way == 'desc'))
