@@ -383,7 +383,6 @@ class WPExporter:
 
         for tag in tags:
             link = tag.get(tag_attribute)
-            logging.info(link)
 
             if not link:
                 continue
