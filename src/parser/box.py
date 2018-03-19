@@ -1,6 +1,6 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
 from xml.dom import minidom
-
+from urllib.parse import urlencode
 from utils import Utils
 
 
@@ -108,33 +108,25 @@ class Box:
     def set_box_people(self, element):
         """ set the attibutes of an people box"""
         """
+        aumonerie
         https://people.epfl.ch/cgi-bin/getProfiles?unit=AUMONERIE&tmpl=default_bloc&lang=fr&responsive=1
         """
-        def first_parameter():
-            if url[:1] == "?":
-                return url
-
-        unit = Utils.get_tag_attribute(element, "query", "jahia:value")
-
+        parameters = {}
+        parameters['unit'] = Utils.get_tag_attribute(element, "query", "jahia:value")
         templace_html = Utils.get_tag_attribute(element, "template", "jahia:value")
-
-        template = Utils.get_tag_attribute(minidom.parseString(templace_html), "jahia-resource", "default-value")
-
-        url = "https://people.epfl.ch/cgi-bin/getProfiles?"
-
-        if unit:
-            if first_parameter():
-                url += "?"
-            else:
-                url += "&"
-                
-            url += "unit={}".format(unit)
-        if template:
-            url += "WP_tmpl={}".format(template)
-
+        parameters['WP_tmpl'] = Utils.get_tag_attribute(
+            minidom.parseString(templace_html),
+            "jahia-resource",
+            "default-value"
+        )
         # FIXME: la langue n'est pas dans le XML donc on prend la langue de la page quand on sera dans l'exporter ?
+        parameters['lang'] = "fr"
 
-        self.content = "[epfl_people url={}]".format(url)
+        # FIXME: comment savoir si responsive ou pas ?
+        # parameters['responsive'] = "1"
+
+        url = "https://people.epfl.ch/cgi-bin/getProfiles?{}".format(urlencode(parameters))
+        self.content = '[epfl_people url="{}" /]'.format(url)
 
     def set_box_actu(self, element):
         """set the attributes of an actu box"""

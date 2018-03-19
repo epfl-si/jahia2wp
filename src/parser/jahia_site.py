@@ -444,7 +444,8 @@ class Site:
         when all the pages have been parsed.
         """
         for box in self.get_all_boxes():
-            soup = BeautifulSoup(box.content, 'html.parser')
+            soup = BeautifulSoup(box.content, 'html5lib')
+            soup.body.hidden = True
 
             self.fix_links_in_tag(box=box, soup=soup, tag_name="a", attribute="href")
             self.fix_links_in_tag(box=box, soup=soup, tag_name="img", attribute="src")
@@ -557,7 +558,7 @@ class Site:
                 logging.debug("Found unknown link %s", link)
                 self.unknown_links += 1
 
-        box.content = str(soup)
+        box.content = str(soup.body)
 
     def build_sitemaps(self):
         """Build the sitemaps"""

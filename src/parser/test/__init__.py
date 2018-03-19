@@ -316,7 +316,7 @@ class Data:
                                                                                                'type': 'text'},
                                                                                            {
                                                                                                'content__start': '[memento '
-                                                                                                                 'url=https://memento.epfl.ch/webservice?memento=web〈=fr&amp;template;=6&amp;period;=2&amp;color;=EPFL]',
+                                                                                                                 'url=https://memento.epfl.ch/webservice?memento=web&amp;lang=fr&amp;template=6&amp;period=2&amp;color=EPFL]',
                                                                                                'title': 'Prochains cours',
                                                                                                'type': 'memento'}],
                                                                         'title': 'Pour les webmasters'}},
@@ -362,7 +362,7 @@ class Data:
                                                                                                'type': 'text'},
                                                                                            {
                                                                                                'content__start': '[memento '
-                                                                                                                 'url=https://memento.epfl.ch/webservice?memento=web〈=fr&amp;template;=6&amp;period;=2&amp;color;=EPFL]',
+                                                                                                                 'url=https://memento.epfl.ch/webservice?memento=web&amp;lang=fr&amp;template=6&amp;period=2&amp;color=EPFL]',
                                                                                                'title': 'Prochains cours',
                                                                                                'type': 'memento'}],
                                                                         'title': 'Support et communication'}},
@@ -394,7 +394,7 @@ class Data:
                                                                                'title': 'Support web',
                                                                                'type': 'text'},
                                                                            {'content__start': '[memento '
-                                                                                              'url=https://memento.epfl.ch/webservice?memento=web〈=fr&amp;template;=6&amp;period;=2&amp;color;=EPFL]',
+                                                                                              'url=https://memento.epfl.ch/webservice?memento=web&amp;lang=fr&amp;template=6&amp;period=2&amp;color=EPFL]',
                                                                             'title': 'Prochains cours',
                                                                             'type': 'memento'}],
                                                         'title': '"Coffee, tea, cookies, internet and me"'}},
@@ -469,7 +469,7 @@ class Data:
                                                                                                'type': 'text'},
                                                                                            {
                                                                                                'content__start': '[memento '
-                                                                                                                 'url=https://memento.epfl.ch/webservice?memento=web〈=fr&amp;template;=6&amp;period;=2&amp;color;=EPFL]',
+                                                                                                                 'url=https://memento.epfl.ch/webservice?memento=web&amp;lang=fr&amp;template=6&amp;period=2&amp;color=EPFL]',
                                                                                                'title': 'Prochains cours',
                                                                                                'type': 'memento'}],
                                                                         'title': 'Cours et formations'}},
@@ -1957,7 +1957,7 @@ class Data:
                                                                                      'title': '',
                                                                                      'type': 'text'},
                                                                                  {'content__start': '[actu '
-                                                                                                    'url=http://actu.epfl.ch/webservice?channel=3〈=fr&amp;template;=4&amp;sticker;=no]',
+                                                                                                    'url=http://actu.epfl.ch/webservice?channel=3&amp;lang=fr&amp;template=4&amp;sticker=no]',
                                                                                   'title': 'Actualités',
                                                                                   'type': 'actu'},
                                                                                  {
@@ -1991,7 +1991,7 @@ class Data:
                                                                                               'title': 'Support web',
                                                                                               'type': 'text'},
                                                                                           {'content__start': '[memento '
-                                                                                                             'url=https://memento.epfl.ch/webservice?memento=web〈=fr&amp;template;=6&amp;period;=2&amp;color;=EPFL]',
+                                                                                                             'url=https://memento.epfl.ch/webservice?memento=web&amp;lang=fr&amp;template=6&amp;period=2&amp;color=EPFL]',
                                                                                            'title': 'Prochains cours',
                                                                                            'type': 'memento'}],
                                                                        'title': 'Atelier web EPFL'}},

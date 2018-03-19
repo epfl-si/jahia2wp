@@ -272,7 +272,8 @@ class WPExporter:
 
         for box in self.site.get_all_boxes():
 
-            soup = BeautifulSoup(box.content, 'html.parser')
+            soup = BeautifulSoup(box.content, 'html5lib')
+            soup.body.hidden = True
 
             for tag_name, tag_attribute in tag_attribute_tuples:
 
@@ -284,7 +285,7 @@ class WPExporter:
                     tag_attribute=tag_attribute)
 
             # save the new box content
-            box.content = str(soup)
+            box.content = str(soup.body)
 
     def fix_page_content_links(self, wp_pages):
         """
@@ -299,7 +300,8 @@ class WPExporter:
             else:
                 logging.error("Expected content for page %s" % wp_page)
 
-            soup = BeautifulSoup(content, 'html.parser')
+            soup = BeautifulSoup(content, 'html5lib')
+            soup.body.hidden = True
 
             for url_mapping in self.urls_mapping:
 
@@ -318,7 +320,7 @@ class WPExporter:
             # update the page
             wp_id = wp_page["id"]
 
-            content = str(soup)
+            content = str(soup.body)
 
             self.update_page_content(page_id=wp_id, content=content)
 
