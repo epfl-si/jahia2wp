@@ -45,6 +45,7 @@ Usage:
   jahia2wp.py update-plugins-many   <csv_file>                      [--debug | --quiet]
     [--force] [--plugin=<PLUGIN_NAME>]
   jahia2wp.py global-report <csv_file> [--output-dir=<OUTPUT_DIR>] [--use-cache] [--debug | --quiet]
+  jahia2wp.py ventilate-urls <csv_file> <wp_env> [--fix-csv]                 [--debug | --quiet]
 
 Options:
   -h --help                 Show this screen.
