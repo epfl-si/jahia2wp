@@ -856,7 +856,7 @@ def url_mapping(csv_file, wp_env, fix_csv=False, **kwargs):
             source = row['source']
             # Split the path and take the first arg as site
             # Consider special case of http(s)://
-            site = source.split('/').pop(0)
+            site = source.split('//').pop().split('/').pop(0)
             if site not in sites: sites[site] = []
             # Append the URL to the site's list
             sites[site].append((source, row['destination']))
