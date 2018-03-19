@@ -106,11 +106,14 @@ class WPExporter:
             start_time = timeit.default_timer()
             tracer_path = os.path.join(self.output_dir, self.TRACER_FILE_NAME)
 
+            # Existing widget deletion to start with empty sidebar contents
+            self.delete_widgets()
+
             self.import_medias()
             self.import_pages()
             self.set_frontpage()
             self.populate_menu()
-            self.import_sidebar()
+            self.import_sidebars()
             self.import_breadcrumb()
             self.delete_draft_pages()
             self.display_report()
@@ -257,7 +260,11 @@ class WPExporter:
             self.run_wp_cli("option update epfl:custom_breadcrumb '{}'".format(breadcrumb))
 
     def fix_file_links(self, file, wp_media):
-        """Fix the links pointing to the given file"""
+        """
+        Fix the links pointing to the given file. Following elements are processed:
+        - All boxes
+        - All banners (headers)
+        """
 
         if "/files" not in file.path:
             return
@@ -270,6 +277,7 @@ class WPExporter:
 
         tag_attribute_tuples = [("a", "href"), ("img", "src"), ("script", "src")]
 
+        # Looping through boxes
         for box in self.site.get_all_boxes():
 
             soup = BeautifulSoup(box.content, 'html.parser')
@@ -285,6 +293,42 @@ class WPExporter:
 
             # save the new box content
             box.content = str(soup)
+
+        self.fix_file_links_in_menus(old_url, new_url)
+
+        # Looping through banners
+        for lang, banner in self.site.banner.items():
+
+            soup = BeautifulSoup(banner.content, 'html.parser')
+
+            for tag_name, tag_attribute in tag_attribute_tuples:
+                self.fix_links_in_tag(
+                    soup=soup,
+                    old_url=old_url,
+                    new_url=new_url,
+                    tag_name=tag_name,
+                    tag_attribute=tag_attribute)
+
+            # save the new banner content
+            banner.content = str(soup)
+
+    def fix_file_links_in_menu_items(self, menu_item, old_url, new_url):
+        if menu_item.target_is_file():
+                normalized_url = menu_item.target_url.encode('ascii', 'replace').decode('ascii').replace('?', '')
+                normalized_url = normalized_url[normalized_url.rfind("/files"):]
+                if normalized_url == old_url.replace('?', ''):
+                    menu_item.target_url = new_url
+
+    def fix_file_links_in_menus(self, old_url, new_url):
+        for lang in self.site.languages:
+            for root_entry_index, menu_item in enumerate(self.site.menus[lang]):
+                self.fix_file_links_in_menu_items(menu_item, old_url, new_url)
+                self.fix_file_links_in_submenus(menu_item, old_url, new_url)
+
+    def fix_file_links_in_submenus(self, menu_item, old_url, new_url):
+        for child in menu_item.children:
+            self.fix_file_links_in_menu_items(child, old_url, new_url)
+            self.fix_file_links_in_submenus(child, old_url, new_url)
 
     def fix_page_content_links(self, wp_pages):
         """
@@ -327,6 +371,16 @@ class WPExporter:
 
         tags = soup.find_all(tag_name)
 
+        pid = ""
+        # If the old url points to a jahia page
+        if '/page-' in old_url:
+            # Try to get the PID of the page from the URL (usually jahia URLs are of the form
+            # /page-{PID}-{lang}.html
+            try:
+                pid = old_url.split("-")[1]
+            except IndexError:
+                pass
+
         for tag in tags:
             link = tag.get(tag_attribute)
 
@@ -341,7 +395,10 @@ class WPExporter:
             # will be converted to 'vid?o.mp4'.
             # So we convert to ascii and remove the '?' character to compare the strings and see
             # if there is a link to replace.
-            if link.encode('ascii', 'replace').decode('ascii').replace('?', '') == old_url.replace('?', ''):
+            # If the current link is a page PID and corresponds to the PID extracted from old_url then
+            # point the link to the new url of the page.
+            if link.encode('ascii', 'replace').decode('ascii').replace('?', '') == old_url.replace('?', '') \
+                    or (pid and link == pid):
                 logging.debug("Changing link from %s to %s" % (old_url, new_url))
                 tag[tag_attribute] = new_url
 
@@ -375,31 +432,6 @@ class WPExporter:
         """Update the page content"""
         data = {"content": content}
         return self.wp.post_pages(page_id=page_id, data=data)
-
-    def import_page(self, slug, title, content):
-
-        wp_page_info = {
-            # date: auto => date/heure du jour
-            # date_gmt: auto => date/heure du jour GMT
-            'slug': slug,
-            'status': 'publish',
-            # password
-            'title': title,
-            'content': content,
-            # author
-            # excerpt
-            # featured_media
-            # comment_status: 'closed'
-            # ping_status: 'closed'
-            # format
-            # meta
-            # sticky
-            # template
-            # categories
-            # tags
-        }
-
-        return self.wp.post_pages(data=wp_page_info)
 
     def import_pages(self):
         """
@@ -530,9 +562,14 @@ class WPExporter:
             )
             self.create_footer_menu_for_sitemap(sitemap_wp_id=wp_page['id'], lang=lang)
 
-    def import_sidebar(self):
+    def import_sidebars(self):
         """
-        import sidebar via wpcli
+        Import sidebars via wpcli
+        Sidebars are :
+        - homepage sidebar
+        - header sidebar (if site has custom banner).
+        All sidebars are imported in this function because we then have to se correct language for each sidebar widget
+        and doing everything in one place is more simple.
         """
         def prepare_html(html):
             return Utils.escape_quotes(html.replace(u'\xa0', u' '))
@@ -541,6 +578,20 @@ class WPExporter:
         widget_pos_to_lang = {}
 
         try:
+            # First, we import banners if exists
+            # Banner is only one text widget per lang in a dedicated sidebar
+            for lang, banner in self.site.banner.items():
+
+                cmd = 'widget add text header-widgets --text="{}"'.format(
+                    banner.content.replace('"', '\\"'))
+
+                self.run_wp_cli(cmd)
+                widget_pos_to_lang[str(widget_pos)] = lang
+                widget_pos += 1
+
+                logging.info("Banner imported for '%s' language" % lang)
+
+            # Then we import sidebar widgets
             for lang in self.site.homepage.contents.keys():
 
                 for box in self.site.homepage.contents[lang].sidebar.boxes:
@@ -639,32 +690,70 @@ class WPExporter:
         # Report
         self.report['menus'] += 2
 
-    def create_submenu(self, children, lang, menu_name):
+    def create_submenu(self, children, parent_menu_item, lang, menu_name, parent_menu_id):
         """
         Create recursively submenus for one main menu entry
 
         children - children pages of main menu entry
+        parent_menu_item - MenuItem object coming from self.menus and representing parent of submenu entries to create
         lang - language
         menu_name - name of WP menu where to put sub-menu entries
+        parent_menu_id - ID of parent menu (in WP) of submenu we have to create
         """
-        for child in children:
+        child_index = 0
 
-            if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict and \
-                    child.contents[lang].wp_id:  # FIXME For unknown reason, wp_id is sometimes None
+        # If the sub-entries are sorted
+        if parent_menu_item.children_sort_way is not None:
+            # Sorting information in the other structure storing the menu information
+            children.sort(key=lambda x: x.contents[lang].title, reverse=(parent_menu_item.children_sort_way == 'desc'))
 
-                parent_menu_id = self.menu_id_dict[child.parent.contents[lang].wp_id]
+        for sub_entry_index, menu_item in enumerate(parent_menu_item.children):
 
-                command = 'menu item add-post {} {} --parent-id={} --porcelain' \
-                    .format(menu_name, child.contents[lang].wp_id, parent_menu_id)
-                menu_id = self.run_wp_cli(command)
-                if not menu_id:
-                    logging.warning("Menu not created for page %s" % child.pid)
-                else:
-                    self.menu_id_dict[child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
-                    self.report['menus'] += 1
+            # If menu entry is an hardcoded URL
+            if menu_item.target_is_url() or menu_item.target_is_sitemap():
+                # If entry is visible
+                if not menu_item.hidden:
+                    # Recovering URL
+                    url = menu_item.target_url
 
-            # FIXME: Handle sub-sub-pages entries
-            self.create_submenu(child.children, lang, menu_name)
+                    # If menu entry is sitemap, we add WP site base URL
+                    if menu_item.target_is_sitemap():
+                        url = "{}{}".format(self.wp_generator.wp_site.url, url)
+
+                    cmd = 'menu item add-custom {} "{}" "{}" --parent-id={} --porcelain' \
+                        .format(menu_name, menu_item.txt, url, parent_menu_id)
+                    menu_id = self.run_wp_cli(cmd)
+                    if not menu_id:
+                        logging.warning("Root menu item not created for URL (%s) " % url)
+                    else:
+                        self.report['menus'] += 1
+
+            # menu entry is page
+            else:
+                child = children[child_index]
+                child_index += 1
+
+                if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict and \
+                        child.contents[lang].wp_id:  # FIXME For unknown reason, wp_id is sometimes None
+
+                    # If entry is visible
+                    if not menu_item.hidden:
+
+                        command = 'menu item add-post {} {} --parent-id={} --porcelain' \
+                            .format(menu_name, child.contents[lang].wp_id, parent_menu_id)
+
+                        menu_id = self.run_wp_cli(command)
+                        if not menu_id:
+                            logging.warning("Menu not created for page %s" % child.pid)
+                        else:
+                            self.menu_id_dict[child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
+                            self.report['menus'] += 1
+
+                        self.create_submenu(child.children,
+                                            menu_item,
+                                            lang,
+                                            menu_name,
+                                            self.menu_id_dict[child.contents[lang].wp_id])
 
     def populate_menu(self):
         """
@@ -708,46 +797,44 @@ class WPExporter:
                 # menu entries) and every time we encounter a WordPress page, we take the next available item in
                 # the second list (which contains information about pointed page). The information in the second
                 # structure is also used to build submenus.
-                # FIXME: If needed in the future, also use (and complete) information in the first structure to
-                # build submenus containing hardcoded URLs.
-                children_index = 0
+                child_index = 0
 
                 # Looping through root menu entries
-                for root_entry_index in range(0, self.site.menus[lang].nb_main_entries()):
+                for root_entry_index, menu_item in enumerate(self.site.menus[lang]):
 
+                    # FIXME: Sub menu entries for menu entries which are hardcoded URL are not handled here
                     # If root menu entry is an hardcoded URL
-                    if self.site.menus[lang].target_is_url(root_entry_index) or \
-                            self.site.menus[lang].target_is_sitemap(root_entry_index):
+                    if menu_item.target_is_url() or \
+                            menu_item.target_is_sitemap():
                         # If root entry is visible
-                        if not self.site.menus[lang].is_hidden(root_entry_index):
+                        if not menu_item.hidden:
                             # Recovering URL
-                            url = self.site.menus[lang].target_url(root_entry_index)
+                            url = menu_item.target_url
 
                             # If menu entry is sitemap, we add WP site base URL
-                            if self.site.menus[lang].target_is_sitemap(root_entry_index):
+                            if menu_item.target_is_sitemap():
                                 url = "{}{}".format(self.wp_generator.wp_site.url, url)
 
                             cmd = 'menu item add-custom {} "{}" "{}" --porcelain' \
-                                .format(menu_name,
-                                        self.site.menus[lang].txt(root_entry_index),
-                                        url)
+                                .format(menu_name, menu_item.txt, url)
                             menu_id = self.run_wp_cli(cmd)
                             if not menu_id:
-                                logging.warning("Root menu item not created for URL (%s) " %
-                                                self.site.menus[lang].target_url())
+                                logging.warning("Root menu item not created for URL (%s) " % url)
+                            else:
+                                self.report['menus'] += 1
 
                     # root menu entry is page
                     else:
                         # Getting next child containing information about pointed WordPress page.
-                        homepage_child = self.site.homepage.children[children_index]
-                        children_index += 1
+                        homepage_child = self.site.homepage.children[child_index]
+                        child_index += 1
 
                         if lang not in homepage_child.contents:
                             logging.warning("Page not translated %s" % homepage_child.pid)
                             continue
 
                         # If root entry is visible
-                        if not self.site.menus[lang].is_hidden(root_entry_index):
+                        if not menu_item.hidden:
 
                             if homepage_child.contents[lang].wp_id:
                                 cmd = 'menu item add-post {} {} --porcelain' \
@@ -759,9 +846,12 @@ class WPExporter:
                                     self.menu_id_dict[homepage_child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
                                     self.report['menus'] += 1
 
-                            # create recursively submenus
-                            # FIXME: Also handle submenu visibility
-                            self.create_submenu(homepage_child.children, lang, menu_name)
+                                # create recursively submenus
+                                self.create_submenu(homepage_child.children,
+                                                    menu_item,
+                                                    lang,
+                                                    menu_name,
+                                                    self.menu_id_dict[homepage_child.contents[lang].wp_id])
 
                 logging.info("WP menus populated for '%s' language", lang)
 
@@ -835,13 +925,20 @@ class WPExporter:
 
     def delete_widgets(self):
         """
-        Delete all widgets
+        Delete all widgets in all existing sidebars
         """
-        cmd = "widget list page-widgets --fields=id --format=csv"
-        widgets_id_list = self.run_wp_cli(cmd).split("\n")[1:]
-        for widget_id in widgets_id_list:
-            cmd = "widget delete {}".format(widget_id)
-            self.run_wp_cli(cmd)
+        # List all sidebars
+        cmd = "sidebar list --fields=id --format=csv"
+        sidebar_id_list = self.run_wp_cli(cmd).split("\n")[1:]
+
+        for sidebar_id in sidebar_id_list:
+            cmd = "widget list {} --fields=id --format=csv".format(sidebar_id)
+            widgets_id_list = self.run_wp_cli(cmd).split("\n")[1:]
+            for widget_id in widgets_id_list:
+                cmd = "widget delete {}".format(widget_id)
+                self.run_wp_cli(cmd)
+            if widgets_id_list:
+                logging.info("Widgets deleted for sidebar '%s'", sidebar_id)
         logging.info("All widgets deleted")
 
     def delete_menu(self):

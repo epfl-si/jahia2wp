@@ -19,6 +19,7 @@ class Box:
     TYPE_INCLUDE = "include"
     TYPE_CONTACT = "contact"
     TYPE_XML = "xml"
+    TYPE_LINKS = "links"
 
     # Mapping of known box types from Jahia to WP
     types = {
@@ -31,7 +32,8 @@ class Box:
         "epfl:toggleBox": TYPE_TOGGLE,
         "epfl:htmlBox": TYPE_INCLUDE,
         "epfl:contactBox": TYPE_CONTACT,
-        "epfl:xmlBox": TYPE_XML
+        "epfl:xmlBox": TYPE_XML,
+        "epfl:linksBox": TYPE_LINKS
     }
 
     def __init__(self, site, page_content, element, multibox=False):
@@ -85,22 +87,39 @@ class Box:
         # xml
         elif self.TYPE_XML == self.type:
             self.set_box_xml(element)
+        # links
+        elif self.TYPE_LINKS == self.type:
+            self.set_box_links(element)
         # unknown
         else:
             self.set_box_unknown(element)
 
     def set_box_text(self, element, multibox=False):
-        """set the attributes of a text box"""
+        """set the attributes of a text box
+            A text box can have two forms, either it contains just a <text> tag
+            or it contains a <comboListList> which contains <comboList> tags which
+            contain <text>, <filesList>, <linksList> tags. The last two tags may miss from time
+            to time because the jahia export is not perfect.
+            FIXME: For now <filesList> are ignored because we did not find a site where
+            it is used yet.
+        """
 
         if not multibox:
-            self.content = Utils.get_tag_attribute(element, "text", "jahia:value")
+            content = Utils.get_tag_attribute(element, "text", "jahia:value")
+            linksList = element.getElementsByTagName("linksList")
+            if linksList:
+                content += self._parse_links_to_list(linksList[0])
         else:
             # Concatenate HTML content of many boxes
             content = ""
-            elements = element.getElementsByTagName("text")
-            for element in elements:
-                content += element.getAttribute("jahia:value")
-            self.content = content
+            comboLists = element.getElementsByTagName("comboList")
+            for element in comboLists:
+                content += Utils.get_tag_attribute(element, "text", "jahia:value")
+                # linksList contain <link> tags exactly like linksBox, so we can just reuse
+                # the same code used to parse linksBox.
+                content += self._parse_links_to_list(element)
+
+        self.content = content
 
     @staticmethod
     def _extract_epfl_news_parameters(url):
@@ -238,6 +257,34 @@ class Box:
         xslt = Utils.get_tag_attribute(element, "xslt", "jahia:value")
 
         self.content = "[xml xml=%s xslt=%s]" % (xml, xslt)
+
+    def _parse_links_to_list(self, element):
+        """Handles link tags that can be found in linksBox and textBox"""
+        elements = element.getElementsByTagName("link")
+        content = "<ul>"
+        for e in elements:
+            if e.ELEMENT_NODE != e.nodeType:
+                continue
+            for jahia_tag in e.childNodes:
+                if jahia_tag.ELEMENT_NODE != jahia_tag.nodeType:
+                    continue
+                if jahia_tag.tagName == "jahia:link":
+                    page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
+                    content += "<li><a href={}>{}</a></li>".format(page.pid, jahia_tag.getAttribute("jahia:title"))
+                elif jahia_tag.tagName == "jahia:url":
+                    url = jahia_tag.getAttribute("jahia:value")
+                    title = jahia_tag.getAttribute("jahia:title")
+                    content += "<li><a href={}>{}</a></li>".format(url, title)
+        content += "</ul>"
+
+        if content == "<ul></ul>":
+            return ""
+
+        return content
+
+    def set_box_links(self, element):
+        """set the attributes of a links box"""
+        self.content = self._parse_links_to_list(element)
 
     def set_box_unknown(self, element):
         """set the attributes of an unknown box"""

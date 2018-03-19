@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 "Project-Id-Version: EPFL\n"
-"POT-Creation-Date: 2018-03-02 17:51+0100\n"
+"POT-Creation-Date: 2018-03-16 13:54+0100\n"
 "PO-Revision-Date: 2017-11-22 17:19+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -29,15 +29,23 @@ msgstr ""
 msgid "It looks like nothing was found at this location. Maybe try a search?"
 msgstr ""
 
-#: footer.php:31
+#: footer.php:36
+msgid "Legal notice"
+msgstr ""
+
+#: footer.php:37
+msgid "Accessibility"
+msgstr ""
+
+#: footer.php:50
 msgid "Last update: "
 msgstr ""
 
-#: footer.php:35
+#: footer.php:54
 msgid "Log into site admin"
 msgstr ""
 
-#: footer.php:35
+#: footer.php:54
 msgid "Login"
 msgstr ""
 
