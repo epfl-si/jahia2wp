@@ -814,6 +814,33 @@ def url_mapping(csv_file, wp_env, fix_csv=False, **kwargs):
     """
     :param csv_file: CSV containing the URL mapping rules for source and destination.
     :param fix_csv: Try to fix the CSV when set to True.
+    
+    It takes the mapping rules in a CSV, with 2 columns each: source => destination, 
+    where both are URLs in WP instances. The first row of the CSV are treated as 
+    headers. The fix_csv argument helps to fix the CSV if needed.
+    
+    It first validates the format of the CSV, where source can refer to a whole site, 
+    a path or a leaf (page). It can fix automatically the CSV if fix_csv is set to True, 
+    by removing or adding trailing slashes and peforming other checks. If the CSV is 
+    correct, the process will continue otherwise it will stop. 
+    The CSV will also be  sorted by rule specificity from specific to generic. The CSV 
+    is then split by site in an effort to treat them in parallel. 
+    
+    For each site, all the post URLs are obtained from its WP instance in a python 
+    structure using WP-CLI. 
+    
+    The URLs are then matched to the rules extracted for the site. The first match is 
+    taken and if no match, an alert is raised. 
+    
+    Once an URL has been matched, its content (including pages and subpages if it's a 
+    site or path) are ready to be moved into the new location. 
+    
+    The resulting post(s) to be moved are inserted by hierarchy to make sure the parent 
+    content is present before inserting sub-posts. 
+    
+    When trying to run it in parallel, consider that the bottlneck will be the writes at 
+    the destination, since n sites will be migrated to a smaller number k destinations 
+    (likely 2 main: www.epfl.ch and inside.epfl.ch). 
     """
     
     pass
