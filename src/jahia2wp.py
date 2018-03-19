@@ -809,6 +809,28 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
         for site in sites:
             writer.writerow(site.get_report_info(box_types))
 
+@dispatch.on('ventilate-urls')
+def url_mapping(csv_file, wp_env, fix_csv=False, **kwargs):
+    """
+    :param csv_file: CSV containing the URL mapping rules for source and destination.
+    :param fix_csv: Try to fix the CSV when set to True.
+    """
+    
+    pass
+        
+            
+def _validate_mapping_csv(csv_file, fix_csv):
+    """
+    :param csv_file: CSV containing the URL mapping rules for source and destination.
+    :param fix_csv: Try to fix the CSV when set to True.
+    
+    It validates the url mapping contained in the CSV file as source => destination. 
+    The first line is treated as headers. 
+    
+    Refer to function :func:`url_mapping` for a full explanation.
+    """
+    
+    return True
 
 if __name__ == '__main__':
 
