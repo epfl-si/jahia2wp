@@ -870,6 +870,13 @@ def url_mapping(csv_file, wp_env, fix_csv=False, **kwargs):
             sites[site].sort(key=lambda rule: len(rule[0].split('/')))
         print(sites)
         
+         # Iterate and parse a site at a time, here is where parallelisation can come in.
+        for site in sites:
+            if 'http://' not in site or 'https://' not in site:
+                # Local development case, append the host
+                site = 'http://jahia2wp-httpd/{}'.format(site)
+            wp_conf = _check_site(wp_env, site)
+            print(wp_conf)
             
 def _validate_mapping_csv(csv_file, fix_csv):
     """
