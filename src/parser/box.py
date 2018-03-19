@@ -215,7 +215,6 @@ class Box:
             content += '<li><a href="{}">{}</a></li>'.format(file_url, file_name)
         content += "</ul>"
         self.content = content
-        print(content)
 
     def set_box_unknown(self, element):
         """set the attributes of an unknown box"""
