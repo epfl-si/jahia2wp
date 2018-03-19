@@ -863,6 +863,13 @@ def url_mapping(csv_file, wp_env, fix_csv=False, **kwargs):
         logging.info("{0} total sites found.".format(len(sites)))
         logging.debug(sites)
         
+        # Sort the rules from most generic to specific. The key is that specific rules (pages) 
+        # might be missing parent pages at the destination (e.g. it could be only a page rename). 
+        # In that sense specific pages will be treated at the end.
+        for site in sites:
+            sites[site].sort(key=lambda rule: len(rule[0].split('/')))
+        print(sites)
+        
             
 def _validate_mapping_csv(csv_file, fix_csv):
     """
