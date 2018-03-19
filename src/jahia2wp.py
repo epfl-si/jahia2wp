@@ -843,7 +843,25 @@ def url_mapping(csv_file, wp_env, fix_csv=False, **kwargs):
     (likely 2 main: www.epfl.ch and inside.epfl.ch). 
     """
     
-    pass
+     # Validate the CSV and try to fix it if possible
+    valid_out = _validate_mapping_csv(csv_file, fix_csv)
+    if valid_out is not True: 
+        logging.error("URL mapping CSV is not valid! See below. Stopping...")
+        logging.error(valid_out)
+    else:
+        # Extract all the sites as site (key) => paths (value)
+        sites = {}
+        rows = Utils.csv_filepath_to_dict(csv_file)
+        for idx, row in enumerate(rows):
+            source = row['source']
+            # Split the path and take the first arg as site
+            # Consider special case of http(s)://
+            site = source.split('/').pop(0)
+            if site not in sites: sites[site] = []
+            # Append the URL to the site's list
+            sites[site].append((source, row['destination']))
+        logging.info("{0} total sites found.".format(len(sites)))
+        logging.debug(sites)
         
             
 def _validate_mapping_csv(csv_file, fix_csv):
