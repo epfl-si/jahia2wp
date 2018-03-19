@@ -487,7 +487,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     # Example : path_to_extract/dcsl/dcsl
     # And we want to delete path_to_extract/dcsl
     base_zip_path = os.path.dirname(os.path.abspath(site.base_path))
-    logging.debug(base_zip_path)
+    logging.debug("Removing zip extracted folder '%s'", base_zip_path)
     if os.path.exists(base_zip_path):
         shutil.rmtree(base_zip_path)
 
