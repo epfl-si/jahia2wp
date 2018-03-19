@@ -3,6 +3,7 @@
 import os
 import logging
 import collections
+import re
 
 from bs4 import BeautifulSoup
 from parser.box import Box
@@ -561,14 +562,32 @@ class Site:
             # /cms/op/edit/PAGE_NAME or
             # /cms/site/SITE_NAME/op/edit/lang/LANGUAGE/PAGE_NAME
             elif "/op/edit/" in link:
+                # To have /PAGE_NAME$
+                # or /lang/LANGUAGE/PAGE_NAME
                 new_link = link[link.index("/op/edit") + 8:]
 
+                # if link like /lang/LANGUAGE/PAGE_NAME
                 if new_link.startswith("/lang/"):
+                    link_lang = new_link.split("/")[2]
+                    # To have /PAGE_NAME
                     new_link = new_link[8:]
+
+                else:  # Link like /PAGE_NAME
+                    # Site has probably only one language so we take it to build new URL
+                    link_lang = self.languages[0]
+
+                # If link doesn't contains lang => /page-92507.html
+                # We transform it to => /page-92507-<defaultLang>.html
+                reg = re.compile("/page-[0-9]+\.html")
+                if reg.match(new_link):
+                    link_parts = new_link.split(".")
+                    # Adding default language to link
+                    new_link = "{}-{}.{}".format(link_parts[0], link_lang, link_parts[1])
 
                 tag[attribute] = new_link
 
                 self.internal_links += 1
+
             # internal links written by hand, e.g.
             # /team
             # /page-92507-fr.html
