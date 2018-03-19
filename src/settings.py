@@ -95,6 +95,7 @@ DEFAULT_CONFIG_INSTALLS_LOCKED = True
 DEFAULT_CONFIG_UPDATES_AUTOMATIC = True
 
 DEFAULT_THEME_NAME = 'epfl-master'
+BANNER_THEME_NAME = 'epfl-blank'
 
 PLUGINS_CONFIG_BASE_PATH = Utils.get_optional_env(
     "PLUGINS_CONFIG_BASE_PATH", os.path.sep.join(['..', 'data', 'plugins']))

@@ -11,6 +11,7 @@ import string
 import binascii
 import random
 import xml.dom.minidom
+import re
 
 from urllib.parse import urlsplit
 from bs4 import BeautifulSoup
@@ -47,6 +48,14 @@ class Utils(object):
 
     # the cache with all the doms
     dom_cache = {}
+
+    @staticmethod
+    def increment_count(dictionary, key):
+        """Increments the value of the given key in the given dictionary by one"""
+        if key in dictionary:
+            dictionary[key] = dictionary[key] + 1
+        else:
+            dictionary[key] = 1
 
     @staticmethod
     def get_tag_attribute(dom, tag, attribute):
@@ -396,3 +405,10 @@ class Utils(object):
                 fp.write(new_file_data)
                 fp.truncate(fp.tell())
                 fp.flush()
+
+    @staticmethod
+    def clean_html_comments(content):
+        """
+        Clean HTML comments
+        """
+        return re.sub("(<!--.*?-->)", "", content)
