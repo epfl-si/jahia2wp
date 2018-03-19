@@ -23,3 +23,5 @@ plugins:
     config: !include EPFL-settings/v1/config-plugin.yml
   - name: EPFL-Share
     config: !include EPFL-Share/v1/config-plugin.yml
+  - name: EPFL-Content-Filter
+    config: !include EPFL-Content-Filter/v1/config-plugin.yml
