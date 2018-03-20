@@ -797,16 +797,19 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
     box_types = set()
 
     for index, row in enumerate(rows):
-        # parse the Site
-        site = parse(site=row['Jahia_zip'], use_cache=use_cache)
+        try:
+            # parse the Site
+            site = parse(site=row['Jahia_zip'], use_cache=use_cache)
 
-        # add the report info
-        reports.append(site.get_report_info())
+            # add the report info
+            reports.append(site.get_report_info())
 
-        # add the site's box types
-        for key in site.num_boxes.keys():
-            if key:
-                box_types.add(key)
+            # add the site's box types
+            for key in site.num_boxes.keys():
+                if key:
+                    box_types.add(key)
+        except Exception as e:
+                logging.error("Site %s - Error %s", row['Jahia_zip'], e)
 
     # the base field names for the csv
     fieldnames = ["name", "pages", "files"]
