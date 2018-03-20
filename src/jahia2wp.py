@@ -334,28 +334,29 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
         site_dir = unzip(site, output_dir=output_dir)
 
         # where to cache our parsing
-        pickle_file = os.path.join(site_dir, 'parsed_%s.pkl' % site)
+        pickle_file_path = os.path.join(site_dir, 'parsed_%s.pkl' % site)
 
         # when using-cache: check if already parsed
         pickle_site = False
         if use_cache:
-            if os.path.exists(pickle_file):
-                with open(pickle_file, 'rb') as pickle_content:
+            if os.path.exists(pickle_file_path):
+                with open(pickle_file_path, 'rb') as pickle_content:
                     pickle_site = pickle.load(pickle_content)
-                    logging.info("Loaded parsed site from %s" % pickle_file)
+                    logging.info("Using the cached pickle file at %s" % pickle_file_path)
 
         logging.info("Parsing Jahia xml files from %s...", site_dir)
         if pickle_site:
             site = pickle_site
         else:
+            logging.info("Cache not used, parsing the Site")
             site = Site(site_dir, site)
 
         print(site.report)
 
         # always save the parsed data on disk, so we can use the
         # cache later if we want
-        with open(pickle_file, 'wb') as output:
-            logging.info("Parsed site saved into %s" % pickle_file)
+        with open(pickle_file_path, 'wb') as output:
+            logging.info("Parsed site saved into %s" % pickle_file_path)
             pickle.dump(site, output, pickle.HIGHEST_PROTOCOL)
 
         # log success
@@ -624,7 +625,7 @@ def backup(wp_env, wp_url, **kwargs):
     if not wp_backup.backup():
         raise SystemExit("Backup failed. More info above")
 
-    print("Successfull {} backup for {}".format(
+    print("Successful {} backup for {}".format(
         wp_backup.backup_pattern, wp_backup.wp_site.url))
 
 
@@ -781,35 +782,50 @@ def update_plugins_many(csv_file, plugin=None, force=False, **kwargs):
 
 @dispatch.on('global-report')
 def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
+    """Generate a global report with stats like the number of pages, files and boxes"""
 
-    "Generate a global report with stats like the number of pages, files and boxes"
     path = os.path.join(output_dir, "global-report.csv")
 
     logging.info("Generating global report at %s" % path)
 
     rows = Utils.csv_filepath_to_dict(csv_file)
 
-    sites = []
+    # the reports
+    reports = []
+
+    # all the box types
+    box_types = set()
 
     for index, row in enumerate(rows):
         try:
-            sites.append(parse(site=row['Jahia_zip'], use_cache=use_cache))
+            # parse the Site
+            site = parse(site=row['Jahia_zip'], use_cache=use_cache)
+
+            # add the report info
+            reports.append(site.get_report_info())
+
+            # add the site's box types
+            for key in site.num_boxes.keys():
+                if key:
+                    box_types.add(key)
         except Exception as e:
-            logging.error("Site %s - Error %s", row['Jahia_zip'], e)
-
-    # retrieve all the box types
-    box_types = set()
-
-    for site in sites:
-        for key in site.num_boxes.keys():
-            if key:
-                box_types.add(key)
+                logging.error("Site %s - Error %s", row['Jahia_zip'], e)
 
     # the base field names for the csv
     fieldnames = ["name", "pages", "files"]
 
     # add all the box types
     fieldnames.extend(sorted(box_types))
+
+    # complete the reports with 0 for box types unknown to a Site
+    for box_type in box_types:
+        for report in reports:
+            if box_type not in report:
+                report[box_type] = 0
+
+            # some reports have an empty string
+            if "" in report:
+                del report[""]
 
     # write the csv file
     with open(path, 'w') as csvfile:
@@ -818,9 +834,12 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
         # header
         writer.writeheader()
 
-        # content
-        for site in sites:
-            writer.writerow(site.get_report_info(box_types))
+        for report in reports:
+            try:
+                writer.writerow(report)
+
+            except Exception as e:
+                logging.error("Site %s - Error %s", report['name'], e)
 
 
 if __name__ == '__main__':

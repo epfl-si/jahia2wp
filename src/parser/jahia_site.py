@@ -250,10 +250,9 @@ class Site:
                 # Adding banner for current lang
                 self.banner[language] = Banner(Utils.get_tag_attribute(banner_list_list[0], "banner", "jahia:value"))
 
-    def get_report_info(self, box_types):
+    def get_report_info(self):
         """
-        Return the report info as a dict. As an argument you can
-        pass an array of box types to have their count number.
+        Returns the report info as a dict.
         """
 
         # common info
@@ -263,9 +262,8 @@ class Site:
             "files": self.num_files,
         }
 
-        # add the number of boxes for each type
-        for type in box_types:
-            info[type] = self.get_num_boxes(type)
+        # add the num_boxes
+        info.update(self.num_boxes)
 
         return info
 
