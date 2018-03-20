@@ -18,6 +18,7 @@ Usage:
     [--installs-locked=<BOOLEAN> --updates-automatic=<BOOLEAN>]
     [--openshift-env=<OPENSHIFT_ENV> --theme=<THEME>]
     [--use-cache]
+    [--keep-extracted-files]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--stop-on-errors]
   jahia2wp.py clean-many            <csv_file>                      [--debug | --quiet]
@@ -33,6 +34,7 @@ Usage:
   jahia2wp.py generate-many         <csv_file>                      [--debug | --quiet]
   jahia2wp.py export-many           <csv_file>                      [--debug | --quiet]
     [--output-dir=<OUTPUT_DIR> --admin-password=<PASSWORD>] [--use-cache]
+    [--keep-extracted-files]
   jahia2wp.py backup-many           <csv_file>                      [--debug | --quiet]
   jahia2wp.py rotate-backup         <csv_file>          [--dry-run] [--debug | --quiet]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
@@ -372,7 +374,7 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
 @dispatch.on('export')
 def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=False, admin_password=None,
            output_dir=None, theme=None, installs_locked=False, updates_automatic=False, openshift_env=None,
-           use_cache=None, **kwargs):
+           use_cache=None, keep_extracted_files=False, **kwargs):
     """
     Export the jahia content into a WordPress site.
 
@@ -387,6 +389,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     :param installs_locked: boolean
     :param updates_automatic: boolean
     :param openshift_env: openshift_env environment (prod, int, gcharmier ...)
+    :param keep_extracted_files: command to keep files extracted from jahia zip
     """
 
     # Download, Unzip the jahia zip and parse the xml data
@@ -482,20 +485,22 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
 
     _generate_csv_line(wp_generator)
 
-    # Delete extracted zip files
-    # We take dirname because site.base_path is the path to the subfolder in the zip.
-    # Example : path_to_extract/dcsl/dcsl
-    # And we want to delete path_to_extract/dcsl
-    base_zip_path = os.path.dirname(os.path.abspath(site.base_path))
-    logging.debug("Removing zip extracted folder '%s'", base_zip_path)
-    if os.path.exists(base_zip_path):
-        shutil.rmtree(base_zip_path)
+    if not keep_extracted_files:
+        # Delete extracted zip files
+        # We take dirname because site.base_path is the path to the subfolder in the zip.
+        # Example : path_to_extract/dcsl/dcsl
+        # And we want to delete path_to_extract/dcsl
+        base_zip_path = os.path.dirname(os.path.abspath(site.base_path))
+        logging.debug("Removing zip extracted folder '%s'", base_zip_path)
+        if os.path.exists(base_zip_path):
+            shutil.rmtree(base_zip_path)
 
     return wp_exporter
 
 
 @dispatch.on('export-many')
-def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None, **kwargs):
+def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None,
+                keep_extracted_files=False, **kwargs):
 
     rows = Utils.csv_filepath_to_dict(csv_file)
 
@@ -521,7 +526,8 @@ def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None, 
                 updates_automatic=row['updates_automatic'],
                 wp_env=row['openshift_env'],
                 admin_password=admin_password,
-                use_cache=use_cache
+                use_cache=use_cache,
+                keep_extracted_files=keep_extracted_files
             )
         except (Exception, subprocess.CalledProcessError) as e:
             Tracer.write_row(site=row['Jahia_zip'], step=e, status="KO")
