@@ -1,3 +1,6 @@
 src: generic/EPFL-Content-Filter/v1/EPFL-Content-Filter.zip
 activate: yes
+install_if:
+  csv_value: !from_csv installs_locked
+  equals: yes
 
