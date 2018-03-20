@@ -595,7 +595,7 @@ class WPExporter:
             for lang in self.site.homepage.contents.keys():
 
                 for box in self.site.homepage.contents[lang].sidebar.boxes:
-                    if box.type in [Box.TYPE_TEXT, Box.TYPE_CONTACT, Box.TYPE_LINKS]:
+                    if box.type in [Box.TYPE_TEXT, Box.TYPE_CONTACT, Box.TYPE_LINKS, Box.TYPE_FILES]:
                         widget_type = 'text'
                         title = prepare_html(box.title)
                         content = prepare_html(box.content)
