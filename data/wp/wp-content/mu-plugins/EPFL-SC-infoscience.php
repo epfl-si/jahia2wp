@@ -67,4 +67,4 @@ function epfl_infoscience_process_shortcode($attributes, $content = null)
 
 }
 
-add_shortcode('epfl_infoscience', epfl_infoscience_process_shortcode);
+add_shortcode('epfl_infoscience', 'epfl_infoscience_process_shortcode');

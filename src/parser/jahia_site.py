@@ -3,6 +3,7 @@
 import os
 import logging
 import collections
+import re
 
 from bs4 import BeautifulSoup
 from parser.box import Box
@@ -12,7 +13,9 @@ from parser.page import Page
 from parser.page_content import PageContent
 from parser.sitemap_node import SitemapNode
 from parser.menu_item import MenuItem
+from parser.banner import Banner
 from utils import Utils
+
 
 """
 This file is named jahia_site to avoid a conflict with Site [https://docs.python.org/3/library/site.html]
@@ -67,6 +70,10 @@ class Site:
         self.breadcrumb_title = {}
         self.breadcrumb_url = {}
 
+        # Banner (may stay empty if no custom banner defined)
+        # Dict with language as key and Banner object as value
+        self.banner = {}
+
         # footer
         self.footer = {}
 
@@ -94,7 +101,6 @@ class Site:
         self.num_templates = {}
         # the number of each html tags, e.g. "br": 10
         self.num_tags = {}
-        self.num_url_menu_root = 0
         # we have a SitemapNode for each language
         self.sitemaps = {}
         self.report = ""
@@ -233,6 +239,17 @@ class Site:
 
                     self.parse_menu_entries(language, nav_list_list, None)
 
+    def parse_banner(self):
+        """ Extracting banner information if found """
+        for language, dom_path in self.export_files.items():
+            dom = Utils.get_dom(dom_path)
+
+            banner_list_list = dom.getElementsByTagName("bannerListList")
+            # If banner information is found
+            if banner_list_list:
+                # Adding banner for current lang
+                self.banner[language] = Banner(Utils.get_tag_attribute(banner_list_list[0], "banner", "jahia:value"))
+
     def get_report_info(self, box_types):
         """
         Return the report info as a dict. As an argument you can
@@ -266,6 +283,7 @@ class Site:
         self.parse_site_params()
         self.parse_menu()
         self.parse_breadcrumb()
+        self.parse_banner()
         self.parse_footer()
         self.parse_pages()
         self.parse_pages_content()
@@ -544,14 +562,32 @@ class Site:
             # /cms/op/edit/PAGE_NAME or
             # /cms/site/SITE_NAME/op/edit/lang/LANGUAGE/PAGE_NAME
             elif "/op/edit/" in link:
+                # To have /PAGE_NAME$
+                # or /lang/LANGUAGE/PAGE_NAME
                 new_link = link[link.index("/op/edit") + 8:]
 
+                # if link like /lang/LANGUAGE/PAGE_NAME
                 if new_link.startswith("/lang/"):
+                    link_lang = new_link.split("/")[2]
+                    # To have /PAGE_NAME
                     new_link = new_link[8:]
+
+                else:  # Link like /PAGE_NAME
+                    # Site has probably only one language so we take it to build new URL
+                    link_lang = self.languages[0]
+
+                # If link doesn't contains lang => /page-92507.html
+                # We transform it to => /page-92507-<defaultLang>.html
+                reg = re.compile("/page-[0-9]+\.html")
+                if reg.match(new_link):
+                    link_parts = new_link.split(".")
+                    # Adding default language to link
+                    new_link = "{}-{}.{}".format(link_parts[0], link_lang, link_parts[1])
 
                 tag[attribute] = new_link
 
                 self.internal_links += 1
+
             # internal links written by hand, e.g.
             # /team
             # /page-92507-fr.html
@@ -711,7 +747,7 @@ Parsed for %s :
         self.report += "    - %s anchor links\n" % self.anchor_links
         self.report += "    - %s broken links\n" % self.broken_links
         self.report += "    - %s unknown links\n" % self.unknown_links
-        self.report += "    - %s root menu entries with URLs\n" % self.num_url_menu_root
+        self.report += "    - %s menu entries with URLs\n" % self.num_url_menu
 
         # tags
         self.report += "\n"

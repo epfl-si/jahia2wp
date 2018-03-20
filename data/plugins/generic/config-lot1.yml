@@ -25,3 +25,8 @@ plugins:
     config: !include EPFL-Share/v1/config-plugin.yml
   - name: EPFL-Content-Filter
     config: !include EPFL-Content-Filter/v1/config-plugin.yml
+  - name: svg-support
+    config: !include svg-support/v1/config-plugin.yml
+  - name: shortcodes-ultimate
+    config: !include shortcodes-ultimate/v1/config-plugin.yml
+

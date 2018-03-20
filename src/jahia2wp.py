@@ -56,6 +56,7 @@ import getpass
 import logging
 import pickle
 import subprocess
+import shutil
 
 from datetime import datetime
 import json
@@ -74,7 +75,7 @@ from crawler import JahiaCrawler
 from exporter.wp_exporter import WPExporter
 from parser.jahia_site import Site
 from settings import VERSION, FULL_BACKUP_RETENTION_THEME, INCREMENTAL_BACKUP_RETENTION_THEME, \
-    DEFAULT_THEME_NAME, DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
+    DEFAULT_THEME_NAME, BANNER_THEME_NAME, DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
 from tracer.tracer import Tracer
 from unzipper.unzip import unzip_one
 from utils import Utils
@@ -414,6 +415,10 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     else:
         wp_tagline = site.title[default_language]
 
+    if not theme:
+        # Setting correct theme depending on parsing result
+        theme = BANNER_THEME_NAME if default_language in site.banner else DEFAULT_THEME_NAME
+
     info = {
         # information from parser
         'langs': ",".join(languages),
@@ -476,6 +481,15 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     wp_generator.enable_updates_automatic_if_allowed()
 
     _generate_csv_line(wp_generator)
+
+    # Delete extracted zip files
+    # We take dirname because site.base_path is the path to the subfolder in the zip.
+    # Example : path_to_extract/dcsl/dcsl
+    # And we want to delete path_to_extract/dcsl
+    base_zip_path = os.path.dirname(os.path.abspath(site.base_path))
+    logging.debug("Removing zip extracted folder '%s'", base_zip_path)
+    if os.path.exists(base_zip_path):
+        shutil.rmtree(base_zip_path)
 
     return wp_exporter
 
