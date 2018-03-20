@@ -843,54 +843,53 @@ def url_mapping(csv_file, wp_env, fix_csv=False, **kwargs):
     (likely 2 main: www.epfl.ch and inside.epfl.ch). 
     """
     
-     # Validate the CSV and try to fix it if possible
-    valid_out = _validate_mapping_csv(csv_file, fix_csv)
-    if valid_out is not True: 
-        logging.error("URL mapping CSV is not valid! See below. Stopping...")
-        logging.error(valid_out)
-    else:
-        # Extract all the sites as site (key) => paths (value)
-        sites = {}
-        rows = Utils.csv_filepath_to_dict(csv_file)
-        for idx, row in enumerate(rows):
-            source = row['source']
-            # Split the path and take the first arg as site
-            # Consider special case of http(s)://
-            site = source.split('//').pop().split('/').pop(0)
-            if site not in sites: sites[site] = []
-            # Append the URL to the site's list
-            sites[site].append((source, row['destination']))
-        logging.info("{0} total sites found.".format(len(sites)))
-        logging.debug(sites)
+    # Extract all the sites as site (key) => paths (value)
+    sites = {}
+    rows = Utils.csv_filepath_to_dict(csv_file)
+    for idx, row in enumerate(rows):
+        source = row['source']
+        # Split the path and take the first arg as site
+        # Consider special case of http(s)://
+        site = source.split('//').pop().split('/').pop(0)
+        if site not in sites: sites[site] = []
+        # Append the URL to the site's list
+        sites[site].append((source, row['destination']))
+    logging.info("{0} total sites found.".format(len(sites)))
+    logging.debug(sites)
+    
+    # Sort the rules from most generic to specific. The key is that specific rules (pages) 
+    # might be missing parent pages at the destination (e.g. it could be only a page rename). 
+    # In that sense specific pages will be treated at the end.
+    for site in sites:
+        sites[site].sort(key=lambda rule: len(rule[0].split('/')))
+    # print(sites)
+    
+     # Iterate and parse a site at a time, here is where parallelisation can come in.
+    for site_k in sites:
+        site = site_k
+        if 'http://' not in site or 'https://' not in site:
+            # Local development case, append the host
+            site = 'http://jahia2wp-httpd/{}'.format(site)
+        logging.info('Treating site {}'.format(site))
+        # Load wp_config using existing functions, can't use _check_site since it exits 
+        # if the site does not exist or is invalid.
+        wp_conf = WPConfig(WPSite(wp_env, site))
+        if not wp_conf.is_installed or not wp_conf.is_config_valid:
+            cmd = 'Site {} is not installed or wp_config is invalid, skipping...'
+            logging.warn(cmd.format(site))
+            # Empty the full rules set for the site but keep the key.
+            sites[site_k] = []
+            continue
         
-        # Sort the rules from most generic to specific. The key is that specific rules (pages) 
-        # might be missing parent pages at the destination (e.g. it could be only a page rename). 
-        # In that sense specific pages will be treated at the end.
-        for site in sites:
-            sites[site].sort(key=lambda rule: len(rule[0].split('/')))
-        print(sites)
+        # Dump the site content in plain JSON format.
+        logging.info("Dumping json for site {}".format(site))
+        fields = 'ID,post_title,post_name,post_parent,url,post_status,post_content'
+        cmd = 'wp post list --post_type=page --nopaging --format=json --fields={} --path={} > {}'
+        sitename = site.split('/').pop()
+        cmd = cmd.format(fields, wp_conf.wp_site.path, sitename + '.json')
+        logging.info(cmd)
+        Utils.run_command(cmd, 'utf8')
         
-         # Iterate and parse a site at a time, here is where parallelisation can come in.
-        for site in sites:
-            if 'http://' not in site or 'https://' not in site:
-                # Local development case, append the host
-                site = 'http://jahia2wp-httpd/{}'.format(site)
-            wp_conf = _check_site(wp_env, site)
-            print(wp_conf)
-            
-def _validate_mapping_csv(csv_file, fix_csv):
-    """
-    :param csv_file: CSV containing the URL mapping rules for source and destination.
-    :param fix_csv: Try to fix the CSV when set to True.
-    
-    It validates the url mapping contained in the CSV file as source => destination. 
-    The first line is treated as headers. 
-    
-    Refer to function :func:`url_mapping` for a full explanation.
-    """
-    
-    return True
-
 if __name__ == '__main__':
 
     # docopt return a dictionary with all arguments
