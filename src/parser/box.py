@@ -17,6 +17,7 @@ class Box:
     TYPE_CONTACT = "contact"
     TYPE_XML = "xml"
     TYPE_LINKS = "links"
+    TYPE_RSS = "rss"
 
     # Mapping of known box types from Jahia to WP
     types = {
@@ -30,7 +31,8 @@ class Box:
         "epfl:htmlBox": TYPE_INCLUDE,
         "epfl:contactBox": TYPE_CONTACT,
         "epfl:xmlBox": TYPE_XML,
-        "epfl:linksBox": TYPE_LINKS
+        "epfl:linksBox": TYPE_LINKS,
+        "epfl:rssBox": TYPE_RSS
     }
 
     def __init__(self, site, page_content, element, multibox=False):
@@ -87,6 +89,9 @@ class Box:
         # links
         elif self.TYPE_LINKS == self.type:
             self.set_box_links(element)
+        # rss
+        elif self.TYPE_RSS == self.type:
+            self.set_box_rss(element)
         # unknown
         else:
             self.set_box_unknown(element)
@@ -169,6 +174,26 @@ class Box:
 
         self.content = "[xml xml=%s xslt=%s]" % (xml, xslt)
 
+    def set_box_rss(self, element):
+        """set the attributes of an rss box"""
+
+        url = Utils.get_tag_attribute(element, "url", "jahia:value")
+        nb_items = Utils.get_tag_attribute(element, "nbItems", "jahia:value")
+        show_items = Utils.get_tag_attribute(element, "detailItems", "jahia:value")
+        hide_title = Utils.get_tag_attribute(element, "hideTitle", "jahia:value")
+        encoding = Utils.get_tag_attribute(element, "feedEncoding", "jahia:value")
+
+        self.content = "[rss url={} nb_items={} show_items={} hide_title={} encoding={}]"\
+            .format(url, nb_items, show_items, hide_title, encoding)
+
+    def set_box_links(self, element):
+        """set the attributes of a links box"""
+        self.content = self._parse_links_to_list(element)
+
+    def set_box_unknown(self, element):
+        """set the attributes of an unknown box"""
+        self.content = "[%s]" % element.getAttribute("jcr:primaryType")
+
     def _parse_links_to_list(self, element):
         """Handles link tags that can be found in linksBox and textBox"""
         elements = element.getElementsByTagName("link")
@@ -192,14 +217,6 @@ class Box:
             return ""
 
         return content
-
-    def set_box_links(self, element):
-        """set the attributes of a links box"""
-        self.content = self._parse_links_to_list(element)
-
-    def set_box_unknown(self, element):
-        """set the attributes of an unknown box"""
-        self.content = "[%s]" % element.getAttribute("jcr:primaryType")
 
     def __str__(self):
         return self.type + " " + self.title
