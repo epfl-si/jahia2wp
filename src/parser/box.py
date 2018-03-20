@@ -18,6 +18,7 @@ class Box:
     TYPE_XML = "xml"
     TYPE_LINKS = "links"
     TYPE_RSS = "rss"
+    TYPE_FILES = "files"
 
     # Mapping of known box types from Jahia to WP
     types = {
@@ -33,6 +34,7 @@ class Box:
         "epfl:xmlBox": TYPE_XML,
         "epfl:linksBox": TYPE_LINKS,
         "epfl:rssBox": TYPE_RSS
+        "epfl:filesBox": TYPE_FILES
     }
 
     def __init__(self, site, page_content, element, multibox=False):
@@ -92,6 +94,9 @@ class Box:
         # rss
         elif self.TYPE_RSS == self.type:
             self.set_box_rss(element)
+        # files
+        elif self.TYPE_FILES == self.type:
+            self.set_box_files(element)
         # unknown
         else:
             self.set_box_unknown(element)
@@ -206,17 +211,42 @@ class Box:
                     continue
                 if jahia_tag.tagName == "jahia:link":
                     page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
-                    content += "<li><a href={}>{}</a></li>".format(page.pid, jahia_tag.getAttribute("jahia:title"))
+                    content += '<li><a href="{}">{}</a></li>'.format(page.pid, jahia_tag.getAttribute("jahia:title"))
                 elif jahia_tag.tagName == "jahia:url":
                     url = jahia_tag.getAttribute("jahia:value")
                     title = jahia_tag.getAttribute("jahia:title")
-                    content += "<li><a href={}>{}</a></li>".format(url, title)
+                    content += '<li><a href="{}">{}</a></li>'.format(url, title)
         content += "</ul>"
 
         if content == "<ul></ul>":
             return ""
 
         return content
+
+    def set_box_links(self, element):
+        """set the attributes of a links box"""
+        self.content = self._parse_links_to_list(element)
+
+    def set_box_files(self, element):
+        """set the attributes of a files box"""
+        elements = element.getElementsByTagName("file")
+        content = "<ul>"
+        for e in elements:
+            if e.ELEMENT_NODE != e.nodeType:
+                continue
+            # URL is like /content/sites/<site_name>/files/file
+            # splitted gives ['', content, sites, <site_name>, files, file]
+            # result of join is files/file and we add the missing '/' in front.
+            file_url = '/'.join(e.getAttribute("jahia:value").split("/")[4:])
+            file_url = '/' + file_url
+            file_name = file_url.split("/")[-1]
+            content += '<li><a href="{}">{}</a></li>'.format(file_url, file_name)
+        content += "</ul>"
+        self.content = content
+
+    def set_box_unknown(self, element):
+        """set the attributes of an unknown box"""
+        self.content = "[%s]" % element.getAttribute("jcr:primaryType")
 
     def __str__(self):
         return self.type + " " + self.title
