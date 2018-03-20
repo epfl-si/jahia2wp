@@ -971,6 +971,12 @@ class WPExporter:
         """
         redirect_list = []
 
+        # Init WP install folder path for source URLs
+        if self.wp_generator.wp_site.folder == "":
+            folder = ""
+        else:
+            folder = "/{}".format(self.wp_generator.wp_site.folder)
+
         # Add all rewrite jahia URI to WordPress URI
         for element in self.urls_mapping:
 
@@ -981,7 +987,10 @@ class WPExporter:
 
                 # We skip this redirection to avoid infinite redirection...
                 if jahia_url != "/index.html":
-                    redirect_list.append("Redirect 301 {} {}".format(jahia_url, wp_url))
+                    source_url = "{}{}".format(folder, jahia_url)
+                    # To avoid Infinite loop
+                    if source_url != wp_url[:-1]:
+                        redirect_list.append("Redirect 301 {} {}".format(source_url,  wp_url))
 
         if redirect_list:
             # Updating .htaccess file
