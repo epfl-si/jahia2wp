@@ -33,7 +33,7 @@ class Box:
         "epfl:contactBox": TYPE_CONTACT,
         "epfl:xmlBox": TYPE_XML,
         "epfl:linksBox": TYPE_LINKS,
-        "epfl:rssBox": TYPE_RSS
+        "epfl:rssBox": TYPE_RSS,
         "epfl:filesBox": TYPE_FILES
     }
 
@@ -199,6 +199,23 @@ class Box:
         """set the attributes of an unknown box"""
         self.content = "[%s]" % element.getAttribute("jcr:primaryType")
 
+    def set_box_files(self, element):
+        """set the attributes of a files box"""
+        elements = element.getElementsByTagName("file")
+        content = "<ul>"
+        for e in elements:
+            if e.ELEMENT_NODE != e.nodeType:
+                continue
+            # URL is like /content/sites/<site_name>/files/file
+            # splitted gives ['', content, sites, <site_name>, files, file]
+            # result of join is files/file and we add the missing '/' in front.
+            file_url = '/'.join(e.getAttribute("jahia:value").split("/")[4:])
+            file_url = '/' + file_url
+            file_name = file_url.split("/")[-1]
+            content += '<li><a href="{}">{}</a></li>'.format(file_url, file_name)
+        content += "</ul>"
+        self.content = content
+
     def _parse_links_to_list(self, element):
         """Handles link tags that can be found in linksBox and textBox"""
         elements = element.getElementsByTagName("link")
@@ -222,31 +239,6 @@ class Box:
             return ""
 
         return content
-
-    def set_box_links(self, element):
-        """set the attributes of a links box"""
-        self.content = self._parse_links_to_list(element)
-
-    def set_box_files(self, element):
-        """set the attributes of a files box"""
-        elements = element.getElementsByTagName("file")
-        content = "<ul>"
-        for e in elements:
-            if e.ELEMENT_NODE != e.nodeType:
-                continue
-            # URL is like /content/sites/<site_name>/files/file
-            # splitted gives ['', content, sites, <site_name>, files, file]
-            # result of join is files/file and we add the missing '/' in front.
-            file_url = '/'.join(e.getAttribute("jahia:value").split("/")[4:])
-            file_url = '/' + file_url
-            file_name = file_url.split("/")[-1]
-            content += '<li><a href="{}">{}</a></li>'.format(file_url, file_name)
-        content += "</ul>"
-        self.content = content
-
-    def set_box_unknown(self, element):
-        """set the attributes of an unknown box"""
-        self.content = "[%s]" % element.getAttribute("jcr:primaryType")
 
     def __str__(self):
         return self.type + " " + self.title
