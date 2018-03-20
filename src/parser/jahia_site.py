@@ -98,6 +98,7 @@ class Site:
         self.unknown_links = 0
         self.num_boxes = {}
         self.num_url_menu = 0
+        self.num_link_menu = 0
         self.num_templates = {}
         # the number of each html tags, e.g. "br": 10
         self.num_tags = {}
@@ -191,13 +192,19 @@ class Site:
                         txt = jahia_type.getAttribute("jahia:title")
                         hidden = jahia_type.getAttribute("jahia:hideFromNavigationMenu") != ""
                         target = "sitemap" if jahia_type.getAttribute("jahia:template") == "sitemap" \
-                            else None
+                            else jahia_type.getAttribute("jcr:uuid")
                     # If URL
                     elif jahia_type.nodeName == "jahia:url":
                         txt = jahia_type.getAttribute("jahia:title")
                         target = jahia_type.getAttribute("jahia:value")
 
                         self.num_url_menu += 1
+                    # If link to another page in the menu
+                    elif jahia_type.nodeName == "jahia:link":
+                        txt = jahia_type.getAttribute("jahia:title")
+                        target = jahia_type.getAttribute("jahia:reference")
+
+                        self.num_link_menu += 1
                     else:
                         continue
 
@@ -748,6 +755,7 @@ Parsed for %s :
         self.report += "    - %s broken links\n" % self.broken_links
         self.report += "    - %s unknown links\n" % self.unknown_links
         self.report += "    - %s menu entries with URLs\n" % self.num_url_menu
+        self.report += "    - %s duplicate menu entries to page\n" % self.num_link_menu
 
         # tags
         self.report += "\n"
