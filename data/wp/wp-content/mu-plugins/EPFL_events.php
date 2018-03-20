@@ -10,13 +10,87 @@ define("MEMENTO_API_URL", "https://memento.epfl.ch/api/v1/mementos/");
 define("MEMENTO_API_URL_IFRAME", "https://memento.epfl.ch/webservice/?frame=1");
 
 /**
- * Build HTML. This template is waiting for Aline templates.
+ * Template with only the title on the event
  */
-function epfl_memento_build_html($events): string
-{
+function epfl_memento_template_short_text($events): string {
     $html_content = '<div>';
+    $html_content .= '<p>SHORT TEXT</p>';
 	foreach ($events->results as $item) {
-        $html_content .= '<div style="height: 103px;">';
+        $html_content .= '<div>';
+        $html_content .= '<h3>' . $item->title . '</h3>';
+        $html_content .= '<p>' . $item->start_date . '</p>';
+        $html_content .= '<p>' . $item->end_date . '</p>';
+		$html_content .= '</div>';
+    }
+    $html_content .= '</div>';
+    return $html_content;
+}
+
+/**
+ * Template with only the title on the event
+ */
+function epfl_memento_template_text($events): string {
+    $html_content = '<div>';
+    $html_content .= '<p>TEMPLATE TEXT</p>';
+	foreach ($events->results as $item) {
+        $html_content .= '<div>';
+        $html_content .= '<h3>' . $item->title . '</h3>';
+        $html_content .= '<p>' . $item->start_date . '</p>';
+        $html_content .= '<p>' . $item->end_date . '</p>';
+		$html_content .= '</div>';
+    }
+    $html_content .= '</div>';
+    return $html_content;
+}
+
+function epfl_memento_template_with_3_events_and_right_column($events): string {
+    $html_content = '<div>';
+    $html_content .= '<p>template_with_3_events_and_right_column</p>';
+	foreach ($events->results as $item) {
+        $html_content .= '<div>';
+        $html_content .= '<h3>' . $item->title . '</h3>';
+        $html_content .= '<p>' . $item->start_date . '</p>';
+        $html_content .= '<p>' . $item->end_date . '</p>';
+		$html_content .= '</div>';
+    }
+    $html_content .= '</div>';
+    return $html_content;
+}
+
+function epfl_memento_template_with_5_events_and_right_column($events): string {
+    $html_content = '<div>';
+    $html_content .= '<p>template_with_5_events_and_right_column</p>';
+	foreach ($events->results as $item) {
+        $html_content .= '<div>';
+        $html_content .= '<h3>' . $item->title . '</h3>';
+        $html_content .= '<p>' . $item->start_date . '</p>';
+        $html_content .= '<p>' . $item->end_date . '</p>';
+		$html_content .= '</div>';
+    }
+    $html_content .= '</div>';
+    return $html_content;
+}
+
+function epfl_memento_template_with_2_events($events): string {
+    $html_content = '<div>';
+    $html_content .= '<p>template_with_2_events</p>';
+	foreach ($events->results as $item) {
+        $html_content .= '<div>';
+        $html_content .= '<h3>' . $item->title . '</h3>';
+        $html_content .= '<p>' . $item->start_date . '</p>';
+        $html_content .= '<p>' . $item->end_date . '</p>';
+		$html_content .= '</div>';
+    }
+    $html_content .= '</div>';
+    return $html_content;
+}
+
+function epfl_memento_template_with_3_events($events): string {
+
+    $html_content = '<div>';
+    $html_content .= '<p>template_with_3_events</p>';
+	foreach ($events->results as $item) {
+        $html_content .= '<div>';
         $html_content .= '<h3>' . $item->title . '</h3>';
         $html_content .= '<p>' . $item->start_date . '</p>';
         $html_content .= '<p>' . $item->end_date . '</p>';
@@ -24,6 +98,66 @@ function epfl_memento_build_html($events): string
     }
     $html_content.= '</div>';
     return $html_content;
+
+}
+
+function epfl_memento_template_student_portal($events): string {
+
+    $html_content = '<div>';
+    $html_content .= '<p>template_student_portal</p>';
+	foreach ($events->results as $item) {
+        $html_content .= '<div>';
+        $html_content .= '<h3>' . $item->title . '</h3>';
+        $html_content .= '<p>' . $item->start_date . '</p>';
+        $html_content .= '<p>' . $item->end_date . '</p>';
+		$html_content .= '</div>';
+    }
+    $html_content.= '</div>';
+    return $html_content;
+
+}
+
+function epfl_memento_template_homepage_faculty($events): string {
+
+    $html_content = '<div>';
+    $html_content .= '<p>template_homepage_faculty</p>';
+	foreach ($events->results as $item) {
+        $html_content .= '<div>';
+        $html_content .= '<h3>' . $item->title . '</h3>';
+        $html_content .= '<p>' . $item->start_date . '</p>';
+        $html_content .= '<p>' . $item->end_date . '</p>';
+		$html_content .= '</div>';
+    }
+    $html_content.= '</div>';
+    return $html_content;
+
+}
+
+/**
+ * Build HTML. This template is waiting for Aline templates.
+ */
+function epfl_memento_build_html($events, $template): string
+{
+    if ($template === "1") {
+        $html = epfl_memento_template_short_text($events);
+    } elseif ($template === "5") {
+        $html = epfl_memento_template_text($events);
+    } elseif ($template === "6") {
+        $html = epfl_memento_template_with_3_events_and_right_column($events);
+    } elseif ($template === "3") {
+        $html = epfl_memento_template_with_5_events_and_right_column($events);
+    } elseif ($template === "2") {
+        $html = epfl_memento_template_with_3_events($events);
+    } elseif ($template === "8") {
+        $html = epfl_memento_template_with_2_events($events);
+    } elseif ($template === "7") {
+        $html = epfl_memento_template_student_portal($events);
+    } elseif ($template === "9") {
+        $html = epfl_memento_template_homepage_faculty($events);
+    } else {
+        $html = epfl_memento_template_with_3_events($events);
+    }
+    return $html;
 }
 
 /**
@@ -42,7 +176,6 @@ function epfl_memento_built_html_pagination_template(string $memento, string $la
  */
 function epfl_memento_get_limit(string $template): int
 {
-
     switch ($template):
         case "1":
         case "2":
@@ -78,7 +211,7 @@ function epfl_memento_build_api_url(
     $limit = epfl_memento_get_limit($template);
 
     // call API to get  of memento
-    $url = MEMENTO_API_URL;
+    $url = MEMENTO_API_URL. "?format=json&limit=300";
     $mementos = Utils::get_items($url);
 
     // FIXME: we must improve REST API MEMENTO to be able to filter by memento_slug
@@ -139,9 +272,8 @@ function epfl_memento_process_shortcode(
         $lang,
         $category
     );
-
     $events = Utils::get_items($url);
-    return epfl_memento_build_html($events);
+    return epfl_memento_build_html($events, $template);
 }
 
 // define the shortcode
