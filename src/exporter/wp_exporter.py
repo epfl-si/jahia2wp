@@ -106,6 +106,9 @@ class WPExporter:
             start_time = timeit.default_timer()
             tracer_path = os.path.join(self.output_dir, self.TRACER_FILE_NAME)
 
+            # Allow unfiltered content
+            self.run_wp_cli("plugin deactivate EPFL-Content-Filter")
+
             self.import_medias()
             self.import_pages()
             self.set_frontpage()
@@ -114,6 +117,9 @@ class WPExporter:
             self.import_breadcrumb()
             self.delete_draft_pages()
             self.display_report()
+
+            # Disallow unfiltered content
+            self.run_wp_cli("plugin activate EPFL-Content-Filter")
 
             # log execution time
             elapsed = timedelta(seconds=timeit.default_timer() - start_time)
