@@ -209,6 +209,9 @@ class Box:
         for e in elements:
             if e.ELEMENT_NODE != e.nodeType:
                 continue
+            # URL is like /content/sites/<site_name>/files/file
+            # splitted gives ['', content, sites, <site_name>, files, file]
+            # result of join is files/file and we add the missing '/' in front.
             file_url = '/'.join(e.getAttribute("jahia:value").split("/")[4:])
             file_url = '/' + file_url
             file_name = file_url.split("/")[-1]
