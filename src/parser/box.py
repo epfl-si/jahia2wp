@@ -108,24 +108,49 @@ class Box:
     def set_box_people(self, element):
         """ set the attibutes of an people box"""
         """
-        aumonerie
-        https://people.epfl.ch/cgi-bin/getProfiles?unit=AUMONERIE&tmpl=default_bloc&lang=fr&responsive=1
+        aumonerie     
+        http://people.epfl.ch/cgi-bin/getProfiles?unit=AUMONERIE&struct=1&tmpl=default_struct_bloc&lang=en
+        
+        clic
+        http://people.epfl.ch/cgi-bin/getProfiles?unit=CLIC&tmpl=default_bloc&lang=en
+        http://people.epfl.ch/cgi-bin/getProfiles?unit=CLIC&tmpl=default_bloc&lang=fr
+        
+        Pour comprendre la "logique" ci-dessous, il faut lire le code jsp de jahia :
+        https://c4science.ch/source/kis-jahia6-dev/browse/master/core/src/main/webapp/common/box/display/peopleListBoxDisplay.jsp
+
         """
-        parameters = {}
-        parameters['unit'] = Utils.get_tag_attribute(element, "query", "jahia:value")
+
+        BASE_URL = "https://people.epfl.ch/cgi-bin/getProfiles?"
+
+        unit = Utils.get_tag_attribute(element, "query", "jahia:value")
+
         templace_html = Utils.get_tag_attribute(element, "template", "jahia:value")
-        parameters['WP_tmpl'] = Utils.get_tag_attribute(
+
+        template_key = Utils.get_tag_attribute(
             minidom.parseString(templace_html),
             "jahia-resource",
-            "default-value"
+            "key"
         )
+
+        if template_key == 'epfl_peopleListContainer.template.default_bloc':
+            structure = 1
+            template = 'default_struct_bloc'
+
+        elif template_key == 'epfl_peopleListContainer.template.default_bloc_simple':
+            template = 'default_bloc'
+
+        elif template_key == 'epfl_peopleListContainer.template.default_list':
+            template = 'default_list'
+
+        parameters = {}
+        parameters['unit'] = unit
+        parameters['WP_tmpl'] = template
+        parameters['struct'] = structure
+
         # FIXME: la langue n'est pas dans le XML donc on prend la langue de la page quand on sera dans l'exporter ?
         parameters['lang'] = "fr"
 
-        # FIXME: comment savoir si responsive ou pas ?
-        # parameters['responsive'] = "1"
-
-        url = "https://people.epfl.ch/cgi-bin/getProfiles?{}".format(urlencode(parameters))
+        url = "{}{}".format(BASE_URL, urlencode(parameters))
         self.content = '[epfl_people url="{}" /]'.format(url)
 
     def set_box_actu(self, element):
