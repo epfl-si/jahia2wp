@@ -32,12 +32,6 @@ class MenuItem:
     def target_is_file(self):
         return False if self.target is None else '/files/' in self.target
 
-    def target_is_reference(self):
-        # If it is not another possibility, it is a reference
-        return not self.target_is_sitemap() and \
-            not self.target_is_url() and \
-            self.target is not None
-
     def sort_children(self, sort_way):
         self.children_sort_way = sort_way
         self.children.sort(key=lambda x: x.txt, reverse=(sort_way == 'desc'))
