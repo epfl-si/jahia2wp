@@ -182,9 +182,7 @@ class TestPages:
 
                 # Box content
                 for index, box in enumerate(boxes):
-                    print(expected_boxes[index]['content__start'])
                     expected_content = expected_boxes[index]['content__start']
-
                 assert box.content.startswith(expected_content)
 
                 # Box type
