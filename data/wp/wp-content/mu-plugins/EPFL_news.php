@@ -1,4 +1,10 @@
 <?php
+/**
+ * Plugin Name: EPFL News shortcode
+ * Description: provides a shortcode to display news feed
+ * @version: 1.0
+ * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
+ */
 
 declare(strict_types=1);
 
@@ -9,126 +15,166 @@ use utils\Utils as Utils;
 define("NEWS_API_URL", "https://actu.epfl.ch/api/v1/channels/");
 define("NEWS_API_URL_IFRAME", "https://actu.epfl.ch/webservice_iframe/");
 
-function epfl_news_template_text_only($actus, $stickers): string
+/**
+ * Template text only
+ * 
+ * @param $news: response of news API. 
+ * @return html of template
+ */
+function epfl_news_template_text_only($news): string
 {
-    $actu = '<div>';
-	foreach ($actus->results as $item) {
-		$actu .= '<div style="height: 103px;">';
-		$actu .= '  <div style="display:inline-block;margin-left:5px;">';
-		$actu .= '    <h4>';
-		$actu .= '      <a href="/news/how-the-tuberculosis-bacterium-tricks-the-immune-5/" target="_blank">';
-		$actu .= $item->title;
-		$actu .= '      </a>';
-		$actu .= '    </h4>';
-		$actu .= '    <p>';
-		$actu .= '      <span class="date">' . $item->publish_date . ' -</span>';
-		$actu .= '      <span class="heading" style="display:inline">' . substr($item->subtitle, 0, 40) . '</span>';
-        $actu .= '    </p>';
-		$actu .= '  </div>';
-		$actu .= '</div>';
+    $html = '<div>';
+    $html .= '<p>template_text_only</p>';
+	foreach ($news->results as $item) {
+		$html .= '<div style="height: 103px;">';
+		$html .= '  <div style="display:inline-block;margin-left:5px;">';
+		$html .= '    <h4>';
+		$html .= '      <a href="/news/how-the-tuberculosis-bacterium-tricks-the-immune-5/" target="_blank">';
+		$html .= $item->title;
+		$html .= '      </a>';
+		$html .= '    </h4>';
+		$html .= '    <p>';
+		$html .= '      <span class="date">' . $item->publish_date . ' -</span>';
+		$html .= '      <span class="heading" style="display:inline">' . substr($item->subtitle, 0, 40) . '</span>';
+        $html .= '    </p>';
+		$html .= '  </div>';
+		$html .= '</div>';
     }
-    $actu .= '</div>';
-    return $actu;
+    $html .= '</div>';
+    return $html;
 }
 
-function epfl_news_template_fac_with_4_news($actus, $stickers): string
+/**
+ * Template faculty with 4 news
+ * 
+ * @param $news: response of news API. 
+ * @param $stickers: display stickers on images ?
+ * @return html of template
+ */
+function epfl_news_template_fac_with_4_news($news, bool $stickers): string
 {
-    $actu = '<div>';
-	foreach ($actus->results as $item) {
-		$actu .= '<div style="height: 103px;">';
-		$actu .= '  <a style="float:left;" href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
-		$actu .= '    <img style="width: 169px;" src="' . $item->visual_url . '" title="">';
-		$actu .= '  </a>';
-		$actu .= '  <div style="display:inline-block;margin-left:5px;">';
-		$actu .= '    <h4>';
-		$actu .= '      <a href="/news/how-the-tuberculosis-bacterium-tricks-the-immune-5/" target="_blank">';
-		$actu .= $item->title;
-		$actu .= '      </a>';
-		$actu .= '    </h4>';
-		$actu .= '    <p>';
-		$actu .= '      <span class="date">' . $item->publish_date . ' -</span>';
-		$actu .= '      <span class="heading" style="display:inline">' . substr($item->subtitle, 0, 40) . '</span>';
-        $actu .= '    </p>';
-		$actu .= '  </div>';
-		$actu .= '</div>';
+    $html = '<div>';
+    $html .= '<p>template_fac_with_4_news</p>';
+	foreach ($news->results as $item) {
+		$html .= '<div style="height: 103px;">';
+		$html .= '  <a style="float:left;" href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
+		$html .= '    <img style="width: 169px;" src="' . $item->visual_url . '" title="">';
+		$html .= '  </a>';
+		$html .= '  <div style="display:inline-block;margin-left:5px;">';
+		$html .= '    <h4>';
+		$html .= '      <a href="/news/how-the-tuberculosis-bacterium-tricks-the-immune-5/" target="_blank">';
+		$html .= $item->title;
+		$html .= '      </a>';
+		$html .= '    </h4>';
+		$html .= '    <p>';
+		$html .= '      <span class="date">' . $item->publish_date . ' -</span>';
+		$html .= '      <span class="heading" style="display:inline">' . substr($item->subtitle, 0, 40) . '</span>';
+        $html .= '    </p>';
+		$html .= '  </div>';
+		$html .= '</div>';
     }
-    $actu .= '</div>';
-    return $actu;
+    $html .= '</div>';
+    return $html;
 }
 
-function epfl_news_template_labo_with_5_news($actus, $stickers): string
+/**
+ * Template laboratory with 5 news
+ * 
+ * @param $news: response of news API. 
+ * @param $stickers: display stickers on images ?
+ * @return html of template
+ */
+function epfl_news_template_labo_with_5_news($news, bool $stickers): string
 {
-    $actu = '<div>';
-	foreach ($actus->results as $item) {
-		$actu .= '<div style="height: 103px;">';
-		$actu .= '  <a style="float:left;" href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
-		$actu .= '    <img style="width: 169px;" src="' . $item->visual_url . '" title="">';
-		$actu .= '  </a>';
-		$actu .= '  <div style="display:inline-block;margin-left:5px;">';
-		$actu .= '    <h4>';
-		$actu .= '      <a href="/news/how-the-tuberculosis-bacterium-tricks-the-immune-5/" target="_blank">';
-		$actu .= $item->title;
-		$actu .= '      </a>';
-		$actu .= '    </h4>';
-		$actu .= '    <p>';
-		$actu .= '      <span class="date">' . $item->publish_date . ' -</span>';
-		$actu .= '      <span class="heading" style="display:inline">' . substr($item->subtitle, 0, 40) . '</span>';
-        $actu .= '    </p>';
-		$actu .= '  </div>';
-		$actu .= '</div>';
+    $html = '<div>';
+    $html .= '<p>template_labo_with_5_news</p>';
+	foreach ($news->results as $item) {
+		$html .= '<div style="height: 103px;">';
+		$html .= '  <a style="float:left;" href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
+		$html .= '    <img style="width: 169px;" src="' . $item->visual_url . '" title="">';
+		$html .= '  </a>';
+		$html .= '  <div style="display:inline-block;margin-left:5px;">';
+		$html .= '    <h4>';
+		$html .= '      <a href="/news/how-the-tuberculosis-bacterium-tricks-the-immune-5/" target="_blank">';
+		$html .= $item->title;
+		$html .= '      </a>';
+		$html .= '    </h4>';
+		$html .= '    <p>';
+		$html .= '      <span class="date">' . $item->publish_date . ' -</span>';
+		$html .= '      <span class="heading" style="display:inline">' . substr($item->subtitle, 0, 40) . '</span>';
+        $html .= '    </p>';
+		$html .= '  </div>';
+		$html .= '</div>';
     }
-    $actu .= '</div>';
-    return $actu;
+    $html .= '</div>';
+    return $html;
 }
 
-function epfl_news_template_labo_with_3_news($actus, $stickers): string
+/**
+ * Template laboratory with 3 news
+ * 
+ * @param $news: response of news API. 
+ * @param $stickers: display stickers on images ?
+ * @return html of template
+ */
+function epfl_news_template_labo_with_3_news($news, bool $stickers): string
 {
-    $actu = '<div>';
-	foreach ($actus->results as $item) {
-		$actu .= '<div style="height: 103px;">';
-		$actu .= '  <a style="float:left;" href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
-		$actu .= '    <img style="width: 169px;" src="' . $item->visual_url . '" title="">';
-		$actu .= '  </a>';
-		$actu .= '  <div style="display:inline-block;margin-left:5px;">';
-		$actu .= '    <h4>';
-		$actu .= '      <a href="/news/how-the-tuberculosis-bacterium-tricks-the-immune-5/" target="_blank">';
-		$actu .= $item->title;
-		$actu .= '      </a>';
-		$actu .= '    </h4>';
-		$actu .= '    <p>';
-		$actu .= '      <span class="date">' . $item->publish_date . ' -</span>';
-		$actu .= '      <span class="heading" style="display:inline">' . substr($item->subtitle, 0, 40) . '</span>';
-        $actu .= '    </p>';
-		$actu .= '  </div>';
-		$actu .= '</div>';
+    $html = '<div>';
+    $html .= '<p>template_labo_with_3_news</p>';
+	foreach ($news->results as $item) {
+		$html .= '<div style="height: 103px;">';
+		$html .= '  <a style="float:left;" href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
+		$html .= '    <img style="width: 169px;" src="' . $item->visual_url . '" title="">';
+		$html .= '  </a>';
+		$html .= '  <div style="display:inline-block;margin-left:5px;">';
+		$html .= '    <h4>';
+		$html .= '      <a href="/news/how-the-tuberculosis-bacterium-tricks-the-immune-5/" target="_blank">';
+		$html .= $item->title;
+		$html .= '      </a>';
+		$html .= '    </h4>';
+		$html .= '    <p>';
+		$html .= '      <span class="date">' . $item->publish_date . ' -</span>';
+		$html .= '      <span class="heading" style="display:inline">' . substr($item->subtitle, 0, 40) . '</span>';
+        $html .= '    </p>';
+		$html .= '  </div>';
+		$html .= '</div>';
     }
-    $actu .= '</div>';
-    return $actu;
+    $html .= '</div>';
+    return $html;
 }
 
 /**
  * Build HTML. 
+ * 
+ * @param $news: response of news API. 
+ * @param $template: id of template
+ * @param $stickers: display stickers on images ?
+ * @return html of template
  */
-function epfl_news_build_html($actus, $template, $stickers): string
+function epfl_news_build_html($news, string $template, bool $stickers): string
 {   
     if ($template === "4") {
-        $html = epfl_news_template_labo_with_3_news($actus, $stickers);
+        $html = epfl_news_template_labo_with_3_news($news, $stickers);
     } elseif ($template === "8") {
-        $html = epfl_news_template_labo_with_5_news($actus, $stickers);
+        $html = epfl_news_template_labo_with_5_news($news, $stickers);
     } elseif ($template === "3") {
-        $html = epfl_news_template_fac_with_4_news($actus, $stickers);
+        $html = epfl_news_template_fac_with_4_news($news, $stickers);
     } elseif ($template === "6") {
-        $html = epfl_news_template_fac_with_3_news($actus, $stickers);
+        $html = epfl_news_template_fac_with_3_news($news, $stickers);
     } elseif ($template === "2") {
-        $html = epfl_news_template_text_only($actus, $stickers);
+        $html = epfl_news_template_text_only($news);
     } else {
-        $html = epfl_news_template_labo_with_3_news($actus, $stickers);
+        $html = epfl_news_template_labo_with_3_news($news, $stickers);
     }
     return $html;
 }
 
 /**
  * Build HTML. This template contains all news inside ifram tag
+ * 
+ * @param $channel: id of news channel 
+ * @param $lang: lang of news (fr or en)
+ * @return html of template
  */
 function epfl_news_built_html_pagination_template(string $channel, string $lang): string {
 
@@ -146,6 +192,8 @@ function epfl_news_built_html_pagination_template(string $channel, string $lang)
 
 /**
  * Returns the number of news according to the template
+ * @param $template: id of template
+ * @return the number of news to display
  */
 function epfl_news_get_limit(string $template): int
 {
@@ -173,6 +221,13 @@ function epfl_news_get_limit(string $template): int
 
 /**
  * Build api URL of news
+ * 
+ * @param $channel: id of news channel
+ * @param $template: id of template
+ * @param $lang: lang of news
+ * @param $category: id of news category
+ * @param $themes: The list of news themes id. For example: 1,2,5
+ * @return the api URL of news
  */
 function epfl_news_build_api_url(
     string $channel,
@@ -205,13 +260,39 @@ function epfl_news_build_api_url(
 
 /**
  * Check the required parameters
+ * 
+ * @param $channel: id of channel
+ * @param $lang: lang of news (fr or en)
+ * @return True if the required parameters are right.
  */
-function epfl_news_check_parameters(string $channel, string $lang): bool {
-    return $channel !== "" && $lang !== "";
+function epfl_news_check_required_parameters(string $channel, string $lang): bool {
+    
+    // check lang
+    if ($lang !==  "fr" && $lang !== "en" ) {
+        return FALSE;
+    }
+
+    // check channel
+    if ($channel === "") {
+        return FALSE;
+    }
+
+    // check that the channel exists
+    $url = NEWS_API_URL . $channel;
+    $channel_response = Utils::get_items($url);
+    if ($channel_response->detail === "Not found.") {
+        return FALSE;
+    }
+    return TRUE;
+
 }
 
 /**
  * Main function of shortcode
+ * 
+ * @param $atts: attributes of the shortcode
+ * @param $content: the content of the shortcode. Always empty in our case.
+ * @param $tag: the name of shortcode. epfl_news in our case.
  */
 function epfl_news_process_shortcode(
     array $atts, 
@@ -229,10 +310,11 @@ function epfl_news_process_shortcode(
                 'themes' => '',
         ), $atts, $tag));
 
-        if (epfl_news_check_parameters($channel, $lang) == FALSE) {
+        if (epfl_news_check_required_parameters($channel, $lang) == FALSE) {
             return "";
         }
         
+        // display stickers on images ?
         $stickers = $stickers == 'yes';
 
         // iframe template
