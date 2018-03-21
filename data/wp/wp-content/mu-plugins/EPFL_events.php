@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Plugin Name: EPFL Memento shortcode
+ * Description: provides a shortcode to display events feed
+ * @version: 1.0
+ * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
+ */
+
 declare(strict_types=1);
 
 require_once('utils.php');
@@ -11,6 +18,9 @@ define("MEMENTO_API_URL_IFRAME", "https://memento.epfl.ch/webservice/?frame=1");
 
 /**
  * Template with only the title on the event
+ *
+ * @param $events: response of memento API
+ * @return html of template
  */
 function epfl_memento_template_short_text($events): string {
     $html_content = '<div>';
@@ -28,6 +38,9 @@ function epfl_memento_template_short_text($events): string {
 
 /**
  * Template with only the title on the event
+ *
+ * @param $events: response of memento API
+ * @return html of template
  */
 function epfl_memento_template_text($events): string {
     $html_content = '<div>';
@@ -43,6 +56,12 @@ function epfl_memento_template_text($events): string {
     return $html_content;
 }
 
+/**
+ * Template with 3 events and right column
+ *
+ * @param $events: response of memento API
+ * @return html of template
+ */
 function epfl_memento_template_with_3_events_and_right_column($events): string {
     $html_content = '<div>';
     $html_content .= '<p>template_with_3_events_and_right_column</p>';
@@ -57,6 +76,12 @@ function epfl_memento_template_with_3_events_and_right_column($events): string {
     return $html_content;
 }
 
+/**
+ * Template with 5 events and right column
+ *
+ * @param $events: response of memento API
+ * @return html of template
+ */
 function epfl_memento_template_with_5_events_and_right_column($events): string {
     $html_content = '<div>';
     $html_content .= '<p>template_with_5_events_and_right_column</p>';
@@ -71,6 +96,12 @@ function epfl_memento_template_with_5_events_and_right_column($events): string {
     return $html_content;
 }
 
+/**
+ * Template with 2 events. This template may be used in the sidebar
+ *
+ * @param $events: response of memento API
+ * @return html of template
+ */
 function epfl_memento_template_with_2_events($events): string {
     $html_content = '<div>';
     $html_content .= '<p>template_with_2_events</p>';
@@ -85,6 +116,12 @@ function epfl_memento_template_with_2_events($events): string {
     return $html_content;
 }
 
+/**
+ * Template with 3 events. This template may be used in the sidebar
+ *
+ * @param $events: response of memento API
+ * @return html of template
+ */
 function epfl_memento_template_with_3_events($events): string {
 
     $html_content = '<div>';
@@ -98,9 +135,14 @@ function epfl_memento_template_with_3_events($events): string {
     }
     $html_content.= '</div>';
     return $html_content;
-
 }
 
+/**
+ * Template for student portal
+ *
+ * @param $events: response of memento API
+ * @return html of template
+ */
 function epfl_memento_template_student_portal($events): string {
 
     $html_content = '<div>';
@@ -114,9 +156,14 @@ function epfl_memento_template_student_portal($events): string {
     }
     $html_content.= '</div>';
     return $html_content;
-
 }
 
+/**
+ * Template homepage faculty
+ *
+ * @param $events: response of memento API
+ * @return html of template
+ */
 function epfl_memento_template_homepage_faculty($events): string {
 
     $html_content = '<div>';
@@ -130,11 +177,14 @@ function epfl_memento_template_homepage_faculty($events): string {
     }
     $html_content.= '</div>';
     return $html_content;
-
 }
 
 /**
- * Build HTML. This template is waiting for Aline templates.
+ * Build HTML.
+ *
+ * @param $events: response of memento API
+ * @param $template: id of template
+ * @return
  */
 function epfl_memento_build_html($events, $template): string
 {
@@ -162,6 +212,10 @@ function epfl_memento_build_html($events, $template): string
 
 /**
  * Build HTML. This template contains all events inside ifram tag
+ *
+ * @param $memento: slug of memento
+ * @param $lang: lang of event (fr or en)
+ * @return html of iframe template
  */
 function epfl_memento_built_html_pagination_template(string $memento, string $lang): string {
     $url = MEMENTO_API_URL_IFRAME. '&memento=' . $memento . '&lang=' . $lang . '&template=4&period=2&color=EPFL';
@@ -173,6 +227,9 @@ function epfl_memento_built_html_pagination_template(string $memento, string $la
 
 /**
  * Returns the number of events according to the template
+ *
+ * @param $template: id of template
+ * @return the number of events
  */
 function epfl_memento_get_limit(string $template): int
 {
@@ -193,12 +250,17 @@ function epfl_memento_get_limit(string $template): int
             $limit = 1;
             break;
     endswitch;
-
     return $limit;
 }
 
 /**
  * Build api URL of events
+ *
+ * @param $memento: slug of memento
+ * @param $template: id of the template
+ * @param $lang: lang of the event (fr or en)
+ * @param $category: id of the event category
+ * @return the API URL of the memento
  */
 function epfl_memento_build_api_url(
     string $memento,
@@ -235,9 +297,23 @@ function epfl_memento_build_api_url(
 
 /**
  * Check the required parameters
+ *
+ * @param $memento: slug of memento
+ * @param $lang: lang of event
  */
-function epfl_memento_check_parameters(string $memento, string $lang): bool {
-    return $memento !== "" && $lang !== "";
+function epfl_memento_check_required_parameters(string $memento, string $lang): bool {
+
+    // check lang
+    if ($lang !==  "fr" && $lang !== "en" ) {
+        return FALSE;
+    }
+
+    // check memento
+    if ($memento === "") {
+        return FALSE;
+    }
+
+    return TRUE;
 }
 
 /**
@@ -257,7 +333,7 @@ function epfl_memento_process_shortcode(
             'category' => '',
     ), $atts, $tag));
 
-    if (epfl_memento_check_parameters($memento, $lang) == FALSE) {
+    if (epfl_memento_check_required_parameters($memento, $lang) == FALSE) {
         return "";
     }
 
