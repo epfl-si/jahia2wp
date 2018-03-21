@@ -60,7 +60,8 @@
 }
 
 .entry-content {
-  p,
+  @include clearfix;
+  
   h1,
   h2,
   h3,
@@ -75,6 +76,10 @@
   form {
     clear: both;
   }
+}
+
+.entry-footer {
+  margin-top: 20px;
 }
 
 
