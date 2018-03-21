@@ -62,7 +62,7 @@ import pickle
 import subprocess
 from collections import OrderedDict
 from datetime import datetime
-from pprint import pprint, pformat
+from pprint import pprint
 
 import os
 import shutil
