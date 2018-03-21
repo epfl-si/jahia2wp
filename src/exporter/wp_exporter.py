@@ -709,10 +709,12 @@ class WPExporter:
 
         for sub_entry_index, menu_item in enumerate(parent_menu_item.children):
 
-            # If menu entry is an hardcoded URL
-            if menu_item.target_is_url() or menu_item.target_is_sitemap():
-                # If entry is visible
-                if not menu_item.hidden:
+            # If entry is visible
+            if not menu_item.hidden:
+
+                # If menu entry is an hardcoded URL
+                if menu_item.target_is_url() or menu_item.target_is_sitemap():
+
                     # Recovering URL
                     url = menu_item.target
 
@@ -728,16 +730,13 @@ class WPExporter:
                     else:
                         self.report['menus'] += 1
 
-            # menu entry is page
-            else:
-                # Trying to get corresponding page corresponding to current page UUID
-                child = parent_page.get_child_with_uuid(menu_item.target)
+                # menu entry is page
+                else:
+                    # Trying to get corresponding page corresponding to current page UUID
+                    child = parent_page.get_child_with_uuid(menu_item.target)
 
-                if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict and \
-                        child.contents[lang].wp_id:  # FIXME For unknown reason, wp_id is sometimes None
-
-                    # If entry is visible
-                    if not menu_item.hidden:
+                    if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict and \
+                            child.contents[lang].wp_id:  # FIXME For unknown reason, wp_id is sometimes None
 
                         command = 'menu item add-post {} {} --parent-id={} --porcelain' \
                             .format(menu_name, child.contents[lang].wp_id, parent_menu_id)
@@ -787,27 +786,28 @@ class WPExporter:
 
                 # In the following loop, we will have two differents sources for menu entries and their children.
                 # One is "self.site.menus[lang]" and is containing all the root menus and their submenus.
-                # Those menus entries are for existing WordPress pages OR are hardcoded URLs. For
-                # hardcoded URL, the URL has been recovered in the parser and is present in the structure. For
-                # WordPress pages, we have info about menu title and page pid.
+                # Those menus entries are for existing WordPress pages OR are hardcoded URLs OR references to
+                # other pages already pointed by another menu entry.
+                # For hardcoded URL, the URL has been recovered in the parser and is present in the structure.
+                # For WordPress pages and references, we have info about menu title and page uuid.
                 # The other is "self.site.homepage.children" and is containing pages and subpages existing in
                 # WordPress (used to build the menu) but we don't have any information about hardcoded URL here.
                 # So, all the information we need to create the menu is splitted between two different sources...
                 # and the goal of the following loop is to go through the first structure (which contains all the
-                # menu entries) and every time we encounter a WordPress page, we take the next available item in
-                # the second list (which contains information about pointed page name). The information in the second
-                # structure is also used to build submenus.
+                # menu entries) and every time we encounter a WordPress page, we look for the corresponding item in
+                # the second list (which contains information about pointed page id in WP).
 
                 # Looping through root menu entries
                 for root_entry_index, menu_item in enumerate(self.site.menus[lang]):
 
-                    # FIXME: Sub menu entries for menu entries which are hardcoded URL are not handled here
-                    # If root menu entry is an hardcoded URL
-                    # OR a sitemap link
-                    if menu_item.target_is_url() or \
-                            menu_item.target_is_sitemap():
-                        # If root entry is visible
-                        if not menu_item.hidden:
+                    # If root entry is visible
+                    if not menu_item.hidden:
+
+                        # If root menu entry is an hardcoded URL
+                        # OR a sitemap link
+                        if menu_item.target_is_url() or \
+                                menu_item.target_is_sitemap():
+
                             # Recovering URL
                             url = menu_item.target
 
@@ -823,17 +823,14 @@ class WPExporter:
                             else:
                                 self.report['menus'] += 1
 
-                    # root menu entry is pointing to a page
-                    else:
-                        # Trying to get corresponding page corresponding to current page UUID
-                        homepage_child = self.site.homepage.get_child_with_uuid(menu_item.target)
+                        # root menu entry is pointing to a page
+                        else:
+                            # Trying to get corresponding page corresponding to current page UUID
+                            homepage_child = self.site.homepage.get_child_with_uuid(menu_item.target)
 
-                        if lang not in homepage_child.contents:
-                            logging.warning("Page not translated %s" % homepage_child.pid)
-                            continue
-
-                        # If root entry is visible
-                        if not menu_item.hidden:
+                            if lang not in homepage_child.contents:
+                                logging.warning("Page not translated %s" % homepage_child.pid)
+                                continue
 
                             if homepage_child.contents[lang].wp_id:
 
