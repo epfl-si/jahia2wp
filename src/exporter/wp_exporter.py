@@ -735,6 +735,9 @@ class WPExporter:
                     # Trying to get corresponding page corresponding to current page UUID
                     child = self.site.homepage.get_child_with_uuid(menu_item.target, 3)
 
+                    if child is None:
+                        raise Exception("Submenu creation: No page found for UUID {}".format(menu_item.target))
+
                     if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict and \
                             child.contents[lang].wp_id:  # FIXME For unknown reason, wp_id is sometimes None
 
@@ -827,6 +830,9 @@ class WPExporter:
                         else:
                             # Trying to get corresponding page corresponding to current page UUID
                             homepage_child = self.site.homepage.get_child_with_uuid(menu_item.target, 3)
+
+                            if homepage_child is None:
+                                raise Exception("Menu creation: No page found for UUID {}".format(menu_item.target))
 
                             if lang not in homepage_child.contents:
                                 logging.warning("Page not translated %s" % homepage_child.pid)
