@@ -227,7 +227,12 @@ class Box:
                 if jahia_tag.ELEMENT_NODE != jahia_tag.nodeType:
                     continue
                 if jahia_tag.tagName == "jahia:link":
-                    page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
+                    # It happens that a link references a page that does not exist anymore
+                    # observed on site dii
+                    try:
+                        page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
+                    except KeyError as e:
+                        continue
                     content += '<li><a href="{}">{}</a></li>'.format(page.pid, jahia_tag.getAttribute("jahia:title"))
                 elif jahia_tag.tagName == "jahia:url":
                     url = jahia_tag.getAttribute("jahia:value")
