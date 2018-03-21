@@ -733,7 +733,7 @@ class WPExporter:
                 # menu entry is page
                 else:
                     # Trying to get corresponding page corresponding to current page UUID
-                    child = parent_page.get_child_with_uuid(menu_item.target)
+                    child = self.site.homepage.get_child_with_uuid(menu_item.target, 3)
 
                     if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict and \
                             child.contents[lang].wp_id:  # FIXME For unknown reason, wp_id is sometimes None
@@ -826,7 +826,7 @@ class WPExporter:
                         # root menu entry is pointing to a page
                         else:
                             # Trying to get corresponding page corresponding to current page UUID
-                            homepage_child = self.site.homepage.get_child_with_uuid(menu_item.target)
+                            homepage_child = self.site.homepage.get_child_with_uuid(menu_item.target, 3)
 
                             if lang not in homepage_child.contents:
                                 logging.warning("Page not translated %s" % homepage_child.pid)

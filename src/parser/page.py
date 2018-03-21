@@ -72,21 +72,26 @@ class Page:
 
                 parent_page = parent_page.parent
 
-    def get_child_with_uuid(self, uuid):
+    def get_child_with_uuid(self, uuid, nb_recurse_max):
         """
         Returns child which have a jahia UUID equal to the one given as parameter
         :param uuid: UUID of the page we look for
+        :param nb_recurse_max: Max number of recursive calls. This is to avoid infinite loop if circular references
+                               between pages.
         :return: Page object or None if not found.
         """
         for child in self.children:
             # If found at this level
             if child.uuid == uuid:
                 return child
-            # Not found a this level, recurse search to next level
-            result = child.get_child_with_uuid(uuid)
-            # If found, return
-            if result is not None:
-                return result
+
+            # If we can go to next level
+            if nb_recurse_max > 0:
+                # Not found a this level, recurse search to next level
+                result = child.get_child_with_uuid(uuid, nb_recurse_max-1)
+                # If found, return
+                if result is not None:
+                    return result
 
         return None
 
