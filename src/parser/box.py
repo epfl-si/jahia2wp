@@ -35,6 +35,8 @@ class Box:
         "epfl:xmlBox": TYPE_XML
     }
 
+    UPDATE_LANG = "UPDATE_LANG_BY_EXPORTER"
+
     def __init__(self, site, page_content, element, multibox=False):
         self.site = site
         self.page_content = page_content
@@ -62,6 +64,7 @@ class Box:
         # text
         if self.TYPE_TEXT == self.type or self.TYPE_COLORED_TEXT == self.type:
             self.set_box_text(element, multibox)
+        # people list
         elif self.TYPE_PEOPLE_LIST == self.type:
             self.set_box_people_list(element)
         # infoscience
@@ -109,19 +112,13 @@ class Box:
         """
         Set the attributes of a people list box
 
-        Example of jahia sites:
-        aumonerie.epfl.ch
-        http://people.epfl.ch/cgi-bin/getProfiles?unit=AUMONERIE&struct=1&tmpl=default_struct_bloc&lang=en
-
-        https://clic.epfl.ch
-        http://people.epfl.ch/cgi-bin/getProfiles?unit=CLIC&tmpl=default_bloc&lang=en
-
         More information here:
         https://c4science.ch/source/kis-jahia6-dev/browse/master/core/src/main/webapp/common/box/display/peopleListBoxDisplay.jsp
         """
-        parameters = {}
-
         BASE_URL = "https://people.epfl.ch/cgi-bin/getProfiles?"
+
+        # prepare a dictionary with all GET parameters
+        parameters = {}
 
         # parse the unit parameter
         parameters['unit'] = Utils.get_tag_attribute(element, "query", "jahia:value")
@@ -129,11 +126,14 @@ class Box:
         # parse the template html
         templace_html = Utils.get_tag_attribute(element, "template", "jahia:value")
 
+        # extract template key
         template_key = Utils.get_tag_attribute(
             minidom.parseString(templace_html),
             "jahia-resource",
             "key"
         )
+
+        # these rules are extracted from jsp of jahia
         if template_key == 'epfl_peopleListContainer.template.default_bloc':
             parameters['struct'] = 1
             template = 'default_struct_bloc'
@@ -143,9 +143,11 @@ class Box:
             template = 'default_list'
         else:
             template = Utils.get_tag_attribute(minidom.parseString(templace_html), "jahia-resource", "key")
-
         parameters['WP_tmpl'] = template
-        parameters['lang'] = "fr"
+
+        # in the parser we can't know the current language.
+        # so we assign a string that we will replace by the current language in the exporter
+        parameters['lang'] = self.UPDATE_LANG
 
         url = "{}{}".format(BASE_URL, urlencode(parameters))
         self.content = '[epfl_people url="{}" /]'.format(url)
@@ -185,8 +187,11 @@ class Box:
     def set_box_include(self, element):
         """set the attributes of an include box"""
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
-
-        self.content = "[include url=%s]" % url
+        if "://people.epfl.ch/cgi-bin/getProfiles?" in url:
+            url = url.replace("tmpl=", "WP_tmpl=")
+            self.content = "[epfl_people url=%s /]" % url
+        else:
+            self.content = "[include url=%s]" % url
 
     def set_box_contact(self, element):
         """set the attributes of a contact box"""
