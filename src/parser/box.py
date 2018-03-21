@@ -10,7 +10,7 @@ class Box:
     # WP box types
     TYPE_TEXT = "text"
     TYPE_COLORED_TEXT = "coloredText"
-    TYPE_PEOPLE = "people"
+    TYPE_PEOPLE_LIST = "peopleList"
     TYPE_INFOSCIENCE = "infoscience"
     TYPE_ACTU = "actu"
     TYPE_MEMENTO = "memento"
@@ -24,7 +24,7 @@ class Box:
     types = {
         "epfl:textBox": TYPE_TEXT,
         "epfl:coloredTextBox": TYPE_COLORED_TEXT,
-        "epfl:peopleListBox": TYPE_PEOPLE,
+        "epfl:peopleListBox": TYPE_PEOPLE_LIST,
         "epfl:infoscienceBox": TYPE_INFOSCIENCE,
         "epfl:actuBox": TYPE_ACTU,
         "epfl:mementoBox": TYPE_MEMENTO,
@@ -62,8 +62,8 @@ class Box:
         # text
         if self.TYPE_TEXT == self.type or self.TYPE_COLORED_TEXT == self.type:
             self.set_box_text(element, multibox)
-        elif self.TYPE_PEOPLE == self.type:
-            self.set_box_people(element)
+        elif self.TYPE_PEOPLE_LIST == self.type:
+            self.set_box_people_list(element)
         # infoscience
         elif self.TYPE_INFOSCIENCE == self.type:
             self.set_box_infoscience(element)
@@ -105,25 +105,28 @@ class Box:
                 content += element.getAttribute("jahia:value")
             self.content = content
 
-    def set_box_people(self, element):
-        """ set the attibutes of an people box"""
+    def set_box_people_list(self, element):
         """
-        aumonerie     
-        http://people.epfl.ch/cgi-bin/getProfiles?unit=AUMONERIE&struct=1&tmpl=default_struct_bloc&lang=en
-        
-        clic
-        http://people.epfl.ch/cgi-bin/getProfiles?unit=CLIC&tmpl=default_bloc&lang=en
-        http://people.epfl.ch/cgi-bin/getProfiles?unit=CLIC&tmpl=default_bloc&lang=fr
-        
-        Pour comprendre la "logique" ci-dessous, il faut lire le code jsp de jahia :
-        https://c4science.ch/source/kis-jahia6-dev/browse/master/core/src/main/webapp/common/box/display/peopleListBoxDisplay.jsp
+        Set the attributes of a people list box
 
+        Example of jahia sites:
+        aumonerie.epfl.ch
+        http://people.epfl.ch/cgi-bin/getProfiles?unit=AUMONERIE&struct=1&tmpl=default_struct_bloc&lang=en
+
+        https://clic.epfl.ch
+        http://people.epfl.ch/cgi-bin/getProfiles?unit=CLIC&tmpl=default_bloc&lang=en
+
+        More information here:
+        https://c4science.ch/source/kis-jahia6-dev/browse/master/core/src/main/webapp/common/box/display/peopleListBoxDisplay.jsp
         """
+        parameters = {}
 
         BASE_URL = "https://people.epfl.ch/cgi-bin/getProfiles?"
 
-        unit = Utils.get_tag_attribute(element, "query", "jahia:value")
+        # parse the unit parameter
+        parameters['unit'] = Utils.get_tag_attribute(element, "query", "jahia:value")
 
+        # parse the template html
         templace_html = Utils.get_tag_attribute(element, "template", "jahia:value")
 
         template_key = Utils.get_tag_attribute(
@@ -131,23 +134,17 @@ class Box:
             "jahia-resource",
             "key"
         )
-
         if template_key == 'epfl_peopleListContainer.template.default_bloc':
-            structure = 1
+            parameters['struct'] = 1
             template = 'default_struct_bloc'
-
         elif template_key == 'epfl_peopleListContainer.template.default_bloc_simple':
             template = 'default_bloc'
-
         elif template_key == 'epfl_peopleListContainer.template.default_list':
             template = 'default_list'
+        else:
+            template = Utils.get_tag_attribute(minidom.parseString(templace_html), "jahia-resource", "key")
 
-        parameters = {}
-        parameters['unit'] = unit
         parameters['WP_tmpl'] = template
-        parameters['struct'] = structure
-
-        # FIXME: la langue n'est pas dans le XML donc on prend la langue de la page quand on sera dans l'exporter ?
         parameters['lang'] = "fr"
 
         url = "{}{}".format(BASE_URL, urlencode(parameters))
