@@ -186,7 +186,15 @@ class Box:
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
         nb_items = Utils.get_tag_attribute(element, "nbItems", "jahia:value")
         hide_title = Utils.get_tag_attribute(element, "hideTitle", "jahia:value")
-        show_items = Utils.get_tag_attribute(element, "detailItems", "jahia:value")
+        detail_items = Utils.get_tag_attribute(element, "detailItems", "jahia:value")
+
+        # check if we have at least an url
+        if not url:
+            return
+
+        # some values are in JSP tag, with use a default value instead
+        if not nb_items.isdigit():
+            nb_items = "5"
 
         # feedzy-rss options
         feeds = url
@@ -197,11 +205,11 @@ class Box:
         if hide_title == "true":
             feed_title = "no"
 
-        if show_items != "true":
+        if detail_items != "true":
             summary = "no"
 
         self.content = "[feedzy-rss feeds=\"{}\" max=\"{}\" feed_title=\"{}\" summary=\"{}\" refresh=\"12_hours\"]"\
-            .format(feeds, max, show_items, feed_title, summary)
+            .format(feeds, max, feed_title, summary)
 
     def set_box_links(self, element):
         """set the attributes of a links box"""
