@@ -4473,9 +4473,9 @@ class Data:
                                                                                                         1, 56),
                                                                        'path': '/mobile',
                                                                        'sidebar__boxes': [
-                                                                           {'content__start': '[epfl:filesBox]',
+                                                                           {'content__start': '<ul><li>',
                                                                             'title': 'Présentation',
-                                                                            'type': 'epfl:filesBox'}],
+                                                                            'type': 'files'}],
                                                                        'title': 'Développement de sites pour mobiles'}},
                                                    'contents__keys': {'fr'},
                                                    'level': 2,

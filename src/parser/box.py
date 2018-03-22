@@ -17,6 +17,8 @@ class Box:
     TYPE_CONTACT = "contact"
     TYPE_XML = "xml"
     TYPE_LINKS = "links"
+    TYPE_RSS = "rss"
+    TYPE_FILES = "files"
 
     # Mapping of known box types from Jahia to WP
     types = {
@@ -30,7 +32,9 @@ class Box:
         "epfl:htmlBox": TYPE_INCLUDE,
         "epfl:contactBox": TYPE_CONTACT,
         "epfl:xmlBox": TYPE_XML,
-        "epfl:linksBox": TYPE_LINKS
+        "epfl:linksBox": TYPE_LINKS,
+        "epfl:rssBox": TYPE_RSS,
+        "epfl:filesBox": TYPE_FILES
     }
 
     def __init__(self, site, page_content, element, multibox=False):
@@ -87,6 +91,12 @@ class Box:
         # links
         elif self.TYPE_LINKS == self.type:
             self.set_box_links(element)
+        # rss
+        elif self.TYPE_RSS == self.type:
+            self.set_box_rss(element)
+        # files
+        elif self.TYPE_FILES == self.type:
+            self.set_box_files(element)
         # unknown
         else:
             self.set_box_unknown(element)
@@ -169,6 +179,43 @@ class Box:
 
         self.content = "[xml xml=%s xslt=%s]" % (xml, xslt)
 
+    def set_box_rss(self, element):
+        """set the attributes of an rss box"""
+
+        url = Utils.get_tag_attribute(element, "url", "jahia:value")
+        nb_items = Utils.get_tag_attribute(element, "nbItems", "jahia:value")
+        show_items = Utils.get_tag_attribute(element, "detailItems", "jahia:value")
+        hide_title = Utils.get_tag_attribute(element, "hideTitle", "jahia:value")
+        encoding = Utils.get_tag_attribute(element, "feedEncoding", "jahia:value")
+
+        self.content = "[rss url={} nb_items={} show_items={} hide_title={} encoding={}]"\
+            .format(url, nb_items, show_items, hide_title, encoding)
+
+    def set_box_links(self, element):
+        """set the attributes of a links box"""
+        self.content = self._parse_links_to_list(element)
+
+    def set_box_unknown(self, element):
+        """set the attributes of an unknown box"""
+        self.content = "[%s]" % element.getAttribute("jcr:primaryType")
+
+    def set_box_files(self, element):
+        """set the attributes of a files box"""
+        elements = element.getElementsByTagName("file")
+        content = "<ul>"
+        for e in elements:
+            if e.ELEMENT_NODE != e.nodeType:
+                continue
+            # URL is like /content/sites/<site_name>/files/file
+            # splitted gives ['', content, sites, <site_name>, files, file]
+            # result of join is files/file and we add the missing '/' in front.
+            file_url = '/'.join(e.getAttribute("jahia:value").split("/")[4:])
+            file_url = '/' + file_url
+            file_name = file_url.split("/")[-1]
+            content += '<li><a href="{}">{}</a></li>'.format(file_url, file_name)
+        content += "</ul>"
+        self.content = content
+
     def _parse_links_to_list(self, element):
         """Handles link tags that can be found in linksBox and textBox"""
         elements = element.getElementsByTagName("link")
@@ -180,26 +227,23 @@ class Box:
                 if jahia_tag.ELEMENT_NODE != jahia_tag.nodeType:
                     continue
                 if jahia_tag.tagName == "jahia:link":
-                    page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
-                    content += "<li><a href={}>{}</a></li>".format(page.pid, jahia_tag.getAttribute("jahia:title"))
+                    # It happens that a link references a page that does not exist anymore
+                    # observed on site dii
+                    try:
+                        page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
+                    except KeyError as e:
+                        continue
+                    content += '<li><a href="{}">{}</a></li>'.format(page.pid, jahia_tag.getAttribute("jahia:title"))
                 elif jahia_tag.tagName == "jahia:url":
                     url = jahia_tag.getAttribute("jahia:value")
                     title = jahia_tag.getAttribute("jahia:title")
-                    content += "<li><a href={}>{}</a></li>".format(url, title)
+                    content += '<li><a href="{}">{}</a></li>'.format(url, title)
         content += "</ul>"
 
         if content == "<ul></ul>":
             return ""
 
         return content
-
-    def set_box_links(self, element):
-        """set the attributes of a links box"""
-        self.content = self._parse_links_to_list(element)
-
-    def set_box_unknown(self, element):
-        """set the attributes of an unknown box"""
-        self.content = "[%s]" % element.getAttribute("jcr:primaryType")
 
     def __str__(self):
         return self.type + " " + self.title
