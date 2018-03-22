@@ -137,12 +137,29 @@ class Box:
         # scheduler shortcode
         if Utils.get_tag_attribute(element, "comboList", "jahia:ruleType") == "START_AND_END_DATE":
 
+            """
+            jahia: validFrom = "2017-03-20T00:01:00"
+            jahia: validTo = "2017-08-01T22:54:00"
+            """
+
             start_date = Utils.get_tag_attribute(element, "comboList", "jahia:validFrom")
             end_date = Utils.get_tag_attribute(element, "comboList", "jahia:validTo")
 
-            self.content = '[epfl_scheduler start_date="{}" end_date="{}"]{}[/epfl_scheduler]'.format(
-                start_date,
-                end_date,
+            if start_date:
+                start_time = start_date[11:]
+                start_day = start_date[8:10]
+                start_month = start_date[5:7]
+                start_year = start_date[0:4]
+
+            if end_date:
+                end_time = end_date[11:]
+                end_day = end_date[8:10]
+                end_month = end_date[5:7]
+                end_year = end_date[0:4]
+
+            self.content = '[su_scheduler time="{}-{}"  [/su_scheduler]'.format(
+                start_time,
+                end_time,
                 self.content
             )
 
