@@ -182,14 +182,34 @@ class Box:
     def set_box_rss(self, element):
         """set the attributes of an rss box"""
 
+        # Jahia options
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
         nb_items = Utils.get_tag_attribute(element, "nbItems", "jahia:value")
-        show_items = Utils.get_tag_attribute(element, "detailItems", "jahia:value")
         hide_title = Utils.get_tag_attribute(element, "hideTitle", "jahia:value")
-        encoding = Utils.get_tag_attribute(element, "feedEncoding", "jahia:value")
+        detail_items = Utils.get_tag_attribute(element, "detailItems", "jahia:value")
 
-        self.content = "[rss url={} nb_items={} show_items={} hide_title={} encoding={}]"\
-            .format(url, nb_items, show_items, hide_title, encoding)
+        # check if we have at least an url
+        if not url:
+            return
+
+        # some values are in JSP tag, with use a default value instead
+        if not nb_items.isdigit():
+            nb_items = "5"
+
+        # feedzy-rss options
+        feeds = url
+        max = nb_items
+        feed_title = "yes"
+        summary = "yes"
+
+        if hide_title == "true":
+            feed_title = "no"
+
+        if detail_items != "true":
+            summary = "no"
+
+        self.content = "[feedzy-rss feeds=\"{}\" max=\"{}\" feed_title=\"{}\" summary=\"{}\" refresh=\"12_hours\"]"\
+            .format(feeds, max, feed_title, summary)
 
     def set_box_links(self, element):
         """set the attributes of a links box"""
