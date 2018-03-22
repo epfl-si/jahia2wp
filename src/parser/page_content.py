@@ -28,6 +28,8 @@ class PageContent:
         self.last_update = ""
         # a list of NavigationPages
         self.navigation = []
+        # the number of occurrences of each tag, e.g. "br" : 10
+        self.num_tags = {}
 
         # last update
         self.parse_last_update()
@@ -71,7 +73,8 @@ class PageContent:
                 for extra in child.childNodes:
                     if extra.ELEMENT_NODE != extra.nodeType:
                         continue
-                    box = Box(site=self.site, page_content=self, element=extra)
+                    multibox = extra.getElementsByTagName("text").length > 1
+                    box = Box(site=self.site, page_content=self, element=extra, multibox=multibox)
                     self.sidebar.boxes.append(box)
 
         nb_boxes = len(self.sidebar.boxes)

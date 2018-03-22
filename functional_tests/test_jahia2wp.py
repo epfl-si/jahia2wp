@@ -54,12 +54,12 @@ class TestCommandLine:
                                  SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC)) == expected
 
     def test_backup_full(self):
-        expected = "Successfull full backup for {}".format(SITE_URL_SPECIFIC)
+        expected = "Successful full backup for {}".format(SITE_URL_SPECIFIC)
         assert Utils.run_command('python {} backup {} {}'.format(
                                  SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC)) == expected
 
     def test_backup_incremental(self):
-        expected = "Successfull inc backup for {}".format(SITE_URL_SPECIFIC)
+        expected = "Successful inc backup for {}".format(SITE_URL_SPECIFIC)
         assert Utils.run_command('python {} backup {} {}'.format(
                                  SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC)) == expected
 

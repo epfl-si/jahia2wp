@@ -8,8 +8,11 @@ class MenuItem:
 
         self.txt = txt
         self.target_url = target_url
+        if self.target_url:
+            self.target_url = self.target_url.strip()
         self.hidden = hidden
         self.children = []
+        self.children_sort_way = None
 
     def target_is_url(self):
         return False if self.target_url is None else self.target_url.startswith('http')
@@ -17,17 +20,9 @@ class MenuItem:
     def target_is_sitemap(self):
         return self.target_url == "sitemap"
 
-    def add_child(self, txt, target_url, hidden):
-        """
-        Add child to current menu entry
+    def target_is_file(self):
+        return False if self.target_url is None else '/files/' in self.target_url
 
-        txt - menu text
-        target - menu target (URL or page name)
-
-        Ret : sub menu entry index
-        """
-
-        menu_item = MenuItem(txt, target_url, hidden)
-        self.children.append(menu_item)
-
-        return len(self.children) - 1
+    def sort_children(self, sort_way):
+        self.children_sort_way = sort_way
+        self.children.sort(key=lambda x: x.txt, reverse=(sort_way == 'desc'))
