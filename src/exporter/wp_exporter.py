@@ -108,7 +108,7 @@ class WPExporter:
 
             # Allow unfiltered content
             self.run_wp_cli("plugin deactivate EPFL-Content-Filter")
-            
+
             # Existing widget deletion to start with empty sidebar contents
             self.delete_widgets()
             self.import_medias()
