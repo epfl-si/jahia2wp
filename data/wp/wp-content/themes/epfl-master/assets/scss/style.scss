@@ -514,7 +514,8 @@ ul.bottin {
     display: block;
   }
 }
-.bottin div.button {
+.bottin div.button,
+.icon.icon-mail_button {
   margin-bottom: 2px;
   margin-right: 5px;
   padding: 0;
@@ -531,17 +532,22 @@ ul.bottin {
 }
 
 .bottin .button,
-.tdpeople .button {
+.tdpeople .button,
+.icon.icon-mail_button {
   @extend .btn-icon;
   background: transparent;
   font-weight: 400;
   height: 24px;
+  line-height: 24px;
   padding: 0;
   position: relative;
   width: 24px;
   
   &:before {
     vertical-align: top;
+    line-height: inherit !important;
+    height: inherit;
+    width: inherit !important;
   }
   
   &.mail:before {
@@ -560,6 +566,11 @@ ul.bottin {
     top: 0; right: 0; bottom: 0; left: 0;
     width: 24px;
   }
+}
+
+.icon.icon-mail_button:before {
+  content: "\f0e0";
+  color: #fff !important;
 }
 
 // Default lists
