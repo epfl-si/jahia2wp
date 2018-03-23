@@ -858,32 +858,49 @@ def url_mapping(csv_file, wp_env, fix_csv=False, **kwargs):
     """
     
     # Extract all the sites as site (key) => paths (value)
-    sites = {}
+    rulesets = {}
     rows = Utils.csv_filepath_to_dict(csv_file)
+    local_env = 'http://jahia2wp-httpd/{}'
     for idx, row in enumerate(rows):
         source = row['source']
         # Split the path and take the first arg as site
-        # Consider special case of http(s)://
-        site = source.split('//').pop().split('/').pop(0)
-        if site not in sites: sites[site] = []
-        # Append the URL to the site's list
-        sites[site].append((source, row['destination']))
-    logging.info("{0} total sites found.".format(len(sites)))
-    logging.debug(sites)
-    
-    # Sort the rules from most generic to specific. The key is that specific rules (pages) 
-    # might be missing parent pages at the destination (e.g. it could be only a page rename). 
-    # In that sense specific pages will be treated at the end.
-    for site in sites:
-        sites[site].sort(key=lambda rule: len(rule[0].split('/')))
-    # print(sites)
-    
-     # Iterate and parse a site at a time, here is where parallelisation can come in.
-    for site_k in sites:
-        site = site_k
-        if 'http://' not in site or 'https://' not in site:
+        # Consider special case of http(s):// and local sites
+        # ATTENTION: At this stage, a site = domain name. Relative paths are not considered as sites.
+        # this is true at least during the 'consolidation' phase wp => wp
+        site_name = source.split('//').pop().split('/').pop(0)
+        # There can be 3 type of rules identified
+        # 1. Root path = sitename = full site
+        # 2. Partial Path = Intermediate path with children
+        # 3. Full path = a leaf / page with no children.
+        # It's expected to find * in the rules but its absence has the same 
+        # meaning (i.e. apply the rule to all the sub-content under the path
+        # Sytactically, only 2 cases will be detected: root and non-root path.
+        rule_type = 'path'
+        # Remove the trailing * from the paths, not needed in text only replacement.
+        source = source.strip('*')
+        if 'http://' not in source and 'https://' not in source:
+            rule_type = 'root' if source.strip('/') == site_name else 'path'
             # Local development case, append the host
-            site = 'http://jahia2wp-httpd/{}'.format(site)
+            site = local_env.format(site_name)
+            source = local_env.format(source)
+        else:
+            site = '{}//{}'.format(source.split('//').pop(0), site_name) 
+            rule_type = 'root' if source.split('//').pop().strip('/') == site_name else 'path'
+        dest = row['destination']
+        if 'http://' not in dest and 'https://' not in dest:
+            # Local development case, append the host
+            dest = local_env.format(dest)
+        # Start with an empty ruleset
+        if site not in rulesets: rulesets[site] = []
+        # Append the URL to the site's list
+        rulesets[site].append((source, dest, rule_type))
+    logging.info("{0} total sites found.".format(len(rulesets)))
+    logging.debug(rulesets)
+    
+    # Iterate over all the sites to map and dump a JSON with the pages.
+    # Create a copy of the keys in a list to avoid dict changing warnings.
+    jsons = {}
+    for site in list(rulesets.keys()):
         logging.info('Treating site {}'.format(site))
         # Load wp_config using existing functions, can't use _check_site since it exits 
         # if the site does not exist or is invalid.
@@ -891,18 +908,38 @@ def url_mapping(csv_file, wp_env, fix_csv=False, **kwargs):
         if not wp_conf.is_installed or not wp_conf.is_config_valid:
             cmd = 'Site {} is not installed or wp_config is invalid, skipping...'
             logging.warn(cmd.format(site))
-            # Empty the full rules set for the site but keep the key.
-            sites[site_k] = []
+            # Remove the site and its ruleset, no cross-reference will be updated (no need)
+            del rulesets[site]
             continue
         
         # Dump the site content in plain JSON format.
         logging.info("Dumping json for site {}".format(site))
+        # All the fields to retrieve from the wp_post table
         fields = 'ID,post_title,post_name,post_parent,url,post_status,post_content'
-        cmd = 'wp post list --post_type=page --nopaging --format=json --fields={} --path={} > {}'
-        sitename = site.split('/').pop()
-        cmd = cmd.format(fields, wp_conf.wp_site.path, sitename + '.json')
+        # Only pages, all without paging. Sort them by post_parent ascendantly for ease of 
+        # reinsertion to insert first parent pages and avoiding parentless children.
+        params = '--post_type=page --nopaging --order=asc --orderby=post_parent --fields={} --format=json'
+        cmd = 'wp post list ' + params + ' --path={} > {}'
+        json_f = site.split('/').pop()
+        jsons[site] = json_f
+        cmd = cmd.format(fields, wp_conf.wp_site.path, json_f + '.json')
         logging.info(cmd)
         Utils.run_command(cmd, 'utf8')
+    
+    # Sort the rules from most generic to specific or the reverse (-1).
+    for site in rulesets:
+        rulesets[site].sort(key=lambda rule: len(rule[0].split('/')) * -1)
+    # print(rulesets)
+        
+    # At this point all the JSON files are generated and stored by sitename*
+    # Iterate over the rules and start applying them first to the post URL
+    for site in list(rulesets.keys()):
+        json_f = jsons[site]
+        # Ruleset for the site, IMPORTANT: the order has to be specific to generic
+        ruleset = rulesets[site]
+        for rule in ruleset:
+            # Define 
+            print(rule)
         
 if __name__ == '__main__':
 
