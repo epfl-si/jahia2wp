@@ -153,11 +153,11 @@ class Box:
         parameters['unit'] = Utils.get_tag_attribute(element, "query", "jahia:value")
 
         # parse the template html
-        templace_html = Utils.get_tag_attribute(element, "template", "jahia:value")
+        template_html = Utils.get_tag_attribute(element, "template", "jahia:value")
 
         # extract template key
         template_key = Utils.get_tag_attribute(
-            minidom.parseString(templace_html),
+            minidom.parseString(template_html),
             "jahia-resource",
             "key"
         )
@@ -171,7 +171,7 @@ class Box:
         elif template_key == 'epfl_peopleListContainer.template.default_list':
             template = 'default_list'
         else:
-            template = Utils.get_tag_attribute(minidom.parseString(templace_html), "jahia-resource", "key")
+            template = Utils.get_tag_attribute(minidom.parseString(template_html), "jahia-resource", "key")
         parameters['WP_tmpl'] = template
 
         # in the parser we can't know the current language.
@@ -218,9 +218,9 @@ class Box:
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
         if "://people.epfl.ch/cgi-bin/getProfiles?" in url:
             url = url.replace("tmpl=", "WP_tmpl=")
-            self.content = "[epfl_people url=%s /]" % url
+            self.content = "[epfl_people url={} /]".format(url)
         else:
-            self.content = "[include url=%s]" % url
+            self.content = "[include url={}]".format(url)
 
     def set_box_contact(self, element):
         """set the attributes of a contact box"""
