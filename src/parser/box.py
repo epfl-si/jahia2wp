@@ -251,8 +251,10 @@ class Box:
         height = Utils.get_tag_attribute(element, "height", "jahia:value")
         width = Utils.get_tag_attribute(element, "width", "jahia:value")
         query = Utils.get_tag_attribute(element, "query", "jahia:value")
+        # FIXME: faire pareil que pour pepopleLixtBox
+        lang = "fr"
 
-        return '[epfl_map width="{}" height="{}" query="{}" ]'
+        return '[epfl_map width="{}" height="{}" query="{}" ]'.format(width, height, query, lang)
 
     def __str__(self):
         return self.type + " " + self.title
