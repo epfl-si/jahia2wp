@@ -19,6 +19,7 @@ class Box:
     TYPE_LINKS = "links"
     TYPE_RSS = "rss"
     TYPE_FILES = "files"
+    TYPE_MAP = "map"
 
     # Mapping of known box types from Jahia to WP
     types = {
@@ -34,7 +35,8 @@ class Box:
         "epfl:xmlBox": TYPE_XML,
         "epfl:linksBox": TYPE_LINKS,
         "epfl:rssBox": TYPE_RSS,
-        "epfl:filesBox": TYPE_FILES
+        "epfl:filesBox": TYPE_FILES,
+        "epfl:mapBox": TYPE_MAP
     }
 
     def __init__(self, site, page_content, element, multibox=False):
@@ -97,6 +99,8 @@ class Box:
         # files
         elif self.TYPE_FILES == self.type:
             self.set_box_files(element)
+        elif self.TYPE_MAP == self.type:
+            self.set_box_map(element)
         # unknown
         else:
             self.set_box_unknown(element)
@@ -239,6 +243,16 @@ class Box:
             return ""
 
         return content
+
+    def set_box_map(element):
+        """set the attributes of a map box"""
+
+        # parse info
+        height = Utils.get_tag_attribute(element, "height", "jahia:value")
+        width = Utils.get_tag_attribute(element, "width", "jahia:value")
+        query = Utils.get_tag_attribute(element, "query", "jahia:value")
+
+        return '[epfl_map width="{}" height="{}" query="{}" ]'
 
     def __str__(self):
         return self.type + " " + self.title
