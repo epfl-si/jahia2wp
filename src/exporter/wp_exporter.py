@@ -106,9 +106,11 @@ class WPExporter:
             start_time = timeit.default_timer()
             tracer_path = os.path.join(self.output_dir, self.TRACER_FILE_NAME)
 
+            # Allow unfiltered content
+            self.run_wp_cli("plugin deactivate EPFL-Content-Filter")
+
             # Existing widget deletion to start with empty sidebar contents
             self.delete_widgets()
-
             self.import_medias()
             self.import_pages()
             self.set_frontpage()
@@ -117,6 +119,9 @@ class WPExporter:
             self.import_breadcrumb()
             self.delete_draft_pages()
             self.display_report()
+
+            # Disallow unfiltered content
+            self.run_wp_cli("plugin activate EPFL-Content-Filter")
 
             # log execution time
             elapsed = timedelta(seconds=timeit.default_timer() - start_time)
@@ -315,10 +320,10 @@ class WPExporter:
 
     def fix_file_links_in_menu_items(self, menu_item, old_url, new_url):
         if menu_item.target_is_file():
-                normalized_url = menu_item.target_url.encode('ascii', 'replace').decode('ascii').replace('?', '')
+                normalized_url = menu_item.target.encode('ascii', 'replace').decode('ascii').replace('?', '')
                 normalized_url = normalized_url[normalized_url.rfind("/files"):]
                 if normalized_url == old_url.replace('?', ''):
-                    menu_item.target_url = new_url
+                    menu_item.target = new_url
 
     def fix_file_links_in_menus(self, old_url, new_url):
         for lang in self.site.languages:
@@ -699,31 +704,33 @@ class WPExporter:
         # Report
         self.report['menus'] += 2
 
-    def create_submenu(self, children, parent_menu_item, lang, menu_name, parent_menu_id):
+    def create_submenu(self, parent_page, parent_menu_item, lang, menu_name, parent_menu_id):
         """
         Create recursively submenus for one main menu entry
 
-        children - children pages of main menu entry
+        parent_page - parent page for which we have to create submenu
         parent_menu_item - MenuItem object coming from self.menus and representing parent of submenu entries to create
         lang - language
         menu_name - name of WP menu where to put sub-menu entries
         parent_menu_id - ID of parent menu (in WP) of submenu we have to create
         """
-        child_index = 0
 
         # If the sub-entries are sorted
         if parent_menu_item.children_sort_way is not None:
             # Sorting information in the other structure storing the menu information
-            children.sort(key=lambda x: x.contents[lang].title, reverse=(parent_menu_item.children_sort_way == 'desc'))
+            parent_page.children.sort(key=lambda x: x.contents[lang].title,
+                                      reverse=(parent_menu_item.children_sort_way == 'desc'))
 
         for sub_entry_index, menu_item in enumerate(parent_menu_item.children):
 
-            # If menu entry is an hardcoded URL
-            if menu_item.target_is_url() or menu_item.target_is_sitemap():
-                # If entry is visible
-                if not menu_item.hidden:
+            # If entry is visible
+            if not menu_item.hidden:
+
+                # If menu entry is an hardcoded URL
+                if menu_item.target_is_url() or menu_item.target_is_sitemap():
+
                     # Recovering URL
-                    url = menu_item.target_url
+                    url = menu_item.target
 
                     # If menu entry is sitemap, we add WP site base URL
                     if menu_item.target_is_sitemap():
@@ -737,16 +744,17 @@ class WPExporter:
                     else:
                         self.report['menus'] += 1
 
-            # menu entry is page
-            else:
-                child = children[child_index]
-                child_index += 1
+                # menu entry is page
+                else:
+                    # Trying to get corresponding page corresponding to current page UUID
+                    child = self.site.homepage.get_child_with_uuid(menu_item.target, 3)
 
-                if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict and \
-                        child.contents[lang].wp_id:  # FIXME For unknown reason, wp_id is sometimes None
+                    if child is None:
+                        logging.error("Submenu creation: No page found for UUID %s", menu_item.target)
+                        continue
 
-                    # If entry is visible
-                    if not menu_item.hidden:
+                    if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict and \
+                            child.contents[lang].wp_id:  # FIXME For unknown reason, wp_id is sometimes None
 
                         command = 'menu item add-post {} {} --parent-id={} --porcelain' \
                             .format(menu_name, child.contents[lang].wp_id, parent_menu_id)
@@ -758,7 +766,7 @@ class WPExporter:
                             self.menu_id_dict[child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
                             self.report['menus'] += 1
 
-                        self.create_submenu(child.children,
+                        self.create_submenu(child,
                                             menu_item,
                                             lang,
                                             menu_name,
@@ -795,30 +803,31 @@ class WPExporter:
                         self.report['menus'] += 1
 
                 # In the following loop, we will have two differents sources for menu entries and their children.
-                # One is "self.site.menus[lang]" and is containing all the root menus and their submenus (only
-                # one level for now). Those menus entries are for existing WordPress pages OR are hardcoded URLs. For
-                # hardcoded URL, the URL has been recovered in the parser and is present in the structure. But for
-                # WordPress pages, we only have info about menu title but not about pointed page.
+                # One is "self.site.menus[lang]" and is containing all the root menus and their submenus.
+                # Those menus entries are for existing WordPress pages OR are hardcoded URLs OR references to
+                # other pages already pointed by another menu entry.
+                # For hardcoded URL, the URL has been recovered in the parser and is present in the structure.
+                # For WordPress pages and references, we have info about menu title and page uuid.
                 # The other is "self.site.homepage.children" and is containing pages and subpages existing in
                 # WordPress (used to build the menu) but we don't have any information about hardcoded URL here.
                 # So, all the information we need to create the menu is splitted between two different sources...
                 # and the goal of the following loop is to go through the first structure (which contains all the
-                # menu entries) and every time we encounter a WordPress page, we take the next available item in
-                # the second list (which contains information about pointed page). The information in the second
-                # structure is also used to build submenus.
-                child_index = 0
+                # menu entries) and every time we encounter a WordPress page, we look for the corresponding item in
+                # the second list (which contains information about pointed page id in WP).
 
                 # Looping through root menu entries
                 for root_entry_index, menu_item in enumerate(self.site.menus[lang]):
 
-                    # FIXME: Sub menu entries for menu entries which are hardcoded URL are not handled here
-                    # If root menu entry is an hardcoded URL
-                    if menu_item.target_is_url() or \
-                            menu_item.target_is_sitemap():
-                        # If root entry is visible
-                        if not menu_item.hidden:
+                    # If root entry is visible
+                    if not menu_item.hidden:
+
+                        # If root menu entry is an hardcoded URL
+                        # OR a sitemap link
+                        if menu_item.target_is_url() or \
+                                menu_item.target_is_sitemap():
+
                             # Recovering URL
-                            url = menu_item.target_url
+                            url = menu_item.target
 
                             # If menu entry is sitemap, we add WP site base URL
                             if menu_item.target_is_sitemap():
@@ -832,20 +841,21 @@ class WPExporter:
                             else:
                                 self.report['menus'] += 1
 
-                    # root menu entry is page
-                    else:
-                        # Getting next child containing information about pointed WordPress page.
-                        homepage_child = self.site.homepage.children[child_index]
-                        child_index += 1
+                        # root menu entry is pointing to a page
+                        else:
+                            # Trying to get corresponding page corresponding to current page UUID
+                            homepage_child = self.site.homepage.get_child_with_uuid(menu_item.target, 3)
 
-                        if lang not in homepage_child.contents:
-                            logging.warning("Page not translated %s" % homepage_child.pid)
-                            continue
+                            if homepage_child is None:
+                                logging.error("Menu creation: No page found for UUID %s", menu_item.target)
+                                continue
 
-                        # If root entry is visible
-                        if not menu_item.hidden:
+                            if lang not in homepage_child.contents:
+                                logging.warning("Page not translated %s" % homepage_child.pid)
+                                continue
 
                             if homepage_child.contents[lang].wp_id:
+
                                 cmd = 'menu item add-post {} {} --porcelain' \
                                       .format(menu_name, homepage_child.contents[lang].wp_id)
                                 menu_id = self.run_wp_cli(cmd)
@@ -856,7 +866,7 @@ class WPExporter:
                                     self.report['menus'] += 1
 
                                 # create recursively submenus
-                                self.create_submenu(homepage_child.children,
+                                self.create_submenu(homepage_child,
                                                     menu_item,
                                                     lang,
                                                     menu_name,

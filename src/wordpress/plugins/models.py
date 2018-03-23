@@ -65,6 +65,7 @@ class WPPluginList:
                 # Going through plugins
                 for plugin_infos in plugin_list['plugins']:
                     # Extracting plugin configuration
+                    # plugin_infos['config'] contains content of plugin YAML configuration file
                     self._generic_plugins[plugin_infos['name']] = WPPluginConfigInfos(plugin_infos['name'],
                                                                                       plugin_infos['config'])
 
@@ -231,13 +232,19 @@ class WPPluginConfigInfos:
 
         Keyword arguments:
         plugin_name -- Plugin name
-        plugin_config -- Dict containing configuration (coming directly from YAML file)
+        plugin_config -- Dict containing configuration (coming directly from plugin YAML file)
         """
 
         self.plugin_name = plugin_name
 
         # Getting value if exists, otherwise set with default
         self.action = plugin_config['action'] if 'action' in plugin_config else settings.PLUGIN_ACTION_INSTALL
+
+        # If we have a condition to install plugin and condition is successful
+        if 'install_if' in plugin_config and \
+                plugin_config['install_if']['csv_value'] == plugin_config['install_if']['equals']:
+            # We ensure that plugin is not installed
+            self.action = settings.PLUGIN_ACTION_UNINSTALL
 
         # If we have to install plugin (default action), we look for several information
         if self.action == settings.PLUGIN_ACTION_INSTALL:
