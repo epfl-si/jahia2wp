@@ -39,6 +39,8 @@ class Box:
         "epfl:mapBox": TYPE_MAP
     }
 
+    UPDATE_LANG = "UPDATE_LANG_BY_EXPORTER"
+
     def __init__(self, site, page_content, element, multibox=False):
         self.site = site
         self.page_content = page_content
@@ -244,17 +246,19 @@ class Box:
 
         return content
 
-    def set_box_map(element):
+    def set_box_map(self, element):
         """set the attributes of a map box"""
 
         # parse info
         height = Utils.get_tag_attribute(element, "height", "jahia:value")
         width = Utils.get_tag_attribute(element, "width", "jahia:value")
         query = Utils.get_tag_attribute(element, "query", "jahia:value")
-        # FIXME: faire pareil que pour pepopleLixtBox
-        lang = "fr"
 
-        return '[epfl_map width="{}" height="{}" query="{}" ]'.format(width, height, query, lang)
+        # in the parser we can't know the current language.
+        # so we assign a string that we will replace by the current language in the exporter
+        lang = self.UPDATE_LANG
+
+        return '[epfl_map width="{}" height="{}" query="{}"]'.format(width, height, query, lang)
 
     def __str__(self):
         return self.type + " " + self.title
