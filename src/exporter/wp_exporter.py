@@ -406,7 +406,7 @@ class WPExporter:
                 tag[tag_attribute] = new_url
 
     def fix_key_visual_boxes(self):
-        """[su_slider source="media: 1650,1648,1649" link="image" target="blank" responsive="yes" title="no" arrows="yes" pages="no" mousewheel="no"]"""
+        """[su_slider source="media: 1650,1648,1649" title="no" arrows="yes"]"""
         for box in self.site.get_all_boxes():
             if box.type == Box.TYPE_KEY_VISUAL:
                 soup = BeautifulSoup(box.content, 'html.parser')
