@@ -455,7 +455,8 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     wp_exporter = WPExporter(
         site,
         wp_generator,
-        output_dir
+        default_language,
+        output_dir=output_dir
     )
 
     if to_wordpress:
