@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name: EPFL Map shortcode
- * Description: provides a shortcode to display a map of map.epfl.ch
+ * Description: provides a shortcode to display a map from map.epfl.ch
  * @version: 1.0
  * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
