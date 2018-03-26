@@ -412,7 +412,6 @@ class WPExporter:
                 soup = BeautifulSoup(box.content, 'html.parser')
                 medias_ids = []
                 for img in soup.find_all("img"):
-                    logging.info(img)
                     if img['src'] in self.medias_mapping:
                         medias_ids.append(self.medias_mapping[img['src']])
                 box.content = '[su_slider source="media: {}"'.format(','.join([str(m) for m in medias_ids]))
