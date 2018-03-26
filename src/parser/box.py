@@ -144,7 +144,9 @@ class Box:
             if linksList:
                 content += self._parse_links_to_list(linksList[0])
         else:
+            # copy textBox reference
             element_box_text = element
+
             # Concatenate HTML content of many boxes
             content = ""
             comboLists = element.getElementsByTagName("comboList")
@@ -154,11 +156,9 @@ class Box:
                 # the same code used to parse linksBox.
                 content += self._parse_links_to_list(element)
 
-            element = element_box_text
-
             # scheduler shortcode
             if Utils.get_tag_attribute(element_box_text, "comboList", "jahia:ruleType") == "START_AND_END_DATE":
-                content = self._set_scheduler_box(element, content)
+                content = self._set_scheduler_box(element_box_text, content)
 
         self.content = content
 
