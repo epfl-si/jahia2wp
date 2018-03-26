@@ -49,11 +49,7 @@ function epfl_map_build_html( string $width, string $height, string $query, stri
  * @param $lang: language
  * @return True if all parameters are populated
  */
-function epfl_map_check_parameters(
-    string $width,
-    string $height,
-    string $query,
-    string $lang):bool
+function epfl_map_check_parameters( string $width, string $height, string $query, string $lang): bool
 {
     return $width !== "" && $height !== "" && $query !== "" && $lang !== "";
 }
