@@ -458,7 +458,7 @@ class WPExporter:
 
                     # in the parser we can't know the current language.
                     # we assign a string that we replace with the current language
-                    if box.type == Box.MAP_LIST:
+                    if box.type == Box.TYPE_MAP:
                         if Box.UPDATE_LANG in box.content:
                             box.content = box.content.replace(Box.UPDATE_LANG, lang)
 

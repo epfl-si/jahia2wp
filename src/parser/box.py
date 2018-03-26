@@ -258,7 +258,7 @@ class Box:
         # so we assign a string that we will replace by the current language in the exporter
         lang = self.UPDATE_LANG
 
-        return '[epfl_map width="{}" height="{}" query="{}"]'.format(width, height, query, lang)
+        self.content = '[epfl_map width="{}" height="{}" query="{}" lang="{}"]'.format(width, height, query, lang)
 
     def __str__(self):
         return self.type + " " + self.title
