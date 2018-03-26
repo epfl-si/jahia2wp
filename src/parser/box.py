@@ -1,4 +1,5 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
+import logging
 from utils import Utils
 
 
@@ -101,6 +102,32 @@ class Box:
         else:
             self.set_box_unknown(element)
 
+    def _set_scheduler_box(self, element, content):
+        """set the attributes of a scheduler box"""
+
+        start_datetime = Utils.get_tag_attribute(element, "comboList", "jahia:validFrom")
+
+        if start_datetime and "T" in start_datetime:
+            start_date = start_datetime.split("T")[0]
+            start_time = start_datetime.split("T")[1]
+
+        end_datetime = Utils.get_tag_attribute(element, "comboList", "jahia:validTo")
+
+        if end_datetime and "T" in end_datetime:
+            end_date = end_datetime.split("T")[0]
+            end_time = end_datetime.split("T")[1]
+
+        if not end_datetime and not start_datetime:
+            logging.warning("Scheduler shortcode has no startdate and no enddate")
+
+        return '[epfl_scheduler start_date="{}" end_date="{}" start_time="{}" end_time="{}"]{}[/epfl_scheduler]'.format(
+            start_date,
+            end_date,
+            start_time,
+            end_time,
+            content
+        )
+
     def set_box_text(self, element, multibox=False):
         """set the attributes of a text box
             A text box can have two forms, either it contains just a <text> tag
@@ -117,14 +144,9 @@ class Box:
             if linksList:
                 content += self._parse_links_to_list(linksList[0])
         else:
+            element_box_text = element
             # Concatenate HTML content of many boxes
             content = ""
-
-            # elements = element.getElementsByTagName("text")
-            # for current_element in elements:
-            #     content += current_element.getAttribute("jahia:value")
-            # self.content = content
-
             comboLists = element.getElementsByTagName("comboList")
             for element in comboLists:
                 content += Utils.get_tag_attribute(element, "text", "jahia:value")
@@ -132,36 +154,13 @@ class Box:
                 # the same code used to parse linksBox.
                 content += self._parse_links_to_list(element)
 
+            element = element_box_text
+
+            # scheduler shortcode
+            if Utils.get_tag_attribute(element_box_text, "comboList", "jahia:ruleType") == "START_AND_END_DATE":
+                content = self._set_scheduler_box(element, content)
+
         self.content = content
-
-        # scheduler shortcode
-        if Utils.get_tag_attribute(element, "comboList", "jahia:ruleType") == "START_AND_END_DATE":
-
-            """
-            jahia: validFrom = "2017-03-20T00:01:00"
-            jahia: validTo = "2017-08-01T22:54:00"
-            """
-
-            start_date = Utils.get_tag_attribute(element, "comboList", "jahia:validFrom")
-            end_date = Utils.get_tag_attribute(element, "comboList", "jahia:validTo")
-
-            if start_date:
-                start_time = start_date[11:]
-                start_day = start_date[8:10]
-                start_month = start_date[5:7]
-                start_year = start_date[0:4]
-
-            if end_date:
-                end_time = end_date[11:]
-                end_day = end_date[8:10]
-                end_month = end_date[5:7]
-                end_year = end_date[0:4]
-
-            self.content = '[su_scheduler time="{}-{}"  [/su_scheduler]'.format(
-                start_time,
-                end_time,
-                self.content
-            )
 
     def set_box_actu(self, element):
         """set the attributes of an actu box"""
