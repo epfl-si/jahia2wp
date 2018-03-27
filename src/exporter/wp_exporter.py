@@ -42,12 +42,13 @@ class WPExporter:
 
         return rest_api_url
 
-    def __init__(self, site, wp_generator, output_dir=None):
+    def __init__(self, site, wp_generator, default_language, output_dir=None):
         """
         site is the python object resulting from the parsing of Jahia XML.
         site_host is the domain name.
         site_path is the url part of the site without the site_name.
         output_dir is the path where information files will be generated.
+        default_language is the default language for website
         wp_generator is an instance of WP_Generator and is used to call wpcli and admin user info.
         """
         self.site = site
@@ -62,6 +63,8 @@ class WPExporter:
             'failed_menus': 0,
             'failed_widgets': 0,
         }
+
+        self.default_language = default_language
 
         # dictionary with the key 'wp_page_id' and the value 'wp_menu_id'
         self.menu_id_dict = {}
@@ -107,9 +110,11 @@ class WPExporter:
             start_time = timeit.default_timer()
             tracer_path = os.path.join(self.output_dir, self.TRACER_FILE_NAME)
 
+            # Allow unfiltered content
+            self.run_wp_cli("plugin deactivate EPFL-Content-Filter")
+
             # Existing widget deletion to start with empty sidebar contents
             self.delete_widgets()
-
             self.import_medias()
             self.import_pages()
             self.set_frontpage()
@@ -118,6 +123,9 @@ class WPExporter:
             self.import_breadcrumb()
             self.delete_draft_pages()
             self.display_report()
+
+            # Disallow unfiltered content
+            self.run_wp_cli("plugin activate EPFL-Content-Filter")
 
             # log execution time
             elapsed = timedelta(seconds=timeit.default_timer() - start_time)
@@ -246,16 +254,15 @@ class WPExporter:
         """
         Import breadcrumb in default language by setting correct option in DB
         """
-        # FIXME: add an attribut default_language to wp_generator.wp_site class
-        default_lang = self.wp_generator._site_params['langs'].split(",")[0]
 
         # If there is a custom breadrcrumb defined for this site and the default language
         if self.site.breadcrumb_title and self.site.breadcrumb_url and \
-                default_lang in self.site.breadcrumb_title and default_lang in self.site.breadcrumb_url:
+                self.default_language in self.site.breadcrumb_title and \
+                self.default_language in self.site.breadcrumb_url:
             # Generatin breadcrumb to save in parameters
             breadcrumb = "[EPFL|www.epfl.ch]"
-            breadcrumb_titles = self.site.breadcrumb_title[default_lang]
-            breadcrumb_urls = self.site.breadcrumb_url[default_lang]
+            breadcrumb_titles = self.site.breadcrumb_title[self.default_language]
+            breadcrumb_urls = self.site.breadcrumb_url[self.default_language]
             for breadcrumb_title, breadcrumb_url in zip(breadcrumb_titles, breadcrumb_urls):
                 breadcrumb += ">[{}|{}]".format(breadcrumb_title, breadcrumb_url)
 
@@ -470,6 +477,13 @@ class WPExporter:
                     contents[lang] += '<div class="{}">'.format(box.type + "Box")
                     if box.title:
                         contents[lang] += '<h3 id="{0}">{0}</h3>'.format(box.title)
+
+                    # in the parser we can't know the current language.
+                    # we assign a string that we replace with the current language
+                    if box.type == Box.TYPE_MAP:
+                        if Box.UPDATE_LANG in box.content:
+                            box.content = box.content.replace(Box.UPDATE_LANG, lang)
+
                     contents[lang] += box.content
                     contents[lang] += "</div>"
 
@@ -891,13 +905,12 @@ class WPExporter:
         # call wp-cli
         self.run_wp_cli('option update show_on_front page')
 
-        for lang in self.site.homepage.contents.keys():
-            frontpage_id = self.site.homepage.contents[lang].wp_id
+        if self.default_language in self.site.homepage.contents.keys():
+            frontpage_id = self.site.homepage.contents[self.default_language].wp_id
             result = self.run_wp_cli('option update page_on_front {}'.format(frontpage_id))
             if result is not None:
                 # Set on only one language is sufficient
                 logging.info("WP frontpage setted")
-                break
 
     def delete_all_content(self):
         """
