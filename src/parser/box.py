@@ -19,6 +19,7 @@ class Box:
     TYPE_LINKS = "links"
     TYPE_RSS = "rss"
     TYPE_FILES = "files"
+    TYPE_SNIPPETS = "snippets"
 
     # Mapping of known box types from Jahia to WP
     types = {
@@ -34,7 +35,8 @@ class Box:
         "epfl:xmlBox": TYPE_XML,
         "epfl:linksBox": TYPE_LINKS,
         "epfl:rssBox": TYPE_RSS,
-        "epfl:filesBox": TYPE_FILES
+        "epfl:filesBox": TYPE_FILES,
+        "epfl:snippetsBox": TYPE_SNIPPETS
     }
 
     def __init__(self, site, page_content, element, multibox=False):
@@ -97,6 +99,9 @@ class Box:
         # files
         elif self.TYPE_FILES == self.type:
             self.set_box_files(element)
+        # snippets
+        elif self.TYPE_SNIPPETS == self.type:
+            self.set_box_snippets(element)
         # unknown
         else:
             self.set_box_unknown(element)
@@ -235,6 +240,29 @@ class Box:
             content += '<li><a href="{}">{}</a></li>'.format(file_url, file_name)
         content += "</ul>"
         self.content = content
+
+    def set_box_snippets(self, element):
+        """set the attributes of a snippets box"""
+
+        snippets = element.getElementsByTagName("snippetListList")[0].getElementsByTagName("snippetList")
+
+        for snippet in snippets:
+            title = Utils.get_tag_attribute(snippet, "title", "jahia:value")
+            subtitle = Utils.get_tag_attribute(snippet, "subtitle", "jahia:value")
+            description = Utils.get_tag_attribute(snippet, "description", "jahia:value")
+            image = Utils.get_tag_attribute(snippet, "image", "jahia:value")
+            big_image = Utils.get_tag_attribute(snippet, "bigImage", "jahia:value")
+            enable_zoom = Utils.get_tag_attribute(snippet, "enableImageZoom", "jahia:value")
+
+            # escape
+            title = title.replace('"','\\"')
+            subtitle = subtitle.replace('"','\\"')
+            description = description.replace('"','\\"')
+
+            self.content = "[epfl_snippets title=\"{}\" subtitle=\"{}\" image=\"{}\"" \
+                           "big_image=\"{}\" enable_zoom=\"{}\" description=\"{}\"]".format(
+                title, subtitle, image, big_image, enable_zoom, description
+            )
 
     def _parse_links_to_list(self, element):
         """Handles link tags that can be found in linksBox and textBox"""
