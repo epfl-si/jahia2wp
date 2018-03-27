@@ -18,6 +18,7 @@ Usage:
     [--installs-locked=<BOOLEAN> --updates-automatic=<BOOLEAN>]
     [--openshift-env=<OPENSHIFT_ENV> --theme=<THEME>]
     [--use-cache]
+    [--keep-extracted-files]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--stop-on-errors]
   jahia2wp.py clean-many            <csv_file>                      [--debug | --quiet]
@@ -33,6 +34,7 @@ Usage:
   jahia2wp.py generate-many         <csv_file>                      [--debug | --quiet]
   jahia2wp.py export-many           <csv_file>                      [--debug | --quiet]
     [--output-dir=<OUTPUT_DIR> --admin-password=<PASSWORD>] [--use-cache]
+    [--keep-extracted-files]
   jahia2wp.py backup-many           <csv_file>                      [--debug | --quiet]
   jahia2wp.py rotate-backup         <csv_file>          [--dry-run] [--debug | --quiet]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
@@ -334,28 +336,29 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
         site_dir = unzip(site, output_dir=output_dir)
 
         # where to cache our parsing
-        pickle_file = os.path.join(site_dir, 'parsed_%s.pkl' % site)
+        pickle_file_path = os.path.join(site_dir, 'parsed_%s.pkl' % site)
 
         # when using-cache: check if already parsed
         pickle_site = False
         if use_cache:
-            if os.path.exists(pickle_file):
-                with open(pickle_file, 'rb') as pickle_content:
+            if os.path.exists(pickle_file_path):
+                with open(pickle_file_path, 'rb') as pickle_content:
                     pickle_site = pickle.load(pickle_content)
-                    logging.info("Loaded parsed site from %s" % pickle_file)
+                    logging.info("Using the cached pickle file at %s" % pickle_file_path)
 
         logging.info("Parsing Jahia xml files from %s...", site_dir)
         if pickle_site:
             site = pickle_site
         else:
+            logging.info("Cache not used, parsing the Site")
             site = Site(site_dir, site)
 
         print(site.report)
 
         # always save the parsed data on disk, so we can use the
         # cache later if we want
-        with open(pickle_file, 'wb') as output:
-            logging.info("Parsed site saved into %s" % pickle_file)
+        with open(pickle_file_path, 'wb') as output:
+            logging.info("Parsed site saved into %s" % pickle_file_path)
             pickle.dump(site, output, pickle.HIGHEST_PROTOCOL)
 
         # log success
@@ -372,7 +375,7 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
 @dispatch.on('export')
 def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=False, admin_password=None,
            output_dir=None, theme=None, installs_locked=False, updates_automatic=False, openshift_env=None,
-           use_cache=None, **kwargs):
+           use_cache=None, keep_extracted_files=False, **kwargs):
     """
     Export the jahia content into a WordPress site.
 
@@ -387,6 +390,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     :param installs_locked: boolean
     :param updates_automatic: boolean
     :param openshift_env: openshift_env environment (prod, int, gcharmier ...)
+    :param keep_extracted_files: command to keep files extracted from jahia zip
     """
 
     # Download, Unzip the jahia zip and parse the xml data
@@ -451,7 +455,8 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     wp_exporter = WPExporter(
         site,
         wp_generator,
-        output_dir
+        default_language,
+        output_dir=output_dir
     )
 
     if to_wordpress:
@@ -482,20 +487,22 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
 
     _generate_csv_line(wp_generator)
 
-    # Delete extracted zip files
-    # We take dirname because site.base_path is the path to the subfolder in the zip.
-    # Example : path_to_extract/dcsl/dcsl
-    # And we want to delete path_to_extract/dcsl
-    base_zip_path = os.path.dirname(os.path.abspath(site.base_path))
-    logging.debug("Removing zip extracted folder '%s'", base_zip_path)
-    if os.path.exists(base_zip_path):
-        shutil.rmtree(base_zip_path)
+    if not keep_extracted_files:
+        # Delete extracted zip files
+        # We take dirname because site.base_path is the path to the subfolder in the zip.
+        # Example : path_to_extract/dcsl/dcsl
+        # And we want to delete path_to_extract/dcsl
+        base_zip_path = os.path.dirname(os.path.abspath(site.base_path))
+        logging.debug("Removing zip extracted folder '%s'", base_zip_path)
+        if os.path.exists(base_zip_path):
+            shutil.rmtree(base_zip_path)
 
     return wp_exporter
 
 
 @dispatch.on('export-many')
-def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None, **kwargs):
+def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None,
+                keep_extracted_files=False, **kwargs):
 
     rows = Utils.csv_filepath_to_dict(csv_file)
 
@@ -521,7 +528,8 @@ def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None, 
                 updates_automatic=row['updates_automatic'],
                 wp_env=row['openshift_env'],
                 admin_password=admin_password,
-                use_cache=use_cache
+                use_cache=use_cache,
+                keep_extracted_files=keep_extracted_files
             )
         except (Exception, subprocess.CalledProcessError) as e:
             Tracer.write_row(site=row['Jahia_zip'], step=e, status="KO")
@@ -624,7 +632,7 @@ def backup(wp_env, wp_url, **kwargs):
     if not wp_backup.backup():
         raise SystemExit("Backup failed. More info above")
 
-    print("Successfull {} backup for {}".format(
+    print("Successful {} backup for {}".format(
         wp_backup.backup_pattern, wp_backup.wp_site.url))
 
 
@@ -781,35 +789,50 @@ def update_plugins_many(csv_file, plugin=None, force=False, **kwargs):
 
 @dispatch.on('global-report')
 def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
+    """Generate a global report with stats like the number of pages, files and boxes"""
 
-    "Generate a global report with stats like the number of pages, files and boxes"
     path = os.path.join(output_dir, "global-report.csv")
 
     logging.info("Generating global report at %s" % path)
 
     rows = Utils.csv_filepath_to_dict(csv_file)
 
-    sites = []
+    # the reports
+    reports = []
+
+    # all the box types
+    box_types = set()
 
     for index, row in enumerate(rows):
         try:
-            sites.append(parse(site=row['Jahia_zip'], use_cache=use_cache))
+            # parse the Site
+            site = parse(site=row['Jahia_zip'], use_cache=use_cache)
+
+            # add the report info
+            reports.append(site.get_report_info())
+
+            # add the site's box types
+            for key in site.num_boxes.keys():
+                if key:
+                    box_types.add(key)
         except Exception as e:
-            logging.error("Site %s - Error %s", row['Jahia_zip'], e)
-
-    # retrieve all the box types
-    box_types = set()
-
-    for site in sites:
-        for key in site.num_boxes.keys():
-            if key:
-                box_types.add(key)
+                logging.error("Site %s - Error %s", row['Jahia_zip'], e)
 
     # the base field names for the csv
     fieldnames = ["name", "pages", "files"]
 
     # add all the box types
     fieldnames.extend(sorted(box_types))
+
+    # complete the reports with 0 for box types unknown to a Site
+    for box_type in box_types:
+        for report in reports:
+            if box_type not in report:
+                report[box_type] = 0
+
+            # some reports have an empty string
+            if "" in report:
+                del report[""]
 
     # write the csv file
     with open(path, 'w') as csvfile:
@@ -818,9 +841,12 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
         # header
         writer.writeheader()
 
-        # content
-        for site in sites:
-            writer.writerow(site.get_report_info(box_types))
+        for report in reports:
+            try:
+                writer.writerow(report)
+
+            except Exception as e:
+                logging.error("Site %s - Error %s", report['name'], e)
 
 
 if __name__ == '__main__':
