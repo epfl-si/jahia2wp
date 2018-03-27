@@ -25,7 +25,19 @@ function epfl_news_template_text_only($news): string
 {
     $html = '<div>';
     $html .= '<p>template_text_only</p>';
+
 	foreach ($news->results as $item) {
+
+        // print fr and en category
+        if ($item->lang === "fr") {
+            Utils::debug($item->category->fr_label);
+        } elseif ($item->lang === "en") {
+            Utils::debug($item->category->en_label);
+        }
+
+        $publish_date = new DateTime($item->publish_date);
+	    $publish_date = $publish_date->format('d.m.Y');
+
 		$html .= '<div style="height: 103px;">';
 		$html .= '  <div style="display:inline-block;margin-left:5px;">';
 		$html .= '    <h4>';
@@ -34,7 +46,7 @@ function epfl_news_template_text_only($news): string
 		$html .= '      </a>';
 		$html .= '    </h4>';
 		$html .= '    <p>';
-		$html .= '      <span class="date">' . $item->publish_date . ' -</span>';
+		$html .= '      <span class="date">' . $publish_date . ' -</span>';
 		$html .= '      <span class="heading" style="display:inline">' . substr($item->subtitle, 0, 40) . '</span>';
         $html .= '    </p>';
 		$html .= '  </div>';
