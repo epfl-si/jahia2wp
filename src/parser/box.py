@@ -19,6 +19,7 @@ class Box:
     TYPE_LINKS = "links"
     TYPE_RSS = "rss"
     TYPE_FILES = "files"
+    TYPE_BUTTONS = "buttons_box"
 
     # Mapping of known box types from Jahia to WP
     types = {
@@ -34,7 +35,9 @@ class Box:
         "epfl:xmlBox": TYPE_XML,
         "epfl:linksBox": TYPE_LINKS,
         "epfl:rssBox": TYPE_RSS,
-        "epfl:filesBox": TYPE_FILES
+        "epfl:filesBox": TYPE_FILES,
+        "epfl:bigButtonsBox": TYPE_BUTTONS,
+        "epfl:smallButtonsBox": TYPE_BUTTONS
     }
 
     def __init__(self, site, page_content, element, multibox=False):
@@ -97,6 +100,9 @@ class Box:
         # files
         elif self.TYPE_FILES == self.type:
             self.set_box_files(element)
+        # small/bigButtonsBox
+        elif self.TYPE_BUTTONS == self.type:
+            self.set_buttons_box(element)
         # unknown
         else:
             self.set_box_unknown(element)
@@ -235,6 +241,45 @@ class Box:
             content += '<li><a href="{}">{}</a></li>'.format(file_url, file_name)
         content += "</ul>"
         self.content = content
+
+    def set_buttons_box(self, element):
+        box_type = element.getAttribute("jcr:primaryType")
+        if 'small' in box_type:
+            elements = element.getElementsByTagName("smallButtonList")
+            content = '<ul type="small">'
+        else:
+            elements = element.getElementsByTagName("bigButtonList")
+            content = '<ul type="big">'
+        for button_list in elements:
+            for child in button_list.childNodes:
+                if child.ELEMENT_NODE != child.nodeType:
+                    continue
+                if child.tagName == "label":
+                    text = child.getAttribute("jahia:value")
+                elif child.tagName == "url":
+                    for jahia_tag in child.childNodes:
+                        if jahia_tag.ELEMENT_NODE != jahia_tag.nodeType:
+                            continue
+                        if jahia_tag.tagName == "jahia:link":
+                            # It happens that a link references a page that does not exist anymore
+                            # observed on site dii
+                            try:
+                                page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
+                            except KeyError as e:
+                                continue
+                            url = page.pid
+                        elif jahia_tag.tagName == "jahia:url":
+                            url = jahia_tag.getAttribute("jahia:value")
+                elif child.tagName == "image":
+                    # URL is like /content/sites/<site_name>/files/file
+                    # splitted gives ['', content, sites, <site_name>, files, file]
+                    # result of join is files/file and we add the missing '/' in front.
+                    image_url = '/'.join(child.getAttribute("jahia:value").split("/")[4:])
+                    image_url = '/' + image_url
+            content += '<li><a href="{}"><img src="{}" />{}</a></li>'.format(url, image_url, text)
+        content += "</ul>"
+        self.content = content
+        print(self.content)
 
     def _parse_links_to_list(self, element):
         """Handles link tags that can be found in linksBox and textBox"""
