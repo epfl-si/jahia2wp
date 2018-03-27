@@ -96,6 +96,9 @@ function epfl_scheduler_shortcode( $atts, $content = '', $tag )
     $start_date = $start_date . "T" . $start_time;
     $end_date = $end_date . "T" . $end_time;
 
+    epfl_scheduler_debug($start_date);
+    epfl_scheduler_debug($end_date);
+
     date_default_timezone_set('Europe/Paris');
 
     // convert date string to datetime
@@ -103,8 +106,13 @@ function epfl_scheduler_shortcode( $atts, $content = '', $tag )
     $end_date = strtotime( $end_date );
     $now = time();
 
+    epfl_scheduler_debug(date("Y-m-d H:i:s", $now));
+    epfl_scheduler_debug($start_date);
+    epfl_scheduler_debug($end_date);
+    epfl_scheduler_debug($now);
+
     // check if we can display content
-    if ( $now > $start_date && $now < $end_date ) {
+    if ( $now >= $start_date && $now <= $end_date ) {
         return $content;
     }
 }
