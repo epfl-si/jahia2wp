@@ -243,9 +243,9 @@ class Box:
 
     def set_box_syntax_highlight(self, element):
         """Set the attributes of a syntaxHighlight box"""
-        content = "<pre><code>"
+        content = "[enlighter]"
         content += Utils.get_tag_attribute(element, "code", "jahia:value")
-        content += "</code></pre>"
+        content += "[/enlighter]"
         self.content = content
 
     def _parse_links_to_list(self, element):
