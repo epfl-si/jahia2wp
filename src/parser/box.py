@@ -19,6 +19,7 @@ class Box:
     TYPE_LINKS = "links"
     TYPE_RSS = "rss"
     TYPE_FILES = "files"
+    TYPE_SYNTAX_HIGHLIGHT = "syntaxHighlight"
 
     # Mapping of known box types from Jahia to WP
     types = {
@@ -34,7 +35,8 @@ class Box:
         "epfl:xmlBox": TYPE_XML,
         "epfl:linksBox": TYPE_LINKS,
         "epfl:rssBox": TYPE_RSS,
-        "epfl:filesBox": TYPE_FILES
+        "epfl:filesBox": TYPE_FILES,
+        "epfl:syntaxHighlightBox": TYPE_SYNTAX_HIGHLIGHT
     }
 
     def __init__(self, site, page_content, element, multibox=False):
@@ -97,6 +99,9 @@ class Box:
         # files
         elif self.TYPE_FILES == self.type:
             self.set_box_files(element)
+        # syntaxHighlight
+        elif self.TYPE_SYNTAX_HIGHLIGHT == self.type:
+            self.set_box_syntax_highlight(element)
         # unknown
         else:
             self.set_box_unknown(element)
@@ -234,6 +239,13 @@ class Box:
             file_name = file_url.split("/")[-1]
             content += '<li><a href="{}">{}</a></li>'.format(file_url, file_name)
         content += "</ul>"
+        self.content = content
+
+    def set_box_syntax_highlight(self, element):
+        """Set the attributes of a syntaxHighlight box"""
+        content = "<pre><code>"
+        content += Utils.get_tag_attribute(element, "code", "jahia:value")
+        content += "</code></pre>"
         self.content = content
 
     def _parse_links_to_list(self, element):
