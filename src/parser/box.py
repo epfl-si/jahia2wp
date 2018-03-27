@@ -164,7 +164,7 @@ class Box:
         """set the attributes of an include box"""
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.content = "[include url=%s]" % url
+        self.content = '[remote_content url="%s"]'.format(url)
 
     def set_box_contact(self, element):
         """set the attributes of a contact box"""
