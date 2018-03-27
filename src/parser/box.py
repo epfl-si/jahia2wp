@@ -20,6 +20,7 @@ class Box:
     TYPE_RSS = "rss"
     TYPE_FILES = "files"
     TYPE_SYNTAX_HIGHLIGHT = "syntaxHighlight"
+    TYPE_MAP = "map"
 
     # Mapping of known box types from Jahia to WP
     types = {
@@ -36,8 +37,11 @@ class Box:
         "epfl:linksBox": TYPE_LINKS,
         "epfl:rssBox": TYPE_RSS,
         "epfl:filesBox": TYPE_FILES,
-        "epfl:syntaxHighlightBox": TYPE_SYNTAX_HIGHLIGHT
+        "epfl:syntaxHighlightBox": TYPE_SYNTAX_HIGHLIGHT,
+        "epfl:mapBox": TYPE_MAP
     }
+
+    UPDATE_LANG = "UPDATE_LANG_BY_EXPORTER"
 
     def __init__(self, site, page_content, element, multibox=False):
         self.site = site
@@ -102,6 +106,8 @@ class Box:
         # syntaxHighlight
         elif self.TYPE_SYNTAX_HIGHLIGHT == self.type:
             self.set_box_syntax_highlight(element)
+        elif self.TYPE_MAP == self.type:
+            self.set_box_map(element)
         # unknown
         else:
             self.set_box_unknown(element)
@@ -276,6 +282,20 @@ class Box:
             return ""
 
         return content
+
+    def set_box_map(self, element):
+        """set the attributes of a map box"""
+
+        # parse info
+        height = Utils.get_tag_attribute(element, "height", "jahia:value")
+        width = Utils.get_tag_attribute(element, "width", "jahia:value")
+        query = Utils.get_tag_attribute(element, "query", "jahia:value")
+
+        # in the parser we can't know the current language.
+        # so we assign a string that we will replace by the current language in the exporter
+        lang = self.UPDATE_LANG
+
+        self.content = '[epfl_map width="{}" height="{}" query="{}" lang="{}"]'.format(width, height, query, lang)
 
     def __str__(self):
         return self.type + " " + self.title
