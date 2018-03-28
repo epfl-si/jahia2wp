@@ -23,7 +23,14 @@ plugins:
     config: !include EPFL-settings/v1/config-plugin.yml
   - name: EPFL-Share
     config: !include EPFL-Share/v1/config-plugin.yml
+  - name: EPFL-Content-Filter
+    config: !include EPFL-Content-Filter/v1/config-plugin.yml
   - name: svg-support
     config: !include svg-support/v1/config-plugin.yml
   - name: shortcodes-ultimate
     config: !include shortcodes-ultimate/v1/config-plugin.yml
+  - name: feedzy-rss-feeds
+    config: !include feedzy-rss-feeds/v1/config-plugin.yml
+  - name: enlighter
+    config: !include enlighter/v1/config-plugin.yml
+
