@@ -70,6 +70,7 @@ class WPExporter:
         self.menu_id_dict = {}
         self.output_dir = output_dir or settings.JAHIA_DATA_PATH
         self.wp_generator = wp_generator
+        self.medias_mapping = {}
 
         # we use the python-wordpress-json library to interact with the wordpress REST API
         # FIXME : http://<host>/prout/?rest_route=/wp/v2 fonctionne ???
@@ -201,6 +202,7 @@ class WPExporter:
                 if wp_media:
                     self.fix_file_links(file, wp_media)
                     self.report['files'] += 1
+            self.fix_key_visual_boxes()
         # Remove the capability "unfiltered_upload" to the administrator group.
         self.run_wp_cli('cap remove administrator unfiltered_upload')
         logging.info("WP medias imported")
@@ -281,6 +283,7 @@ class WPExporter:
 
         # the new url is the wp media source url
         new_url = wp_media['source_url']
+        self.medias_mapping[new_url] = wp_media['id']
 
         tag_attribute_tuples = [("a", "href"), ("img", "src"), ("script", "src")]
 
@@ -409,6 +412,18 @@ class WPExporter:
                 logging.debug("Changing link from %s to %s" % (old_url, new_url))
                 tag[tag_attribute] = new_url
 
+    def fix_key_visual_boxes(self):
+        """[su_slider source="media: 1650,1648,1649" title="no" arrows="yes"]"""
+        for box in self.site.get_all_boxes():
+            if box.type == Box.TYPE_KEY_VISUAL:
+                soup = BeautifulSoup(box.content, 'html.parser')
+                medias_ids = []
+                for img in soup.find_all("img"):
+                    if img['src'] in self.medias_mapping:
+                        medias_ids.append(self.medias_mapping[img['src']])
+                box.content = '[su_slider source="media: {}"'.format(','.join([str(m) for m in medias_ids]))
+                box.content += ' title="no" arrows="yes"]'
+
     def update_page(self, page_id, title, content):
         """
         Import a page to Wordpress
@@ -462,6 +477,13 @@ class WPExporter:
                     contents[lang] += '<div class="{}">'.format(box.type + "Box")
                     if box.title:
                         contents[lang] += '<h3 id="{0}">{0}</h3>'.format(box.title)
+
+                    # in the parser we can't know the current language.
+                    # we assign a string that we replace with the current language
+                    if box.type == Box.TYPE_MAP:
+                        if Box.UPDATE_LANG in box.content:
+                            box.content = box.content.replace(Box.UPDATE_LANG, lang)
+
                     contents[lang] += box.content
                     contents[lang] += "</div>"
 
