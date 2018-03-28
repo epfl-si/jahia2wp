@@ -45,7 +45,7 @@ Usage:
   jahia2wp.py update-plugins-many   <csv_file>                      [--debug | --quiet]
     [--force] [--plugin=<PLUGIN_NAME>]
   jahia2wp.py global-report <csv_file> [--output-dir=<OUTPUT_DIR>] [--use-cache] [--debug | --quiet]
-  jahia2wp.py ventilate-urls <csv_file> <wp_env> [--fix-csv]        [--debug | --quiet]
+  jahia2wp.py ventilate-urls <csv_file> <wp_env>                    [--debug | --quiet]
     [--context=<intra|inter|full>]
 
 Options:
@@ -827,18 +827,17 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
             writer.writerow(site.get_report_info(box_types))
 
 @dispatch.on('ventilate-urls')
-def url_mapping(csv_file, wp_env, fix_csv=False, context='intra', **kwargs):
+def url_mapping(csv_file, wp_env, context='intra', **kwargs):
     """
     :param csv_file: CSV containing the URL mapping rules for source and destination.
-    :param fix_csv: Try to fix the CSV when set to True.
     :param context: intra, inter, full. Replace the occurrences at intra, inter or both.
     
     It takes the mapping rules in a CSV, with 2 columns each: source => destination, 
     where both are URLs in WP instances. The first row of the CSV are treated as 
-    headers. The fix_csv argument helps to fix the CSV if needed.
+    headers. 
     
     It first validates the format of the CSV, where source can refer to a whole site, 
-    a path or a leaf (page). It can fix automatically the CSV if fix_csv is set to True, 
+    a path or a leaf (page). It can fix automatically the CSV, 
     by removing or adding trailing slashes and peforming other checks. If the CSV is 
     correct, the process will continue otherwise it will stop. 
     The CSV will also be  sorted by rule specificity from specific to generic. The CSV 
