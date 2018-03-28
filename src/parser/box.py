@@ -1,4 +1,6 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
+from xml.dom import minidom
+from urllib.parse import urlencode
 from utils import Utils
 
 
@@ -8,6 +10,7 @@ class Box:
     # WP box types
     TYPE_TEXT = "text"
     TYPE_COLORED_TEXT = "coloredText"
+    TYPE_PEOPLE_LIST = "peopleList"
     TYPE_INFOSCIENCE = "infoscience"
     TYPE_ACTU = "actu"
     TYPE_MEMENTO = "memento"
@@ -20,6 +23,7 @@ class Box:
     TYPE_RSS = "rss"
     TYPE_FILES = "files"
     TYPE_BUTTONS = "buttons_box"
+    TYPE_SYNTAX_HIGHLIGHT = "syntaxHighlight"
     TYPE_KEY_VISUAL = "keyVisual"
     TYPE_MAP = "map"
 
@@ -27,6 +31,7 @@ class Box:
     types = {
         "epfl:textBox": TYPE_TEXT,
         "epfl:coloredTextBox": TYPE_COLORED_TEXT,
+        "epfl:peopleListBox": TYPE_PEOPLE_LIST,
         "epfl:infoscienceBox": TYPE_INFOSCIENCE,
         "epfl:actuBox": TYPE_ACTU,
         "epfl:mementoBox": TYPE_MEMENTO,
@@ -40,6 +45,7 @@ class Box:
         "epfl:filesBox": TYPE_FILES,
         "epfl:bigButtonsBox": TYPE_BUTTONS,
         "epfl:smallButtonsBox": TYPE_BUTTONS,
+        "epfl:syntaxHighlightBox": TYPE_SYNTAX_HIGHLIGHT,
         "epfl:keyVisualBox": TYPE_KEY_VISUAL,
         "epfl:mapBox": TYPE_MAP
     }
@@ -73,6 +79,9 @@ class Box:
         # text
         if self.TYPE_TEXT == self.type or self.TYPE_COLORED_TEXT == self.type:
             self.set_box_text(element, multibox)
+        # people list
+        elif self.TYPE_PEOPLE_LIST == self.type:
+            self.set_box_people_list(element)
         # infoscience
         elif self.TYPE_INFOSCIENCE == self.type:
             self.set_box_infoscience(element)
@@ -109,6 +118,9 @@ class Box:
         # small/bigButtonsBox
         elif self.TYPE_BUTTONS == self.type:
             self.set_buttons_box(element)
+        # syntaxHighlight
+        elif self.TYPE_SYNTAX_HIGHLIGHT == self.type:
+            self.set_box_syntax_highlight(element)
         # keyVisual
         elif self.TYPE_KEY_VISUAL == self.type:
             self.set_box_key_visuals(element)
@@ -145,6 +157,50 @@ class Box:
 
         self.content = content
 
+    def set_box_people_list(self, element):
+        """
+        Set the attributes of a people list box
+
+        More information here:
+        https://c4science.ch/source/kis-jahia6-dev/browse/master/core/src/main/webapp/common/box/display/peopleListBoxDisplay.jsp
+        """
+        BASE_URL = "https://people.epfl.ch/cgi-bin/getProfiles?"
+
+        # prepare a dictionary with all GET parameters
+        parameters = {}
+
+        # parse the unit parameter
+        parameters['unit'] = Utils.get_tag_attribute(element, "query", "jahia:value")
+
+        # parse the template html
+        template_html = Utils.get_tag_attribute(element, "template", "jahia:value")
+
+        # extract template key
+        template_key = Utils.get_tag_attribute(
+            minidom.parseString(template_html),
+            "jahia-resource",
+            "key"
+        )
+
+        # these rules are extracted from jsp of jahia
+        if template_key == 'epfl_peopleListContainer.template.default_bloc':
+            parameters['struct'] = 1
+            template = 'default_struct_bloc'
+        elif template_key == 'epfl_peopleListContainer.template.default_bloc_simple':
+            template = 'default_bloc'
+        elif template_key == 'epfl_peopleListContainer.template.default_list':
+            template = 'default_list'
+        else:
+            template = Utils.get_tag_attribute(minidom.parseString(template_html), "jahia-resource", "key")
+        parameters['WP_tmpl'] = template
+
+        # in the parser we can't know the current language.
+        # so we assign a string that we will replace by the current language in the exporter
+        parameters['lang'] = self.UPDATE_LANG
+
+        url = "{}{}".format(BASE_URL, urlencode(parameters))
+        self.content = '[epfl_people url="{}" /]'.format(url)
+
     def set_box_actu(self, element):
         """set the attributes of an actu box"""
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
@@ -180,8 +236,11 @@ class Box:
     def set_box_include(self, element):
         """set the attributes of an include box"""
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
-
-        self.content = "[include url=%s]" % url
+        if "://people.epfl.ch/cgi-bin/getProfiles?" in url:
+            url = url.replace("tmpl=", "WP_tmpl=")
+            self.content = "[epfl_people url={} /]".format(url)
+        else:
+            self.content = "[include url={}]".format(url)
 
     def set_box_contact(self, element):
         """set the attributes of a contact box"""
@@ -302,6 +361,13 @@ class Box:
     @classmethod
     def build_buttons_box_content(cls, box_type, url, image_url, text):
         return '[epfl_buttons_box type="{}" url="{}" image_url="{}" text="{}"]\n'.format(box_type, url, image_url, text)
+
+    def set_box_syntax_highlight(self, element):
+        """Set the attributes of a syntaxHighlight box"""
+        content = "[enlighter]"
+        content += Utils.get_tag_attribute(element, "code", "jahia:value")
+        content += "[/enlighter]"
+        self.content = content
 
     def set_box_key_visuals(self, element):
         """Handles keyVisualBox, which is actually a carousel of images.
