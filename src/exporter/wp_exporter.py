@@ -293,6 +293,10 @@ class WPExporter:
         for box in self.site.get_all_boxes():
 
             if box.type == box.TYPE_BUTTONS:
+                # The content of the box is a succession of [epfl_buttons_box] shortcodes. We want to fix them all,
+                # but separatly, so we go through each occurence via a regular expression and replace the full
+                # full shortcode when an update of link is needed. This allows us to override only the correct part
+                # of the content of the box.
                 regex = r'\[epfl_buttons_box type="(small|big)" url="(.*?)" image_url="(.*?)" text="(.*?)"\]'
                 if re.search(regex, box.content):
                     for box_type, url, image_url, text in re.findall(regex, box.content):
