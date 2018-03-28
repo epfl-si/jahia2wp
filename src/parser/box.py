@@ -19,6 +19,7 @@ class Box:
     TYPE_LINKS = "links"
     TYPE_RSS = "rss"
     TYPE_FILES = "files"
+    TYPE_KEY_VISUAL = "keyVisual"
     TYPE_MAP = "map"
 
     # Mapping of known box types from Jahia to WP
@@ -36,6 +37,7 @@ class Box:
         "epfl:linksBox": TYPE_LINKS,
         "epfl:rssBox": TYPE_RSS,
         "epfl:filesBox": TYPE_FILES,
+        "epfl:keyVisualBox": TYPE_KEY_VISUAL,
         "epfl:mapBox": TYPE_MAP
     }
 
@@ -101,6 +103,9 @@ class Box:
         # files
         elif self.TYPE_FILES == self.type:
             self.set_box_files(element)
+        # keyVisual
+        elif self.TYPE_KEY_VISUAL == self.type:
+            self.set_box_key_visuals(element)
         elif self.TYPE_MAP == self.type:
             self.set_box_map(element)
         # unknown
@@ -239,6 +244,27 @@ class Box:
             file_url = '/' + file_url
             file_name = file_url.split("/")[-1]
             content += '<li><a href="{}">{}</a></li>'.format(file_url, file_name)
+        content += "</ul>"
+        self.content = content
+
+    def set_box_key_visuals(self, element):
+        """Handles keyVisualBox, which is actually a carousel of images.
+        For the carousel to work in wordpress, we need the media IDs of the images,
+        but we do not know these IDs before importing the media, so the content of the box
+        is translated to parsable html and will be replaced by the adequate shortcode in the
+        exporter.
+        """
+        elements = element.getElementsByTagName("image")
+        content = "<ul>"
+        for e in elements:
+            if e.ELEMENT_NODE != e.nodeType:
+                continue
+            # URL is like /content/sites/<site_name>/files/file
+            # splitted gives ['', content, sites, <site_name>, files, file]
+            # result of join is files/file and we add the missing '/' in front.
+            image_url = '/'.join(e.getAttribute("jahia:value").split("/")[4:])
+            image_url = '/' + image_url
+            content += '<li><img src="{}" /></li>'.format(image_url)
         content += "</ul>"
         self.content = content
 
