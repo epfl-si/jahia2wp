@@ -22,6 +22,9 @@ class Box:
     TYPE_LINKS = "links"
     TYPE_RSS = "rss"
     TYPE_FILES = "files"
+    TYPE_SYNTAX_HIGHLIGHT = "syntaxHighlight"
+    TYPE_KEY_VISUAL = "keyVisual"
+    TYPE_MAP = "map"
 
     # Mapping of known box types from Jahia to WP
     types = {
@@ -38,7 +41,10 @@ class Box:
         "epfl:xmlBox": TYPE_XML,
         "epfl:linksBox": TYPE_LINKS,
         "epfl:rssBox": TYPE_RSS,
-        "epfl:filesBox": TYPE_FILES
+        "epfl:filesBox": TYPE_FILES,
+        "epfl:syntaxHighlightBox": TYPE_SYNTAX_HIGHLIGHT,
+        "epfl:keyVisualBox": TYPE_KEY_VISUAL,
+        "epfl:mapBox": TYPE_MAP
     }
 
     UPDATE_LANG = "UPDATE_LANG_BY_EXPORTER"
@@ -106,6 +112,14 @@ class Box:
         # files
         elif self.TYPE_FILES == self.type:
             self.set_box_files(element)
+        # syntaxHighlight
+        elif self.TYPE_SYNTAX_HIGHLIGHT == self.type:
+            self.set_box_syntax_highlight(element)
+        # keyVisual
+        elif self.TYPE_KEY_VISUAL == self.type:
+            self.set_box_key_visuals(element)
+        elif self.TYPE_MAP == self.type:
+            self.set_box_map(element)
         # unknown
         else:
             self.set_box_unknown(element)
@@ -292,6 +306,34 @@ class Box:
         content += "</ul>"
         self.content = content
 
+    def set_box_syntax_highlight(self, element):
+        """Set the attributes of a syntaxHighlight box"""
+        content = "[enlighter]"
+        content += Utils.get_tag_attribute(element, "code", "jahia:value")
+        content += "[/enlighter]"
+        self.content = content
+
+    def set_box_key_visuals(self, element):
+        """Handles keyVisualBox, which is actually a carousel of images.
+        For the carousel to work in wordpress, we need the media IDs of the images,
+        but we do not know these IDs before importing the media, so the content of the box
+        is translated to parsable html and will be replaced by the adequate shortcode in the
+        exporter.
+        """
+        elements = element.getElementsByTagName("image")
+        content = "<ul>"
+        for e in elements:
+            if e.ELEMENT_NODE != e.nodeType:
+                continue
+            # URL is like /content/sites/<site_name>/files/file
+            # splitted gives ['', content, sites, <site_name>, files, file]
+            # result of join is files/file and we add the missing '/' in front.
+            image_url = '/'.join(e.getAttribute("jahia:value").split("/")[4:])
+            image_url = '/' + image_url
+            content += '<li><img src="{}" /></li>'.format(image_url)
+        content += "</ul>"
+        self.content = content
+
     def _parse_links_to_list(self, element):
         """Handles link tags that can be found in linksBox and textBox"""
         elements = element.getElementsByTagName("link")
@@ -320,6 +362,20 @@ class Box:
             return ""
 
         return content
+
+    def set_box_map(self, element):
+        """set the attributes of a map box"""
+
+        # parse info
+        height = Utils.get_tag_attribute(element, "height", "jahia:value")
+        width = Utils.get_tag_attribute(element, "width", "jahia:value")
+        query = Utils.get_tag_attribute(element, "query", "jahia:value")
+
+        # in the parser we can't know the current language.
+        # so we assign a string that we will replace by the current language in the exporter
+        lang = self.UPDATE_LANG
+
+        self.content = '[epfl_map width="{}" height="{}" query="{}" lang="{}"]'.format(width, height, query, lang)
 
     def __str__(self):
         return self.type + " " + self.title

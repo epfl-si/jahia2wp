@@ -42,12 +42,13 @@ class WPExporter:
 
         return rest_api_url
 
-    def __init__(self, site, wp_generator, output_dir=None):
+    def __init__(self, site, wp_generator, default_language, output_dir=None):
         """
         site is the python object resulting from the parsing of Jahia XML.
         site_host is the domain name.
         site_path is the url part of the site without the site_name.
         output_dir is the path where information files will be generated.
+        default_language is the default language for website
         wp_generator is an instance of WP_Generator and is used to call wpcli and admin user info.
         """
         self.site = site
@@ -63,10 +64,13 @@ class WPExporter:
             'failed_widgets': 0,
         }
 
+        self.default_language = default_language
+
         # dictionary with the key 'wp_page_id' and the value 'wp_menu_id'
         self.menu_id_dict = {}
         self.output_dir = output_dir or settings.JAHIA_DATA_PATH
         self.wp_generator = wp_generator
+        self.medias_mapping = {}
 
         # we use the python-wordpress-json library to interact with the wordpress REST API
         # FIXME : http://<host>/prout/?rest_route=/wp/v2 fonctionne ???
@@ -198,6 +202,7 @@ class WPExporter:
                 if wp_media:
                     self.fix_file_links(file, wp_media)
                     self.report['files'] += 1
+            self.fix_key_visual_boxes()
         # Remove the capability "unfiltered_upload" to the administrator group.
         self.run_wp_cli('cap remove administrator unfiltered_upload')
         logging.info("WP medias imported")
@@ -249,16 +254,15 @@ class WPExporter:
         """
         Import breadcrumb in default language by setting correct option in DB
         """
-        # FIXME: add an attribut default_language to wp_generator.wp_site class
-        default_lang = self.wp_generator._site_params['langs'].split(",")[0]
 
         # If there is a custom breadrcrumb defined for this site and the default language
         if self.site.breadcrumb_title and self.site.breadcrumb_url and \
-                default_lang in self.site.breadcrumb_title and default_lang in self.site.breadcrumb_url:
+                self.default_language in self.site.breadcrumb_title and \
+                self.default_language in self.site.breadcrumb_url:
             # Generatin breadcrumb to save in parameters
             breadcrumb = "[EPFL|www.epfl.ch]"
-            breadcrumb_titles = self.site.breadcrumb_title[default_lang]
-            breadcrumb_urls = self.site.breadcrumb_url[default_lang]
+            breadcrumb_titles = self.site.breadcrumb_title[self.default_language]
+            breadcrumb_urls = self.site.breadcrumb_url[self.default_language]
             for breadcrumb_title, breadcrumb_url in zip(breadcrumb_titles, breadcrumb_urls):
                 breadcrumb += ">[{}|{}]".format(breadcrumb_title, breadcrumb_url)
 
@@ -279,6 +283,7 @@ class WPExporter:
 
         # the new url is the wp media source url
         new_url = wp_media['source_url']
+        self.medias_mapping[new_url] = wp_media['id']
 
         tag_attribute_tuples = [("a", "href"), ("img", "src"), ("script", "src")]
 
@@ -409,6 +414,18 @@ class WPExporter:
                 logging.debug("Changing link from %s to %s" % (old_url, new_url))
                 tag[tag_attribute] = new_url
 
+    def fix_key_visual_boxes(self):
+        """[su_slider source="media: 1650,1648,1649" title="no" arrows="yes"]"""
+        for box in self.site.get_all_boxes():
+            if box.type == Box.TYPE_KEY_VISUAL:
+                soup = BeautifulSoup(box.content, 'html.parser')
+                medias_ids = []
+                for img in soup.find_all("img"):
+                    if img['src'] in self.medias_mapping:
+                        medias_ids.append(self.medias_mapping[img['src']])
+                box.content = '[su_slider source="media: {}"'.format(','.join([str(m) for m in medias_ids]))
+                box.content += ' title="no" arrows="yes"]'
+
     def update_page(self, page_id, title, content):
         """
         Import a page to Wordpress
@@ -465,7 +482,7 @@ class WPExporter:
 
                     # in the parser we can't know the current language.
                     # we assign a string that we replace with the current language
-                    if box.type == Box.TYPE_PEOPLE_LIST:
+                    if box.type in (Box.TYPE_PEOPLE_LIST, Box.TYPE_MAP):
                         if Box.UPDATE_LANG in box.content:
                             box.content = box.content.replace(Box.UPDATE_LANG, lang)
 
@@ -890,13 +907,12 @@ class WPExporter:
         # call wp-cli
         self.run_wp_cli('option update show_on_front page')
 
-        for lang in self.site.homepage.contents.keys():
-            frontpage_id = self.site.homepage.contents[lang].wp_id
+        if self.default_language in self.site.homepage.contents.keys():
+            frontpage_id = self.site.homepage.contents[self.default_language].wp_id
             result = self.run_wp_cli('option update page_on_front {}'.format(frontpage_id))
             if result is not None:
                 # Set on only one language is sufficient
                 logging.info("WP frontpage setted")
-                break
 
     def delete_all_content(self):
         """
