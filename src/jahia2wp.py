@@ -45,7 +45,8 @@ Usage:
   jahia2wp.py update-plugins-many   <csv_file>                      [--debug | --quiet]
     [--force] [--plugin=<PLUGIN_NAME>]
   jahia2wp.py global-report <csv_file> [--output-dir=<OUTPUT_DIR>] [--use-cache] [--debug | --quiet]
-  jahia2wp.py ventilate-urls <csv_file> <wp_env> [--fix-csv]                 [--debug | --quiet]
+  jahia2wp.py ventilate-urls <csv_file> <wp_env> [--fix-csv]        [--debug | --quiet]
+    [--context=<intra|inter|full>]
 
 Options:
   -h --help                 Show this screen.
@@ -83,6 +84,8 @@ from utils import Utils
 from veritas.casters import cast_boolean
 from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
+from sys import stderr
+import pprint
 
 
 def _check_site(wp_env, wp_url, **kwargs):
@@ -824,10 +827,11 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
             writer.writerow(site.get_report_info(box_types))
 
 @dispatch.on('ventilate-urls')
-def url_mapping(csv_file, wp_env, fix_csv=False, **kwargs):
+def url_mapping(csv_file, wp_env, fix_csv=False, context='intra', **kwargs):
     """
     :param csv_file: CSV containing the URL mapping rules for source and destination.
     :param fix_csv: Try to fix the CSV when set to True.
+    :param context: intra, inter, full. Replace the occurrences at intra, inter or both.
     
     It takes the mapping rules in a CSV, with 2 columns each: source => destination, 
     where both are URLs in WP instances. The first row of the CSV are treated as 
@@ -860,7 +864,7 @@ def url_mapping(csv_file, wp_env, fix_csv=False, **kwargs):
     # Extract all the sites as site (key) => paths (value)
     rulesets = {}
     rows = Utils.csv_filepath_to_dict(csv_file)
-    local_env = 'http://jahia2wp-httpd/{}'
+    local_env = 'https://jahia2wp-httpd/{}'
     for idx, row in enumerate(rows):
         source = row['source']
         # Split the path and take the first arg as site
@@ -897,9 +901,15 @@ def url_mapping(csv_file, wp_env, fix_csv=False, **kwargs):
     logging.info("{0} total sites found.".format(len(rulesets)))
     logging.debug(rulesets)
     
-    # Iterate over all the sites to map and dump a JSON with the pages.
+    
+    
+    
+    # Iterate over all the sites to map and dump a CSV with the pages and 
+    # another one for the media / attachments. This will *greatly simplify* the 
+    # reinsertion.
     # Create a copy of the keys in a list to avoid dict changing warnings.
-    jsons = {}
+    files = {}
+    medias = {}
     for site in list(rulesets.keys()):
         logging.info('Treating site {}'.format(site))
         # Load wp_config using existing functions, can't use _check_site since it exits 
@@ -912,35 +922,107 @@ def url_mapping(csv_file, wp_env, fix_csv=False, **kwargs):
             del rulesets[site]
             continue
         
-        # Dump the site content in plain JSON format.
-        logging.info("Dumping json for site {}".format(site))
+        # Dump the site content in plain CSV format.
+        logging.info("Dumping CSV for site {}".format(site))
         # All the fields to retrieve from the wp_post table
         fields = 'ID,post_title,post_name,post_parent,url,post_status,post_content'
         # Only pages, all without paging. Sort them by post_parent ascendantly for ease of 
         # reinsertion to insert first parent pages and avoiding parentless children.
-        params = '--post_type=page --nopaging --order=asc --orderby=post_parent --fields={} --format=json'
+        params = '--post_type=page --nopaging --order=asc --orderby=post_parent --fields={} --format=csv'
         cmd = 'wp post list ' + params + ' --path={} > {}'
-        json_f = site.split('/').pop()
-        jsons[site] = json_f
-        cmd = cmd.format(fields, wp_conf.wp_site.path, json_f + '.json')
+        csv_f = site.split('/').pop() + '.csv'
+        files[site] = csv_f
+        cmd = cmd.format(fields, wp_conf.wp_site.path, csv_f)
         logging.info(cmd)
         Utils.run_command(cmd, 'utf8')
+        # Dump media / attachments
+        fields = 'ID,post_title,post_name,post_parent,post_status,guid'
+        params = '--post_type=attachment --nopaging --order=asc --fields={} --format=csv'
+        cmd = 'wp post list ' + params + ' --path={} > {}'
+        csv_m = site.split('/').pop() + '_media.csv'
+        medias[site] = csv_m
+        cmd = cmd.format(fields, wp_conf.wp_site.path, csv_m)
+        logging.info(cmd)
+        Utils.run_command(cmd, 'utf8')
+    
+    
+    
     
     # Sort the rules from most generic to specific or the reverse (-1).
     for site in rulesets:
         rulesets[site].sort(key=lambda rule: len(rule[0].split('/')) * -1)
     # print(rulesets)
         
-    # At this point all the JSON files are generated and stored by sitename*
+    # At this point all the CSV files are generated and stored by sitename*
     # Iterate over the rules and start applying them first to the post URL
-    for site in list(rulesets.keys()):
-        json_f = jsons[site]
-        # Ruleset for the site, IMPORTANT: the order has to be specific to generic
-        ruleset = rulesets[site]
-        for rule in ruleset:
-            # Define 
-            print(rule)
+    
+    # Some stats for different replacement tools:
+    # time perl -i -pe's/dcsl/dcsl2/g' dcsl.json;                     # 0m0.007s
+    # time sed -i 's/dcsl/dcsl2/g' dcsl.json;                         # 0m0.002s
+    # time awk '{gsub("dcsl", "dcsl2")}1' dcsl.json > dcsl.tmp;       # 0m0.002s
+    # time python3 regex.py dcsl.json;                                # 0m0.028s
+    # regex.py:
+    """
+    import fileinput
+    if __name__ == "__main__":
+        with fileinput.input(inplace=1, backup='.bak') as f:
+            for line in f:
+                line = line.replace('dcsl','dcsl2')
+                print(line, end='')
+    """
+    
+    stats = {}
+    site_keys = rulesets.keys()
+    for site in list(site_keys):
+        if site not in stats: stats[site] = {}
+        for site2 in list(site_keys):
+            # Intersite replacements: This is important to make sure that external links coming from other sites point 
+            # to the right / new location. It will be a NxN check that will be time consuming. That's the reason why 
+            # it's separated in a different block to let factorise it and add extra options to run it or not.
+            if context == 'intra' and site != site2:
+                continue
+            # Intrasite replacements: All the links inside the site will be replaced 
+            # according to the URL rules. There is no semantics yet like checking for 
+            # a ressource existence (e.g. images). A separate structure will be used 
+            # to map back images to port. 
+            if context == 'inter' and site == site2:
+                continue
         
+            # Target CSV file where to search matches to the rules of the current site.
+            csv_f = files[site2]
+            csv_m = medias[site2]
+            # Ruleset for the site, IMPORTANT: the order has to be specific to generic
+            ruleset = rulesets[site]
+            if site2 not in stats[site]: stats[site][site2] = []
+            for (source, dest, _) in ruleset:
+                # Check both protocols, don't trust the source / content
+                matches = {}
+                for prot in ['https', 'http']:
+                    _source = source
+                    if prot + '://' not in _source: _source = prot + '://' + _source.split('//').pop() 
+                    cmd_m = cmd = "awk 'END{{print t > \"/dev/stderr\"}} {{t+=gsub(\"{0}\",\"{1}\")}}1' {2} > {2}.tmp && mv {2}.tmp {2}"
+                    cmd = cmd.format(_source, dest, csv_f)
+                    cmd_m = cmd_m.format(_source, dest, csv_m)
+                    logging.debug(cmd)
+                    # AWK is counting the replacement occurrences in the stderr. 
+                    proc = subprocess.run(cmd, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
+                    proc_m = subprocess.run(cmd_m, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
+                    # This has to be a number normally, but it can also contain return errors, to be analized 
+                    reps = proc.stderr.strip()
+                    matches[prot] = reps
+                try:
+                    tot_reps = sum([int(x) for x in matches.values()])
+                except:
+                    tot_reps = '; '.join(matches.values())
+                stats[site][site2].append((tot_reps, source, dest, matches))
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(stats)
+    
+    
+    
+    
+    # 
+
 if __name__ == '__main__':
 
     # docopt return a dictionary with all arguments
