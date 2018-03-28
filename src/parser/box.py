@@ -1,6 +1,9 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
-from xml.dom import minidom
+
+import logging
 from urllib.parse import urlencode
+from xml.dom import minidom
+
 from utils import Utils
 
 
@@ -124,6 +127,32 @@ class Box:
         else:
             self.set_box_unknown(element)
 
+    def _set_scheduler_box(self, element, content):
+        """set the attributes of a scheduler box"""
+
+        start_datetime = Utils.get_tag_attribute(element, "comboList", "jahia:validFrom")
+
+        if start_datetime and "T" in start_datetime:
+            start_date = start_datetime.split("T")[0]
+            start_time = start_datetime.split("T")[1]
+
+        end_datetime = Utils.get_tag_attribute(element, "comboList", "jahia:validTo")
+
+        if end_datetime and "T" in end_datetime:
+            end_date = end_datetime.split("T")[0]
+            end_time = end_datetime.split("T")[1]
+
+        if not end_datetime and not start_datetime:
+            logging.warning("Scheduler shortcode has no startdate and no enddate")
+
+        return '[epfl_scheduler start_date="{}" end_date="{}" start_time="{}" end_time="{}"]{}[/epfl_scheduler]'.format(
+            start_date,
+            end_date,
+            start_time,
+            end_time,
+            content
+        )
+
     def set_box_text(self, element, multibox=False):
         """set the attributes of a text box
             A text box can have two forms, either it contains just a <text> tag
@@ -140,6 +169,9 @@ class Box:
             if linksList:
                 content += self._parse_links_to_list(linksList[0])
         else:
+            # copy textBox reference
+            element_box_text = element
+
             # Concatenate HTML content of many boxes
             content = ""
             comboLists = element.getElementsByTagName("comboList")
@@ -148,6 +180,10 @@ class Box:
                 # linksList contain <link> tags exactly like linksBox, so we can just reuse
                 # the same code used to parse linksBox.
                 content += self._parse_links_to_list(element)
+
+            # scheduler shortcode
+            if Utils.get_tag_attribute(element_box_text, "comboList", "jahia:ruleType") == "START_AND_END_DATE":
+                content = self._set_scheduler_box(element_box_text, content)
 
         self.content = content
 
