@@ -266,6 +266,14 @@ class Box:
             big_image = Utils.get_tag_attribute(snippet, "bigImage", "jahia:value")
             enable_zoom = Utils.get_tag_attribute(snippet, "enableImageZoom", "jahia:value")
 
+            # fix the path for image
+            if "/files" in image:
+                image = image[image.rfind("/files"):]
+
+            # fix the path for big_image
+            if "/files" in big_image:
+                big_image = big_image[big_image.rfind("/files"):]
+
             # escape
             title = title.replace('"','\\"')
             subtitle = subtitle.replace('"','\\"')
