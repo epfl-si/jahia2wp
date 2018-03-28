@@ -7,6 +7,7 @@ import timeit
 from collections import OrderedDict
 from datetime import timedelta, datetime
 import json
+import re
 from bs4 import BeautifulSoup
 from wordpress_json import WordpressJsonWrapper, WordpressError
 
@@ -15,6 +16,7 @@ from exporter.utils import Utils
 from utils import Utils as WPUtils
 from urllib.parse import urlparse
 from parser.file import File
+from parser.box import Box
 
 
 class WPExporter:
@@ -290,6 +292,18 @@ class WPExporter:
         # Looping through boxes
         for box in self.site.get_all_boxes():
 
+            if box.type == box.TYPE_BUTTONS:
+                regex = r'\[epfl_buttons_box type="(small|big)" url="(.*?)" image_url="(.*?)" text="(.*?)"\]'
+                if re.search(regex, box.content):
+                    for box_type, url, image_url, text in re.findall(regex, box.content):
+                        original = Box.build_buttons_box_content(box_type, url, image_url, text)
+                        if image_url.encode('ascii', 'replace').decode('ascii').replace('?', '') == \
+                                old_url.replace('?', ''):
+                            new_content = Box.build_buttons_box_content(box_type, url, new_url, text)
+                            box.content = box.content.replace(original, new_content)
+                else:
+                    continue
+
             soup = BeautifulSoup(box.content, 'html.parser')
 
             for tag_name, tag_attribute in tag_attribute_tuples:
@@ -373,6 +387,30 @@ class WPExporter:
             wp_id = wp_page["id"]
 
             content = str(soup)
+
+            for url_mapping in self.urls_mapping:
+
+                # 'jahia_urls' contains a list of all URLs pointing on page. We arbitrary take the first of the list
+                old_url = url_mapping["jahia_urls"][0]
+                new_url = url_mapping["wp_url"]
+                regex = r'\[epfl_buttons_box type="(small|big)" url="(.*?)" image_url="(.*?)" text="(.*?)"\]'
+                if re.search(regex, content):
+                    for box_type, url, image_url, text in re.findall(regex, content):
+                        original = Box.build_buttons_box_content(box_type, url, image_url, text)
+                        pid = None
+                        if '/page-' in old_url:
+                            # Try to get the PID of the page from the URL (usually jahia URLs are of the form
+                            # /page-{PID}-{lang}.html
+                            try:
+                                pid = old_url.split("-")[1]
+                            except IndexError:
+                                pass
+                        if url.encode('ascii', 'replace').decode('ascii').replace('?', '') == \
+                                old_url.replace('?', '') or (pid and pid == url):
+                            new_content = Box.build_buttons_box_content(box_type, new_url, image_url, text)
+                            content = content.replace(original, new_content)
+                else:
+                    continue
 
             self.update_page_content(page_id=wp_id, content=content)
 
