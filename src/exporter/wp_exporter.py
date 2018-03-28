@@ -16,7 +16,6 @@ from exporter.utils import Utils
 from utils import Utils as WPUtils
 from urllib.parse import urlparse
 from parser.file import File
-from parser.box import Box
 
 
 class WPExporter:
