@@ -30,7 +30,7 @@ function epfl_snippets_debug( $var ) {
  * @param $enable_zoom: if true the image can be zoomed
  * @return string the snippets html
  */
-function epfl_snippets_build_html( string $title, string $subtitle, string $description, string $image, string $big_image, , string $enable_zoom ): string
+function epfl_snippets_build_html( string $title, string $subtitle, string $description, string $image, string $big_image, string $enable_zoom )
 {
     $html  = '<div class="snippets">';
     $html .= '  <div class="snippets-title">' . $title . '</div>';
