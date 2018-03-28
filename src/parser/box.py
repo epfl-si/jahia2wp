@@ -20,6 +20,7 @@ class Box:
     TYPE_RSS = "rss"
     TYPE_FILES = "files"
     TYPE_SYNTAX_HIGHLIGHT = "syntaxHighlight"
+    TYPE_KEY_VISUAL = "keyVisual"
     TYPE_MAP = "map"
 
     # Mapping of known box types from Jahia to WP
@@ -38,6 +39,7 @@ class Box:
         "epfl:rssBox": TYPE_RSS,
         "epfl:filesBox": TYPE_FILES,
         "epfl:syntaxHighlightBox": TYPE_SYNTAX_HIGHLIGHT,
+        "epfl:keyVisualBox": TYPE_KEY_VISUAL,
         "epfl:mapBox": TYPE_MAP
     }
 
@@ -106,6 +108,9 @@ class Box:
         # syntaxHighlight
         elif self.TYPE_SYNTAX_HIGHLIGHT == self.type:
             self.set_box_syntax_highlight(element)
+        # keyVisual
+        elif self.TYPE_KEY_VISUAL == self.type:
+            self.set_box_key_visuals(element)
         elif self.TYPE_MAP == self.type:
             self.set_box_map(element)
         # unknown
@@ -252,6 +257,27 @@ class Box:
         content = "[enlighter]"
         content += Utils.get_tag_attribute(element, "code", "jahia:value")
         content += "[/enlighter]"
+        self.content = content
+
+    def set_box_key_visuals(self, element):
+        """Handles keyVisualBox, which is actually a carousel of images.
+        For the carousel to work in wordpress, we need the media IDs of the images,
+        but we do not know these IDs before importing the media, so the content of the box
+        is translated to parsable html and will be replaced by the adequate shortcode in the
+        exporter.
+        """
+        elements = element.getElementsByTagName("image")
+        content = "<ul>"
+        for e in elements:
+            if e.ELEMENT_NODE != e.nodeType:
+                continue
+            # URL is like /content/sites/<site_name>/files/file
+            # splitted gives ['', content, sites, <site_name>, files, file]
+            # result of join is files/file and we add the missing '/' in front.
+            image_url = '/'.join(e.getAttribute("jahia:value").split("/")[4:])
+            image_url = '/' + image_url
+            content += '<li><img src="{}" /></li>'.format(image_url)
+        content += "</ul>"
         self.content = content
 
     def _parse_links_to_list(self, element):
