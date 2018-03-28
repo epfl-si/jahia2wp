@@ -19,6 +19,7 @@ class Box:
     TYPE_LINKS = "links"
     TYPE_RSS = "rss"
     TYPE_FILES = "files"
+    TYPE_SYNTAX_HIGHLIGHT = "syntaxHighlight"
     TYPE_KEY_VISUAL = "keyVisual"
     TYPE_MAP = "map"
 
@@ -37,6 +38,7 @@ class Box:
         "epfl:linksBox": TYPE_LINKS,
         "epfl:rssBox": TYPE_RSS,
         "epfl:filesBox": TYPE_FILES,
+        "epfl:syntaxHighlightBox": TYPE_SYNTAX_HIGHLIGHT,
         "epfl:keyVisualBox": TYPE_KEY_VISUAL,
         "epfl:mapBox": TYPE_MAP
     }
@@ -103,6 +105,9 @@ class Box:
         # files
         elif self.TYPE_FILES == self.type:
             self.set_box_files(element)
+        # syntaxHighlight
+        elif self.TYPE_SYNTAX_HIGHLIGHT == self.type:
+            self.set_box_syntax_highlight(element)
         # keyVisual
         elif self.TYPE_KEY_VISUAL == self.type:
             self.set_box_key_visuals(element)
@@ -245,6 +250,13 @@ class Box:
             file_name = file_url.split("/")[-1]
             content += '<li><a href="{}">{}</a></li>'.format(file_url, file_name)
         content += "</ul>"
+        self.content = content
+
+    def set_box_syntax_highlight(self, element):
+        """Set the attributes of a syntaxHighlight box"""
+        content = "[enlighter]"
+        content += Utils.get_tag_attribute(element, "code", "jahia:value")
+        content += "[/enlighter]"
         self.content = content
 
     def set_box_key_visuals(self, element):
