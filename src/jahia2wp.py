@@ -859,6 +859,7 @@ def url_mapping(csv_file, wp_env, context='intra', **kwargs):
     the destination, since n sites will be migrated to a smaller number k destinations 
     (likely 2 main: www.epfl.ch and inside.epfl.ch). 
     """
+    if not context: context = 'intra'
     
     # Extract all the sites as site (key) => paths (value)
     rulesets = {}
@@ -1020,7 +1021,8 @@ def url_mapping(csv_file, wp_env, context='intra', **kwargs):
     
     
     
-    # 
+    #
+    
 
 if __name__ == '__main__':
 
