@@ -11,6 +11,7 @@ import string
 import binascii
 import random
 import xml.dom.minidom
+import re
 
 from urllib.parse import urlsplit
 from bs4 import BeautifulSoup
@@ -47,6 +48,14 @@ class Utils(object):
 
     # the cache with all the doms
     dom_cache = {}
+
+    @staticmethod
+    def increment_count(dictionary, key):
+        """Increments the value of the given key in the given dictionary by one"""
+        if key in dictionary:
+            dictionary[key] = dictionary[key] + 1
+        else:
+            dictionary[key] = 1
 
     @staticmethod
     def get_tag_attribute(dom, tag, attribute):
@@ -325,3 +334,88 @@ class Utils(object):
         Return the domain name of url parameter
         """
         return urlsplit(url)[1].split(':')[0]
+
+    @staticmethod
+    def insert_in_htaccess(site_root_path, marker, insertion, at_beginning=False):
+        """
+        Add/update content in .htaccess file. Content is added between BEGIN and END markers (defined with 'marker')
+
+        Arguments keywords:
+        site_root_path -- Path to website root (where .htaccess file is located)
+        marker -- String to use to encapsulate content to add
+        insertion -- Array with lines to add in .htaccess file
+
+        """
+        full_path = os.path.join(site_root_path, ".htaccess")
+
+        if not os.path.isfile(full_path):
+            if not os.access(site_root_path, os.W_OK):
+                raise Exception("Path not writable: {}".format(site_root_path))
+            # Creating empty file
+            open(full_path, 'a').close()
+        else:
+            if not os.access(full_path, os.W_OK):
+                raise Exception("File not writable: {}".format(full_path))
+
+        if not isinstance(insertion, list):
+            insertion = insertion.split("\n")
+
+        start_marker = "# BEGIN {}".format(marker)
+        end_marker = "# END {}".format(marker)
+
+        with open(full_path, 'r+') as fp:
+
+            lines = fp.readlines()
+
+            # Remove \r\n
+            lines = [line.rstrip("\r\n") for line in lines]
+
+            # Split out the existing file into the preceding lines, and those that appear after the marker
+            pre_lines = []
+            post_lines = []
+            existing_lines = []
+            found_marker = False
+            found_end_marker = False
+
+            for line in lines:
+                if not found_marker and (line.find(start_marker) != -1):
+                    found_marker = True
+                    continue
+
+                elif not found_end_marker and (line.find(end_marker) != -1):
+                    found_end_marker = True
+                    continue
+
+                if not found_marker:
+                    pre_lines.append(line)
+                elif found_marker and found_end_marker:
+                    post_lines.append(line)
+                else:
+                    existing_lines.append(line)
+
+            # Check to see if there was a change
+            if set(existing_lines) != set(insertion):
+
+                if at_beginning and not found_marker:
+                    new_file_data = "\n".join([start_marker] + insertion + [end_marker] + pre_lines + post_lines)
+                else:
+                    new_file_data = "\n".join(pre_lines + [start_marker] + insertion + [end_marker] + post_lines)
+
+                fp.seek(0)
+                fp.write(new_file_data)
+                fp.truncate(fp.tell())
+                fp.flush()
+
+    @staticmethod
+    def clean_html_comments(content):
+        """
+        Clean HTML comments and images base64
+        """
+        content = re.sub("(<!--.*?-->)", "", content)
+        if "data:image/png;base64" in content:
+            content = re.sub('(\"data:image/png;base64.*?\")', "", content)
+            logging.warning("Delete png images in base64")
+        if "data:image/jpeg;base64" in content:
+            content = re.sub('(\"data:image/jpeg;base64.*?\")', "", content)
+            logging.warning("Delete jpeg images in base64")
+        return content

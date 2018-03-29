@@ -29,6 +29,11 @@ sub vcl_recv {
         }
     }
 
+    # Do not cache readiness probe
+    if (req.url ~ "/ready(/)?") {
+	    return ( pass );
+    }
+
     # Do not cache rss feed
     if (req.url ~ "/feed(/)?") {
 	    return ( pass );

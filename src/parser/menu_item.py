@@ -4,27 +4,34 @@
 class MenuItem:
     """ To store menu item information """
 
-    def __init__(self, txt, target_url):
+    def __init__(self, txt, target, hidden):
+        """ Constructor
 
+        txt - Menu link text
+        target - Can be several things
+            -- Reference to another jahia page,using its uuid (like c058dc4f-247d-4b23-90d7-25e1206f7de3)
+            -- hardcoded URL (absolute URL)
+            -- link to sitemap (so equals 'sitemap')
+            -- hardcoded URL to file (includes '/files/' in string)
+            -- None if normal menu entry for page
+        """
         self.txt = txt
-        self.target_url = target_url
+        self.target = target
+        if self.target:
+            self.target = self.target.strip()
+        self.hidden = hidden
         self.children = []
+        self.children_sort_way = None
 
     def target_is_url(self):
+        return False if self.target is None else self.target.startswith('http')
 
-        return self.target_url is not None
+    def target_is_sitemap(self):
+        return self.target == "sitemap"
 
-    def add_child(self, txt, target_url):
-        """
-        Add child to current menu entry
+    def target_is_file(self):
+        return False if self.target is None else '/files/' in self.target
 
-        txt - menu text
-        target - menu target (URL or page name)
-
-        Ret : sub menu entry index
-        """
-
-        menu_item = MenuItem(txt, target_url)
-        self.children.append(menu_item)
-
-        return len(self.children) - 1
+    def sort_children(self, sort_way):
+        self.children_sort_way = sort_way
+        self.children.sort(key=lambda x: x.txt, reverse=(sort_way == 'desc'))
