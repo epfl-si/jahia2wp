@@ -26,7 +26,7 @@ function epfl_buttons_box_debug( $var ) {
  */
 function epfl_buttons_box_build_html( string $type, string $url, string $image_url, string $text ): string
 {
-    $html  = '<div class="' . esc_attr($type) . 'ButtonsBox" style="display: inline-block;"><a href="'. esc_attr($url) . '">';
+    $html  = '<div class="' . esc_attr($type) . 'ButtonsBox"><a href="'. esc_attr($url) . '">';
     $html .= '<img src="' . $image_url . '" alt="' . esc_attr($text) . '"/>';
     $html .= esc_attr($text) . '</a></div>';
     return $html;
