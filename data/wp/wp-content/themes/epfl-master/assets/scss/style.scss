@@ -121,16 +121,22 @@ body {
     text-decoration: none;
   }
 }
+
+/*
 .fa-icon.btn-icon,
-.icon.btn-icon {
+.icon.btn-icon
+*/
+
+.btn-icon {
   @include color-bg-icons;
   
   &:before {
+    @include icon;
     border-radius: 50%;
     border: 0;
     color: #fff;
-    display: inline-block;
-    font: normal .875em/24px FontAwesome;
+    font-size: 12px;
+    line-height: 24px;
     height: 24px;
     margin-right: .5em;
     text-align: center;
@@ -456,6 +462,315 @@ a.a2a_button_{
   @include no-bullet;
 }
 
+/* --- People boxes --- */
+
+.bottin * {
+  font-size: 13px;
+  line-height: 1.4em;
+}
+
+#page .bottin div:empty {
+  display: block;
+}
+
+ul.bottin {
+  list-style: none;
+  
+  li {
+    padding-left: 0;
+    
+    &:before {
+      display: none;
+    }
+  }
+}
+
+.bottin {
+  @include clearfix;
+  margin: 16px 0 30px;
+  
+  .row {
+    @include clearfix;
+  }
+  
+  h3.people {
+    font-size: 18px;
+    margin-bottom: .5em;
+  }
+  
+  & + h3.people {
+    font-size: 18px;
+    margin-top: 20px;
+  }
+}
+
+.bottin div.picture {
+  margin: 0 0 6px 0;
+  height: 140px;
+  overflow: hidden;
+  text-align: left;
+  
+  img {
+    display: block;
+  }
+}
+.bottin div.button {
+  margin-bottom: 2px;
+  margin-right: 5px;
+  padding: 0;
+  width: 24px;
+  
+  + div.name {
+    min-height: 24px;
+  }
+}
+.bottin div.name {
+  font-weight: 700;
+  margin-bottom: 3px;
+  padding-top: 2px;
+}
+
+.bottin .button,
+.tdpeople .button {
+  @extend .btn-icon;
+  background: transparent;
+  font-weight: 400;
+  height: 24px;
+  padding: 0;
+  position: relative;
+  width: 24px;
+  
+  &:before {
+    vertical-align: top;
+  }
+  
+  &.mail:before {
+    content: "\f0e0";
+  }
+  
+  &.contact:before {
+    content: "\f007";
+  }
+  
+  .icon {
+    display: block;
+    height: 24px;
+    opacity: 0;
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    width: 24px;
+  }
+}
+
+// Default lists
+
+.tdpeople {
+  border-bottom: 1px solid #aaaaaa;
+  height: 36px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  vertical-align: middle;
+  
+  &:first-child {
+    padding-left: 0;
+  }
+  
+  .button.mail {
+    margin: 0;
+  }
+  
+  div.picture {
+    margin-bottom: 0;
+  }
+  
+  img {
+    display: block;
+    margin-bottom: 0;
+    max-height: none;
+    max-width: none;
+    //width: 50px;
+  }
+}
+
+.bottin.default-list .pers {
+  @include clearfix;
+  border-bottom: 1px solid #aaaaaa;
+  height: 32px;
+  margin-bottom: 4px;
+  padding-top: 4px;
+  width: 100%;
+  
+  & + h3.people {
+    margin-top: 26px;
+  }
+  
+  .name {
+    margin-left: 29px;
+    min-height: 0;
+  }
+  .button.mail {
+    float: left;
+    
+    & + .name {
+      margin-left: 0;
+    }
+  }
+  .phone {
+    width: 120px;
+  }
+  .room {
+    text-align: right;
+    width: 95px;
+  }
+}
+
+.bottin.list-img {
+  
+  .tdpeople {
+    height: auto;
+  }
+  div.picture {
+    height: auto;
+    min-height: 60px;
+    width: 50px;
+  }
+}
+
+// Bloc
+
+.pers_bloc {
+  @include clearfix;
+  height: 150px;
+  float: left;
+  margin-left: 0px;
+  margin-bottom: 5px;
+  width: 320px;
+}
+
+// Photo box
+
+.bottin .photo_box {
+  float: left;
+  margin-bottom: 30px;
+  padding-right: 20px;
+  width: 50% !important;
+  
+  h1 {
+    display: none;
+  }
+  
+  .button.mail {
+    float: left;
+  }
+  
+  .picture {
+    float: none;
+    width: 110px;
+  }
+}
+
+// Structured lists
+
+.bottin td:first-child {
+  padding-left: 0;
+}
+.bottin td h3.people {
+  margin-top: 8px;
+}
+
+// Misc templates
+
+.people-list {
+  
+  .icon-mail_button:before,
+  .tools .share-mail .icon:before {
+    content: "\f0e0";
+  }
+  
+  .btn-inline.themed .icon::before,
+  .btn-inline.themed::before,
+  .themed .btn-inline .icon::before,
+  .themed .btn-inline::before {
+    background: $primary-color;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 12px;
+    height: 24px;
+    line-height: 24px;
+    width: 24px;
+  }
+}
+
+.people_list,
+#people_list {
+  @include clearfix;
+  
+  h3 {
+    margin: .5em 0;
+  }
+  
+  tr:not(:first-child) h3 {
+    margin-top: 1em;
+  }
+  
+  td {
+    border: 0;
+    vertical-align: middle;
+  }
+  
+  .photo {
+    margin-bottom: 5px;
+    
+    img {
+      vertical-align: top;
+    }
+  }
+  
+  .details,
+  .email,
+  .phone {
+    margin-bottom: 5px;
+  }
+  
+  .email .button,
+  .button.mail {
+    @extend .btn-icon;
+    background: transparent;
+    font-weight: 400;
+    height: 24px;
+    padding: 0;
+    position: relative;
+    width: 24px;
+    
+    &:before {
+      vertical-align: top;
+    }
+    
+    &.mail:before {
+      content: "\f0e0";
+    }
+    .icon {
+      display: block;
+      height: 24px;
+      opacity: 0;
+      position: absolute;
+      top: 0; right: 0; bottom: 0; left: 0;
+      width: 24px;
+      
+      &[hidden] {
+        display: block;
+      }
+    }
+  }
+  
+  .personn {
+    @include clearfix;
+  }
+  
+}
+
+
+
 /*  ---------------------------------------
     04 HEADER
 ----------------------------------------- */
@@ -593,8 +908,24 @@ a.a2a_button_{
 
 /* Responsive header */
 
-.site-header.epfl .logo {
-  margin-top: 10px;
+.site-header.epfl {
+  margin: 0;
+  padding: 5px 0 0;
+  
+  .logo {
+    margin-top: 10px;
+    padding: 0;
+    width: 16%;
+  }
+  
+  .epflnav {
+    width: 50%;
+  }
+  
+  .search {
+    float: right;
+    width: 33%;
+  }
 }
 
 .epflnav .nav-item {
@@ -830,7 +1161,7 @@ a.a2a_button_{
   margin-bottom: 0 !important;
 }
 .site-title {
-  font-family: Impact, Arial, sans-serif;
+  font-family: Impact, "Arial Black", "DejaVu Sans", Arial, Helvetica, sans-serif;
   font-size: 1.625em /* 26px */;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -856,6 +1187,7 @@ a.a2a_button_{
   li {
     border-bottom: 1px solid #000;
     margin: 0;
+    position: relative;
     
     &:last-child {
       border-bottom: 0;
@@ -863,6 +1195,7 @@ a.a2a_button_{
   }
   
   a {
+    border: none !important;
     padding: .5em;
   }
 }
@@ -885,13 +1218,33 @@ a.a2a_button_{
 /* --- Sub menu --- */
 
 .dropdown-toggle {
-  color: #fff;
-  padding: 2px .5em;
+  color: #000;
+  padding: 0;
   right: 0;
+  width: 25px;
+  
+  &:hover {
+    color: $primary-color;
+  }
+  
+  &:after {
+    @include icon;
+    content: "\f107";
+    font-size: 20px;
+    vertical-align: middle;
+  }
+  
+  &.toggled-on:after {
+    content: "\f106";
+  }
 }
 
 .main-navigation .sub-menu {
   padding-bottom: 10px;
+  
+  &.toggled-on {
+    display: block;
+  }
 }
 
 /* --- Mobile navigation --- */
@@ -1290,13 +1643,8 @@ a.a2a_button_{
     &.EPFLShareEmailBackground:hover {
        background-color: #649A3F
     }
-    
-    
   }
 }
-
-
-
 
 /* Page title */
 
@@ -1309,7 +1657,8 @@ a.a2a_button_{
   text-transform: none;
 }
   
-.page-header {
+.page-header,
+.entry-header {
   margin-bottom: 20px;
   
   .page-title {
@@ -1320,9 +1669,14 @@ a.a2a_button_{
 
 /* --- Single article --- */
 
-.post-thumbnail img {
-  display: block;
-  vertical-align: top;
+.post-thumbnail {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  
+  img {
+    display: block;
+    vertical-align: top;
+  }
 }
 
 .entry-meta {
@@ -1339,6 +1693,7 @@ a.a2a_button_{
 }
 
 .list-articles .entry-header {
+  margin-bottom: 0;
   
   .entry-title {
     font-family: Arial,Helvetica,Verdana,sans-serif;
@@ -1459,6 +1814,42 @@ a.a2a_button_{
   .comment-reply-link {
     left: 2em;
     position: relative;
+  }
+}
+
+/* Post navigation */
+
+.nav-links {
+  @include clearfix;
+  font-size: .8125em;
+  line-height: 1.4em;
+  margin: 20px 0;
+  
+  .nav-previous {
+    float: left;
+    margin-bottom: 10px;
+    padding-left: 1em;
+    position: relative;
+    
+    &:before {
+      content: "‹";
+      margin-right: .5em;
+      position: absolute;
+      top: -1px; right: auto; bottom: auto; left: 0;
+    }
+  }
+  
+  .nav-next {
+    float: right;
+    padding-right: 1em;
+    position: relative;
+    
+    &:after {
+      content: "›";
+      margin-left: .5em;
+      position: absolute;
+      top: -1px; right: 0; bottom: auto; left: auto;
+    }
   }
 }
 
@@ -1597,6 +1988,14 @@ a.a2a_button_{
     float: right;
   }
   
+  /* --- People boxes --- */
+  
+  // Photo box
+
+  .bottin .photo_box {
+    width: 25% !important;
+  }
+  
   /*  ---------------------------------------
     03 GLOBAL CONTENT & SITE STRUCTURE
   ----------------------------------------- */
@@ -1685,9 +2084,9 @@ a.a2a_button_{
   }
   
   .main-navigation .menu {
+    @include clearfix;
     background: transparent;
     border: 0;
-    height: 24px;
     padding: 0;
   }
   
@@ -1808,9 +2207,9 @@ a.a2a_button_{
     left: 0;
   }
   
-  .main-navigation .sub-menu li.focus > a,
-	.main-navigation .sub-menu li:focus > a,
-	.main-navigation .sub-menu li:hover > a,
+  .main-navigation .sub-menu li.focus > a:hover,
+	.main-navigation .sub-menu li:focus > a:hover,
+	.main-navigation .sub-menu li:hover > a:hover,
 	.main-navigation .sub-menu li a:hover,
 	.main-navigation .sub-menu li a:focus {
   	color: #000;
@@ -1948,6 +2347,16 @@ a.a2a_button_{
     
     & > * {
       clear: none;
+    }
+  }
+  
+  /* --- Single article --- */
+  
+  .nav-links {
+    margin-top: 30px;
+    
+    & > div {
+      max-width: 49%;
     }
   }
   

@@ -1,22 +1,21 @@
 # pylint: disable=W1306
-import os
-import shutil
 import logging
+import subprocess
 import sys
 
+import os
+import shutil
+from django.core.validators import URLValidator
 from epflldap.ldap_search import get_unit_id
 
-from utils import Utils
 import settings
-
-from django.core.validators import URLValidator
-from veritas.validators import validate_string, validate_openshift_env, \
-    validate_theme_faculty, validate_theme
-from .models import WPSite, WPUser
+from utils import Utils
+from veritas.validators import validate_openshift_env, validate_theme_faculty, validate_theme
 from .config import WPConfig
-from .themes import WPThemeConfig
-from .plugins.models import WPPluginList
+from .models import WPSite, WPUser
 from .plugins.config import WPMuPluginConfig
+from .plugins.models import WPPluginList
+from .themes import WPThemeConfig
 
 
 class WPGenerator:
@@ -49,7 +48,6 @@ class WPGenerator:
         self._site_params = site_params
 
         # Setting default values
-
         if 'unit_name' in self._site_params and 'unit_id' not in self._site_params:
             logging.info("WPGenerator.__init__(): Please use 'unit_id' from CSV file (now recovered from 'unit_name')")
             self._site_params['unit_id'] = self.get_the_unit_id(self._site_params['unit_name'])
@@ -66,6 +64,9 @@ class WPGenerator:
         if self._site_params.get('updates_automatic', None) is None:
             self._site_params['updates_automatic'] = settings.DEFAULT_CONFIG_UPDATES_AUTOMATIC
 
+        if self._site_params.get('from_export', None) is None:
+            self._site_params['from_export'] = False
+
         if self._site_params.get('theme', None) is None:
             self._site_params['theme'] = settings.DEFAULT_THEME_NAME
 
@@ -73,15 +74,12 @@ class WPGenerator:
            ('theme_faculty' in self._site_params and self._site_params['theme_faculty'] == '')):
             self._site_params['theme_faculty'] = None
 
+        if self._site_params.get('openshift_env') is None:
+            self._site_params['openshift_env'] = settings.OPENSHIFT_ENV
+
         # validate input
         self.validate_mockable_args(self._site_params['wp_site_url'])
         validate_openshift_env(self._site_params['openshift_env'])
-
-        if self._site_params['wp_site_title'] is not None:
-            validate_string(self._site_params['wp_site_title'])
-
-        if self._site_params['wp_tagline'] is not None:
-            validate_string(self._site_params['wp_tagline'])
 
         validate_theme(self._site_params['theme'])
 
@@ -97,7 +95,8 @@ class WPGenerator:
         self.wp_config = WPConfig(
             self.wp_site,
             installs_locked=self._site_params['installs_locked'],
-            updates_automatic=self._site_params['updates_automatic'])
+            updates_automatic=self._site_params['updates_automatic'],
+            from_export=self._site_params['from_export'])
 
         # prepare admin for exploitation/maintenance
         self.wp_admin = WPUser(self.WP_ADMIN_USER, self.WP_ADMIN_EMAIL)
@@ -111,7 +110,7 @@ class WPGenerator:
     def __repr__(self):
         return repr(self.wp_site)
 
-    def run_wp_cli(self, command, pipe_input=None, extra_options=None, encoding=sys.stdout.encoding):
+    def run_wp_cli(self, command, encoding=sys.getdefaultencoding(), pipe_input=None, extra_options=None):
         """
         Execute a WP-CLI command using method present in WPConfig instance.
 
@@ -122,7 +121,7 @@ class WPGenerator:
                          has to be at the end of the command line (after --path)
         encoding -- encoding to use
         """
-        return self.wp_config.run_wp_cli(command, extra_options=extra_options, pipe_input=pipe_input, encoding=encoding)
+        return self.wp_config.run_wp_cli(command, encoding=encoding, pipe_input=pipe_input, extra_options=extra_options)
 
     def run_mysql(self, command):
         """
@@ -157,7 +156,7 @@ class WPGenerator:
         """
         # check we have a clean place first
         if self.wp_config.is_installed:
-            logging.error("%s - WordPress files already found", repr(self))
+            logging.warning("%s - WordPress files already found", repr(self))
             return False
 
         # create specific mysql db and user
@@ -175,10 +174,10 @@ class WPGenerator:
         # install and configure theme (default is settings.DEFAULT_THEME_NAME)
         logging.info("%s - Installing all themes...", repr(self))
         WPThemeConfig.install_all(self.wp_site)
-        logging.info("%s - Activating theme...", repr(self))
+        logging.info("%s - Activating theme '%s'...", repr(self), self._site_params['theme'])
         theme = WPThemeConfig(self.wp_site, self._site_params['theme'], self._site_params['theme_faculty'])
         if not theme.activate():
-            logging.error("%s - could not activate theme", repr(self))
+            logging.error("%s - could not activate theme '%s'", repr(self), self._site_params['theme'])
             return False
 
         # install, activate and config mu-plugins
@@ -208,7 +207,7 @@ class WPGenerator:
             return False
 
         # create MySQL DB
-        command = "-e \"CREATE DATABASE {0.wp_db_name};\""
+        command = "-e \"CREATE DATABASE {0.wp_db_name} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\""
         if not self.run_mysql(command.format(self)):
             logging.error("%s - could not create DB", repr(self))
             return False
@@ -240,10 +239,13 @@ class WPGenerator:
         # config WordPress
         command = "config create --dbname='{0.wp_db_name}' --dbuser='{0.mysql_wp_user}'" \
             " --dbpass='{0.mysql_wp_password}' --dbhost={0.MYSQL_DB_HOST}"
-        # Generate options to add PHP code in wp-config.php file to switch to ssl if proxy is in SSL
+        # Generate options to add PHP code in wp-config.php file to switch to ssl if proxy is in SSL.
+        # Also allow the unfiltered_upload capability to be set, this is used just during export, the
+        # capability is explicitly removed after the export.
         extra_options = "--extra-php <<PHP \n" \
             "if (isset( \$_SERVER['HTTP_X_FORWARDED_PROTO'] ) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https'){\n" \
-            "\$_SERVER['HTTPS']='on';} \n"
+            "\$_SERVER['HTTPS']='on';} \n" \
+            "define('ALLOW_UNFILTERED_UPLOADS', true);"
         if not self.run_wp_cli(command.format(self), extra_options=extra_options):
             logging.error("%s - could not create config", repr(self))
             return False
@@ -292,6 +294,11 @@ class WPGenerator:
         command = "language core install fr_FR"
         self.run_wp_cli(command)
 
+        # remove unfiltered_upload capability. Will be reactivated during
+        # export if needed.
+        command = 'cap remove administrator unfiltered_upload'
+        self.run_wp_cli(command)
+
         # flag success by returning True
         return True
 
@@ -314,7 +321,8 @@ class WPGenerator:
 
     def validate_mockable_args(self, wp_site_url):
         """ Call validators in an independant function to allow mocking them """
-        URLValidator()(wp_site_url)
+        if Utils.get_domain(wp_site_url) != settings.HTTPD_CONTAINER_NAME:
+            URLValidator()(wp_site_url)
 
     def get_the_unit_id(self, unit_name):
         """
@@ -345,6 +353,13 @@ class WPGenerator:
             self.run_wp_cli(cmd)
         logging.info("%s - All demo posts deleted", repr(self))
 
+    def get_number_of_pages(self):
+        """
+        Return the number of pages
+        """
+        cmd = "post list --post_type=page --fields=ID --format=csv"
+        return len(self.run_wp_cli(cmd).split("\n")[1:])
+
     def generate_mu_plugins(self):
         # TODO: add those plugins into the general list of plugins (with the class WPMuPluginConfig)
         WPMuPluginConfig(self.wp_site, "epfl-functions.php").install()
@@ -354,10 +369,16 @@ class WPGenerator:
         if self.wp_config.installs_locked:
             WPMuPluginConfig(self.wp_site, "EPFL_installs_locked.php").install()
 
-        if self.wp_config.updates_automatic:
+        # If the site is created from a jahia export, the automatic update is disabled and will be re-enabled
+        # after the export process is done.
+        if self.wp_config.updates_automatic and not self.wp_config.from_export:
             WPMuPluginConfig(self.wp_site, "EPFL_enable_updates_automatic.php").install()
         else:
             WPMuPluginConfig(self.wp_site, "EPFL_disable_updates_automatic.php").install()
+
+    def enable_updates_automatic_if_allowed(self):
+        if self.wp_config.updates_automatic:
+            WPMuPluginConfig(self.wp_site, "EPFL_enable_updates_automatic.php").install()
 
     def generate_plugins(self, only_one=None, force=True, **kwargs):
         """
@@ -477,22 +498,52 @@ class WPGenerator:
             if not self.run_mysql('-e "DROP USER {};"'.format(db_user)):
                 logging.error("%s - could not drop USER %s", repr(self), db_name, db_user)
 
+            # clean directories before files
+            logging.info("%s - removing files", repr(self))
+            for dir_path in settings.WP_DIRS:
+                path = os.path.join(self.wp_site.path, dir_path)
+                if os.path.exists(path):
+                    shutil.rmtree(path)
+
+            # clean files
+            for file_path in settings.WP_FILES:
+                path = os.path.join(self.wp_site.path, file_path)
+                if os.path.exists(path):
+                    os.remove(path)
+
         # handle case where no wp_config found
-        except ValueError as err:
-            logging.warning("%s - could not clean DB: %s", repr(self), err)
+        except (ValueError, subprocess.CalledProcessError) as err:
+            logging.warning("%s - could not clean DB or files: %s", repr(self), err)
 
-        # clean directories before files
-        logging.info("%s - removing files", repr(self))
-        for dir_path in settings.WP_DIRS:
-            path = os.path.join(self.wp_site.path, dir_path)
-            if os.path.exists(path):
-                shutil.rmtree(path)
+    def active_dual_auth(self):
+        """
+        Active dual authenticate for development only
+        """
+        cmd = "option update plugin:epfl_tequila:has_dual_auth 1"
+        self.run_wp_cli(cmd)
+        logging.debug("Dual authenticate is activated")
 
-        # clean files
-        for file_path in settings.WP_FILES:
-            path = os.path.join(self.wp_site.path, file_path)
-            if os.path.exists(path):
-                os.remove(path)
+    def install_basic_auth_plugin(self):
+        """
+        Install basic auth plugin
+
+        This plugin is used to communicate with REST API of WordPress site.
+        """
+        zip_path = os.path.join(settings.EXPORTER_DATA_PATH, 'Basic-Auth.zip')
+        cmd = "plugin install --activate {}".format(zip_path)
+        self.run_wp_cli(cmd)
+        logging.debug("Basic-Auth plugin is installed and activated")
+
+    def uninstall_basic_auth_plugin(self):
+        """
+        Uninstall basic auth plugin
+
+        This plugin is used to communicate with REST API of WordPress site.
+        """
+        # Uninstall basic-auth plugin
+        cmd = "plugin uninstall Basic-Auth --deactivate"
+        self.run_wp_cli(cmd)
+        logging.debug("Basic-Auth plugin is uninstalled")
 
 
 class MockedWPGenerator(WPGenerator):

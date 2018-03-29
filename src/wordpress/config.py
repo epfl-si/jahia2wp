@@ -24,7 +24,8 @@ class WPConfig:
 
     def __init__(self, wp_site,
                  installs_locked=settings.DEFAULT_CONFIG_INSTALLS_LOCKED,
-                 updates_automatic=settings.DEFAULT_CONFIG_UPDATES_AUTOMATIC):
+                 updates_automatic=settings.DEFAULT_CONFIG_UPDATES_AUTOMATIC,
+                 from_export=False):
         """
         Class constructor
 
@@ -46,6 +47,7 @@ class WPConfig:
         # set additionnal options
         self.installs_locked = cast_yes_or_no(installs_locked)
         self.updates_automatic = cast_yes_or_no(updates_automatic)
+        self.from_export = from_export
 
     def __repr__(self):
         installed_string = '[ok]' if self.is_installed else '[ko]'
@@ -95,19 +97,17 @@ class WPConfig:
                 else:
                     yield WPResult(wp_config.wp_site.path, "KO", "", "", "", "", "")
 
-    def run_wp_cli(self, command, pipe_input=None, extra_options=None, encoding=sys.stdout.encoding):
+    def run_wp_cli(self, command, encoding=sys.getdefaultencoding(), pipe_input=None, extra_options=None):
         """
         Execute a WP-CLI command. The command doesn't have to start with 'wp '. It will be added automatically, and
         it's the same for --path option.
 
         Argument keywords:
         command -- WP-CLI command to execute
-        pipe_input -- Elements to give to the command using a pipe (ex: echo "elem" | wp command ...)
-        extra_options -- Options to add at the end of the command line. There value is taken from STDIN so it
-                         has to be at the end of the command line (after --path)
         encoding -- encoding to use
+        pipe_input -- Elements to give to the command using a pipe (ex: echo "elem" | wp command ...)
+        extra_options -- display json in standard input. This json is used by wpcli commands
         """
-
         cmd = ""
 
         if pipe_input:
@@ -312,7 +312,7 @@ class WPConfig:
             return self._add_user(WPUser.from_sciper(sciper_id, role=role))
         except WPException as err:
             logging.error("%s - LDAP call failed %s", repr(self.wp_site), err)
-            return None
+            raise err
 
     def _add_user(self, user):
         """

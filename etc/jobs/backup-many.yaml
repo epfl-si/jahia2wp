@@ -37,6 +37,8 @@ spec:
             volumeMounts:
             - mountPath: /srv
               name: wordpress
+            - mountPath: /backups
+              name: backups
           dnsPolicy: ClusterFirst
           restartPolicy: Never
           schedulerName: default-scheduler
@@ -48,3 +50,6 @@ spec:
           - name: wordpress
             persistentVolumeClaim:
               claimName: wordpress-0
+          - name: backups
+            persistentVolumeClaim:
+              claimName: backups-0

@@ -5,23 +5,38 @@ from utils import Utils
 class Box:
     """A Jahia Box. Can be of type text, infoscience, etc."""
 
-    # the known box types
+    # WP box types
+    TYPE_TEXT = "text"
+    TYPE_COLORED_TEXT = "coloredText"
+    TYPE_INFOSCIENCE = "infoscience"
+    TYPE_ACTU = "actu"
+    TYPE_MEMENTO = "memento"
+    TYPE_FAQ = "faq"
+    TYPE_TOGGLE = "toggle"
+    TYPE_INCLUDE = "include"
+    TYPE_CONTACT = "contact"
+    TYPE_XML = "xml"
+    TYPE_LINKS = "links"
+
+    # Mapping of known box types from Jahia to WP
     types = {
-        "epfl:textBox": "text",
-        "epfl:coloredTextBox": "coloredText",
-        "epfl:infoscienceBox": "infoscience",
-        "epfl:actuBox": "actu",
-        "epfl:mementoBox": "memento",
-        "epfl:faqContainer": "faq",
-        "epfl:toggleBox": "toggle",
-        "epfl:htmlBox": "include",
-        "epfl:contactBox": "contact",
-        "epfl:xmlBox": "xml"
+        "epfl:textBox": TYPE_TEXT,
+        "epfl:coloredTextBox": TYPE_COLORED_TEXT,
+        "epfl:infoscienceBox": TYPE_INFOSCIENCE,
+        "epfl:actuBox": TYPE_ACTU,
+        "epfl:mementoBox": TYPE_MEMENTO,
+        "epfl:faqContainer": TYPE_FAQ,
+        "epfl:toggleBox": TYPE_TOGGLE,
+        "epfl:htmlBox": TYPE_INCLUDE,
+        "epfl:contactBox": TYPE_CONTACT,
+        "epfl:xmlBox": TYPE_XML,
+        "epfl:linksBox": TYPE_LINKS
     }
 
     def __init__(self, site, page_content, element, multibox=False):
         self.site = site
         self.page_content = page_content
+        self.type = ""
         self.set_type(element)
         self.title = Utils.get_tag_attribute(element, "boxTitle", "jahia:value")
         self.content = ""
@@ -43,48 +58,65 @@ class Box:
         """set the box attributes"""
 
         # text
-        if "text" == self.type or "coloredText" == self.type:
+        if self.TYPE_TEXT == self.type or self.TYPE_COLORED_TEXT == self.type:
             self.set_box_text(element, multibox)
         # infoscience
-        elif "infoscience" == self.type:
+        elif self.TYPE_INFOSCIENCE == self.type:
             self.set_box_infoscience(element)
         # actu
-        elif "actu" == self.type:
+        elif self.TYPE_ACTU == self.type:
             self.set_box_actu(element)
         # memento
-        elif "memento" == self.type:
+        elif self.TYPE_MEMENTO == self.type:
             self.set_box_memento(element)
         # faq
-        elif "faq" == self.type:
+        elif self.TYPE_FAQ == self.type:
             self.set_box_faq(element)
         # toggle
-        elif "toggle" == self.type:
+        elif self.TYPE_TOGGLE == self.type:
             self.set_box_toggle(element)
         # include
-        elif "include" == self.type:
+        elif self.TYPE_INCLUDE == self.type:
             self.set_box_include(element)
         # contact
-        elif "contact" == self.type:
+        elif self.TYPE_CONTACT == self.type:
             self.set_box_contact(element)
         # xml
-        elif "xml" == self.type:
+        elif self.TYPE_XML == self.type:
             self.set_box_xml(element)
+        # links
+        elif self.TYPE_LINKS == self.type:
+            self.set_box_links(element)
         # unknown
         else:
             self.set_box_unknown(element)
 
     def set_box_text(self, element, multibox=False):
-        """set the attributes of a text box"""
+        """set the attributes of a text box
+            A text box can have two forms, either it contains just a <text> tag
+            or it contains a <comboListList> which contains <comboList> tags which
+            contain <text>, <filesList>, <linksList> tags. The last two tags may miss from time
+            to time because the jahia export is not perfect.
+            FIXME: For now <filesList> are ignored because we did not find a site where
+            it is used yet.
+        """
 
         if not multibox:
-            self.content = Utils.get_tag_attribute(element, "text", "jahia:value")
+            content = Utils.get_tag_attribute(element, "text", "jahia:value")
+            linksList = element.getElementsByTagName("linksList")
+            if linksList:
+                content += self._parse_links_to_list(linksList[0])
         else:
             # Concatenate HTML content of many boxes
             content = ""
-            elements = element.getElementsByTagName("text")
-            for element in elements:
-                content += element.getAttribute("jahia:value")
-            self.content = content
+            comboLists = element.getElementsByTagName("comboList")
+            for element in comboLists:
+                content += Utils.get_tag_attribute(element, "text", "jahia:value")
+                # linksList contain <link> tags exactly like linksBox, so we can just reuse
+                # the same code used to parse linksBox.
+                content += self._parse_links_to_list(element)
+
+        self.content = content
 
     def set_box_actu(self, element):
         """set the attributes of an actu box"""
@@ -102,7 +134,7 @@ class Box:
         """set the attributes of a infoscience box"""
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.content = "[infoscience url=%s]" % url
+        self.content = "[epfl_infoscience url=%s]" % url
 
     def set_box_faq(self, element):
         """set the attributes of a faq box"""
@@ -136,6 +168,34 @@ class Box:
         xslt = Utils.get_tag_attribute(element, "xslt", "jahia:value")
 
         self.content = "[xml xml=%s xslt=%s]" % (xml, xslt)
+
+    def _parse_links_to_list(self, element):
+        """Handles link tags that can be found in linksBox and textBox"""
+        elements = element.getElementsByTagName("link")
+        content = "<ul>"
+        for e in elements:
+            if e.ELEMENT_NODE != e.nodeType:
+                continue
+            for jahia_tag in e.childNodes:
+                if jahia_tag.ELEMENT_NODE != jahia_tag.nodeType:
+                    continue
+                if jahia_tag.tagName == "jahia:link":
+                    page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
+                    content += "<li><a href={}>{}</a></li>".format(page.pid, jahia_tag.getAttribute("jahia:title"))
+                elif jahia_tag.tagName == "jahia:url":
+                    url = jahia_tag.getAttribute("jahia:value")
+                    title = jahia_tag.getAttribute("jahia:title")
+                    content += "<li><a href={}>{}</a></li>".format(url, title)
+        content += "</ul>"
+
+        if content == "<ul></ul>":
+            return ""
+
+        return content
+
+    def set_box_links(self, element):
+        """set the attributes of a links box"""
+        self.content = self._parse_links_to_list(element)
 
     def set_box_unknown(self, element):
         """set the attributes of an unknown box"""
