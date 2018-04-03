@@ -268,7 +268,7 @@ class Box:
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
         if "://people.epfl.ch/cgi-bin/getProfiles?" in url:
             url = url.replace("tmpl=", "WP_tmpl=")
-            self.content = "[epfl_people url={} /]".format(url)
+            self.content = '[epfl_people url="{}" /]'.format(url)
         else:
             self.content = "[include url={}]".format(url)
 
