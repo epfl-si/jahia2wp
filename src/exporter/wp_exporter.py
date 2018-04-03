@@ -477,7 +477,7 @@ class WPExporter:
                 for box in page.contents[lang].boxes:
 
                     contents[lang] += '<div class="{}">'.format(box.type + "Box")
-                    if box.title:
+                    if box.title and box.type != Box.TYPE_TOGGLE:
                         contents[lang] += '<h3 id="{0}">{0}</h3>'.format(box.title)
 
                     # in the parser we can't know the current language.
@@ -629,6 +629,11 @@ class WPExporter:
                     if box.type in [Box.TYPE_TEXT, Box.TYPE_CONTACT, Box.TYPE_LINKS, Box.TYPE_FILES]:
                         widget_type = 'text'
                         title = prepare_html(box.title)
+                        content = prepare_html(box.content)
+
+                    elif box.type == box.TYPE_TOGGLE:
+                        widget_type = 'text'
+                        title = ""
                         content = prepare_html(box.content)
 
                     elif box.type == Box.TYPE_COLORED_TEXT:
