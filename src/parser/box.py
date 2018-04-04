@@ -374,9 +374,22 @@ class Box:
             subtitle = subtitle.replace('"', '\\"')
             description = description.replace('"', '\\"')
 
-            self.content = "[epfl_snippets title=\"{}\" subtitle=\"{}\" image=\"{}\"" \
-                           "big_image=\"{}\" enable_zoom=\"{}\" description=\"{}\"]".format(
-                title, subtitle, image, big_image, enable_zoom, description
+            url = ""
+
+            # url
+            if element.getElementsByTagName("url"):
+                # first check if we have a <jahia:url> (external url)
+                url = Utils.get_tag_attribute(snippet, "jahia:url", "jahia:value")
+
+                # if not we might have a <jahia:link> (internal url)
+                if url == "":
+                    pid = Utils.get_tag_attribute(snippet, "jahia:link", "jahia:pid")
+                    if pid:
+                        url = "/page-{}.html".format(pid)
+
+            self.content = "[epfl_snippets url=\"{}\" title=\"{}\" subtitle=\"{}\" image=\"{}\"" \
+                           "big_image=\"{}\" enable_zoom=\"{}\" description=\"{}\"]"\
+                .format(url, title, subtitle, image, big_image, enable_zoom, description
             )
 
     def set_box_syntax_highlight(self, element):
