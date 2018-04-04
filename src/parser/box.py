@@ -320,7 +320,7 @@ class Box:
         if detail_items != "true":
             summary = "no"
 
-        self.content = "[feedzy-rss feeds=\"{}\" max=\"{}\" feed_title=\"{}\" summary=\"{}\" refresh=\"12_hours\"]"\
+        self.content = "[feedzy-rss feeds=\"{}\" max=\"{}\" feed_title=\"{}\" summary=\"{}\" refresh=\"12_hours\"]" \
             .format(feeds, max, feed_title, summary)
 
     def set_box_links(self, element):
@@ -370,9 +370,9 @@ class Box:
                 big_image = big_image[big_image.rfind("/files"):]
 
             # escape
-            title = title.replace('"','\\"')
-            subtitle = subtitle.replace('"','\\"')
-            description = description.replace('"','\\"')
+            title = title.replace('"', '\\"')
+            subtitle = subtitle.replace('"', '\\"')
+            description = description.replace('"', '\\"')
 
             self.content = "[epfl_snippets title=\"{}\" subtitle=\"{}\" image=\"{}\"" \
                            "big_image=\"{}\" enable_zoom=\"{}\" description=\"{}\"]".format(
