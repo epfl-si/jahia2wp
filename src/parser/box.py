@@ -270,7 +270,7 @@ class Box:
             url = url.replace("tmpl=", "WP_tmpl=")
             self.content = "[epfl_people url={} /]".format(url)
         else:
-            self.content = "[include url={}]".format(url)
+            self.content = '[remote_content url="{}"]'.format(url)
 
     def set_box_contact(self, element):
         """set the attributes of a contact box"""
