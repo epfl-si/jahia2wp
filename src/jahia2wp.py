@@ -12,7 +12,7 @@ Usage:
   jahia2wp.py parse                 <site>                          [--debug | --quiet]
     [--output-dir=<OUTPUT_DIR>] [--use-cache]
   jahia2wp.py export     <site>  <wp_site_url> <unit_name>          [--debug | --quiet]
-    [--to-wordpress | --clean-wordpress]
+    [--to-wordpress | --clean-wordpress | --to-dictionary]
     [--admin-password=<PASSWORD>]
     [--output-dir=<OUTPUT_DIR>]
     [--installs-locked=<BOOLEAN> --updates-automatic=<BOOLEAN>]
@@ -54,19 +54,19 @@ Options:
   --debug                   Set log level to DEBUG [default: INFO]
   --quiet                   Set log level to WARNING [default: INFO]
 """
+import csv
 import getpass
+import json
 import logging
 import pickle
 import subprocess
-import shutil
-
-from datetime import datetime
-import json
-
-import csv
-import os
-import yaml
 from collections import OrderedDict
+from datetime import datetime
+from pprint import pprint
+
+import os
+import shutil
+import yaml
 from docopt import docopt
 from docopt_dispatch import dispatch
 from epflldap.ldap_search import get_unit_id
@@ -74,6 +74,7 @@ from rotate_backups import RotateBackups
 
 import settings
 from crawler import JahiaCrawler
+from exporter.dict_exporter import DictExporter
 from exporter.wp_exporter import WPExporter
 from parser.jahia_site import Site
 from settings import VERSION, FULL_BACKUP_RETENTION_THEME, INCREMENTAL_BACKUP_RETENTION_THEME, \
@@ -373,9 +374,9 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
 
 
 @dispatch.on('export')
-def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=False, admin_password=None,
-           output_dir=None, theme=None, installs_locked=False, updates_automatic=False, openshift_env=None,
-           use_cache=None, keep_extracted_files=False, **kwargs):
+def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=False, to_dictionary=False,
+           admin_password=None, output_dir=None, theme=None, installs_locked=False, updates_automatic=False,
+           openshift_env=None, use_cache=None, keep_extracted_files=False, **kwargs):
     """
     Export the jahia content into a WordPress site.
 
@@ -394,7 +395,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     """
 
     # Download, Unzip the jahia zip and parse the xml data
-    site = parse(site=site, use_cache=use_cache)
+    site = parse(site=site, use_cache=use_cache, output_dir=output_dir)
 
     # Define the default language
     default_language = _get_default_language(site.languages)
@@ -481,6 +482,10 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         logging.info("Cleaning WordPress for %s...", site.name)
         wp_exporter.delete_all_content()
         logging.info("Data of WordPress site %s successfully deleted", site.name)
+
+    if to_dictionary:
+        data = DictExporter.generate_data(site)
+        pprint(data, width=settings.LINE_LENGTH_ON_PPRINT)
 
     wp_generator.uninstall_basic_auth_plugin()
     wp_generator.enable_updates_automatic_if_allowed()
