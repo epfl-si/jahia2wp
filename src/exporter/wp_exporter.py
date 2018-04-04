@@ -4,9 +4,9 @@ import os
 import sys
 import re
 from parser.box import Box
-import timeit
 from collections import OrderedDict
-from datetime import timedelta, datetime
+from datetime import datetime
+from .devtools import Timeit
 import json
 from bs4 import BeautifulSoup
 from wordpress_json import WordpressJsonWrapper, WordpressError
@@ -111,36 +111,34 @@ class WPExporter:
         :param feature_flags: To tell if page content have to be cleaned during import
         """
         try:
-            start_time = timeit.default_timer()
-            tracer_path = os.path.join(self.output_dir, self.TRACER_FILE_NAME)
+            with Timeit() as t:
+                tracer_path = os.path.join(self.output_dir, self.TRACER_FILE_NAME)
 
-            # Allow unfiltered content
-            self.run_wp_cli("plugin deactivate EPFL-Content-Filter")
+                # Allow unfiltered content
+                self.run_wp_cli("plugin deactivate EPFL-Content-Filter")
 
-            # Delete the existing widgets to start with an empty sidebar
-            self.delete_widgets()
+                # Delete the existing widgets to start with an empty sidebar
+                self.delete_widgets()
 
-            # media
-            if not skip_media:
-                self.import_medias()
+                # media
+                if not skip_media:
+                    self.import_medias()
 
-            # pages
-            if not skip_pages:
-                self.import_pages(features_flags)
-                self.set_frontpage()
+                # pages
+                if not skip_pages:
+                    self.import_pages(features_flags)
+                    self.set_frontpage()
 
-            self.populate_menu()
-            self.import_sidebars()
-            self.import_breadcrumb()
-            self.delete_draft_pages()
-            self.display_report()
+                self.populate_menu()
+                self.import_sidebars()
+                self.import_breadcrumb()
+                self.delete_draft_pages()
+                self.display_report()
 
-            # Disallow unfiltered content
-            self.run_wp_cli("plugin activate EPFL-Content-Filter")
+                # Disallow unfiltered content
+                self.run_wp_cli("plugin activate EPFL-Content-Filter")
 
-            # log execution time
-            elapsed = timedelta(seconds=timeit.default_timer() - start_time)
-            logging.info("Data imported in %s", elapsed)
+                logging.info("Data imported in %s", t.elapsed_seconds())
 
             # write a csv file
             with open(tracer_path, 'a', newline='\n') as tracer:
