@@ -37,26 +37,26 @@ function epfl_snippets_build_html( string $url, string $title, string $subtitle,
 
     $has_url = filter_var($url, FILTER_VALIDATE_URL);
 
-    if ($has_url) {
+    if ( $has_url ) {
       $html .= '  <a href="' . $url . '">';
     }
 
     $html .= '  <div class="snippets-title">' . $title . '</div>';
 
-    if ($has_url) {
+    if ( $has_url ) {
       $html .= '  </a>';
     }
 
     $html .= '  <div class="snippets-subtitle">' . $subtitle . '</div>';
     $html .= '  <div class="snippets-description">' . $description . '</div>';
 
-    if ($has_url) {
+    if ( $has_url ) {
       $html .= '  <a href="' . $url . '">';
     }
 
     $html .= '  <div class="snippets-image"><img src="' . esc_attr($image) . '"/></div>';
 
-    if ($has_url) {
+    if ( $has_url ) {
       $html .= '  </a>';
     }
 
