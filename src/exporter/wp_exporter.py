@@ -3,9 +3,9 @@ import logging
 import os
 import sys
 from parser.box import Box
-import timeit
 from collections import OrderedDict
-from datetime import timedelta, datetime
+from datetime import datetime
+from devtools import Timeit
 import json
 from bs4 import BeautifulSoup
 from wordpress_json import WordpressJsonWrapper, WordpressError
@@ -103,24 +103,22 @@ class WPExporter:
         Import all data to worpdress via REST API and wp-cli
         """
         try:
-            start_time = timeit.default_timer()
-            tracer_path = os.path.join(self.output_dir, self.TRACER_FILE_NAME)
+            with Timeit() as t:
+                tracer_path = os.path.join(self.output_dir, self.TRACER_FILE_NAME)
 
-            # Existing widget deletion to start with empty sidebar contents
-            self.delete_widgets()
+                # Existing widget deletion to start with empty sidebar contents
+                self.delete_widgets()
 
-            self.import_medias()
-            self.import_pages()
-            self.set_frontpage()
-            self.populate_menu()
-            self.import_sidebars()
-            self.import_breadcrumb()
-            self.delete_draft_pages()
-            self.display_report()
+                self.import_medias()
+                self.import_pages()
+                self.set_frontpage()
+                self.populate_menu()
+                self.import_sidebars()
+                self.import_breadcrumb()
+                self.delete_draft_pages()
+                self.display_report()
 
-            # log execution time
-            elapsed = timedelta(seconds=timeit.default_timer() - start_time)
-            logging.info("Data imported in %s", elapsed)
+                logging.info("Data imported in %s", t.elapsed_seconds())
 
             # write a csv file
             with open(tracer_path, 'a', newline='\n') as tracer:
