@@ -20,7 +20,7 @@ function epfl_people_log( $message ) {
     }
 }
 
-function epfl_people_urlExists( $url )
+function epfl_people_url_exists( $url )
 {
     $handle = curl_init( $url );
     curl_setopt( $handle, CURLOPT_RETURNTRANSFER, TRUE );
@@ -50,7 +50,7 @@ function epfl_people_process_shortcode( $attributes, $content = null )
     if ( false === $result ){
 
         // Make sure the content is actually coming from the people pages and does exist
-        if ( ( strcasecmp( parse_url( $url, PHP_URL_HOST ), 'people.epfl.ch' ) == 0 or strcasecmp( parse_url( $url, PHP_URL_HOST ), 'test-people.epfl.ch' ) == 0 ) && epfl_people_urlExists( $url ) ) {
+        if ( ( strcasecmp( parse_url( $url, PHP_URL_HOST ), 'people.epfl.ch' ) == 0 or strcasecmp( parse_url( $url, PHP_URL_HOST ), 'test-people.epfl.ch' ) == 0 ) && epfl_people_url_exists( $url ) ) {
 
             // Get the content of the page
             $page = file_get_contents( $url );
