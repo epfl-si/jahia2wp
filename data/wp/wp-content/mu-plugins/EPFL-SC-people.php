@@ -5,7 +5,7 @@
  * Plugin URI: https://github.com/epfl-idevelop/EPFL-WP-SC-People
  * Description: provides a shortcode to display results from People
  * Version: 1.1
- * Authors: Emmanuel JAEP
+ * Author: Emmanuel JAEP
  * Author URI: https://people.epfl.ch/emmanuel.jaep?lang=en
  * Contributors: LuluTchab, GregLeBarbar
  * License: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
