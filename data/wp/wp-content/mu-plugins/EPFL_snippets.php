@@ -22,6 +22,7 @@ function epfl_snippets_debug( $var ) {
 /**
  * Build the html
  *
+ * @param $url: the URL
  * @param $title: the title
  * @param $subtitle: the subtitle
  * @param $description: the description
@@ -30,13 +31,35 @@ function epfl_snippets_debug( $var ) {
  * @param $enable_zoom: if true the image can be zoomed
  * @return string the snippets html
  */
-function epfl_snippets_build_html( string $title, string $subtitle, string $description, string $image, string $big_image, string $enable_zoom )
+function epfl_snippets_build_html( string $url, string $title, string $subtitle, string $description, string $image, string $big_image, string $enable_zoom )
 {
     $html  = '<div class="snippets">';
+
+    $has_url = filter_var($url, FILTER_VALIDATE_URL);
+
+    if ($has_url) {
+      $html .= '  <a href="' . $url . '">';
+    }
+
     $html .= '  <div class="snippets-title">' . $title . '</div>';
+
+    if ($has_url) {
+      $html .= '  </a>'';
+    }
+
     $html .= '  <div class="snippets-subtitle">' . $subtitle . '</div>';
     $html .= '  <div class="snippets-description">' . $description . '</div>';
-    $html .= '  <div class="snippets-image"><img src="' . esc_attr($image) . '"/></div>';        
+
+    if ($has_url) {
+      $html .= '  <a href="' . $url . '">';
+    }
+
+    $html .= '  <div class="snippets-image"><img src="' . esc_attr($image) . '"/></div>';
+
+    if ($has_url) {
+      $html .= '  </a>'';
+    }
+
     $html .= '</div">';
     
     return $html;
@@ -53,6 +76,7 @@ function epfl_snippets_process_shortcode( $attributes, string $content = null ):
 {
     // get parameters
     $atts = shortcode_atts(array(
+        'url'          => '',
         'title'        => '',
         'subtitle'     => '',
         'description'  => '',
@@ -62,6 +86,7 @@ function epfl_snippets_process_shortcode( $attributes, string $content = null ):
     ), $attributes);
     
     // sanitize parameters
+    $url         = sanitize_text_field($atts['url']);
     $title       = sanitize_text_field($atts['title']);
     $subtitle    = sanitize_text_field($atts['subtitle']);
     $description = sanitize_text_field($atts['description']);
@@ -69,7 +94,7 @@ function epfl_snippets_process_shortcode( $attributes, string $content = null ):
     $big_image   = sanitize_text_field($atts['big_image']);
     $enable_zoom = sanitize_text_field($atts['enable_zoom']);
 
-    return epfl_snippets_build_html( $title, $subtitle, $description, $image, $big_image, $enable_zoom );
+    return epfl_snippets_build_html( $url, $title, $subtitle, $description, $image, $big_image, $enable_zoom );
 }
 
 add_shortcode( 'epfl_snippets', 'epfl_snippets_process_shortcode' );
