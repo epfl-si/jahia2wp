@@ -383,9 +383,12 @@ class Box:
 
                 # if not we might have a <jahia:link> (internal url)
                 if url == "":
-                    pid = Utils.get_tag_attribute(snippet, "jahia:link", "jahia:pid")
-                    if pid:
-                        url = "/page-{}.html".format(pid)
+                    uuid = Utils.get_tag_attribute(snippet, "jahia:link", "jahia:reference")
+
+                    if uuid in self.site.pages_by_uuid:
+                        page = self.site.pages_by_uuid[uuid]
+
+                        url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
 
             self.content = "[epfl_snippets url=\"{}\" title=\"{}\" subtitle=\"{}\" image=\"{}\"" \
                            "big_image=\"{}\" enable_zoom=\"{}\" description=\"{}\"]"\
