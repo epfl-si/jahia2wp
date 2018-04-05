@@ -3,6 +3,7 @@
 import logging
 from urllib.parse import urlencode
 from xml.dom import minidom
+from bs4 import BeautifulSoup
 
 from utils import Utils
 
@@ -28,6 +29,7 @@ class Box:
     TYPE_SYNTAX_HIGHLIGHT = "syntaxHighlight"
     TYPE_KEY_VISUAL = "keyVisual"
     TYPE_MAP = "map"
+    TYPE_GRID = "grid"
 
     # Mapping of known box types from Jahia to WP
     types = {
@@ -47,7 +49,8 @@ class Box:
         "epfl:filesBox": TYPE_FILES,
         "epfl:syntaxHighlightBox": TYPE_SYNTAX_HIGHLIGHT,
         "epfl:keyVisualBox": TYPE_KEY_VISUAL,
-        "epfl:mapBox": TYPE_MAP
+        "epfl:mapBox": TYPE_MAP,
+        "epfl:gridBox": TYPE_GRID
     }
 
     UPDATE_LANG = "UPDATE_LANG_BY_EXPORTER"
@@ -121,8 +124,12 @@ class Box:
         # keyVisual
         elif self.TYPE_KEY_VISUAL == self.type:
             self.set_box_key_visuals(element)
+        # Map
         elif self.TYPE_MAP == self.type:
             self.set_box_map(element)
+        # Grid
+        elif self.TYPE_GRID == self.type:
+            self.set_box_grid(element)
         # unknown
         else:
             self.set_box_unknown(element)
@@ -152,6 +159,37 @@ class Box:
             end_time,
             content
         )
+
+    def set_box_grid(self, element):
+        """
+        Set attributes for a grid box.
+        A grid box is a <div> containing others <div> with a specified size (defined by the layout, "large" or
+        "default"), image, text and link.
+        FIXME: Handle <boxTitle> field (was empty when box support has been added so no idea how it is displayed..)
+        FIXME: Handle <text> field (was empty when box support has been added so no idea how it is displayed..)
+        FIXME: Handle attribute GridListList -> "jahia:sortHandler" if needed
+        :param element:
+        :return:
+        """
+        self.content = '[epfl_gridBox]\n'
+
+        elements = element.getElementsByTagName("gridList")
+
+        for e in elements:
+
+            layout_infos = Utils.get_tag_attribute(e, "layout", "jahia:value")
+            soup = BeautifulSoup(layout_infos, 'html5lib')
+            layout = soup.find('jahia-resource').get('default-value')
+
+            link = Utils.get_tag_attribute(e, "jahia:url", "jahia:value")
+            title = Utils.get_tag_attribute(e, "jahia:url", "jahia:title")
+            image = Utils.get_tag_attribute(e, "image", "jahia:value")
+
+            self.content += '[epfl_gridBoxElem layout="{}" link="{}" title="{}" image="{}"][/epfl_gridBoxElem]\n'.format(
+                layout, link, title, image)
+
+        self.content += "[/epfl_gridBox]"
+
 
     def set_box_text(self, element, multibox=False):
         """set the attributes of a text box
@@ -235,19 +273,19 @@ class Box:
         """set the attributes of an actu box"""
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.content = "[actu url=%s]" % url
+        self.content = "[actu url={}]".format(url)
 
     def set_box_memento(self, element):
         """set the attributes of a memento box"""
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.content = "[memento url=%s]" % url
+        self.content = "[memento url={}]".format(url)
 
     def set_box_infoscience(self, element):
         """set the attributes of a infoscience box"""
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.content = "[epfl_infoscience url=%s]" % url
+        self.content = "[epfl_infoscience url={}]".format(url)
 
     def set_box_faq(self, element):
         """set the attributes of a faq box"""
@@ -255,7 +293,7 @@ class Box:
 
         self.answer = Utils.get_tag_attribute(element, "answer", "jahia:value")
 
-        self.content = "<h2>%s</h2><p>%s</p>" % (self.question, self.answer)
+        self.content = "<h2>{}</h2><p>{}</p>".format(self.question, self.answer)
 
     def set_box_toggle(self, element):
         """set the attributes of a toggle box"""
@@ -283,7 +321,7 @@ class Box:
         xml = Utils.get_tag_attribute(element, "xml", "jahia:value")
         xslt = Utils.get_tag_attribute(element, "xslt", "jahia:value")
 
-        self.content = "[xml xml=%s xslt=%s]" % (xml, xslt)
+        self.content = "[xml xml={} xslt={}]".format(xml, xslt)
 
     def set_box_rss(self, element):
         """set the attributes of an rss box"""
@@ -323,7 +361,7 @@ class Box:
 
     def set_box_unknown(self, element):
         """set the attributes of an unknown box"""
-        self.content = "[%s]" % element.getAttribute("jcr:primaryType")
+        self.content = "[{}]".format(element.getAttribute("jcr:primaryType"))
 
     def set_box_files(self, element):
         """set the attributes of a files box"""
