@@ -66,8 +66,8 @@ function epfl_infoscience_process_shortcode( $attributes, $content = null )
             epfl_infoscience_log( $error );
         }
     } else {
-        $page = file_get_contents( $url );
-        return $page;
+        // Use cache
+        return $result;
     }
 }
 
