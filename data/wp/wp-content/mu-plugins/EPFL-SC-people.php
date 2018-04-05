@@ -47,6 +47,7 @@ function epfl_people_process_shortcode( $attributes, $content = null )
 
     // Check if the result is already in cache
     $result = wp_cache_get( $url, 'epfl_people' );
+
     if ( false === $result ){
 
         // Make sure the content is actually coming from the people pages and does exist
@@ -64,6 +65,9 @@ function epfl_people_process_shortcode( $attributes, $content = null )
             $error = new WP_Error( 'not found', 'The url passed is not part of people or is not found', $url );
             epfl_people_log( $error );
         }
+    } else {
+        $page = file_get_contents( $url );
+        return $page;
     }
 }
 
