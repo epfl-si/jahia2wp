@@ -5,7 +5,7 @@ import sys
 from parser.box import Box
 from collections import OrderedDict
 from datetime import datetime
-from devtools import Timeit
+from .devtools import Timeit
 import json
 from bs4 import BeautifulSoup
 from wordpress_json import WordpressJsonWrapper, WordpressError
