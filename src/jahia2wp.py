@@ -12,7 +12,7 @@ Usage:
   jahia2wp.py parse                 <site>                          [--debug | --quiet]
     [--output-dir=<OUTPUT_DIR>] [--use-cache]
   jahia2wp.py export     <site>  <wp_site_url> <unit_name>          [--debug | --quiet]
-    [--to-wordpress | --clean-wordpress]
+    [--to-wordpress] [ --clean-wordpress]
     [--admin-password=<PASSWORD>]
     [--output-dir=<OUTPUT_DIR>]
     [--installs-locked=<BOOLEAN> --updates-automatic=<BOOLEAN>]
@@ -454,6 +454,11 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         output_dir
     )
 
+    if clean_wordpress:
+        logging.info("Cleaning WordPress for %s...", site.name)
+        wp_exporter.delete_all_content()
+        logging.info("Data of WordPress site %s successfully deleted", site.name)
+
     if to_wordpress:
         logging.info("Exporting %s to WordPress...", site.name)
         try:
@@ -471,11 +476,6 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
             raise e
 
         Tracer.write_row(site=site.name, step="export", status="OK")
-
-    if clean_wordpress:
-        logging.info("Cleaning WordPress for %s...", site.name)
-        wp_exporter.delete_all_content()
-        logging.info("Data of WordPress site %s successfully deleted", site.name)
 
     wp_generator.uninstall_basic_auth_plugin()
     wp_generator.enable_updates_automatic_if_allowed()
