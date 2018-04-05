@@ -656,7 +656,7 @@ class WPExporter:
                     self.run_wp_cli(cmd)
 
                     # Saving widget position for current widget (as string because this is a string that is
-                    # used to index informations in DB)
+                    # used to index information in DB)
                     widget_pos_to_lang[str(widget_pos)] = lang
                     widget_pos += 1
 
