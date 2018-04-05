@@ -66,8 +66,8 @@ function epfl_people_process_shortcode( $attributes, $content = null )
             epfl_people_log( $error );
         }
     } else {
-        $page = file_get_contents( $url );
-        return $page;
+        // Use the cache
+        return $result;
     }
 }
 
