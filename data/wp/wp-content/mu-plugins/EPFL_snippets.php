@@ -44,7 +44,7 @@ function epfl_snippets_build_html( string $url, string $title, string $subtitle,
     $html .= '  <div class="snippets-title">' . $title . '</div>';
 
     if ($has_url) {
-      $html .= '  </a>'';
+      $html .= '  </a>';
     }
 
     $html .= '  <div class="snippets-subtitle">' . $subtitle . '</div>';
@@ -57,7 +57,7 @@ function epfl_snippets_build_html( string $url, string $title, string $subtitle,
     $html .= '  <div class="snippets-image"><img src="' . esc_attr($image) . '"/></div>';
 
     if ($has_url) {
-      $html .= '  </a>'';
+      $html .= '  </a>';
     }
 
     $html .= '</div">';
