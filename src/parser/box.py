@@ -171,7 +171,7 @@ class Box:
         :param element:
         :return:
         """
-        self.content = '[epfl_gridBox]\n'
+        self.content = '[epfl_grid]\n'
 
         elements = element.getElementsByTagName("gridList")
 
@@ -181,14 +181,22 @@ class Box:
             soup = BeautifulSoup(layout_infos, 'html5lib')
             layout = soup.find('jahia-resource').get('default-value')
 
+            # Retrieve info
             link = Utils.get_tag_attribute(e, "jahia:url", "jahia:value")
-            title = Utils.get_tag_attribute(e, "jahia:url", "jahia:title")
             image = Utils.get_tag_attribute(e, "image", "jahia:value")
+            title = Utils.get_tag_attribute(e, "jahia:url", "jahia:title")
 
-            self.content += '[epfl_gridBoxElem layout="{}" link="{}" title="{}" image="{}"][/epfl_gridBoxElem]\n'.format(
+            # Escape if necessary
+            title = title.replace('"', '\\"')
+
+            # Fix path if necessary
+            if "/files" in image:
+                image = image[image.rfind("/files"):]
+
+            self.content += '[epfl_gridElem layout="{}" link="{}" title="{}" image="{}"][/epfl_gridElem]\n'.format(
                 layout, link, title, image)
 
-        self.content += "[/epfl_gridBox]"
+        self.content += "[/epfl_grid]"
 
 
     def set_box_text(self, element, multibox=False):
