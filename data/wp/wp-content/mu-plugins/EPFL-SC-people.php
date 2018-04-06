@@ -55,7 +55,8 @@ function epfl_people_process_shortcode( $attributes, $content = null )
         if ( ( strcasecmp( parse_url( $url, PHP_URL_HOST ), 'people.epfl.ch' ) == 0 or strcasecmp( parse_url( $url, PHP_URL_HOST ), 'test-people.epfl.ch' ) == 0 ) && epfl_people_url_exists( $url ) ) {
 
             // Get the content of the page
-            $page = file_get_contents( $url );
+            $response = wp_remote_get( $url );
+            $page = wp_remote_retrieve_body( $response );
 
             // cache the result
             wp_cache_set( $url, $page, 'epfl_people' );
