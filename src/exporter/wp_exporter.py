@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 from parser.box import Box
+from math import floor
 import timeit
 from collections import OrderedDict
 from datetime import timedelta, datetime
@@ -197,15 +198,21 @@ class WPExporter:
         if self.site.files:
             start = "{}/content/sites/{}/files".format(self.site.base_path, self.site.name)
             self.site.files = self._asciify_path(start)
+
+            step = floor(len(self.site.files)/10)
             for file in self.site.files:
                 wp_media = self.import_media(file)
                 if wp_media:
                     self.fix_file_links(file, wp_media)
                     self.report['files'] += 1
+
+                    if self.report['files'] % step == 0:
+                        logging.info("[%s/%s] WP medias imported", self.report['files'], len(self.site.files))
+
             self.fix_key_visual_boxes()
         # Remove the capability "unfiltered_upload" to the administrator group.
         self.run_wp_cli('cap remove administrator unfiltered_upload')
-        logging.info("WP medias imported")
+        logging.info("%s WP medias imported", self.report['files'])
 
     def import_media(self, media):
         """
