@@ -62,6 +62,8 @@ class Box:
         self.title = Utils.get_tag_attribute(element, "boxTitle", "jahia:value")
         self.content = ""
         self.set_content(element, multibox)
+        # the shortcode attributes with URLs that must be fixed by the wp_exporter
+        self.shortcode_attributes_to_fix = []
 
     def set_type(self, element):
         """
@@ -350,6 +352,9 @@ class Box:
 
     def set_box_snippets(self, element):
         """set the attributes of a snippets box"""
+
+        # these attributes contain URLs that need to by fixed
+        self.shortcode_attributes_to_fix = ["url", "image", "big_image"]
 
         snippets = element.getElementsByTagName("snippetListList")[0].getElementsByTagName("snippetList")
 
