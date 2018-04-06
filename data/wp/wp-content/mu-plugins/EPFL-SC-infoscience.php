@@ -22,6 +22,12 @@ function epfl_infoscience_log( $message )
     }
 }
 
+function epfl_infoscience_debug( $var ) {
+    print "<pre>";
+    var_dump( $var );
+    print "</pre>";
+}
+
 function epfl_infoscience_url_exists( $url )
 {
     $handle = curl_init( $url );
@@ -54,7 +60,11 @@ function epfl_infoscience_process_shortcode( $attributes, $content = null )
         if ( strcasecmp( parse_url( $url, PHP_URL_HOST ), 'infoscience.epfl.ch' ) == 0 && epfl_infoscience_url_exists( $url ) ) {
 
             // Get the content of the cache
-            $page = file_get_contents( $url );
+            //$page = file_get_contents( $url );
+
+            $response = wp_remote_get( $url );
+            $page = wp_remote_retrieve_body( $response );
+            epfl_infoscience_debug($page);
 
             // cache the result
             wp_cache_set( $url, $page, 'epfl_infoscience' );
