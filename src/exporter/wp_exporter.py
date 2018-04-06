@@ -288,14 +288,11 @@ class WPExporter:
 
         tag_attribute_tuples = [("a", "href"), ("img", "src"), ("script", "src")]
 
-        # the shortcode attributes containing file paths than need to be fixed
-        shortcode_attributes = ["image", "big_image"]
-
         # Looping through boxes
         for box in self.site.get_all_boxes():
 
             # first fix in shortcodes
-            for attribute in shortcode_attributes:
+            for attribute in box.shortcode_attributes_to_fix:
                 box.content = self.fix_links_in_shortcode(box.content, old_url, new_url, attribute)
 
             soup = BeautifulSoup(box.content, 'html5lib')
