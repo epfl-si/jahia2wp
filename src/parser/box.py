@@ -354,7 +354,7 @@ class Box:
         """set the attributes of a snippets box"""
 
         # these attributes contain URLs that need to by fixed
-        self.shortcode_attributes_to_fix = ["image", "big_image"]
+        self.shortcode_attributes_to_fix = ["url", "image", "big_image"]
 
         snippets = element.getElementsByTagName("snippetListList")[0].getElementsByTagName("snippetList")
 
