@@ -41,6 +41,8 @@ function epfl_snippets_build_html( string $url, string $title, string $subtitle,
       $html .= '  <a href="' . $url . '">';
     }
 
+    // note: we don't use esc_attr() here because the user is
+    // allowed to put HTML, same for subtitle and description
     $html .= '  <div class="snippets-title">' . $title . '</div>';
 
     if ( $has_url ) {

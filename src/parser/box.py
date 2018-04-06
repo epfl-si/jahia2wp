@@ -390,8 +390,8 @@ class Box:
 
                         url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
 
-            self.content = "[epfl_snippets url=\"{}\" title=\"{}\" subtitle=\"{}\" image=\"{}\"" \
-                           "big_image=\"{}\" enable_zoom=\"{}\" description=\"{}\"]"\
+            self.content = '[epfl_snippets url="{}" title="{}" subtitle="{}" image="{}"' \
+                           ' big_image="{}" enable_zoom="{}" description="{}"]'\
                 .format(url, title, subtitle, image, big_image, enable_zoom, description)
 
     def set_box_syntax_highlight(self, element):

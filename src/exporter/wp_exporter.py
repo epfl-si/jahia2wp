@@ -366,7 +366,6 @@ class WPExporter:
             soup.body.hidden = True
 
             for url_mapping in self.urls_mapping:
-
                 # 'jahia_urls' contains a list of all URLs pointing on page. We arbitrary take the first of the list
                 old_url = url_mapping["jahia_urls"][0]
                 new_url = url_mapping["wp_url"]
@@ -398,8 +397,8 @@ class WPExporter:
 
         image="/wp-content/uploads/2018/04/vignette_bois.png"
         """
-        old_attribute = "{}=\"{}\"".format(attribute, old_url)
-        new_attribute = "{}=\"{}\"".format(attribute, new_url)
+        old_attribute = '{}="{}"'.format(attribute, old_url)
+        new_attribute = '{}="{}"'.format(attribute, new_url)
 
         return content.replace(old_attribute, new_attribute)
 
