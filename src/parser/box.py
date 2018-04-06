@@ -228,7 +228,7 @@ class Box:
             template = 'default_list'
         else:
             template = Utils.get_tag_attribute(minidom.parseString(template_html), "jahia-resource", "key")
-        parameters['WP_tmpl'] = template
+        parameters['tmpl'] = "WP_" + template
 
         # in the parser we can't know the current language.
         # so we assign a string that we will replace by the current language in the exporter
@@ -273,10 +273,10 @@ class Box:
         """set the attributes of an include box"""
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
         if "://people.epfl.ch/cgi-bin/getProfiles?" in url:
-            url = url.replace("tmpl=", "WP_tmpl=")
-            self.content = "[epfl_people url={} /]".format(url)
+            url = url.replace("tmpl=", "tmpl=WP_")
+            self.content = '[epfl_people url="{}" /]'.format(url)
         else:
-            self.content = "[include url={}]".format(url)
+            self.content = '[remote_content url="{}"]'.format(url)
 
     def set_box_contact(self, element):
         """set the attributes of a contact box"""

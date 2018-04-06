@@ -1,18 +1,17 @@
 <?php
 
 /**
- * Plugin Name: EPFL Infoscience shortcode
- * Plugin URI: https://github.com/jaepetto/EPFL-SC-Infoscience
- * Description: provides a shortcode to dispay results from Infoscience
+ * Plugin Name: EPFL People shortcode
+ * Plugin URI: https://github.com/epfl-idevelop/EPFL-WP-SC-People
+ * Description: provides a shortcode to display results from People
  * Version: 1.1
  * Author: Emmanuel JAEP
  * Author URI: https://people.epfl.ch/emmanuel.jaep?lang=en
  * Contributors: LuluTchab, GregLeBarbar
  * License: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
-*/
+ **/
 
-function epfl_infoscience_log( $message )
-{
+function epfl_people_log( $message ) {
     if ( WP_DEBUG === true ) {
         if ( is_array( $message ) || is_object( $message ) ) {
             error_log( print_r( $message, true ) );
@@ -22,7 +21,7 @@ function epfl_infoscience_log( $message )
     }
 }
 
-function epfl_infoscience_url_exists( $url )
+function epfl_people_url_exists( $url )
 {
     $handle = curl_init( $url );
     curl_setopt( $handle, CURLOPT_RETURNTRANSFER, TRUE );
@@ -35,35 +34,38 @@ function epfl_infoscience_url_exists( $url )
     } else {
         return false;
     }
-
-    curl_close($handle);
+    curl_close( $handle );
 }
 
-function epfl_infoscience_process_shortcode( $attributes, $content = null )
+function epfl_people_process_shortcode( $attributes, $content = null )
 {
     $attributes = shortcode_atts( array(
         'url' => ''
-    ), $attributes);
+    ), $attributes );
 
     // Sanitize parameter
     $url = sanitize_text_field( $attributes['url'] );
 
     // Check if the result is already in cache
-    $result = wp_cache_get( $url, 'epfl_infoscience' );
-    if ( false === $result ){
-        if ( strcasecmp( parse_url( $url, PHP_URL_HOST ), 'infoscience.epfl.ch' ) == 0 && epfl_infoscience_url_exists( $url ) ) {
+    $result = wp_cache_get( $url, 'epfl_people' );
 
+    if ( false === $result ){
+
+        // Make sure the content is actually coming from the people pages and does exist
+        if ( ( strcasecmp( parse_url( $url, PHP_URL_HOST ), 'people.epfl.ch' ) == 0 or strcasecmp( parse_url( $url, PHP_URL_HOST ), 'test-people.epfl.ch' ) == 0 ) && epfl_people_url_exists( $url ) ) {
+
+            // Get the content of the page
             $response = wp_remote_get( $url );
             $page = wp_remote_retrieve_body( $response );
 
             // cache the result
-            wp_cache_set( $url, $page, 'epfl_infoscience' );
+            wp_cache_set( $url, $page, 'epfl_people' );
 
             // return the page
             return $page;
         } else {
-            $error = new WP_Error( 'not found', 'The url passed is not part of Infoscience or is not found', $url );
-            epfl_infoscience_log( $error );
+            $error = new WP_Error( 'not found', 'The url passed is not part of people or is not found', $url );
+            epfl_people_log( $error );
         }
     } else {
         // Use cache
@@ -71,5 +73,6 @@ function epfl_infoscience_process_shortcode( $attributes, $content = null )
     }
 }
 
-add_shortcode( 'epfl_infoscience', 'epfl_infoscience_process_shortcode' );
+add_shortcode('epfl_people', 'epfl_people_process_shortcode');
+
 ?>
