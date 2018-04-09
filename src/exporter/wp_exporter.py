@@ -292,8 +292,7 @@ class WPExporter:
         for box in self.site.get_all_boxes():
 
             # first fix in shortcodes
-            for attribute in box.shortcode_attributes_to_fix:
-                box.content = self.fix_links_in_shortcode(box.content, old_url, new_url, attribute)
+            self.fix_links_in_shortcode(box, old_url, new_url)
 
             soup = BeautifulSoup(box.content, 'html5lib')
             soup.body.hidden = True
@@ -362,18 +361,19 @@ class WPExporter:
             soup = BeautifulSoup(content, 'html5lib')
             soup.body.hidden = True
 
+            # fix in HTML tags
             for url_mapping in self.urls_mapping:
-                # 'jahia_urls' contains a list of all URLs pointing on page. We arbitrary take the first of the list
-                old_url = url_mapping["jahia_urls"][0]
                 new_url = url_mapping["wp_url"]
+                for old_url in url_mapping["jahia_urls"]:
+                    self.fix_links_in_tag(
+                        soup=soup,
+                        old_url=old_url,
+                        new_url=new_url,
+                        tag_name="a",
+                        tag_attribute="href"
+                    )
 
-                self.fix_links_in_tag(
-                    soup=soup,
-                    old_url=old_url,
-                    new_url=new_url,
-                    tag_name="a",
-                    tag_attribute="href"
-                )
+                # TODO fix the links in the shortcodes
 
             # update the page
             wp_id = wp_page["id"]
@@ -382,7 +382,7 @@ class WPExporter:
 
             self.update_page_content(page_id=wp_id, content=content)
 
-    def fix_links_in_shortcode(self, content, old_url, new_url, attribute):
+    def fix_links_in_shortcode(self, box, old_url, new_url):
         """
         Fix the given attribute in shortcodes.
 
@@ -394,10 +394,11 @@ class WPExporter:
 
         image="/wp-content/uploads/2018/04/vignette_bois.png"
         """
-        old_attribute = '{}="{}"'.format(attribute, old_url)
-        new_attribute = '{}="{}"'.format(attribute, new_url)
+        for attribute in box.shortcode_attributes_to_fix:
+            old_attribute = '{}="{}"'.format(attribute, old_url)
+            new_attribute = '{}="{}"'.format(attribute, new_url)
 
-        return content.replace(old_attribute, new_attribute)
+            box.content = box.content.replace(old_attribute, new_attribute)
 
     def fix_links_in_tag(self, soup, old_url, new_url, tag_name, tag_attribute):
         """Fix the links in the given HTML tag"""
@@ -1035,7 +1036,6 @@ class WPExporter:
 
         # Add all rewrite jahia URI to WordPress URI
         for element in self.urls_mapping:
-
             wp_url = urlparse(element['wp_url']).path
 
             # Going through vanity URLs
