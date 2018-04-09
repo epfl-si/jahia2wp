@@ -62,7 +62,7 @@ function epfl_snippets_build_html( string $url, string $title, string $subtitle,
       $html .= '  </a>';
     }
 
-    $html .= '</div">';
+    $html .= '</div>';
     
     return $html;
 }
