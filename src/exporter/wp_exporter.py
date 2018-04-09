@@ -280,6 +280,7 @@ class WPExporter:
         Fix the links pointing to the given file. Following elements are processed:
         - All boxes
         - All banners (headers)
+        - Shortcodes
         """
 
         if "/files" not in file.path:
@@ -297,11 +298,15 @@ class WPExporter:
         # Looping through boxes
         for box in self.site.get_all_boxes():
 
+            # first fix in shortcodes
+            for attribute in box.shortcode_attributes_to_fix:
+                box.content = self.fix_links_in_shortcode(box.content, old_url, new_url, attribute)
+
             soup = BeautifulSoup(box.content, 'html5lib')
             soup.body.hidden = True
 
+            # fix in html tags
             for tag_name, tag_attribute in tag_attribute_tuples:
-
                 self.fix_links_in_tag(
                     soup=soup,
                     old_url=old_url,
@@ -365,7 +370,6 @@ class WPExporter:
             soup.body.hidden = True
 
             for url_mapping in self.urls_mapping:
-
                 # 'jahia_urls' contains a list of all URLs pointing on page. We arbitrary take the first of the list
                 old_url = url_mapping["jahia_urls"][0]
                 new_url = url_mapping["wp_url"]
@@ -385,8 +389,25 @@ class WPExporter:
 
             self.update_page_content(page_id=wp_id, content=content)
 
+    def fix_links_in_shortcode(self, content, old_url, new_url, attribute):
+        """
+        Fix the given attribute in shortcodes.
+
+        This will replace for example:
+
+        image="/files/51_recyclage/vignette_bois.png"
+
+        to:
+
+        image="/wp-content/uploads/2018/04/vignette_bois.png"
+        """
+        old_attribute = '{}="{}"'.format(attribute, old_url)
+        new_attribute = '{}="{}"'.format(attribute, new_url)
+
+        return content.replace(old_attribute, new_attribute)
+
     def fix_links_in_tag(self, soup, old_url, new_url, tag_name, tag_attribute):
-        """Fix the links in the given tag"""
+        """Fix the links in the given HTML tag"""
 
         tags = soup.find_all(tag_name)
 

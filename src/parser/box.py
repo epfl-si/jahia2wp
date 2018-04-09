@@ -26,6 +26,7 @@ class Box:
     TYPE_LINKS = "links"
     TYPE_RSS = "rss"
     TYPE_FILES = "files"
+    TYPE_SNIPPETS = "snippets"
     TYPE_SYNTAX_HIGHLIGHT = "syntaxHighlight"
     TYPE_KEY_VISUAL = "keyVisual"
     TYPE_MAP = "map"
@@ -47,6 +48,7 @@ class Box:
         "epfl:linksBox": TYPE_LINKS,
         "epfl:rssBox": TYPE_RSS,
         "epfl:filesBox": TYPE_FILES,
+        "epfl:snippetsBox": TYPE_SNIPPETS,
         "epfl:syntaxHighlightBox": TYPE_SYNTAX_HIGHLIGHT,
         "epfl:keyVisualBox": TYPE_KEY_VISUAL,
         "epfl:mapBox": TYPE_MAP,
@@ -62,7 +64,10 @@ class Box:
         self.set_type(element)
         self.title = Utils.get_tag_attribute(element, "boxTitle", "jahia:value")
         self.content = ""
+        # the shortcode attributes with URLs that must be fixed by the wp_exporter
+        self.shortcode_attributes_to_fix = []
         self.set_content(element, multibox)
+
 
     def set_type(self, element):
         """
@@ -118,6 +123,9 @@ class Box:
         # files
         elif self.TYPE_FILES == self.type:
             self.set_box_files(element)
+        # snippets
+        elif self.TYPE_SNIPPETS == self.type:
+            self.set_box_snippets(element)
         # syntaxHighlight
         elif self.TYPE_SYNTAX_HIGHLIGHT == self.type:
             self.set_box_syntax_highlight(element)
@@ -171,7 +179,12 @@ class Box:
         :param element:
         :return:
         """
-        self.content = '[epfl_grid]\n'
+        shortcode_outer_name = "epfl_grid"
+        shortcode_inner_name = "epfl_gridElem"
+
+        self.shortcode_attributes_to_fix = ["link", "image"]
+        self.site.register_shortcode_attribues(shortcode_inner_name, self.shortcode_attributes_to_fix)
+        self.content = '[{}]\n'.format(shortcode_outer_name)
 
         elements = element.getElementsByTagName("gridList")
 
@@ -193,10 +206,10 @@ class Box:
             if "/files" in image:
                 image = image[image.rfind("/files"):]
 
-            self.content += '[epfl_gridElem layout="{}" link="{}" title="{}" image="{}"][/epfl_gridElem]\n'.format(
-                layout, link, title, image)
+            self.content += '[{} layout="{}" link="{}" title="{}" image="{}"][/{}]\n'.format(
+                shortcode_inner_name, layout, link, title, image, shortcode_inner_name)
 
-        self.content += "[/epfl_grid]"
+        self.content += "[/{}]".format(shortcode_outer_name)
 
 
     def set_box_text(self, element, multibox=False):
@@ -268,7 +281,7 @@ class Box:
             template = 'default_list'
         else:
             template = Utils.get_tag_attribute(minidom.parseString(template_html), "jahia-resource", "key")
-        parameters['WP_tmpl'] = template
+        parameters['tmpl'] = "WP_" + template
 
         # in the parser we can't know the current language.
         # so we assign a string that we will replace by the current language in the exporter
@@ -313,10 +326,10 @@ class Box:
         """set the attributes of an include box"""
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
         if "://people.epfl.ch/cgi-bin/getProfiles?" in url:
-            url = url.replace("tmpl=", "WP_tmpl=")
-            self.content = "[epfl_people url={} /]".format(url)
+            url = url.replace("tmpl=", "tmpl=WP_")
+            self.content = '[epfl_people url="{}" /]'.format(url)
         else:
-            self.content = "[include url={}]".format(url)
+            self.content = '[remote_content url="{}"]'.format(url)
 
     def set_box_contact(self, element):
         """set the attributes of a contact box"""
@@ -360,7 +373,7 @@ class Box:
         if detail_items != "true":
             summary = "no"
 
-        self.content = "[feedzy-rss feeds=\"{}\" max=\"{}\" feed_title=\"{}\" summary=\"{}\" refresh=\"12_hours\"]"\
+        self.content = "[feedzy-rss feeds=\"{}\" max=\"{}\" feed_title=\"{}\" summary=\"{}\" refresh=\"12_hours\"]" \
             .format(feeds, max, feed_title, summary)
 
     def set_box_links(self, element):
@@ -387,6 +400,55 @@ class Box:
             content += '<li><a href="{}">{}</a></li>'.format(file_url, file_name)
         content += "</ul>"
         self.content = content
+
+    def set_box_snippets(self, element):
+        """set the attributes of a snippets box"""
+
+        # these attributes contain URLs that need to by fixed
+        self.shortcode_attributes_to_fix = ["url", "image", "big_image"]
+
+        snippets = element.getElementsByTagName("snippetListList")[0].getElementsByTagName("snippetList")
+
+        for snippet in snippets:
+            title = Utils.get_tag_attribute(snippet, "title", "jahia:value")
+            subtitle = Utils.get_tag_attribute(snippet, "subtitle", "jahia:value")
+            description = Utils.get_tag_attribute(snippet, "description", "jahia:value")
+            image = Utils.get_tag_attribute(snippet, "image", "jahia:value")
+            big_image = Utils.get_tag_attribute(snippet, "bigImage", "jahia:value")
+            enable_zoom = Utils.get_tag_attribute(snippet, "enableImageZoom", "jahia:value")
+
+            # fix the path for image
+            if "/files" in image:
+                image = image[image.rfind("/files"):]
+
+            # fix the path for big_image
+            if "/files" in big_image:
+                big_image = big_image[big_image.rfind("/files"):]
+
+            # escape
+            title = title.replace('"', '\\"')
+            subtitle = subtitle.replace('"', '\\"')
+            description = description.replace('"', '\\"')
+
+            url = ""
+
+            # url
+            if element.getElementsByTagName("url"):
+                # first check if we have a <jahia:url> (external url)
+                url = Utils.get_tag_attribute(snippet, "jahia:url", "jahia:value")
+
+                # if not we might have a <jahia:link> (internal url)
+                if url == "":
+                    uuid = Utils.get_tag_attribute(snippet, "jahia:link", "jahia:reference")
+
+                    if uuid in self.site.pages_by_uuid:
+                        page = self.site.pages_by_uuid[uuid]
+
+                        url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
+
+            self.content = '[epfl_snippets url="{}" title="{}" subtitle="{}" image="{}"' \
+                           ' big_image="{}" enable_zoom="{}" description="{}"]'\
+                .format(url, title, subtitle, image, big_image, enable_zoom, description)
 
     def set_box_syntax_highlight(self, element):
         """Set the attributes of a syntaxHighlight box"""
