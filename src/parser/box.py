@@ -356,8 +356,8 @@ class Box:
     def set_box_snippets(self, element):
         """set the attributes of a snippets box"""
 
-        # these attributes contain URLs that need to by fixed
-        self.shortcode_attributes_to_fix = ["url", "image", "big_image"]
+        # register the shortcode
+        self.site.register_shortcode(self, "epfl_snippets", ["url", "image", "big_image"])
 
         snippets = element.getElementsByTagName("snippetListList")[0].getElementsByTagName("snippetList")
 

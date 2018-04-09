@@ -51,6 +51,12 @@ class Site:
         # the site languages
         self.languages = []
 
+        # the WordPress shortcodes used in the site. The key is the shortcode name,
+        # and the value is the shortcode attributes containing URLs that must be
+        # fixed by the WPExporter, e.g.:
+        # {'epfl_snippets': ['url', 'image', 'big_image']}
+        self.shortcodes = {}
+
         for file in os.listdir(self.base_path):
             if file.startswith("export_"):
                 language = file[7:9]
@@ -483,6 +489,22 @@ class Site:
                     continue
 
                 self.files.append(File(name=file_name, path=path))
+
+    def register_shortcode(self, box, name, attributes):
+        """
+        Register the given shortcode.
+
+        :param box: the Box where the shortcode was found
+        :param name: the shortcode name
+        :param attributes: a list with the shortcode attributes that must be fixed by WPExporter
+        """
+
+        # save the attributes at the box level
+        box.shortcode_attributes_to_fix = attributes
+
+        # register the shortcode at the site level
+        if name not in self.shortcodes:
+            self.shortcodes[name] = attributes
 
     def get_all_boxes(self):
         """
