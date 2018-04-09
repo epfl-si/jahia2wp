@@ -490,13 +490,13 @@ class Site:
 
                 self.files.append(File(name=file_name, path=path))
 
-    def register_shortcode(self, box, name, attributes):
+    def register_shortcode(self, name, attributes, box):
         """
         Register the given shortcode.
 
-        :param box: the Box where the shortcode was found
         :param name: the shortcode name
         :param attributes: a list with the shortcode attributes that must be fixed by WPExporter
+        :param box: the Box where the shortcode was found
         """
 
         # save the attributes at the box level

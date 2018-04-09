@@ -357,7 +357,7 @@ class Box:
         """set the attributes of a snippets box"""
 
         # register the shortcode
-        self.site.register_shortcode(self, "epfl_snippets", ["url", "image", "big_image"])
+        self.site.register_shortcode("epfl_snippets", ["url", "image", "big_image"], self)
 
         snippets = element.getElementsByTagName("snippetListList")[0].getElementsByTagName("snippetList")
 
