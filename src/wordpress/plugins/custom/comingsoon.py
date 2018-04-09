@@ -13,7 +13,7 @@ class WPComingSoonConfig(WPPluginConfig):
         # configure options
         logging.info("{} - ComingSoon - Setting options...".format(self.wp_site))
 
-        # Loading current configuration (which is an empty hashtable with configuration options
+        # Loading current configuration (which is an empty hashtable with configuration options)
         option = json.loads(self.run_wp_cli('option get seed_csp4_settings_content --format=json'))
 
         # Setting options
