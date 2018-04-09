@@ -45,8 +45,8 @@ Usage:
   jahia2wp.py update-plugins-many   <csv_file>                      [--debug | --quiet]
     [--force] [--plugin=<PLUGIN_NAME>]
   jahia2wp.py global-report <csv_file> [--output-dir=<OUTPUT_DIR>] [--use-cache] [--debug | --quiet]
-  jahia2wp.py ventilate-urls <csv_file> <wp_env>                    [--debug | --quiet]
-    [--context=<intra|inter|full>]
+  jahia2wp.py migrate-urls <csv_file> <wp_env>                    [--debug | --quiet]
+    --root_wp_dest=</srv/../epfl,/srv/../inside> [--context=<intra|inter|full>]
 
 Options:
   -h --help                 Show this screen.
@@ -86,6 +86,7 @@ from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
 from sys import stderr
 import pprint
+from time import time as tt
 
 
 def _check_site(wp_env, wp_url, **kwargs):
@@ -826,42 +827,46 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
         for site in sites:
             writer.writerow(site.get_report_info(box_types))
 
-@dispatch.on('ventilate-urls')
-def url_mapping(csv_file, wp_env, context='intra', **kwargs):
+
+@dispatch.on('migrate-urls')
+def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_inventory=False, **kwargs):
     """
     :param csv_file: CSV containing the URL mapping rules for source and destination.
     :param context: intra, inter, full. Replace the occurrences at intra, inter or both.
-    
-    It takes the mapping rules in a CSV, with 2 columns each: source => destination, 
-    where both are URLs in WP instances. The first row of the CSV are treated as 
-    headers. 
-    
-    It first validates the format of the CSV, where source can refer to a whole site, 
-    a path or a leaf (page). It can fix automatically the CSV, 
-    by removing or adding trailing slashes and peforming other checks. If the CSV is 
-    correct, the process will continue otherwise it will stop. 
-    The CSV will also be  sorted by rule specificity from specific to generic. The CSV 
-    is then split by site in an effort to treat them in parallel. 
-    
-    For each site, all the post URLs are obtained from its WP instance in a python 
-    structure using WP-CLI. 
-    
-    The URLs are then matched to the rules extracted for the site. The first match is 
-    taken and if no match, an alert is raised. 
-    
-    Once an URL has been matched, its content (including pages and subpages if it's a 
-    site or path) are ready to be moved into the new location. 
-    
-    The resulting post(s) to be moved are inserted by hierarchy to make sure the parent 
-    content is present before inserting sub-posts. 
-    
-    When trying to run it in parallel, consider that the bottlneck will be the writes at 
-    the destination, since n sites will be migrated to a smaller number k destinations 
-    (likely 2 main: www.epfl.ch and inside.epfl.ch). 
+
+    It takes the mapping rules in a CSV, with 2 columns each: source => destination,
+    where both are URLs in WP instances. The first row of the CSV are treated as
+    headers.
+
+    It first validates the format of the CSV, where source can refer to a whole site,
+    a path or a leaf (page). It can fix automatically the CSV,
+    by removing or adding trailing slashes and peforming other checks. If the CSV is
+    correct, the process will continue otherwise it will stop.
+    The CSV will also be  sorted by rule specificity from specific to generic. The CSV
+    is then split by site in an effort to treat them in parallel.
+
+    For each site, all the post URLs are obtained from its WP instance in a python
+    structure using WP-CLI.
+
+    The URLs are then matched to the rules extracted for the site. The first match is
+    taken and if no match, an alert is raised.
+
+    Once an URL has been matched, its content (including pages and subpages if it's a
+    site or path) are ready to be moved into the new location.
+
+    The resulting post(s) to be moved are inserted by hierarchy to make sure the parent
+    content is present before inserting sub-posts.
+
+    When trying to run it in parallel, consider that the bottlneck will be the writes at
+    the destination, since n sites will be migrated to a smaller number k destinations
+    (likely 2 main: www.epfl.ch and inside.epfl.ch).
     """
-    if not context: context = 'intra'
-    
+    if not context:
+        context = 'intra'
+
     # Extract all the sites as site (key) => paths (value)
+    logging.info('Rule parsing...')
+    t = tt()
     rulesets = {}
     rows = Utils.csv_filepath_to_dict(csv_file)
     local_env = 'https://jahia2wp-httpd/{}'
@@ -876,7 +881,7 @@ def url_mapping(csv_file, wp_env, context='intra', **kwargs):
         # 1. Root path = sitename = full site
         # 2. Partial Path = Intermediate path with children
         # 3. Full path = a leaf / page with no children.
-        # It's expected to find * in the rules but its absence has the same 
+        # It's expected to find * in the rules but its absence has the same
         # meaning (i.e. apply the rule to all the sub-content under the path
         # Sytactically, only 2 cases will be detected: root and non-root path.
         rule_type = 'path'
@@ -888,31 +893,33 @@ def url_mapping(csv_file, wp_env, context='intra', **kwargs):
             site = local_env.format(site_name)
             source = local_env.format(source)
         else:
-            site = '{}//{}'.format(source.split('//').pop(0), site_name) 
-            rule_type = 'root' if source.split('//').pop().strip('/') == site_name else 'path'
+            site = '{}//{}'.format(source.split('//').pop(0), site_name)
+            rule_type = 'root' if source.split(
+                '//').pop().strip('/') == site_name else 'path'
         dest = row['destination']
         if 'http://' not in dest and 'https://' not in dest:
             # Local development case, append the host
             dest = local_env.format(dest)
         # Start with an empty ruleset
-        if site not in rulesets: rulesets[site] = []
+        if site not in rulesets:
+            rulesets[site] = []
         # Append the URL to the site's list
         rulesets[site].append((source, dest, rule_type))
-    logging.info("{0} total sites found.".format(len(rulesets)))
+    logging.info("{} total sites found.".format(len(rulesets)))
     logging.debug(rulesets)
-    
-    
-    
-    
-    # Iterate over all the sites to map and dump a CSV with the pages and 
-    # another one for the media / attachments. This will *greatly simplify* the 
+
+    # Iterate over all the sites to map and dump a CSV with the pages and
+    # another one for the media / attachments. This will *greatly simplify* the
     # reinsertion.
     # Create a copy of the keys in a list to avoid dict changing warnings.
+    logging.info('[{:.2f}s] CSV dumping...'.format(tt()-t))
+    t = tt()
     files = {}
     medias = {}
+    # Create a copy of the keys to allow changes on the keyset
     for site in list(rulesets.keys()):
         logging.info('Treating site {}'.format(site))
-        # Load wp_config using existing functions, can't use _check_site since it exits 
+        # Load wp_config using existing functions, can't use _check_site since it exits
         # if the site does not exist or is invalid.
         wp_conf = WPConfig(WPSite(wp_env, site))
         if not wp_conf.is_installed or not wp_conf.is_config_valid:
@@ -921,20 +928,22 @@ def url_mapping(csv_file, wp_env, context='intra', **kwargs):
             # Remove the site and its ruleset, no cross-reference will be updated (no need)
             del rulesets[site]
             continue
-        
+
         # Dump the site content in plain CSV format.
         logging.info("Dumping CSV for site {}".format(site))
         # All the fields to retrieve from the wp_post table
         fields = 'ID,post_title,post_name,post_parent,url,post_status,post_content'
-        # Only pages, all without paging. Sort them by post_parent ascendantly for ease of 
+        # Only pages, all without paging. Sort them by post_parent ascendantly for ease of
         # reinsertion to insert first parent pages and avoiding parentless children.
         params = '--post_type=page --nopaging --order=asc --orderby=post_parent --fields={} --format=csv'
         cmd = 'wp post list ' + params + ' --path={} > {}'
         csv_f = site.split('/').pop() + '.csv'
         files[site] = csv_f
         cmd = cmd.format(fields, wp_conf.wp_site.path, csv_f)
-        logging.info(cmd)
+        logging.debug(cmd)
         Utils.run_command(cmd, 'utf8')
+        # Backup file
+        shutil.copyfile(csv_f, csv_f + '.bak')
         # Dump media / attachments
         fields = 'ID,post_title,post_name,post_parent,post_status,guid'
         params = '--post_type=attachment --nopaging --order=asc --fields={} --format=csv'
@@ -942,20 +951,21 @@ def url_mapping(csv_file, wp_env, context='intra', **kwargs):
         csv_m = site.split('/').pop() + '_media.csv'
         medias[site] = csv_m
         cmd = cmd.format(fields, wp_conf.wp_site.path, csv_m)
-        logging.info(cmd)
+        logging.debug(cmd)
         Utils.run_command(cmd, 'utf8')
-    
-    
-    
-    
+        # Backup file
+        shutil.copyfile(csv_m, csv_m + '.bak')
+
     # Sort the rules from most generic to specific or the reverse (-1).
+    logging.info('[{:.2f}s] Rule sorting...'.format(tt()-t))
+    t = tt()
     for site in rulesets:
         rulesets[site].sort(key=lambda rule: len(rule[0].split('/')) * -1)
     # print(rulesets)
-        
+
     # At this point all the CSV files are generated and stored by sitename*
     # Iterate over the rules and start applying them first to the post URL
-    
+
     # Some stats for different replacement tools:
     # time perl -i -pe's/dcsl/dcsl2/g' dcsl.json;                     # 0m0.007s
     # time sed -i 's/dcsl/dcsl2/g' dcsl.json;                         # 0m0.002s
@@ -970,44 +980,52 @@ def url_mapping(csv_file, wp_env, context='intra', **kwargs):
                 line = line.replace('dcsl','dcsl2')
                 print(line, end='')
     """
-    
+
+    logging.info('[{:.2f}s] Starting rule execution to replace URLs...'.format(tt()-t))
+    t = tt()
     stats = {}
     site_keys = rulesets.keys()
-    for site in list(site_keys):
-        if site not in stats: stats[site] = {}
-        for site2 in list(site_keys):
-            # Intersite replacements: This is important to make sure that external links coming from other sites point 
-            # to the right / new location. It will be a NxN check that will be time consuming. That's the reason why 
+    for site in site_keys:
+        if site not in stats:
+            stats[site] = {}
+        for site2 in site_keys:
+            # Intersite replacements: This is important to make sure that external links coming from other sites point
+            # to the right / new location. It will be a NxN check that will be time consuming. That's the reason why
             # it's separated in a different block to let factorise it and add extra options to run it or not.
             if context == 'intra' and site != site2:
                 continue
-            # Intrasite replacements: All the links inside the site will be replaced 
-            # according to the URL rules. There is no semantics yet like checking for 
-            # a ressource existence (e.g. images). A separate structure will be used 
-            # to map back images to port. 
+            # Intrasite replacements: All the links inside the site will be replaced
+            # according to the URL rules. There is no semantics yet like checking for
+            # a ressource existence (e.g. images). A separate structure will be used
+            # to map back images to port.
             if context == 'inter' and site == site2:
                 continue
-        
+
             # Target CSV file where to search matches to the rules of the current site.
             csv_f = files[site2]
             csv_m = medias[site2]
             # Ruleset for the site, IMPORTANT: the order has to be specific to generic
             ruleset = rulesets[site]
-            if site2 not in stats[site]: stats[site][site2] = []
+            if site2 not in stats[site]:
+                stats[site][site2] = []
             for (source, dest, _) in ruleset:
                 # Check both protocols, don't trust the source / content
                 matches = {}
                 for prot in ['https', 'http']:
                     _source = source
-                    if prot + '://' not in _source: _source = prot + '://' + _source.split('//').pop() 
-                    cmd_m = cmd = "awk 'END{{print t > \"/dev/stderr\"}} {{t+=gsub(\"{0}\",\"{1}\")}}1' {2} > {2}.tmp && mv {2}.tmp {2}"
+                    if prot + '://' not in _source:
+                        _source = prot + '://' + _source.split('//').pop()
+                    cmd = "awk 'END{{print t > \"/dev/stderr\"}}"
+                    cmd_m = cmd = cmd + " {{t+=gsub(\"{0}\",\"{1}\")}}1' {2} > {2}.1 && mv {2}.1 {2}"
                     cmd = cmd.format(_source, dest, csv_f)
                     cmd_m = cmd_m.format(_source, dest, csv_m)
-                    logging.debug(cmd)
-                    # AWK is counting the replacement occurrences in the stderr. 
-                    proc = subprocess.run(cmd, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
-                    proc_m = subprocess.run(cmd_m, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
-                    # This has to be a number normally, but it can also contain return errors, to be analized 
+                    logging.debug(cmd, cmd_m)
+                    # AWK is counting the replacement occurrences in the stderr.
+                    proc = subprocess.run(
+                        cmd, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
+                    proc_m = subprocess.run(
+                        cmd_m, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
+                    # This has to be a number normally, but it can also contain return errors, to be analized
                     reps = proc.stderr.strip()
                     matches[prot] = reps
                 try:
@@ -1017,12 +1035,92 @@ def url_mapping(csv_file, wp_env, context='intra', **kwargs):
                 stats[site][site2].append((tot_reps, source, dest, matches))
     pp = pprint.PrettyPrinter(indent=4)
     pp.pprint(stats)
-    
-    
-    
-    
-    #
-    
+
+    # At this point all the CSV files have the right URLs in place. It is the moment to effectively migrate
+    # the content (pages and files / media)
+    # ASSUMPTION: All the content is to migrate, there is no content to left behind (e.g. old pages). In any
+    # case, such content can be removed later in the target destination.
+    # The migration / insertion of the content is performed by site but it can be parallelised in lots of n
+    # sites out of the N, the right value is to define while testing according to the available ressources.
+
+    logging.info('[{:.2f}s] Parsing target WP instances (inventory)...'.format(tt()-t))
+    t = tt()
+    # Obtain the list of the WP instances in the destination root folders (e.g. /srv/hmuriel/httpd/epfl)
+    if not root_wp_dest:
+        raise SystemExit("No target location to scan for WP instances")
+    # Split the root to get the target sites
+    target_sites = {}
+    for path in root_wp_dest.split(','):
+        # The path must be absolute
+        if not os.path.isabs(path):
+            logging.warn(
+                'The target site path is not absolute: {}. skipping...'.format(path))
+        else:
+            # Using inventory() method == SLOW.... test: 15s
+            if use_inventory:
+                for site in WPConfig.inventory(path):
+                    if site.valid != 'ok':
+                        logging.warn(
+                            'Target site not valid: {}, skipping...'.format(site.path))
+                    else:
+                        target_sites[site.url] = site.path
+            else:
+                # Scan for valid instances in the target path (FAST method),
+                # test: 0.3s, test with wpcli check: 5.5s
+                # Find wp-config.php in the paths
+                dirs = Utils.run_command(
+                    'find "' + path + '" -name "wp-config.php" -exec dirname "{}" \;')
+                dirs = dirs.split('\n')
+                # Create a WP Site per matching dir and get its URL
+                # Doing it this way since WP site has some checks for the path and URL building.
+                for path in dirs:
+                    wp_site = WPSite.from_path(path)
+                    if wp_site:
+                        # wp_config = WPConfig(wp_site)
+                        # if wp_config.is_config_valid:
+                        target_sites[wp_site.url] = path
+
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(target_sites)
+    target_sites_keys = target_sites.keys()
+
+    logging.info(
+        '[{:.2f}s], Preparing insertion in target WP instances...'.format(tt()-t))
+    t = tt()
+    for site in site_keys:
+        # Source CSV files from where to take the content
+        # Start with the pages since it'll be faster than the media
+        csv_f = files[site]
+        pages = Utils.csv_filepath_to_dict(csv_f)
+        for p in pages:
+            # Exceptions
+            if p['post_name'] == 'sitemap':
+                continue
+            # Find the longest matching URL among the target sites
+            matches = [s for s in target_sites_keys if s in p['url']]
+            if matches:
+                max_match = '/'.join(max([m.split('/') for m in matches]))
+                print(max_match, p['url'])
+                # params = '--post_status="{}"" --post_name="{}" --post_title="{}" --post_parent={}'
+                # params = params.format(p['post_status'], p['post_name'],
+                #              p['post_title'], p['post_parent'])
+                # cmd = 'pll post create --post_type=page --porcelain ' + \
+                #    params + ' --url="{}" --path={} --stdin'
+                # cmd = cmd.format(p['url'], target_sites[max_match])
+                # print(cmd.encode('utf8'))
+                cmd = "echo '{}'| wp pll post create --post_type=page --porcelain --stdin --path={}"
+                cmd = cmd.format(json.dumps(p), target_sites[max_match])
+                print(cmd)
+                # Utils.run_command(cmd, 'utf8')
+                # self.run_wp_cli(cmd, pipe_input=p['post_content'])
+            break
+    logging.info(
+        '[{:.2f}s], Preparing media insertion in target WP instances...'.format(tt()-t))
+    t = tt()
+    for site in site_keys:
+        # The media are the last to be inserted since it will take longer.
+        csv_m = medias[site]
+
 
 if __name__ == '__main__':
 
