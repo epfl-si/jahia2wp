@@ -55,15 +55,18 @@ class Box:
     UPDATE_LANG = "UPDATE_LANG_BY_EXPORTER"
 
     def __init__(self, site, page_content, element, multibox=False):
+        # attributes
         self.site = site
         self.page_content = page_content
         self.type = ""
         self.set_type(element)
         self.title = Utils.get_tag_attribute(element, "boxTitle", "jahia:value")
         self.content = ""
-        self.set_content(element, multibox)
         # the shortcode attributes with URLs that must be fixed by the wp_exporter
         self.shortcode_attributes_to_fix = []
+
+        # parse the content
+        self.set_content(element, multibox)
 
     def set_type(self, element):
         """
