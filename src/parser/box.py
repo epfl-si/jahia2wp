@@ -58,6 +58,7 @@ class Box:
     UPDATE_LANG = "UPDATE_LANG_BY_EXPORTER"
 
     def __init__(self, site, page_content, element, multibox=False):
+        # attributes
         self.site = site
         self.page_content = page_content
         self.type = ""
@@ -68,6 +69,9 @@ class Box:
         self.shortcode_attributes_to_fix = []
         self.set_content(element, multibox)
 
+
+        # parse the content
+        self.set_content(element, multibox)
 
     def set_type(self, element):
         """
@@ -404,8 +408,8 @@ class Box:
     def set_box_snippets(self, element):
         """set the attributes of a snippets box"""
 
-        # these attributes contain URLs that need to by fixed
-        self.shortcode_attributes_to_fix = ["url", "image", "big_image"]
+        # register the shortcode
+        self.site.register_shortcode("epfl_snippets", ["url", "image", "big_image"], self)
 
         snippets = element.getElementsByTagName("snippetListList")[0].getElementsByTagName("snippetList")
 
