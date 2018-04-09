@@ -69,7 +69,6 @@ class Box:
         self.shortcode_attributes_to_fix = []
         self.set_content(element, multibox)
 
-
         # parse the content
         self.set_content(element, multibox)
 
@@ -186,8 +185,9 @@ class Box:
         shortcode_outer_name = "epfl_grid"
         shortcode_inner_name = "epfl_gridElem"
 
-        self.shortcode_attributes_to_fix = ["link", "image"]
-        self.site.register_shortcode_attribues(shortcode_inner_name, self.shortcode_attributes_to_fix)
+        # register the shortcode
+        self.site.register_shortcode(shortcode_inner_name, ["link", "image"], self)
+
         self.content = '[{}]\n'.format(shortcode_outer_name)
 
         elements = element.getElementsByTagName("gridList")
@@ -214,7 +214,6 @@ class Box:
                 shortcode_inner_name, layout, link, title, image, shortcode_inner_name)
 
         self.content += "[/{}]".format(shortcode_outer_name)
-
 
     def set_box_text(self, element, multibox=False):
         """set the attributes of a text box
@@ -408,8 +407,9 @@ class Box:
     def set_box_snippets(self, element):
         """set the attributes of a snippets box"""
 
+        shortcode_name = "epfl_snippets"
         # register the shortcode
-        self.site.register_shortcode("epfl_snippets", ["url", "image", "big_image"], self)
+        self.site.register_shortcode(shortcode_name, ["url", "image", "big_image"], self)
 
         snippets = element.getElementsByTagName("snippetListList")[0].getElementsByTagName("snippetList")
 
@@ -420,14 +420,6 @@ class Box:
             image = Utils.get_tag_attribute(snippet, "image", "jahia:value")
             big_image = Utils.get_tag_attribute(snippet, "bigImage", "jahia:value")
             enable_zoom = Utils.get_tag_attribute(snippet, "enableImageZoom", "jahia:value")
-
-            # fix the path for image
-            if "/files" in image:
-                image = image[image.rfind("/files"):]
-
-            # fix the path for big_image
-            if "/files" in big_image:
-                big_image = big_image[big_image.rfind("/files"):]
 
             # escape
             title = title.replace('"', '\\"')
@@ -450,9 +442,9 @@ class Box:
 
                         url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
 
-            self.content = '[epfl_snippets url="{}" title="{}" subtitle="{}" image="{}"' \
+            self.content = '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
                            ' big_image="{}" enable_zoom="{}" description="{}"]'\
-                .format(url, title, subtitle, image, big_image, enable_zoom, description)
+                .format(shortcode_name, url, title, subtitle, image, big_image, enable_zoom, description)
 
     def set_box_syntax_highlight(self, element):
         """Set the attributes of a syntaxHighlight box"""

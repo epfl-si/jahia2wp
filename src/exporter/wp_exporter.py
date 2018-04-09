@@ -2,6 +2,7 @@
 import logging
 import os
 import sys
+import re
 from parser.box import Box
 from math import floor
 import timeit
@@ -365,6 +366,33 @@ class WPExporter:
             else:
                 logging.error("Expected content for page %s" % wp_page)
 
+            # fix in shortcode attributes
+            for url_mapping in self.urls_mapping:
+                new_url = url_mapping["wp_url"]
+                for old_url in url_mapping["jahia_urls"]:
+
+                    for shortcode, attributes_list in self.site.shortcodes.items():
+
+                        if shortcode == 'epfl_gridElem':
+                            lc = True
+                        search = re.compile('[{} .*]'.format(shortcode))
+
+                        # Looping through founded shortcodes
+                        # ex: [epfl_infoscience url="<url>"]
+                        for code in search.findall(content):
+                            old_code = code
+
+                            # Looping through shortcodes attributes to update
+                            for attribute in attributes_list:
+                                old_attribute = '{}="{}"'.format(attribute, old_url)
+                                new_attribute = '{}="{}"'.format(attribute, new_url)
+
+                                # Update attribute in shortcode
+                                code = code.replace(old_attribute, new_attribute)
+
+                            # Replace shortcode with the one updated with new urls
+                            content = content.replace(old_code, code)
+
             soup = BeautifulSoup(content, 'html5lib')
             soup.body.hidden = True
 
@@ -379,8 +407,6 @@ class WPExporter:
                         tag_name="a",
                         tag_attribute="href"
                     )
-
-                # TODO fix the links in the shortcodes
 
             # update the page
             wp_id = wp_page["id"]
