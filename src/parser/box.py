@@ -359,6 +359,10 @@ class Box:
         # register the shortcode
         self.site.register_shortcode("epfl_snippets", ["url", "image", "big_image"], self)
 
+        # check if the list is not empty
+        if not element.getElementsByTagName("snippetListList"):
+            return
+
         snippets = element.getElementsByTagName("snippetListList")[0].getElementsByTagName("snippetList")
 
         for snippet in snippets:
