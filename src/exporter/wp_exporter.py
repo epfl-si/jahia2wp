@@ -13,7 +13,6 @@ from wordpress_json import WordpressJsonWrapper, WordpressError
 import settings
 from exporter.utils import Utils
 from utils import Utils as WPUtils
-from urllib.parse import urlparse
 from parser.file import File
 
 
