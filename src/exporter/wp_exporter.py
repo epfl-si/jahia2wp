@@ -1050,9 +1050,10 @@ class WPExporter:
                 # We skip this redirection to avoid infinite redirection...
                 if jahia_url != "/index.html":
                     source_url = "{}{}".format(folder, jahia_url)
+                    target_url = "{}{}".format(folder, wp_url)
                     # To avoid Infinite loop
-                    if source_url != wp_url[:-1]:
-                        redirect_list.append("Redirect 301 {} {}".format(source_url,  wp_url))
+                    if source_url != target_url[:-1]:
+                        redirect_list.append("Redirect 301 {} {}".format(source_url,  target_url))
 
         if redirect_list:
             # Updating .htaccess file
