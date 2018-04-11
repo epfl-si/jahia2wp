@@ -788,7 +788,7 @@ class WPExporter:
                 # menu entry is page
                 else:
                     # Trying to get corresponding page corresponding to current page UUID
-                    child = self.site.homepage.get_child_with_uuid(menu_item.target, 3)
+                    child = self.site.homepage.get_child_with_uuid(menu_item.target, 4)
 
                     if child is None:
                         logging.error("Submenu creation: No page found for UUID %s", menu_item.target)
@@ -964,11 +964,13 @@ class WPExporter:
         Delete all pages in DRAFT status
         """
         cmd = "post list --post_type='page' --post_status=draft --format=csv --field=ID"
-        pages_id_list = self.run_wp_cli(cmd).split("\n")[1:]
-        for page_id in pages_id_list:
-            cmd = "post delete {} --force".format(page_id)
-            self.run_wp_cli(cmd)
-        logging.info("All pages in DRAFT status deleted")
+        pages_id_list = self.run_wp_cli(cmd)
+
+        if not pages_id_list:
+            for page_id in pages_id_list.split("\n")[1:]:
+                cmd = "post delete {} --force".format(page_id)
+                self.run_wp_cli(cmd)
+            logging.info("All pages in DRAFT status deleted")
 
     def delete_pages(self):
         """
