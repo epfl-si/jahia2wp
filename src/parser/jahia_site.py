@@ -784,3 +784,6 @@ Parsed for %s :
 
         for tag in num_tags_ordered:
             self.report += "    - <%s> %s\n" % (tag, self.num_tags[tag])
+
+    def __repr__(self):
+        return self.name
