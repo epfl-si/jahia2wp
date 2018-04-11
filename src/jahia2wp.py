@@ -1148,9 +1148,6 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
             # ATTENTION: Selecting the page in EN since all URLs will be rewritten
             # in english.
             p_en = page_langs['en']
-            # Exceptions
-            if p_en['post_name'] == 'sitemap':
-                continue
             logging.info("Page {} {}".format(p_en['post_name'], p_en['url']))
             # Find the longest matching URL among the target sites
             matches = [s for s in dest_sites_keys if s in p_en['url']]
