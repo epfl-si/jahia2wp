@@ -294,7 +294,7 @@ class Box:
         xml = Utils.get_tag_attribute(element, "xml", "jahia:value")
         xslt = Utils.get_tag_attribute(element, "xslt", "jahia:value")
 
-        self.content = "[epfl_xml xml=%s xslt=%s]" % (xml, xslt)
+        self.content = '[epfl_xml xml="%s" xslt="%s"]' % (xml, xslt)
 
     def set_box_rss(self, element):
         """set the attributes of an rss box"""
