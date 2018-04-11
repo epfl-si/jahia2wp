@@ -53,25 +53,29 @@ function epfl_news_template_text_only($news): string
  */
 function epfl_news_template_fac_with_4_news($news, bool $stickers): string
 {
-    $html = '<div>';
-    $html .= '<p>template_fac_with_4_news</p>';
+    $html = '<p>template_labo_with_4_news</p>';
+    $html .= '<div class="list-articles list-news list-news-first-featured clearfix">';
 	foreach ($news->results as $item) {
-		$html .= '<div style="height: 103px;">';
-		$html .= '  <a style="float:left;" href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
-		$html .= '    <img style="width: 169px;" src="' . $item->visual_url . '" title="">';
-		$html .= '  </a>';
-		$html .= '  <div style="display:inline-block;margin-left:5px;">';
-		$html .= '    <h4>';
-		$html .= '      <a href="/news/how-the-tuberculosis-bacterium-tricks-the-immune-5/" target="_blank">';
+		$html .= '<article class="post">';
+		$html .= '  <figure class="post-thumbnail">';
+		$html .= '    <a href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
+		$html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
+		$html .= '    </a>';
+		$html .= '  </figure>';
+		$html .= '  <header class="entry-header">';
+		$html .= '    <h2 class="entry-title">';
+		$html .= '      <a href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
 		$html .= $item->title;
 		$html .= '      </a>';
-		$html .= '    </h4>';
-		$html .= '    <p>';
-		$html .= '      <span class="date">' . $item->publish_date . ' -</span>';
-		$html .= '      <span class="heading" style="display:inline">' . substr($item->subtitle, 0, 40) . '</span>';
-        $html .= '    </p>';
+		$html .= '    </h2>';
+		$html .= '  </header>';
+		$html .= '  <div class="entry-content">';
+		$html .= '    <div class="entry-meta">';
+		$html .= '      <time class="entry-date">12.12.12</time>';
+		$html .= '    </div>';
+		$html .= '    <div class="teaser">' . substr($item->subtitle, 0, 240) . '</div>';
 		$html .= '  </div>';
-		$html .= '</div>';
+		$html .= '</article>';
     }
     $html .= '</div>';
     return $html;
@@ -86,25 +90,29 @@ function epfl_news_template_fac_with_4_news($news, bool $stickers): string
  */
 function epfl_news_template_labo_with_5_news($news, bool $stickers): string
 {
-    $html = '<div>';
-    $html .= '<p>template_labo_with_5_news</p>';
+    $html = '<p>template_labo_with_5_news</p>';
+    $html .= '<div class="list-articles list-news clearfix">';
 	foreach ($news->results as $item) {
-		$html .= '<div style="height: 103px;">';
-		$html .= '  <a style="float:left;" href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
-		$html .= '    <img style="width: 169px;" src="' . $item->visual_url . '" title="">';
-		$html .= '  </a>';
-		$html .= '  <div style="display:inline-block;margin-left:5px;">';
-		$html .= '    <h4>';
-		$html .= '      <a href="/news/how-the-tuberculosis-bacterium-tricks-the-immune-5/" target="_blank">';
+		$html .= '<article class="post">';
+		$html .= '  <header class="entry-header">';
+		$html .= '    <h2 class="entry-title">';
+		$html .= '      <a href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
 		$html .= $item->title;
 		$html .= '      </a>';
-		$html .= '    </h4>';
-		$html .= '    <p>';
-		$html .= '      <span class="date">' . $item->publish_date . ' -</span>';
-		$html .= '      <span class="heading" style="display:inline">' . substr($item->subtitle, 0, 40) . '</span>';
-        $html .= '    </p>';
+		$html .= '    </h2>';
+		$html .= '  </header>';
+		$html .= '  <figure class="post-thumbnail">';
+		$html .= '    <a href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
+		$html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
+		$html .= '    </a>';
+		$html .= '  </figure>';
+		$html .= '  <div class="entry-content">';
+		$html .= '    <div class="entry-meta">';
+		$html .= '      <time class="entry-date">' . $item->publish_date . '</time>';
+		$html .= '    </div>';
+		$html .= '    <div class="teaser">' . substr($item->subtitle, 0, 240) . '</div>';
 		$html .= '  </div>';
-		$html .= '</div>';
+		$html .= '</article>';
     }
     $html .= '</div>';
     return $html;
@@ -119,8 +127,8 @@ function epfl_news_template_labo_with_5_news($news, bool $stickers): string
  */
 function epfl_news_template_labo_with_3_news($news, bool $stickers): string
 {
-    $html = '<div>';
-    $html .= '<p>template_labo_with_3_news</p>';
+    $html = '<p>template_labo_with_3_news</p>';
+    $html .= '<div class="list-articles list-news clearfix">';
 	foreach ($news->results as $item) {
 
 	    // print fr and en category
@@ -134,22 +142,26 @@ function epfl_news_template_labo_with_3_news($news, bool $stickers): string
         $publish_date = new DateTime($item->publish_date);
 	    $publish_date = $publish_date->format('d.m.Y');
 
-		$html .= '<div style="height: 103px;">';
-		$html .= '  <a style="float:left;" href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
-		$html .= '    <img style="width: 169px;" src="' . $item->visual_url . '" title="">';
-		$html .= '  </a>';
-		$html .= '  <div style="display:inline-block;margin-left:5px;">';
-		$html .= '    <h4>';
-		$html .= '      <a href="/news/how-the-tuberculosis-bacterium-tricks-the-immune-5/" target="_blank">';
+		$html .= '<article class="post">';
+		$html .= '  <header class="entry-header">';
+		$html .= '    <h2 class="entry-title">';
+		$html .= '      <a href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
 		$html .= $item->title;
 		$html .= '      </a>';
-		$html .= '    </h4>';
-		$html .= '    <p>';
-		$html .= '      <span class="date">' . $publish_date . ' -</span>';
-		$html .= '      <span class="heading" style="display:inline">' . substr($item->subtitle, 0, 40) . '</span>';
-        $html .= '    </p>';
+		$html .= '    </h2>';
+		$html .= '  </header>';
+		$html .= '  <figure class="post-thumbnail">';
+		$html .= '    <a href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
+		$html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
+		$html .= '    </a>';
+		$html .= '  </figure>';
+		$html .= '  <div class="entry-content">';
+		$html .= '    <div class="entry-meta">';
+		$html .= '      <time class="entry-date">' . $publish_date . '</time>';
+		$html .= '    </div>';
+		$html .= '    <div class="teaser">' . substr($item->subtitle, 0, 240) . '</div>';
 		$html .= '  </div>';
-		$html .= '</div>';
+		$html .= '</article>';
     }
     $html .= '</div>';
     return $html;
