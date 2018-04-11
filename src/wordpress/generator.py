@@ -349,7 +349,7 @@ class WPGenerator:
         cmd = "post list --post_type=page,post --field=ID --format=csv"
         posts_list = self.run_wp_cli(cmd).split("\n")
         for post in posts_list:
-            cmd = "post delete {}".format(post)
+            cmd = "post delete {} --force".format(post)
             self.run_wp_cli(cmd)
         logging.info("%s - All demo posts deleted", repr(self))
 
