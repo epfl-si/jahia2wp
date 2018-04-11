@@ -964,7 +964,7 @@ class WPExporter:
         """
         Delete all pages in DRAFT status
         """
-        cmd = "post list --post_type='page' --post_status=draft --format=csv --fields=ID"
+        cmd = "post list --post_type='page' --post_status=draft --format=csv --field=ID"
         pages_id_list = self.run_wp_cli(cmd).split("\n")[1:]
         for page_id in pages_id_list:
             cmd = "post delete {} --force".format(page_id)
