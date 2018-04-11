@@ -87,6 +87,7 @@ from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExt
 from sys import stderr
 import pprint
 from time import time as tt
+from urllib.parse import urlparse
 
 
 def _check_site(wp_env, wp_url, **kwargs):
@@ -869,7 +870,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
     t = tt()
     rulesets = {}
     rows = Utils.csv_filepath_to_dict(csv_file)
-    local_env = 'https://jahia2wp-httpd/{}'
+    local_env = 'http://jahia2wp-httpd/{}'
     for idx, row in enumerate(rows):
         source = row['source']
         # Split the path and take the first arg as site
@@ -886,7 +887,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         # Sytactically, only 2 cases will be detected: root and non-root path.
         rule_type = 'path'
         # Remove the trailing * from the paths, not needed in text only replacement.
-        source = source.strip('*')
+        source = source.strip().strip('*')
         if 'http://' not in source and 'https://' not in source:
             rule_type = 'root' if source.strip('/') == site_name else 'path'
             # Local development case, append the host
@@ -896,17 +897,34 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
             site = '{}//{}'.format(source.split('//').pop(0), site_name)
             rule_type = 'root' if source.split(
                 '//').pop().strip('/') == site_name else 'path'
-        dest = row['destination']
+        dest = row['destination'].strip()
         if 'http://' not in dest and 'https://' not in dest:
             # Local development case, append the host
-            dest = local_env.format(dest)
+            dest = local_env.replace('http://', 'https://').format(dest)
         # Start with an empty ruleset
         if site not in rulesets:
             rulesets[site] = []
+        ############
+        # IMPORTANT: Translate the source URL using the intermediate WP instance.
+        ############
+        # Use port 8080 (wp-mgmt does not have 80=>8080 redirection for httpd cont.)
+        slash = '/' if source[:-1] != '/' else '' 
+        _source = urlparse(source + slash)
+        _source = _source._replace(netloc=_source.netloc + ':8080').geturl()
+        # GET only the HEADERS *of course* in silent mode and ignoring cert. validity  
+        out = Utils.run_command('curl -I -s -k {}'.format(_source))
+        # Parse the Location header if present. 
+        loc = [l.split('Location: ').pop().strip() for l in out.split('\n') if 'Location:' in l]
+        if not loc:
+            logging.warning('Could not find new URL location in intermediate WP instance for ' + source)
+        else: 
+            source = loc.pop()
         # Append the URL to the site's list
         rulesets[site].append((source, dest, rule_type))
     logging.info("{} total sites found.".format(len(rulesets)))
     logging.debug(rulesets)
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(rulesets)
 
     # Iterate over all the sites to map and dump a CSV with the pages and
     # another one for the media / attachments. This will *greatly simplify* the
@@ -916,6 +934,8 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
     t = tt()
     files = {}
     medias = {}
+    # Keep a copy of the installation paths to use WP cli later
+    site_paths = {}
     # Create a copy of the keys to allow changes on the keyset
     for site in list(rulesets.keys()):
         logging.info('Treating site {}'.format(site))
@@ -955,6 +975,8 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         Utils.run_command(cmd, 'utf8')
         # Backup file
         shutil.copyfile(csv_m, csv_m + '.bak')
+        # Add an entry to the site paths dict
+        site_paths[site] = wp_conf.wp_site.path
 
     # Sort the rules from most generic to specific or the reverse (-1).
     logging.info('[{:.2f}s] Rule sorting...'.format(tt()-t))
@@ -1049,7 +1071,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
     if not root_wp_dest:
         raise SystemExit("No target location to scan for WP instances")
     # Split the root to get the target sites
-    target_sites = {}
+    dest_sites = {}
     for path in root_wp_dest.split(','):
         # The path must be absolute
         if not os.path.isabs(path):
@@ -1063,7 +1085,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                         logging.warn(
                             'Target site not valid: {}, skipping...'.format(site.path))
                     else:
-                        target_sites[site.url] = site.path
+                        dest_sites[site.url] = site.path
             else:
                 # Scan for valid instances in the target path (FAST method),
                 # test: 0.3s, test with wpcli check: 5.5s
@@ -1078,42 +1100,87 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                     if wp_site:
                         # wp_config = WPConfig(wp_site)
                         # if wp_config.is_config_valid:
-                        target_sites[wp_site.url] = path
+                        dest_sites[wp_site.url] = path
 
     pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(target_sites)
-    target_sites_keys = target_sites.keys()
+    pp.pprint(dest_sites)
+    dest_sites_keys = dest_sites.keys()
 
     logging.info(
         '[{:.2f}s], Preparing insertion in target WP instances...'.format(tt()-t))
     t = tt()
     for site in site_keys:
+        logging.info('Treating site ' + site)
         # Source CSV files from where to take the content
         # Start with the pages since it'll be faster than the media
         csv_f = files[site]
+        # Get the languages
+        langs = Utils.run_command('wp pll languages --path=' + site_paths[site])
+        langs = [l[:2] for l in langs.split("\n")]
+        # Get all the pre-replaced pages from the CSV
         pages = Utils.csv_filepath_to_dict(csv_f)
-        for p in pages:
+        # Get the content in all the languages per page
+        # The IDs are sequential in source WP (e.g. 580 => en, 581=>fr). 
+        # Therefore group them by number of languages.
+        # ATTENTION: check for safety and errors (.e.g missing lang for page?)
+        ii = 0
+        for pi in range(0, len(pages), len(langs)):
+            # All pages
+            _pages = [pages[i] for i in range(pi, pi + len(langs))]
+            page_langs = {}
+            # The first language is an exception, it doesn't have the lang fragment 
+            # in the URL since polylang is set to hide it for the default language.
+            for _p in _pages:
+                lang_match = False
+                for lang in langs[1:]:
+                    if '/' + lang + '/' in _p['url']:
+                        page_langs[lang] = _p
+                        lang_match = True
+                        break
+                # Default language
+                if not lang_match:
+                    page_langs[langs[0]] = _p
+                # _p['post_content'] = _p['post_content'].encode('utf8')
+                del _p['post_content']
+                del _p['ID']
+                del _p['post_parent']
+
+            # ATTENTION: Selecting the page in EN since all URLs will be rewritten 
+            # in english.
+            p_en = page_langs['en']
             # Exceptions
-            if p['post_name'] == 'sitemap':
+            if p_en['post_name'] == 'sitemap':
                 continue
+            logging.info("Page {} {}".format(p_en['post_name'], p_en['url']))
             # Find the longest matching URL among the target sites
-            matches = [s for s in target_sites_keys if s in p['url']]
-            if matches:
+            matches = [s for s in dest_sites_keys if s in p_en['url']]
+            if not matches:
+                logging.warning('No matching destination site for page, skipping...')
+            else:
                 max_match = '/'.join(max([m.split('/') for m in matches]))
-                print(max_match, p['url'])
-                # params = '--post_status="{}"" --post_name="{}" --post_title="{}" --post_parent={}'
-                # params = params.format(p['post_status'], p['post_name'],
-                #              p['post_title'], p['post_parent'])
-                # cmd = 'pll post create --post_type=page --porcelain ' + \
-                #    params + ' --url="{}" --path={} --stdin'
-                # cmd = cmd.format(p['url'], target_sites[max_match])
-                # print(cmd.encode('utf8'))
+                # print(max_match, p_en['url'])
                 cmd = "echo '{}'| wp pll post create --post_type=page --porcelain --stdin --path={}"
-                cmd = cmd.format(json.dumps(p), target_sites[max_match])
-                print(cmd)
-                # Utils.run_command(cmd, 'utf8')
-                # self.run_wp_cli(cmd, pipe_input=p['post_content'])
-            break
+                cmd = cmd.format(json.dumps(page_langs), dest_sites[max_match])
+                print(cmd.encode('utf8'))
+                ids = Utils.run_command(cmd, 'utf8').split(' ')
+                if 'Error' in ids:
+                    logging.error('Failed to insert pages. Msg: {}. cmd: {}'.format(ids, cmd))
+                else:
+                    # VERIFY: Setting homepage instead of the default WP options
+                    # Using URL in EN by default
+                    if max_match == p_en['url'].strip('/'):
+                        logging.info('Updating home page for site {} to ID {}'.format(max_match, ids[0]))
+                        cmd = 'wp option update show_on_front page --path={}'.format(dest_sites[max_match])
+                        msg = Utils.run_command(cmd, 'utf8')
+                        if 'Success' not in msg: 
+                            logging.warning('Could not set show_on_front option! Msg: {}. cmd: {}', msg, cmd)
+                        cmd = 'wp option update page_on_front {} --path={}'.format(ids[0], dest_sites[max_match])
+                        msg = Utils.run_command(cmd, 'utf8')
+                        if 'Success' not in msg: 
+                            logging.warning('Could not set page_on_front option! Msg: {}. cmd: {}', msg, cmd)
+            ii=ii+1
+            if ii == 4:
+                break
     logging.info(
         '[{:.2f}s], Preparing media insertion in target WP instances...'.format(tt()-t))
     t = tt()
