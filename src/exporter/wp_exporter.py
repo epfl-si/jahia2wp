@@ -299,7 +299,7 @@ class WPExporter:
         for box in self.site.get_all_boxes():
 
             # first fix in shortcodes
-            self.fix_links_in_shortcode(box, old_url, new_url)
+            self.fix_file_links_in_shortcode(box, old_url, new_url)
 
             soup = BeautifulSoup(box.content, 'html5lib')
             soup.body.hidden = True
@@ -367,7 +367,9 @@ class WPExporter:
             else:
                 logging.error("Expected content for page %s" % wp_page)
 
-            # fix in shortcode attributes
+            # Step 1 - Fix in shortcode attributes
+            # We loop 2 times through self.urls_mapping because the first time we modify directly HTML content
+            # and the second time, we fix links in HTML tags and we use Beautiful Soup to do this.
             for url_mapping in self.urls_mapping:
                 # Generating new URL from slug
                 new_url = "/{}/".format(url_mapping["wp_slug"])
@@ -383,11 +385,15 @@ class WPExporter:
                             old_code = code
                             # Looping through shortcodes attributes to update
                             for attribute in attributes_list:
+                                # <query> in regex is to handle URL like this :
+                                # .../path/to/page#tag
+                                # .../path/to/page?query=string
                                 old_regex = re.compile('{}="(http(s)?://{})?{}(?P<query> [^"]*)"'.format(
                                     attribute,
                                     re.escape(self.site.server_name),
                                     re.escape(old_url)), re.VERBOSE)
 
+                                # To build "new" URL and still having the "end" of the old URL (#tag, ?query=string)
                                 new_regex = r'{}="{}\g<query>"'.format(attribute, new_url)
 
                                 # Update attribute in shortcode
@@ -399,7 +405,7 @@ class WPExporter:
             soup = BeautifulSoup(content, 'html5lib')
             soup.body.hidden = True
 
-            # fix in HTML tags
+            # Step 2 - Fix in HTML tags
             for url_mapping in self.urls_mapping:
                 new_url = "/{}/".format(url_mapping["wp_slug"])
                 for old_url in url_mapping["jahia_urls"]:
@@ -418,9 +424,9 @@ class WPExporter:
 
             self.update_page_content(page_id=wp_id, content=content)
 
-    def fix_links_in_shortcode(self, box, old_url, new_url):
+    def fix_file_links_in_shortcode(self, box, old_url, new_url):
         """
-        Fix the given attribute in shortcodes.
+        Fix the link in a box shortcode for all registered attributes.
 
         This will replace for example:
 
