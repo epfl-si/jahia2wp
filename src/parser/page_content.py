@@ -120,7 +120,7 @@ class PageContent:
 
             # We also add the "default" page name because it can also be used internally in website even if there are
             # vanity URLs defined.
-            self.vanity_urls = ["/page-{}-{}.html".format(self.page.pid, self.language)]
+            self.vanity_urls.append("/page-{}-{}.html".format(self.page.pid, self.language))
 
         # FIXME, the prefixing part should be done in exporter
         # add the site root_path at the beginning
