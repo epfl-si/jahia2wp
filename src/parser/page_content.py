@@ -105,6 +105,7 @@ class PageContent:
             else:
                 self.vanity_urls = ["/index-{}.html".format(self.language)]
         else:
+
             # Vanity URL can have the following content :
             # one URL ==> '/sciences_donnees$$$true$$$true==='
             # many URLs ==> '/sciences_donnees$$$true$$$true===/sciencesdonnees$$$true$$$false==='
@@ -117,9 +118,10 @@ class PageContent:
                     url = re.sub(r'(true|false)(===)?', '', url)
                     if url:
                         self.vanity_urls.append(url)
-            else:
-                # use the old Jahia page id
-                self.vanity_urls = ["/page-{}-{}.html".format(self.page.pid, self.language)]
+
+            # By default, we also add the "default" page name because it can also be used even if there are
+            # vanity URLs defined.
+            self.vanity_urls.append("/page-{}-{}.html".format(self.page.pid, self.language))
 
         # FIXME, the prefixing part should be done in exporter
         # add the site root_path at the beginning
