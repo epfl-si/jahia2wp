@@ -908,16 +908,16 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         # IMPORTANT: Translate the source URL using the intermediate WP instance.
         ############
         # Use port 8080 (wp-mgmt does not have 80=>8080 redirection for httpd cont.)
-        slash = '/' if source[:-1] != '/' else '' 
+        slash = '/' if source[:-1] != '/' else ''
         _source = urlparse(source + slash)
         _source = _source._replace(netloc=_source.netloc + ':8080').geturl()
-        # GET only the HEADERS *of course* in silent mode and ignoring cert. validity  
+        # GET only the HEADERS *of course* in silent mode and ignoring cert. validity
         out = Utils.run_command('curl -I -s -k {}'.format(_source))
-        # Parse the Location header if present. 
+        # Parse the Location header if present.
         loc = [l.split('Location: ').pop().strip() for l in out.split('\n') if 'Location:' in l]
         if not loc:
             logging.warning('Could not find new URL location in intermediate WP instance for ' + source)
-        else: 
+        else:
             source = loc.pop()
         # Append the URL to the site's list
         rulesets[site].append((source, dest, rule_type))
@@ -1120,7 +1120,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         # Get all the pre-replaced pages from the CSV
         pages = Utils.csv_filepath_to_dict(csv_f)
         # Get the content in all the languages per page
-        # The IDs are sequential in source WP (e.g. 580 => en, 581=>fr). 
+        # The IDs are sequential in source WP (e.g. 580 => en, 581=>fr).
         # Therefore group them by number of languages.
         # ATTENTION: check for safety and errors (.e.g missing lang for page?)
         ii = 0
@@ -1128,7 +1128,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
             # All pages
             _pages = [pages[i] for i in range(pi, pi + len(langs))]
             page_langs = {}
-            # The first language is an exception, it doesn't have the lang fragment 
+            # The first language is an exception, it doesn't have the lang fragment
             # in the URL since polylang is set to hide it for the default language.
             for _p in _pages:
                 lang_match = False
@@ -1145,7 +1145,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                 del _p['ID']
                 del _p['post_parent']
 
-            # ATTENTION: Selecting the page in EN since all URLs will be rewritten 
+            # ATTENTION: Selecting the page in EN since all URLs will be rewritten
             # in english.
             p_en = page_langs['en']
             # Exceptions
@@ -1172,13 +1172,13 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                         logging.info('Updating home page for site {} to ID {}'.format(max_match, ids[0]))
                         cmd = 'wp option update show_on_front page --path={}'.format(dest_sites[max_match])
                         msg = Utils.run_command(cmd, 'utf8')
-                        if 'Success' not in msg: 
+                        if 'Success' not in msg:
                             logging.warning('Could not set show_on_front option! Msg: {}. cmd: {}', msg, cmd)
                         cmd = 'wp option update page_on_front {} --path={}'.format(ids[0], dest_sites[max_match])
                         msg = Utils.run_command(cmd, 'utf8')
-                        if 'Success' not in msg: 
+                        if 'Success' not in msg:
                             logging.warning('Could not set page_on_front option! Msg: {}. cmd: {}', msg, cmd)
-            ii=ii+1
+            ii = ii+1
             if ii == 4:
                 break
     logging.info(
