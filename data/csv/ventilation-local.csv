@@ -1,7 +1,7 @@
 source,destination
-dcsl/index-html/page-115407-en-html/,epfl/research/publications/dcsl
-dcsl/*,epfl/research/labs/dcsl/,
-sac/index-html/studies,epfl/education/epfl-studies
-sac/index-html/student-exchanges/*,inside/students/student-exchanges
+dcsl/page-115407-en.html,epfl/research/publications/dcsl
+dcsl,epfl/research/labs/dcsl/,
+sac/echange-PDM, epfl/education/exchanges
+sac/studies,epfl/education/epfl-studies
+sac/student-exchanges/*,inside/students/student-exchanges
 sac/*,epfl/education/
-https://nal.epfl.ch/,epfl/research/labs/nal
