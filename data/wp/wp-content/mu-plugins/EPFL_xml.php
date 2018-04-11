@@ -30,20 +30,26 @@ function epfl_xml_build_html( string $xml, string $xslt )
 {
     try
     {
+        // check that we have valid URLs
+        if (!filter_var($xml, FILTER_VALIDATE_URL) || !filter_var($xslt, FILTER_VALIDATE_URL))
+        {
+          return "[epfl_xml error: invalid URLs]";
+        }
+
         $xml_doc = new DOMDocument;
         $xml_doc->load($xml);
 
         $xslt_doc = new DOMDocument;
         $xslt_doc->load($xslt);
 
-        $proc = new XSLTProcessor;
-        $proc->importStyleSheet($xslt_doc);
+        $processor = new XSLTProcessor;
+        $processor->importStyleSheet($xslt_doc);
 
-        return transformToXML($xml_doc);
+        return $processor->transformToXML($xml_doc);
     }
     catch (Exception $e)
     {
-        return "[epfl_xml error:" . $e->getMessage();
+        return "[epfl_xml error:" . $e->getMessage() . "]";
     }
 }
 
