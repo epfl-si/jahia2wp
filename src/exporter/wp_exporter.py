@@ -357,6 +357,8 @@ class WPExporter:
         """
         Fix all the links once we know all the WordPress pages urls
         """
+        logging.info("Fixing page content links")
+
         for wp_page in wp_pages:
 
             content = ""
@@ -368,27 +370,29 @@ class WPExporter:
 
             # fix in shortcode attributes
             for url_mapping in self.urls_mapping:
-                new_url = url_mapping["wp_url"]
+                # Generating new URL from slug
+                new_url = "/{}/".format(url_mapping["wp_slug"])
                 for old_url in url_mapping["jahia_urls"]:
 
                     for shortcode, attributes_list in self.site.shortcodes.items():
 
-                        if shortcode == 'epfl_gridElem':
-                            lc = True
-                        search = re.compile('[{} .*]'.format(shortcode))
+                        search = re.compile('\[{} [^\]]*\]'.format(shortcode))
 
                         # Looping through founded shortcodes
                         # ex: [epfl_infoscience url="<url>"]
                         for code in search.findall(content):
                             old_code = code
-
                             # Looping through shortcodes attributes to update
                             for attribute in attributes_list:
-                                old_attribute = '{}="{}"'.format(attribute, old_url)
-                                new_attribute = '{}="{}"'.format(attribute, new_url)
+                                old_regex = re.compile('{}="(http(s)?://{})?{}(?P<query> [^"]*)"'.format(
+                                    attribute,
+                                    re.escape(self.site.server_name),
+                                    re.escape(old_url)), re.VERBOSE)
+
+                                new_regex = r'{}="{}\g<query>"'.format(attribute, new_url)
 
                                 # Update attribute in shortcode
-                                code = code.replace(old_attribute, new_attribute)
+                                code = old_regex.sub(new_regex, code)
 
                             # Replace shortcode with the one updated with new urls
                             content = content.replace(old_code, code)
@@ -398,7 +402,7 @@ class WPExporter:
 
             # fix in HTML tags
             for url_mapping in self.urls_mapping:
-                new_url = url_mapping["wp_url"]
+                new_url = "/{}/".format(url_mapping["wp_slug"])
                 for old_url in url_mapping["jahia_urls"]:
                     self.fix_links_in_tag(
                         soup=soup,
@@ -522,7 +526,8 @@ class WPExporter:
 
         for page in self.site.pages_by_pid.values():
 
-            contents = {}
+            # We have to use OrderedDict to avoid bad surprises when page has only one language
+            contents = OrderedDict()
             info_page = OrderedDict()
 
             for lang in page.contents.keys():
@@ -589,12 +594,12 @@ class WPExporter:
                 # prepare mapping for htaccess redirection rules
                 mapping = {
                     'jahia_urls': page.contents[lang].vanity_urls,
-                    'wp_url': wp_page['link']
+                    'wp_slug': wp_page['slug']
                 }
 
                 self.urls_mapping.append(mapping)
 
-                logging.info("WP page '%s' created", wp_page['link'])
+                logging.info("WP page '%s' created", wp_page['slug'])
 
                 # keep WordPress ID for further usages
                 page.contents[lang].wp_id = wp_page['id']
@@ -994,10 +999,11 @@ class WPExporter:
         """
         Delete all pages in DRAFT status
         """
-        cmd = "post list --post_type='page' --post_status=draft --format=csv"
+        cmd = "post list --post_type='page' --post_status=draft --format=csv --fields=ID"
         pages_id_list = self.run_wp_cli(cmd).split("\n")[1:]
         for page_id in pages_id_list:
-            cmd = "post delete {}".format(page_id)
+
+            cmd = "post delete {} --force".format(page_id)
             self.run_wp_cli(cmd)
         logging.info("All pages in DRAFT status deleted")
 
@@ -1069,7 +1075,9 @@ class WPExporter:
 
         # Add all rewrite jahia URI to WordPress URI
         for element in self.urls_mapping:
-            wp_url = urlparse(element['wp_url']).path
+            # WordPress URL is generated from slug so if admin change page location, it still will be available
+            # if we request and "old" Jahia URL
+            wp_url = "/{}/".format(element['wp_slug'])
 
             # Going through vanity URLs
             for jahia_url in element['jahia_urls']:
