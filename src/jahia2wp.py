@@ -955,13 +955,15 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         fields = 'ID,post_title,post_name,post_parent,url,post_status,post_content'
         # Only pages, all without paging. Sort them by post_parent ascendantly for ease of
         # reinsertion to insert first parent pages and avoiding parentless children.
-        params = '--post_type=page --nopaging --order=asc --orderby=post_parent --fields={} --format=csv'
+        params = '--post_type=page --nopaging --order=asc --orderby=ID --fields={} --format=csv'
         cmd = 'wp post list ' + params + ' --path={} > {}'
         csv_f = site.split('/').pop() + '.csv'
         files[site] = csv_f
         cmd = cmd.format(fields, wp_conf.wp_site.path, csv_f)
         logging.debug(cmd)
         Utils.run_command(cmd, 'utf8')
+        # Append site path at the end of the CSV as a comment, useful for later processing.
+        Utils.run_command('echo "#{}" >> {}'.format(wp_conf.wp_site.path, csv_f))
         # Backup file
         shutil.copyfile(csv_f, csv_f + '.bak')
         # Dump media / attachments
@@ -984,6 +986,36 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
     for site in rulesets:
         rulesets[site].sort(key=lambda rule: len(rule[0].split('/')) * -1)
     # print(rulesets)
+    logging.info('[{:.2f}s] Starting rule expansion in diff. langs...'.format(tt()-t))
+
+    t = tt()
+    # Expand the rules to cover additional languages for multilang websites.
+    # By default, there is only 1 rule (in the csv) per URL independently of 
+    # the number of langs.
+    for site in rulesets.keys():
+        langs = Utils.run_command('wp pll languages --path=' + site_paths[site])
+        langs = [l[:2] for l in langs.split("\n")]
+        if len(langs) > 1:
+            logging.info('Multilang site {} for {}, decoupling rules...'.format(langs, site))
+            pages = Utils.csv_filepath_to_dict(files[site])
+            # Iterate over the individual rules for the site
+            prev_ruleset = list(reversed(rulesets[site]))
+            for idx, (src, dst, type_rule) in enumerate(prev_ruleset):
+                # Iterate the pages grouped by number of langs
+                for pi in range(0, len(pages), len(langs)):
+                    page_set = pages[pi:pi + len(langs)]
+                    page_urls = [p['url'] for p in page_set]
+                    # Check if one of the URLs matches the src 
+                    matches = [u for u in page_urls if u == src]
+                    if matches:
+                        page_urls.remove(matches.pop())
+                        ext_ruleset = [(u, dst, type_rule) for u in page_urls]
+                        # Insert the additional rules at the right index
+                        idx = len(prev_ruleset) - idx
+                        rulesets[site][idx:idx] = ext_ruleset
+                        break
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(rulesets)
 
     # At this point all the CSV files are generated and stored by sitename*
     # Iterate over the rules and start applying them first to the post URL
