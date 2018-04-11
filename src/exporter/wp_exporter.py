@@ -13,7 +13,6 @@ from wordpress_json import WordpressJsonWrapper, WordpressError
 import settings
 from exporter.utils import Utils
 from utils import Utils as WPUtils
-from urllib.parse import urlparse
 from parser.file import File
 
 
@@ -363,7 +362,7 @@ class WPExporter:
 
             # fix in HTML tags
             for url_mapping in self.urls_mapping:
-                new_url = url_mapping["wp_url"]
+                new_url = "/{}/".format(url_mapping["wp_slug"])
                 for old_url in url_mapping["jahia_urls"]:
                     self.fix_links_in_tag(
                         soup=soup,
@@ -489,7 +488,10 @@ class WPExporter:
 
         for page in self.site.pages_by_pid.values():
 
-            contents = {}
+            # We have to use OrderedDict to avoid bad surprises when page has only one language. Sometimes, Dict isn't
+            # taken in the "correct" order and we try to modify page which has been deleted because no translation. So
+            # it was editing a page which was in the Trash.
+            contents = OrderedDict()
             info_page = OrderedDict()
 
             for lang in page.contents.keys():
@@ -556,12 +558,12 @@ class WPExporter:
                 # prepare mapping for htaccess redirection rules
                 mapping = {
                     'jahia_urls': page.contents[lang].vanity_urls,
-                    'wp_url': wp_page['link']
+                    'wp_slug': wp_page['slug']
                 }
 
                 self.urls_mapping.append(mapping)
 
-                logging.info("WP page '%s' created", wp_page['link'])
+                logging.info("WP page '%s' created", wp_page['slug'])
 
                 # keep WordPress ID for further usages
                 page.contents[lang].wp_id = wp_page['id']
@@ -678,7 +680,7 @@ class WPExporter:
                     self.run_wp_cli(cmd)
 
                     # Saving widget position for current widget (as string because this is a string that is
-                    # used to index informations in DB)
+                    # used to index information in DB)
                     widget_pos_to_lang[str(widget_pos)] = lang
                     widget_pos += 1
 
@@ -786,7 +788,7 @@ class WPExporter:
                 # menu entry is page
                 else:
                     # Trying to get corresponding page corresponding to current page UUID
-                    child = self.site.homepage.get_child_with_uuid(menu_item.target, 3)
+                    child = self.site.homepage.get_child_with_uuid(menu_item.target, 4)
 
                     if child is None:
                         logging.error("Submenu creation: No page found for UUID %s", menu_item.target)
@@ -961,12 +963,14 @@ class WPExporter:
         """
         Delete all pages in DRAFT status
         """
-        cmd = "post list --post_type='page' --post_status=draft --format=csv"
-        pages_id_list = self.run_wp_cli(cmd).split("\n")[1:]
-        for page_id in pages_id_list:
-            cmd = "post delete {}".format(page_id)
-            self.run_wp_cli(cmd)
-        logging.info("All pages in DRAFT status deleted")
+        cmd = "post list --post_type='page' --post_status=draft --format=csv --field=ID"
+        pages_id_list = self.run_wp_cli(cmd)
+
+        if not pages_id_list:
+            for page_id in pages_id_list.split("\n")[1:]:
+                cmd = "post delete {} --force".format(page_id)
+                self.run_wp_cli(cmd)
+            logging.info("All pages in DRAFT status deleted")
 
     def delete_pages(self):
         """
@@ -1036,7 +1040,9 @@ class WPExporter:
 
         # Add all rewrite jahia URI to WordPress URI
         for element in self.urls_mapping:
-            wp_url = urlparse(element['wp_url']).path
+            # WordPress URL is generated from slug so if admin change page location, it still will be available
+            # if we request and "old" Jahia URL
+            wp_url = "/{}/".format(element['wp_slug'])
 
             # Going through vanity URLs
             for jahia_url in element['jahia_urls']:
@@ -1044,9 +1050,10 @@ class WPExporter:
                 # We skip this redirection to avoid infinite redirection...
                 if jahia_url != "/index.html":
                     source_url = "{}{}".format(folder, jahia_url)
+                    target_url = "{}{}".format(folder, wp_url)
                     # To avoid Infinite loop
-                    if source_url != wp_url[:-1]:
-                        redirect_list.append("Redirect 301 {} {}".format(source_url,  wp_url))
+                    if source_url != target_url[:-1]:
+                        redirect_list.append("Redirect 301 {} {}".format(source_url,  target_url))
 
         if redirect_list:
             # Updating .htaccess file

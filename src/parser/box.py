@@ -246,19 +246,19 @@ class Box:
         """set the attributes of an actu box"""
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.content = "[actu url=%s]" % url
+        self.content = "[actu url={}]".format(url)
 
     def set_box_memento(self, element):
         """set the attributes of a memento box"""
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.content = "[memento url=%s]" % url
+        self.content = "[memento url={}]".format(url)
 
     def set_box_infoscience(self, element):
         """set the attributes of a infoscience box"""
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.content = "[epfl_infoscience url=%s]" % url
+        self.content = "[epfl_infoscience url={}]".format(url)
 
     def set_box_faq(self, element):
         """set the attributes of a faq box"""
@@ -266,7 +266,7 @@ class Box:
 
         self.answer = Utils.get_tag_attribute(element, "answer", "jahia:value")
 
-        self.content = "<h2>%s</h2><p>%s</p>" % (self.question, self.answer)
+        self.content = "<h2>{}</h2><p>{}</p>".format(self.question, self.answer)
 
     def set_box_toggle(self, element):
         """set the attributes of a toggle box"""
@@ -294,7 +294,7 @@ class Box:
         xml = Utils.get_tag_attribute(element, "xml", "jahia:value")
         xslt = Utils.get_tag_attribute(element, "xslt", "jahia:value")
 
-        self.content = "[xml xml=%s xslt=%s]" % (xml, xslt)
+        self.content = "[xml xml={} xslt={}]".format(xml, xslt)
 
     def set_box_rss(self, element):
         """set the attributes of an rss box"""
@@ -334,7 +334,7 @@ class Box:
 
     def set_box_unknown(self, element):
         """set the attributes of an unknown box"""
-        self.content = "[%s]" % element.getAttribute("jcr:primaryType")
+        self.content = "[{}]".format(element.getAttribute("jcr:primaryType"))
 
     def set_box_files(self, element):
         """set the attributes of a files box"""
@@ -356,8 +356,10 @@ class Box:
     def set_box_snippets(self, element):
         """set the attributes of a snippets box"""
 
+        shortcode_name = "epfl_snippets"
+
         # register the shortcode
-        self.site.register_shortcode("epfl_snippets", ["url", "image", "big_image"], self)
+        self.site.register_shortcode(shortcode_name, ["url", "image", "big_image"], self)
 
         # check if the list is not empty
         if not element.getElementsByTagName("snippetListList"):
@@ -402,9 +404,9 @@ class Box:
 
                         url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
 
-            self.content = '[epfl_snippets url="{}" title="{}" subtitle="{}" image="{}"' \
+            self.content = '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
                            ' big_image="{}" enable_zoom="{}" description="{}"]'\
-                .format(url, title, subtitle, image, big_image, enable_zoom, description)
+                .format(shortcode_name, url, title, subtitle, image, big_image, enable_zoom, description)
 
     def set_box_syntax_highlight(self, element):
         """Set the attributes of a syntaxHighlight box"""
