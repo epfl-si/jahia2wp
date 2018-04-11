@@ -15,7 +15,6 @@ from wordpress_json import WordpressJsonWrapper, WordpressError
 import settings
 from exporter.utils import Utils
 from utils import Utils as WPUtils
-from urllib.parse import urlparse
 from parser.file import File
 
 
@@ -526,7 +525,9 @@ class WPExporter:
 
         for page in self.site.pages_by_pid.values():
 
-            # We have to use OrderedDict to avoid bad surprises when page has only one language
+            # We have to use OrderedDict to avoid bad surprises when page has only one language. Sometimes, Dict isn't
+            # taken in the "correct" order and we try to modify page which has been deleted because no translation. So
+            # it was editing a page which was in the Trash.
             contents = OrderedDict()
             info_page = OrderedDict()
 
@@ -824,7 +825,7 @@ class WPExporter:
                 # menu entry is page
                 else:
                     # Trying to get corresponding page corresponding to current page UUID
-                    child = self.site.homepage.get_child_with_uuid(menu_item.target, 3)
+                    child = self.site.homepage.get_child_with_uuid(menu_item.target, 4)
 
                     if child is None:
                         logging.error("Submenu creation: No page found for UUID %s", menu_item.target)
@@ -999,13 +1000,14 @@ class WPExporter:
         """
         Delete all pages in DRAFT status
         """
-        cmd = "post list --post_type='page' --post_status=draft --format=csv --fields=ID"
-        pages_id_list = self.run_wp_cli(cmd).split("\n")[1:]
-        for page_id in pages_id_list:
+        cmd = "post list --post_type='page' --post_status=draft --format=csv --field=ID"
+        pages_id_list = self.run_wp_cli(cmd)
 
-            cmd = "post delete {} --force".format(page_id)
-            self.run_wp_cli(cmd)
-        logging.info("All pages in DRAFT status deleted")
+        if not pages_id_list:
+            for page_id in pages_id_list.split("\n")[1:]:
+                cmd = "post delete {} --force".format(page_id)
+                self.run_wp_cli(cmd)
+            logging.info("All pages in DRAFT status deleted")
 
     def delete_pages(self):
         """
@@ -1085,9 +1087,10 @@ class WPExporter:
                 # We skip this redirection to avoid infinite redirection...
                 if jahia_url != "/index.html":
                     source_url = "{}{}".format(folder, jahia_url)
+                    target_url = "{}{}".format(folder, wp_url)
                     # To avoid Infinite loop
-                    if source_url != wp_url[:-1]:
-                        redirect_list.append("Redirect 301 {} {}".format(source_url,  wp_url))
+                    if source_url != target_url[:-1]:
+                        redirect_list.append("Redirect 301 {} {}".format(source_url,  target_url))
 
         if redirect_list:
             # Updating .htaccess file

@@ -38,31 +38,31 @@ function epfl_snippets_build_html( string $url, string $title, string $subtitle,
     $has_url = filter_var($url, FILTER_VALIDATE_URL);
 
     if ( $has_url ) {
-      $html .= '  <a href="' . $url . '">';
+      $html .= '<a href="' . $url . '">';
     }
 
     // note: we don't use esc_attr() here because the user is
     // allowed to put HTML, same for subtitle and description
-    $html .= '  <div class="snippets-title">' . $title . '</div>';
+    $html .= '<div class="snippets-title">' . $title . '</div>';
 
     if ( $has_url ) {
-      $html .= '  </a>';
+      $html .= '</a>';
     }
 
-    $html .= '  <div class="snippets-subtitle">' . $subtitle . '</div>';
-    $html .= '  <div class="snippets-description">' . $description . '</div>';
+    $html .= '<div class="snippets-subtitle">' . $subtitle . '</div>';
+    $html .= '<div class="snippets-description">' . $description . '</div>';
 
     if ( $has_url ) {
-      $html .= '  <a href="' . $url . '">';
+      $html .= '<a href="' . $url . '">';
     }
 
-    $html .= '  <div class="snippets-image"><img src="' . esc_attr($image) . '"/></div>';
+    $html .= '<div class="snippets-image"><img src="' . esc_attr($image) . '"/></div>';
 
     if ( $has_url ) {
-      $html .= '  </a>';
+      $html .= '</a>';
     }
 
-    $html .= '</div">';
+    $html .= '</div>';
     
     return $html;
 }
