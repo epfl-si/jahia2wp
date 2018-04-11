@@ -358,6 +358,11 @@ class WPExporter:
         """
         logging.info("Fixing page content links")
 
+        if self.wp_generator.wp_site.folder == "":
+            folder = ""
+        else:
+            folder = "/{}".format(self.wp_generator.wp_site.folder)
+
         for wp_page in wp_pages:
 
             content = ""
@@ -372,7 +377,8 @@ class WPExporter:
             # and the second time, we fix links in HTML tags and we use Beautiful Soup to do this.
             for url_mapping in self.urls_mapping:
                 # Generating new URL from slug
-                new_url = "/{}/".format(url_mapping["wp_slug"])
+                new_url = "{}/{}/".format(folder, url_mapping["wp_slug"])
+
                 for old_url in url_mapping["jahia_urls"]:
 
                     for shortcode, attributes_list in self.site.shortcodes.items():
@@ -407,7 +413,7 @@ class WPExporter:
 
             # Step 2 - Fix in HTML tags
             for url_mapping in self.urls_mapping:
-                new_url = "/{}/".format(url_mapping["wp_slug"])
+                new_url = "{}/{}/".format(folder, url_mapping["wp_slug"])
                 for old_url in url_mapping["jahia_urls"]:
                     self.fix_links_in_tag(
                         soup=soup,
@@ -490,7 +496,7 @@ class WPExporter:
                 box.content = '[su_slider source="media: {}"'.format(','.join([str(m) for m in medias_ids]))
                 box.content += ' title="no" arrows="yes"]'
 
-    def update_page(self, page_id, title, content):
+    def update_page(self, page_id, content, title=None):
         """
         Import a page to Wordpress
         """
@@ -500,7 +506,6 @@ class WPExporter:
             # 'slug': slug,
             # 'status': 'publish',
             # password
-            'title': title,
             'content': content,
             # author
             # excerpt
@@ -514,12 +519,15 @@ class WPExporter:
             # categories
             # tags
         }
+
+        if title:
+            wp_page_info['title'] = title
+
         return self.wp.post_pages(page_id=page_id, data=wp_page_info)
 
     def update_page_content(self, page_id, content):
         """Update the page content"""
-        data = {"content": content}
-        return self.wp.post_pages(page_id=page_id, data=data)
+        return self.update_page(page_id, content)
 
     def import_pages(self):
         """
@@ -595,6 +603,7 @@ class WPExporter:
                 # we skip the update (because there is nothing to update and we don't have needed information...
                 if lang not in page.contents:
                     continue
+
                 # Updating page in WordPress
                 wp_page = self.update_page(page_id=wp_id, title=page.contents[lang].title, content=content)
 
