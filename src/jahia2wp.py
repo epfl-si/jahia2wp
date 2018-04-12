@@ -88,6 +88,7 @@ from sys import stderr
 import pprint
 from time import time as tt
 from urllib.parse import urlparse
+import itertools
 
 
 def _check_site(wp_env, wp_url, **kwargs):
@@ -898,6 +899,9 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
             rule_type = 'root' if source.split(
                 '//').pop().strip('/') == site_name else 'path'
         dest = row['destination'].strip()
+        # IMPORTANT: Add trailing slash, specially since now the source gets translated
+        # into the new intermediate WP URL that always has a trailing slash.
+        dest = dest.strip('/') + '/'
         if 'http://' not in dest and 'https://' not in dest:
             # Local development case, append the host
             dest = local_env.replace('http://', 'https://').format(dest)
@@ -1004,15 +1008,14 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                 # Iterate the pages grouped by number of langs
                 for pi in range(0, len(pages), len(langs)):
                     page_set = pages[pi:pi + len(langs)]
-                    page_urls = [p['url'] for p in page_set]
                     # Check if one of the URLs matches the src 
-                    matches = [u for u in page_urls if u == src]
+                    matches = [p['url'] for p in page_set if p['url'] == src]
                     if matches:
-                        page_urls.remove(matches.pop())
-                        ext_ruleset = [(u, dst, type_rule) for u in page_urls]
+                        ext_ruleset = [(p['url'], dst, type_rule) for p in page_set]
                         # Insert the additional rules at the right index
-                        idx = len(prev_ruleset) - idx
-                        rulesets[site][idx:idx] = ext_ruleset
+                        idx = len(prev_ruleset) - 1 - idx
+                        # Replace also the single rule at idx with the expanded set
+                        rulesets[site][idx:idx+1] = ext_ruleset
                         break
     pp = pprint.PrettyPrinter(indent=4)
     pp.pprint(rulesets)
@@ -1141,6 +1144,9 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
     logging.info(
         '[{:.2f}s], Preparing insertion in target WP instances...'.format(tt()-t))
     t = tt()
+    # Store the new keys per site after the insertion as URL => ID
+    # This is useful to set the new parents
+    table_ids = {}
     for site in site_keys:
         logging.info('Treating site ' + site)
         # Source CSV files from where to take the content
@@ -1151,36 +1157,40 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         langs = [l[:2] for l in langs.split("\n")]
         # Get all the pre-replaced pages from the CSV
         pages = Utils.csv_filepath_to_dict(csv_f)
+        # Group the pages by group of langs and sort them by URL components
+        # The key concept is to avoid children being inserted before parents
+        pages = [pages[pi:pi+len(langs)] for pi in range(0, len(pages), len(langs))]
+        pages = sorted(pages, key=lambda p: len(p[0]['url'].strip('/').split('/')))
+        # Unpack pages as a list again
+        pages = list(itertools.chain.from_iterable(pages))
+
+        # The default language is an exception, it doesn't have the lang fragment
+        # in the URL since polylang is set to hide it for the default language.
+        # Define the order of langs
+        langs_order = []
+        for (src, dst, _) in rulesets[site][:len(langs)]:
+            lang_matches = [lang for lang in langs if  '/' + lang + '/' in src]
+            if lang_matches:
+                langs_order.append(lang_matches[0])
+            else:
+                langs_order.append(langs[0])
+        logging.info('langs order in site content: {}'.format(langs_order))
         # Get the content in all the languages per page
         # The IDs are sequential in source WP (e.g. 580 => en, 581=>fr).
         # Therefore group them by number of languages.
         # ATTENTION: check for safety and errors (.e.g missing lang for page?)
         ii = 0
+        table_ids[site] = {}
         for pi in range(0, len(pages), len(langs)):
             # All pages
-            _pages = [pages[i] for i in range(pi, pi + len(langs))]
-            page_langs = {}
-            # The first language is an exception, it doesn't have the lang fragment
-            # in the URL since polylang is set to hide it for the default language.
+            _pages = pages[pi:pi+len(langs)]
             for _p in _pages:
-                lang_match = False
-                for lang in langs[1:]:
-                    if '/' + lang + '/' in _p['url']:
-                        page_langs[lang] = _p
-                        lang_match = True
-                        break
-                # Default language
-                if not lang_match:
-                    page_langs[langs[0]] = _p
-                # _p['post_content'] = _p['post_content'].encode('utf8')
                 del _p['post_content']
-                del _p['ID']
-                del _p['post_parent']
 
             # ATTENTION: Selecting the page in EN since all URLs will be rewritten
             # in english.
-            p_en = page_langs['en']
-            logging.info("Page {} {}".format(p_en['post_name'], p_en['url']))
+            p_en = _pages[langs_order.index('en')]
+            logging.info("[en] Page {} {}".format(p_en['post_name'], p_en['url']))
             # Find the longest matching URL among the target sites
             matches = [s for s in dest_sites_keys if s in p_en['url']]
             if not matches:
@@ -1189,12 +1199,27 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                 max_match = '/'.join(max([m.split('/') for m in matches]))
                 # print(max_match, p_en['url'])
                 cmd = "echo '{}'| wp pll post create --post_type=page --porcelain --stdin --path={}"
-                cmd = cmd.format(json.dumps(page_langs), dest_sites[max_match])
+
+                # Old IDs
+                old_ids = [p['ID'] for p in _pages]
+                # Update the parent ID if a new one exists already
+                for _p in _pages:
+                    if _p['post_parent'] in table_ids[site]:
+                        _p['post_parent'] = table_ids[site][_p['post_parent']]
+
+                # JSON data for polylang, built manually to maintain the lang order!
+                json_arr = ['"{}":{}'.format(langs_order[i], json.dumps(p)) for i,p in enumerate(_pages)]
+                json_data = '{' + ', '.join(json_arr) + '}'
+                cmd = cmd.format(json_data, dest_sites[max_match])
                 print(cmd.encode('utf8'))
                 ids = Utils.run_command(cmd, 'utf8').split(' ')
                 if 'Error' in ids:
                     logging.error('Failed to insert pages. Msg: {}. cmd: {}'.format(ids, cmd))
                 else:
+                    logging.info('new IDs {} in lang order {}'.format(ids, langs_order))
+                    # Keep the new IDs
+                    for old_id, new_id in zip(old_ids, ids):
+                        table_ids[site][old_id] = new_id
                     # VERIFY: Setting homepage instead of the default WP options
                     # Using URL in EN by default
                     if max_match == p_en['url'].strip('/'):
