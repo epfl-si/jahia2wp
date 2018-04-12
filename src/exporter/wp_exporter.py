@@ -500,7 +500,8 @@ class WPExporter:
                 # create the page content
                 for box in page.contents[lang].boxes:
 
-                    contents[lang] += '<div class="{}">'.format(box.type + "Box")
+                    if not box.is_shortcode():
+                        contents[lang] += '<div class="{}">'.format(box.type + "Box")
                     if box.title:
                         contents[lang] += '<h3 id="{0}">{0}</h3>'.format(box.title)
 
@@ -511,7 +512,8 @@ class WPExporter:
                             box.content = box.content.replace(Box.UPDATE_LANG, lang)
 
                     contents[lang] += box.content
-                    contents[lang] += "</div>"
+                    if not box.is_shortcode():
+                        contents[lang] += "</div>"
 
                 info_page[lang] = {
                     'post_name': page.contents[lang].path,
