@@ -142,6 +142,8 @@ class Box:
     def _set_scheduler_box(self, element, content):
         """set the attributes of a scheduler box"""
 
+        self.shortcode_name = "epfl_scheduler"
+
         start_datetime = Utils.get_tag_attribute(element, "comboList", "jahia:validFrom")
 
         if start_datetime and "T" in start_datetime:
@@ -157,12 +159,14 @@ class Box:
         if not end_datetime and not start_datetime:
             logging.warning("Scheduler shortcode has no startdate and no enddate")
 
-        return '[epfl_scheduler start_date="{}" end_date="{}" start_time="{}" end_time="{}"]{}[/epfl_scheduler]'.format(
+        return '[{} start_date="{}" end_date="{}" start_time="{}" end_time="{}"]{}[/{}]'.format(
+            self.shortcode_name,
             start_date,
             end_date,
             start_time,
             end_time,
-            content
+            content,
+            self.shortcode_name
         )
 
     def set_box_text(self, element, multibox=False):
@@ -249,13 +253,17 @@ class Box:
         """set the attributes of an actu box"""
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.content = "[actu url={}]".format(url)
+        self.shortcode_name = "actu"
+
+        self.content = "[{} url={}]".format(self.shortcode_name, url)
 
     def set_box_memento(self, element):
         """set the attributes of a memento box"""
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.content = "[memento url={}]".format(url)
+        self.shortcode_name = "memento"
+
+        self.content = "[{} url={}]".format(self.shortcode_name, url)
 
     def set_box_infoscience(self, element):
         """set the attributes of a infoscience box"""
