@@ -349,7 +349,7 @@ class WPGenerator:
         cmd = "post list --post_type=page,post --field=ID --format=csv"
         posts_list = self.run_wp_cli(cmd).split("\n")
         for post in posts_list:
-            cmd = "post delete {}".format(post)
+            cmd = "post delete {} --force".format(post)
             self.run_wp_cli(cmd)
         logging.info("%s - All demo posts deleted", repr(self))
 
@@ -365,6 +365,10 @@ class WPGenerator:
         WPMuPluginConfig(self.wp_site, "epfl-functions.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL-SC-infoscience.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL_custom_editor_menu.php").install()
+        WPMuPluginConfig(self.wp_site, "EPFL_snippets.php").install()
+        WPMuPluginConfig(self.wp_site, "EPFL-SC-people.php").install()
+        WPMuPluginConfig(self.wp_site, "EPFL-map.php").install()
+        WPMuPluginConfig(self.wp_site, "EPFL-scheduler.php").install()
 
         if self.wp_config.installs_locked:
             WPMuPluginConfig(self.wp_site, "EPFL_installs_locked.php").install()
