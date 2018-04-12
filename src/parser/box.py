@@ -168,16 +168,17 @@ class Box:
         # check if we have a start date in the past and no end date
         if start_date and not end_date:
             if start_date < today:
-                logging.info("Scheduler has a start date in the past ({}) and no end date, simply using content".format(start_date))
+                logging.info("Scheduler has a start date in the past ({}) and no end date,"
+                             " simply using content".format(start_date))
                 return content
 
-        content = '[epfl_scheduler start_date="{}" end_date="{}" start_time="{}" end_time="{}"]{}[/epfl_scheduler]'.format(
-            start_date,
-            end_date,
-            start_time,
-            end_time,
-            content
-        )
+        content = '[epfl_scheduler start_date="{}" end_date="{}" start_time="{}" end_time="{}"]{}[/epfl_scheduler]' \
+            .format(start_date,
+                    end_date,
+                    start_time,
+                    end_time,
+                    content
+                    )
 
         return content
 
@@ -422,7 +423,7 @@ class Box:
                         url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
 
             self.content = '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
-                           ' big_image="{}" enable_zoom="{}" description="{}"]'\
+                           ' big_image="{}" enable_zoom="{}" description="{}"]' \
                 .format(shortcode_name, url, title, subtitle, image, big_image, enable_zoom, description)
 
     def set_box_syntax_highlight(self, element):
