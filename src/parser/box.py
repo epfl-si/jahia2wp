@@ -59,6 +59,7 @@ class Box:
         self.site = site
         self.page_content = page_content
         self.type = ""
+        self.shortcode_name = ""
         self.set_type(element)
         self.title = Utils.get_tag_attribute(element, "boxTitle", "jahia:value")
         self.content = ""
@@ -205,6 +206,8 @@ class Box:
         More information here:
         https://c4science.ch/source/kis-jahia6-dev/browse/master/core/src/main/webapp/common/box/display/peopleListBoxDisplay.jsp
         """
+        self.shortcode_name = "epfl_people"
+
         BASE_URL = "https://people.epfl.ch/cgi-bin/getProfiles?"
 
         # prepare a dictionary with all GET parameters
@@ -240,7 +243,7 @@ class Box:
         parameters['lang'] = self.UPDATE_LANG
 
         url = "{}{}".format(BASE_URL, urlencode(parameters))
-        self.content = '[epfl_people url="{}" /]'.format(url)
+        self.content = '[{} url="{}" /]'.format(self.shortcode_name, url)
 
     def set_box_actu(self, element):
         """set the attributes of an actu box"""
@@ -256,9 +259,12 @@ class Box:
 
     def set_box_infoscience(self, element):
         """set the attributes of a infoscience box"""
+
+        self.shortcode_name = "epfl_infoscience"
+
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.content = "[epfl_infoscience url={}]".format(url)
+        self.content = "[{} url={}]".format(self.shortcode_name, url)
 
     def set_box_faq(self, element):
         """set the attributes of a faq box"""
@@ -279,7 +285,10 @@ class Box:
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
         if "://people.epfl.ch/cgi-bin/getProfiles?" in url:
             url = url.replace("tmpl=", "tmpl=WP_")
-            self.content = '[epfl_people url="{}" /]'.format(url)
+
+            self.shortcode_name = "epfl_people"
+
+            self.content = '[{} url="{}" /]'.format(self.shortcode_name, url)
         else:
             self.content = '[remote_content url="{}"]'.format(url)
 
@@ -294,7 +303,9 @@ class Box:
         xml = Utils.get_tag_attribute(element, "xml", "jahia:value")
         xslt = Utils.get_tag_attribute(element, "xslt", "jahia:value")
 
-        self.content = "[xml xml={} xslt={}]".format(xml, xslt)
+        self.shortcode_name = "xml"
+
+        self.content = "[{} xml={} xslt={}]".format(self.shortcode_name, xml, xslt)
 
     def set_box_rss(self, element):
         """set the attributes of an rss box"""
@@ -356,10 +367,10 @@ class Box:
     def set_box_snippets(self, element):
         """set the attributes of a snippets box"""
 
-        shortcode_name = "epfl_snippets"
+        self.shortcode_name = "epfl_snippets"
 
         # register the shortcode
-        self.site.register_shortcode(shortcode_name, ["url", "image", "big_image"], self)
+        self.site.register_shortcode(self.shortcode_name, ["url", "image", "big_image"], self)
 
         # check if the list is not empty
         if not element.getElementsByTagName("snippetListList"):
@@ -406,7 +417,7 @@ class Box:
 
             self.content = '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
                            ' big_image="{}" enable_zoom="{}" description="{}"]'\
-                .format(shortcode_name, url, title, subtitle, image, big_image, enable_zoom, description)
+                .format(self.shortcode_name, url, title, subtitle, image, big_image, enable_zoom, description)
 
     def set_box_syntax_highlight(self, element):
         """Set the attributes of a syntaxHighlight box"""
@@ -468,6 +479,8 @@ class Box:
     def set_box_map(self, element):
         """set the attributes of a map box"""
 
+        self.shortcode_name = "epfl_map"
+
         # parse info
         height = Utils.get_tag_attribute(element, "height", "jahia:value")
         width = Utils.get_tag_attribute(element, "width", "jahia:value")
@@ -477,7 +490,14 @@ class Box:
         # so we assign a string that we will replace by the current language in the exporter
         lang = self.UPDATE_LANG
 
-        self.content = '[epfl_map width="{}" height="{}" query="{}" lang="{}"]'.format(width, height, query, lang)
+        self.content = '[{} width="{}" height="{}" query="{}" lang="{}"]'.format(self.shortcode_name,
+                                                                                 width,
+                                                                                 height,
+                                                                                 query,
+                                                                                 lang)
+
+    def is_shortcode(self):
+        return self.shortcode_name != ""
 
     def __str__(self):
         return self.type + " " + self.title
