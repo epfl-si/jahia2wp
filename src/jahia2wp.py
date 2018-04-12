@@ -1184,9 +1184,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         for pi in range(0, len(pages), len(langs)):
             # All pages
             _pages = pages[pi:pi+len(langs)]
-            for _p in _pages:
-                del _p['post_content']
-
+            
             # ATTENTION: Selecting the page in EN since all URLs will be rewritten
             # in english.
             p_en = _pages[langs_order.index('en')]
@@ -1198,20 +1196,26 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
             else:
                 max_match = '/'.join(max([m.split('/') for m in matches]))
                 # print(max_match, p_en['url'])
-                cmd = "echo '{}'| wp pll post create --post_type=page --porcelain --stdin --path={}"
-
                 # Old IDs
                 old_ids = [p['ID'] for p in _pages]
                 # Update the parent ID if a new one exists already
                 for _p in _pages:
                     if _p['post_parent'] in table_ids[site]:
                         _p['post_parent'] = table_ids[site][_p['post_parent']]
-
-                # JSON data for polylang, built manually to maintain the lang order!
-                json_arr = ['"{}":{}'.format(langs_order[i], json.dumps(p)) for i,p in enumerate(_pages)]
+                # JSON file to contain the post data
+                tmp_json = "tmp_{}_{}.json".format(site.split('/').pop(), _pages[0]['ID'])
+                # Remove / Change attrs before dumping the post JSON.
+                for _p in _pages: 
+                    del _p['ID']
+                    # del _p['post_content']
+                cmd = "cat {} | wp pll post create --post_type=page --porcelain --stdin --path={}"
+                json_arr = ['"{}":{}'.format(langs_order[i], json.dumps(p, ensure_ascii=False)) for i,p in enumerate(_pages)]
                 json_data = '{' + ', '.join(json_arr) + '}'
-                cmd = cmd.format(json_data, dest_sites[max_match])
-                print(cmd.encode('utf8'))
+                # Dump the JSON to a file to avoid non escaped char issues.
+                with open(tmp_json, 'w', encoding='utf8') as j:
+                    j.write(json_data)
+                cmd = cmd.format(tmp_json, dest_sites[max_match])
+                logging.info(cmd)
                 ids = Utils.run_command(cmd, 'utf8').split(' ')
                 if 'Error' in ids:
                     logging.error('Failed to insert pages. Msg: {}. cmd: {}'.format(ids, cmd))
@@ -1232,9 +1236,6 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                         msg = Utils.run_command(cmd, 'utf8')
                         if 'Success' not in msg:
                             logging.warning('Could not set page_on_front option! Msg: {}. cmd: {}', msg, cmd)
-            ii = ii+1
-            if ii == 4:
-                break
     logging.info(
         '[{:.2f}s], Preparing media insertion in target WP instances...'.format(tt()-t))
     t = tt()
