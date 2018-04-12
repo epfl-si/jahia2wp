@@ -19,3 +19,4 @@ volumes/
 *.map
 src/*.csv
 src/*.csv.*
+src/tmp*.json
