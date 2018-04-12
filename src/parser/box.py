@@ -3,6 +3,7 @@
 import logging
 from urllib.parse import urlencode
 from xml.dom import minidom
+from datetime import datetime
 
 from utils import Utils
 
@@ -142,27 +143,43 @@ class Box:
         """set the attributes of a scheduler box"""
 
         start_datetime = Utils.get_tag_attribute(element, "comboList", "jahia:validFrom")
+        end_datetime = Utils.get_tag_attribute(element, "comboList", "jahia:validTo")
 
-        if start_datetime and "T" in start_datetime:
+        if not start_datetime and not end_datetime:
+            logging.info("Scheduler has no start date and no end date, simply using content")
+            return content
+
+        today = datetime.now().strftime("%Y-%m-%d")
+
+        start_date = ""
+        start_time = ""
+
+        if "T" in start_datetime:
             start_date = start_datetime.split("T")[0]
             start_time = start_datetime.split("T")[1]
 
-        end_datetime = Utils.get_tag_attribute(element, "comboList", "jahia:validTo")
+        end_date = ""
+        end_time = ""
 
-        if end_datetime and "T" in end_datetime:
+        if "T" in end_datetime:
             end_date = end_datetime.split("T")[0]
             end_time = end_datetime.split("T")[1]
 
-        if not end_datetime and not start_datetime:
-            logging.warning("Scheduler shortcode has no startdate and no enddate")
+        # check if we have a start date in the past and no end date
+        if start_date and not end_date:
+            if start_date < today:
+                logging.info("Scheduler has a start date in the past ({}) and no end date, simply using content".format(start_date))
+                return content
 
-        return '[epfl_scheduler start_date="{}" end_date="{}" start_time="{}" end_time="{}"]{}[/epfl_scheduler]'.format(
+        content = '[epfl_scheduler start_date="{}" end_date="{}" start_time="{}" end_time="{}"]{}[/epfl_scheduler]'.format(
             start_date,
             end_date,
             start_time,
             end_time,
             content
         )
+
+        return content
 
     def set_box_text(self, element, multibox=False):
         """set the attributes of a text box
