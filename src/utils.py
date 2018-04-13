@@ -409,6 +409,13 @@ class Utils(object):
     @staticmethod
     def clean_html_comments(content):
         """
-        Clean HTML comments
+        Clean HTML comments and images base64
         """
-        return re.sub("(<!--.*?-->)", "", content)
+        content = re.sub("(<!--.*?-->)", "", content)
+        if "data:image/png;base64" in content:
+            content = re.sub('(\"data:image/png;base64.*?\")', "", content)
+            logging.warning("Delete png images in base64")
+        if "data:image/jpeg;base64" in content:
+            content = re.sub('(\"data:image/jpeg;base64.*?\")', "", content)
+            logging.warning("Delete jpeg images in base64")
+        return content
