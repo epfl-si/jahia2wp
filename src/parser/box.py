@@ -234,6 +234,12 @@ class Box:
         # parse the template html
         template_html = Utils.get_tag_attribute(element, "template", "jahia:value")
 
+        # check if we have an HTML template
+        if not template_html:
+            logging.warning("epfl_people: no HTML template set")
+            self.content = "[epfl_people error: no HTML template set]"
+            return
+
         # extract template key
         template_key = Utils.get_tag_attribute(
             minidom.parseString(template_html),
