@@ -51,6 +51,12 @@ class Site:
         # the site languages
         self.languages = []
 
+        # the WordPress shortcodes used in the site. The key is the shortcode name,
+        # and the value is the shortcode attributes containing URLs that must be
+        # fixed by the WPExporter, e.g.:
+        # {'epfl_snippets': ['url', 'image', 'big_image']}
+        self.shortcodes = {}
+
         for file in os.listdir(self.base_path):
             if file.startswith("export_"):
                 language = file[7:9]
@@ -98,6 +104,7 @@ class Site:
         self.unknown_links = 0
         self.num_boxes = {}
         self.num_url_menu = 0
+        self.num_link_menu = 0
         self.num_templates = {}
         # the number of each html tags, e.g. "br": 10
         self.num_tags = {}
@@ -191,13 +198,19 @@ class Site:
                         txt = jahia_type.getAttribute("jahia:title")
                         hidden = jahia_type.getAttribute("jahia:hideFromNavigationMenu") != ""
                         target = "sitemap" if jahia_type.getAttribute("jahia:template") == "sitemap" \
-                            else None
+                            else jahia_type.getAttribute("jcr:uuid")
                     # If URL
                     elif jahia_type.nodeName == "jahia:url":
                         txt = jahia_type.getAttribute("jahia:title")
                         target = jahia_type.getAttribute("jahia:value")
 
                         self.num_url_menu += 1
+                    # If link to another page in the menu
+                    elif jahia_type.nodeName == "jahia:link":
+                        txt = jahia_type.getAttribute("jahia:title")
+                        target = jahia_type.getAttribute("jahia:reference")
+
+                        self.num_link_menu += 1
                     else:
                         continue
 
@@ -250,10 +263,9 @@ class Site:
                 # Adding banner for current lang
                 self.banner[language] = Banner(Utils.get_tag_attribute(banner_list_list[0], "banner", "jahia:value"))
 
-    def get_report_info(self, box_types):
+    def get_report_info(self):
         """
-        Return the report info as a dict. As an argument you can
-        pass an array of box types to have their count number.
+        Returns the report info as a dict.
         """
 
         # common info
@@ -263,9 +275,8 @@ class Site:
             "files": self.num_files,
         }
 
-        # add the number of boxes for each type
-        for type in box_types:
-            info[type] = self.get_num_boxes(type)
+        # add the num_boxes
+        info.update(self.num_boxes)
 
         return info
 
@@ -300,7 +311,7 @@ class Site:
             if self.theme[language] == 'associations':
                 self.theme[language] = 'assoc'
             self.acronym[language] = Utils.get_tag_attribute(dom, "acronym", "jahia:value")
-            self.css_url[language] = "//static.epfl.ch/v0.23.0/styles/%s-built.css" % self.theme[language]
+            self.css_url[language] = "//static.epfl.ch/v0.23.0/styles/{}-built.css".format(self.theme[language])
 
     def parse_footer(self):
         """parse site footer"""
@@ -469,7 +480,7 @@ class Site:
 
     def parse_files(self):
         """Parse the files"""
-        start = "%s/content/sites/%s/files" % (self.base_path, self.name)
+        start = "{}/content/sites/{}/files".format(self.base_path, self.name)
 
         for (path, dirs, files) in os.walk(start):
             for file_name in files:
@@ -478,6 +489,22 @@ class Site:
                     continue
 
                 self.files.append(File(name=file_name, path=path))
+
+    def register_shortcode(self, name, attributes, box):
+        """
+        Register the given shortcode.
+
+        :param name: the shortcode name
+        :param attributes: a list with the shortcode attributes that must be fixed by WPExporter
+        :param box: the Box where the shortcode was found
+        """
+
+        # save the attributes at the box level
+        box.shortcode_attributes_to_fix = attributes
+
+        # register the shortcode at the site level
+        if name not in self.shortcodes:
+            self.shortcodes[name] = attributes
 
     def get_all_boxes(self):
         """
@@ -511,7 +538,8 @@ class Site:
         when all the pages have been parsed.
         """
         for box in self.get_all_boxes():
-            soup = BeautifulSoup(box.content, 'html.parser')
+            soup = BeautifulSoup(box.content, 'html5lib')
+            soup.body.hidden = True
 
             self.fix_links_in_tag(box=box, soup=soup, tag_name="a", attribute="href")
             self.fix_links_in_tag(box=box, soup=soup, tag_name="img", attribute="src")
@@ -642,7 +670,7 @@ class Site:
                 logging.debug("Found unknown link %s", link)
                 self.unknown_links += 1
 
-        box.content = str(soup)
+        box.content = str(soup.body)
 
     def build_sitemaps(self):
         """Build the sitemaps"""
@@ -664,6 +692,10 @@ class Site:
         # for each NavigationPages...
         for navigation_page in node.page.contents[language].navigation:
             child_node = SitemapNode.from_navigation_page(navigation_page=navigation_page, parent=node)
+
+            if not navigation_page.page:
+                logging.warning("navigation_page has no page associated")
+                continue
 
             # if we have an internal NavigationPage, we add it's children
             if navigation_page.type == "internal" \
@@ -748,6 +780,7 @@ Parsed for %s :
         self.report += "    - %s broken links\n" % self.broken_links
         self.report += "    - %s unknown links\n" % self.unknown_links
         self.report += "    - %s menu entries with URLs\n" % self.num_url_menu
+        self.report += "    - %s duplicate menu entries to page\n" % self.num_link_menu
 
         # tags
         self.report += "\n"
@@ -755,3 +788,6 @@ Parsed for %s :
 
         for tag in num_tags_ordered:
             self.report += "    - <%s> %s\n" % (tag, self.num_tags[tag])
+
+    def __repr__(self):
+        return self.name
