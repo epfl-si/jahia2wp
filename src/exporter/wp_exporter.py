@@ -2,7 +2,9 @@
 import logging
 import os
 import sys
+import re
 from parser.box import Box
+from math import floor
 import timeit
 from collections import OrderedDict
 from datetime import timedelta, datetime
@@ -196,15 +198,21 @@ class WPExporter:
         if self.site.files:
             start = "{}/content/sites/{}/files".format(self.site.base_path, self.site.name)
             self.site.files = self._asciify_path(start)
+
+            step = floor(len(self.site.files)/10)
             for file in self.site.files:
                 wp_media = self.import_media(file)
                 if wp_media:
                     self.fix_file_links(file, wp_media)
                     self.report['files'] += 1
+
+                    if self.report['files'] % step == 0:
+                        logging.info("[%s/%s] WP medias imported", self.report['files'], len(self.site.files))
+
             self.fix_key_visual_boxes()
         # Remove the capability "unfiltered_upload" to the administrator group.
         self.run_wp_cli('cap remove administrator unfiltered_upload')
-        logging.info("WP medias imported")
+        logging.info("%s WP medias imported", self.report['files'])
 
     def import_media(self, media):
         """
@@ -291,7 +299,7 @@ class WPExporter:
         for box in self.site.get_all_boxes():
 
             # first fix in shortcodes
-            self.fix_links_in_shortcode(box, old_url, new_url)
+            self.fix_file_links_in_shortcode(box, old_url, new_url)
 
             soup = BeautifulSoup(box.content, 'html5lib')
             soup.body.hidden = True
@@ -348,6 +356,13 @@ class WPExporter:
         """
         Fix all the links once we know all the WordPress pages urls
         """
+        logging.info("Fixing page content links")
+
+        if self.wp_generator.wp_site.folder == "":
+            folder = ""
+        else:
+            folder = "/{}".format(self.wp_generator.wp_site.folder)
+
         for wp_page in wp_pages:
 
             content = ""
@@ -357,12 +372,48 @@ class WPExporter:
             else:
                 logging.error("Expected content for page %s" % wp_page)
 
+            # Step 1 - Fix in shortcode attributes
+            # We loop 2 times through self.urls_mapping because the first time we modify directly HTML content
+            # and the second time, we fix links in HTML tags and we use Beautiful Soup to do this.
+            for url_mapping in self.urls_mapping:
+                # Generating new URL from slug
+                new_url = "{}/{}/".format(folder, url_mapping["wp_slug"])
+
+                for old_url in url_mapping["jahia_urls"]:
+
+                    for shortcode, attributes_list in self.site.shortcodes.items():
+
+                        search = re.compile('\[{} [^\]]*\]'.format(shortcode))
+
+                        # Looping through founded shortcodes
+                        # ex: [epfl_infoscience url="<url>"]
+                        for code in search.findall(content):
+                            old_code = code
+                            # Looping through shortcodes attributes to update
+                            for attribute in attributes_list:
+                                # <query> in regex is to handle URL like this :
+                                # .../path/to/page#tag
+                                # .../path/to/page?query=string
+                                old_regex = re.compile('{}="(http(s)?://{})?{}(?P<query> [^"]*)"'.format(
+                                    attribute,
+                                    re.escape(self.site.server_name),
+                                    re.escape(old_url)), re.VERBOSE)
+
+                                # To build "new" URL and still having the "end" of the old URL (#tag, ?query=string)
+                                new_regex = r'{}="{}\g<query>"'.format(attribute, new_url)
+
+                                # Update attribute in shortcode
+                                code = old_regex.sub(new_regex, code)
+
+                            # Replace shortcode with the one updated with new urls
+                            content = content.replace(old_code, code)
+
             soup = BeautifulSoup(content, 'html5lib')
             soup.body.hidden = True
 
-            # fix in HTML tags
+            # Step 2 - Fix in HTML tags
             for url_mapping in self.urls_mapping:
-                new_url = "/{}/".format(url_mapping["wp_slug"])
+                new_url = "{}/{}/".format(folder, url_mapping["wp_slug"])
                 for old_url in url_mapping["jahia_urls"]:
                     self.fix_links_in_tag(
                         soup=soup,
@@ -372,8 +423,6 @@ class WPExporter:
                         tag_attribute="href"
                     )
 
-                # TODO fix the links in the shortcodes
-
             # update the page
             wp_id = wp_page["id"]
 
@@ -381,9 +430,9 @@ class WPExporter:
 
             self.update_page_content(page_id=wp_id, content=content)
 
-    def fix_links_in_shortcode(self, box, old_url, new_url):
+    def fix_file_links_in_shortcode(self, box, old_url, new_url):
         """
-        Fix the given attribute in shortcodes.
+        Fix the link in a box shortcode for all registered attributes.
 
         This will replace for example:
 
@@ -447,7 +496,7 @@ class WPExporter:
                 box.content = '[su_slider source="media: {}"'.format(','.join([str(m) for m in medias_ids]))
                 box.content += ' title="no" arrows="yes"]'
 
-    def update_page(self, page_id, title, content):
+    def update_page(self, page_id, content, title=None):
         """
         Import a page to Wordpress
         """
@@ -457,7 +506,6 @@ class WPExporter:
             # 'slug': slug,
             # 'status': 'publish',
             # password
-            'title': title,
             'content': content,
             # author
             # excerpt
@@ -471,12 +519,15 @@ class WPExporter:
             # categories
             # tags
         }
+
+        if title:
+            wp_page_info['title'] = title
+
         return self.wp.post_pages(page_id=page_id, data=wp_page_info)
 
     def update_page_content(self, page_id, content):
         """Update the page content"""
-        data = {"content": content}
-        return self.wp.post_pages(page_id=page_id, data=data)
+        return self.update_page(page_id, content)
 
     def import_pages(self):
         """
@@ -500,8 +551,14 @@ class WPExporter:
                 # create the page content
                 for box in page.contents[lang].boxes:
 
-                    if not box.is_shortcode():
+                    # For this box type, the surrounding <div> is handled by the shortcode himself
+                    # FIXME: All shortcode have to handle surrounding <div> because otherwise when webmaster
+                    # will add shortcode [xyz att=""], manually in page, he won't add the <div> manually, he doesn't
+                    # have to know about this. So he won't do it and the dispay may be incorrect because not matching
+                    # the theme's CSS style
+                    if box.type is not Box.TYPE_GRID:
                         contents[lang] += '<div class="{}">'.format(box.type + "Box")
+
                     if box.title:
                         contents[lang] += '<h3 id="{0}">{0}</h3>'.format(box.title)
 
@@ -512,7 +569,8 @@ class WPExporter:
                             box.content = box.content.replace(Box.UPDATE_LANG, lang)
 
                     contents[lang] += box.content
-                    if not box.is_shortcode():
+
+                    if box.type is not Box.TYPE_GRID:
                         contents[lang] += "</div>"
 
                 info_page[lang] = {
@@ -554,6 +612,7 @@ class WPExporter:
                 # we skip the update (because there is nothing to update and we don't have needed information...
                 if lang not in page.contents:
                     continue
+
                 # Updating page in WordPress
                 wp_page = self.update_page(page_id=wp_id, title=page.contents[lang].title, content=content)
 

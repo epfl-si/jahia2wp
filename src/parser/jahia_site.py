@@ -311,7 +311,7 @@ class Site:
             if self.theme[language] == 'associations':
                 self.theme[language] = 'assoc'
             self.acronym[language] = Utils.get_tag_attribute(dom, "acronym", "jahia:value")
-            self.css_url[language] = "//static.epfl.ch/v0.23.0/styles/%s-built.css" % self.theme[language]
+            self.css_url[language] = "//static.epfl.ch/v0.23.0/styles/{}-built.css".format(self.theme[language])
 
     def parse_footer(self):
         """parse site footer"""
@@ -480,7 +480,7 @@ class Site:
 
     def parse_files(self):
         """Parse the files"""
-        start = "%s/content/sites/%s/files" % (self.base_path, self.name)
+        start = "{}/content/sites/{}/files".format(self.base_path, self.name)
 
         for (path, dirs, files) in os.walk(start):
             for file_name in files:

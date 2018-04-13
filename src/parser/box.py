@@ -3,6 +3,7 @@
 import logging
 from urllib.parse import urlencode
 from xml.dom import minidom
+from bs4 import BeautifulSoup
 from datetime import datetime
 
 from utils import Utils
@@ -30,6 +31,7 @@ class Box:
     TYPE_SYNTAX_HIGHLIGHT = "syntaxHighlight"
     TYPE_KEY_VISUAL = "keyVisual"
     TYPE_MAP = "map"
+    TYPE_GRID = "grid"
 
     # Mapping of known box types from Jahia to WP
     types = {
@@ -50,7 +52,8 @@ class Box:
         "epfl:snippetsBox": TYPE_SNIPPETS,
         "epfl:syntaxHighlightBox": TYPE_SYNTAX_HIGHLIGHT,
         "epfl:keyVisualBox": TYPE_KEY_VISUAL,
-        "epfl:mapBox": TYPE_MAP
+        "epfl:mapBox": TYPE_MAP,
+        "epfl:gridBox": TYPE_GRID
     }
 
     UPDATE_LANG = "UPDATE_LANG_BY_EXPORTER"
@@ -66,6 +69,7 @@ class Box:
         self.content = ""
         # the shortcode attributes with URLs that must be fixed by the wp_exporter
         self.shortcode_attributes_to_fix = []
+        self.set_content(element, multibox)
 
         # parse the content
         self.set_content(element, multibox)
@@ -133,9 +137,12 @@ class Box:
         # keyVisual
         elif self.TYPE_KEY_VISUAL == self.type:
             self.set_box_key_visuals(element)
-        # map
+        # Map
         elif self.TYPE_MAP == self.type:
             self.set_box_map(element)
+        # Grid
+        elif self.TYPE_GRID == self.type:
+            self.set_box_grid(element)
         # unknown
         else:
             self.set_box_unknown(element)
@@ -184,6 +191,50 @@ class Box:
             content,
             self.shortcode_name
         )
+
+    def set_box_grid(self, element):
+        """
+        Set attributes for a grid box.
+        A grid box is a <div> containing others <div> with a specified size (defined by the layout, "large" or
+        "default"), image, text and link.
+        FIXME: Handle <boxTitle> field (was empty when box support has been added so no idea how it is displayed..)
+        FIXME: Handle <text> field (was empty when box support has been added so no idea how it is displayed..)
+        FIXME: Handle attribute GridListList -> "jahia:sortHandler" if needed
+        :param element:
+        :return:
+        """
+        shortcode_outer_name = "epfl_grid"
+        shortcode_inner_name = "epfl_gridElem"
+
+        # register the shortcode
+        self.site.register_shortcode(shortcode_inner_name, ["link", "image"], self)
+
+        self.content = '[{}]\n'.format(shortcode_outer_name)
+
+        elements = element.getElementsByTagName("gridList")
+
+        for e in elements:
+
+            layout_infos = Utils.get_tag_attribute(e, "layout", "jahia:value")
+            soup = BeautifulSoup(layout_infos, 'html5lib')
+            layout = soup.find('jahia-resource').get('default-value')
+
+            # Retrieve info
+            link = Utils.get_tag_attribute(e, "jahia:url", "jahia:value")
+            image = Utils.get_tag_attribute(e, "image", "jahia:value")
+            title = Utils.get_tag_attribute(e, "jahia:url", "jahia:title")
+
+            # Escape if necessary
+            title = title.replace('"', '\\"')
+
+            # Fix path if necessary
+            if "/files" in image:
+                image = image[image.rfind("/files"):]
+
+            self.content += '[{} layout="{}" link="{}" title="{}" image="{}"][/{}]\n'.format(
+                shortcode_inner_name, layout, link, title, image, shortcode_inner_name)
+
+        self.content += "[/{}]".format(shortcode_outer_name)
 
     def set_box_text(self, element, multibox=False):
         """set the attributes of a text box
@@ -415,14 +466,6 @@ class Box:
             image = Utils.get_tag_attribute(snippet, "image", "jahia:value")
             big_image = Utils.get_tag_attribute(snippet, "bigImage", "jahia:value")
             enable_zoom = Utils.get_tag_attribute(snippet, "enableImageZoom", "jahia:value")
-
-            # fix the path for image
-            if "/files" in image:
-                image = image[image.rfind("/files"):]
-
-            # fix the path for big_image
-            if "/files" in big_image:
-                big_image = big_image[big_image.rfind("/files"):]
 
             # escape
             title = title.replace('"', '\\"')

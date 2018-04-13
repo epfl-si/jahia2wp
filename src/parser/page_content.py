@@ -105,6 +105,7 @@ class PageContent:
             else:
                 self.vanity_urls = ["/index-{}.html".format(self.language)]
         else:
+
             # Vanity URL can have the following content :
             # one URL ==> '/sciences_donnees$$$true$$$true==='
             # many URLs ==> '/sciences_donnees$$$true$$$true===/sciencesdonnees$$$true$$$false==='
@@ -118,7 +119,7 @@ class PageContent:
                     if url:
                         self.vanity_urls.append(url)
 
-            # We also add the "default" page name because it can also be used internally in website even if there are
+            # By default, we also add the "default" page name because it can also be used even if there are
             # vanity URLs defined.
             self.vanity_urls.append("/page-{}-{}.html".format(self.page.pid, self.language))
 
