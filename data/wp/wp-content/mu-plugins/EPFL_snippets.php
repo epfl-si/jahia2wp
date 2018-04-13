@@ -33,7 +33,7 @@ function epfl_snippets_debug( $var ) {
  */
 function epfl_snippets_build_html( string $url, string $title, string $subtitle, string $description, string $image, string $big_image, string $enable_zoom )
 {
-    $html  = '<div class="snippets">';
+    $html  = '<div class="snippetsBox">';
 
     $has_url = filter_var($url, FILTER_VALIDATE_URL);
 

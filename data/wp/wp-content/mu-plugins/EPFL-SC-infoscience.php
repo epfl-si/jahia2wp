@@ -60,7 +60,9 @@ function epfl_infoscience_process_shortcode( $attributes, $content = null )
             wp_cache_set( $url, $page, 'epfl_infoscience' );
 
             // return the page
-            return $page;
+            return '<div class="infoscienceBox">'.
+                    $page.
+                    '</div>';
         } else {
             $error = new WP_Error( 'not found', 'The url passed is not part of Infoscience or is not found', $url );
             epfl_infoscience_log( $error );
