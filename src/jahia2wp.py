@@ -84,7 +84,6 @@ from utils import Utils
 from veritas.casters import cast_boolean
 from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
-from sys import stderr
 import pprint
 from time import time as tt
 from urllib.parse import urlparse
@@ -831,7 +830,7 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
 
 
 @dispatch.on('migrate-urls')
-def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_inventory=False, **kwargs):
+def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_inventory=False, htaccess=True, **kwargs):
     """
     :param csv_file: CSV containing the URL mapping rules for source and destination.
     :param context: intra, inter, full. Replace the occurrences at intra, inter or both.
@@ -997,17 +996,17 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
     # By default, there is only 1 rule (in the csv) per URL independently of 
     # the number of langs.
     for site in rulesets.keys():
-        langs = Utils.run_command('wp pll languages --path=' + site_paths[site])
-        langs = [l[:2] for l in langs.split("\n")]
-        if len(langs) > 1:
-            logging.info('Multilang site {} for {}, decoupling rules...'.format(langs, site))
+        lngs = Utils.run_command('wp pll languages --path=' + site_paths[site])
+        lngs = [l[:2] for l in lngs.split("\n")]
+        if len(lngs) > 1:
+            logging.info('Multilang site {} for {}, decoupling rules...'.format(lngs, site))
             pages = Utils.csv_filepath_to_dict(files[site])
             # Iterate over the individual rules for the site
             prev_ruleset = list(reversed(rulesets[site]))
             for idx, (src, dst, type_rule) in enumerate(prev_ruleset):
                 # Iterate the pages grouped by number of langs
-                for pi in range(0, len(pages), len(langs)):
-                    page_set = pages[pi:pi + len(langs)]
+                for pi in range(0, len(pages), len(lngs)):
+                    page_set = pages[pi:pi + len(lngs)]
                     # Check if one of the URLs matches the src 
                     matches = [p['url'] for p in page_set if p['url'] == src]
                     if matches:
@@ -1020,6 +1019,29 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
     pp = pprint.PrettyPrinter(indent=4)
     pp.pprint(rulesets)
 
+    # Restore the .htaccess if it was previously modified (always)
+    # Write the .htaccess redirections for the new URL mapping
+    for site in rulesets.keys():
+        with open(site_paths[site] + '/.htaccess', 'r+', encoding='utf8') as f:
+            lines = f.readlines()
+            rw_base = [l for l in lines if 'RewriteBase ' in l].pop().split(' ').pop()
+            f.seek(0,0)
+            f.truncate()
+            # Write new rules first
+            if htaccess:
+                f.write('# BEGIN ventilation-redirs\n')
+                f.write('RewriteEngine On\n')
+                f.write('RewriteBase {}\n'.format(rw_base))
+                for (src, dst, type_rule) in rulesets[site]:
+                    path = urlparse(src).path[len(rw_base)-1:]
+                    f.write('RewriteRule ^{}(.*)$ {}$1 [R=302,L]\n'.format(path, dst))
+                f.write('# END ventilation-redirs\n')
+            rm = False
+            for l in lines:
+                if 'BEGIN ventilation-redirs' in l: rm = True
+                if not rm: f.write(l)
+                if 'END ventilation-redirs' in l: rm = False
+    
     # At this point all the CSV files are generated and stored by sitename*
     # Iterate over the rules and start applying them first to the post URL
 
@@ -1080,7 +1102,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                     # AWK is counting the replacement occurrences in the stderr.
                     proc = subprocess.run(
                         cmd, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
-                    proc_m = subprocess.run(
+                    subprocess.run(
                         cmd_m, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
                     # This has to be a number normally, but it can also contain return errors, to be analized
                     reps = proc.stderr.strip()
@@ -1153,13 +1175,13 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         # Start with the pages since it'll be faster than the media
         csv_f = files[site]
         # Get the languages
-        langs = Utils.run_command('wp pll languages --path=' + site_paths[site])
-        langs = [l[:2] for l in langs.split("\n")]
+        lngs = Utils.run_command('wp pll languages --path=' + site_paths[site])
+        lngs = [l[:2] for l in lngs.split("\n")]
         # Get all the pre-replaced pages from the CSV
         pages = Utils.csv_filepath_to_dict(csv_f)
         # Group the pages by group of langs and sort them by URL components
         # The key concept is to avoid children being inserted before parents
-        pages = [pages[pi:pi+len(langs)] for pi in range(0, len(pages), len(langs))]
+        pages = [pages[pi:pi+len(lngs)] for pi in range(0, len(pages), len(lngs))]
         pages = sorted(pages, key=lambda p: len(p[0]['url'].strip('/').split('/')))
         # Unpack pages as a list again
         pages = list(itertools.chain.from_iterable(pages))
@@ -1167,27 +1189,26 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         # The default language is an exception, it doesn't have the lang fragment
         # in the URL since polylang is set to hide it for the default language.
         # Define the order of langs
-        langs_order = []
-        for (src, dst, _) in rulesets[site][:len(langs)]:
-            lang_matches = [lang for lang in langs if  '/' + lang + '/' in src]
+        lngs_seq = []
+        for (src, dst, _) in rulesets[site][:len(lngs)]:
+            lang_matches = [lang for lang in lngs if  '/' + lang + '/' in src]
             if lang_matches:
-                langs_order.append(lang_matches[0])
+                lngs_seq.append(lang_matches[0])
             else:
-                langs_order.append(langs[0])
-        logging.info('langs order in site content: {}'.format(langs_order))
+                lngs_seq.append(lngs[0])
+        logging.info('langs order in site content: {}'.format(lngs_seq))
         # Get the content in all the languages per page
         # The IDs are sequential in source WP (e.g. 580 => en, 581=>fr).
         # Therefore group them by number of languages.
         # ATTENTION: check for safety and errors (.e.g missing lang for page?)
-        ii = 0
         table_ids[site] = {}
-        for pi in range(0, len(pages), len(langs)):
+        for pi in range(0, len(pages), len(lngs)):
             # All pages
-            _pages = pages[pi:pi+len(langs)]
+            _pages = pages[pi:pi+len(lngs)]
             
             # ATTENTION: Selecting the page in EN since all URLs will be rewritten
             # in english.
-            p_en = _pages[langs_order.index('en')]
+            p_en = _pages[lngs_seq.index('en')]
             logging.info("[en] Page {} {}".format(p_en['post_name'], p_en['url']))
             # Find the longest matching URL among the target sites
             matches = [s for s in dest_sites_keys if s in p_en['url']]
@@ -1200,14 +1221,17 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                 old_ids = [p['ID'] for p in _pages]
                 # Update the parent ID if a new one exists already
                 for _p in _pages:
-                    if _p['post_parent'] in table_ids[site]:
-                        _p['post_parent'] = table_ids[site][_p['post_parent']]
+                    if max_match in table_ids[site] and _p['post_parent'] in table_ids[site][max_match]:
+                        _p['post_parent'] = table_ids[site][max_match][_p['post_parent']]
+                    else: 
+                        # Set the page at the root: post_parent 0
+                        _p['post_parent'] = 0
                 # Rename the post if necessary to have a pretty (matching) URL
                 # If there is only one fragment and it's different of the post_name
                 # then change it.
                 fragment = p_en['url'][len(max_match)+1:].strip('/')
                 if len(fragment.split('/')) == 1:
-                    if p_en['post_name'] != fragment:
+                    if p_en['post_name'] != fragment and 'index-html' not in p_en['post_name']:
                         for p in _pages:
                             p['post_name'] = fragment 
                 # JSON file to contain the post data
@@ -1215,8 +1239,8 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                 cmd = "cat {} | wp pll post create --post_type=page --porcelain --stdin --path={}"
                 # Remove / Change attrs before dumping the post JSON.
                 _pagesi = [{k:v for k,v in _p.items() if k not in ['ID', 'url']} for _p in _pages]
-                json_arr = ['"{}":{}'.format(langs_order[i], json.dumps(p, ensure_ascii=False)) for i,p in enumerate(_pagesi)]
-                json_data = '{' + ', '.join(json_arr) + '}'
+                arr = ['"{}":{}'.format(lngs_seq[i], json.dumps(p, ensure_ascii=False)) for i,p in enumerate(_pagesi)]
+                json_data = '{' + ', '.join(arr) + '}'
                 # Dump the JSON to a file to avoid non escaped char issues.
                 with open(tmp_json, 'w', encoding='utf8') as j:
                     j.write(json_data)
@@ -1226,10 +1250,12 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                 if 'Error' in ids:
                     logging.error('Failed to insert pages. Msg: {}. cmd: {}'.format(ids, cmd))
                 else:
-                    logging.info('new IDs {} in lang order {}'.format(ids, langs_order))
+                    logging.info('new IDs {} in lang order {}'.format(ids, lngs_seq))
                     # Keep the new IDs
+                    if max_match not in table_ids[site]:
+                        table_ids[site][max_match] = {}
                     for old_id, new_id in zip(old_ids, ids):
-                        table_ids[site][old_id] = new_id
+                        table_ids[site][max_match][old_id] = new_id
                     # VERIFY: Setting homepage instead of the default WP options
                     # Using URL in EN by default
                     if max_match == p_en['url'].strip('/'):
