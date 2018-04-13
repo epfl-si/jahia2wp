@@ -993,7 +993,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
 
     t = tt()
     # Expand the rules to cover additional languages for multilang websites.
-    # By default, there is only 1 rule (in the csv) per URL independently of 
+    # By default, there is only 1 rule (in the csv) per URL independently of
     # the number of langs.
     for site in rulesets.keys():
         lngs = Utils.run_command('wp pll languages --path=' + site_paths[site])
@@ -1007,7 +1007,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                 # Iterate the pages grouped by number of langs
                 for pi in range(0, len(pages), len(lngs)):
                     page_set = pages[pi:pi + len(lngs)]
-                    # Check if one of the URLs matches the src 
+                    # Check if one of the URLs matches the src
                     matches = [p['url'] for p in page_set if p['url'] == src]
                     if matches:
                         ext_ruleset = [(p['url'], dst, type_rule) for p in page_set]
@@ -1025,7 +1025,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         with open(site_paths[site] + '/.htaccess', 'r+', encoding='utf8') as f:
             lines = f.readlines()
             rw_base = [l for l in lines if 'RewriteBase ' in l].pop().split(' ').pop()
-            f.seek(0,0)
+            f.seek(0, 0)
             f.truncate()
             # Write new rules first
             if htaccess:
@@ -1038,10 +1038,13 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                 f.write('# END ventilation-redirs\n')
             rm = False
             for l in lines:
-                if 'BEGIN ventilation-redirs' in l: rm = True
-                if not rm: f.write(l)
-                if 'END ventilation-redirs' in l: rm = False
-    
+                if 'BEGIN ventilation-redirs' in l:
+                    rm = True
+                if not rm:
+                    f.write(l)
+                if 'END ventilation-redirs' in l:
+                    rm = False
+
     # At this point all the CSV files are generated and stored by sitename*
     # Iterate over the rules and start applying them first to the post URL
 
@@ -1191,7 +1194,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         # Define the order of langs
         lngs_seq = []
         for (src, dst, _) in rulesets[site][:len(lngs)]:
-            lang_matches = [lang for lang in lngs if  '/' + lang + '/' in src]
+            lang_matches = [lang for lang in lngs if '/' + lang + '/' in src]
             if lang_matches:
                 lngs_seq.append(lang_matches[0])
             else:
@@ -1205,7 +1208,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         for pi in range(0, len(pages), len(lngs)):
             # All pages
             _pages = pages[pi:pi+len(lngs)]
-            
+
             # ATTENTION: Selecting the page in EN since all URLs will be rewritten
             # in english.
             p_en = _pages[lngs_seq.index('en')]
@@ -1223,7 +1226,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                 for _p in _pages:
                     if max_match in table_ids[site] and _p['post_parent'] in table_ids[site][max_match]:
                         _p['post_parent'] = table_ids[site][max_match][_p['post_parent']]
-                    else: 
+                    else:
                         # Set the page at the root: post_parent 0
                         _p['post_parent'] = 0
                 # Rename the post if necessary to have a pretty (matching) URL
@@ -1233,13 +1236,13 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                 if len(fragment.split('/')) == 1:
                     if p_en['post_name'] != fragment and 'index-html' not in p_en['post_name']:
                         for p in _pages:
-                            p['post_name'] = fragment 
+                            p['post_name'] = fragment
                 # JSON file to contain the post data
                 tmp_json = "tmp_{}_{}.json".format(site.split('/').pop(), _pages[0]['ID'])
                 cmd = "cat {} | wp pll post create --post_type=page --porcelain --stdin --path={}"
                 # Remove / Change attrs before dumping the post JSON.
-                _pagesi = [{k:v for k,v in _p.items() if k not in ['ID', 'url']} for _p in _pages]
-                arr = ['"{}":{}'.format(lngs_seq[i], json.dumps(p, ensure_ascii=False)) for i,p in enumerate(_pagesi)]
+                _pagesi = [{k: v for k, v in _p.items() if k not in ['ID', 'url']} for _p in _pages]
+                arr = ['"{}":{}'.format(lngs_seq[i], json.dumps(p, ensure_ascii=False)) for i, p in enumerate(_pagesi)]
                 json_data = '{' + ', '.join(arr) + '}'
                 # Dump the JSON to a file to avoid non escaped char issues.
                 with open(tmp_json, 'w', encoding='utf8') as j:
