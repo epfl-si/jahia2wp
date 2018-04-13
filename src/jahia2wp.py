@@ -938,21 +938,6 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         # Start with an empty ruleset
         if site not in rulesets:
             rulesets[site] = []
-        ############
-        # IMPORTANT: Translate the source URL using the intermediate WP instance.
-        ############
-        # Use port 8080 (wp-mgmt does not have 80=>8080 redirection for httpd cont.)
-        slash = '/' if source[:-1] != '/' else ''
-        _source = urlparse(source + slash)
-        _source = _source._replace(netloc=_source.netloc + ':8080').geturl()
-        # GET only the HEADERS *of course* in silent mode and ignoring cert. validity
-        out = Utils.run_command('curl -I -s -k {}'.format(_source))
-        # Parse the Location header if present.
-        loc = [l.split('Location: ').pop().strip() for l in out.split('\n') if 'Location:' in l]
-        if not loc:
-            logging.warning('Could not find new URL location in intermediate WP instance for ' + source)
-        else:
-            source = loc.pop()
         # Append the URL to the site's list
         rulesets[site].append((source, dest, rule_type))
     logging.info("{} total sites found.".format(len(rulesets)))
@@ -1023,43 +1008,71 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
     logging.info('[{:.2f}s] Starting rule expansion in diff. langs...'.format(tt()-t))
 
     t = tt()
-    # Expand the rules to cover additional languages for multilang websites.
-    # By default, there is only 1 rule (in the csv) per URL independently of
-    # the number of langs.
+    ############
+    # IMPORTANT: Translate the source URL using the intermediate WP instance.
+    ############
+    # Use port 8080 (wp-mgmt does not have 80=>8080 redirection for httpd cont.)
     for site in rulesets.keys():
-        lngs = Utils.run_command('wp pll languages --path=' + site_paths[site])
-        lngs = [l[:2] for l in lngs.split("\n")]
-        if len(lngs) > 1:
-            logging.info('Multilang site {} for {}, decoupling rules...'.format(lngs, site))
-            pages = Utils.csv_filepath_to_dict(files[site])
-            # Iterate over the individual rules for the site
-            prev_ruleset = list(reversed(rulesets[site]))
-            for idx, (src, dst, type_rule) in enumerate(prev_ruleset):
+        # IMPORTANT: Before expanding any rules, restore the .htaccess to remove ventilation redirs.
+        # Restore the .htaccess (always)
+        with open(site_paths[site] + '/.htaccess', 'r+', encoding='utf8') as f:
+            lines = f.readlines()
+            f.seek(0, 0)
+            f.truncate()
+            begin = [i for i, l in enumerate(lines) if 'BEGIN ventilation-redirs' in l] or [len(lines)]
+            end = [i for i, l in enumerate(lines) if 'END ventilation-redirs' in l] or [len(lines)]
+            for i, l in enumerate(lines):
+                if i < begin[0] or i > end[0]:
+                    f.write(l)
+        # Iterate over the individual rules for the site
+        ext_ruleset = []
+        for (src, dst, type_rule) in rulesets[site]: 
+            slash = '/' if src[:-1] != '/' else ''
+            _src = urlparse(src + slash)
+            _src = _src._replace(netloc=_src.netloc + ':8080').geturl()
+            # GET only the HEADERS *of course* in silent mode and ignoring cert. validity
+            out = Utils.run_command('curl -I -s -k {}'.format(_src))
+            # Parse the Location header if present.
+            loc = [l.split('Location: ').pop().strip() for l in out.split('\n') if 'Location:' in l]
+            if not loc:
+                logging.warning('cURL fail for URL location in WP instance for {}, removing rule'.format(src))
+                continue
+            else:
+                src = loc.pop()
+            ext_ruleset.append((src, dst, type_rule))
+            # Expand the rules to cover additional languages for multilang websites.
+            # By default, there is only 1 rule (in the csv) per URL independently of
+            # the number of langs.
+            lngs = Utils.run_command('wp pll languages --path=' + site_paths[site])
+            lngs = [l[:2] for l in lngs.split("\n")]
+            if len(lngs) > 1:
+                logging.info('Multilang site {} for {}, decoupling rules...'.format(lngs, site))
+                pages = Utils.csv_filepath_to_dict(files[site])
                 # Iterate the pages grouped by number of langs
                 for pi in range(0, len(pages), len(lngs)):
                     page_set = pages[pi:pi + len(lngs)]
                     # Check if one of the URLs matches the src
                     matches = [p['url'] for p in page_set if p['url'] == src]
                     if matches:
-                        ext_ruleset = [(p['url'], dst, type_rule) for p in page_set]
-                        # Insert the additional rules at the right index
-                        idx = len(prev_ruleset) - 1 - idx
-                        # Replace also the single rule at idx with the expanded set
-                        rulesets[site][idx:idx+1] = ext_ruleset
+                        # Remove previous single-lang rule
+                        ext_ruleset.pop()
+                        # Build the ruleset for all langs and extend the current site rules
+                        langs_ruleset = [(p['url'], dst, type_rule) for p in page_set]
+                        ext_ruleset.extend(langs_ruleset)
                         break
+        # Replace the current ruleset with the extended version
+        rulesets[site] = ext_ruleset
+
     pp = pprint.PrettyPrinter(indent=4)
     pp.pprint(rulesets)
 
-    # Restore the .htaccess if it was previously modified (always)
     # Write the .htaccess redirections for the new URL mapping
-    for site in rulesets.keys():
-        with open(site_paths[site] + '/.htaccess', 'r+', encoding='utf8') as f:
-            lines = f.readlines()
-            rw_base = [l for l in lines if 'RewriteBase ' in l].pop().split(' ').pop()
-            f.seek(0, 0)
-            f.truncate()
-            # Write new rules first
-            if htaccess:
+    if htaccess:
+        for site in rulesets.keys():
+            with open(site_paths[site] + '/.htaccess', 'r+', encoding='utf8') as f:
+                lines = f.readlines()
+                rw_base = [l for l in lines if 'RewriteBase ' in l].pop().split(' ').pop().strip()
+                f.seek(0, 0)
                 f.write('# BEGIN ventilation-redirs\n')
                 f.write('RewriteEngine On\n')
                 f.write('RewriteBase {}\n'.format(rw_base))
@@ -1067,14 +1080,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                     path = urlparse(src).path[len(rw_base)-1:]
                     f.write('RewriteRule ^{}(.*)$ {}$1 [R=302,L]\n'.format(path, dst))
                 f.write('# END ventilation-redirs\n')
-            rm = False
-            for l in lines:
-                if 'BEGIN ventilation-redirs' in l:
-                    rm = True
-                if not rm:
-                    f.write(l)
-                if 'END ventilation-redirs' in l:
-                    rm = False
+                f.write(''.join(lines))
 
     # At this point all the CSV files are generated and stored by sitename*
     # Iterate over the rules and start applying them first to the post URL
