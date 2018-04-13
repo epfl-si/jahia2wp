@@ -1202,14 +1202,20 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                 for _p in _pages:
                     if _p['post_parent'] in table_ids[site]:
                         _p['post_parent'] = table_ids[site][_p['post_parent']]
+                # Rename the post if necessary to have a pretty (matching) URL
+                # If there is only one fragment and it's different of the post_name
+                # then change it.
+                fragment = p_en['url'][len(max_match)+1:].strip('/')
+                if len(fragment.split('/')) == 1:
+                    if p_en['post_name'] != fragment:
+                        for p in _pages:
+                            p['post_name'] = fragment 
                 # JSON file to contain the post data
                 tmp_json = "tmp_{}_{}.json".format(site.split('/').pop(), _pages[0]['ID'])
-                # Remove / Change attrs before dumping the post JSON.
-                for _p in _pages: 
-                    del _p['ID']
-                    # del _p['post_content']
                 cmd = "cat {} | wp pll post create --post_type=page --porcelain --stdin --path={}"
-                json_arr = ['"{}":{}'.format(langs_order[i], json.dumps(p, ensure_ascii=False)) for i,p in enumerate(_pages)]
+                # Remove / Change attrs before dumping the post JSON.
+                _pagesi = [{k:v for k,v in _p.items() if k not in ['ID', 'url']} for _p in _pages]
+                json_arr = ['"{}":{}'.format(langs_order[i], json.dumps(p, ensure_ascii=False)) for i,p in enumerate(_pagesi)]
                 json_data = '{' + ', '.join(json_arr) + '}'
                 # Dump the JSON to a file to avoid non escaped char issues.
                 with open(tmp_json, 'w', encoding='utf8') as j:
