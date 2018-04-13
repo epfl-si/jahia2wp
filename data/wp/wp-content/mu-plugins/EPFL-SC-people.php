@@ -62,7 +62,9 @@ function epfl_people_process_shortcode( $attributes, $content = null )
             wp_cache_set( $url, $page, 'epfl_people' );
 
             // return the page
-            return $page;
+            return '<div class="peopleListBox">'.
+                    $page.
+                    '</div>';
         } else {
             $error = new WP_Error( 'not found', 'The url passed is not part of people or is not found', $url );
             epfl_people_log( $error );

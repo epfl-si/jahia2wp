@@ -693,6 +693,10 @@ class Site:
         for navigation_page in node.page.contents[language].navigation:
             child_node = SitemapNode.from_navigation_page(navigation_page=navigation_page, parent=node)
 
+            if not navigation_page.page:
+                logging.warning("navigation_page has no page associated")
+                continue
+
             # if we have an internal NavigationPage, we add it's children
             if navigation_page.type == "internal" \
                     and language in navigation_page.page.contents \
