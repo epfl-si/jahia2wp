@@ -1,4 +1,11 @@
-"Jahia_zip","wp_site_url","unit_name","theme","installs_locked","updates_automatic","openshift_env"
-#"dcsl","http://jahia2wp-httpd/dcsl","idevelop","","","",""
-#"nal","http://jahia2wp-httpd/nal","idevelop","","","",""
-"iig","http://jahia2wp-httpd/iig","idevelop","","","",""
+wp_site_url,wp_tagline,wp_site_title,site_type,openshift_env,category,theme,theme_faculty,status,installs_locked,updates_automatic,langs,unit_name,Jahia_zip,comment
+https://jahia2wp-httpd/dcsl,#parser,#parser,wordpress,gcharmier,GeneralPublic,epfl-master,#parser,yes,no,yes,#parser,DCSL,dcsl,site de la labo
+https://jahia2wp-httpd/epnet,#parser,#parser,wordpress,gcharmier,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,exinfr,network
+https://jahia2wp-httpd/sac,#parser,#parser,wordpress,gcharmier,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,exinfr,network
+https://jahia2wp-httpd/amac,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,amac,amac,
+https://jahia2wp-httpd/apc,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,spc-ge,apc,
+https://jahia2wp-httpd/nm2,#parser,#parser,wordpress,int,GeneralPublic,epfl-blank,#parser,yes,yes,yes,#parser,bbp-core,nm2,
+https://jahia2wp-httpd/c3mp,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,c3mp,C3PN,
+https://jahia2wp-httpd/cag,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,cag,cag,migrable
+https://jahia2wp-httpd/carriere,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,cc,carriere,migrable
+https://jahia2wp-httpd/cdt,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,ssie-ens,cdt,migrable
