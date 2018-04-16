@@ -4,7 +4,7 @@ import os
 import sys
 import re
 from parser.box import Box
-from math import floor
+from math import ceil
 import timeit
 from collections import OrderedDict
 from datetime import timedelta, datetime
@@ -199,14 +199,15 @@ class WPExporter:
             start = "{}/content/sites/{}/files".format(self.site.base_path, self.site.name)
             self.site.files = self._asciify_path(start)
 
-            step = floor(len(self.site.files)/10)
+            count = 0
             for file in self.site.files:
                 wp_media = self.import_media(file)
                 if wp_media:
                     self.fix_file_links(file, wp_media)
                     self.report['files'] += 1
+                    count += 1
 
-                    if self.report['files'] % step == 0:
+                    if count % 10 == 0:
                         logging.info("[%s/%s] WP medias imported", self.report['files'], len(self.site.files))
 
             self.fix_key_visual_boxes()
@@ -697,6 +698,10 @@ class WPExporter:
             # First, we import banners if exists
             # Banner is only one text widget per lang in a dedicated sidebar
             for lang, banner in self.site.banner.items():
+
+                if not banner.content:
+                    logging.warning("Banner is empty")
+                    continue
 
                 cmd = 'widget add text header-widgets --text="{}"'.format(
                     banner.content.replace('"', '\\"'))
