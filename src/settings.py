@@ -5,6 +5,9 @@ from utils import Utils
 
 VERSION = "0.3.1"
 
+LINE_LENGTH_ON_PPRINT = 150
+LINE_LENGTH_ON_EXPORT = LINE_LENGTH_ON_PPRINT + 100
+
 DEBUG = False
 ACTIVE_DUAL_AUTH = False
 OPENSHIFT_ENV = Utils.get_mandatory_env("WP_ENV")
