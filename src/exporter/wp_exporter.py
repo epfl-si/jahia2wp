@@ -4,7 +4,6 @@ import os
 import sys
 import re
 from parser.box import Box
-from math import ceil
 import timeit
 from collections import OrderedDict
 from datetime import timedelta, datetime
