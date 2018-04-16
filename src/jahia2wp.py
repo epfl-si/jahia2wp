@@ -1275,7 +1275,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                         for p in _pages:
                             p['post_name'] = fragment
                 # JSON file to contain the post data
-                tmp_json = "tmp_{}_{}.json".format(site.split('/').pop(), _pages[0]['ID'])
+                tmp_json = ".tmp_{}_{}.json".format(site.split('/').pop(), _pages[0]['ID'])
                 cmd = "cat {} | wp pll post create --post_type=page --porcelain --stdin --path={}"
                 # Remove / Change attrs before dumping the post JSON.
                 _pagesi = [{k: v for k, v in _p.items() if k not in ['ID', 'url']} for _p in _pages]
