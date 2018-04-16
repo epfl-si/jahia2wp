@@ -69,7 +69,6 @@ class Box:
         self.content = ""
         # the shortcode attributes with URLs that must be fixed by the wp_exporter
         self.shortcode_attributes_to_fix = []
-        self.set_content(element, multibox)
 
         # parse the content
         self.set_content(element, multibox)
