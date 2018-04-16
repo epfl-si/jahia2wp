@@ -1026,7 +1026,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                     f.write(l)
         # Iterate over the individual rules for the site
         ext_ruleset = []
-        for (src, dst, type_rule) in rulesets[site]: 
+        for (src, dst, type_rule) in rulesets[site]:
             slash = '/' if src[:-1] != '/' else ''
             _src = urlparse(src + slash)
             _src = _src._replace(netloc=_src.netloc + ':8080').geturl()
