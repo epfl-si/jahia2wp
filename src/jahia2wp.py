@@ -1271,7 +1271,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                 # then change it.
                 fragment = p_en['url'][len(max_match)+1:].strip('/')
                 if len(fragment.split('/')) == 1:
-                    if p_en['post_name'] != fragment and 'index-html' not in p_en['post_name']:
+                    if p_en['post_name'] != fragment and max_match != p_en['url'].strip('/'):
                         for p in _pages:
                             p['post_name'] = fragment
                 # JSON file to contain the post data
