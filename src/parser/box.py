@@ -71,16 +71,18 @@ class Box:
         self.shortcode_attributes_to_fix = []
 
         # parse the content
-        self.set_content(element, multibox)
+        if self.type:
+            self.set_content(element, multibox)
 
     def set_type(self, element):
         """
         Sets the box type
         """
-
         type = element.getAttribute("jcr:primaryType")
 
-        if type in self.types:
+        if not type:
+            logging.warning("Box has no type")
+        elif type in self.types:
             self.type = self.types[type]
         else:
             self.type = type
