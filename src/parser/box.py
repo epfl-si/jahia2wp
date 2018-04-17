@@ -69,10 +69,10 @@ class Box:
         self.content = ""
         # the shortcode attributes with URLs that must be fixed by the wp_exporter
         self.shortcode_attributes_to_fix = []
-        self.set_content(element, multibox)
 
         # parse the content
-        self.set_content(element, multibox)
+        if self.type:
+            self.set_content(element, multibox)
 
     def set_type(self, element):
         """
@@ -81,7 +81,9 @@ class Box:
 
         type = element.getAttribute("jcr:primaryType")
 
-        if type in self.types:
+        if type == "":
+            logging.warning("Box has no type")
+        elif type in self.types:
             self.type = self.types[type]
         else:
             self.type = type
