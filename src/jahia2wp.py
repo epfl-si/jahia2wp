@@ -87,7 +87,6 @@ from utils import Utils
 from veritas.casters import cast_boolean
 from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
-import pprint
 from time import time as tt
 from urllib.parse import urlparse
 import itertools
@@ -942,8 +941,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         rulesets[site].append((source, dest, rule_type))
     logging.info("{} total sites found.".format(len(rulesets)))
     logging.debug(rulesets)
-    pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(rulesets)
+    pprint(rulesets)
 
     # Iterate over all the sites to map and dump a CSV with the pages and
     # another one for the media / attachments. This will *greatly simplify* the
@@ -1063,8 +1061,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         # Replace the current ruleset with the extended version
         rulesets[site] = ext_ruleset
 
-    pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(rulesets)
+    pprint(rulesets)
 
     # Write the .htaccess redirections for the new URL mapping
     if htaccess:
@@ -1152,8 +1149,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                 except:
                     tot_reps = '; '.join(matches.values())
                 stats[site][site2].append((tot_reps, source, dest, matches))
-    pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(stats)
+    pprint(stats)
 
     # At this point all the CSV files have the right URLs in place. It is the moment to effectively migrate
     # the content (pages and files / media)
@@ -1199,8 +1195,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                         # if wp_config.is_config_valid:
                         dest_sites[wp_site.url] = path
 
-    pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(dest_sites)
+    pprint(dest_sites)
     dest_sites_keys = dest_sites.keys()
 
     logging.info(
