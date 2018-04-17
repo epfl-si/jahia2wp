@@ -1025,10 +1025,12 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         # Iterate over the individual rules for the site
         ext_ruleset = []
         for (src, dst, type_rule) in rulesets[site]:
-            slash = '/' if src[:-1] != '/' else ''
-            _src = urlparse(src + slash)
+            _src = urlparse(src)
             _src = _src._replace(netloc=_src.netloc + ':8080').geturl()
-            # GET only the HEADERS *of course* in silent mode and ignoring cert. validity
+            # GET only the HEADERS *of course* in silent mode and ignoring cert validity
+            # WARNING:::: This first curl call will only get the .htaccess redirection (i.e. page GUID)
+            # The second call (redir) will translate the GUID into the actual URL that doesn't have a port 
+            # info, therefore curl has to stop at this level to avoid port errors.
             out = Utils.run_command('curl -I -s -k {}'.format(_src))
             # Parse the Location header if present.
             loc = [l.split('Location: ').pop().strip() for l in out.split('\n') if 'Location:' in l]
@@ -1037,6 +1039,18 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                 continue
             else:
                 src = loc.pop()
+                # Continue only if the location has a 8080 port.
+                # Special case: The root URL does only need one cURL.
+                if ':8080' in src:
+                    out = Utils.run_command('curl -I -s -k {}'.format(src))
+                    # Parse the Location header if present.
+                    loc = [l.split('Location: ').pop().strip() for l in out.split('\n') if 'Location:' in l]
+                    if not loc:
+                        logging.warning('cURL fail for URL location in WP instance for {}, removing rule'.format(src))
+                        continue
+                    else:
+                        src = loc.pop()
+            print(src, _src)
             ext_ruleset.append((src, dst, type_rule))
             # Expand the rules to cover additional languages for multilang websites.
             # By default, there is only 1 rule (in the csv) per URL independently of
