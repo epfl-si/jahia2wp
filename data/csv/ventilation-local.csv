@@ -5,3 +5,4 @@ sac/echange-PDM, epfl/education/exchanges
 sac/studies,epfl/education/epfl-studies
 sac/student-exchanges/*,inside/students/student-exchanges
 sac/*,epfl/education/
+epnet/*,inside/network/
