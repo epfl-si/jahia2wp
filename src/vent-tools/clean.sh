@@ -10,3 +10,5 @@ python jahia2wp.py clean $WP_ENV http://jahia2wp-httpd/epfl/research/publication
 
 python jahia2wp.py clean $WP_ENV http://jahia2wp-httpd/inside  
 python jahia2wp.py clean $WP_ENV http://jahia2wp-httpd/inside/students 
+rm -r /srv/$WP_ENV/jahia2wp-httpd/htdocs/epfl/
+rm -r /srv/$WP_ENV/jahia2wp-httpd/htdocs/inside/
