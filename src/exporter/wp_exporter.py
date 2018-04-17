@@ -937,7 +937,7 @@ class WPExporter:
 
                             # If menu entry is sitemap, we add WP site base URL
                             if menu_item.target_is_sitemap():
-                                url = "{}{}".format(self.wp_generator.wp_site.url, url)
+                                url = "{}/{}".format(self.wp_generator.wp_site.url, url)
 
                             cmd = 'menu item add-custom {} "{}" "{}" --porcelain' \
                                 .format(menu_name, menu_item.txt, url)
