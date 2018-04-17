@@ -78,10 +78,9 @@ class Box:
         """
         Sets the box type
         """
-
         type = element.getAttribute("jcr:primaryType")
 
-        if type == "":
+        if not type:
             logging.warning("Box has no type")
         elif type in self.types:
             self.type = self.types[type]
