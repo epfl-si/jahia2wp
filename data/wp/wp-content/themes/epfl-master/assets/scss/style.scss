@@ -1172,7 +1172,7 @@ ul.bottin {
   margin-bottom: 0 !important;
 }
 .site-title {
-  font-family: Impact, "Arial Black", "DejaVu Sans", Arial, Helvetica, sans-serif;
+  @include txt-narrow;
   font-size: 1.625em /* 26px */;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -1584,10 +1584,12 @@ ul.bottin {
 }
 
 .sidebar .widget-title {
+  @include txt-narrow;
   border-bottom: 1px solid #000;
   color: #000;
-  font: normal 1.375em/1.2em Impact, "Arial Black","DejaVu Sans", Arial, Helvetica , sans-serif;
-  letter-spacing: 0.1em;
+  font-style: normal;
+  font-size: 1.375em;
+  line-height: 1.2em;
   margin-bottom: .5em;
   text-transform: uppercase;
   padding: 1px 0 4px 1px;
@@ -1663,9 +1665,12 @@ ul.bottin {
 .site-main .entry-header h1.entry-title {
   font-family: "Arial black", Arial, Helvetica, sans-serif;
   font-size: 1.6875em;
-  letter-spacing: normal;
   line-height: 1.4em;
   text-transform: none;
+}
+
+.entry-header .entry-title {
+  letter-spacing: normal;
 }
   
 .page-header,
@@ -1698,7 +1703,7 @@ ul.bottin {
 
 /* Article list */
 
-.list-articles .hentry {
+.list-articles .post {
   @include clearfix;
   @include border-bottom-dots;
 }
@@ -1711,7 +1716,7 @@ ul.bottin {
     font-size: .875rem;
     font-weight: bold;
     padding: 0;
-    margin: 0 0 .3075em 0;
+    margin: 0 0 6px 0;
     color: #000;
     text-transform: none;
 
@@ -1743,16 +1748,11 @@ ul.bottin {
     @include minor-text;
     color: #000;
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
   }
   
   .entry-date {
     margin-right: .5em;
-    
-    &:after {
-      content: "-";
-      margin-left: .4em;
-    }
   }
   
   .post-categories {
@@ -1766,6 +1766,37 @@ ul.bottin {
       margin: 0 .1em;
     }
   }
+  
+  .teaser {
+    font-size: .8125rem;
+    height: 3.9em;
+    overflow: hidden;
+    position: relative;
+    
+    &:after {
+      content: "";
+      background: transparent;
+      height: 3.3em;
+      position: absolute;
+      top: auto; right: 0; bottom: 0; left: 0;
+      
+      /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&0+0,0.8+100 */
+      background: -moz-linear-gradient(top, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 100%); /* FF3.6-15 */
+      background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,0.8) 100%); /* Chrome10-25,Safari5.1-6 */
+      background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgba(255,255,255,0.8) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+      filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ccffffff',GradientType=0 ); /* IE6-9 */
+
+    }
+    
+    p {
+      margin: 0;
+    }
+  }
+}
+
+.list-articles.list-news {
+  border-top: 1px solid #000;
+  padding-top: 15px;
 }
 
 /* Meta data */
@@ -1939,6 +1970,125 @@ ul.bottin {
     position: absolute;
     top: 2px; right: auto; bottom: 8px; left: 0;
     width: 0;
+  }
+}
+
+/*  ---------------------------------------
+    08 SHORTCODES
+----------------------------------------- */
+
+/* --- News --- */
+
+.list-news {
+  
+  .post {
+    position: relative;
+  }
+  
+  .entry-date {
+    @include minor-text;
+    color: #000;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+  
+  .label {
+    @include txt-narrow;
+    background: #000;
+    border: solid #fff;
+    border-width: 0 1px 1px 0;
+    color: #fff;
+    padding: 2px 6px;
+    position: absolute;
+    top: 0; right: auto; bottom: auto; left: 0;
+    text-transform: uppercase;
+  }
+  
+}
+
+.list-news.list-news-sidebar {
+  border-top: none;
+  max-width: 320px;
+  padding-top: 0;
+  
+  article.post {
+    clear: right;
+    overflow: hidden;
+  }
+  
+  .post-thumbnail {
+    display: flex;
+    justify-content: center;
+    height: 86px;
+    overflow: hidden;
+    padding: 0;
+    width: 36%;
+    
+    a {
+      display: block;
+      height: inherit;
+    }
+    img {
+      height: inherit;
+      max-width: none;
+      width: auto;
+    }
+  }
+  
+  .entry-header {
+    width: 100%;
+    
+    .entry-title {
+      font-size: .75em;
+      line-height: 1.4em;
+      margin-bottom: 5px;
+    }
+  }
+  
+  .entry-content {
+    float: right;
+    line-height: 0;
+    height: 86px;
+    overflow: hidden;
+    padding: 0;
+    position: relative;
+    width: 60%;
+    
+    &:after {
+      content: "";
+      background: transparent;
+      height: 2em;
+      position: absolute;
+      top: auto; right: 0; bottom: 0; left: 0;
+      
+      /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&0+0,0.8+100 */
+      background: -moz-linear-gradient(top, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 100%); /* FF3.6-15 */
+      background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,0.8) 100%); /* Chrome10-25,Safari5.1-6 */
+      background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgba(255,255,255,0.8) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+      filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ccffffff',GradientType=0 ); /* IE6-9 */
+
+    }
+  
+    .entry-meta {
+      display: inline;
+      margin-bottom: 0;
+    }
+    
+    .teaser {
+      height: 2.4em;
+      display: inline;
+      
+      &:after {
+        display: none;
+      }
+      
+      p {
+        display: inline;
+        font-size: .75rem;
+        line-height: 1.3em;
+      }
+    }
+    
   }
 }
 
@@ -2359,6 +2509,154 @@ ul.bottin {
     & > * {
       clear: none;
     }
+  }
+  
+  /* List of articles with no picture */
+  
+  .list-articles.list-news-textonly {
+    
+    .entry-header {
+      float: none;
+      width: 100%;
+    }
+    
+    .entry-content {
+      padding: 0;
+    }
+  }
+  
+  /* List of articles with first article featured */
+  
+  .list-articles.list-news-first-featured {
+    
+    article.post {
+      border: 0;
+      clear: right;
+      float: right;
+      height: 88px;
+      overflow: hidden;
+      padding: 0;
+      width: 50%;
+      
+      .post-thumbnail {
+        display: flex;
+        justify-content: center;
+        height: 88px;
+        overflow: hidden;
+        padding: 0;
+        width: 36%;
+        
+        a {
+          display: block;
+          height: inherit;
+        }
+        img {
+          height: inherit;
+          max-width: none;
+          width: auto;
+        }
+      }
+      
+      .entry-header {
+        width: 100%;
+        
+        .entry-title {
+          font-size: .75em;
+          line-height: 1.4em;
+          margin-bottom: 6px;
+          //max-height: 2.8em;
+          overflow: hidden;
+        }
+      }
+      
+      .entry-content {
+        float: right;
+        line-height: 0;
+        height: 88px;
+        overflow: hidden;
+        padding: 0;
+        position: relative;
+        width: 60%;
+        
+        &:after {
+          content: "";
+          background: transparent;
+          height: 2.1em;
+          position: absolute;
+          top: auto; right: 0; bottom: 0; left: 0;
+          
+          /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&0+0,0.8+100 */
+          background: -moz-linear-gradient(top, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 100%); /* FF3.6-15 */
+          background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,0.8) 100%); /* Chrome10-25,Safari5.1-6 */
+          background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgba(255,255,255,0.8) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+          filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ccffffff',GradientType=0 ); /* IE6-9 */
+    
+        }
+        
+        .entry-meta {
+          display: inline;
+          margin-bottom: 0;
+          
+          .entry-date {
+            margin-bottom: 0;
+          }
+        }
+        
+        .teaser {
+          display: inline;
+          line-height: 1;
+        
+          &:after {
+            display: none;
+          }
+          
+          p {
+            display: inline;
+            font-size: .75rem;
+            line-height: 1.3em;
+          }
+        }
+      }
+      
+      &:first-of-type {
+        float: left;
+        height: auto;
+        padding-right: 15px;
+        
+        .post-thumbnail {
+          float: none;
+          margin-bottom: 6px;
+          padding: 0;
+          height: auto;
+          width: 100%;
+        }
+        
+        .entry-header {
+          float: none;
+          width: 100%;
+          
+          .entry-title {
+            font-size: .875rem;
+          }
+        }
+        
+        .entry-content {
+          float: none;
+          padding: 0;
+          height: 108px;
+          width: 100%;
+          
+          &:after {
+            height: 3em;
+          }
+          
+          .teaser {
+            height: 4.6em;
+          }
+        }
+      }
+    }
+    
   }
   
   /* --- Single article --- */
