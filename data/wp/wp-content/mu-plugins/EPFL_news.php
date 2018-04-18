@@ -16,36 +16,42 @@ define("NEWS_API_URL", "https://actu.epfl.ch/api/v1/channels/");
 define("NEWS_API_URL_IFRAME", "https://actu.epfl.ch/webservice_iframe/");
 
 /**
- * Template text only
+ * Template text only (template 2)
  * 
  * @param $news: response of news API. 
  * @return html of template
  */
 function epfl_news_template_text_only($news): string
 {
-    $html = '<div>';
-    $html .= '<p>template_text_only</p>';
+    $html = '<p>template_labo_with_4_news</p>';
+    $html .= '<div class="list-articles list-news list-news-textonly clearfix">';
 	foreach ($news->results as $item) {
-		$html .= '<div style="height: 103px;">';
-		$html .= '  <div style="display:inline-block;margin-left:5px;">';
-		$html .= '    <h4>';
-		$html .= '      <a href="/news/how-the-tuberculosis-bacterium-tricks-the-immune-5/" target="_blank">';
+  	
+  	$publish_date = new DateTime($item->publish_date);
+    $publish_date = $publish_date->format('d.m.y');
+	    
+		$html .= '<article class="post">';
+		$html .= '  <header class="entry-header">';
+		$html .= '    <h2 class="entry-title">';
+		$html .= '      <a href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
 		$html .= $item->title;
 		$html .= '      </a>';
-		$html .= '    </h4>';
-		$html .= '    <p>';
-		$html .= '      <span class="date">' . $item->publish_date . ' -</span>';
-		$html .= '      <span class="heading" style="display:inline">' . substr($item->subtitle, 0, 40) . '</span>';
-        $html .= '    </p>';
+		$html .= '    </h2>';
+		$html .= '  </header>';
+		$html .= '  <div class="entry-content">';
+		$html .= '    <div class="entry-meta">';
+		$html .= '      <time class="entry-date">' . $publish_date . '</time>';
+		$html .= '    </div>';
+		$html .= '    <div class="teaser">' . substr($item->subtitle, 0, 360) . '</div>';
 		$html .= '  </div>';
-		$html .= '</div>';
+		$html .= '</article>';
     }
     $html .= '</div>';
     return $html;
 }
 
 /**
- * Template faculty with 4 news
+ * Template faculty with 4 news (template 3)
  * 
  * @param $news: response of news API. 
  * @param $stickers: display stickers on images ?
@@ -56,22 +62,38 @@ function epfl_news_template_fac_with_4_news($news, bool $stickers): string
     $html = '<p>template_labo_with_4_news</p>';
     $html .= '<div class="list-articles list-news list-news-first-featured clearfix">';
 	foreach ($news->results as $item) {
+
+/*
+	    // print fr and en category
+	    if ($stickers == TRUE) {
+            if ($item->lang === "fr") {
+                Utils::debug($item->category->fr_label);
+            } elseif ($item->lang === "en") {
+                Utils::debug($item->category->en_label);
+            }
+        }
+*/
+        
+    $publish_date = new DateTime($item->publish_date);
+    $publish_date = $publish_date->format('d.m.y');
+	    
 		$html .= '<article class="post">';
 		$html .= '  <figure class="post-thumbnail">';
 		$html .= '    <a href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
 		$html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
 		$html .= '    </a>';
 		$html .= '  </figure>';
-		$html .= '  <header class="entry-header">';
-		$html .= '    <h2 class="entry-title">';
-		$html .= '      <a href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
-		$html .= $item->title;
-		$html .= '      </a>';
-		$html .= '    </h2>';
-		$html .= '  </header>';
+		$html .= '  <p class="label">' . $item->category->fr_label . ' </p>';
 		$html .= '  <div class="entry-content">';
+		$html .= '    <header class="entry-header">';
+		$html .= '      <h2 class="entry-title">';
+		$html .= '        <a href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
+		$html .= $item->title;
+		$html .= '        </a>';
+		$html .= '      </h2>';
+		$html .= '    </header>';
 		$html .= '    <div class="entry-meta">';
-		$html .= '      <time class="entry-date">12.12.12</time>';
+		$html .= '      <time class="entry-date">' . $publish_date . '</time>';
 		$html .= '    </div>';
 		$html .= '    <div class="teaser">' . substr($item->subtitle, 0, 240) . '</div>';
 		$html .= '  </div>';
@@ -82,7 +104,60 @@ function epfl_news_template_fac_with_4_news($news, bool $stickers): string
 }
 
 /**
- * Template laboratory with 5 news
+ * Template faculty with 3 news (template 6 - sidebar)
+ * 
+ * @param $news: response of news API. 
+ * @param $stickers: display stickers on images ?
+ * @return html of template
+ */
+function epfl_news_template_fac_with_3_news($news, bool $stickers): string
+{
+    $html = '<p>template_labo_with_3_news (sidebar)</p>';
+    $html .= '<div class="list-articles list-news list-news-sidebar clearfix">';
+	foreach ($news->results as $item) {
+
+	    // print fr and en category
+/*
+	    if ($stickers == TRUE) {
+            if ($item->lang === "fr") {
+                Utils::debug($item->category->fr_label);
+            } elseif ($item->lang === "en") {
+                Utils::debug($item->category->en_label);
+            }
+        }
+*/
+        
+    $publish_date = new DateTime($item->publish_date);
+    $publish_date = $publish_date->format('d.m.y');
+	    
+		$html .= '<article class="post">';
+		$html .= '  <figure class="post-thumbnail">';
+		$html .= '    <a href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
+		$html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
+		$html .= '    </a>';
+		$html .= '  </figure>';
+		$html .= '  <p class="label">' . $item->category->fr_label . ' </p>';
+		$html .= '  <div class="entry-content">';
+		$html .= '    <header class="entry-header">';
+		$html .= '      <h2 class="entry-title">';
+		$html .= '        <a href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
+		$html .= $item->title;
+		$html .= '        </a>';
+		$html .= '      </h2>';
+		$html .= '    </header>';
+		$html .= '    <div class="entry-meta">';
+		$html .= '      <time class="entry-date">' . $publish_date . '</time>';
+		$html .= '    </div>';
+		$html .= '    <div class="teaser">' . substr($item->subtitle, 0, 240) . '</div>';
+		$html .= '  </div>';
+		$html .= '</article>';
+    }
+    $html .= '</div>';
+    return $html;
+}
+
+/**
+ * Template laboratory with 5 news (template 8)
  * 
  * @param $news: response of news API. 
  * @param $stickers: display stickers on images ?
@@ -106,6 +181,7 @@ function epfl_news_template_labo_with_5_news($news, bool $stickers): string
 		$html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
 		$html .= '    </a>';
 		$html .= '  </figure>';
+		$html .= '  <p class="label">' . $item->category->fr_label . ' </p>';
 		$html .= '  <div class="entry-content">';
 		$html .= '    <div class="entry-meta">';
 		$html .= '      <time class="entry-date">' . $item->publish_date . '</time>';
@@ -119,7 +195,7 @@ function epfl_news_template_labo_with_5_news($news, bool $stickers): string
 }
 
 /**
- * Template laboratory with 3 news
+ * Template laboratory with 3 news (template 4)
  * 
  * @param $news: response of news API. 
  * @param $stickers: display stickers on images ?
@@ -132,6 +208,7 @@ function epfl_news_template_labo_with_3_news($news, bool $stickers): string
 	foreach ($news->results as $item) {
 
 	    // print fr and en category
+/*
 	    if ($stickers == TRUE) {
             if ($item->lang === "fr") {
                 Utils::debug($item->category->fr_label);
@@ -139,8 +216,10 @@ function epfl_news_template_labo_with_3_news($news, bool $stickers): string
                 Utils::debug($item->category->en_label);
             }
         }
-        $publish_date = new DateTime($item->publish_date);
-	    $publish_date = $publish_date->format('d.m.Y');
+*/
+        
+    $publish_date = new DateTime($item->publish_date);
+    $publish_date = $publish_date->format('d.m.Y');
 
 		$html .= '<article class="post">';
 		$html .= '  <header class="entry-header">';
@@ -155,6 +234,7 @@ function epfl_news_template_labo_with_3_news($news, bool $stickers): string
 		$html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
 		$html .= '    </a>';
 		$html .= '  </figure>';
+		$html .= '  <p class="label">' . $item->category->fr_label . ' </p>';
 		$html .= '  <div class="entry-content">';
 		$html .= '    <div class="entry-meta">';
 		$html .= '      <time class="entry-date">' . $publish_date . '</time>';
