@@ -2046,6 +2046,8 @@ ul.bottin {
   }
   
   .entry-content {
+    @include gradient-fade;
+    
     float: right;
     line-height: 0;
     height: 86px;
@@ -2055,18 +2057,7 @@ ul.bottin {
     width: 60%;
     
     &:after {
-      content: "";
-      background: transparent;
-      height: 2em;
-      position: absolute;
-      top: auto; right: 0; bottom: 0; left: 0;
-      
-      /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&0+0,0.8+100 */
-      background: -moz-linear-gradient(top, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 100%); /* FF3.6-15 */
-      background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,0.8) 100%); /* Chrome10-25,Safari5.1-6 */
-      background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgba(255,255,255,0.8) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-      filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ccffffff',GradientType=0 ); /* IE6-9 */
-
+      height: 2.8em;
     }
   
     .entry-meta {
@@ -2090,6 +2081,48 @@ ul.bottin {
     }
     
   }
+}
+
+.sidebar .list-articles.list-news-textonly {
+  
+  .entry-title {
+    font-size: .8125em;
+    line-height: 1.4em;
+    margin-bottom: 5px;
+  }
+  
+  .entry-content {
+    @include gradient-fade;
+    
+    height: 3.9em;
+    line-height: 0;
+    overflow: hidden;
+    
+    &:after {
+      height: 2.8em;
+    }
+  
+    .entry-meta {
+      display: inline;
+      margin-bottom: 0;
+    }
+    
+    .teaser {
+      display: inline;
+      
+      &:after {
+        display: none;
+      }
+      
+      p {
+        display: inline;
+        font-size: .75rem;
+        line-height: 1.3em;
+      }
+    }
+  }
+  
+  
 }
 
 

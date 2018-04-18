@@ -16,7 +16,7 @@ define("NEWS_API_URL", "https://actu.epfl.ch/api/v1/channels/");
 define("NEWS_API_URL_IFRAME", "https://actu.epfl.ch/webservice_iframe/");
 
 /**
- * Template text only (template 2)
+ * Template text only (template 2 - sidebar)
  * 
  * @param $news: response of news API. 
  * @return html of template
