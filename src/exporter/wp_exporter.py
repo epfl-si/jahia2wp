@@ -883,6 +883,7 @@ class WPExporter:
         Add pages into the menu in wordpress.
         This menu was created when configuring the polylang plugin.
         """
+        logging.info("Populating menu...")
         try:
             # Create homepage menu
             for lang, page_content in self.site.homepage.contents.items():
