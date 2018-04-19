@@ -71,7 +71,7 @@ Class NewsUtils
  */
 function epfl_news_template_text_only($news): string
 {
-    $html .= '<div class="list-articles list-news list-news-textonly clearfix">';
+    $html = '<div class="list-articles list-news list-news-textonly clearfix">';
 	foreach ($news->results as $item) {
 
   	$publish_date = new DateTime($item->publish_date);
@@ -106,7 +106,7 @@ function epfl_news_template_text_only($news): string
  */
 function epfl_news_template_fac_with_4_news($news, bool $stickers): string
 {
-    $html .= '<div class="list-articles list-news list-news-first-featured clearfix">';
+    $html = '<div class="list-articles list-news list-news-first-featured clearfix">';
 	foreach ($news->results as $item) {
 
         $publish_date = new DateTime($item->publish_date);
@@ -157,7 +157,7 @@ function epfl_news_template_fac_with_4_news($news, bool $stickers): string
  */
 function epfl_news_template_fac_with_3_news($news, bool $stickers): string
 {
-    $html .= '<div class="list-articles list-news list-news-sidebar clearfix">';
+    $html = '<div class="list-articles list-news list-news-sidebar clearfix">';
 	foreach ($news->results as $item) {
 
         if ($stickers == TRUE) {
@@ -208,7 +208,7 @@ function epfl_news_template_fac_with_3_news($news, bool $stickers): string
  */
 function epfl_news_template_labo_with_5_news($news, bool $stickers): string
 {
-    $html .= '<div class="list-articles list-news clearfix">';
+    $html = '<div class="list-articles list-news clearfix">';
 	foreach ($news->results as $item) {
         if ($stickers == TRUE) {
             if ($item->lang === "fr") {
@@ -254,7 +254,7 @@ function epfl_news_template_labo_with_5_news($news, bool $stickers): string
  */
 function epfl_news_template_labo_with_3_news($news, bool $stickers): string
 {
-    $html .= '<div class="list-articles list-news clearfix">';
+    $html = '<div class="list-articles list-news clearfix">';
 	foreach ($news->results as $item) {
 
         $publish_date = new DateTime($item->publish_date);
@@ -319,7 +319,7 @@ function epfl_news_build_html($news, string $template, bool $stickers): string
     } else {
         $html = epfl_news_template_labo_with_3_news($news, $stickers);
     }
-    return $html;
+    return '<div class="newsBox">' . $html . '</div>';
 }
 
 /**
@@ -455,12 +455,12 @@ function epfl_news_process_shortcode(
 
         // extract shortcode paramepfl_newseter
         $atts = extract(shortcode_atts(array(
-                'channel' => '',
-                'lang' => '',
+                'channel'  => '',
+                'lang'     => '',
                 'template' => '',
                 'stickers' => '',
                 'category' => '',
-                'themes' => '',
+                'themes'   => '',
         ), $atts, $tag));
 
         if (epfl_news_check_required_parameters($channel, $lang) == FALSE) {
