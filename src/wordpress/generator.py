@@ -278,14 +278,16 @@ class WPGenerator:
             logging.error("%s - could not setup WP site", repr(self))
             return False
 
-        # Set Tagline (blog description)
-        # Command is in simple quotes and tagline between double quotes to avoid problems in case of simple quote
-        # in tagline text. We initialize blogdescription with default language
-        if not self.run_wp_cli('option update blogdescription "{}"'.format(
-                self._site_params['wp_tagline'][self.default_lang()]),
-                encoding="utf-8"):
-            logging.error("%s - could not configure blog description", repr(self))
-            return False
+        # Set Tagline (blog description) if we have one. If we don't have a tagline and set it to "empty", it won't
+        # be available in Polylang to translate it so we let the default value set by WordPress
+        if self._site_params['wp_tagline']:
+            # Command is in simple quotes and tagline between double quotes to avoid problems in case of simple quote
+            # in tagline text. We initialize blogdescription with default language
+            if not self.run_wp_cli('option update blogdescription "{}"'.format(
+                    self._site_params['wp_tagline'][self.default_lang()]),
+                    encoding="utf-8"):
+                logging.error("%s - could not configure blog description", repr(self))
+                return False
 
         # Configure permalinks
         command = "rewrite structure '/%postname%/' --hard"
