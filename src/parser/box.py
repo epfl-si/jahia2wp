@@ -366,7 +366,9 @@ class Box:
         channel_id, lang, template, category, themes = self._extract_epfl_news_parameters(
             Utils.get_tag_attribute(element, "url", "jahia:value")
         )
-        html_content = '[epfl_news channel="{}" lang="{}" template="{}" '.format(
+        self.shortcode_name = "epfl_news"
+        html_content = '[{} channel="{}" lang="{}" template="{}" '.format(
+            self.shortcode_name,
             channel_id,
             lang,
             template
@@ -413,7 +415,9 @@ class Box:
         memento_name, lang, template = self._extract_epfl_memento_parameters(
             Utils.get_tag_attribute(element, "url", "jahia:value")
         )
-        html_content = '[epfl_memento memento="{}" lang="{}" template="{}" '.format(
+        self.shortcode_name = "epfl_memento"
+        html_content = '[{} memento="{}" lang="{}" template="{}" '.format(
+            self.shortcode_name,
             memento_name,
             lang,
             template
