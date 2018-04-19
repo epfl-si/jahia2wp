@@ -65,23 +65,22 @@ Class NewsUtils
 
 /**
  * Template text only (template 2)
- * 
- * @param $news: response of news API. 
+ *
+ * @param $news: response of news API.
  * @return html of template
  */
 function epfl_news_template_text_only($news): string
 {
-    $html = '<p>template_labo_with_4_news</p>';
     $html .= '<div class="list-articles list-news list-news-textonly clearfix">';
 	foreach ($news->results as $item) {
-  	
+
   	$publish_date = new DateTime($item->publish_date);
     $publish_date = $publish_date->format('d.m.y');
-	    
+
 		$html .= '<article class="post">';
 		$html .= '  <header class="entry-header">';
 		$html .= '    <h2 class="entry-title">';
-		$html .= '      <a href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
+		$html .= '      <a href="https://actu.epfl.ch/news/' . NewsUtils::get_anchor($item->title) . '">';
 		$html .= $item->title;
 		$html .= '      </a>';
 		$html .= '    </h2>';
@@ -100,42 +99,40 @@ function epfl_news_template_text_only($news): string
 
 /**
  * Template faculty with 4 news (template 3)
- * 
- * @param $news: response of news API. 
+ *
+ * @param $news: response of news API.
  * @param $stickers: display stickers on images ?
  * @return html of template
  */
 function epfl_news_template_fac_with_4_news($news, bool $stickers): string
 {
-    $html = '<p>template_labo_with_4_news</p>';
     $html .= '<div class="list-articles list-news list-news-first-featured clearfix">';
 	foreach ($news->results as $item) {
 
-/*
-	    // print fr and en category
-	    if ($stickers == TRUE) {
+        $publish_date = new DateTime($item->publish_date);
+        $publish_date = $publish_date->format('d.m.y');
+
+        if ($stickers == TRUE) {
             if ($item->lang === "fr") {
-                Utils::debug($item->category->fr_label);
+                $category_label = $item->category->fr_label;
             } elseif ($item->lang === "en") {
-                Utils::debug($item->category->en_label);
+                $category_label = $item->category->en_label;
             }
         }
-*/
-        
-    $publish_date = new DateTime($item->publish_date);
-    $publish_date = $publish_date->format('d.m.y');
-	    
+
 		$html .= '<article class="post">';
 		$html .= '  <figure class="post-thumbnail">';
 		$html .= '    <a href="https://actu.epfl.ch/news/' . NewsUtils::get_anchor($item->title) . '">';
 		$html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
 		$html .= '    </a>';
-		$html .= '  </figure>';
-		$html .= '  <p class="label">' . $item->category->fr_label . ' </p>';
+        $html .= '  </figure>';
+        if ($category_label) {
+            $html .= '  <p class="label">' . $category_label . ' </p>';
+        }
 		$html .= '  <div class="entry-content">';
 		$html .= '    <header class="entry-header">';
 		$html .= '      <h2 class="entry-title">';
-		$html .= '        <a href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
+		$html .= '        <a href="https://actu.epfl.ch/news/' . NewsUtils::get_anchor($item->title) . '">';
 		$html .= $item->title;
 		$html .= '        </a>';
 		$html .= '      </h2>';
@@ -153,42 +150,40 @@ function epfl_news_template_fac_with_4_news($news, bool $stickers): string
 
 /**
  * Template faculty with 3 news (template 6 - sidebar)
- * 
- * @param $news: response of news API. 
+ *
+ * @param $news: response of news API.
  * @param $stickers: display stickers on images ?
  * @return html of template
  */
 function epfl_news_template_fac_with_3_news($news, bool $stickers): string
 {
-    $html = '<p>template_labo_with_3_news (sidebar)</p>';
     $html .= '<div class="list-articles list-news list-news-sidebar clearfix">';
 	foreach ($news->results as $item) {
 
-	    // print fr and en category
-/*
-	    if ($stickers == TRUE) {
+        if ($stickers == TRUE) {
             if ($item->lang === "fr") {
-                Utils::debug($item->category->fr_label);
+                $category_label = $item->category->fr_label;
             } elseif ($item->lang === "en") {
-                Utils::debug($item->category->en_label);
+                $category_label = $item->category->en_label;
             }
         }
-*/
-        
-    $publish_date = new DateTime($item->publish_date);
-    $publish_date = $publish_date->format('d.m.y');
-	    
+
+        $publish_date = new DateTime($item->publish_date);
+        $publish_date = $publish_date->format('d.m.y');
+
 		$html .= '<article class="post">';
 		$html .= '  <figure class="post-thumbnail">';
-		$html .= '    <a href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
+		$html .= '    <a href="https://actu.epfl.ch/news/' . NewsUtils::get_anchor($item->title) . '">';
 		$html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
 		$html .= '    </a>';
-		$html .= '  </figure>';
-		$html .= '  <p class="label">' . $item->category->fr_label . ' </p>';
+        $html .= '  </figure>';
+        if ($category_label) {
+            $html .= '  <p class="label">' . $category_label . ' </p>';
+        }
 		$html .= '  <div class="entry-content">';
 		$html .= '    <header class="entry-header">';
 		$html .= '      <h2 class="entry-title">';
-		$html .= '        <a href="https://actu.epfl.ch/news/' . Utils::get_anchor($item->title) . '">';
+		$html .= '        <a href="https://actu.epfl.ch/news/' . NewsUtils::get_anchor($item->title) . '">';
 		$html .= $item->title;
 		$html .= '        </a>';
 		$html .= '      </h2>';
@@ -206,16 +201,22 @@ function epfl_news_template_fac_with_3_news($news, bool $stickers): string
 
 /**
  * Template laboratory with 5 news (template 8)
- * 
- * @param $news: response of news API. 
+ *
+ * @param $news: response of news API.
  * @param $stickers: display stickers on images ?
  * @return html of template
  */
 function epfl_news_template_labo_with_5_news($news, bool $stickers): string
 {
-    $html = '<p>template_labo_with_5_news</p>';
     $html .= '<div class="list-articles list-news clearfix">';
 	foreach ($news->results as $item) {
+        if ($stickers == TRUE) {
+            if ($item->lang === "fr") {
+                $category_label = $item->category->fr_label;
+            } elseif ($item->lang === "en") {
+                $category_label = $item->category->en_label;
+            }
+        }
 		$html .= '<article class="post">';
 		$html .= '  <header class="entry-header">';
 		$html .= '    <h2 class="entry-title">';
@@ -228,8 +229,10 @@ function epfl_news_template_labo_with_5_news($news, bool $stickers): string
 		$html .= '    <a href="https://actu.epfl.ch/news/' . NewsUtils::get_anchor($item->title) . '">';
 		$html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
 		$html .= '    </a>';
-		$html .= '  </figure>';
-		$html .= '  <p class="label">' . $item->category->fr_label . ' </p>';
+        $html .= '  </figure>';
+        if ($category_label) {
+            $html .= '  <p class="label">' . $category_label . ' </p>';
+        }
 		$html .= '  <div class="entry-content">';
 		$html .= '    <div class="entry-meta">';
 		$html .= '      <time class="entry-date">' . $item->publish_date . '</time>';
@@ -244,30 +247,26 @@ function epfl_news_template_labo_with_5_news($news, bool $stickers): string
 
 /**
  * Template laboratory with 3 news (template 4)
- * 
- * @param $news: response of news API. 
+ *
+ * @param $news: response of news API.
  * @param $stickers: display stickers on images ?
  * @return html of template
  */
 function epfl_news_template_labo_with_3_news($news, bool $stickers): string
 {
-    $html = '<p>template_labo_with_3_news</p>';
     $html .= '<div class="list-articles list-news clearfix">';
 	foreach ($news->results as $item) {
 
-	    // print fr and en category
-/*
-	    if ($stickers == TRUE) {
+        $publish_date = new DateTime($item->publish_date);
+        $publish_date = $publish_date->format('d.m.Y');
+
+        if ($stickers == TRUE) {
             if ($item->lang === "fr") {
-                NewsUtils::debug($item->category->fr_label);
+                $category_label = $item->category->fr_label;
             } elseif ($item->lang === "en") {
-                NewsUtils::debug($item->category->en_label);
+                $category_label = $item->category->en_label;
             }
         }
-*/
-        
-    $publish_date = new DateTime($item->publish_date);
-    $publish_date = $publish_date->format('d.m.Y');
 
 		$html .= '<article class="post">';
 		$html .= '  <header class="entry-header">';
@@ -281,8 +280,10 @@ function epfl_news_template_labo_with_3_news($news, bool $stickers): string
 		$html .= '    <a href="https://actu.epfl.ch/news/' . NewsUtils::get_anchor($item->title) . '">';
 		$html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
 		$html .= '    </a>';
-		$html .= '  </figure>';
-		$html .= '  <p class="label">' . $item->category->fr_label . ' </p>';
+        $html .= '  </figure>';
+        if ($category_label) {
+            $html .= '  <p class="label">' . $category_label . ' </p>';
+        }
 		$html .= '  <div class="entry-content">';
 		$html .= '    <div class="entry-meta">';
 		$html .= '      <time class="entry-date">' . $publish_date . '</time>';
@@ -296,15 +297,15 @@ function epfl_news_template_labo_with_3_news($news, bool $stickers): string
 }
 
 /**
- * Build HTML. 
- * 
- * @param $news: response of news API. 
+ * Build HTML.
+ *
+ * @param $news: response of news API.
  * @param $template: id of template
  * @param $stickers: display stickers on images ?
  * @return html of template
  */
 function epfl_news_build_html($news, string $template, bool $stickers): string
-{   
+{
     if ($template === "4") {
         $html = epfl_news_template_labo_with_3_news($news, $stickers);
     } elseif ($template === "8") {
@@ -323,8 +324,8 @@ function epfl_news_build_html($news, string $template, bool $stickers): string
 
 /**
  * Build HTML. This template contains all news inside ifram tag
- * 
- * @param $channel: id of news channel 
+ *
+ * @param $channel: id of news channel
  * @param $lang: lang of news (fr or en)
  * @return html of template
  */
@@ -373,7 +374,7 @@ function epfl_news_get_limit(string $template): int
 
 /**
  * Build api URL of news
- * 
+ *
  * @param $channel: id of news channel
  * @param $template: id of template
  * @param $lang: lang of news
@@ -412,13 +413,13 @@ function epfl_news_build_api_url(
 
 /**
  * Check the required parameters
- * 
+ *
  * @param $channel: id of channel
  * @param $lang: lang of news (fr or en)
  * @return True if the required parameters are right.
  */
 function epfl_news_check_required_parameters(string $channel, string $lang): bool {
-    
+
     // check lang
     if ($lang !==  "fr" && $lang !== "en" ) {
         return FALSE;
@@ -441,14 +442,14 @@ function epfl_news_check_required_parameters(string $channel, string $lang): boo
 
 /**
  * Main function of shortcode
- * 
+ *
  * @param $atts: attributes of the shortcode
  * @param $content: the content of the shortcode. Always empty in our case.
  * @param $tag: the name of shortcode. epfl_news in our case.
  */
 function epfl_news_process_shortcode(
-    array $atts, 
-    string $content = '', 
+    array $atts,
+    string $content = '',
     string $tag
     ): string {
 
@@ -465,7 +466,7 @@ function epfl_news_process_shortcode(
         if (epfl_news_check_required_parameters($channel, $lang) == FALSE) {
             return "";
         }
-        
+
         // display stickers on images ?
         $stickers = $stickers == 'yes';
 
