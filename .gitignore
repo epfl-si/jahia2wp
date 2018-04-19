@@ -20,3 +20,4 @@ volumes/
 src/*.csv
 src/*.csv.*
 src/*tmp*.json
+src/*.zip
