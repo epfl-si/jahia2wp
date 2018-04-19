@@ -80,7 +80,7 @@ function epfl_news_template_text_only($news): string
 		$html .= '<article class="post">';
 		$html .= '  <header class="entry-header">';
 		$html .= '    <h2 class="entry-title">';
-		$html .= '      <a href="https://actu.epfl.ch/news/' . NewsUtils::get_anchor($item->title) . '">';
+		$html .= '      <a href="' . $item->news_url . '">';
 		$html .= $item->title;
 		$html .= '      </a>';
 		$html .= '    </h2>';
@@ -119,10 +119,9 @@ function epfl_news_template_fac_with_4_news($news, bool $stickers): string
                 $category_label = $item->category->en_label;
             }
         }
-
 		$html .= '<article class="post">';
 		$html .= '  <figure class="post-thumbnail">';
-		$html .= '    <a href="https://actu.epfl.ch/news/' . NewsUtils::get_anchor($item->title) . '">';
+		$html .= '    <a href="' . $item->news_url . '">';
 		$html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
 		$html .= '    </a>';
         $html .= '  </figure>';
@@ -132,7 +131,7 @@ function epfl_news_template_fac_with_4_news($news, bool $stickers): string
 		$html .= '  <div class="entry-content">';
 		$html .= '    <header class="entry-header">';
 		$html .= '      <h2 class="entry-title">';
-		$html .= '        <a href="https://actu.epfl.ch/news/' . NewsUtils::get_anchor($item->title) . '">';
+		$html .= '        <a href="' . $item->news_url . '">';
 		$html .= $item->title;
 		$html .= '        </a>';
 		$html .= '      </h2>';
@@ -173,7 +172,7 @@ function epfl_news_template_fac_with_3_news($news, bool $stickers): string
 
 		$html .= '<article class="post">';
 		$html .= '  <figure class="post-thumbnail">';
-		$html .= '    <a href="https://actu.epfl.ch/news/' . NewsUtils::get_anchor($item->title) . '">';
+		$html .= '    <a href="' . $item->news_url . '">';
 		$html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
 		$html .= '    </a>';
         $html .= '  </figure>';
@@ -183,7 +182,7 @@ function epfl_news_template_fac_with_3_news($news, bool $stickers): string
 		$html .= '  <div class="entry-content">';
 		$html .= '    <header class="entry-header">';
 		$html .= '      <h2 class="entry-title">';
-		$html .= '        <a href="https://actu.epfl.ch/news/' . NewsUtils::get_anchor($item->title) . '">';
+		$html .= '        <a href="' . $item->news_url . '">';
 		$html .= $item->title;
 		$html .= '        </a>';
 		$html .= '      </h2>';
@@ -220,13 +219,13 @@ function epfl_news_template_labo_with_5_news($news, bool $stickers): string
 		$html .= '<article class="post">';
 		$html .= '  <header class="entry-header">';
 		$html .= '    <h2 class="entry-title">';
-		$html .= '      <a href="https://actu.epfl.ch/news/' . NewsUtils::get_anchor($item->title) . '">';
+		$html .= '      <a href="' . $item->news_url . '">';
 		$html .= $item->title;
 		$html .= '      </a>';
 		$html .= '    </h2>';
 		$html .= '  </header>';
 		$html .= '  <figure class="post-thumbnail">';
-		$html .= '    <a href="https://actu.epfl.ch/news/' . NewsUtils::get_anchor($item->title) . '">';
+		$html .= '    <a href="' . $item->news_url . '">';
 		$html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
 		$html .= '    </a>';
         $html .= '  </figure>';
@@ -271,13 +270,13 @@ function epfl_news_template_labo_with_3_news($news, bool $stickers): string
 		$html .= '<article class="post">';
 		$html .= '  <header class="entry-header">';
 		$html .= '    <h2 class="entry-title">';
-		$html .= '      <a href="https://actu.epfl.ch/news/' . NewsUtils::get_anchor($item->title) . '">';
+		$html .= '      <a href="' . $item->news_url . '">';
 		$html .= $item->title;
 		$html .= '      </a>';
 		$html .= '    </h2>';
 		$html .= '  </header>';
 		$html .= '  <figure class="post-thumbnail">';
-		$html .= '    <a href="https://actu.epfl.ch/news/' . NewsUtils::get_anchor($item->title) . '">';
+		$html .= '    <a href="' . $item->news_url . '">';
 		$html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
 		$html .= '    </a>';
         $html .= '  </figure>';
