@@ -66,6 +66,8 @@ from pprint import pprint
 
 import os
 import shutil
+
+import sys
 import yaml
 from docopt import docopt
 from docopt_dispatch import dispatch
@@ -333,6 +335,13 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
     Parse the give site.
     """
     try:
+        # without changing this parameter the following sites crash
+        # when they are dumped on disk with pickle:
+        # biorob, disopt, euler, last, master-architecture
+        # they are probably corrupted, so this is simply a hack
+        # to make it work
+        sys.setrecursionlimit(2000)
+
         # create subdir in output_dir
         site_dir = unzip(site, output_dir=output_dir)
 
