@@ -1236,17 +1236,6 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         # Unpack pages as a list again
         pages = list(itertools.chain.from_iterable(pages))
 
-        # The default language is an exception, it doesn't have the lang fragment
-        # in the URL since polylang is set to hide it for the default language.
-        # Define the order of langs
-        lngs_seq = []
-        for (src, dst, _) in rulesets[site][:len(lngs)]:
-            lang_matches = [lang for lang in lngs if '/' + lang + '/' in src]
-            if lang_matches:
-                lngs_seq.append(lang_matches[0])
-            else:
-                lngs_seq.append(lngs[0])
-        logging.info('langs order in site content: {}'.format(lngs_seq))
         # Get the content in all the languages per page
         # The IDs are sequential in source WP (e.g. 580 => en, 581=>fr).
         # Therefore group them by number of languages.
@@ -1258,7 +1247,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
 
             # ATTENTION: Selecting the page in EN since all URLs will be rewritten
             # in english.
-            p_en = _pages[lngs_seq.index('en')]
+            p_en = _pages[lngs.index('en')]
             logging.info("[en] Page {} {}".format(p_en['post_name'], p_en['url']))
             # Find the longest matching URL among the target sites
             matches = [s for s in dest_sites_keys if s in p_en['url']]
@@ -1282,14 +1271,15 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                 fragment = p_en['url'][len(max_match)+1:].strip('/')
                 if len(fragment.split('/')) == 1:
                     if p_en['post_name'] != fragment and max_match != p_en['url'].strip('/'):
-                        for p in _pages:
-                            p['post_name'] = fragment
+                        p_en['post_name'] = fragment
+                        # for p in _pages:
+                        #    p['post_name'] = fragment
                 # JSON file to contain the post data
                 tmp_json = ".tmp_{}_{}.json".format(site.split('/').pop(), _pages[0]['ID'])
                 cmd = "cat {} | wp pll post create --post_type=page --porcelain --stdin --path={}"
                 # Remove / Change attrs before dumping the post JSON.
                 _pagesi = [{k: v for k, v in _p.items() if k not in ['ID', 'url']} for _p in _pages]
-                arr = ['"{}":{}'.format(lngs_seq[i], json.dumps(p, ensure_ascii=False)) for i, p in enumerate(_pagesi)]
+                arr = ['"{}":{}'.format(lngs[i], json.dumps(p, ensure_ascii=False)) for i, p in enumerate(_pagesi)]
                 json_data = '{' + ', '.join(arr) + '}'
                 # Dump the JSON to a file to avoid non escaped char issues.
                 with open(tmp_json, 'w', encoding='utf8') as j:
@@ -1300,7 +1290,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                 if 'Error' in ids:
                     logging.error('Failed to insert pages. Msg: {}. cmd: {}'.format(ids, cmd))
                 else:
-                    logging.info('new IDs {} in lang order {}'.format(ids, lngs_seq))
+                    logging.info('new IDs {} in lang order {}'.format(ids, lngs))
                     # Keep the new IDs
                     if max_match not in table_ids[site]:
                         table_ids[site][max_match] = {}
