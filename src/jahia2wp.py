@@ -997,14 +997,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         # Add an entry to the site paths dict
         site_paths[site] = wp_conf.wp_site.path
 
-    # Sort the rules from most generic to specific or the reverse (-1).
-    logging.info('[{:.2f}s] Rule sorting...'.format(tt()-t))
-    t = tt()
-    for site in rulesets:
-        rulesets[site].sort(key=lambda rule: len(rule[0].split('/')) * -1)
-    # print(rulesets)
     logging.info('[{:.2f}s] Starting rule expansion in diff. langs...'.format(tt()-t))
-
     t = tt()
     ############
     # IMPORTANT: Translate the source URL using the intermediate WP instance.
@@ -1024,6 +1017,14 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                     f.write(l)
         # Iterate over the individual rules for the site
         ext_ruleset = []
+        # Expand the rules to cover additional languages for multilang websites.
+        # By default, there is only 1 rule (in the csv) per URL independently of
+        # the number of langs.
+        lngs = Utils.run_command('wp pll languages --path=' + site_paths[site])
+        lngs = [l[:2] for l in lngs.split("\n")]
+        if len(lngs) > 1:
+            logging.info('Multilang site {} for {}, decoupling rules...'.format(lngs, site))
+
         for (src, dst, type_rule) in rulesets[site]:
             _src = urlparse(src)
             _src = _src._replace(netloc=_src.netloc + ':8080').geturl()
@@ -1050,15 +1051,8 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                         continue
                     else:
                         src = loc.pop()
-            print(src, _src)
             ext_ruleset.append((src, dst, type_rule))
-            # Expand the rules to cover additional languages for multilang websites.
-            # By default, there is only 1 rule (in the csv) per URL independently of
-            # the number of langs.
-            lngs = Utils.run_command('wp pll languages --path=' + site_paths[site])
-            lngs = [l[:2] for l in lngs.split("\n")]
             if len(lngs) > 1:
-                logging.info('Multilang site {} for {}, decoupling rules...'.format(lngs, site))
                 pages = Utils.csv_filepath_to_dict(files[site])
                 # Iterate the pages grouped by number of langs
                 for pi in range(0, len(pages), len(lngs)):
@@ -1075,10 +1069,17 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         # Replace the current ruleset with the extended version
         rulesets[site] = ext_ruleset
 
+    # Sort the rules from most generic to specific or the reverse (-1).
+    logging.info('[{:.2f}s] Rule sorting...'.format(tt()-t))
+    t = tt()
+    for site in rulesets:
+        rulesets[site].sort(key=lambda rule: len(rule[0].split('/')) * -1)
     pprint(rulesets)
 
     # Write the .htaccess redirections for the new URL mapping
     if htaccess:
+        logging.info('[{:.2f}s] Writing .htaccess file ...'.format(tt()-t))
+        t = tt()
         for site in rulesets.keys():
             with open(site_paths[site] + '/.htaccess', 'r+', encoding='utf8') as f:
                 lines = f.readlines()
@@ -1088,7 +1089,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                 f.write('RewriteEngine On\n')
                 f.write('RewriteBase {}\n'.format(rw_base))
                 for (src, dst, type_rule) in rulesets[site]:
-                    path = urlparse(src).path[len(rw_base)-1:]
+                    path = urlparse(src).path[len(rw_base):]
                     f.write('RewriteRule ^{}(.*)$ {}$1 [R=302,L]\n'.format(path, dst))
                 f.write('# END ventilation-redirs\n')
                 f.write(''.join(lines))
