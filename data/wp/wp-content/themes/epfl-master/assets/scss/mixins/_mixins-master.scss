@@ -45,6 +45,11 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+@mixin txt-narrow {
+  font-family: Impact, "Arial Black","DejaVu Sans", Arial, Helvetica , sans-serif;
+  letter-spacing: 0.1em;
+}
+
 @mixin minor-text {
   font: italic .75rem Georgia, 'Times New Roman', Times, serif;
 }
