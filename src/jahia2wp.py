@@ -1029,7 +1029,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
             _src = _src._replace(netloc=_src.netloc + ':8080').geturl()
             # GET only the HEADERS *of course* in silent mode and ignoring cert validity
             # WARNING:::: This first curl call will only get the .htaccess redirection (i.e. page GUID)
-            # The second call (redir) will translate the GUID into the actual URL that doesn't have a port 
+            # The second call (redir) will translate the GUID into the actual URL that doesn't have a port
             # info, therefore curl has to stop at this level to avoid port errors.
             out = Utils.run_command('curl -I -s -k {}'.format(_src))
             # Parse the Location header if present.
