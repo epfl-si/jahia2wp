@@ -56,13 +56,16 @@ class WPGenerator:
             logging.info("WPGenerator.__init__(): Please use 'unit_id' from CSV file (now recovered from 'unit_name')")
             self._site_params['unit_id'] = self.get_the_unit_id(self._site_params['unit_name'])
 
+        # If not given (can happens), we initialize title with a default value so we will be able, later, to
+        # set a translation for it.
         if 'wp_site_title' not in self._site_params:
-            self._site_params['wp_site_title'] = None
+            self._site_params['wp_site_title'] = 'Title'
 
         if 'wp_tagline' not in self._site_params:
             self._site_params['wp_tagline'] = None
         else:
-            # If information is not already in a dict,
+            # If information is not already in a dict (happens if info is coming for the source of truth in which
+            # we only have tagline in primary language
             if not isinstance(self._site_params['wp_tagline'], dict):
                 wp_tagline = {}
                 # We loop through languages to generate dict
