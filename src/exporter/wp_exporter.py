@@ -2,6 +2,7 @@
 import logging
 import os
 import sys
+import re
 from parser.box import Box
 import timeit
 from collections import OrderedDict
@@ -13,7 +14,6 @@ from wordpress_json import WordpressJsonWrapper, WordpressError
 import settings
 from exporter.utils import Utils
 from utils import Utils as WPUtils
-from urllib.parse import urlparse
 from parser.file import File
 
 
@@ -197,15 +197,22 @@ class WPExporter:
         if self.site.files:
             start = "{}/content/sites/{}/files".format(self.site.base_path, self.site.name)
             self.site.files = self._asciify_path(start)
+
+            count = 0
             for file in self.site.files:
                 wp_media = self.import_media(file)
                 if wp_media:
                     self.fix_file_links(file, wp_media)
                     self.report['files'] += 1
+                    count += 1
+
+                    if count % 10 == 0:
+                        logging.info("[%s/%s] WP medias imported", self.report['files'], len(self.site.files))
+
             self.fix_key_visual_boxes()
         # Remove the capability "unfiltered_upload" to the administrator group.
         self.run_wp_cli('cap remove administrator unfiltered_upload')
-        logging.info("WP medias imported")
+        logging.info("%s WP medias imported", self.report['files'])
 
     def import_media(self, media):
         """
@@ -273,6 +280,7 @@ class WPExporter:
         Fix the links pointing to the given file. Following elements are processed:
         - All boxes
         - All banners (headers)
+        - Shortcodes
         """
 
         if "/files" not in file.path:
@@ -287,14 +295,17 @@ class WPExporter:
 
         tag_attribute_tuples = [("a", "href"), ("img", "src"), ("script", "src")]
 
-        # Looping through boxes
+        # 1. Looping through boxes
         for box in self.site.get_all_boxes():
+
+            # first fix in shortcodes
+            self.fix_file_links_in_shortcode_attributes(box, old_url, new_url)
 
             soup = BeautifulSoup(box.content, 'html5lib')
             soup.body.hidden = True
 
+            # fix in html tags
             for tag_name, tag_attribute in tag_attribute_tuples:
-
                 self.fix_links_in_tag(
                     soup=soup,
                     old_url=old_url,
@@ -305,9 +316,10 @@ class WPExporter:
             # save the new box content
             box.content = str(soup.body)
 
+        # 2. Menus
         self.fix_file_links_in_menus(old_url, new_url)
 
-        # Looping through banners
+        # 3. Looping through banners
         for lang, banner in self.site.banner.items():
 
             soup = BeautifulSoup(banner.content, 'html5lib')
@@ -342,10 +354,42 @@ class WPExporter:
             self.fix_file_links_in_menu_items(child, old_url, new_url)
             self.fix_file_links_in_submenus(child, old_url, new_url)
 
-    def fix_page_content_links(self, wp_pages):
+    def fix_page_links_in_sidebar(self, site_folder):
+        """
+        Fix page links in sidebar widgets
+        :param site_folder: path to folder containing website files
+        :return:
+        """
+        logging.info("Fixing sidebar content links")
+        for lang in self.site.homepage.contents.keys():
+
+            for box in self.site.homepage.contents[lang].sidebar.boxes:
+
+                soup = BeautifulSoup(box.content, 'html5lib')
+                soup.body.hidden = True
+
+                for url_mapping in self.urls_mapping:
+                    new_url = "{}/{}/".format(site_folder, url_mapping["wp_slug"])
+                    for old_url in url_mapping["jahia_urls"]:
+                        self.fix_links_in_tag(
+                            soup=soup,
+                            old_url=old_url,
+                            new_url=new_url,
+                            tag_name="a",
+                            tag_attribute="href"
+                        )
+
+                box.content = str(soup.body)
+
+    def fix_page_links_in_pages(self, wp_pages, site_folder):
         """
         Fix all the links once we know all the WordPress pages urls
+        :param wp_pages: list of pages to fix
+        :param site_folder: path to folder containing website files
+        :return:
         """
+        logging.info("Fixing page content links")
+
         for wp_page in wp_pages:
 
             content = ""
@@ -355,22 +399,56 @@ class WPExporter:
             else:
                 logging.error("Expected content for page %s" % wp_page)
 
+            # Step 1 - Fix in shortcode attributes
+            # We loop 2 times through self.urls_mapping because the first time we modify directly HTML content
+            # and the second time, we fix links in HTML tags and we use Beautiful Soup to do this.
+            for url_mapping in self.urls_mapping:
+                # Generating new URL from slug
+                new_url = "{}/{}/".format(site_folder, url_mapping["wp_slug"])
+
+                for old_url in url_mapping["jahia_urls"]:
+
+                    for shortcode, attributes_list in self.site.shortcodes.items():
+
+                        search = re.compile('\[{} [^\]]*\]'.format(shortcode))
+
+                        # Looping through founded shortcodes
+                        # ex: [epfl_infoscience url="<url>"]
+                        for code in search.findall(content):
+                            old_code = code
+                            # Looping through shortcodes attributes to update
+                            for attribute in attributes_list:
+                                # <query> in regex is to handle URL like this :
+                                # .../path/to/page#tag
+                                # .../path/to/page?query=string
+                                old_regex = re.compile('{}="(http(s)?://{})?{}(?P<query> [^"]*)"'.format(
+                                    attribute,
+                                    re.escape(self.site.server_name),
+                                    re.escape(old_url)), re.VERBOSE)
+
+                                # To build "new" URL and still having the "end" of the old URL (#tag, ?query=string)
+                                new_regex = r'{}="{}\g<query>"'.format(attribute, new_url)
+
+                                # Update attribute in shortcode
+                                code = old_regex.sub(new_regex, code)
+
+                            # Replace shortcode with the one updated with new urls
+                            content = content.replace(old_code, code)
+
             soup = BeautifulSoup(content, 'html5lib')
             soup.body.hidden = True
 
+            # Step 2 - Fix in HTML tags
             for url_mapping in self.urls_mapping:
-
-                # 'jahia_urls' contains a list of all URLs pointing on page. We arbitrary take the first of the list
-                old_url = url_mapping["jahia_urls"][0]
-                new_url = url_mapping["wp_url"]
-
-                self.fix_links_in_tag(
-                    soup=soup,
-                    old_url=old_url,
-                    new_url=new_url,
-                    tag_name="a",
-                    tag_attribute="href"
-                )
+                new_url = "{}/{}/".format(site_folder, url_mapping["wp_slug"])
+                for old_url in url_mapping["jahia_urls"]:
+                    self.fix_links_in_tag(
+                        soup=soup,
+                        old_url=old_url,
+                        new_url=new_url,
+                        tag_name="a",
+                        tag_attribute="href"
+                    )
 
             # update the page
             wp_id = wp_page["id"]
@@ -379,8 +457,26 @@ class WPExporter:
 
             self.update_page_content(page_id=wp_id, content=content)
 
+    def fix_file_links_in_shortcode_attributes(self, box, old_url, new_url):
+        """
+        Fix the link in a box shortcode for all registered attributes.
+
+        This will replace for example:
+
+        image="/files/51_recyclage/vignette_bois.png"
+
+        to:
+
+        image="/wp-content/uploads/2018/04/vignette_bois.png"
+        """
+        for attribute in box.shortcode_attributes_to_fix:
+            old_attribute = '{}="{}"'.format(attribute, old_url)
+            new_attribute = '{}="{}"'.format(attribute, new_url)
+
+            box.content = box.content.replace(old_attribute, new_attribute)
+
     def fix_links_in_tag(self, soup, old_url, new_url, tag_name, tag_attribute):
-        """Fix the links in the given tag"""
+        """Fix the links in the given HTML tag"""
 
         tags = soup.find_all(tag_name)
 
@@ -428,7 +524,7 @@ class WPExporter:
                 box.content = '[su_slider source="media: {}"'.format(','.join([str(m) for m in medias_ids]))
                 box.content += ' title="no" arrows="yes"]'
 
-    def update_page(self, page_id, title, content):
+    def update_page(self, page_id, content, title=None):
         """
         Import a page to Wordpress
         """
@@ -438,7 +534,6 @@ class WPExporter:
             # 'slug': slug,
             # 'status': 'publish',
             # password
-            'title': title,
             'content': content,
             # author
             # excerpt
@@ -452,12 +547,15 @@ class WPExporter:
             # categories
             # tags
         }
+
+        if title:
+            wp_page_info['title'] = title
+
         return self.wp.post_pages(page_id=page_id, data=wp_page_info)
 
     def update_page_content(self, page_id, content):
         """Update the page content"""
-        data = {"content": content}
-        return self.wp.post_pages(page_id=page_id, data=data)
+        return self.update_page(page_id, content)
 
     def import_pages(self):
         """
@@ -469,7 +567,10 @@ class WPExporter:
 
         for page in self.site.pages_by_pid.values():
 
-            contents = {}
+            # We have to use OrderedDict to avoid bad surprises when page has only one language. Sometimes, Dict isn't
+            # taken in the "correct" order and we try to modify page which has been deleted because no translation. So
+            # it was editing a page which was in the Trash.
+            contents = OrderedDict()
             info_page = OrderedDict()
 
             for lang in page.contents.keys():
@@ -478,7 +579,14 @@ class WPExporter:
                 # create the page content
                 for box in page.contents[lang].boxes:
 
-                    contents[lang] += '<div class="{}">'.format(box.type + "Box")
+                    # For this box type, the surrounding <div> is handled by the shortcode himself
+                    # FIXME: All shortcode have to handle surrounding <div> because otherwise when webmaster
+                    # will add shortcode [xyz att=""], manually in page, he won't add the <div> manually, he doesn't
+                    # have to know about this. So he won't do it and the dispay may be incorrect because not matching
+                    # the theme's CSS style
+                    if box.type is not Box.TYPE_GRID:
+                        contents[lang] += '<div class="{}">'.format(box.type + "Box")
+
                     if box.title:
                         contents[lang] += '<h3 id="{0}">{0}</h3>'.format(box.title)
 
@@ -489,7 +597,9 @@ class WPExporter:
                             box.content = box.content.replace(Box.UPDATE_LANG, lang)
 
                     contents[lang] += box.content
-                    contents[lang] += "</div>"
+
+                    if box.type is not Box.TYPE_GRID:
+                        contents[lang] += "</div>"
 
                 info_page[lang] = {
                     'post_name': page.contents[lang].path,
@@ -530,18 +640,19 @@ class WPExporter:
                 # we skip the update (because there is nothing to update and we don't have needed information...
                 if lang not in page.contents:
                     continue
+
                 # Updating page in WordPress
                 wp_page = self.update_page(page_id=wp_id, title=page.contents[lang].title, content=content)
 
                 # prepare mapping for htaccess redirection rules
                 mapping = {
                     'jahia_urls': page.contents[lang].vanity_urls,
-                    'wp_url': wp_page['link']
+                    'wp_slug': wp_page['slug']
                 }
 
                 self.urls_mapping.append(mapping)
 
-                logging.info("WP page '%s' created", wp_page['link'])
+                logging.info("WP page '%s' created", wp_page['slug'])
 
                 # keep WordPress ID for further usages
                 page.contents[lang].wp_id = wp_page['id']
@@ -550,7 +661,16 @@ class WPExporter:
 
             self.report['pages'] += 1
 
-        self.fix_page_content_links(wp_pages)
+        if self.wp_generator.wp_site.folder == "":
+            site_folder = ""
+        else:
+            site_folder = "/{}".format(self.wp_generator.wp_site.folder)
+
+        # Update page links in all imported pages
+        self.fix_page_links_in_pages(wp_pages, site_folder)
+
+        # Update page links in sidebar boxes
+        self.fix_page_links_in_sidebar(site_folder)
 
         self.create_sitemaps()
 
@@ -615,6 +735,10 @@ class WPExporter:
             # Banner is only one text widget per lang in a dedicated sidebar
             for lang, banner in self.site.banner.items():
 
+                if not banner.content:
+                    logging.warning("Banner is empty")
+                    continue
+
                 cmd = 'widget add text header-widgets --text="{}"'.format(
                     banner.content.replace('"', '\\"'))
 
@@ -658,7 +782,7 @@ class WPExporter:
                     self.run_wp_cli(cmd)
 
                     # Saving widget position for current widget (as string because this is a string that is
-                    # used to index informations in DB)
+                    # used to index information in DB)
                     widget_pos_to_lang[str(widget_pos)] = lang
                     widget_pos += 1
 
@@ -753,7 +877,7 @@ class WPExporter:
 
                     # If menu entry is sitemap, we add WP site base URL
                     if menu_item.target_is_sitemap():
-                        url = "{}{}".format(self.wp_generator.wp_site.url, url)
+                        url = "{}/{}".format(self.wp_generator.wp_site.url, url)
 
                     cmd = 'menu item add-custom {} "{}" "{}" --parent-id={} --porcelain' \
                         .format(menu_name, menu_item.txt, url, parent_menu_id)
@@ -766,7 +890,7 @@ class WPExporter:
                 # menu entry is page
                 else:
                     # Trying to get corresponding page corresponding to current page UUID
-                    child = self.site.homepage.get_child_with_uuid(menu_item.target, 3)
+                    child = self.site.homepage.get_child_with_uuid(menu_item.target, 4)
 
                     if child is None:
                         logging.error("Submenu creation: No page found for UUID %s", menu_item.target)
@@ -796,6 +920,7 @@ class WPExporter:
         Add pages into the menu in wordpress.
         This menu was created when configuring the polylang plugin.
         """
+        logging.info("Populating menu...")
         try:
             # Create homepage menu
             for lang, page_content in self.site.homepage.contents.items():
@@ -850,7 +975,7 @@ class WPExporter:
 
                             # If menu entry is sitemap, we add WP site base URL
                             if menu_item.target_is_sitemap():
-                                url = "{}{}".format(self.wp_generator.wp_site.url, url)
+                                url = "{}/{}".format(self.wp_generator.wp_site.url, url)
 
                             cmd = 'menu item add-custom {} "{}" "{}" --porcelain' \
                                 .format(menu_name, menu_item.txt, url)
@@ -941,12 +1066,14 @@ class WPExporter:
         """
         Delete all pages in DRAFT status
         """
-        cmd = "post list --post_type='page' --post_status=draft --format=csv"
-        pages_id_list = self.run_wp_cli(cmd).split("\n")[1:]
-        for page_id in pages_id_list:
-            cmd = "post delete {}".format(page_id)
-            self.run_wp_cli(cmd)
-        logging.info("All pages in DRAFT status deleted")
+        cmd = "post list --post_type='page' --post_status=draft --format=csv --field=ID"
+        pages_id_list = self.run_wp_cli(cmd)
+
+        if not pages_id_list:
+            for page_id in pages_id_list.split("\n")[1:]:
+                cmd = "post delete {} --force".format(page_id)
+                self.run_wp_cli(cmd)
+            logging.info("All pages in DRAFT status deleted")
 
     def delete_pages(self):
         """
@@ -1016,8 +1143,9 @@ class WPExporter:
 
         # Add all rewrite jahia URI to WordPress URI
         for element in self.urls_mapping:
-
-            wp_url = urlparse(element['wp_url']).path
+            # WordPress URL is generated from slug so if admin change page location, it still will be available
+            # if we request and "old" Jahia URL
+            wp_url = "/{}/".format(element['wp_slug'])
 
             # Going through vanity URLs
             for jahia_url in element['jahia_urls']:
@@ -1025,9 +1153,10 @@ class WPExporter:
                 # We skip this redirection to avoid infinite redirection...
                 if jahia_url != "/index.html":
                     source_url = "{}{}".format(folder, jahia_url)
+                    target_url = "{}{}".format(folder, wp_url)
                     # To avoid Infinite loop
-                    if source_url != wp_url[:-1]:
-                        redirect_list.append("Redirect 301 {} {}".format(source_url,  wp_url))
+                    if source_url != target_url[:-1]:
+                        redirect_list.append("Redirect 301 {} {}".format(source_url,  target_url))
 
         if redirect_list:
             # Updating .htaccess file

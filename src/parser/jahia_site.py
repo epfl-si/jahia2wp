@@ -51,6 +51,12 @@ class Site:
         # the site languages
         self.languages = []
 
+        # the WordPress shortcodes used in the site. The key is the shortcode name,
+        # and the value is the shortcode attributes containing URLs that must be
+        # fixed by the WPExporter, e.g.:
+        # {'epfl_snippets': ['url', 'image', 'big_image']}
+        self.shortcodes = {}
+
         for file in os.listdir(self.base_path):
             if file.startswith("export_"):
                 language = file[7:9]
@@ -305,7 +311,7 @@ class Site:
             if self.theme[language] == 'associations':
                 self.theme[language] = 'assoc'
             self.acronym[language] = Utils.get_tag_attribute(dom, "acronym", "jahia:value")
-            self.css_url[language] = "//static.epfl.ch/v0.23.0/styles/%s-built.css" % self.theme[language]
+            self.css_url[language] = "//static.epfl.ch/v0.23.0/styles/{}-built.css".format(self.theme[language])
 
     def parse_footer(self):
         """parse site footer"""
@@ -474,7 +480,7 @@ class Site:
 
     def parse_files(self):
         """Parse the files"""
-        start = "%s/content/sites/%s/files" % (self.base_path, self.name)
+        start = "{}/content/sites/{}/files".format(self.base_path, self.name)
 
         for (path, dirs, files) in os.walk(start):
             for file_name in files:
@@ -483,6 +489,22 @@ class Site:
                     continue
 
                 self.files.append(File(name=file_name, path=path))
+
+    def register_shortcode(self, name, attributes, box):
+        """
+        Register the given shortcode.
+
+        :param name: the shortcode name
+        :param attributes: a list with the shortcode attributes that must be fixed by WPExporter
+        :param box: the Box where the shortcode was found
+        """
+
+        # save the attributes at the box level
+        box.shortcode_attributes_to_fix = attributes
+
+        # register the shortcode at the site level
+        if name not in self.shortcodes:
+            self.shortcodes[name] = attributes
 
     def get_all_boxes(self):
         """
@@ -667,9 +689,19 @@ class Site:
     def _add_to_sitemap_node(self, node, language):
         """Add the given SitemapNode. This is a recursive method"""
 
+        # if we have more than 10 of depth there is an infinite loop
+        # in the hierarchy, e.g. A > B > C > A > B > C > ...
+        if node.depth > 10:
+            logging.error("Sitemap is corrupted: infinite loop")
+            return
+
         # for each NavigationPages...
         for navigation_page in node.page.contents[language].navigation:
             child_node = SitemapNode.from_navigation_page(navigation_page=navigation_page, parent=node)
+
+            if not navigation_page.page:
+                logging.warning("Sitemap is corrupted: navigation_page has no page associated")
+                continue
 
             # if we have an internal NavigationPage, we add it's children
             if navigation_page.type == "internal" \
@@ -678,7 +710,7 @@ class Site:
 
                 # integrity check
                 if child_node.page.pid == node.page.pid:
-                    logging.warning("Sitemap is corrupted")
+                    logging.warning("Sitemap is corrupted: parent and child are the same")
                     continue
 
                 # recursive call
@@ -762,3 +794,6 @@ Parsed for %s :
 
         for tag in num_tags_ordered:
             self.report += "    - <%s> %s\n" % (tag, self.num_tags[tag])
+
+    def __repr__(self):
+        return self.name

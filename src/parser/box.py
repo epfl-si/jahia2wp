@@ -3,6 +3,8 @@
 import logging
 from urllib.parse import urlencode
 from xml.dom import minidom
+from bs4 import BeautifulSoup
+from datetime import datetime
 
 from utils import Utils
 
@@ -25,9 +27,11 @@ class Box:
     TYPE_LINKS = "links"
     TYPE_RSS = "rss"
     TYPE_FILES = "files"
+    TYPE_SNIPPETS = "snippets"
     TYPE_SYNTAX_HIGHLIGHT = "syntaxHighlight"
     TYPE_KEY_VISUAL = "keyVisual"
     TYPE_MAP = "map"
+    TYPE_GRID = "grid"
 
     # Mapping of known box types from Jahia to WP
     types = {
@@ -45,30 +49,40 @@ class Box:
         "epfl:linksBox": TYPE_LINKS,
         "epfl:rssBox": TYPE_RSS,
         "epfl:filesBox": TYPE_FILES,
+        "epfl:snippetsBox": TYPE_SNIPPETS,
         "epfl:syntaxHighlightBox": TYPE_SYNTAX_HIGHLIGHT,
         "epfl:keyVisualBox": TYPE_KEY_VISUAL,
-        "epfl:mapBox": TYPE_MAP
+        "epfl:mapBox": TYPE_MAP,
+        "epfl:gridBox": TYPE_GRID
     }
 
     UPDATE_LANG = "UPDATE_LANG_BY_EXPORTER"
 
     def __init__(self, site, page_content, element, multibox=False):
+        # attributes
         self.site = site
         self.page_content = page_content
         self.type = ""
+        self.shortcode_name = ""
         self.set_type(element)
         self.title = Utils.get_tag_attribute(element, "boxTitle", "jahia:value")
         self.content = ""
-        self.set_content(element, multibox)
+        # the shortcode attributes with URLs that must be fixed by the wp_exporter
+        self.shortcode_attributes_to_fix = []
+
+        # parse the content
+        if self.type:
+            self.set_content(element, multibox)
 
     def set_type(self, element):
         """
         Sets the box type
         """
-
         type = element.getAttribute("jcr:primaryType")
 
-        if type in self.types:
+        if not type:
+            logging.warning("Box has no type")
+        elif type in self.types:
             self.type = self.types[type]
         else:
             self.type = type
@@ -115,14 +129,21 @@ class Box:
         # files
         elif self.TYPE_FILES == self.type:
             self.set_box_files(element)
+        # snippets
+        elif self.TYPE_SNIPPETS == self.type:
+            self.set_box_snippets(element)
         # syntaxHighlight
         elif self.TYPE_SYNTAX_HIGHLIGHT == self.type:
             self.set_box_syntax_highlight(element)
         # keyVisual
         elif self.TYPE_KEY_VISUAL == self.type:
             self.set_box_key_visuals(element)
+        # Map
         elif self.TYPE_MAP == self.type:
             self.set_box_map(element)
+        # Grid
+        elif self.TYPE_GRID == self.type:
+            self.set_box_grid(element)
         # unknown
         else:
             self.set_box_unknown(element)
@@ -130,28 +151,91 @@ class Box:
     def _set_scheduler_box(self, element, content):
         """set the attributes of a scheduler box"""
 
-        start_datetime = Utils.get_tag_attribute(element, "comboList", "jahia:validFrom")
+        self.shortcode_name = "epfl_scheduler"
 
-        if start_datetime and "T" in start_datetime:
+        start_datetime = Utils.get_tag_attribute(element, "comboList", "jahia:validFrom")
+        end_datetime = Utils.get_tag_attribute(element, "comboList", "jahia:validTo")
+
+        if not start_datetime and not end_datetime:
+            logging.info("Scheduler has no start date and no end date, simply using content")
+            return content
+
+        today = datetime.now().strftime("%Y-%m-%d")
+
+        start_date = ""
+        start_time = ""
+
+        if "T" in start_datetime:
             start_date = start_datetime.split("T")[0]
             start_time = start_datetime.split("T")[1]
 
-        end_datetime = Utils.get_tag_attribute(element, "comboList", "jahia:validTo")
+        end_date = ""
+        end_time = ""
 
-        if end_datetime and "T" in end_datetime:
+        if "T" in end_datetime:
             end_date = end_datetime.split("T")[0]
             end_time = end_datetime.split("T")[1]
 
-        if not end_datetime and not start_datetime:
-            logging.warning("Scheduler shortcode has no startdate and no enddate")
+        # check if we have a start date in the past and no end date
+        if start_date and not end_date:
+            if start_date < today:
+                logging.info("Scheduler has a start date in the past ({}) and no end date,"
+                             " simply using content".format(start_date))
+                return content
 
-        return '[epfl_scheduler start_date="{}" end_date="{}" start_time="{}" end_time="{}"]{}[/epfl_scheduler]'.format(
+        return '[{} start_date="{}" end_date="{}" start_time="{}" end_time="{}"]{}[/{}]'.format(
+            self.shortcode_name,
             start_date,
             end_date,
             start_time,
             end_time,
-            content
+            content,
+            self.shortcode_name
         )
+
+    def set_box_grid(self, element):
+        """
+        Set attributes for a grid box.
+        A grid box is a <div> containing others <div> with a specified size (defined by the layout, "large" or
+        "default"), image, text and link.
+        FIXME: Handle <boxTitle> field (was empty when box support has been added so no idea how it is displayed..)
+        FIXME: Handle <text> field (was empty when box support has been added so no idea how it is displayed..)
+        FIXME: Handle attribute GridListList -> "jahia:sortHandler" if needed
+        :param element:
+        :return:
+        """
+        shortcode_outer_name = "epfl_grid"
+        shortcode_inner_name = "epfl_gridElem"
+
+        # register the shortcode
+        self.site.register_shortcode(shortcode_inner_name, ["link", "image"], self)
+
+        self.content = '[{}]\n'.format(shortcode_outer_name)
+
+        elements = element.getElementsByTagName("gridList")
+
+        for e in elements:
+
+            layout_infos = Utils.get_tag_attribute(e, "layout", "jahia:value")
+            soup = BeautifulSoup(layout_infos, 'html5lib')
+            layout = soup.find('jahia-resource').get('default-value')
+
+            # Retrieve info
+            link = Utils.get_tag_attribute(e, "jahia:url", "jahia:value")
+            image = Utils.get_tag_attribute(e, "image", "jahia:value")
+            title = Utils.get_tag_attribute(e, "jahia:url", "jahia:title")
+
+            # Escape if necessary
+            title = title.replace('"', '\\"')
+
+            # Fix path if necessary
+            if "/files" in image:
+                image = image[image.rfind("/files"):]
+
+            self.content += '[{} layout="{}" link="{}" title="{}" image="{}"][/{}]\n'.format(
+                shortcode_inner_name, layout, link, title, image, shortcode_inner_name)
+
+        self.content += "[/{}]".format(shortcode_outer_name)
 
     def set_box_text(self, element, multibox=False):
         """set the attributes of a text box
@@ -194,6 +278,8 @@ class Box:
         More information here:
         https://c4science.ch/source/kis-jahia6-dev/browse/master/core/src/main/webapp/common/box/display/peopleListBoxDisplay.jsp
         """
+        self.shortcode_name = "epfl_people"
+
         BASE_URL = "https://people.epfl.ch/cgi-bin/getProfiles?"
 
         # prepare a dictionary with all GET parameters
@@ -204,6 +290,12 @@ class Box:
 
         # parse the template html
         template_html = Utils.get_tag_attribute(element, "template", "jahia:value")
+
+        # check if we have an HTML template
+        if not template_html:
+            logging.warning("epfl_people: no HTML template set")
+            self.content = "[epfl_people error: no HTML template set]"
+            return
 
         # extract template key
         template_key = Utils.get_tag_attribute(
@@ -222,32 +314,39 @@ class Box:
             template = 'default_list'
         else:
             template = Utils.get_tag_attribute(minidom.parseString(template_html), "jahia-resource", "key")
-        parameters['WP_tmpl'] = template
+        parameters['tmpl'] = "WP_" + template
 
         # in the parser we can't know the current language.
         # so we assign a string that we will replace by the current language in the exporter
         parameters['lang'] = self.UPDATE_LANG
 
         url = "{}{}".format(BASE_URL, urlencode(parameters))
-        self.content = '[epfl_people url="{}" /]'.format(url)
+        self.content = '[{} url="{}" /]'.format(self.shortcode_name, url)
 
     def set_box_actu(self, element):
         """set the attributes of an actu box"""
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.content = "[actu url=%s]" % url
+        self.shortcode_name = "actu"
+
+        self.content = "[{} url={}]".format(self.shortcode_name, url)
 
     def set_box_memento(self, element):
         """set the attributes of a memento box"""
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.content = "[memento url=%s]" % url
+        self.shortcode_name = "memento"
+
+        self.content = "[{} url={}]".format(self.shortcode_name, url)
 
     def set_box_infoscience(self, element):
         """set the attributes of a infoscience box"""
+
+        self.shortcode_name = "epfl_infoscience"
+
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.content = "[epfl_infoscience url=%s]" % url
+        self.content = "[{} url={}]".format(self.shortcode_name, url)
 
     def set_box_faq(self, element):
         """set the attributes of a faq box"""
@@ -255,7 +354,7 @@ class Box:
 
         self.answer = Utils.get_tag_attribute(element, "answer", "jahia:value")
 
-        self.content = "<h2>%s</h2><p>%s</p>" % (self.question, self.answer)
+        self.content = "<h2>{}</h2><p>{}</p>".format(self.question, self.answer)
 
     def set_box_toggle(self, element):
         """set the attributes of a toggle box"""
@@ -267,10 +366,13 @@ class Box:
         """set the attributes of an include box"""
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
         if "://people.epfl.ch/cgi-bin/getProfiles?" in url:
-            url = url.replace("tmpl=", "WP_tmpl=")
-            self.content = "[epfl_people url={} /]".format(url)
+            url = url.replace("tmpl=", "tmpl=WP_")
+
+            self.shortcode_name = "epfl_people"
+
+            self.content = '[{} url="{}" /]'.format(self.shortcode_name, url)
         else:
-            self.content = "[include url={}]".format(url)
+            self.content = '[remote_content url="{}"]'.format(url)
 
     def set_box_contact(self, element):
         """set the attributes of a contact box"""
@@ -283,7 +385,9 @@ class Box:
         xml = Utils.get_tag_attribute(element, "xml", "jahia:value")
         xslt = Utils.get_tag_attribute(element, "xslt", "jahia:value")
 
-        self.content = "[xml xml=%s xslt=%s]" % (xml, xslt)
+        self.shortcode_name = "epfl_xml"
+
+        self.content = '[{} xml="{}" xslt="{}"]'.format(self.shortcode_name, xml, xslt)
 
     def set_box_rss(self, element):
         """set the attributes of an rss box"""
@@ -314,7 +418,7 @@ class Box:
         if detail_items != "true":
             summary = "no"
 
-        self.content = "[feedzy-rss feeds=\"{}\" max=\"{}\" feed_title=\"{}\" summary=\"{}\" refresh=\"12_hours\"]"\
+        self.content = "[feedzy-rss feeds=\"{}\" max=\"{}\" feed_title=\"{}\" summary=\"{}\" refresh=\"12_hours\"]" \
             .format(feeds, max, feed_title, summary)
 
     def set_box_links(self, element):
@@ -323,7 +427,7 @@ class Box:
 
     def set_box_unknown(self, element):
         """set the attributes of an unknown box"""
-        self.content = "[%s]" % element.getAttribute("jcr:primaryType")
+        self.content = "[{}]".format(element.getAttribute("jcr:primaryType"))
 
     def set_box_files(self, element):
         """set the attributes of a files box"""
@@ -341,6 +445,53 @@ class Box:
             content += '<li><a href="{}">{}</a></li>'.format(file_url, file_name)
         content += "</ul>"
         self.content = content
+
+    def set_box_snippets(self, element):
+        """set the attributes of a snippets box"""
+
+        self.shortcode_name = "epfl_snippets"
+
+        # register the shortcode
+        self.site.register_shortcode(self.shortcode_name, ["url", "image", "big_image"], self)
+
+        # check if the list is not empty
+        if not element.getElementsByTagName("snippetListList"):
+            return
+
+        snippets = element.getElementsByTagName("snippetListList")[0].getElementsByTagName("snippetList")
+
+        for snippet in snippets:
+            title = Utils.get_tag_attribute(snippet, "title", "jahia:value")
+            subtitle = Utils.get_tag_attribute(snippet, "subtitle", "jahia:value")
+            description = Utils.get_tag_attribute(snippet, "description", "jahia:value")
+            image = Utils.get_tag_attribute(snippet, "image", "jahia:value")
+            big_image = Utils.get_tag_attribute(snippet, "bigImage", "jahia:value")
+            enable_zoom = Utils.get_tag_attribute(snippet, "enableImageZoom", "jahia:value")
+
+            # escape
+            title = title.replace('"', '\\"')
+            subtitle = subtitle.replace('"', '\\"')
+            description = description.replace('"', '\\"')
+
+            url = ""
+
+            # url
+            if element.getElementsByTagName("url"):
+                # first check if we have a <jahia:url> (external url)
+                url = Utils.get_tag_attribute(snippet, "jahia:url", "jahia:value")
+
+                # if not we might have a <jahia:link> (internal url)
+                if url == "":
+                    uuid = Utils.get_tag_attribute(snippet, "jahia:link", "jahia:reference")
+
+                    if uuid in self.site.pages_by_uuid:
+                        page = self.site.pages_by_uuid[uuid]
+
+                        url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
+
+            self.content = '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
+                           ' big_image="{}" enable_zoom="{}" description="{}"]'\
+                .format(self.shortcode_name, url, title, subtitle, image, big_image, enable_zoom, description)
 
     def set_box_syntax_highlight(self, element):
         """Set the attributes of a syntaxHighlight box"""
@@ -402,6 +553,8 @@ class Box:
     def set_box_map(self, element):
         """set the attributes of a map box"""
 
+        self.shortcode_name = "epfl_map"
+
         # parse info
         height = Utils.get_tag_attribute(element, "height", "jahia:value")
         width = Utils.get_tag_attribute(element, "width", "jahia:value")
@@ -411,7 +564,14 @@ class Box:
         # so we assign a string that we will replace by the current language in the exporter
         lang = self.UPDATE_LANG
 
-        self.content = '[epfl_map width="{}" height="{}" query="{}" lang="{}"]'.format(width, height, query, lang)
+        self.content = '[{} width="{}" height="{}" query="{}" lang="{}"]'.format(self.shortcode_name,
+                                                                                 width,
+                                                                                 height,
+                                                                                 query,
+                                                                                 lang)
+
+    def is_shortcode(self):
+        return self.shortcode_name != ""
 
     def __str__(self):
         return self.type + " " + self.title
