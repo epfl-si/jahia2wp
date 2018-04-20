@@ -1794,11 +1794,6 @@ ul.bottin {
   }
 }
 
-.list-articles.list-news {
-  border-top: 1px solid #000;
-  padding-top: 15px;
-}
-
 /* Meta data */
 
 .entry-footer .entry-meta {
@@ -1978,6 +1973,62 @@ ul.bottin {
 ----------------------------------------- */
 
 /* --- News --- */
+  
+@mixin news-narrow-content {
+  
+  .entry-header {
+    width: 100%;
+    
+    .entry-title {
+      line-height: 1.4em;
+      margin-bottom: 6px;
+      overflow: hidden;
+    }
+  }
+  
+  .entry-content {
+    @include gradient-fade;
+    float: right;
+    line-height: 0;
+    overflow: hidden;
+    padding: 0;
+    
+    &:after {
+      height: 2.1em;
+
+    }
+    
+    .entry-meta {
+      display: inline;
+      margin-bottom: 0;
+      
+      .entry-date {
+        margin-bottom: 0;
+      }
+    }
+    
+    .teaser {
+      display: inline;
+      line-height: 1;
+    
+      &:after {
+        display: none;
+      }
+      
+      p {
+        display: inline;
+        font-size: .75rem;
+        line-height: 1.3em;
+        padding: 0;
+      }
+    }
+  }
+}
+
+.list-articles.list-news {
+  border-top: 1px solid #000;
+  padding-top: 15px;
+}
 
 .list-news {
   
@@ -1992,7 +2043,7 @@ ul.bottin {
     margin-bottom: 6px;
   }
   
-  .label {
+  .category-label {
     @include txt-narrow;
     background: #000;
     border: solid #fff;
@@ -2005,8 +2056,63 @@ ul.bottin {
   }
   
 }
+  
+/* Portal news with image on the left */
+
+.list-articles.news-portal {
+  @include news-narrow-content;
+  
+  .entry-content {
+    float: none;
+    max-height: 93px;
+    width: 100%;
+  }
+  
+  .teaser p {
+    font-size: .75rem;
+  }
+  
+  .links {
+    margin-top: 4px;
+    
+    .link-action {
+      
+      &:before {
+        font-size: 11px;
+        line-height: 18px;
+        height: 18px;
+        width: 18px;
+      }
+      
+      &:not(:last-child) {
+        margin-right: 10px;
+      }
+    }
+  }
+}
+  
+/* Portal news with image on top */
+
+.list-articles.news-portal-img-top {
+  @include news-narrow-content;
+  
+  .post-thumbnail {
+    margin-bottom: 10px;
+  }
+  
+  .entry-content {
+    float: none;
+    max-height: 92px;
+    width: 100%;
+  }
+  
+}
+
+/* List sidebar */
 
 .list-news.list-news-sidebar {
+  @include news-narrow-content;
+  
   border-top: none;
   max-width: 320px;
   padding-top: 0;
@@ -2046,38 +2152,15 @@ ul.bottin {
   }
   
   .entry-content {
-    @include gradient-fade;
-    
-    float: right;
-    line-height: 0;
     height: 86px;
-    overflow: hidden;
-    padding: 0;
-    position: relative;
     width: 60%;
     
     &:after {
       height: 2.8em;
     }
-  
-    .entry-meta {
-      display: inline;
-      margin-bottom: 0;
-    }
     
-    .teaser {
-      height: 2.4em;
-      display: inline;
-      
-      &:after {
-        display: none;
-      }
-      
-      p {
-        display: inline;
-        font-size: .75rem;
-        line-height: 1.3em;
-      }
+    .teaser p {
+      font-size: .75rem;
     }
     
   }
@@ -2121,7 +2204,6 @@ ul.bottin {
       }
     }
   }
-  
   
 }
 
@@ -2544,6 +2626,22 @@ ul.bottin {
     }
   }
   
+  /* --- Single article --- */
+  
+  .nav-links {
+    margin-top: 30px;
+    
+    & > div {
+      max-width: 49%;
+    }
+  }
+  
+  /*  ---------------------------------------
+      08 SHORTCODES
+  ----------------------------------------- */
+  
+  /* --- News --- */
+  
   /* List of articles with no picture */
   
   .list-articles.list-news-textonly {
@@ -2561,6 +2659,7 @@ ul.bottin {
   /* List of articles with first article featured */
   
   .list-articles.list-news-first-featured {
+    @include news-narrow-content;
     
     article.post {
       border: 0;
@@ -2590,64 +2689,17 @@ ul.bottin {
         }
       }
       
-      .entry-header {
-        width: 100%;
-        
-        .entry-title {
-          font-size: .75em;
-          line-height: 1.4em;
-          margin-bottom: 6px;
-          //max-height: 2.8em;
-          overflow: hidden;
-        }
+      .entry-header .entry-title {
+        font-size: .75em;
       }
       
       .entry-content {
-        float: right;
-        line-height: 0;
         height: 88px;
-        overflow: hidden;
-        padding: 0;
-        position: relative;
         width: 60%;
         
         &:after {
-          content: "";
-          background: transparent;
           height: 2.1em;
-          position: absolute;
-          top: auto; right: 0; bottom: 0; left: 0;
-          
-          /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&0+0,0.8+100 */
-          background: -moz-linear-gradient(top, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 100%); /* FF3.6-15 */
-          background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,0.8) 100%); /* Chrome10-25,Safari5.1-6 */
-          background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgba(255,255,255,0.8) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-          filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ccffffff',GradientType=0 ); /* IE6-9 */
     
-        }
-        
-        .entry-meta {
-          display: inline;
-          margin-bottom: 0;
-          
-          .entry-date {
-            margin-bottom: 0;
-          }
-        }
-        
-        .teaser {
-          display: inline;
-          line-height: 1;
-        
-          &:after {
-            display: none;
-          }
-          
-          p {
-            display: inline;
-            font-size: .75rem;
-            line-height: 1.3em;
-          }
         }
       }
       
@@ -2692,13 +2744,45 @@ ul.bottin {
     
   }
   
-  /* --- Single article --- */
+  /* Portal news with image on the left */
   
-  .nav-links {
-    margin-top: 30px;
+  .list-articles.news-portal {
     
-    & > div {
-      max-width: 49%;
+    .post-thumbnail {
+      width: 50%;
+    }
+    
+    .entry-content {
+      height: 104px;
+      max-height: none;
+      width: 50%
+    }
+        
+    .entry-header .entry-title {
+      font-size: .8125rem;
+    }
+    
+    .links {
+      float: right;
+      width: 50%;
+    }
+  }
+  
+  /* Portal news with image on top */
+  
+  .list-articles.news-portal-img-top {
+    
+    .post-thumbnail {
+      float: none;
+      margin-bottom: 6px;
+      padding: 0;
+      width: 100%;
+    }
+    
+    .entry-content {
+      float: none;
+      max-height: 92px;
+      width: 100%
     }
   }
   
