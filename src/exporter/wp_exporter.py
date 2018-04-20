@@ -322,7 +322,8 @@ class WPExporter:
         # 3. Looping through banners
         for lang, banner in self.site.banner.items():
 
-            soup = BeautifulSoup(banner.content, 'html.parser')
+            soup = BeautifulSoup(banner.content, 'html5lib')
+            soup.body.hidden = True
 
             for tag_name, tag_attribute in tag_attribute_tuples:
                 self.fix_links_in_tag(
@@ -333,7 +334,7 @@ class WPExporter:
                     tag_attribute=tag_attribute)
 
             # save the new banner content
-            banner.content = str(soup)
+            banner.content = str(soup.body)
 
     def fix_file_links_in_menu_items(self, menu_item, old_url, new_url):
         if menu_item.target_is_file():
@@ -514,7 +515,8 @@ class WPExporter:
         """[su_slider source="media: 1650,1648,1649" title="no" arrows="yes"]"""
         for box in self.site.get_all_boxes():
             if box.type == Box.TYPE_KEY_VISUAL:
-                soup = BeautifulSoup(box.content, 'html.parser')
+                soup = BeautifulSoup(box.content, 'html5lib')
+                soup.body.hidden = True
                 medias_ids = []
                 for img in soup.find_all("img"):
                     if img['src'] in self.medias_mapping:

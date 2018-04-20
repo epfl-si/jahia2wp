@@ -16,7 +16,7 @@ class Banner:
 
         # If there are image in banner, they may have following code aspect, so cleaning is necessary :
         # ###file:/content/sites/skyrmions/files/Image-1.jpg?uuid=default:d1c1c1d4-7d23-45d7-b6fc-c10df12ef91e
-        soup = BeautifulSoup(content, 'html.parser')
+        soup = BeautifulSoup(content, 'html5lib')
 
         images = soup.find_all('img')
 
