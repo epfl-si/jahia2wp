@@ -44,6 +44,7 @@ def wp_generator_generic():
                  'wp_site_url': SITE_URL_GENERIC,
                  'wp_site_title': "TEST",
                  'wp_tagline': "My Test",
+                 'langs': 'en',
                  'unit_name': UNIT_NAME})
     generator.clean()
     generator.generate()
@@ -58,6 +59,7 @@ def wp_generator_specific():
                  'wp_site_url': SITE_URL_SPECIFIC,
                  'wp_site_title': "TEST",
                  'wp_tagline': "My Test",
+                 'langs': 'en',
                  'unit_name': UNIT_NAME})
     generator.clean()
     generator.generate()

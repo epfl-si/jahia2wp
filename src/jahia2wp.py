@@ -243,7 +243,7 @@ def _generate_csv_line(wp_generator):
 
     # Recovering values from WPGenerator or hardcode some
     csv_columns['wp_site_url'] = wp_generator._site_params['wp_site_url']  # from csv
-    csv_columns['wp_tagline'] = wp_generator._site_params['wp_tagline']  # from parser
+    csv_columns['wp_tagline'] = wp_generator._site_params['wp_tagline'][wp_generator.default_lang()]  # from parser
     csv_columns['wp_site_title'] = wp_generator._site_params['wp_site_title']  # from parser
     csv_columns['site_type'] = 'wordpress'
     csv_columns['openshift_env'] = 'subdomains'
@@ -418,7 +418,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         logging.warning("No wp tagline in %s", default_language)
         wp_tagline = None
     else:
-        wp_tagline = site.title[default_language]
+        wp_tagline = site.title
 
     if not theme:
         # Setting correct theme depending on parsing result

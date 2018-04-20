@@ -27,7 +27,13 @@ class WPSite:
     WP_VERSION = Utils.get_mandatory_env(key="WP_VERSION")
 
     def __init__(self, openshift_env, wp_site_url, wp_site_title=None, wp_tagline=None):
-
+        """
+        Class constructor
+        :param openshift_env: name of openshift environement
+        :param wp_site_url: WordPress website URL
+        :param wp_site_title: WordPress website title (same for all languages)
+        :param wp_tagline: Dict with langs as key and tagline as value
+        """
         # validate & transform args
         self.openshift_env = openshift_env.lower()
         url = urlparse(wp_site_url.lower())
@@ -37,9 +43,10 @@ class WPSite:
             validate_string(wp_site_title)
 
         if wp_tagline is not None:
-            validate_string(wp_tagline)
+            for lang, lang_tagline in wp_tagline.items():
+                validate_string(lang_tagline)
 
-        # set WP informations
+        # set WP information
         self.domain = url.netloc.strip('/')
         self.folder = url.path.strip('/')
         self.wp_site_title = wp_site_title or self.DEFAULT_TITLE
