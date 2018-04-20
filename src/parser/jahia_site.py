@@ -689,12 +689,18 @@ class Site:
     def _add_to_sitemap_node(self, node, language):
         """Add the given SitemapNode. This is a recursive method"""
 
+        # if we have more than 10 of depth there is an infinite loop
+        # in the hierarchy, e.g. A > B > C > A > B > C > ...
+        if node.depth > 10:
+            logging.error("Sitemap is corrupted: infinite loop")
+            return
+
         # for each NavigationPages...
         for navigation_page in node.page.contents[language].navigation:
             child_node = SitemapNode.from_navigation_page(navigation_page=navigation_page, parent=node)
 
             if not navigation_page.page:
-                logging.warning("navigation_page has no page associated")
+                logging.warning("Sitemap is corrupted: navigation_page has no page associated")
                 continue
 
             # if we have an internal NavigationPage, we add it's children
@@ -704,7 +710,7 @@ class Site:
 
                 # integrity check
                 if child_node.page.pid == node.page.pid:
-                    logging.warning("Sitemap is corrupted")
+                    logging.warning("Sitemap is corrupted: parent and child are the same")
                     continue
 
                 # recursive call
