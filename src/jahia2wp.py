@@ -39,6 +39,7 @@ Usage:
   jahia2wp.py rotate-backup         <csv_file>          [--dry-run] [--debug | --quiet]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
+  jahia2wp.py switch-auth-method    <path> [--input-csv=<INPUT_CSV>][--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
     [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
@@ -59,6 +60,9 @@ import getpass
 import json
 import logging
 import pickle
+import random
+import string
+import codecs
 import subprocess
 from collections import OrderedDict
 from datetime import datetime
@@ -852,6 +856,59 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
 
             except Exception as e:
                 logging.error("Site %s - Error %s", report['name'], e)
+
+
+@dispatch.on('switch-auth-method')
+def switch_auth_method(path, input_csv=None, **kwargs):
+    """
+    Goes through all the deployed wordpress sites in `path` and adds a user named `webmaster` with a random password.
+
+    :param path: the path to crawl in search of wordpress sites
+    :param input_csv: if some of the sites were already deployed and communicated to webmasters with some password,
+    the function reuse the password in the file input_csv instead of using a new one.
+
+    The file jahia_infos.csv must be in the same folder and contain at least for each site its full jahia url and the
+    name of the webmaster to contact for this site. The file currently used is the Google Docs file given by Natalie.
+    """
+    logging.info("Updating passwords...")
+    passwords = {}
+    if input_csv:
+        with open(input_csv) as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                passwords[row['url']] = row['password']
+    for site_details in WPConfig.inventory(path):
+        site_config = WPConfig(site_details)
+        if site_details.url in passwords and passwords[site_details.url]:
+            site_config.run_wp_cli('user create webmaster webmaster@migration-wp.epfl.ch --user_pass={} '
+                                   '--role=administrator'.format(passwords[site_details.url]))
+        else:
+            password = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits)
+                               for _ in range(10))
+            try:
+                site_config.run_wp_cli('user create webmaster webmaster@migration-wp.epfl.ch --user_pass={} '
+                                       '--role=administrator'.format(password))
+            except:
+                try:
+                    site_config.run_wp_cli('user update webmaster --user_pass={} --role=administrator'.format(password))
+                except:
+                    continue
+            passwords[site_details.url] = password
+        logging.info('Site : {}'.format(site_details.url))
+    with open('passwords.csv', 'w') as f:
+        f.write('jahia_url,url,login,password,responsable\n')
+        for key, value in passwords.items():
+            jahia_url = '{}.epfl.ch'.format(key.split('/')[-1])
+            responsable = ''
+            with codecs.open('jahia_infos.csv', 'r', 'utf8') as csv_file:
+                reader = csv.DictReader(csv_file)
+                for row in reader:
+                    if row['url'].replace('http://', '').replace('https://', '').replace('/', '') == jahia_url:
+                        responsable = row['responsable']
+                        responsable = responsable.replace(', ', '|')
+                        jahia_url = row['url']
+                        break
+            f.write('{},{},webmaster,{},{}\n'.format(jahia_url, key, value, responsable))
 
 
 if __name__ == '__main__':
