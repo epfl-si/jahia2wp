@@ -42,6 +42,10 @@ class WPGenerator:
 
         Argument keywords:
         site_params -- dict with row coming from CSV file (source of truth)
+                    - Field wp_tagline can be :
+                    None    -> No information
+                    String  -> Same tagline for all languages
+                    Dict    -> key=language, value=tagline for language
         admin_password -- (optional) Password to use for 'admin' account
         """
 
@@ -52,11 +56,23 @@ class WPGenerator:
             logging.info("WPGenerator.__init__(): Please use 'unit_id' from CSV file (now recovered from 'unit_name')")
             self._site_params['unit_id'] = self.get_the_unit_id(self._site_params['unit_name'])
 
+        # If not given (can happens), we initialize title with a default value so we will be able, later, to
+        # set a translation for it.
         if 'wp_site_title' not in self._site_params:
-            self._site_params['wp_site_title'] = None
+            self._site_params['wp_site_title'] = 'Title'
 
         if 'wp_tagline' not in self._site_params:
             self._site_params['wp_tagline'] = None
+        else:
+            # If information is not already in a dict (happens if info is coming for the source of truth in which
+            # we only have tagline in primary language
+            if not isinstance(self._site_params['wp_tagline'], dict):
+                wp_tagline = {}
+                # We loop through languages to generate dict
+                for lang in self._site_params['langs'].split(','):
+                    # We set tagline for current language
+                    wp_tagline[lang] = self._site_params['wp_tagline']
+                self._site_params['wp_tagline'] = wp_tagline
 
         if self._site_params.get('installs_locked', None) is None:
             self._site_params['installs_locked'] = settings.DEFAULT_CONFIG_INSTALLS_LOCKED
@@ -109,6 +125,13 @@ class WPGenerator:
 
     def __repr__(self):
         return repr(self.wp_site)
+
+    def default_lang(self):
+        """
+        Returns default language for generated website
+        :return:
+        """
+        return self._site_params['langs'].split(',')[0]
 
     def run_wp_cli(self, command, encoding=sys.getdefaultencoding(), pipe_input=None, extra_options=None):
         """
@@ -258,13 +281,16 @@ class WPGenerator:
             logging.error("%s - could not setup WP site", repr(self))
             return False
 
-        # Set Tagline (blog description)
-        # Command is in simple quotes and tagline between double quotes to avoid problems in case of simple quote
-        # in tagline text.
-        if not self.run_wp_cli('option update blogdescription "{}"'.format(self.wp_site.wp_tagline),
-                               encoding="utf-8"):
-            logging.error("%s - could not configure blog description", repr(self))
-            return False
+        # Set Tagline (blog description) if we have one. If we don't have a tagline and set it to "empty", it won't
+        # be available in Polylang to translate it so we let the default value set by WordPress
+        if self._site_params['wp_tagline']:
+            # Command is in simple quotes and tagline between double quotes to avoid problems in case of simple quote
+            # in tagline text. We initialize blogdescription with default language
+            if not self.run_wp_cli('option update blogdescription "{}"'.format(
+                    self._site_params['wp_tagline'][self.default_lang()]),
+                    encoding="utf-8"):
+                logging.error("%s - could not configure blog description", repr(self))
+                return False
 
         # Configure permalinks
         command = "rewrite structure '/%postname%/' --hard"
