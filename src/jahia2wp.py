@@ -66,6 +66,8 @@ from pprint import pprint
 
 import os
 import shutil
+
+import sys
 import yaml
 from docopt import docopt
 from docopt_dispatch import dispatch
@@ -243,7 +245,7 @@ def _generate_csv_line(wp_generator):
 
     # Recovering values from WPGenerator or hardcode some
     csv_columns['wp_site_url'] = wp_generator._site_params['wp_site_url']  # from csv
-    csv_columns['wp_tagline'] = wp_generator._site_params['wp_tagline']  # from parser
+    csv_columns['wp_tagline'] = wp_generator._site_params['wp_tagline'][wp_generator.default_lang()]  # from parser
     csv_columns['wp_site_title'] = wp_generator._site_params['wp_site_title']  # from parser
     csv_columns['site_type'] = 'wordpress'
     csv_columns['openshift_env'] = 'subdomains'
@@ -333,6 +335,13 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
     Parse the give site.
     """
     try:
+        # without changing this parameter the following sites crash
+        # when they are dumped on disk with pickle:
+        # biorob, disopt, euler, last, master-architecture
+        # they are probably corrupted, so this is simply a hack
+        # to make it work
+        sys.setrecursionlimit(2000)
+
         # create subdir in output_dir
         site_dir = unzip(site, output_dir=output_dir)
 
@@ -418,7 +427,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         logging.warning("No wp tagline in %s", default_language)
         wp_tagline = None
     else:
-        wp_tagline = site.title[default_language]
+        wp_tagline = site.title
 
     if not theme:
         # Setting correct theme depending on parsing result

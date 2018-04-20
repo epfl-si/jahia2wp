@@ -15,7 +15,7 @@ class TestWPSite:
             openshift_env=settings.OPENSHIFT_ENV,
             wp_site_url="http://localhost/folder",
             wp_site_title="TST",
-            wp_tagline="Test site")
+            wp_tagline={'en': "Test site"})
 
     def test_path(self, wordpress):
         assert wordpress.path == ROOT_PATH + "htdocs/folder"
@@ -78,6 +78,7 @@ class TestWPGenerator:
              'wp_site_title': 'DM',
              'wp_tagline': self.TAGLINE_WITH_ACCENT,
              'unit_name': 'idevelop',
+             'langs': 'en',
              'updates_automatic': False})
         generator.clean()
         return generator
