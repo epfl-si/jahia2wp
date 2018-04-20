@@ -445,7 +445,7 @@ class Site:
         """Count each html tags"""
 
         for box in page_content.boxes:
-            soup = BeautifulSoup(box.content, 'html.parser')
+            soup = BeautifulSoup(box.content, 'html5lib')
 
             for tag in soup.find_all():
                 # we increment both at the page_content and at the site level
