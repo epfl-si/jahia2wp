@@ -295,11 +295,11 @@ class WPExporter:
 
         tag_attribute_tuples = [("a", "href"), ("img", "src"), ("script", "src")]
 
-        # Looping through boxes
+        # 1. Looping through boxes
         for box in self.site.get_all_boxes():
 
             # first fix in shortcodes
-            self.fix_file_links_in_shortcode(box, old_url, new_url)
+            self.fix_file_links_in_shortcode_attributes(box, old_url, new_url)
 
             soup = BeautifulSoup(box.content, 'html5lib')
             soup.body.hidden = True
@@ -316,9 +316,10 @@ class WPExporter:
             # save the new box content
             box.content = str(soup.body)
 
+        # 2. Menus
         self.fix_file_links_in_menus(old_url, new_url)
 
-        # Looping through banners
+        # 3. Looping through banners
         for lang, banner in self.site.banner.items():
 
             soup = BeautifulSoup(banner.content, 'html.parser')
@@ -352,16 +353,41 @@ class WPExporter:
             self.fix_file_links_in_menu_items(child, old_url, new_url)
             self.fix_file_links_in_submenus(child, old_url, new_url)
 
-    def fix_page_content_links(self, wp_pages):
+    def fix_page_links_in_sidebar(self, site_folder):
+        """
+        Fix page links in sidebar widgets
+        :param site_folder: path to folder containing website files
+        :return:
+        """
+        logging.info("Fixing sidebar content links")
+        for lang in self.site.homepage.contents.keys():
+
+            for box in self.site.homepage.contents[lang].sidebar.boxes:
+
+                soup = BeautifulSoup(box.content, 'html5lib')
+                soup.body.hidden = True
+
+                for url_mapping in self.urls_mapping:
+                    new_url = "{}/{}/".format(site_folder, url_mapping["wp_slug"])
+                    for old_url in url_mapping["jahia_urls"]:
+                        self.fix_links_in_tag(
+                            soup=soup,
+                            old_url=old_url,
+                            new_url=new_url,
+                            tag_name="a",
+                            tag_attribute="href"
+                        )
+
+                box.content = str(soup.body)
+
+    def fix_page_links_in_pages(self, wp_pages, site_folder):
         """
         Fix all the links once we know all the WordPress pages urls
+        :param wp_pages: list of pages to fix
+        :param site_folder: path to folder containing website files
+        :return:
         """
         logging.info("Fixing page content links")
-
-        if self.wp_generator.wp_site.folder == "":
-            folder = ""
-        else:
-            folder = "/{}".format(self.wp_generator.wp_site.folder)
 
         for wp_page in wp_pages:
 
@@ -377,7 +403,7 @@ class WPExporter:
             # and the second time, we fix links in HTML tags and we use Beautiful Soup to do this.
             for url_mapping in self.urls_mapping:
                 # Generating new URL from slug
-                new_url = "{}/{}/".format(folder, url_mapping["wp_slug"])
+                new_url = "{}/{}/".format(site_folder, url_mapping["wp_slug"])
 
                 for old_url in url_mapping["jahia_urls"]:
 
@@ -413,7 +439,7 @@ class WPExporter:
 
             # Step 2 - Fix in HTML tags
             for url_mapping in self.urls_mapping:
-                new_url = "{}/{}/".format(folder, url_mapping["wp_slug"])
+                new_url = "{}/{}/".format(site_folder, url_mapping["wp_slug"])
                 for old_url in url_mapping["jahia_urls"]:
                     self.fix_links_in_tag(
                         soup=soup,
@@ -430,7 +456,7 @@ class WPExporter:
 
             self.update_page_content(page_id=wp_id, content=content)
 
-    def fix_file_links_in_shortcode(self, box, old_url, new_url):
+    def fix_file_links_in_shortcode_attributes(self, box, old_url, new_url):
         """
         Fix the link in a box shortcode for all registered attributes.
 
@@ -633,7 +659,16 @@ class WPExporter:
 
             self.report['pages'] += 1
 
-        self.fix_page_content_links(wp_pages)
+        if self.wp_generator.wp_site.folder == "":
+            site_folder = ""
+        else:
+            site_folder = "/{}".format(self.wp_generator.wp_site.folder)
+
+        # Update page links in all imported pages
+        self.fix_page_links_in_pages(wp_pages, site_folder)
+
+        # Update page links in sidebar boxes
+        self.fix_page_links_in_sidebar(site_folder)
 
         self.create_sitemaps()
 
