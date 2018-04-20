@@ -58,7 +58,15 @@ class WPSite:
 
     @property
     def url(self):
-        return "{0.PROTOCOL}://{0.domain}/{0.folder}".format(self)
+        """
+        Returns WP site URL. URL is always returned without a / at the end.
+        """
+        # First, we generate only with hostname
+        result = "{0.PROTOCOL}://{0.domain}".format(self)
+        # If there a subfolder, we add it
+        if self.folder != "":
+            result = "{}/{}".format(result, self.folder)
+        return result
 
     @property
     def name(self):
