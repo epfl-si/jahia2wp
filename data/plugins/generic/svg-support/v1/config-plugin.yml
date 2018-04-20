@@ -1,2 +1,8 @@
 src: web
 activate: yes
+tables:
+  options:
+  - autoload: 'yes'
+    option_id: 255
+    option_name: bodhi_svgs_admin_notice_dismissed
+    option_value: '1'
