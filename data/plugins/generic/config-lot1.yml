@@ -35,3 +35,5 @@ plugins:
     config: !include enlighter/v1/config-plugin.yml
   - name: remote-content-shortcode
     config: !include remote-content-shortcode/v1/config-plugin.yml
+  - name: shortcode-ui
+    config: !include shortcode-ui/v1/config-plugin.yml
