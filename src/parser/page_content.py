@@ -22,7 +22,6 @@ class PageContent:
         # the relative path, e.g. /team.html
         self.path = ""
         self.vanity_urls = []
-        self.title = element.getAttribute("jahia:title")
         self.boxes = []
         self.sidebar = Sidebar()
         self.last_update = ""
@@ -30,6 +29,8 @@ class PageContent:
         self.navigation = []
         # the number of occurrences of each tag, e.g. "br" : 10
         self.num_tags = {}
+
+        self.parse_title()
 
         # last update
         self.parse_last_update()
@@ -45,6 +46,23 @@ class PageContent:
 
         # add to the site PageContents
         self.site.pages_content_by_path[self.path] = self
+
+    def parse_title(self):
+        """
+        Page have a default title but it can be overrided by another title.
+        :return:
+        """
+        # For menu title, we have to use default page title
+        self.menu_title = self.element.getAttribute("jahia:title")
+
+        # Looking if there is an overrided page title (that will be used only on page)
+        page_title = self.element.getElementsByTagName("pageTitle")[0].getAttribute("jahia:value")
+
+        # If page_title is not equal as "", it means we have an overrided page title.
+        if page_title:
+            self.title = page_title
+        else:  # We take the default title
+            self.title = self.menu_title
 
     def parse_last_update(self):
         """Parse the last update information"""
