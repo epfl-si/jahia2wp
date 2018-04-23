@@ -156,10 +156,11 @@ class TestPages:
             for language, content in page.contents.items():
 
                 expected_content = data['pages_by_pid'][pid]['contents'][language]
-
+                print(pid)
                 assert content.language == expected_content['language']
                 assert content.path == expected_content['path']
                 assert content.title == expected_content['title']
+                assert content.menu_title == expected_content['menu_title']
                 assert content.last_update == expected_content['last_update']
 
     def test_boxes(self, site, data):
