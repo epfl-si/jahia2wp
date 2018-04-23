@@ -15,6 +15,7 @@ import settings
 from exporter.utils import Utils
 from utils import Utils as WPUtils
 from parser.file import File
+from django.utils.text import slugify
 
 
 class WPExporter:
@@ -577,16 +578,15 @@ class WPExporter:
                 # create the page content
                 for box in page.contents[lang].boxes:
 
-                    # For this box type, the surrounding <div> is handled by the shortcode himself
-                    # FIXME: All shortcode have to handle surrounding <div> because otherwise when webmaster
-                    # will add shortcode [xyz att=""], manually in page, he won't add the <div> manually, he doesn't
-                    # have to know about this. So he won't do it and the dispay may be incorrect because not matching
-                    # the theme's CSS style
-                    if box.type is not Box.TYPE_GRID:
+                    if not box.is_shortcode():
                         contents[lang] += '<div class="{}">'.format(box.type + "Box")
 
                     if box.title:
-                        contents[lang] += '<h3 id="{0}">{0}</h3>'.format(box.title)
+                        if WPUtils.is_html(box.title):
+                            contents[lang] += '<h3>{0}</h3>'.format(box.title)
+                        else:
+                            slug = slugify(box.title)
+                            contents[lang] += '<h3 id="{0}">{0}</h3>'.format(slug, box.title)
 
                     # in the parser we can't know the current language.
                     # we assign a string that we replace with the current language
@@ -596,7 +596,7 @@ class WPExporter:
 
                     contents[lang] += box.content
 
-                    if box.type is not Box.TYPE_GRID:
+                    if not box.is_shortcode():
                         contents[lang] += "</div>"
 
                 info_page[lang] = {
