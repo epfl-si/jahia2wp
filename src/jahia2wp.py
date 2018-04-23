@@ -895,12 +895,50 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
     if not context:
         context = 'intra'
 
+    logging.info('Parsing target WP instances (inventory)...')
+    t = tt()
+    # Obtain the list of the WP instances in the destination root folders (e.g. /srv/hmuriel/httpd/epfl)
+    if not root_wp_dest:
+        raise SystemExit("No target location to scan for WP instances")
+    # Split the root to get the target sites
+    dest_sites = {}
+    for path in root_wp_dest.split(','):
+        # The path must be absolute
+        if not os.path.isabs(path):
+            logging.warn(
+                'The target site path is not absolute: {}. skipping...'.format(path))
+        else:
+            # Using inventory() method == SLOW.... test: 15s
+            if use_inventory:
+                for site in WPConfig.inventory(path):
+                    if site.valid != 'ok':
+                        logging.warn(
+                            'Target site not valid: {}, skipping...'.format(site.path))
+                    else:
+                        dest_sites[site.url] = site.path
+            else:
+                # Scan for valid instances in the target path (FAST method),
+                # test: 0.3s, test with wpcli check: 5.5s
+                # Find wp-config.php in the paths
+                dirs = Utils.run_command(
+                    'find "' + path + '" -name "wp-config.php" -exec dirname "{}" \;')
+                dirs = dirs.split('\n')
+                # Create a WP Site per matching dir and get its URL
+                # Doing it this way since WP site has some checks for the path and URL building.
+                for path in dirs:
+                    wp_site = WPSite.from_path(path)
+                    if wp_site:
+                        # wp_config = WPConfig(wp_site)
+                        # if wp_config.is_config_valid:
+                        dest_sites[wp_site.url] = path
+    pprint(dest_sites)
+
     # Extract all the sites as site (key) => paths (value)
-    logging.info('Rule parsing...')
+    logging.info('[{:.2f}s] Rule parsing...'.format(tt() - t))
     t = tt()
     rulesets = {}
     rows = Utils.csv_filepath_to_dict(csv_file)
-    local_env = 'http://jahia2wp-httpd/{}'
+    local_env = 'https://jahia2wp-httpd/{}'
     for idx, row in enumerate(rows):
         source = row['source']
         # Split the path and take the first arg as site
@@ -969,7 +1007,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         # Dump the site content in plain CSV format.
         logging.info("Dumping CSV for site {}".format(site))
         # All the fields to retrieve from the wp_post table
-        fields = 'ID,post_title,post_name,post_parent,url,post_status,post_content'
+        fields = 'ID,post_title,post_name,post_parent,guid,url,post_status,post_content'
         # Only pages, all without paging. Sort them by post_parent ascendantly for ease of
         # reinsertion to insert first parent pages and avoiding parentless children.
         params = '--post_type=page --nopaging --order=asc --orderby=ID --fields={} --format=csv'
@@ -981,6 +1019,17 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         Utils.run_command(cmd, 'utf8')
         # Append site path at the end of the CSV as a comment, useful for later processing.
         Utils.run_command('echo "#{}" >> {}'.format(wp_conf.wp_site.path, csv_f))
+        # Convert the GUIDs to relative URLs to avoid rule replacement.
+        pages = Utils.csv_filepath_to_dict(csv_f)
+        # Write back the CSV file
+        with open(csv_f, 'w', encoding='utf8') as f:
+            site_url = urlparse(site)
+            host = site_url._replace(path='').geturl()
+            writer = csv.DictWriter(f, fieldnames=pages[0].keys())
+            writer.writeheader()
+            for p in pages:
+                p['guid'] = p['guid'].replace(host, '')
+                writer.writerow(p)
         # Backup file
         shutil.copyfile(csv_f, csv_f + '.bak')
         # Dump media / attachments
@@ -1002,7 +1051,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
     ############
     # IMPORTANT: Translate the source URL using the intermediate WP instance.
     ############
-    # Use port 8080 (wp-mgmt does not have 80=>8080 redirection for httpd cont.)
+    # Use port 8443 (wp-mgmt does not have 443=>8443 redirection for httpd cont.)
     for site in rulesets.keys():
         # IMPORTANT: Before expanding any rules, restore the .htaccess to remove ventilation redirs.
         # Restore the .htaccess (always)
@@ -1027,7 +1076,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
 
         for (src, dst, type_rule) in rulesets[site]:
             _src = urlparse(src)
-            _src = _src._replace(netloc=_src.netloc + ':8080').geturl()
+            _src = _src._replace(netloc=_src.netloc + ':8443').geturl()
             # GET only the HEADERS *of course* in silent mode and ignoring cert validity
             # WARNING:::: This first curl call will only get the .htaccess redirection (i.e. page GUID)
             # The second call (redir) will translate the GUID into the actual URL that doesn't have a port
@@ -1040,9 +1089,9 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                 continue
             else:
                 src = loc.pop()
-                # Continue only if the location has a 8080 port.
+                # Continue only if the location has a 8443 port.
                 # Special case: The root URL does only need one cURL.
-                if ':8080' in src:
+                if ':8443' in src:
                     out = Utils.run_command('curl -I -s -k {}'.format(src))
                     # Parse the Location header if present.
                     loc = [l.split('Location: ').pop().strip() for l in out.split('\n') if 'Location:' in l]
@@ -1166,6 +1215,49 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                 stats[site][site2].append((tot_reps, source, dest, matches))
     pprint(stats)
 
+    # Replace relative links per site using the GUID of each page as key. Recall, the GUID was converted
+    # to a relative link for this purpose.
+    dest_sites_keys = dest_sites.keys()
+    stats = {}
+    for site in site_keys:
+        if site not in stats:
+            stats[site] = []
+        csv_f = files[site]
+        pages = Utils.csv_filepath_to_dict(csv_f)
+        with open(csv_f, 'r', encoding='utf8') as f:
+            head = f.readline()
+            bef_guid = ',' if head.find(',guid') != -1 else ''
+            aft_guid = ',' if head.find('guid,') != -1 else ''
+        for p in pages:
+            rel_guid = bef_guid + p['guid'] + aft_guid
+            prev_post_name = urlparse(p['guid']).path.strip('/').split('/')[-1]
+            # Find the longest matching URL among the target sites
+            matches = [s for s in dest_sites_keys if s in p['url']]
+            if not matches:
+                logging.warning('No matching destination site for page, skipping...')
+            else:
+                max_match = '/'.join(max([m.split('/') for m in matches]))
+                print(max_match, p['url'])
+                # Keep the same post_name if it's the index page
+                if prev_post_name == 'index-html':
+                    post_name = prev_post_name
+                else:
+                    post_name = urlparse(p['url']).path.strip('/').split('/')[-1]
+
+                post_path = urlparse(max_match).path
+                # Use the first and last fragments to build the new GUID
+                new_guid = bef_guid + os.path.join(post_path, post_name + '/') + aft_guid
+                cmd = "awk 'END{{print t > \"/dev/stderr\"}}"
+                cmd = cmd + " {{t+=gsub(\"{0}\",\"{1}\")}}1' {2} > {2}.1 && mv {2}.1 {2}"
+                cmd = cmd.format(rel_guid, new_guid, csv_f)
+                logging.debug(cmd)
+                # AWK is counting the replacement occurrences in the stderr.
+                proc = subprocess.run(cmd, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
+                # This has to be a number normally, but it can also contain return errors, to be analized
+                reps = proc.stderr.strip()
+                stats[site].append((reps, rel_guid, new_guid, site))
+    pprint(stats)
+
     # At this point all the CSV files have the right URLs in place. It is the moment to effectively migrate
     # the content (pages and files / media)
     # ASSUMPTION: All the content is to migrate, there is no content to left behind (e.g. old pages). In any
@@ -1173,46 +1265,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
     # The migration / insertion of the content is performed by site but it can be parallelised in lots of n
     # sites out of the N, the right value is to define while testing according to the available ressources.
 
-    logging.info('[{:.2f}s] Parsing target WP instances (inventory)...'.format(tt()-t))
-    t = tt()
-    # Obtain the list of the WP instances in the destination root folders (e.g. /srv/hmuriel/httpd/epfl)
-    if not root_wp_dest:
-        raise SystemExit("No target location to scan for WP instances")
-    # Split the root to get the target sites
-    dest_sites = {}
-    for path in root_wp_dest.split(','):
-        # The path must be absolute
-        if not os.path.isabs(path):
-            logging.warn(
-                'The target site path is not absolute: {}. skipping...'.format(path))
-        else:
-            # Using inventory() method == SLOW.... test: 15s
-            if use_inventory:
-                for site in WPConfig.inventory(path):
-                    if site.valid != 'ok':
-                        logging.warn(
-                            'Target site not valid: {}, skipping...'.format(site.path))
-                    else:
-                        dest_sites[site.url] = site.path
-            else:
-                # Scan for valid instances in the target path (FAST method),
-                # test: 0.3s, test with wpcli check: 5.5s
-                # Find wp-config.php in the paths
-                dirs = Utils.run_command(
-                    'find "' + path + '" -name "wp-config.php" -exec dirname "{}" \;')
-                dirs = dirs.split('\n')
-                # Create a WP Site per matching dir and get its URL
-                # Doing it this way since WP site has some checks for the path and URL building.
-                for path in dirs:
-                    wp_site = WPSite.from_path(path)
-                    if wp_site:
-                        # wp_config = WPConfig(wp_site)
-                        # if wp_config.is_config_valid:
-                        dest_sites[wp_site.url] = path
-
-    pprint(dest_sites)
     dest_sites_keys = dest_sites.keys()
-
     logging.info(
         '[{:.2f}s], Preparing insertion in target WP instances...'.format(tt()-t))
     t = tt()
@@ -1308,6 +1361,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                         msg = Utils.run_command(cmd, 'utf8')
                         if 'Success' not in msg:
                             logging.warning('Could not set page_on_front option! Msg: {}. cmd: {}', msg, cmd)
+
     logging.info(
         '[{:.2f}s], Preparing media insertion in target WP instances...'.format(tt()-t))
     t = tt()
