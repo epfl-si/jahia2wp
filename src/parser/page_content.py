@@ -56,12 +56,11 @@ class PageContent:
         self.menu_title = self.element.getAttribute("jahia:title")
 
         # Looking if there is an overrided page title (that will be used only on page)
-        page_title = self.element.getElementsByTagName("pageTitle")[0].getAttribute("jahia:value")
+        self.title = self.element.getElementsByTagName("pageTitle")[0].getAttribute("jahia:value")
 
-        # If page_title is not equal as "", it means we have an overrided page title.
-        if page_title:
-            self.title = page_title
-        else:  # We take the default title
+        # If page title is empty (equal to "")
+        if not self.title:
+            # We use the menu title as page title
             self.title = self.menu_title
 
     def parse_last_update(self):
