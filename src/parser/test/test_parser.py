@@ -156,7 +156,6 @@ class TestPages:
             for language, content in page.contents.items():
 
                 expected_content = data['pages_by_pid'][pid]['contents'][language]
-                print(pid)
                 assert content.language == expected_content['language']
                 assert content.path == expected_content['path']
                 assert content.title == expected_content['title']
