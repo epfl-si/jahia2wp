@@ -126,7 +126,7 @@ function epfl_news_template_fac_with_4_news($news, bool $stickers): string
 		$html .= '    </a>';
         $html .= '  </figure>';
         if ($category_label) {
-            $html .= '  <p class="label">' . $category_label . ' </p>';
+            $html .= '  <p class="category-label">' . $category_label . ' </p>';
         }
 		$html .= '  <div class="entry-content">';
 		$html .= '    <header class="entry-header">';
@@ -177,7 +177,7 @@ function epfl_news_template_fac_with_3_news($news, bool $stickers): string
 		$html .= '    </a>';
         $html .= '  </figure>';
         if ($category_label) {
-            $html .= '  <p class="label">' . $category_label . ' </p>';
+            $html .= '  <p class="category-label">' . $category_label . ' </p>';
         }
 		$html .= '  <div class="entry-content">';
 		$html .= '    <header class="entry-header">';
@@ -230,7 +230,7 @@ function epfl_news_template_labo_with_5_news($news, bool $stickers): string
 		$html .= '    </a>';
         $html .= '  </figure>';
         if ($category_label) {
-            $html .= '  <p class="label">' . $category_label . ' </p>';
+            $html .= '  <p class="category-label">' . $category_label . ' </p>';
         }
 		$html .= '  <div class="entry-content">';
 		$html .= '    <div class="entry-meta">';
@@ -281,13 +281,119 @@ function epfl_news_template_labo_with_3_news($news, bool $stickers): string
 		$html .= '    </a>';
         $html .= '  </figure>';
         if ($category_label) {
-            $html .= '  <p class="label">' . $category_label . ' </p>';
+            $html .= '  <p class="category-label">' . $category_label . ' </p>';
         }
 		$html .= '  <div class="entry-content">';
 		$html .= '    <div class="entry-meta">';
 		$html .= '      <time class="entry-date">' . $publish_date . '</time>';
 		$html .= '    </div>';
 		$html .= '    <div class="teaser">' . substr($item->subtitle, 0, 240) . '</div>';
+		$html .= '  </div>';
+		$html .= '</article>';
+    }
+    $html .= '</div>';
+    return $html;
+}
+
+/**
+ * Template portal with 1 news – image on top (template 1)
+ *
+ * @param $news: response of news API.
+ * @param $stickers: display stickers on images ?
+ * @return html of template
+ */
+function epfl_news_template_portal_img_top($news, bool $stickers): string
+{
+    $html = '<div class="list-articles list-news news-portal news-portal-img-top clearfix">';
+	foreach ($news->results as $item) {
+
+        if ($stickers == TRUE) {
+            if ($item->lang === "fr") {
+                $category_label = $item->category->fr_label;
+            } elseif ($item->lang === "en") {
+                $category_label = $item->category->en_label;
+            }
+        }
+
+        $publish_date = new DateTime($item->publish_date);
+        $publish_date = $publish_date->format('d.m.y');
+
+		$html .= '<article class="post">';
+		$html .= '  <figure class="post-thumbnail">';
+		$html .= '    <a href="' . $item->news_url . '">';
+		$html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
+		$html .= '    </a>';
+        $html .= '  </figure>';
+        if ($category_label) {
+            $html .= '  <p class="category-label">' . $category_label . ' </p>';
+        }
+		$html .= '  <div class="entry-content">';
+		$html .= '    <header class="entry-header">';
+		$html .= '      <h2 class="entry-title">';
+		$html .= '        <a href="' . $item->news_url . '">';
+		$html .= $item->title;
+		$html .= '        </a>';
+		$html .= '      </h2>';
+		$html .= '    </header>';
+		$html .= '    <div class="entry-meta">';
+		$html .= '      <time class="entry-date">' . $publish_date . '</time>';
+		$html .= '    </div>';
+		$html .= '    <div class="teaser">' . substr($item->subtitle, 0, 240) . '</div>';
+		$html .= '  </div>';
+		$html .= '</article>';
+    }
+    $html .= '</div>';
+    return $html;
+}
+
+/**
+ * Template portal with 1 news – image on the left (template 7)
+ *
+ * @param $news: response of news API.
+ * @param $stickers: display stickers on images ?
+ * @return html of template
+ */
+function epfl_news_template_portal_img_left($news, bool $stickers): string
+{
+    $html = '<div class="list-articles list-news news-portal clearfix">';
+	foreach ($news->results as $item) {
+
+        if ($stickers == TRUE) {
+            if ($item->lang === "fr") {
+                $category_label = $item->category->fr_label;
+            } elseif ($item->lang === "en") {
+                $category_label = $item->category->en_label;
+            }
+        }
+
+        $publish_date = new DateTime($item->publish_date);
+        $publish_date = $publish_date->format('d.m.y');
+
+		$html .= '<article class="post">';
+		$html .= '  <figure class="post-thumbnail">';
+		$html .= '    <a href="' . $item->news_url . '">';
+		$html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
+		$html .= '    </a>';
+        $html .= '  </figure>';
+        if ($category_label) {
+            $html .= '  <p class="category-label">' . $category_label . ' </p>';
+        }
+		$html .= '  <div class="entry-content">';
+		$html .= '    <header class="entry-header">';
+		$html .= '      <h2 class="entry-title">';
+		$html .= '        <a href="' . $item->news_url . '">';
+		$html .= $item->title;
+		$html .= '        </a>';
+		$html .= '      </h2>';
+		$html .= '    </header>';
+		$html .= '    <div class="entry-meta">';
+		$html .= '      <time class="entry-date">' . $publish_date . '</time>';
+		$html .= '    </div>';
+		$html .= '    <div class="teaser">' . substr($item->subtitle, 0, 240) . '</div>';
+		$html .= '  </div>';
+		$html .= '  <div class="links">';
+		$html .= '    <a href="#" class="link-action btn-icon fa-icon next"><span class="label">Toutes les actualités</span></a>';
+		$html .= '    <a href="#" class="link-action btn-icon fa-icon feed"><span class="label">Flux RSS</span></a>';
 		$html .= '  </div>';
 		$html .= '</article>';
     }
@@ -315,6 +421,10 @@ function epfl_news_build_html($news, string $template, bool $stickers): string
         $html = epfl_news_template_fac_with_3_news($news, $stickers);
     } elseif ($template === "2") {
         $html = epfl_news_template_text_only($news);
+    } elseif ($template === "1") {
+        $html = epfl_news_template_portal_img_top($news, $stickers);
+    } elseif ($template === "7") {
+        $html = epfl_news_template_portal_img_left($news, $stickers);
     } else {
         $html = epfl_news_template_labo_with_3_news($news, $stickers);
     }
