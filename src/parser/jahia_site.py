@@ -119,6 +119,11 @@ class Site:
         # the files
         self.files = []
 
+        # To map file UUID (used in URL in pages) to "real" URL because Jahia allows to override an URL by another
+        # which is different from the file location on disk. So when we fix files URLs in pages during import we have
+        # to use UUIDs and replace it with corresponding URL.
+        self.file_uuid_to_url = {}
+
         # parse the data
         self.parse_data()
 
@@ -478,8 +483,35 @@ class Site:
                 box = Box(site=self, page_content=page_content, element=element, multibox=multibox)
                 page_content.boxes.append(box)
 
+    def parse_files_uuids(self, node):
+        """
+        Parse node children to extract UUID and associated URL. If node has children, this method is recursively called
+        for children.
+        :param node: Node to parse
+        :return:
+        """
+        node_names_to_ignore = ['jcr:content', 'thumbnail', 'thumbnail2']
+
+        for file_node in node.childNodes:
+            if file_node.ELEMENT_NODE != file_node.nodeType or \
+                    file_node.nodeName in node_names_to_ignore:
+                continue
+            uuid = file_node.getAttribute("jcr:uuid")
+            # If we're not on a file node (can
+            if uuid == "":
+                continue
+            url = file_node.getAttribute("j:fullpath")
+            # We remove the part :
+            # /content/sites/<siteName>
+            self.file_uuid_to_url[uuid] = url[url.index('/files/'):]
+
+            # Recurse parsing
+            if file_node.childNodes:
+                self.parse_files_uuids(file_node)
+
     def parse_files(self):
         """Parse the files"""
+
         start = "{}/content/sites/{}/files".format(self.base_path, self.name)
 
         for (path, dirs, files) in os.walk(start):
@@ -489,6 +521,14 @@ class Site:
                     continue
 
                 self.files.append(File(name=file_name, path=path))
+
+        # Step 2 : looking for files "real" URLs (because can be overrided)
+        repository_file = "{}/repository.xml".format(self.base_path)
+        repository = Utils.get_dom(repository_file)
+
+        files_node = repository.getElementsByTagName("files")[0]
+        # Recursive parsing of files UUIDs
+        self.parse_files_uuids(files_node)
 
     def register_shortcode(self, name, attributes, box):
         """
@@ -550,7 +590,7 @@ class Site:
         Fix the links in the given type of tag
         """
         tags = soup.find_all(tag_name)
-
+    
         for tag in tags:
             link = tag.get(attribute)
 
@@ -636,7 +676,13 @@ class Site:
                 if "/files/" in link:
                     new_link = link[link.index('/files/'):]
 
-                    if "?" in new_link:
+                    # If we have a link like this :
+                    # ?uuid=default:a6d36162-07da-4036-9b58-a32e416f7769
+                    if "?" in new_link and "?uuid=default:" in new_link:
+                        # We store UUID as link
+                        new_link = new_link[new_link.index(":")+1:]
+
+                    else:  # We store the link
                         new_link = new_link[:new_link.index("?")]
 
                     tag[attribute] = self.full_path(new_link)
