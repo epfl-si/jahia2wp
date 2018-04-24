@@ -590,7 +590,7 @@ class Site:
         Fix the links in the given type of tag
         """
         tags = soup.find_all(tag_name)
-    
+
         for tag in tags:
             link = tag.get(attribute)
 
@@ -679,10 +679,15 @@ class Site:
                     # If we have a link like this :
                     # ?uuid=default:a6d36162-07da-4036-9b58-a32e416f7769
                     if "?" in new_link and "?uuid=default:" in new_link:
-                        # We store UUID as link
-                        new_link = new_link[new_link.index(":")+1:]
 
-                    else:  # We store the link
+                        uuid = new_link[new_link.index(":")+1:]
+                        # If we have an UUID match, we take it. Otherwise, we take the "real" link.
+                        if uuid in self.file_uuid_to_url:
+                            new_link = self.file_uuid_to_url[uuid]
+                        else:
+                            new_link = new_link[:new_link.index("?")]
+
+                    else:  # We don't have an UUID in the link
                         new_link = new_link[:new_link.index("?")]
 
                     tag[attribute] = self.full_path(new_link)

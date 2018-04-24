@@ -115,7 +115,6 @@ class WPExporter:
 
             # Existing widget deletion to start with empty sidebar contents
             self.delete_widgets()
-            self.replace_uuid_by_file_links()
             self.import_medias()
             self.import_pages()
             self.set_frontpage()
@@ -275,35 +274,6 @@ class WPExporter:
                 breadcrumb += ">[{}|{}]".format(breadcrumb_title, breadcrumb_url)
 
             self.run_wp_cli("option update epfl:custom_breadcrumb '{}'".format(breadcrumb))
-
-    def replace_uuid_by_file_links(self):
-        """
-        Loop through boxes present in pages and sidebar to replace file links which are referenced by UUIDs.
-        This has do be done BEFORE we call fix_file_links() for each imported files, so before calling import_medias()
-        :return:
-        """
-        logging.info("Replacing page UUIDs by real URL")
-
-        tag_attribute_tuples = [("a", "href"), ("img", "src"), ("script", "src")]
-
-        # Looping through boxes
-        for box in self.site.get_all_boxes():
-            soup = BeautifulSoup(box.content, 'html5lib')
-            soup.body.hidden = True
-
-            for uuid, link in self.site.file_uuid_to_url.items():
-
-                # fix in html tags
-                for tag_name, tag_attribute in tag_attribute_tuples:
-                    self.fix_links_in_tag(
-                        soup=soup,
-                        old_url=uuid,
-                        new_url=link,
-                        tag_name=tag_name,
-                        tag_attribute=tag_attribute)
-
-            # save the new box content
-            box.content = str(soup.body)
 
     def fix_file_links(self, file, wp_media):
         """
