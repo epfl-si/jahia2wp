@@ -8,7 +8,7 @@ import datetime
 class Data:
 
     atelierweb2_data = {'pages_by_pid': {'112084': {'children__len': 13,
-                             'contents': {'fr': {'boxes': [{'content__start': '<img alt="" height="222" src="/files/responsive/responsive2.jpg" '
+                             'contents': {'fr': {'boxes': [{'content__start': '<img alt="" height="222" src="3b3956e1-c63f-4db0-91a2-831eb6c39391" '
                                                                               'width="652"/> ',
                                                             'title': '',
                                                             'type': 'text'},
@@ -31,7 +31,7 @@ class Data:
                                                  'sidebar__boxes': [{'content__start': '<p><a '
                                                                                        'href="http://memento.epfl.ch/event/web-la-demarche-mobile-first/"><img '
                                                                                        'alt="" height="84" '
-                                                                                       'src="/files/responsive/demarche-mobilefirst.png" width',
+                                                                                       'src="9d3ae656-5032-44f3-aac2-7a276a89f8a8" width',
                                                                      'title': 'Conférence webmasters',
                                                                      'type': 'text'}],
                                                  'title': 'Responsive Design'}},
@@ -118,7 +118,7 @@ class Data:
                                                  'sidebar__boxes': [{'content__start': '<p><a '
                                                                                        'href="http://memento.epfl.ch/event/web-la-demarche-mobile-first/"><img '
                                                                                        'alt="" height="84" '
-                                                                                       'src="/files/responsive/demarche-mobilefirst.png" width',
+                                                                                       'src="9d3ae656-5032-44f3-aac2-7a276a89f8a8" width',
                                                                      'title': 'Conférence webmasters',
                                                                      'type': 'text'}],
                                                  'title': "Extraits d'actu, mémento, publications"}},
@@ -139,7 +139,7 @@ class Data:
                                                  'sidebar__boxes': [{'content__start': '<p><a '
                                                                                        'href="http://memento.epfl.ch/event/web-la-demarche-mobile-first/"><img '
                                                                                        'alt="" height="84" '
-                                                                                       'src="/files/responsive/demarche-mobilefirst.png" width',
+                                                                                       'src="9d3ae656-5032-44f3-aac2-7a276a89f8a8" width',
                                                                      'title': 'Conférence webmasters',
                                                                      'type': 'text'}],
                                                  'title': 'Listes de personnes'}},
@@ -195,7 +195,7 @@ class Data:
                                                  'sidebar__boxes': [{'content__start': '<p><a '
                                                                                        'href="http://memento.epfl.ch/event/web-la-demarche-mobile-first/"><img '
                                                                                        'alt="" height="84" '
-                                                                                       'src="/files/responsive/demarche-mobilefirst.png" width',
+                                                                                       'src="9d3ae656-5032-44f3-aac2-7a276a89f8a8" width',
                                                                      'title': 'Conférence webmasters',
                                                                      'type': 'text'}],
                                                  'title': 'Nouvelle structure des pages responsive'}},
@@ -212,7 +212,7 @@ class Data:
                                                  'sidebar__boxes': [{'content__start': '<p><a '
                                                                                        'href="http://memento.epfl.ch/event/web-la-demarche-mobile-first/"><img '
                                                                                        'alt="" height="84" '
-                                                                                       'src="/files/responsive/demarche-mobilefirst.png" width',
+                                                                                       'src="9d3ae656-5032-44f3-aac2-7a276a89f8a8" width',
                                                                      'title': 'Conférence webmasters',
                                                                      'type': 'text'}],
                                                  'title': 'Autres éléments graphiques'}},
@@ -229,7 +229,7 @@ class Data:
                                                  'sidebar__boxes': [{'content__start': '<p><a '
                                                                                        'href="http://memento.epfl.ch/event/web-la-demarche-mobile-first/"><img '
                                                                                        'alt="" height="84" '
-                                                                                       'src="/files/responsive/demarche-mobilefirst.png" width',
+                                                                                       'src="9d3ae656-5032-44f3-aac2-7a276a89f8a8" width',
                                                                      'title': 'Conférence webmasters',
                                                                      'type': 'text'}],
                                                  'title': 'Css et javacript personnalisés'}},
@@ -971,7 +971,7 @@ class Data:
                                                  'last_update': datetime.datetime(2018, 1, 17, 16, 31, 26),
                                                  'path': '/outils-applications-web/ecrans-polynex',
                                                  'sidebar__boxes': [{'content__start': '<p><img alt="" height="273" '
-                                                                                       'src="/files/pictures/imgsize2.png" width="300"/></p> ',
+                                                                                       'src="5cce5cf9-64c1-47e1-a943-9ab5a17cdd24" width="300"/></p> ',
                                                                      'title': 'Dimension des affiches',
                                                                      'type': 'text'}],
                                                  'title': 'Ecrans Polynex'}},
@@ -982,7 +982,7 @@ class Data:
                              'uuid': '464b7f8d-59fc-4583-9d24-5871134e3bb6'},
                   '119723': {'children__len': 0,
                              'contents': {'fr': {'boxes': [{'content__start': '<p><a href="http://epfl.ch"><img alt="écran de saisie de la Homepage" '
-                                                                              'height="395" rel="#homepage" src="/files/pictures/HomepageEPFL.png" '
+                                                                              'height="395" rel="#homepage" src="785167cd-268b-4f09-9aa3-6ed581f7e887" '
                                                                               'style="margi',
                                                             'title': '',
                                                             'type': 'text'}],
@@ -1003,7 +1003,7 @@ class Data:
                   '119724': {'children__len': 0,
                              'contents': {'fr': {'boxes': [{'content__start': '<p style="text-align: left;"><a href="http://inform.epfl.ch"><img '
                                                                               'alt="écran de saisie de Inform" height="228" rel="#inform" '
-                                                                              'src="/files/pictures/info',
+                                                                              'src="494620ab-a274-462a-97be-7e49f8508d55',
                                                             'title': '',
                                                             'type': 'text'}],
                                                  'language': 'fr',
@@ -1023,7 +1023,7 @@ class Data:
                              'uuid': 'e452b160-36c9-49a4-8868-69eefc69f4b5'},
                   '119725': {'children__len': 0,
                              'contents': {'fr': {'boxes': [{'content__start': '<p style="text-align: left;"><img alt="écran de saisie du memento" '
-                                                                              'height="197" rel="#memento" src="/files/pictures/Memento.png" '
+                                                                              'height="197" rel="#memento" src="2e64c245-09b4-4672-9187-7d589ca9333c" '
                                                                               'style="margin: 0px 20',
                                                             'title': '',
                                                             'type': 'text'}],
@@ -1045,7 +1045,7 @@ class Data:
                   '119726': {'children__len': 0,
                              'contents': {'fr': {'boxes': [{'content__start': '<p style="text-align: left;"><a href="http://plan.epfl.ch"><img '
                                                                               'alt="écran de saisie de la page plan " height="171" rel="#plan" '
-                                                                              'src="/files/pictures/p',
+                                                                              'src="',
                                                             'title': '',
                                                             'type': 'text'}],
                                                  'language': 'fr',
@@ -1066,7 +1066,7 @@ class Data:
                   '119727': {'children__len': 0,
                              'contents': {'fr': {'boxes': [{'content__start': '<p style="text-align: left;"><a href="http://search.epfl.ch"><img '
                                                                               'alt="écran de saisie du memento" height="180" rel="#recherche" '
-                                                                              'src="/files/pictures/',
+                                                                              'src="',
                                                             'title': '',
                                                             'type': 'text'}],
                                                  'language': 'fr',
@@ -1109,11 +1109,11 @@ class Data:
                   '119767': {'children__len': 0,
                              'contents': {'fr': {'boxes': [{'content__start': '<p style="text-align: left;"><a href="http://absences.epfl.ch/"><img '
                                                                               'alt="écran de saisie de Absences" height="157" rel="#absences" '
-                                                                              'src="/files/pictur',
+                                                                              'src="',
                                                             'title': 'Gestion des absences',
                                                             'type': 'text'},
                                                            {'content__start': '<p><a href="http://reservations.epfl.ch"><img alt="" height="125" '
-                                                                              'src="/files/pictures/reservations.png" style="margin-left: 10px; '
+                                                                              'src="42b327d0-1549-4b07-aabc-eb5cf63eb631" style="margin-left: 10px; '
                                                                               'margin-right: 10px;',
                                                             'title': 'Gestion des réservations de salles',
                                                             'type': 'text'}],
@@ -1174,7 +1174,7 @@ class Data:
                                                  'sidebar__boxes': [{'content__start': '<p><a '
                                                                                        'href="http://memento.epfl.ch/event/web-la-demarche-mobile-first/"><img '
                                                                                        'alt="" height="84" '
-                                                                                       'src="/files/responsive/demarche-mobilefirst.png" width',
+                                                                                       'src="9d3ae656-5032-44f3-aac2-7a276a89f8a8" width',
                                                                      'title': 'Conférence webmasters',
                                                                      'type': 'text'}],
                                                  'title': 'Navigation, pages et liens'}},
@@ -1191,7 +1191,7 @@ class Data:
                                                  'sidebar__boxes': [{'content__start': '<p><a '
                                                                                        'href="http://memento.epfl.ch/event/web-la-demarche-mobile-first/"><img '
                                                                                        'alt="" height="84" '
-                                                                                       'src="/files/responsive/demarche-mobilefirst.png" width',
+                                                                                       'src="9d3ae656-5032-44f3-aac2-7a276a89f8a8" width',
                                                                      'title': 'Conférence webmasters',
                                                                      'type': 'text'}],
                                                  'title': 'Vidéo'}},
@@ -1287,7 +1287,7 @@ class Data:
                                                  'sidebar__boxes': [{'content__start': '<p><a '
                                                                                        'href="http://memento.epfl.ch/event/web-la-demarche-mobile-first/"><img '
                                                                                        'alt="" height="84" '
-                                                                                       'src="/files/responsive/demarche-mobilefirst.png" width',
+                                                                                       'src="9d3ae656-5032-44f3-aac2-7a276a89f8a8" width',
                                                                      'title': 'Conférence webmasters',
                                                                      'type': 'text'}],
                                                  'title': "Structurer les éléments d'une page"}},
@@ -1308,7 +1308,7 @@ class Data:
                                                  'sidebar__boxes': [{'content__start': '<p><a '
                                                                                        'href="http://memento.epfl.ch/event/web-la-demarche-mobile-first/"><img '
                                                                                        'alt="" height="84" '
-                                                                                       'src="/files/responsive/demarche-mobilefirst.png" width',
+                                                                                       'src="9d3ae656-5032-44f3-aac2-7a276a89f8a8" width',
                                                                      'title': 'Conférence webmasters',
                                                                      'type': 'text'}],
                                                  'title': 'Visibilité des éléments'}},
@@ -1355,7 +1355,7 @@ class Data:
                                                  'sidebar__boxes': [{'content__start': '<p><a '
                                                                                        'href="http://memento.epfl.ch/event/web-la-demarche-mobile-first/"><img '
                                                                                        'alt="" height="84" '
-                                                                                       'src="/files/responsive/demarche-mobilefirst.png" width',
+                                                                                       'src="9d3ae656-5032-44f3-aac2-7a276a89f8a8" width',
                                                                      'title': 'Conférence webmasters',
                                                                      'type': 'text'}],
                                                  'title': 'Formats standards'}},
@@ -1376,7 +1376,7 @@ class Data:
                                                  'sidebar__boxes': [{'content__start': '<p><a '
                                                                                        'href="http://memento.epfl.ch/event/web-la-demarche-mobile-first/"><img '
                                                                                        'alt="" height="84" '
-                                                                                       'src="/files/responsive/demarche-mobilefirst.png" width',
+                                                                                       'src="9d3ae656-5032-44f3-aac2-7a276a89f8a8" width',
                                                                      'title': 'Conférence webmasters',
                                                                      'type': 'text'}],
                                                  'title': 'Les couleurs'}},
@@ -1397,7 +1397,7 @@ class Data:
                                                  'sidebar__boxes': [{'content__start': '<p><a '
                                                                                        'href="http://memento.epfl.ch/event/web-la-demarche-mobile-first/"><img '
                                                                                        'alt="" height="84" '
-                                                                                       'src="/files/responsive/demarche-mobilefirst.png" width',
+                                                                                       'src="9d3ae656-5032-44f3-aac2-7a276a89f8a8" width',
                                                                      'title': 'Conférence webmasters',
                                                                      'type': 'text'}],
                                                  'title': 'Utiliser les couleurs des thèmes'}},
@@ -1423,7 +1423,7 @@ class Data:
                                                  'sidebar__boxes': [{'content__start': '<p><a '
                                                                                        'href="http://memento.epfl.ch/event/web-la-demarche-mobile-first/"><img '
                                                                                        'alt="" height="84" '
-                                                                                       'src="/files/responsive/demarche-mobilefirst.png" width',
+                                                                                       'src="9d3ae656-5032-44f3-aac2-7a276a89f8a8" width',
                                                                      'title': 'Conférence webmasters',
                                                                      'type': 'text'}],
                                                  'title': 'Obtenir un flux en json'}},
@@ -1491,7 +1491,7 @@ class Data:
                                                             'type': 'faq'},
                                                            {'content__start': '<h2>Comment accéder à son serveur LAMP</h2><p></p><p>Vous recevez par '
                                                                               'mail les informations suivantes:<br/>  <img alt="" height="108" '
-                                                                              'src="/files/acce',
+                                                                              'src="',
                                                             'title': '',
                                                             'type': 'faq'},
                                                            {'content__start': '<h2>Permissions et accès ftp</h2><p></p><p>Les permissions 755 ne '
@@ -1734,7 +1734,7 @@ class Data:
                                                                    {'content__start': '', 'title': '', 'type': 'text'},
                                                                    {'content__start': '[memento url=]', 'title': '', 'type': 'memento'}],
                                                 'title': 'Atelier web EPFL'},
-                                         'fr': {'boxes': [{'content__start': '<p><img alt="" height="184" src="/files/pictures/web-services2.jpg" '
+                                         'fr': {'boxes': [{'content__start': '<p><img alt="" height="184" src="364944a3-8d84-4f2b-a74e-69013faeb0c8" '
                                                                              'width="652"/></p> ',
                                                            'title': '',
                                                            'type': 'text'},
@@ -2461,8 +2461,8 @@ class Data:
                             'template': 'simple',
                             'uuid': 'fefe834e-4736-40cf-957a-9634a57695cd'},
                   '64786': {'children__len': 0,
-                            'contents': {'fr': {'boxes': [{'content__start': '<p><a href="/files/images_styleguide/layout_project.jpg"><img alt="" '
-                                                                             'height="405" src="/files/images_styleguide/layout_project.jpg" '
+                            'contents': {'fr': {'boxes': [{'content__start': '<p><a href="56a35ebb-eff5-4b90-94af-d2e7f872d832"><img alt="" '
+                                                                             'height="405" src="56a35ebb-eff5-4b90-94af-d2e7f872d832" '
                                                                              'width="500"/></a><',
                                                            'title': '',
                                                            'type': 'text'}],
@@ -2481,8 +2481,8 @@ class Data:
                             'template': 'simple',
                             'uuid': '2f45cd97-5165-46e1-a347-2926630114a2'},
                   '64787': {'children__len': 0,
-                            'contents': {'fr': {'boxes': [{'content__start': '<p><a href="/files/images_styleguide/layout_domaine.jpg"><img alt="" '
-                                                                             'height="488" src="/files/images_styleguide/layout_domaine.jpg" '
+                            'contents': {'fr': {'boxes': [{'content__start': '<p><a href="6990cfe2-f760-45aa-aec3-88f7b3be1159"><img alt="" '
+                                                                             'height="488" src="6990cfe2-f760-45aa-aec3-88f7b3be1159" '
                                                                              'width="500"/></a><',
                                                            'title': '',
                                                            'type': 'text'}],
@@ -2536,7 +2536,7 @@ class Data:
                                                                              'liens rapides',
                                                            'title': '',
                                                            'type': 'text'},
-                                                          {'content__start': '<div><img alt="" height="89" src="/files/bandeau_legende.jpg" '
+                                                          {'content__start': '<div><img alt="" height="89" src="ca90d0ee-40ac-448a-a5b9-264c1aaa4a07" '
                                                                              'width="606"/></div> <ol>  <li><strong>Logo EPFL</strong>: permettant '
                                                                              'de revenir sur la p',
                                                            'title': 'Le bandeau comprend les éléments suivants',
@@ -2681,7 +2681,7 @@ class Data:
                             'template': 'simple',
                             'uuid': '8ecde943-6de4-421f-b5ab-577a06d8c740'},
                   '64969': {'children__len': 0,
-                            'contents': {'fr': {'boxes': [{'content__start': '<p><a href="/files/images_styleguide/page_de_contenu_100617.jpg"><img '
+                            'contents': {'fr': {'boxes': [{'content__start': '<p><a href="d6953356-dc6d-4900-8cc2-3f07e5a506aa"><img '
                                                                              'alt="" '
                                                                              'data-cke-saved-src="http://wiki.epfl.ch/web2010/documents/Layouts/page_de',
                                                            'title': '',
@@ -2723,17 +2723,17 @@ class Data:
                   '64972': {'children__len': 0,
                             'contents': {'fr': {'boxes': [{'content__start': '', 'title': '', 'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="210" '
-                                                                             'src="/files/images_styleguide/boite_centrale_contenu_texte.jpg" '
+                                                                             'src="8df2fa81-7b94-4bc2-863e-a3a1dc695ee2" '
                                                                              'width="634"/></p> ',
                                                            'title': 'Boîte de texte',
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="169" '
-                                                                             'src="/files/images_styleguide/boite_centrale_contenu_liens.jpg" '
+                                                                             'src="7a9cbdc7-3bb5-42c6-ac50-e79459e404cd" '
                                                                              'width="237"/></p> ',
                                                            'title': 'Boîte de liens',
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="102" '
-                                                                             'src="/files/images_styleguide/boite_centrale_contact.jpg" '
+                                                                             'src="05e81f31-4943-4414-a2dc-166262d0fe15" '
                                                                              'width="658"/></p> ',
                                                            'title': 'Boîte de contact',
                                                            'type': 'text'},
@@ -2743,22 +2743,22 @@ class Data:
                                                            'title': 'Boîte de news',
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="326" '
-                                                                             'src="/files/images_styleguide/boite_centrale_publications.jpg" '
+                                                                             'src="f6bead88-ce91-4389-9fe8-15122c5a94e5" '
                                                                              'width="661"/></p> ',
                                                            'title': 'Boîte liste de publications',
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="598" '
-                                                                             'src="/files/images_styleguide/boite_centrale_video.jpg" '
+                                                                             'src="2834f06c-adce-4481-bf3d-7d4a3dfb2f13" '
                                                                              'width="647"/></p> ',
                                                            'title': 'Boîte vidéo',
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="248" '
-                                                                             'src="/files/images_styleguide/boite_centrale_contenu_formulaire.jpg" '
+                                                                             'src="cc95453d-c458-4fe2-a741-e5167ae9b3fe" '
                                                                              'width="635"/></p> ',
                                                            'title': 'Boîte de formulaire',
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="360" '
-                                                                             'src="/files/images_styleguide/boite_centrale_contenu_commentaires.jpg" '
+                                                                             'src="bb6bc893-e747-4cc1-8029-05823687341e" '
                                                                              'width="664"/></p> ',
                                                            'title': 'Boîte commentaires',
                                                            'type': 'text'}],
@@ -2788,62 +2788,62 @@ class Data:
                                                            'title': 'Boîte de couleur',
                                                            'type': 'text'},
                                                           {'content__start': '<p>Boîte de texte libre<br/>  <img alt="" height="140" '
-                                                                             'src="/files/images_styleguide/boite_texte_libre.jpg" width="332"/> '
+                                                                             'src="ae72330d-d036-4c74-be2a-fab9f72cfc95" width="332"/> '
                                                                              '</p> ',
                                                            'title': 'Boîte de texte',
                                                            'type': 'text'},
                                                           {'content__start': '<p><strong>Liens sur 1 colonne</strong><br/>  <strong><img alt="" '
-                                                                             'height="115" src="/files/images_styleguide/boite_liens_1col.jpg" '
+                                                                             'height="115" src="26b22e68-84a9-432e-a787-9cbf01243803" '
                                                                              'width="328"/><br/> ',
                                                            'title': 'Boîtes de liens',
                                                            'type': 'text'},
                                                           {'content__start': '<p>Boîte d\'informations de contacts<br/>  <img alt="" height="161" '
-                                                                             'src="/files/images_styleguide/boite_contact.jpg" width="333"/> </p> ',
+                                                                             'src="a5f5b6bb-78f3-428b-846a-12e418d6b4df" width="333"/> </p> ',
                                                            'title': 'Boîtes de Contact',
                                                            'type': 'text'},
                                                           {'content__start': '<p><strong>News avec images</strong><br/>  <img alt="" height="222" '
-                                                                             'src="/files/images_styleguide/boite_news.jpg" width="329"/><br/>  '
+                                                                             'src="2320a8a2-ace1-445f-bf3b-65885a5ce1e9" width="329"/><br/>  '
                                                                              '<br/>  <strong>N',
                                                            'title': 'Boîtes de news',
                                                            'type': 'text'},
                                                           {'content__start': '<p><br/>  <img alt="" height="241" '
-                                                                             'src="/files/images_styleguide/boite_video.jpg" width="331"/> </p> ',
+                                                                             'src="ce7123e0-4ba9-4277-b3c8-c4fc5a818a3c" width="331"/> </p> ',
                                                            'title': 'Boîte vidéo',
                                                            'type': 'text'},
                                                           {'content__start': '<p>Boîte contenant une citation, ainsi qu\'une photo<br/>  <img alt="" '
-                                                                             'height="120" src="/files/images_styleguide/boite_citation.jpg" '
+                                                                             'height="120" src="3d766582-46a5-40d3-8c8e-5cf4cce7fc91" '
                                                                              'width="332"/> </p',
                                                            'title': 'Boîte citation',
                                                            'type': 'text'},
                                                           {'content__start': '<p>Généralement 1 rubrique par page<br/>  <br/>  <img alt="" '
-                                                                             'height="226" src="/files/images_styleguide/boite_formation.jpg" '
+                                                                             'height="226" src="b8c17de4-849a-4612-b519-b13ae22bb613" '
                                                                              'width="332"/> </p> ',
                                                            'title': 'Boîte formation',
                                                            'type': 'text'},
                                                           {'content__start': '<p><br/>  <img alt="" height="91" '
-                                                                             'src="/files/images_styleguide/boite_recherche.jpg" width="329"/> </p> ',
+                                                                             'src="fe689267-e569-43c8-84c0-32232efa95b9" width="329"/> </p> ',
                                                            'title': 'Boîte moteur de recherche',
                                                            'type': 'text'},
                                                           {'content__start': '<p><br/>  <img alt="" height="461" '
-                                                                             'src="/files/images_styleguide/boite_formulaire.jpg" '
+                                                                             'src="b472cac9-1dc5-4362-b286-7d60cff6b219" '
                                                                              'width="333"/><br/>  Le principe des formulares est: </p> <ul>  ',
                                                            'title': 'Boîte formulaire',
                                                            'type': 'text'},
                                                           {'content__start': '<p><br/>  <img alt="" height="72" '
-                                                                             'src="/files/images_styleguide/boite_index.jpg" width="327"/> </p> ',
+                                                                             'src="6ded07b6-6513-4b55-9da5-7c5407916f1b" width="327"/> </p> ',
                                                            'title': 'Boîte index alphabétique',
                                                            'type': 'text'},
                                                           {'content__start': '<p><br/>  <img alt="" height="160" '
-                                                                             'src="/files/images_styleguide/boite_tags.jpg" width="331"/> </p> ',
+                                                                             'src="646acff8-e0b1-4d5c-994b-16e912e28583" width="331"/> </p> ',
                                                            'title': 'Boîte tags',
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="240" '
-                                                                             'src="/files/images_styleguide/boite_liste_images.jpg" '
+                                                                             'src="47e0f1b9-d21b-4ba6-995a-a032b4f918ab" '
                                                                              'width="329"/></p> ',
                                                            'title': 'Boîte liste avec images',
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="116" '
-                                                                             'src="/files/images_styleguide/boite_legende.jpg" width="330"/></p> ',
+                                                                             'src="ba7e2864-fb1d-4e0d-8d61-06ea6e7f88fb" width="330"/></p> ',
                                                            'title': 'Boîte légende',
                                                            'type': 'text'}],
                                                 'language': 'fr',
@@ -2863,7 +2863,7 @@ class Data:
                   '64974': {'children__len': 7,
                             'contents': {'fr': {'boxes': [{'content__start': '<h4>Démarche créative et logique des choix de la typologie du '
                                                                              "portail EPFL</h4> <p>(en collaboration avec l'agence R.Ø.S.A.)<a "
-                                                                             'href="/files/images_s',
+                                                                             'href="',
                                                            'title': '',
                                                            'type': 'text'}],
                                                 'language': 'fr',
@@ -2902,7 +2902,7 @@ class Data:
                             'uuid': '2a1b1ce1-c812-4668-98d0-cd51c1b2927c'},
                   '64976': {'children__len': 0,
                             'contents': {'fr': {'boxes': [{'content__start': '<p><img alt="" '
-                                                                             'src="/files/images_styleguide/polices/layout_polices_content.jpg"/></p> '
+                                                                             'src="886fc745-d4ef-46f3-ae66-6eef87ed02bb"/></p> '
                                                                              "<ol>  <li>Boutons dans la barre d'outils ou dans le contenu, ac",
                                                            'title': '',
                                                            'type': 'text'},
@@ -3047,27 +3047,27 @@ class Data:
                                                            'title': '',
                                                            'type': 'text'},
                                                           {'content__start': '<div><img alt="" height="184" '
-                                                                             'src="/files/images_styleguide/keyvisual_01_1img_1h_big.jpg" '
+                                                                             'src="8e353283-9034-4502-a3dc-8573b214a098" '
                                                                              'width="652"/><br/>  <a href="http://inform.epfl.ch/index.php',
                                                            'title': 'Une seule image horizontale',
                                                            'type': 'text'},
                                                           {'content__start': '<div><img alt="" height="184" '
-                                                                             'src="/files/images_styleguide/keyvisual_02_1img_1h.jpg" '
+                                                                             'src="5805ca8e-fac4-4971-9a8a-296af75f6cca" '
                                                                              'width="652"/><br/>  <a href="https://inform.epfl.ch/login.php?fo',
                                                            'title': "Composition d'une image horizontale avec 1 aplat de couleur",
                                                            'type': 'text'},
                                                           {'content__start': '<div><img alt="" height="184" '
-                                                                             'src="/files/images_styleguide/keyvisual_03_1img_1h_small_b.jpg" '
+                                                                             'src="84bc4256-331a-41d3-879a-462503a5d613" '
                                                                              'width="652"/><br/>  <a href="http://inform.epfl.ch/index',
                                                            'title': "Composition d'une image horizontale avec 3 aplats de couleur",
                                                            'type': 'text'},
                                                           {'content__start': '<div><img alt="" height="184" '
-                                                                             'src="/files/images_styleguide/keyvisual_04_3img_2h_1v.jpg" '
+                                                                             'src="f2554540-823f-4c69-b118-892dab14d33e" '
                                                                              'width="652"/><br/>  <a href="http://inform.epfl.ch/index.php?',
                                                            'title': 'Composition de 3 images avec un aplat de couleur',
                                                            'type': 'text'},
                                                           {'content__start': '<div><img alt="" height="184" '
-                                                                             'src="/files/images_styleguide/keyvisual_05_4img_3h_1v.jpg" '
+                                                                             'src="f85fb3c3-d29f-400d-95b4-e9135337b4a7g" '
                                                                              'width="652"/><br/>  <a href="http://inform.epfl.ch/index.php?',
                                                            'title': 'Composition de 4 images sans aplat de couleur',
                                                            'type': 'text'},
@@ -3097,12 +3097,12 @@ class Data:
                                                            'title': '',
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="184" '
-                                                                             'src="/files/images_styleguide/img_news_324x184.jpg" '
+                                                                             'src="36973497-dfff-44f3-ac1d-be124c9b97ad" '
                                                                              'width="324"/><br/>  <strong>Dimensions:</strong> 342x184 pixels </p> ',
                                                            'title': 'Image news medium',
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="90" '
-                                                                             'src="/files/images_styleguide/img_news_160x90.jpg" width="160"/><br/>  '
+                                                                             'src="d313b89f-39f1-4b9f-8990-a751a12cce9a" width="160"/><br/>  '
                                                                              '<strong>Dimensions:</strong> 160 x 90\xa0 pixels </p> ',
                                                            'title': 'Image news small',
                                                            'type': 'text'},
@@ -3137,22 +3137,22 @@ class Data:
                                                            'title': '',
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="184" '
-                                                                             'src="/files/images_styleguide/img_news_324x184.jpg" '
+                                                                             'src="36973497-dfff-44f3-ac1d-be124c9b97ad" '
                                                                              'width="324"/><br/>  <strong>Dimensions:</strong> 342x184 pixels  </p> ',
                                                            'title': 'Grande image format paysage',
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="90" '
-                                                                             'src="/files/images_styleguide/img_news_160x90.jpg" width="160"/><br/>  '
+                                                                             'src="d313b89f-39f1-4b9f-8990-a751a12cce9a" width="160"/><br/>  '
                                                                              '<strong>Dimensions:</strong> 160 x 90\xa0 pixel </p> ',
                                                            'title': 'Petite image format paysage',
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="130" '
-                                                                             'src="/files/images_styleguide/image_contenu_3images.jpg" '
+                                                                             'src="df5c9c19-c571-4c66-862b-2eb806cc77a8" '
                                                                              'width="590"/><br/>  <strong>Dimensions totale:</strong> 590 x 130',
                                                            'title': '3 images format paysage',
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="184" '
-                                                                             'src="/files/images_styleguide/image_contenu_portrait.jpg" '
+                                                                             'src="bd5b8fa1-f10d-4671-b226-c24a80669263" '
                                                                              'width="160"/><br/>  <strong>Dimensions:</strong>\xa0160 x 184 pixel',
                                                            'title': 'Image format portrait',
                                                            'type': 'text'}],
@@ -3175,27 +3175,27 @@ class Data:
                                                            'title': '',
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="278" '
-                                                                             'src="/files/images_styleguide/img_projet_1image_1couleur.jpg" '
+                                                                             'src="ef79c91d-c910-4429-bb66-578f8dd9eca9" '
                                                                              'width="652"/></p> ',
                                                            'title': "Composition d'une image horizontale avec 1 aplat de couleur",
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="278" '
-                                                                             'src="/files/images_styleguide/img_projet_1image_3couleurs.jpg" '
+                                                                             'src="b15d87d2-759c-4edf-9ea8-8cb36533d85f" '
                                                                              'width="652"/></p> ',
                                                            'title': "Composition d'une image horizontale avec 3 aplats de couleur",
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="278" '
-                                                                             'src="/files/images_styleguide/img_projet_2images.jpg" '
+                                                                             'src="0ac48e44-e97f-472a-b51b-d64be0b2f124" '
                                                                              'width="652"/></p> ',
                                                            'title': 'Composition de 2 images sans aplat de couleur',
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="278" '
-                                                                             'src="/files/images_styleguide/img_projet_2images_2couleurs.jpg" '
+                                                                             'src="dd538e64-bf97-488c-a238-a68bab81ee99" '
                                                                              'width="652"/></p> ',
                                                            'title': 'Composition de 2 images avec 2 aplats de couleur',
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="278" '
-                                                                             'src="/files/images_styleguide/img_projet_4images.jpg" '
+                                                                             'src="15bce34c-ae6f-409e-b453-b30ae53326ac" '
                                                                              'width="652"/></p> ',
                                                            'title': 'Composition de 4 images sans aplat de couleur',
                                                            'type': 'text'}],
@@ -3286,7 +3286,7 @@ class Data:
                             'uuid': 'ef047a51-72d4-4ec3-bd1a-a54b9af435d8'},
                   '64994': {'children__len': 0,
                             'contents': {'fr': {'boxes': [{'content__start': '<p>Exemples diagrammes:<br/>  <br/>  <img alt="" height="133" '
-                                                                             'src="/files/images_styleguide/boite_chart_bars.jpg" width="509"/> </p> '
+                                                                             'src="13f3df62-2cd7-4e31-af0b-f118a78d0060" width="509"/> </p> '
                                                                              '<p><img alt="" he',
                                                            'title': '',
                                                            'type': 'text'}],
@@ -3387,22 +3387,22 @@ class Data:
                                                            'title': '',
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="395" '
-                                                                             'src="/files/images_styleguide/table_2col.jpg" width="663"/></p> '
+                                                                             'src="bd9ecedb-5263-4a30-9a92-ecec60429353" width="663"/></p> '
                                                                              '<p><strong>CSS class:</strong> table</p> ',
                                                            'title': 'Tableau horizontal 2 colonnes',
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="256" '
-                                                                             'src="/files/images_styleguide/table_3col.jpg" width="662"/></p> '
+                                                                             'src="bb25bc25-399e-495c-a39e-e53a25627b93" width="662"/></p> '
                                                                              '<p><strong>CSS class:</strong> table</p> ',
                                                            'title': 'Tableau horizontal 3 colonnes',
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="479" '
-                                                                             'src="/files/images_styleguide/table_3col_tri.jpg" width="662"/></p> '
+                                                                             'src="3ffd9b50-0a93-4e5f-ac0e-49de9d25a83d" width="662"/></p> '
                                                                              '<p><strong>CSS class:</strong> table</p> <p>\xa0</p> ',
                                                            'title': 'Tableau horizontal avec barre de tri',
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="418" '
-                                                                             'src="/files/images_styleguide/table_plan_de_cours.jpg" '
+                                                                             'src="b79632a4-ed4e-43c3-aa00-02cc5c8be47e" '
                                                                              'width="665"/></p> ',
                                                            'title': 'Tableau plan de cours',
                                                            'type': 'text'},
@@ -3783,7 +3783,7 @@ class Data:
                             'uuid': '87a27dff-48d0-400a-8edf-7bf9b6e7d4b4'},
                   '68086': {'children__len': 0,
                             'contents': {'fr': {'boxes': [{'content__start': '<p><img alt="" '
-                                                                             'src="/files/images_styleguide/polices/layout_polices_menu.jpg"/><br/>  \xa0 '
+                                                                             'src="775c52ec-4b61-48d5-a4bf-58e294cadecd"/><br/>  \xa0 '
                                                                              '</p> <ol>  <li>Navigation horizontale (1er niveau)</li>  <li>M',
                                                            'title': '',
                                                            'type': 'text'}],
@@ -3866,7 +3866,7 @@ class Data:
                   '71409': {'children__len': 0,
                             'contents': {'fr': {'boxes': [{'content__start': '<p>Les liens dans le tracking, le pied de page et le choix des langues '
                                                                              'sont soulignés seulement en hover. <br/>  \xa0 </p> <p><img alt="" '
-                                                                             'src="/files/ima',
+                                                                             'src="',
                                                            'title': '',
                                                            'type': 'text'}],
                                                 'language': 'fr',
@@ -3895,7 +3895,7 @@ class Data:
                                                 'sidebar__boxes': [{'content__start': '<ul><li><a '
                                                                                       'href="/files/mobile/mobile.odp">mobile.odp</a></li><li><a '
                                                                                       'href="/files/mobile/mobile.pdf">mobile.pdf</a></li><li><a '
-                                                                                      'href="/files/mobile/mob',
+                                                                                      'href="',
                                                                     'title': 'Présentation',
                                                                     'type': 'files'}],
                                                 'title': 'Développement de sites pour mobiles'}},
@@ -3931,10 +3931,10 @@ class Data:
                                                            'title': '',
                                                            'type': 'text'},
                                                           {'content__start': '<p><img alt="" height="372" '
-                                                                             'src="/files/keyvisuals/enac_projeter_fr.jpg" width="652"/></p> ',
+                                                                             'src="34864bec-8df5-4bf3-83f4-0867b9c160ed" width="652"/></p> ',
                                                            'title': 'Exemple avec titre sur une ligne',
                                                            'type': 'text'},
-                                                          {'content__start': '<p><img alt="" height="372" src="/files/keyvisuals/enac_futur_en.jpg" '
+                                                          {'content__start': '<p><img alt="" height="372" src="1cfee95c-7326-4a41-bc80-85afb0a67250" '
                                                                              'width="652"/></p> ',
                                                            'title': 'Exemple avec titre sur plusieurs lignes',
                                                            'type': 'text'}],
@@ -3960,7 +3960,7 @@ class Data:
                                                            'type': 'text'},
                                                           {'content__start': '<p>Dans certaines configurations, les accents sont étranges, le "é" '
                                                                              'est remplacé par "Ã©", par exemple.</p> <p><img alt="" height="70" '
-                                                                             'src="/files/utf',
+                                                                             'src="de222cb9-ed2c-4ce6-ba3f-5f3e66777417',
                                                            'title': 'Encodage étrange des accents',
                                                            'type': 'text'}],
                                                 'language': 'fr',
@@ -4563,7 +4563,7 @@ class Data:
                            'mailto_links': 162,
                            'num_files': 434,
                            'num_pages': 146,
-                           'unknown_links': 54},
+                           'unknown_links': 67},
                 'server_name': 'atelierweb.epfl.ch',
                 'theme': {'en': 'epfl', 'fr': 'epfl'},
                 'title': {'en': 'WEB at EPFL', 'fr': 'ATELIER WEB'}}}
