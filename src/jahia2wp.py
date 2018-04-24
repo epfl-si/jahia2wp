@@ -1237,7 +1237,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                 logging.warning('No matching destination site for page, skipping...')
             else:
                 max_match = '/'.join(max([m.split('/') for m in matches]))
-                print(max_match, p['url'])
+                logging.debug('{} to {}'.format(p['url'], max_match))
                 # Keep the same post_name if it's the index page
                 if prev_post_name == 'index-html':
                     post_name = prev_post_name
@@ -1273,6 +1273,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
     # This is useful to set the new parents
     table_ids = {}
     for site in site_keys:
+        menu_siteurl = None
         logging.info('Treating site ' + site)
         # Source CSV files from where to take the content
         # Start with the pages since it'll be faster than the media
@@ -1352,6 +1353,8 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                     # VERIFY: Setting homepage instead of the default WP options
                     # Using URL in EN by default
                     if max_match == p_en['url'].strip('/'):
+                        # Set the menu flag
+                        menu_siteurl = max_match
                         logging.info('Updating home page for site {} to ID {}'.format(max_match, ids[0]))
                         cmd = 'wp option update show_on_front page --path={}'.format(dest_sites[max_match])
                         msg = Utils.run_command(cmd, 'utf8')
@@ -1362,6 +1365,141 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                         if 'Success' not in msg:
                             logging.warning('Could not set page_on_front option! Msg: {}. cmd: {}', msg, cmd)
 
+        if menu_siteurl:
+            path = site_paths[site]
+            # Get the langs, the first one is the default
+            lngs = Utils.run_command('wp pll languages --path=' + path)
+            lngs = [l[:2] for l in lngs.split("\n")]
+            # Getting menu list at the source (site)
+            cmd = 'wp menu list --fields=slug,locations,term_id --format=json --path={}'.format(path)
+            menu_list = Utils.run_command(cmd, 'utf8')
+            logging.info('Current menu at source: {}'.format(menu_list))
+            if not menu_list:
+                logging.error("Cannot get menu list for {}".format(path))
+                continue
+            menu_list = json.loads(menu_list)
+            # Construct [location]=>[language]=>[menu term_id]
+            loc_lang_menu = {}
+            curr_loc = ''
+            for menu in menu_list:
+                slug = menu['slug'].split('-')
+                # The default language is always listed first
+                lng = lngs[0]
+                if len(slug) == 1:
+                    curr_loc = menu['locations'][0]
+                    loc_lang_menu[curr_loc] = {lng: menu['term_id']}
+                else:
+                    lng = slug[1]
+                    loc_lang_menu[curr_loc][lng] = menu['term_id']
+            # Start doing the mapping between the old page IDs and the new IDs at the destination.
+            # Do not replace the DB_IDs yet, only after the menu items get inserted at the destination.
+            menu_items = {}
+            for menu in menu_list:
+                fields = 'db_id,type,type_label,position,menu_item_parent,object_id,object,type_label'
+                fields += ',link,title,target,attr_title,description,classes,xfn'
+                cmd = 'wp menu item list {} --fields={} --format=json --path={}'.format(menu['term_id'], fields, path)
+                items_json = Utils.run_command(cmd, 'utf8')
+                items = json.loads(items_json)
+                for i in range(len(items) - 1, -1, -1):
+                    item = items[i]
+                    if item['object'] == 'page':
+                        pid = item['object_id']
+                        if pid in table_ids[site][menu_siteurl]:
+                            new_pid = table_ids[site][menu_siteurl][pid]
+                            item['object_id'] = new_pid
+                        else:
+                            # Remove the menu item
+                            logging.info('removing item {}, since no new ID at destination'.format(item['db_id']))
+                            del items[i]
+                menu_items[menu['term_id']] = items
+                logging.debug("menu items at source for {}: {}".format(menu['slug'], items_json))
+
+            # Get the langs at the destination, first one is the default, must be EN.
+            dst_path = dest_sites[menu_siteurl]
+            dst_lngs = Utils.run_command('wp pll languages --path=' + dst_path)
+            dst_lngs = [l[:2] for l in dst_lngs.split("\n")]
+            # Getting menu list at the destination site
+            cmd = 'wp menu list --fields=slug,locations,term_id --format=json --path={}'.format(dst_path)
+            dst_menu_list = Utils.run_command(cmd, 'utf8')
+            if not dst_menu_list:
+                logging.error("Cannot get menu list for {}".format(dst_path))
+                continue
+            logging.info('Setting menu for {} at {} '.format(menu_siteurl, dst_path))
+            logging.info('Current menu at destination: {}'.format(dst_menu_list))
+            # Construct [location]=>[language]=>[menu term_id]
+            dst_loc_lang_menu = {}
+            curr_loc = ''
+            for menu in json.loads(dst_menu_list):
+                slug = menu['slug'].split('-')
+                # The default language is always listed first
+                lng = dst_lngs[0]
+                if len(slug) == 1:
+                    locs = menu['locations']
+                    if not locs:
+                        # Imply the location
+                        if menu['slug'] == 'main':
+                            locs = ['top']
+                        if menu['slug'] == 'footer_nav':
+                            locs = ['footer_nav']
+                    curr_loc = locs[0]
+                    dst_loc_lang_menu[curr_loc] = {lng: menu['term_id']}
+                else:
+                    lng = slug[1]
+                    dst_loc_lang_menu[curr_loc][lng] = menu['term_id']
+            # print(loc_lang_menu, dst_loc_lang_menu)
+
+            # All the menues are ready to be inserted at the destination.
+            # They are ordered by position and parent items appear before. Therefore, the parent
+            # menu (db_id) will be updated as they get inserted. This is important since WP automatically
+            # creates new db_id entries.
+            db_ids = {}
+            for loc in loc_lang_menu:
+                for lang in loc_lang_menu[loc]:
+                    # Local term_id
+                    menu_id = loc_lang_menu[loc][lang]
+                    items = menu_items[menu_id]
+                    # Destination menu term_id
+                    if loc in dst_loc_lang_menu and lang in dst_loc_lang_menu[loc]:
+                        dst_menu_id = dst_loc_lang_menu[loc][lang]
+                        # Iterate over the individual items inserting them one at a time.
+                        for it in items:
+                            # Check if a new db_id is assigned to the parent
+                            mpid = it['menu_item_parent']
+                            if mpid != '0' and mpid in db_ids:
+                                print('setting parent id to {} from {}'.format(db_ids[mpid], mpid))
+                                it['menu_item_parent'] = db_ids[mpid]
+                            fields = '--description={} --attr-title="{}" --target={} --classes="{}" --position={}'
+                            fields += ' --parent-id={}'
+                            attrs = [it['description'], it['attr_title'], it['target'], it['classes'], it['position']]
+                            attrs += [it['menu_item_parent']]
+                            if it['object'] == 'page':
+                                fields += ' --title="{}"'
+                                attrs += [it['title']]
+                                fields = fields.format(*attrs)
+                                cmd = 'wp menu item add-post {} {} {} --porcelain --path={}'
+                                cmd = cmd.format(dst_menu_id, it['object_id'], fields, dst_path)
+                            if it['object'] == 'custom':
+                                fields = fields.format(*attrs)
+                                cmd = 'wp menu item add-custom {} "{}" "{}" {} --porcelain --path={}'
+                                cmd = cmd.format(dst_menu_id, it['title'], it['link'], fields, dst_path)
+                            new_db_id = Utils.run_command(cmd, 'utf8')
+                            # Fix: db_id is an int and menu_item_parent and new_db_id are str
+                            db_id = str(it['db_id'])
+                            db_ids[db_id] = new_db_id
+                    else:
+                        logging.error('No menu at destination for location {} and lang {}'.format(loc, lang))
+
+            # Force polylang update to display the menu properly
+            cmd = 'wp theme list --status=active --field=name --format=csv --path={}'.format(dst_path)
+            theme = Utils.run_command(cmd, 'utf8')
+            if not theme:
+                logging.error('Cannot retrieve current active theme for {}'.format(dst_path))
+                continue
+            nav_menus = {theme: dst_loc_lang_menu}
+            # Update polylang option
+            cmd = "wp pll option update nav_menus '{}' --path={}".format(json.dumps(nav_menus), dst_path)
+            print("nav_menu updated: " + json.dumps(nav_menus))
+            logging.info(Utils.run_command(cmd, 'utf8'))
     logging.info(
         '[{:.2f}s], Preparing media insertion in target WP instances...'.format(tt()-t))
     t = tt()
