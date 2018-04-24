@@ -90,6 +90,7 @@ from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExt
 from time import time as tt
 from urllib.parse import urlparse
 import itertools
+import re
 
 
 def _check_site(wp_env, wp_url, **kwargs):
@@ -1019,7 +1020,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         Utils.run_command(cmd, 'utf8')
         # Append site path at the end of the CSV as a comment, useful for later processing.
         Utils.run_command('echo "#{}" >> {}'.format(wp_conf.wp_site.path, csv_f))
-        # Convert the GUIDs to relative URLs to avoid rule replacement.
+        # Convert the GUIDs to relative URLs to avoid rule replacement by URL
         pages = Utils.csv_filepath_to_dict(csv_f)
         # Write back the CSV file
         with open(csv_f, 'w', encoding='utf8') as f:
@@ -1027,8 +1028,15 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
             host = site_url._replace(path='').geturl()
             writer = csv.DictWriter(f, fieldnames=pages[0].keys())
             writer.writeheader()
+            # FIX: scan if the content has relative URLs not starting with a slash /
+            # in other words, links that don't point to GUIDs (i.e. /site_name/post_name but only post_name)    
+            regex = re.compile(r'href="([^\/]+)"')
+            site_path = site_url.path
             for p in pages:
+                # Make it into a rel URL
                 p['guid'] = p['guid'].replace(host, '')
+                # Fix the rel links without domain / path info.
+                p['post_content'] = regex.sub(r'href="{}/\g<1>/"'.format(site_path), p['post_content'])
                 writer.writerow(p)
         # Backup file
         shutil.copyfile(csv_f, csv_f + '.bak')
@@ -1224,38 +1232,52 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
             stats[site] = []
         csv_f = files[site]
         pages = Utils.csv_filepath_to_dict(csv_f)
+        # Locate the GUID column in the CSV header and find if it has colons before and after it.
+        # This is useful to replace exactly that column, for the href="" attr, the quotes will be
+        # used instead.
         with open(csv_f, 'r', encoding='utf8') as f:
             head = f.readline()
             bef_guid = ',' if head.find(',guid') != -1 else ''
             aft_guid = ',' if head.find('guid,') != -1 else ''
         for p in pages:
-            rel_guid = bef_guid + p['guid'] + aft_guid
-            prev_post_name = urlparse(p['guid']).path.strip('/').split('/')[-1]
+            guid = p['guid']
+            # The postname is the last fragment of the GUID (i.e. relative URL, site/post_name)
+            prev_post_name = urlparse(guid).path.strip('/').split('/')[-1]
             # Find the longest matching URL among the target sites
             matches = [s for s in dest_sites_keys if s in p['url']]
             if not matches:
-                logging.warning('No matching destination site for page, skipping...')
+                logging.warning('No matching destination site for page {}, skipping...'.format(guid))
             else:
                 max_match = '/'.join(max([m.split('/') for m in matches]))
                 logging.debug('{} to {}'.format(p['url'], max_match))
                 # Keep the same post_name if it's the index page
                 if prev_post_name == 'index-html':
+                    # This has to be the same otherwise the redirection to the home (/) will not work.
                     post_name = prev_post_name
                 else:
+                    # Get the last fragment of the new / migrated URL, that's always the post_name
+                    # (e.g. /epfl/research/dcsl/page-1334-en-html, page-1334-en-html is the post_name)
                     post_name = urlparse(p['url']).path.strip('/').split('/')[-1]
 
+                # The URL path is necessary to build the right GUID at the destination (e.g. dirs/site_name/post_name)
                 post_path = urlparse(max_match).path
-                # Use the first and last fragments to build the new GUID
-                new_guid = bef_guid + os.path.join(post_path, post_name + '/') + aft_guid
+                # Use the path and post_name to build the new GUID
+                new_guid = os.path.join(post_path, post_name + '/')
+                # Replace first the GUID column and then the href occurrences in the text
                 cmd = "awk 'END{{print t > \"/dev/stderr\"}}"
-                cmd = cmd + " {{t+=gsub(\"{0}\",\"{1}\")}}1' {2} > {2}.1 && mv {2}.1 {2}"
-                cmd = cmd.format(rel_guid, new_guid, csv_f)
-                logging.debug(cmd)
+                cmd_body = cmd = cmd + " {{t+=gsub(\"{0}\",\"{1}\")}}1' {2} > {2}.1 && mv {2}.1 {2}"
+                # Replace the GUID column
+                cmd = cmd.format(bef_guid + guid + aft_guid, bef_guid + new_guid + aft_guid, csv_f)
+                # Replace the HTML attrs (e.g. href="") containing the GUID
+                cmd_body = cmd_body.format(guid, new_guid, csv_f)
+                logging.debug(cmd_body)
                 # AWK is counting the replacement occurrences in the stderr.
                 proc = subprocess.run(cmd, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
+                proc_body = subprocess.run(cmd_body, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
                 # This has to be a number normally, but it can also contain return errors, to be analized
-                reps = proc.stderr.strip()
-                stats[site].append((reps, rel_guid, new_guid, site))
+                reps = proc_body.stderr.strip()
+                stats[site].append((reps, guid, new_guid, site))
+    logging.info('Replacing relative URLs (both relative GUID and post_name) finished:')
     pprint(stats)
 
     # At this point all the CSV files have the right URLs in place. It is the moment to effectively migrate
