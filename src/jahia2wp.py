@@ -1269,7 +1269,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                 # Replace the GUID column
                 cmd = cmd.format(bef_guid + guid + aft_guid, bef_guid + new_guid + aft_guid, csv_f)
                 # Replace the HTML attrs (e.g. href="") containing the GUID
-                cmd_body = cmd_body.format(guid, new_guid, csv_f)
+                cmd_body = cmd_body.format('\\"' + guid + '\\"', '\\"' + new_guid + '\\"', csv_f)
                 logging.debug(cmd_body)
                 # AWK is counting the replacement occurrences in the stderr.
                 proc = subprocess.run(cmd, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
@@ -1350,6 +1350,8 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                         p_en['post_name'] = fragment
                         # for p in _pages:
                         #    p['post_name'] = fragment
+                if p_en['post_name'] == 'sitemap':
+                    print(max_match, matches, p_en['url'], dest_sites_keys)
                 # JSON file to contain the post data
                 tmp_json = ".tmp_{}_{}.json".format(site.split('/').pop(), _pages[0]['ID'])
                 cmd = "cat {} | wp pll post create --post_type=page --porcelain --stdin --path={}"
