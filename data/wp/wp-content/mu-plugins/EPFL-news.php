@@ -603,6 +603,35 @@ add_action( 'init', function() {
 
     if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
 
+        // FIXME: How get all channels without bad tips ?limit=500
+        $url = "https://actu.epfl.ch/api/v1/channels/?limit=500";
+        $channel_response = NewsUtils::get_items($url);
+
+        $channel_options = array();
+        foreach ($channel_response->results as $item) {
+            $option = array(
+                'value' => strval($item->id),
+                'label' => esc_html__($item->name, 'epfl_infoscience_shortcode', 'epfl_infoscience_shortcode')
+            );
+            array_push($channel_options, $option);
+        }
+
+        $lang_options = array(
+            array('value' => 'en', 'label' => esc_html__('English', 'epfl_infoscience_shortcode', 'epfl_infoscience_shortcode')),
+            array('value' => 'fr', 'label' => esc_html__('Français', 'epfl_infoscience_shortcode', 'epfl_infoscience_shortcode')),
+        );
+
+        $template_options = array (
+            array('value' => '1', 'label' => esc_html__('Template portal image top', 'epfl_infoscience_shortcode', 'epfl_infoscience_shortcode')),
+            array('value' => '2', 'label' => esc_html__('Template text only', 'epfl_infoscience_shortcode', 'epfl_infoscience_shortcode')),
+            array('value' => '3', 'label' => esc_html__('Template faculty with 4 news', 'epfl_infoscience_shortcode', 'epfl_infoscience_shortcode')),
+            array('value' => '4', 'label' => esc_html__('Template labo with 3 news', 'epfl_infoscience_shortcode', 'epfl_infoscience_shortcode')),
+            array('value' => '6', 'label' => esc_html__('Template faculty with 3 news', 'epfl_infoscience_shortcode', 'epfl_infoscience_shortcode')),
+            array('value' => '7', 'label' => esc_html__('Template portal image left', 'epfl_infoscience_shortcode', 'epfl_infoscience_shortcode')),
+            array('value' => '8', 'label' => esc_html__('Template labo with 5 news', 'epfl_infoscience_shortcode', 'epfl_infoscience_shortcode')),
+            array('value' => '10', 'label' => esc_html__('Template all news with pagination', 'epfl_infoscience_shortcode', 'epfl_infoscience_shortcode')),
+        );
+
         shortcode_ui_register_for_shortcode(
 
             'epfl_news',
@@ -612,25 +641,24 @@ add_action( 'init', function() {
                 'listItemImage' => 'dashicons-book',
                 'attrs'         => array(
                         array(
-                            'label'         => 'Channel ID',
+                            'label'         => 'Channel name',
                             'attr'          => 'channel',
-                            'type'          => 'text',
-                            'description'   => "The channel id",
+                            'type'          => 'select',
+                            'options'       => $channel_options,
+                            'description'   => "The channel of news",
                         ),
                         array(
-                            'label'         => 'Template ID',
+                            'label'         => 'Template name',
                             'attr'          => 'template',
-                            'type'          => 'text',
-                            'description'   => "The template id",
+                            'type'          => 'select',
+                            'options'       => $template_options,
+                            'description'   => "The template",
                         ),
                         array(
                             'label'         => 'Language',
                             'attr'          => 'lang',
                             'type'          => 'select',
-                            'options'       => array(
-                                                    array('value' => 'en', 'label' => esc_html__('English', 'epfl_news_shortcode', 'epfl_news_shortcode')),
-                                                    array('value' => 'fr', 'label' => esc_html__('Français', 'epfl_news_shortcode', 'epfl_news_shortcode')),
-                            ),
+                            'options'       => $lang_options,
                             'description'   => 'The language used to render news results',
                         ),
                     ),
@@ -642,6 +670,5 @@ add_action( 'init', function() {
     endif;
 
 } );
-
 
 ?>
