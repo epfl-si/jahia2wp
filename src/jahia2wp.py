@@ -1029,7 +1029,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
             writer = csv.DictWriter(f, fieldnames=pages[0].keys())
             writer.writeheader()
             # FIX: scan if the content has relative URLs not starting with a slash /
-            # in other words, links that don't point to GUIDs (i.e. /site_name/post_name but only post_name)    
+            # in other words, links that don't point to GUIDs (i.e. /site_name/post_name but only post_name)
             regex = re.compile(r'href="([^\/]+)"')
             site_path = site_url.path
             for p in pages:
