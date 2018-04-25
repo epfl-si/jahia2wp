@@ -596,7 +596,52 @@ function epfl_news_process_shortcode(
         return epfl_news_build_html($actus, $template, $stickers);
 }
 
-// define the shortcode
-add_shortcode('epfl_news', 'epfl_news_process_shortcode');
+add_action( 'init', function() {
+
+    // define the shortcode
+    add_shortcode('epfl_news', 'epfl_news_process_shortcode');
+
+    if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
+
+        shortcode_ui_register_for_shortcode(
+
+            'epfl_news',
+
+            array(
+                'label' => 'Add News shortcode',
+                'listItemImage' => 'dashicons-book',
+                'attrs'         => array(
+                        array(
+                            'label'         => 'Channel ID',
+                            'attr'          => 'channel',
+                            'type'          => 'text',
+                            'description'   => "The channel id",
+                        ),
+                        array(
+                            'label'         => 'Template ID',
+                            'attr'          => 'template',
+                            'type'          => 'text',
+                            'description'   => "The template id",
+                        ),
+                        array(
+                            'label'         => 'Language',
+                            'attr'          => 'lang',
+                            'type'          => 'select',
+                            'options'       => array(
+                                                    array('value' => 'en', 'label' => esc_html__('English', 'epfl_news_shortcode', 'epfl_news_shortcode')),
+                                                    array('value' => 'fr', 'label' => esc_html__('Français', 'epfl_news_shortcode', 'epfl_news_shortcode')),
+                            ),
+                            'description'   => 'The language used to render news results',
+                        ),
+                    ),
+
+                'post_type'     => array( 'post', 'page' ),
+            )
+        );
+
+    endif;
+
+} );
+
 
 ?>
