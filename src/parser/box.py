@@ -541,6 +541,7 @@ class Box:
             if e.ELEMENT_NODE != e.nodeType:
                 continue
 
+            link_html = ""
             desc = ""
             # Going through 'linkDesc' and 'link' nodes
             for link_node in e.childNodes:
