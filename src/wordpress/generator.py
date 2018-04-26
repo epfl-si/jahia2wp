@@ -177,7 +177,7 @@ class WPGenerator:
         """
         Generate a complete and fully working WordPress website
         """
-        # check we have a clean place first
+        # check if we have a clean place first
         if self.wp_config.is_installed:
             logging.warning("%s - WordPress files already found", repr(self))
             return False

@@ -418,20 +418,22 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     else:
         wp_site_title = site.acronym[default_language]
 
+    # theme
     if not site.theme[default_language] or site.theme[default_language] == "epfl":
         theme_faculty = ""
     else:
         theme_faculty = site.theme[default_language]
 
+    if not theme:
+        # Setting correct theme depending on parsing result
+        theme = BANNER_THEME_NAME if default_language in site.banner else DEFAULT_THEME_NAME
+
+    # tagline
     if not site.title[default_language]:
         logging.warning("No wp tagline in %s", default_language)
         wp_tagline = None
     else:
         wp_tagline = site.title
-
-    if not theme:
-        # Setting correct theme depending on parsing result
-        theme = BANNER_THEME_NAME if default_language in site.banner else DEFAULT_THEME_NAME
 
     info = {
         # information from parser
@@ -453,15 +455,24 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         'from_export': True
     }
 
+    # importer options
+    skip_base = False
+    skip_media = True
+    skip_pages = True
+
     # Generate a WordPress site
     wp_generator = WPGenerator(info, admin_password)
-    wp_generator.generate()
 
-    wp_generator.install_basic_auth_plugin()
+    # base installation
+    if not skip_base:
+        wp_generator.generate()
 
-    if settings.ACTIVE_DUAL_AUTH:
-        wp_generator.active_dual_auth()
+        wp_generator.install_basic_auth_plugin()
 
+        if settings.ACTIVE_DUAL_AUTH:
+            wp_generator.active_dual_auth()
+
+    # exporter
     wp_exporter = WPExporter(
         site,
         wp_generator,
@@ -478,7 +489,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         logging.info("Exporting %s to WordPress...", site.name)
         try:
             if wp_generator.get_number_of_pages() == 0:
-                wp_exporter.import_all_data_to_wordpress()
+                wp_exporter.import_data_to_wordpress(skip_pages=skip_pages, skip_media=skip_media)
                 wp_exporter.write_redirections()
                 _fix_menu_location(wp_generator, languages, default_language)
                 logging.info("Site %s successfully exported to WordPress", site.name)
