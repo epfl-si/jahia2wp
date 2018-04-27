@@ -29,4 +29,10 @@ do
 			wp menu item delete $db_ids --path="${mpath}/${path}";
 		fi
 	done
+	# Delete all sidebar entries from the page-widgets sidebar
+	widget_ids=$(wp widget list page-widgets --format=ids --path="${mpath}/${path}")
+	if [ -n "$widget_ids" ]; then
+		echo "Sidebar widgets to delete from page-widgets: $widget_ids";
+		wp widget delete $widget_ids --path="${mpath}/${path}";
+	fi
 done
