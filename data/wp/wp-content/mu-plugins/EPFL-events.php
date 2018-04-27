@@ -175,7 +175,7 @@ function epfl_memento_template_with_2_events($events): string {
 }
 
 /**
- * Template with 3 events. This template may be used in the sidebar
+ * Template with 3 events. This template may be used in the sidebar (template 2)
  *
  * @param $events: response of memento API
  * @return html of template
@@ -191,7 +191,27 @@ function epfl_memento_template_with_3_events($events): string {
 
         $end_date = new DateTime($item->end_date);
         $end_date = $end_date->format('d M');
-        
+
+        /**
+         * Voici les informations qui te manquaient :
+         *
+         * la photo: $item->visual_url
+         * la description de la photo: $item->image_description
+         *
+         * l'extrait du texte de event: $item->description
+         *
+         * le lien vers l'événement: $item->event_url
+         *
+         * le lieu: $item->place_and_room
+         * l'URL du lieu: $item->url_place_and_room
+         *
+         * les heures: $item->start_time et $item->end_time
+         *
+         * les intervenants: $item->speaker
+         *
+         * L'événement est il annulé: $item->canceled
+         */
+
         $html_content .= '<article class="event">';
         $html_content .= '<div class="event-dates">';
         $html_content .= '<p class="date-start"><time>' . $start_date . '</time></p>';
@@ -201,7 +221,9 @@ function epfl_memento_template_with_3_events($events): string {
         $html_content .= '</div>';
         $html_content .= '<h2 class="event-title">' . $item->title . '</h2>';
         $html_content .= '<div class="event-content">';
-        $html_content .= '<img src="' . $item->img_url . '" title="'.$item->title.'">';
+
+        $html_content .= '<img src="' . $item->visual_url . '" title="'.$item->title.'">';
+
         $html_content .= '</div>';
         
 		$html_content .= '</article>';
