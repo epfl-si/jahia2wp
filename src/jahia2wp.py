@@ -1049,6 +1049,16 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         cmd = cmd.format(fields, wp_conf.wp_site.path, csv_m)
         logging.debug(cmd)
         Utils.run_command(cmd, 'utf8')
+        #### Add a column file_path to indicate where the media is located physically ####
+        wp_medias = Utils.csv_filepath_to_dict(csv_m)
+        # Write back the CSV file
+        with open(csv_m, 'w', encoding='utf8') as f:
+            fields = list(wp_medias[0].keys()) + ['file_path']
+            writer = csv.DictWriter(f, fieldnames=fields)
+            writer.writeheader()
+            for m in wp_medias:
+                m['file_path'] = m['guid'].replace(site, wp_conf.wp_site.path)
+                writer.writerow(m)
         # Backup file
         shutil.copyfile(csv_m, csv_m + '.bak')
         # Add an entry to the site paths dict
@@ -1294,6 +1304,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
     # Store the new keys per site after the insertion as URL => ID
     # This is useful to set the new parents
     table_ids = {}
+    media_refs = {}
     for site in site_keys:
         menu_siteurl = None
         logging.info('Treating site ' + site)
@@ -1328,7 +1339,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
             # Find the longest matching URL among the target sites
             matches = [s for s in dest_sites_keys if s in p_en['url']]
             if not matches:
-                logging.warning('No matching destination site for page, skipping...')
+                logging.warning('No matching destination site for page {}, skipping...').format(p_en['url'])
             else:
                 max_match = '/'.join(max([m.split('/') for m in matches]))
                 # print(max_match, p_en['url'])
@@ -1352,6 +1363,28 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                         #    p['post_name'] = fragment
                 if p_en['post_name'] == 'sitemap':
                     print(max_match, matches, p_en['url'], dest_sites_keys)
+
+                # FIND all the media files in the page content
+                regex = re.compile(r'"(https://[^"]+/wp-content/uploads/.*?)"')
+                for _p in _pages:
+                    m_urls = regex.findall(_p['post_content'])
+                    # Verify that all the matched media is under the target domain (max_match)
+                    for m_url in m_urls:
+                        media_key = m_url[m_url.index('/wp-content/uploads'):]
+                        if max_match not in m_url:
+                            # Set the right URL
+                            _m_url = max_match + media_key
+                            _p['post_content'] = _p['post_content'].replace(m_url, _m_url)
+                            logging.info('Media URL from {} to {}'.format(m_url, _m_url))
+                            m_url = _m_url
+                        # Add the key to the media_refs dict
+                        if site not in media_refs:
+                            media_refs[site] = {}
+                        if media_key not in media_refs[site]:
+                            media_refs[site][media_key] = []
+                        if m_url not in media_refs[site][media_key]:
+                            media_refs[site][media_key].append(m_url)
+
                 # JSON file to contain the post data
                 tmp_json = ".tmp_{}_{}.json".format(site.split('/').pop(), _pages[0]['ID'])
                 cmd = "cat {} | wp pll post create --post_type=page --porcelain --stdin --path={}"
@@ -1522,14 +1555,67 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
             nav_menus = {theme: dst_loc_lang_menu}
             # Update polylang option
             cmd = "wp pll option update nav_menus '{}' --path={}".format(json.dumps(nav_menus), dst_path)
-            print("nav_menu updated: " + json.dumps(nav_menus))
-            logging.info(Utils.run_command(cmd, 'utf8'))
+            logging.info("nav_menu updated: " + json.dumps(nav_menus))
+            logging.info("nav_menu outcome: " + Utils.run_command(cmd, 'utf8'))
+
     logging.info(
         '[{:.2f}s], Preparing media insertion in target WP instances...'.format(tt()-t))
     t = tt()
     for site in site_keys:
         # The media are the last to be inserted since it will take longer.
         csv_m = medias[site]
+        # Get all the pre-replaced media data from the CSV
+        wp_medias = Utils.csv_filepath_to_dict(csv_m)
+        # Convert it to a dict like: wp_key => wp_media
+        wp_medias = {w['guid'][w['guid'].index('/wp-content/uploads/'):]:w for w in wp_medias}
+        logging.info('Total media files for {}: {}'.format(site, len(wp_medias)))
+        logging.info('Total media files referenced in page contents: {}'.format(len(media_refs[site])))
+        # print(media_refs)
+        for wp_key,wp_media in wp_medias.items():
+            # All the sites where to migrate the media file, by default one only.
+            wp_media_urls = [wp_media['guid']]
+            # Check if media_key is in the references (i.e. if a page points to it)
+            if wp_key not in media_refs[site]:
+                msg = 'wp_media {} not ref. by any page, migrate to default site anyways {}.'
+                logging.info(msg.format(wp_key, wp_media['guid']))
+            else:
+                for m_url in media_refs[site][wp_key]:
+                    if m_url not in wp_media_urls:
+                        wp_media_urls.append(m_url)
+            # Try to insert the wp_media in all reference sites (including default / global one)
+            for wp_media_url in wp_media_urls:
+                # wp_site before the /wp-content path, without trailing slash since the inventory doesn't have either.
+                wp_site = wp_media_url[:wp_media_url.index('/wp-content')]
+                if wp_site not in dest_sites_keys:
+                    logging.warning('wp_media {} not migrated to {}, no valid dest site.'.format(wp_key, wp_site))
+                    continue
+                # Copy the image physically into the proper dir location
+                # IMPORTANT: If not done, WP would insert into a different location (e.g. ../uploads/2018/06/..)
+                dest_path = dest_sites[wp_site] + wp_key
+                dest_dir = os.path.dirname(dest_path)
+                if not os.path.isdir(dest_dir):
+                    try:
+                        os.mkdirs(dest_dir, exist_ok=True)
+                    except:
+                        logging.error('Impossible to create dirs {}. Check rights, skipping..'.format(dest_dir))
+                        continue
+                try:
+                    # Copy all the thumbnails using the * wildcard (e.g. img.jpg and img-150x150.jpg...)
+                    media_path = wp_media['file_path']
+                    for media_file in glob.glob(os.path.splitext(media_path)[0] + '*'):
+                        shutil.copy(media_file, os.path.dirname(dest_path))
+                except Exception as e:
+                    logging.error('Cannot copy {} to {}. Err: {}.skipping..'.format(media_path, dest_path, e))
+                    continue
+                # Import the media metadata into the target WP dest.
+                # IMPORTANT: --skip-copy will not copy the file, just insert the meta into the DB
+                cmd = 'wp media import {} --title="{}" --caption="{}" --alt="{}" --desc="{}" --path={}'
+                cmd += ' --skip-copy  --porcelain'
+                cmd = cmd.format(dest_path, wp_media['post_title'], '', '', '', dest_sites[wp_site])
+                logging.debug('media cmd: ' + cmd)
+                mid = Utils.run_command(cmd, 'utf8')
+                if 'Warning' in mid:
+                    logging.warning('Could not import {}. Doing nothing. Warning: {}'.format(dest_path, mid))
 
 
 if __name__ == '__main__':
