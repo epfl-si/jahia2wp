@@ -2028,6 +2028,11 @@ ul.bottin {
 .list-articles.list-news {
   border-top: 1px solid #000;
   padding-top: 15px;
+  
+  .sidebar & {
+    border-top: 0;
+    padding-top: 0;
+  }
 }
 
 .list-news {
@@ -2202,6 +2207,35 @@ ul.bottin {
         font-size: .75rem;
         line-height: 1.3em;
       }
+    }
+  }
+  
+}
+
+/* --- Events --- */
+
+.list-events {
+  
+  .event {
+    @include clearfix;
+    @include border-bottom-dots;
+  }
+  
+  .event-title {
+    font-size: 1em;
+  }
+  
+  .event-dates {
+    font-size: .875em;
+    
+    p {
+      display: inline-block;
+      margin-bottom: 0;
+    }
+    
+    .date-end:before {
+      content: "–";
+      margin: 0 .25em;
     }
   }
   
@@ -2785,6 +2819,80 @@ ul.bottin {
       width: 100%
     }
   }
+
+  /* --- Events --- */
+  
+  .list-events .event-dates {
+    @include txt-narrow;
+    float: left;
+    font-size: 1.125em;
+    padding-top: 5px;
+    width: 40px;
+    
+    p {
+      color: #666;
+      display: block;
+      font-size: .875em;
+      letter-spacing: .05em;
+      padding: 0;
+      text-align: center;
+      text-transform: uppercase;
+      width: 100%;
+      
+      &.date-end {
+        margin-top: 8px;
+        padding-top: 14px;
+        position: relative;
+        
+        &:before {
+          display: none;
+        }
+        
+        &:after {
+          content: "";
+          border-top: 3px solid #666;
+          position: absolute;
+          top: 0; right: 7px; bottom: auto; left: 7px;
+        }
+      }
+      
+      &:first-line {
+        font-size: 1.625em;
+        letter-spacing: .05em;
+      }
+    }
+  }
+
+  .list-events .event-title,
+  .list-events .event-content {
+    clear: none;
+    float: right;
+    width: calc(100% - 50px);
+  }
+  
+  /* Colored date box */
+  
+  .list-events-image .event-dates {
+    background: $primary-color;
+    padding: 10px 0 6px;
+    width: 44px;
+    
+    p {
+      color: #fff;
+      
+      &.date-end:after {
+        border-color: #fff;
+      }
+    }
+  }
+  
+  .list-events-image {
+    .event-title,
+    .event-content {
+      width: calc(100% - 60px);
+    }
+  }
+  
   
 }
 

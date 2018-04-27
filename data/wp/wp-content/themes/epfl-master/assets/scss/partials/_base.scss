@@ -154,6 +154,8 @@ h4,
 h5,
 h6 {
   color: #000;
+  letter-spacing: 0;
+  line-height: 1.3em;
   margin-bottom: .75em;
   @include transition-colors;
   

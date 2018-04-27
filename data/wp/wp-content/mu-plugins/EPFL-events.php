@@ -63,20 +63,32 @@ define("MEMENTO_API_URL", "https://memento.epfl.ch/api/v1/mementos/");
 define("MEMENTO_API_URL_IFRAME", "https://memento.epfl.ch/webservice/?frame=1");
 
 /**
- * Template with only the title on the event
+ * Template with only the title on the event (template 1)
  *
  * @param $events: response of memento API
  * @return html of template
  */
 function epfl_memento_template_short_text($events): string {
-    $html_content = '<div>';
-    $html_content .= '<p>SHORT TEXT</p>';
+    $html_content = '<div class="list-events clearfix">';
+    $html_content .= '<p>SHORT TEXT - template 1</p>';
 	foreach ($events->results as $item) {
-        $html_content .= '<div>';
-        $html_content .= '<h3>' . $item->title . '</h3>';
-        $html_content .= '<p>' . $item->start_date . '</p>';
-        $html_content .= '<p>' . $item->end_date . '</p>';
-		$html_content .= '</div>';
+
+        $start_date = new DateTime($item->start_date);
+        $start_date = $start_date->format('d M');
+
+        $end_date = new DateTime($item->end_date);
+        $end_date = $end_date->format('d M');
+        
+        $html_content .= '<article class="event">';
+        $html_content .= '<div class="event-dates">';
+        $html_content .= '<p class="date-start"><time>' . $start_date . '</time></p>';
+        if ($end_date != $start_date) {
+          $html_content .= '<p class="date-end"><time>' . $end_date . '</time></p>';
+        }
+        $html_content .= '</div>';
+        $html_content .= '<h2 class="event-title">' . $item->title . '</h2>';
+        
+		$html_content .= '</article>';
     }
     $html_content .= '</div>';
     return $html_content;
@@ -170,14 +182,29 @@ function epfl_memento_template_with_2_events($events): string {
  */
 function epfl_memento_template_with_3_events($events): string {
 
-    $html_content = '<div>';
-    $html_content .= '<p>template_with_3_events</p>';
+    $html_content = '<div class="list-events list-events-image clearfix">';
+    $html_content .= '<p>template_with_3_events - template 2</p>';
 	foreach ($events->results as $item) {
-        $html_content .= '<div>';
-        $html_content .= '<h3>' . $item->title . '</h3>';
-        $html_content .= '<p>' . $item->start_date . '</p>';
-        $html_content .= '<p>' . $item->end_date . '</p>';
-		$html_content .= '</div>';
+
+        $start_date = new DateTime($item->start_date);
+        $start_date = $start_date->format('d M');
+
+        $end_date = new DateTime($item->end_date);
+        $end_date = $end_date->format('d M');
+        
+        $html_content .= '<article class="event">';
+        $html_content .= '<div class="event-dates">';
+        $html_content .= '<p class="date-start"><time>' . $start_date . '</time></p>';
+        if ($end_date != $start_date) {
+          $html_content .= '<p class="date-end"><time>' . $end_date . '</time></p>';
+        }
+        $html_content .= '</div>';
+        $html_content .= '<h2 class="event-title">' . $item->title . '</h2>';
+        $html_content .= '<div class="event-content">';
+        $html_content .= '<img src="' . $item->img_url . '" title="'.$item->title.'">';
+        $html_content .= '</div>';
+        
+		$html_content .= '</article>';
     }
     $html_content.= '</div>';
     return $html_content;
@@ -253,7 +280,7 @@ function epfl_memento_build_html($events, $template): string
     } else {
         $html = epfl_memento_template_with_3_events($events);
     }
-    return $html;
+    return '<div class="eventsBox">' . $html . '</div>';
 }
 
 /**
