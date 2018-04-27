@@ -1049,7 +1049,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         cmd = cmd.format(fields, wp_conf.wp_site.path, csv_m)
         logging.debug(cmd)
         Utils.run_command(cmd, 'utf8')
-        #### Add a column file_path to indicate where the media is located physically ####
+        # Add a column file_path to indicate where the media is located physically ####
         wp_medias = Utils.csv_filepath_to_dict(csv_m)
         # Write back the CSV file
         with open(csv_m, 'w', encoding='utf8') as f:
@@ -1307,6 +1307,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
     media_refs = {}
     for site in site_keys:
         menu_siteurl = None
+        dst_sidebars_url = None
         logging.info('Treating site ' + site)
         # Source CSV files from where to take the content
         # Start with the pages since it'll be faster than the media
@@ -1421,6 +1422,28 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
                         msg = Utils.run_command(cmd, 'utf8')
                         if 'Success' not in msg:
                             logging.warning('Could not set page_on_front option! Msg: {}. cmd: {}', msg, cmd)
+                        dst_sidebars_url = max_match
+
+        if dst_sidebars_url:
+            # List the registered sidebars in the source site
+            site_path = site_paths[site]
+            cmd = 'wp sidebar list --format=ids --path={}'.format(site_path)
+            sidebars = Utils.run_command(cmd, 'utf8').split(' ')
+            for side_id in sidebars:
+                # Get the sidebar entries if any
+                cmd = 'wp widget list {} --format=json --path={}'.format(side_id, site_path)
+                side_entries = json.loads(Utils.run_command(cmd, 'utf8'))
+                for e in side_entries:
+                    # Set the entry at the destination sidebar
+                    # IMPORTANT: The destination sidebars are created while the site is generated.
+                    # Therefore no need to create them.
+                    cmd = 'wp widget add {} ' + side_id + ' {} --text="{}" --title="{}" --pll_lang={} --path={}'
+                    dst = dest_sites[dst_sidebars_url]
+                    o = e['options']
+                    cmd = cmd.format(e['name'], e['position'], o['text'], o['title'], o['pll_lang'], dst)
+                    logging.info('sidebar cmd: ' + cmd)
+                    sidebar_out = Utils.run_command(cmd, 'utf8')
+                    logging.info('sidebar {} added: {}'.format(side_id, sidebar_out))
 
         if menu_siteurl:
             path = site_paths[site]
@@ -1567,11 +1590,11 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, use_invent
         # Get all the pre-replaced media data from the CSV
         wp_medias = Utils.csv_filepath_to_dict(csv_m)
         # Convert it to a dict like: wp_key => wp_media
-        wp_medias = {w['guid'][w['guid'].index('/wp-content/uploads/'):]:w for w in wp_medias}
+        wp_medias = {w['guid'][w['guid'].index('/wp-content/uploads/'):]: w for w in wp_medias}
         logging.info('Total media files for {}: {}'.format(site, len(wp_medias)))
         logging.info('Total media files referenced in page contents: {}'.format(len(media_refs[site])))
         # print(media_refs)
-        for wp_key,wp_media in wp_medias.items():
+        for wp_key, wp_media in wp_medias.items():
             # All the sites where to migrate the media file, by default one only.
             wp_media_urls = [wp_media['guid']]
             # Check if media_key is in the references (i.e. if a page points to it)
