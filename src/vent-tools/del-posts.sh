@@ -13,6 +13,12 @@ do
 	else
 		echo "No posts for $path"
 	fi
+	# Delete all attachments
+	media=$(wp post list --post_type='attachment' --format=ids --path="${mpath}/${path}")
+	if [ -n "$media" ]; then
+		echo "Deleting media / attachments: $media";
+		wp post delete $media --path="${mpath}/${path}";
+	fi
 	# Delete any remaining menu entries
 	menu_list=$(wp menu list --fields=term_id --format=ids --path="${mpath}/${path}")
 	for menu in $menu_list
