@@ -430,8 +430,8 @@ class Ventilation:
             # used instead.
             with open(csv_f, 'r', encoding='utf8') as f:
                 head = f.readline()
-                bef_guid = ',' if head.find(',guid') != -1 else '^'
-                aft_guid = ',' if head.find('guid,') != -1 else '$'
+                bef_guid = ',' if head.find(',guid') != -1 else ''
+                aft_guid = ',' if head.find('guid,') != -1 else ''
             print(bef_guid, aft_guid)
             for p in pages:
                 guid = p['guid']
@@ -466,7 +466,7 @@ class Ventilation:
                     cmd_body = cmd_body.format('\\"' + guid + '\\"', '\\"' + new_guid + '\\"', csv_f)
                     logging.debug(cmd_body)
                     # AWK is counting the replacement occurrences in the stderr.
-                    proc = subprocess.run(cmd, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
+                    subprocess.run(cmd, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
                     proc_body = subprocess.run(cmd_body, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
                     # This has to be a number normally, but it can also contain return errors, to be analized
                     reps = proc_body.stderr.strip()
