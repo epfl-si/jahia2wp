@@ -1,8 +1,8 @@
 source,destination
 dcsl/page-115407-en.html,epfl/research/publications/dcsl-pubs
 dcsl,epfl/research/labs/dcsl/,
-sac/echange-PDM, epfl/education/exchanges
-sac/studies,epfl/education/epfl-studies
-sac/student-exchanges/*,inside/students/student-exchanges
-sac/*,epfl/education/
-epnet/*,inside/network/
+#sac/echange-PDM, epfl/education/exchanges
+#sac/studies,epfl/education/epfl-studies
+#sac/student-exchanges/*,inside/students/student-exchanges
+#sac/*,epfl/education/
+#epnet/*,inside/network/
