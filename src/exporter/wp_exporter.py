@@ -892,12 +892,15 @@ class WPExporter:
                     if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict and \
                             child.contents[lang].wp_id:  # FIXME For unknown reason, wp_id is sometimes None
 
-                        command = 'menu item add-post {} {} --parent-id={} --porcelain' \
-                            .format(menu_name, child.contents[lang].wp_id, parent_menu_id)
+                        command = 'menu item add-post {} {} --title="{}" --parent-id={} --porcelain' \
+                            .format(menu_name,
+                                    child.contents[lang].wp_id,
+                                    child.contents[lang].menu_title.replace('"', '\\"'),
+                                    parent_menu_id)
 
                         menu_id = self.run_wp_cli(command)
                         if not menu_id:
-                            logging.warning("Menu not created for page %s" % child.pid)
+                            logging.warning("Menu not created for page %s", child.pid)
                         else:
                             self.menu_id_dict[child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
                             self.report['menus'] += 1
@@ -934,7 +937,7 @@ class WPExporter:
                     )
                     menu_id = self.run_wp_cli(cmd)
                     if not menu_id:
-                        logging.warning("Home root menu not created for page  %s" % page_content.pid)
+                        logging.warning("Home root menu not created for page  %s", page_content.pid)
                     else:
                         self.menu_id_dict[page_content.wp_id] = Utils.get_menu_id(menu_id)
                         self.report['menus'] += 1
@@ -974,7 +977,7 @@ class WPExporter:
                                 .format(menu_name, menu_item.txt, url)
                             menu_id = self.run_wp_cli(cmd)
                             if not menu_id:
-                                logging.warning("Root menu item not created for URL (%s) " % url)
+                                logging.warning("Root menu item not created for URL (%s) ", url)
                             else:
                                 self.report['menus'] += 1
 
@@ -993,11 +996,13 @@ class WPExporter:
 
                             if homepage_child.contents[lang].wp_id:
 
-                                cmd = 'menu item add-post {} {} --porcelain' \
-                                      .format(menu_name, homepage_child.contents[lang].wp_id)
+                                cmd = 'menu item add-post {} {} --title="{}" --porcelain' \
+                                      .format(menu_name,
+                                              homepage_child.contents[lang].wp_id,
+                                              homepage_child.contents[lang].menu_title.replace('"', '\\"'))
                                 menu_id = self.run_wp_cli(cmd)
                                 if not menu_id:
-                                    logging.warning("Root menu item not created %s for page " % homepage_child.pid)
+                                    logging.warning("Root menu item not created %s for page ", homepage_child.pid)
                                 else:
                                     self.menu_id_dict[homepage_child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
                                     self.report['menus'] += 1
