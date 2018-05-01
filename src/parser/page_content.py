@@ -56,7 +56,11 @@ class PageContent:
         self.menu_title = self.element.getAttribute("jahia:title")
 
         # Looking if there is an overrided page title (that will be used only on page)
-        self.title = self.element.getElementsByTagName("pageTitle")[0].getAttribute("jahia:value")
+        self.title = self.element.getElementsByTagName("pageTitle")
+
+        if self.title:
+            # Can have a value or be empty
+            self.title = self.title[0].getAttribute("jahia:value")
 
         # If page title is empty (equal to "")
         if not self.title:
