@@ -649,7 +649,7 @@ class Ventilation:
             if isinstance(widgets[widget_idx], dict):
                 widgets[widget_idx]['pll_lang'] = widget_pos_lang[widget_idx]
         # Write back the widget_text option
-        widget_f = ".{}_widgets.json".format(os.path.basename(site))
+        widget_f = ".tmp_{}_widgets.json".format(os.path.basename(site))
         with open(widget_f, "w") as f:
             f.write(json.dumps(widgets))
         Utils.run_command('wp option update widget_text --format=json --path={} < {}'.format(dst, widget_f))
