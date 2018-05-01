@@ -456,9 +456,11 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     }
 
     # importer options
-    skip_base = False
-    skip_media = True
+    skip_base = True
+    skip_media = False
     skip_pages = True
+    clean_wordpress = True
+    admin_password = "admin"
 
     # Generate a WordPress site
     wp_generator = WPGenerator(info, admin_password)
@@ -480,11 +482,13 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         output_dir=output_dir
     )
 
+    # clean
     if clean_wordpress:
         logging.info("Cleaning WordPress for %s...", site.name)
         wp_exporter.delete_all_content()
         logging.info("Data of WordPress site %s successfully deleted", site.name)
 
+    # to WordPress
     if to_wordpress:
         logging.info("Exporting %s to WordPress...", site.name)
         try:
@@ -503,6 +507,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
 
         Tracer.write_row(site=site.name, step="export", status="OK")
 
+    # to dictionary
     if to_dictionary:
         data = DictExporter.generate_data(site)
         pprint(data, width=settings.LINE_LENGTH_ON_PPRINT)

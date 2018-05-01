@@ -77,6 +77,7 @@ class WPExporter:
         rest_api_url = self._build_rest_api_url()
 
         logging.info("setting up API on '%s', with %s:xxxxxx", rest_api_url, wp_generator.wp_admin.username)
+
         self.wp = WordpressJsonWrapper(rest_api_url, wp_generator.wp_admin.username, wp_generator.wp_admin.password)
 
     def run_wp_cli(self, command, encoding=sys.getdefaultencoding(), pipe_input=None, extra_options=None):
