@@ -1,5 +1,5 @@
 wp_site_url,wp_tagline,wp_site_title,site_type,openshift_env,category,theme,theme_faculty,status,installs_locked,updates_automatic,langs,unit_name,Jahia_zip,comment
-https://jahia2wp-httpd/mot,#parser,#parser,wordpress,admwww,GeneralPublic,epfl-blank,#parser,yes,yes,yes,#parser,cdm,mot,
+#https://jahia2wp-httpd/mot,#parser,#parser,wordpress,admwww,GeneralPublic,epfl-blank,#parser,yes,yes,yes,#parser,cdm,mot,
 #https://jahia2wp-httpd/ic,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,ic-do,ic,
 #https://jahia2wp-httpd/ic-it,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,ic-it,icit,
 #https://jahia2wp-httpd/ic-students-alumni,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,sin-ge,ic-aniversary-30-20,
@@ -10,7 +10,7 @@ https://jahia2wp-httpd/mot,#parser,#parser,wordpress,admwww,GeneralPublic,epfl-b
 #https://jahia2wp-httpd/clipair,#parser,#parser,wordpress,int,GeneralPublic,epfl-blank,#parser,yes,yes,yes,#parser,liv,clipair,
 #https://jahia2wp-httpd/bioinspired,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,ip,bioinspired,
 #https://jahia2wp-httpd/sportstech,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,vpi,sport,migrable
-#https://jahia2wp-httpd/dcsl,#parser,#parser,wordpress,gcharmier,GeneralPublic,epfl-master,#parser,yes,no,yes,#parser,DCSL,dcsl,site de la labo
+https://jahia2wp-httpd/dcsl,#parser,#parser,wordpress,gcharmier,GeneralPublic,epfl-master,#parser,yes,no,yes,#parser,DCSL,dcsl,site de la labo
 #https://jahia2wp-httpd/epnet,#parser,#parser,wordpress,gcharmier,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,exinfr,network
 #https://jahia2wp-httpd/sac,#parser,#parser,wordpress,gcharmier,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,sac,sac
 #https://jahia2wp-httpd/amac,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,amac,amac,
