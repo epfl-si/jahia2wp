@@ -123,6 +123,12 @@ class PageContent:
             # vanity URLs defined.
             self.vanity_urls.append("/page-{}-{}.html".format(self.page.pid, self.language))
 
+            # If website has only one language, we also add another way to reach page, the URL without the language
+            # FIXME: It may also work if website have more than one language and in this case, URL without language
+            # points on the default language URL.
+            if len(self.site.languages) == 1:
+                self.vanity_urls.append("/page-{}.html".format(self.page.pid))
+
         # FIXME, the prefixing part should be done in exporter
         # add the site root_path at the beginning
         self.path = self.site.root_path + self.vanity_urls[0]
