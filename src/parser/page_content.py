@@ -127,7 +127,10 @@ class PageContent:
             # FIXME: It may also work if website have more than one language and in this case, URL without language
             # points on the default language URL.
             if len(self.site.languages) == 1:
-                self.vanity_urls.append("/page-{}.html".format(self.page.pid))
+                # Add if not exists
+                url_without_lang = "/page-{}.html".format(self.page.pid)
+                if url_without_lang not in self.vanity_urls:
+                    self.vanity_urls.append(url_without_lang)
 
         # FIXME, the prefixing part should be done in exporter
         # add the site root_path at the beginning
