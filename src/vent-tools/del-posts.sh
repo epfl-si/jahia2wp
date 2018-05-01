@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mpath="/srv/hmuriel/jahia2wp-httpd/htdocs"
+mpath="/srv/$WP_ENV/jahia2wp-httpd/htdocs"
 declare -a paths=("epfl" "epfl/education" "epfl/research" 
 	"epfl/research/labs" "epfl/research/labs/dcsl" "epfl/research/labs/nal" 
 	"epfl/research/publications" "inside" "inside/students")
