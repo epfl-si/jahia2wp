@@ -868,6 +868,7 @@ def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, htaccess=T
     vent = Ventilation(wp_env, csv_file, root_wp_dest, htaccess, context)
     vent.run_all()
 
+
 if __name__ == '__main__':
 
     # docopt return a dictionary with all arguments
@@ -880,4 +881,3 @@ if __name__ == '__main__':
     logging.debug(args)
 
     dispatch(__doc__)
-
