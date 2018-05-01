@@ -222,9 +222,17 @@ class WPExporter:
         # In that case convert to ascii with 'replace' option which replaces unknown characters by '?',
         # and rename the file with that new name.
         file_path = os.path.join(media.path, media.name)
+        size = os.path.getsize(file_path)
+
         # If the file is empty, do not try to import
-        if os.path.getsize(file_path) == 0:
+        if size == 0:
+            logging.warning('Media %s is empty', file_path)
             return None
+        # If the file is too big, do not try to import
+        elif size > settings.UPLOAD_MAX_FILESIZE:
+            logging.warning('Media %s is too big. Size: %s', file_path, size)
+            return None
+
         file = open(file_path, 'rb')
 
         files = {
