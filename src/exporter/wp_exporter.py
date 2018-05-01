@@ -227,10 +227,12 @@ class WPExporter:
         # If the file is empty, do not try to import
         if size == 0:
             logging.warning('Media %s is empty', file_path)
+            self.report['failed_files'] += 1
             return None
         # If the file is too big, do not try to import
         elif size > settings.UPLOAD_MAX_FILESIZE:
             logging.warning('Media %s is too big. Size: %s', file_path, size)
+            self.report['failed_files'] += 1
             return None
 
         file = open(file_path, 'rb')
