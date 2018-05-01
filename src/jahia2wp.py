@@ -12,7 +12,7 @@ Usage:
   jahia2wp.py parse                 <site>                          [--debug | --quiet]
     [--output-dir=<OUTPUT_DIR>] [--use-cache]
   jahia2wp.py export     <site>  <wp_site_url> <unit_name>          [--debug | --quiet]
-    [--to-wordpress | --clean-wordpress | --to-dictionary]
+    [--to-wordpress] [--clean-wordpress] [--to-dictionary]
     [--admin-password=<PASSWORD>]
     [--output-dir=<OUTPUT_DIR>]
     [--installs-locked=<BOOLEAN> --updates-automatic=<BOOLEAN>]
@@ -68,6 +68,8 @@ from pprint import pprint
 
 import os
 import shutil
+
+import sys
 import yaml
 from docopt import docopt
 from docopt_dispatch import dispatch
@@ -246,7 +248,7 @@ def _generate_csv_line(wp_generator):
 
     # Recovering values from WPGenerator or hardcode some
     csv_columns['wp_site_url'] = wp_generator._site_params['wp_site_url']  # from csv
-    csv_columns['wp_tagline'] = wp_generator._site_params['wp_tagline']  # from parser
+    csv_columns['wp_tagline'] = wp_generator._site_params['wp_tagline'][wp_generator.default_lang()]  # from parser
     csv_columns['wp_site_title'] = wp_generator._site_params['wp_site_title']  # from parser
     csv_columns['site_type'] = 'wordpress'
     csv_columns['openshift_env'] = 'subdomains'
@@ -336,6 +338,13 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
     Parse the give site.
     """
     try:
+        # without changing this parameter the following sites crash
+        # when they are dumped on disk with pickle:
+        # biorob, disopt, euler, last, master-architecture
+        # they are probably corrupted, so this is simply a hack
+        # to make it work
+        sys.setrecursionlimit(2000)
+
         # create subdir in output_dir
         site_dir = unzip(site, output_dir=output_dir)
 
@@ -421,7 +430,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         logging.warning("No wp tagline in %s", default_language)
         wp_tagline = None
     else:
-        wp_tagline = site.title[default_language]
+        wp_tagline = site.title
 
     if not theme:
         # Setting correct theme depending on parsing result
@@ -463,6 +472,11 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         output_dir=output_dir
     )
 
+    if clean_wordpress:
+        logging.info("Cleaning WordPress for %s...", site.name)
+        wp_exporter.delete_all_content()
+        logging.info("Data of WordPress site %s successfully deleted", site.name)
+
     if to_wordpress:
         logging.info("Exporting %s to WordPress...", site.name)
         try:
@@ -480,11 +494,6 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
             raise e
 
         Tracer.write_row(site=site.name, step="export", status="OK")
-
-    if clean_wordpress:
-        logging.info("Cleaning WordPress for %s...", site.name)
-        wp_exporter.delete_all_content()
-        logging.info("Data of WordPress site %s successfully deleted", site.name)
 
     if to_dictionary:
         data = DictExporter.generate_data(site)

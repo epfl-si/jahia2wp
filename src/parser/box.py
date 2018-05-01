@@ -522,27 +522,54 @@ class Box:
         self.content = content
 
     def _parse_links_to_list(self, element):
-        """Handles link tags that can be found in linksBox and textBox"""
-        elements = element.getElementsByTagName("link")
+        """Handles link tags that can be found in linksBox and textBox
+
+        Structure is the following:
+        <linksList>
+            <links>
+                <linkDesc></linkDesc>  <-- It seems that sometimes this is not present in Jahia export
+                <link>
+                    <jahia:url>     <-- If not present, 'jahia:link' is present
+                    <jahia:link>    <-- If not present, 'jahia:url' is present
+                </link>
+            </links>
+        </linksList>
+        """
+        elements = element.getElementsByTagName("links")
         content = "<ul>"
         for e in elements:
             if e.ELEMENT_NODE != e.nodeType:
                 continue
-            for jahia_tag in e.childNodes:
-                if jahia_tag.ELEMENT_NODE != jahia_tag.nodeType:
+
+            desc = ""
+            # Going through 'linkDesc' and 'link' nodes
+            for link_node in e.childNodes:
+                if link_node.ELEMENT_NODE != link_node.nodeType:
                     continue
-                if jahia_tag.tagName == "jahia:link":
-                    # It happens that a link references a page that does not exist anymore
-                    # observed on site dii
-                    try:
-                        page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
-                    except KeyError as e:
-                        continue
-                    content += '<li><a href="{}">{}</a></li>'.format(page.pid, jahia_tag.getAttribute("jahia:title"))
-                elif jahia_tag.tagName == "jahia:url":
-                    url = jahia_tag.getAttribute("jahia:value")
-                    title = jahia_tag.getAttribute("jahia:title")
-                    content += '<li><a href="{}">{}</a></li>'.format(url, title)
+
+                if link_node.tagName == "linkDesc":
+                    desc = link_node.getAttribute("jahia:value")
+                elif link_node.tagName == "link":
+
+                    # Going through node containing link. It can be 'jahia:link' or 'jahia:url' node.
+                    for jahia_tag in link_node.childNodes:
+                        if jahia_tag.ELEMENT_NODE != jahia_tag.nodeType:
+                            continue
+                        if jahia_tag.tagName == "jahia:link":
+                            # It happens that a link references a page that does not exist anymore
+                            # observed on site dii
+                            try:
+                                page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
+                            except KeyError as e:
+                                continue
+                            link_html = '<a href="{}">{}</a>'.format(page.pid, jahia_tag.getAttribute("jahia:title"))
+
+                        elif jahia_tag.tagName == "jahia:url":
+                            link_html = '<a href="{}">{}</a>'.format(jahia_tag.getAttribute("jahia:value"),
+                                                                     jahia_tag.getAttribute("jahia:title"))
+
+            content += '<li>{}{}</li>'.format(link_html, desc)
+
         content += "</ul>"
 
         if content == "<ul></ul>":
