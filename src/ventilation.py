@@ -214,7 +214,15 @@ class Ventilation:
             with open(csv_f, 'w', encoding='utf8') as f:
                 site_url = urlparse(site)
                 host = site_url._replace(path='').geturl()
-                writer = csv.DictWriter(f, fieldnames=pages[0].keys())
+                """IMPORTANT: The GUID column has to be in the middle or be the last one. This assumption is
+                reused in the guid replacement col in text mode. In text mode, there is no notion of CSV columns
+                and the delimiters have to be unambiguous (e.g. ,guid, => middle col - OK; ,guid => last col - OK;
+                guid, => first col - NOT OK). Concretely, the first column poses a problem since it ends in partial
+                matches and therefore inconsistent replacements."""
+                header_cols = list(pages[0].keys())
+                header_cols.remove('guid')
+                header_cols.append('guid')
+                writer = csv.DictWriter(f, fieldnames=header_cols)
                 writer.writeheader()
                 # FIX: scan if the content has relative URLs not starting with a slash /
                 # in other words, links that don't point to GUIDs (i.e. /site_name/post_name but only post_name)
@@ -425,14 +433,9 @@ class Ventilation:
                 stats[site] = []
             csv_f = self.files[site]
             pages = Utils.csv_filepath_to_dict(csv_f)
-            # Locate the GUID column in the CSV header and find if it has colons before and after it.
-            # This is useful to replace exactly that column, for the href="" attr, the quotes will be
-            # used instead.
-            with open(csv_f, 'r', encoding='utf8') as f:
-                head = f.readline()
-                bef_guid = ',' if head.find(',guid') != -1 else ''
-                aft_guid = ',' if head.find('guid,') != -1 else ''
-            print(bef_guid, aft_guid)
+            """ ASSUMPTION: The GUID column is set manually to the last column in the CSV header
+            This is useful to replace exactly that column.
+            For the href="" attr, the quotes will be used instead. """
             for p in pages:
                 guid = p['guid']
                 # The postname is the last fragment of the GUID (i.e. relative URL, site/post_name)
@@ -460,8 +463,8 @@ class Ventilation:
                     # Replace first the GUID column and then the href occurrences in the text
                     cmd = "awk 'END{{print t > \"/dev/stderr\"}}"
                     cmd_body = cmd = cmd + " {{t+=gsub(\"{0}\",\"{1}\")}}1' {2} > {2}.1 && mv {2}.1 {2}"
-                    # Replace the GUID column
-                    cmd = cmd.format(bef_guid + guid + aft_guid, bef_guid + new_guid + aft_guid, csv_f)
+                    # Replace the GUID column, use the same quotes to mark the boundaries.
+                    cmd = cmd.format(',' + guid, ',' + new_guid, csv_f)
                     # Replace the HTML attrs (e.g. href="") containing the GUID
                     cmd_body = cmd_body.format('\\"' + guid + '\\"', '\\"' + new_guid + '\\"', csv_f)
                     logging.debug(cmd_body)
@@ -515,7 +518,8 @@ class Ventilation:
 
                 # ATTENTION: Selecting the page in EN since all URLs will be rewritten
                 # in english.
-                p_en = _pages[lngs.index('en')]
+                # ATTENTION: If no english is present, then the language at pos. 0 will be used (e.g. French)
+                p_en = _pages[lngs.index('en')] if 'en' in lngs else _pages[0]
                 logging.info("[en] Page {} {}".format(p_en['post_name'], p_en['url']))
                 # Find the longest matching URL among the target sites
                 matches = [s for s in dest_sites_keys if s in p_en['url']]
@@ -542,8 +546,6 @@ class Ventilation:
                             p_en['post_name'] = fragment
                             # for p in _pages:
                             #    p['post_name'] = fragment
-                    if p_en['post_name'] == 'sitemap':
-                        print(max_match, matches, p_en['url'], dest_sites_keys)
 
                     # FIND all the media files in the page content
                     regex = re.compile(r'"(https://[^"]+/wp-content/uploads/.*?)"')
@@ -616,6 +618,8 @@ class Ventilation:
         site_path = self.site_paths[site]
         cmd = 'wp sidebar list --format=ids --path={}'.format(site_path)
         sidebars = Utils.run_command(cmd, 'utf8').split(' ')
+        widget_pos = 1
+        widget_pos_lang = {}
         for side_id in sidebars:
             # Get the sidebar entries if any
             cmd = 'wp widget list {} --format=json --path={}'.format(side_id, site_path)
@@ -624,13 +628,31 @@ class Ventilation:
                 # Set the entry at the destination sidebar
                 # IMPORTANT: The destination sidebars are created while the site is generated.
                 # Therefore no need to create them.
-                cmd = 'wp widget add {} ' + side_id + ' {} --text="{}" --title="{}" --pll_lang={} --path={}'
+                cmd = 'wp widget add {} ' + side_id + ' {} --title="{}" --path={} --text="{}"'
                 dst = self.dest_sites[dst_sidebars_url]
                 o = e['options']
-                cmd = cmd.format(e['name'], e['position'], o['text'], o['title'], o['pll_lang'], dst)
-                logging.info('sidebar cmd: ' + cmd)
+                # Escape html quotes
+                text = o['text'].replace('"', '\\"')
+                cmd = cmd.format(e['name'], e['position'], o['title'], dst, text)
+                print('sidebar cmd: ' + cmd)
                 sidebar_out = Utils.run_command(cmd, 'utf8')
                 logging.info('sidebar {} added: {}'.format(side_id, sidebar_out))
+                # Update dict containing widget pos => lang
+                widget_pos_lang[str(widget_pos)] = o['pll_lang']
+                widget_pos += 1
+        # Set manually the Polylang lang into the widget text since the pll_lang option does not
+        # exist in the wp widget add command.
+        # Get all the widgets for the site in json format
+        widgets = json.loads(Utils.run_command('wp option get widget_text --format=json --path={}'.format(dst)))
+        for widget_idx in widgets:
+            # If it is a widget (can be just an integer)
+            if isinstance(widgets[widget_idx], dict):
+                widgets[widget_idx]['pll_lang'] = widget_pos_lang[widget_idx]
+        # Write back the widget_text option
+        widget_f = ".{}_widgets.json".format(os.path.basename(site))
+        with open(widget_f, "w") as f:
+            f.write(json.dumps(widgets))
+        Utils.run_command('wp option update widget_text --format=json --path={} < {}'.format(dst, widget_f))
 
     def migrate_menu(self, site, menu_siteurl, table_ids):
         path = self.site_paths[site]
