@@ -406,7 +406,7 @@ class WPExporter:
             if "content" in wp_page:
                 content = wp_page["content"]["raw"]
             else:
-                logging.error("Expected content for page %s" % wp_page)
+                logging.error("Expected content for page %s", wp_page)
 
             # Step 1 - Fix in shortcode attributes
             # We loop 2 times through self.urls_mapping because the first time we modify directly HTML content
@@ -517,7 +517,7 @@ class WPExporter:
             # point the link to the new url of the page.
             if link.encode('ascii', 'replace').decode('ascii').replace('?', '') == old_url.replace('?', '') \
                     or (pid and link == pid):
-                logging.debug("Changing link from %s to %s" % (old_url, new_url))
+                logging.debug("Changing link from %s to %s", (old_url, new_url))
                 tag[tag_attribute] = new_url
 
     def fix_key_visual_boxes(self):
@@ -749,7 +749,7 @@ class WPExporter:
                 widget_pos_to_lang[str(widget_pos)] = lang
                 widget_pos += 1
 
-                logging.info("Banner imported for '%s' language" % lang)
+                logging.info("Banner imported for '%s' language", lang)
 
             # Then we import sidebar widgets
             for lang in self.site.homepage.contents.keys():
@@ -894,7 +894,7 @@ class WPExporter:
                         .format(menu_name, menu_item.txt, url, target, parent_menu_id)
                     menu_id = self.run_wp_cli(cmd)
                     if not menu_id:
-                        logging.warning("Root menu item not created for URL (%s) " % url)
+                        logging.warning("Root menu item not created for URL (%s) ", url)
                     else:
                         self.report['menus'] += 1
 
@@ -1017,7 +1017,7 @@ class WPExporter:
                                 continue
 
                             if lang not in homepage_child.contents:
-                                logging.warning("Page not translated %s" % homepage_child.pid)
+                                logging.warning("Page not translated %s", homepage_child.pid)
                                 continue
 
                             if homepage_child.contents[lang].wp_id:
