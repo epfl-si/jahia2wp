@@ -36,4 +36,4 @@ python jahia2wp.py generate $WP_ENV http://$ROOT_SITE/inside/students --admin-pa
 #python jahia2wp.py generate $WP_ENV http://jahia2wp-httpd/inside/students --admin-password=admin --extra-config=vent-tools/generate-enfr.yml
 
 # Move the accred and tequila plugins to let for local connections
-find /srv/$WP_ENV/$ROOT_SITE/ -type d \( -iname "accred" -o -iname "tequila" \) -exec mv {} {}_bak \;
+find /srv/$WP_ENV/$ROOT_SITE/ -type d \( -iname "accred" -o -iname "tequila" \) -exec mv {} {}.bak \;

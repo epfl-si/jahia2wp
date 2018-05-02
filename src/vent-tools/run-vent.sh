@@ -4,9 +4,27 @@ export ROOT_SITE=www.epfl.ch
 CSV_FILE=../data/csv/ventilation-local.csv
 
 ROOT_WP_DEST=/srv/$WP_ENV/$ROOT_SITE/
+DEMO_SITE=/srv/$WP_ENV/dcsl.epfl.ch
 
 # Switch to the src/ path.
 cd /srv/$WP_ENV/jahia2wp/src/;
+
+# ======= DEMO CODE ======
+# Check if the destination root tree (arborescence) exists.
+if [ ! -d $ROOT_WP_DEST ]; then
+	echo "Destination root tree does not exist: $DEMO_SITE, calling generate.sh...";
+	./vent-tools/generate.sh;
+fi
+
+# Check if the dcsl.epfl.ch folder exists
+if [ ! -d $DEMO_SITE ]; then
+	echo "Demo site dir does not exsit: $DEMO_SITE, calling exportmany.sh...";
+	./vent-tools/exportmany.sh;
+	# Disable accred and tequila
+	echo "Disabling accred and tequila plugins from $DEMO_SITE ...";
+	find $DEMO_SITE -type d \( -iname "accred" -o -iname "tequila" \) -exec mv {} {}.bak \;
+fi
+
 # Delete all content (pages, media, menu, sidebars) from target WP destination tree.
 ./vent-tools/del-posts.sh
 
