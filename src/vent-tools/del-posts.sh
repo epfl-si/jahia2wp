@@ -1,11 +1,18 @@
 #!/bin/bash
 
-mpath="/srv/$WP_ENV/jahia2wp-httpd/htdocs"
-declare -a paths=("epfl" "epfl/education" "epfl/research" 
-	"epfl/research/labs" "epfl/research/labs/dcsl" "epfl/research/labs/nal" 
-	"epfl/research/publications" "inside" "inside/students")
-for path in "${paths[@]}"
+export ROOT_SITE=www.epfl.ch
+
+mpath="/srv/$WP_ENV/$ROOT_SITE/htdocs"
+
+echo "Running delete content (posts, media, sidebar, menu) starting at path $mpath";
+
+for path in $(find $mpath -iname "wp-config.php" -exec dirname {} \;)
 do
+	if ! wp core is-installed --path="${mpath}/${path}" 2>/dev/null; then
+		echo "${mpath}/${path} is not a valid install, skipping...";
+		continue
+	fi
+	# Continue with the valid installs only
 	ids=$(wp post list --post_type='page' --format=ids --path="${mpath}/${path}")
 	if [ -n "$ids" ]; then
 		echo "ids for $path: ${ids[@]}";
