@@ -45,7 +45,7 @@ from wordpress import WPSite, WPConfig
 
 
 class Ventilation:
-    local_env = 'https://jahia2wp-httpd/{}'
+    local_env = 'https://jahia2wp-httpd'
     wp_env = None
     csv_file = None
     root_wp_dest = None
@@ -150,8 +150,8 @@ class Ventilation:
             if 'http://' not in source and 'https://' not in source:
                 rule_type = 'root' if source.strip('/') == site_name else 'path'
                 # Local development case, append the host
-                site = self.local_env.format(site_name)
-                source = self.local_env.format(source)
+                site = self.local_env + '/' + site_name
+                source = self.local_env + '/' + source
             else:
                 site = '{}//{}'.format(source.split('//').pop(0), site_name)
                 rule_type = 'root' if source.split(
@@ -162,7 +162,7 @@ class Ventilation:
             dest = dest.strip('/') + '/'
             if 'http://' not in dest and 'https://' not in dest:
                 # Local development case, append the host
-                dest = self.local_env.replace('http://', 'https://').format(dest)
+                dest = self.local_env + '/' + dest
             # Start with an empty ruleset
             if site not in rules:
                 rules[site] = []
@@ -264,7 +264,7 @@ class Ventilation:
         ############
         # IMPORTANT: Translate the source URL using the intermediate WP instance.
         ############
-        # Use port 8443 (wp-mgmt does not have 443=>8443 redirection for httpd cont.)
+        # Use port 8443 for local_env only (wp-mgmt does not have 443=>8443 redirection for httpd cont.)
         for site in self.rulesets.keys():
             # IMPORTANT: Before expanding any rules, restore the .htaccess to remove ventilation redirs.
             # Restore the .htaccess (always)
@@ -289,6 +289,7 @@ class Ventilation:
 
             for (src, dst, type_rule) in self.rulesets[site]:
                 _src = urlparse(src)
+
                 _src = _src._replace(netloc=_src.netloc + ':8443').geturl()
                 # GET only the HEADERS *of course* in silent mode and ignoring cert validity
                 # WARNING:::: This first curl call will only get the .htaccess redirection (i.e. page GUID)
