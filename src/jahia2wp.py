@@ -458,7 +458,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     # importer options
 
     # skip the base installation of WordPress?
-    skip_base = True
+    skip_base = False
     skip_media = False
     skip_pages = False
 
@@ -467,9 +467,12 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
 
     # base installation
     if skip_base:
-        # even if we skip the base installation we need to reinstall
-        # the basic auth plugin fo the rest api
-        wp_generator.install_basic_auth_plugin()
+        try:
+            # we need to reactivate the basic auth plugin for the rest API
+            wp_generator.activate_basic_auth_plugin()
+        except:
+            # if activation fails it means the plugin is not installed
+            wp_generator.install_basic_auth_plugin()
     else:
         wp_generator.generate()
 

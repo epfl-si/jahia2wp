@@ -557,9 +557,19 @@ class WPGenerator:
         self.run_wp_cli(cmd)
         logging.debug("Dual authenticate is activated")
 
+    def activate_basic_auth_plugin(self):
+        """
+        Activate the basic auth plugin.
+
+        This plugin is used to communicate with REST API of WordPress site.
+        """
+        cmd = "plugin activate Basic-Auth"
+        self.run_wp_cli(cmd)
+        logging.debug("Basic-Auth plugin is activated")
+
     def install_basic_auth_plugin(self):
         """
-        Install basic auth plugin
+        Install and activate the basic auth plugin.
 
         This plugin is used to communicate with REST API of WordPress site.
         """
