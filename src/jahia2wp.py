@@ -472,7 +472,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         try:
             # even if we skip the base installation we need to reactivate
             # the basic auth plugin for the rest API
-            wp_generator.activate_basic_auth_plugin()
+            wp_generator.run_wp_cli("plugin activate Basic-Auth")
         except:
             # if activation fails it means the plugin is not installed
             wp_generator.install_basic_auth_plugin()
