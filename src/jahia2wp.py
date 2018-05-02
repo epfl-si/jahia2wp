@@ -10,7 +10,7 @@ Usage:
     [--username=<USERNAME> --host=<HOST> --zip-path=<ZIP_PATH> --force]
     [--output-dir=<OUTPUT_DIR>]
   jahia2wp.py parse                 <site>                          [--debug | --quiet]
-    [--output-dir=<OUTPUT_DIR>] [--use-cache] [--fix-etx-chars]
+    [--output-dir=<OUTPUT_DIR>] [--use-cache]
   jahia2wp.py export     <site>  <wp_site_url> <unit_name>          [--debug | --quiet]
     [--to-wordpress] [--clean-wordpress] [--to-dictionary]
     [--admin-password=<PASSWORD>]
@@ -19,7 +19,6 @@ Usage:
     [--openshift-env=<OPENSHIFT_ENV> --theme=<THEME>]
     [--use-cache]
     [--keep-extracted-files]
-    [--fix-etx-chars]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--stop-on-errors]
   jahia2wp.py clean-many            <csv_file>                      [--debug | --quiet]
@@ -331,7 +330,7 @@ def unzip(site, username=None, host=None, zip_path=None, force=False, output_dir
 
 
 @dispatch.on('parse')
-def parse(site, output_dir=None, use_cache=False, fix_etx_chars=False, **kwargs):
+def parse(site, output_dir=None, use_cache=False, **kwargs):
     """
     Parse the give site.
     """
@@ -362,7 +361,7 @@ def parse(site, output_dir=None, use_cache=False, fix_etx_chars=False, **kwargs)
             site = pickle_site
         else:
             logging.info("Cache not used, parsing the Site")
-            site = Site(site_dir, site, fix_etx_chars=fix_etx_chars)
+            site = Site(site_dir, site, fix_etx_chars=True)
 
         print(site.report)
 
@@ -386,7 +385,7 @@ def parse(site, output_dir=None, use_cache=False, fix_etx_chars=False, **kwargs)
 @dispatch.on('export')
 def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=False, to_dictionary=False,
            admin_password=None, output_dir=None, theme=None, installs_locked=False, updates_automatic=False,
-           openshift_env=None, use_cache=None, keep_extracted_files=False, fix_etx_chars=False, **kwargs):
+           openshift_env=None, use_cache=None, keep_extracted_files=False, **kwargs):
     """
     Export the jahia content into a WordPress site.
 
@@ -406,7 +405,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     """
 
     # Download, Unzip the jahia zip and parse the xml data
-    site = parse(site=site, use_cache=use_cache, output_dir=output_dir, fix_etx_chars=fix_etx_chars)
+    site = parse(site=site, use_cache=use_cache, output_dir=output_dir)
 
     # Define the default language
     default_language = _get_default_language(site.languages)
