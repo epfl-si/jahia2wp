@@ -40,7 +40,7 @@ class MenuItem:
                                             '',
                                             self.points_to,
                                             0,
-                                            re.IGNORECASE)
+                                            re.IGNORECASE).strip()
 
         self.hidden = hidden
         self.children = []
