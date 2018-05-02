@@ -456,17 +456,21 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     }
 
     # importer options
+
+    # skip the base installation of WordPress?
     skip_base = True
     skip_media = False
-    skip_pages = True
-    clean_wordpress = True
-    admin_password = "admin"
+    skip_pages = False
 
     # Generate a WordPress site
     wp_generator = WPGenerator(info, admin_password)
 
     # base installation
-    if not skip_base:
+    if skip_base:
+        # even if we skip the base installation we need to reinstall
+        # the basic auth plugin fo the rest api
+        wp_generator.install_basic_auth_plugin()
+    else:
         wp_generator.generate()
 
         wp_generator.install_basic_auth_plugin()
@@ -507,13 +511,13 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
 
         Tracer.write_row(site=site.name, step="export", status="OK")
 
+    wp_generator.uninstall_basic_auth_plugin()
+    wp_generator.enable_updates_automatic_if_allowed()
+
     # to dictionary
     if to_dictionary:
         data = DictExporter.generate_data(site)
         pprint(data, width=settings.LINE_LENGTH_ON_PPRINT)
-
-    wp_generator.uninstall_basic_auth_plugin()
-    wp_generator.enable_updates_automatic_if_allowed()
 
     _generate_csv_line(wp_generator)
 
