@@ -455,9 +455,11 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         'from_export': True
     }
 
-    # importer options
-
-    # skip the base installation of WordPress?
+    # skip options, used only during development
+    #
+    # skip_base: if True don't install WordPress, use the existing site
+    # skip_media: if True don't import the media
+    # skip_pages: if True don't import the pages
     skip_base = False
     skip_media = False
     skip_pages = False
@@ -479,8 +481,9 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
 
         wp_generator.install_basic_auth_plugin()
 
-        if settings.ACTIVE_DUAL_AUTH:
-            wp_generator.active_dual_auth()
+    # dual auth
+    if settings.ACTIVE_DUAL_AUTH:
+        wp_generator.active_dual_auth()
 
     # exporter
     wp_exporter = WPExporter(
