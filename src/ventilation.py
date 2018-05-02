@@ -201,7 +201,7 @@ class Ventilation:
             # reinsertion to insert first parent pages and avoiding parentless children.
             params = '--post_type=page --nopaging --order=asc --orderby=ID --fields={} --format=csv'
             cmd = 'wp post list ' + params + ' --path={} > {}'
-            csv_f = site.split('/').pop() + '.csv'
+            csv_f = JAHIA2WP_VENT_TMP + '/' + site.split('/').pop() + '.csv'
             self.files[site] = csv_f
             cmd = cmd.format(fields, wp_conf.wp_site.path, csv_f)
             logging.debug(cmd)
@@ -240,7 +240,7 @@ class Ventilation:
             fields = 'ID,post_title,post_name,post_parent,post_status,guid'
             params = '--post_type=attachment --nopaging --order=asc --fields={} --format=csv'
             cmd = 'wp post list ' + params + ' --path={} > {}'
-            csv_m = site.split('/').pop() + '_media.csv'
+            csv_m = JAHIA2WP_VENT_TMP + '/' + site.split('/').pop() + '_media.csv'
             self.medias[site] = csv_m
             cmd = cmd.format(fields, wp_conf.wp_site.path, csv_m)
             logging.debug(cmd)
