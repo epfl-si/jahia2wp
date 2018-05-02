@@ -16,6 +16,7 @@ python jahia2wp.py generate $WP_ENV http://$ROOT_SITE/research/domains --admin-p
 python jahia2wp.py generate $WP_ENV http://$ROOT_SITE/research/domains/laboratories --admin-password=admin --extra-config=vent-tools/generate-enfr.yml 
 python jahia2wp.py generate $WP_ENV http://$ROOT_SITE/research/domains/laboratories/dcsl --admin-password=admin --extra-config=vent-tools/generate.yml 
 python jahia2wp.py generate $WP_ENV http://$ROOT_SITE/research/domains/ic --admin-password=admin --extra-config=vent-tools/generate-enfr.yml 
+python jahia2wp.py generate $WP_ENV http://$ROOT_SITE/research/domains/ic/dcsl --admin-password=admin --extra-config=vent-tools/generate.yml 
 python jahia2wp.py generate $WP_ENV http://$ROOT_SITE/research/domains/enac --admin-password=admin --extra-config=vent-tools/generate-enfr.yml 
 python jahia2wp.py generate $WP_ENV http://$ROOT_SITE/innovation --admin-password=admin --extra-config=vent-tools/generate-enfr.yml 
 python jahia2wp.py generate $WP_ENV http://$ROOT_SITE/vpsi --admin-password=admin --extra-config=vent-tools/generate-enfr.yml 
@@ -35,5 +36,4 @@ python jahia2wp.py generate $WP_ENV http://$ROOT_SITE/inside/students --admin-pa
 #python jahia2wp.py generate $WP_ENV http://jahia2wp-httpd/inside/students --admin-password=admin --extra-config=vent-tools/generate-enfr.yml
 
 # Move the accred and tequila plugins to let for local connections
-find /srv/$WP_ENV/$ROOT_SITE/ -iname "accred" -exec mv {} {}.bak \;
-find /srv/$WP_ENV/$ROOT_SITE/ -iname "tequila" -exec mv {} {}.bak \;
+find /srv/$WP_ENV/$ROOT_SITE/ -type d \( -iname "accred" -o -iname "tequila" \) -exec mv {} {}_bak \;

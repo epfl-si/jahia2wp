@@ -4,13 +4,13 @@ wp_site_url,wp_tagline,wp_site_title,site_type,openshift_env,category,theme,them
 #https://jahia2wp-httpd/ic-it,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,ic-it,icit,
 #https://jahia2wp-httpd/ic-students-alumni,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,sin-ge,ic-aniversary-30-20,
 #https://jahia2wp-httpd/tcs,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,thl2,tcs,migrable
-https://vpi.epfl.ch,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,vpi,vpiv,
+#https://vpi.epfl.ch,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,vpi,vpiv,
 #https://entreprises.epfl.ch,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,vpi,entreprises,migrable
 #https://social-impact.epfl.ch,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,vpi,social-impact,
 #https://clipair.epfl.ch,#parser,#parser,wordpress,int,GeneralPublic,epfl-blank,#parser,yes,yes,yes,#parser,liv,clipair,
 #https://bioinspired.epfl.ch,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,ip,bioinspired,
 #https://sportstech.epfl.ch,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,vpi,sport,migrable
-#http://dcsl.epfl.ch,#parser,#parser,wordpress,gcharmier,GeneralPublic,epfl-master,#parser,yes,no,yes,#parser,DCSL,dcsl,site de la labo
+http://dcsl.epfl.ch,#parser,#parser,wordpress,gcharmier,GeneralPublic,epfl-master,#parser,yes,no,yes,#parser,DCSL,dcsl,site de la labo
 #https://epnet.epfl.ch,#parser,#parser,wordpress,gcharmier,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,exinfr,network
 #https://sac.epfl.ch,#parser,#parser,wordpress,gcharmier,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,sac,sac
 #https://jahia2wp-httpd/amac,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,amac,amac,
