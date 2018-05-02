@@ -19,6 +19,7 @@ class MenuItem:
         self.txt = txt
         self.target = None
         self.points_to = points_to
+
         if self.points_to:
             self.points_to = self.points_to.strip()
 
@@ -46,8 +47,11 @@ class MenuItem:
         self.children = []
         self.children_sort_way = None
 
+    def points_to_anchor(self):
+        return False if self.points_to is None else '#' in self.points_to
+
     def points_to_url(self):
-        return False if self.points_to is None else self.points_to.startswith('http')
+        return False if self.points_to is None else self.points_to.startswith('http') or self.points_to_anchor()
 
     def points_to_sitemap(self):
         return self.points_to == "sitemap"

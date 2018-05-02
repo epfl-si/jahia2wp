@@ -877,12 +877,18 @@ class WPExporter:
 
                     # Recovering URL
                     url = menu_item.points_to
-                    # Generate target information if exists
-                    target = "--target={}".menu_item.target if menu_item.target else ""
 
-                    # If menu entry is sitemap, we add WP site base URL
-                    if menu_item.points_to_sitemap():
+                    # If menu entry is sitemap
+                    # OR
+                    # If points to an anchor on a page, URL is not is absolute (starts with 'http').
+                    # If URL is not absolute, this is because it points to a vanity URL defined in Jahia
+                    # THEN we add WP site base URL
+                    if menu_item.points_to_sitemap() or \
+                            (menu_item.points_to_anchor() and not url.startswith('http')):
                         url = "{}/{}".format(self.wp_generator.wp_site.url, url)
+
+                    # Generate target information if exists
+                    target = "--target={}".format(menu_item.target) if menu_item.target else ""
 
                     cmd = 'menu item add-custom {} "{}" "{}" {} --parent-id={} --porcelain' \
                         .format(menu_name, menu_item.txt, url, target, parent_menu_id)
@@ -980,12 +986,18 @@ class WPExporter:
 
                             # Recovering URL
                             url = menu_item.points_to
-                            # Generate target information if exists
-                            target = "--target={}".menu_item.target if menu_item.target else ""
 
-                            # If menu entry is sitemap, we add WP site base URL
-                            if menu_item.points_to_sitemap():
+                            # If menu entry is sitemap
+                            # OR
+                            # If points to an anchor on a page, URL is not is absolute (starts with 'http').
+                            # If URL is not absolute, this is because it points to a vanity URL defined in Jahia
+                            # THEN we add WP site base URL
+                            if menu_item.points_to_sitemap() or \
+                                    (menu_item.points_to_anchor() and not url.startswith('http')):
                                 url = "{}/{}".format(self.wp_generator.wp_site.url, url)
+
+                            # Generate target information if exists
+                            target = "--target={}".format(menu_item.target) if menu_item.target else ""
 
                             cmd = 'menu item add-custom {} "{}" "{}" {} --porcelain' \
                                 .format(menu_name, menu_item.txt, url, target)
