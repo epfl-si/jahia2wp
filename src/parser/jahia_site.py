@@ -688,7 +688,8 @@ class Site:
                             new_link = new_link[:new_link.index("?")]
 
                     else:  # We don't have an UUID in the link
-                        new_link = new_link[:new_link.index("?")]
+                        if "?" in new_link:
+                            new_link = new_link[:new_link.index("?")]
 
                     tag[attribute] = self.full_path(new_link)
 
