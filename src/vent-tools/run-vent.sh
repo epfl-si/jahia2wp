@@ -19,6 +19,13 @@ fi
 # Check if the dcsl.epfl.ch folder exists
 if [ ! -d $DEMO_SITE ]; then
 	echo "Demo site dir does not exsit: $DEMO_SITE, calling exportmany.sh...";
+	echo "################################"
+	echo "IMPORTANT: If you are running on a local env, add an entry to the /etc/hosts of the mgmt container like:";
+	echo "172.19.0.5	dcsl.epfl.ch"
+	echo ", otherwise the REST api will fail without access to port 8080"
+	echo "If you want to see the intermediate WP site https://dcsl.epfl.ch, also add an entry to your local /etc/hosts :"
+	echo "127.0.0.1	dcsl.epfl.ch"
+	echo "################################"
 	./vent-tools/exportmany.sh;
 	# Disable accred and tequila
 	echo "Disabling accred and tequila plugins from $DEMO_SITE ...";
