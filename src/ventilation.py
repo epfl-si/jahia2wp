@@ -570,7 +570,7 @@ class Ventilation:
                                 media_refs[site][media_key].append(m_url)
 
                     # JSON file to contain the post data
-                    tmp_json = ".tmp_{}_{}.json".format(site.split('/').pop(), _pages[0]['ID'])
+                    tmp_json = "/tmp/.tmp_{}_{}.json".format(site.split('/').pop(), _pages[0]['ID'])
                     cmd = "cat {} | wp pll post create --post_type=page --porcelain --stdin --path={}"
                     # Remove / Change attrs before dumping the post JSON.
                     _pagesi = [{k: v for k, v in _p.items() if k not in ['ID', 'url']} for _p in _pages]
@@ -650,7 +650,7 @@ class Ventilation:
             if isinstance(widgets[widget_idx], dict):
                 widgets[widget_idx]['pll_lang'] = widget_pos_lang[widget_idx]
         # Write back the widget_text option
-        widget_f = ".tmp_{}_widgets.json".format(os.path.basename(site))
+        widget_f = "/tmp/.tmp_{}_widgets.json".format(os.path.basename(site))
         with open(widget_f, "w") as f:
             f.write(json.dumps(widgets))
         Utils.run_command('wp option update widget_text --format=json --path={} < {}'.format(dst, widget_f))
