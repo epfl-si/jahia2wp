@@ -118,7 +118,7 @@ disconnect-OS:
 	@oc logout
 
 new-route: connect-OS
-	@bin/new-route.sh -s httpd-$(WP_ENV) -h $(site) | oc -n wwp-test create -f - 
+	@bin/new-route.sh -s httpd-$(WP_ENV) -h $(site) | oc -n wwp create -f - 
 
 delete-route: connect-OS
 	@oc delete route httpd-$${site%%.*}
