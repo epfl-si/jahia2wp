@@ -1005,16 +1005,12 @@ class WPExporter:
                                     (menu_item.points_to_anchor() and not url.startswith('http')):
                                 url = "{}/{}".format(self.wp_generator.wp_site.url, url)
 
-<<<<<<< HEAD
                             # Generate target information if exists
                             target = "--target={}".format(menu_item.target) if menu_item.target else ""
 
                             cmd = 'menu item add-custom {} "{}" "{}" {} --porcelain' \
-                                .format(menu_name, menu_item.txt, url, target)
-=======
-                            cmd = 'menu item add-custom {} "{}" "{}" --porcelain' \
-                                .format(menu_name, menu_item.txt.replace('"', '\\"'), url)
->>>>>>> 8768927eeec58aa3ea6c31a2d179892011019829
+                                .format(menu_name, menu_item.txt.replace('"', '\\"'), url, target)
+
                             menu_id = self.run_wp_cli(cmd)
                             if not menu_id:
                                 logging.warning("Root menu item not created for URL (%s) ", url)
