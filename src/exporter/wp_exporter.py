@@ -725,7 +725,7 @@ class WPExporter:
             wp_page = self.update_page(
                 page_id=sitemap_wp_id,
                 title='sitemap',
-                content='[simple-sitemap show_label="false" types="page orderby="menu_order"]'
+                content='[simple-sitemap show_label="false" types="page" orderby="menu_order"]'
             )
             self.create_footer_menu_for_sitemap(sitemap_wp_id=wp_page['id'], lang=lang)
 
