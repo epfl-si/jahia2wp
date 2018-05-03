@@ -315,6 +315,8 @@ class Site:
             self.theme[language] = Utils.get_tag_attribute(dom, "theme", "jahia:value")
             if self.theme[language] == 'associations':
                 self.theme[language] = 'assoc'
+            if self.theme[language] == 'interfaculte':
+                self.theme[language] = None
             self.acronym[language] = Utils.get_tag_attribute(dom, "acronym", "jahia:value")
             self.css_url[language] = "//static.epfl.ch/v0.23.0/styles/{}-built.css".format(self.theme[language])
 
