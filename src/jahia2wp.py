@@ -346,7 +346,7 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
         site_dir = unzip(site, output_dir=output_dir)
 
         # where to cache our parsing
-        pickle_file_path = os.path.join(site_dir, 'parsed_%s.pkl' % site)
+        pickle_file_path = os.path.join(site_dir, 'parsed_{}.pkl'.format(site))
 
         # when using-cache: check if already parsed
         pickle_site = False
@@ -361,7 +361,7 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
             site = pickle_site
         else:
             logging.info("Cache not used, parsing the Site")
-            site = Site(site_dir, site)
+            site = Site(site_dir, site, fix_etx_chars=True)
 
         print(site.report)
 
@@ -401,6 +401,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     :param updates_automatic: boolean
     :param openshift_env: openshift_env environment (prod, int, gcharmier ...)
     :param keep_extracted_files: command to keep files extracted from jahia zip
+    :param fix_etx_chars: Tell to remove ETX chars from XML files containing site pages.
     """
 
     # Download, Unzip the jahia zip and parse the xml data
