@@ -10,8 +10,8 @@ wp_site_url,wp_tagline,wp_site_title,site_type,openshift_env,category,theme,them
 #https://clipair.epfl.ch,#parser,#parser,wordpress,int,GeneralPublic,epfl-blank,#parser,yes,yes,yes,#parser,liv,clipair,
 #https://bioinspired.epfl.ch,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,ip,bioinspired,
 #https://sportstech.epfl.ch,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,vpi,sport,migrable
-#http://dcsl.epfl.ch,#parser,#parser,wordpress,gcharmier,GeneralPublic,epfl-master,#parser,yes,no,yes,#parser,DCSL,dcsl,site de la labo
-https://epnet.epfl.ch,#parser,#parser,wordpress,gcharmier,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,exinfr,network
+http://dcsl.epfl.ch,#parser,#parser,wordpress,gcharmier,GeneralPublic,epfl-master,#parser,yes,no,yes,#parser,DCSL,dcsl,site de la labo
+#https://epnet.epfl.ch,#parser,#parser,wordpress,gcharmier,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,exinfr,network
 #https://sac.epfl.ch,#parser,#parser,wordpress,gcharmier,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,sac,sac
 #https://jahia2wp-httpd/amac,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,amac,amac,
 #https://jahia2wp-httpd/apc,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,spc-ge,apc,
