@@ -15,7 +15,7 @@ from parser.sitemap_node import SitemapNode
 from parser.menu_item import MenuItem
 from parser.banner import Banner
 from utils import Utils
-
+from collections import OrderedDict
 
 """
 This file is named jahia_site to avoid a conflict with Site [https://docs.python.org/3/library/site.html]
@@ -98,7 +98,7 @@ class Site:
         self.footer = {}
 
         # the Pages indexed by their pid and uuid
-        self.pages_by_pid = {}
+        self.pages_by_pid = OrderedDict()
         self.pages_by_uuid = {}
 
         # the PageContents indexed by their path
