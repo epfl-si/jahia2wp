@@ -883,7 +883,7 @@ class WPExporter:
                         url = "{}/{}".format(self.wp_generator.wp_site.url, url)
 
                     cmd = 'menu item add-custom {} "{}" "{}" --parent-id={} --porcelain' \
-                        .format(menu_name, menu_item.txt, url, parent_menu_id)
+                        .format(menu_name, menu_item.txt.replace('"', '\\"'), url, parent_menu_id)
                     menu_id = self.run_wp_cli(cmd)
                     if not menu_id:
                         logging.warning("Root menu item not created for URL (%s) " % url)
@@ -984,7 +984,7 @@ class WPExporter:
                                 url = "{}/{}".format(self.wp_generator.wp_site.url, url)
 
                             cmd = 'menu item add-custom {} "{}" "{}" --porcelain' \
-                                .format(menu_name, menu_item.txt, url)
+                                .format(menu_name, menu_item.txt.replace('"', '\\"'), url)
                             menu_id = self.run_wp_cli(cmd)
                             if not menu_id:
                                 logging.warning("Root menu item not created for URL (%s) ", url)
