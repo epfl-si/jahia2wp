@@ -1,4 +1,5 @@
 """All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2018 """
+import sys
 import csv
 import logging
 from pprint import pprint
@@ -11,6 +12,7 @@ import re
 import json
 import glob
 import shutil
+from settings import JAHIA2WP_VENT_TMP
 from utils import Utils
 from wordpress import WPSite, WPConfig
 
@@ -132,6 +134,9 @@ class Ventilation:
         rows = Utils.csv_filepath_to_dict(self.csv_file)
         for idx, row in enumerate(rows):
             source = row['source']
+            if source == '' or row['destination'] == '':
+                logging.warning('Verb create and / or delete (do not migrate) not implemented.')
+                continue
             # Split the path and take the first arg as site
             # Consider special case of http(s):// and local sites
             # ATTENTION: At this stage, a site = domain name. Relative paths are not considered as sites.
@@ -193,6 +198,8 @@ class Ventilation:
                 del self.rulesets[site]
                 continue
 
+            # IMPORTANT: Increase the 'field_size_limit' to allow dumping certain sites like vpi.epfl.ch
+            csv.field_size_limit(sys.maxsize)
             # Dump the site content in plain CSV format.
             logging.info("Dumping CSV for site {}".format(site))
             # All the fields to retrieve from the wp_post table
@@ -210,6 +217,10 @@ class Ventilation:
             Utils.run_command('echo "#{}" >> {}'.format(wp_conf.wp_site.path, csv_f))
             # Convert the GUIDs to relative URLs to avoid rule replacement by URL
             pages = Utils.csv_filepath_to_dict(csv_f)
+            if not pages:
+                logging.error('No pages for site {}, removing it from rulesets..'.format(site))
+                del self.rulesets[site]
+                continue
             # Write back the CSV file
             with open(csv_f, 'w', encoding='utf8') as f:
                 site_url = urlparse(site)
@@ -233,6 +244,10 @@ class Ventilation:
                     p['guid'] = p['guid'].replace(host, '')
                     # Fix the rel links without domain / path info.
                     p['post_content'] = regex.sub(r'href="{}/\g<1>/"'.format(site_path), p['post_content'])
+                    if None in p:
+                        err = 'Page {} / {} contains an unknown column None: {}'.format(p['ID'], p['url'], p[None])
+                        logging.warning(err.encode('utf8'))
+                        del p[None]
                     writer.writerow(p)
             # Backup file
             shutil.copyfile(csv_f, csv_f + '.bak')
@@ -513,6 +528,9 @@ class Ventilation:
             # Therefore group them by number of languages.
             # ATTENTION: check for safety and errors (.e.g missing lang for page?)
             table_ids[site] = {}
+            # Add the key to the media_refs dict
+            if site not in media_refs:
+                media_refs[site] = {}
             for pi in range(0, len(pages), len(lngs)):
                 # All pages
                 _pages = pages[pi:pi+len(lngs)]
@@ -525,7 +543,7 @@ class Ventilation:
                 # Find the longest matching URL among the target sites
                 matches = [s for s in dest_sites_keys if s in p_en['url']]
                 if not matches:
-                    logging.warning('No matching destination site for page {}, skipping...').format(p_en['url'])
+                    logging.warning('No matching destination site for page {}, skipping...'.format(p_en['url']))
                 else:
                     max_match = '/'.join(max([m.split('/') for m in matches]))
                     # print(max_match, p_en['url'])
@@ -561,13 +579,20 @@ class Ventilation:
                                 _p['post_content'] = _p['post_content'].replace(m_url, _m_url)
                                 logging.info('Media URL from {} to {}'.format(m_url, _m_url))
                                 m_url = _m_url
-                            # Add the key to the media_refs dict
-                            if site not in media_refs:
-                                media_refs[site] = {}
                             if media_key not in media_refs[site]:
                                 media_refs[site][media_key] = []
                             if m_url not in media_refs[site][media_key]:
                                 media_refs[site][media_key].append(m_url)
+
+                    # IMPORTANT: Verify that the source and the destination have the same lang set.
+                    dst_path = self.dest_sites[max_match]
+                    dst_lngs = Utils.run_command('wp pll languages --path=' + dst_path)
+                    dst_lngs = [l[:2] for l in dst_lngs.split("\n")]
+                    if set(dst_lngs) != set(lngs):
+                        msg = 'Source {} [{}] and dest. {} [{}] have diff. langs, skipping...'
+                        msg = msg.format(site, lngs, max_match, dst_lngs)
+                        logging.warning(msg)
+                        continue
 
                     # JSON file to contain the post data
                     tmp_json = "/tmp/.tmp_{}_{}.json".format(site.split('/').pop(), _pages[0]['ID'])
@@ -699,7 +724,7 @@ class Ventilation:
                         item['object_id'] = new_pid
                     else:
                         # Remove the menu item
-                        logging.info('removing item {}, since no new ID at destination'.format(item['db_id']))
+                        logging.info('removing menu item {}, since no new ID at destination'.format(item['db_id']))
                         del items[i]
             menu_items[menu['term_id']] = items
             logging.debug("menu items at source for {}: {}".format(menu['slug'], items_json))
@@ -798,8 +823,12 @@ class Ventilation:
             csv_m = self.medias[site]
             # Get all the pre-replaced media data from the CSV
             wp_medias = Utils.csv_filepath_to_dict(csv_m)
+            if not wp_medias:
+                logging.warning('No media for site {}, skipping...'.format(site))
+                continue
             # Convert it to a dict like: wp_key => wp_media
-            wp_medias = {w['guid'][w['guid'].index('/wp-content/uploads/'):]: w for w in wp_medias}
+            up = '/wp-content/uploads/'
+            wp_medias = {w['guid'][w['guid'].index(up):]: w for w in wp_medias if up in w['guid']}
             logging.info('Total media files for {}: {}'.format(site, len(wp_medias)))
             logging.info('Total media files referenced in page contents: {}'.format(len(media_refs[site])))
             # print(media_refs)
@@ -808,8 +837,12 @@ class Ventilation:
                 wp_media_urls = [wp_media['guid']]
                 # Check if media_key is in the references (i.e. if a page points to it)
                 if wp_key not in media_refs[site]:
-                    msg = 'wp_media {} not ref. by any page, migrate to default site anyways {}.'
-                    logging.info(msg.format(wp_key, wp_media['guid']))
+                    msg = 'wp_media {} not ref. by any page, skipping...'.format(wp_key)
+                    logging.info(msg)
+                    # ATTENTION: Comment the continue line to migrate media to the default WP target site.
+                    # msg = ', migrate it to default site anyways {}.'.format(wp_media['guid'])
+                    # logging.info(msg)
+                    continue
                 else:
                     for m_url in media_refs[site][wp_key]:
                         if m_url not in wp_media_urls:
