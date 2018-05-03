@@ -1,10 +1,10 @@
 source,destination
-https://vpi.epfl.ch/fr,https://www.epfl.ch/innovation
+https://vpi.epfl.ch,https://www.epfl.ch/innovation
 https://entreprises.epfl.ch/,https://www.epfl.ch/innovation/about
 https://vpi.epfl.ch/centres,https://www.epfl.ch/innovation/about/domains
 https://social-impact.epfl.ch/,https://www.epfl.ch/innovation/about/social-impact
-http://clipair.epfl.ch,https://www.epfl.ch/innovation/about/domains/clipair
-http://bioinspired.epfl.ch/,https://www.epfl.ch/innovation/about/domains/bioinspired
+https://clipair.epfl.ch,https://www.epfl.ch/innovation/about/domains/clipair
+https://bioinspired.epfl.ch/,https://www.epfl.ch/innovation/about/domains/bioinspired
 https://sportstech.epfl.ch/,https://www.epfl.ch/innovation/about/domains/sportstech
 https://vpi.epfl.ch/collaborationindustrielle,https://www.epfl.ch/innovation/partner
 https://vpi.epfl.ch/partenariats_strategiques,https://www.epfl.ch/innovation/partner/research-opportunities
