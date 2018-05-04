@@ -5,7 +5,29 @@
  * Description: provides a shortcode to display events feed
  * @version: 1.0
  * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
+ *
+ * Text Domain: epfl-plugins
+ * Domain Path: /languages
  */
+ 
+add_action( 'muplugins_loaded', 'myplugin_load_textdomain' );
+/**
+ * Load plugin textdomain.
+ *
+ * @since 1.0.0
+ */
+function myplugin_load_textdomain() {
+  load_plugin_textdomain( 'epfl-plugins', false, basename( dirname( __FILE__ ) ) . '/languages' ); 
+}
+
+ 
+/*
+function epfl_plugins_init() {
+	load_plugin_textdomain( 'epfl-plugins', false, plugin_basename( dirname( __FILE__ ) ) . '/lang' );
+	echo 'go fuck yourself';
+}
+add_filter( 'init', 'epfl_plugins_init' );
+*/
 
 Class EventUtils
 {
