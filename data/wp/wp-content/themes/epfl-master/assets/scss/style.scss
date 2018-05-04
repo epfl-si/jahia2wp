@@ -2222,11 +2222,18 @@ ul.bottin {
   }
   
   .event-title {
-    font-size: 1em;
+    font-size: .875em;
+    margin-bottom: .3em;
+    padding: 0;
   }
   
   .event-dates {
+    @include txt-narrow;
+    background: #000;
+    color: #fff;
     font-size: .875em;
+    margin-bottom: 6px;
+    padding: 0 6px;
     
     p {
       display: inline-block;
@@ -2238,7 +2245,172 @@ ul.bottin {
       margin: 0 .25em;
     }
   }
+}
+
+.event .event-meta {
+  @include minor-text;
+  margin-bottom: 4px;
   
+  p {
+    display: inline;
+    font-size: .75rem;
+    padding: 0;
+    
+    &:empty {
+      display: none;
+    }
+  }
+  
+  .event-times {
+    font-weight: bold;
+    
+    & + .event-location {
+      margin-left: .5em;
+    }
+  }
+  
+  .time-start + .time-end {
+    
+    &:before {
+      content: "-";
+      margin-right: .25em;
+    }
+  }
+}
+
+.event .event-export {
+  border: 0;
+  color: $primary-color;
+  
+  &:hover {
+    color: $primary-color-sec;
+  }
+  
+  &:before {
+    @include icon;
+    content: "\f271";
+    font-size: 16px;
+    margin-right: .25em;
+  }
+}
+
+.event.has-teaser .event-content {
+  
+  .teaser {
+    @include gradient-fade;
+    clear: both;
+    min-height: 2.6em;
+    max-height: 4em;
+    overflow: hidden;
+    padding: 0;
+    
+    &:after {
+      height: 72%;
+    }
+  }
+}
+
+.event .studying-calendar {
+  margin-top: 10px;
+  
+  a {
+    border: 0;
+    color: #fff;
+    
+    &:before {
+      @include icon;
+      content: "\f073";
+      margin-right: .5em;
+    }
+  }
+}
+
+/* Colored date box */
+  
+.list-events .has-image .event-dates {
+  background: $primary-color;
+}
+
+/* Events with featured image */
+
+.list-events .has-image {
+  
+  .event-img {
+    display: none;
+  }
+}
+
+/* Events with extra content */
+
+.list-events .event-extra {
+  margin-top: 1em;
+  
+  .speakers {
+    font-size: .6875em;
+    font-size: .6875rem;
+  }
+}
+
+/* Events with cover image */
+
+.list-events .event.has-cover-image {
+  border: 0;
+  padding: 0;
+  position: relative;
+  
+  a {
+    opacity: 1;
+    
+    &:hover {
+      opacity: .8;
+    }
+  }
+  
+  .cover-img {
+    background: $primary-color;
+    display: block;
+    height: auto;
+    margin: 0;
+    width: 100%;
+    
+    img {
+      height: auto;
+      vertical-align: top;
+      width: 100%;
+    }
+  }
+  
+  .event-dates {
+    background: transparent;
+    float: none;
+    position: absolute;
+    top: 10px; right: auto; bottom: auto; left: 10px;
+  }
+  
+  .event-content {
+    color: #fff;
+    float: none;
+    position: absolute;
+    top: auto; right: 10px; bottom: 10px; left: 10px;
+  }
+  
+  .event-title {
+    color: #fff;
+    
+    a {
+      color: #fff;
+      border-color: #fff;
+    }
+  }
+}
+
+/* Sidebar */
+
+.sidebar .list-events {
+  
+  .event-title {
+    font-size: .8125em;
+  }
 }
 
 
@@ -2823,16 +2995,17 @@ ul.bottin {
   /* --- Events --- */
   
   .list-events .event-dates {
-    @include txt-narrow;
+    background: transparent;
+    color: #666;
     float: left;
     font-size: 1.125em;
-    padding-top: 5px;
-    width: 40px;
+    margin: 0;
+    padding: 4px 0 0;
+    width: 36px;
     
     p {
-      color: #666;
       display: block;
-      font-size: .875em;
+      font-size: .75em;
       letter-spacing: .05em;
       padding: 0;
       text-align: center;
@@ -2857,42 +3030,154 @@ ul.bottin {
       }
       
       &:first-line {
-        font-size: 1.625em;
+        font-size: 1.5em;
         letter-spacing: .05em;
       }
     }
   }
 
   .list-events .event-title,
-  .list-events .event-content {
+  .list-events .event-content,
+  .list-events .event-extra {
     clear: none;
     float: right;
-    width: calc(100% - 50px);
+    width: 595px;
+    
+    .sidebar & {
+      width: 265px;
+    }
+  }
+  
+  .list-events .event .event-content > .event-title {
+    width: 100%;
   }
   
   /* Colored date box */
   
-  .list-events-image .event-dates {
+  .list-events .has-image .event-dates {
     background: $primary-color;
-    padding: 10px 0 6px;
-    width: 44px;
+    height: 112px;
+    padding: 9px 0 5px;
+    width: 40px;
     
     p {
       color: #fff;
       
       &.date-end:after {
         border-color: #fff;
+        right: 9px; left: 9px;
       }
     }
   }
   
-  .list-events-image {
+  /* Events with featured image */
+  
+  .list-events .has-image {
+    .event-img {
+      display: block;
+      float: left;
+      height: 112px;
+      margin: 0 10px 0 1px;
+      width: 112px;
+      
+      a {
+        display: block;
+      }
+    }
+    
     .event-title,
     .event-content {
-      width: calc(100% - 60px);
+      width: 480px;
+      
+      .sidebar & {
+        width: 146px;
+      }
     }
   }
   
+  .event.has-teaser.has-image .event-content {
+    height: 112px;
+    overflow: hidden;
+  }
+  
+  /* Events with extra content */
+  
+  .list-events .event-extra {
+    margin-top: .5em;
+  }
+  
+  .event.has-extra {
+    
+    .event-content {
+      float: left;
+      width: 330px;
+    }
+    
+    .event-extra {
+      float: right;
+      height: 112px;
+      margin-top: 0;
+      overflow: hidden;
+      width: 130px;
+      
+      .speakers {
+        padding: 0;
+      }
+    }
+  }
+  
+  /* Events with cover image */
+
+  .list-events .event.has-cover-image {
+    
+    .event-dates {
+      height: auto;
+      padding: 0;
+      top: auto; bottom: 25px; left: 20px;
+      
+      p {
+        font-size: 1em;
+      }
+    }
+    
+    .event-content {
+      top: auto; right: 20px; bottom: 25px; left: 90px;
+      width: auto;
+      
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      
+      .event-title {
+        float: left;
+        font-size: 1em;
+        vertical-align: bottom;
+        width: 320px;
+      }
+      
+      .studying-calendar {
+        float: right;
+        padding: 0;
+        vertical-align: bottom;
+        
+        a {
+          display: block;
+          
+          &:before {
+            font-size: 3.5em;
+            vertical-align: bottom;
+          }
+          
+          .label {
+            display: inline-block;
+            font-weight: bold;
+            vertical-align: bottom;
+            width: 100px;
+          }
+        }
+      }
+    }
+  }
   
 }
 
