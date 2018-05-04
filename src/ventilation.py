@@ -276,9 +276,30 @@ class Ventilation:
             self.site_paths[site] = wp_conf.wp_site.path
 
     def rule_expansion(self):
+        """
+        The rule expansion has 2 parts.
+
+        1) The first one is to lookup for the full URL at the WP intermediate
+        site, all URLs have to be HTTPS. The mgmt container has to look (cURL) on the 8443 port. This process
+        is performed twice if necessary till the Location header does not contain the 8443 port. This is due
+        to the fact that the JAHIA URl (e.g. sac/echange-PDM) is redirected to a GUID (short URL) on the
+        intermediate WP, which has to be decoded into a full WP URL (e.g. sac/index-html/echange-pdm)
+
+        Full example:
+        JAHIA URL:          https://vpi.epfl.ch/centres
+        cURL query:         https://vpi.epfl.ch:8443/centres
+        WP REDIR (GUID):    https://vpi.epfl.ch:8443/ip/
+        WP URL:             https://vpi.epfl.ch/fr/index-fr-html/ip/
+
+        2) In the case of multilang sites, the URL has to be expanded (retrieved) in all languages. This is
+        as simply as looking into the CSV file, finding the WP URL (see above) and hence the group of pages
+        in all languages.
+        """
+
         ############
         # IMPORTANT: Translate the source URL using the intermediate WP instance.
         ############
+
         # Use port 8443 for local_env only (wp-mgmt does not have 443=>8443 redirection for httpd cont.)
         for site in self.rulesets.keys():
             # IMPORTANT: Before expanding any rules, restore the .htaccess to remove ventilation redirs.
@@ -330,14 +351,21 @@ class Ventilation:
                         else:
                             src = loc.pop()
                 ext_ruleset.append((src, dst, type_rule))
+
+                # LANGUAGE EXPANSION
+                # GET the URL in all languages (pages)
                 if len(lngs) > 1:
                     pages = Utils.csv_filepath_to_dict(self.files[site])
+                    # Keep only the URI PATH to avoid issues of HTTPS vs HTTP
+                    _src = src[src.index('://'):]
                     # Iterate the pages grouped by number of langs
                     for pi in range(0, len(pages), len(lngs)):
                         page_set = pages[pi:pi + len(lngs)]
                         # Check if one of the URLs matches the src
-                        matches = [p['url'] for p in page_set if p['url'] == src]
+                        # Likewise, compare only with the URI PATH of p['url']
+                        matches = [p['url'] for p in page_set if p['url'][p['url'].index('://'):] == _src]
                         if matches:
+                            logging.debug('found:', src, [p['url'] for p in page_set])
                             # Remove previous single-lang rule
                             ext_ruleset.pop()
                             # Build the ruleset for all langs and extend the current site rules
@@ -577,7 +605,7 @@ class Ventilation:
                                 # Set the right URL
                                 _m_url = max_match + media_key
                                 _p['post_content'] = _p['post_content'].replace(m_url, _m_url)
-                                logging.info('Media URL from {} to {}'.format(m_url, _m_url))
+                                logging.debug('Media URL from {} to {}'.format(m_url, _m_url))
                                 m_url = _m_url
                             if media_key not in media_refs[site]:
                                 media_refs[site][media_key] = []
@@ -931,6 +959,6 @@ class Ventilation:
 
         logging.info('[{:.2f}s], Preparing media insertion in target WP instances...'.format(tt()-t))
         t = tt()
-        self.migrate_media(media_refs)
+        # self.migrate_media(media_refs)
 
         logging.info('[{:.2f}s], Finished importing media. Finished all.'.format(tt()-t))
