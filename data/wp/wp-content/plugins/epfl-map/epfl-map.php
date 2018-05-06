@@ -112,19 +112,21 @@ add_action( 'init', function() {
                         'label'         => '<h3>' . esc_html__('Width', 'epfl-map') . '</h3>',
                         'attr'          => 'width',
                         'type'          => 'text',
-                        'description'   => esc_html__('Width of the map', 'epfl-map'),
                         'value'         => '600',
+                        'description'   => esc_html__('Width of the map', 'epfl-map'),
                     ),
                     array(
                         'label'         => '<h3>' . esc_html__('Height', 'epfl-map') . '</h3>',
                         'attr'          => 'height',
                         'type'          => 'text',
+                        'value'         => '400',
                         'description'   => esc_html__('Height of the map', 'epfl-map'),
                     ),
                     array(
                         'label'         => '<h3>' . esc_html__('Query', 'epfl-map') . '</h3>',
                         'attr'          => 'query',
                         'type'          => 'text',
+			'value'         => 'INN011',
                         'description'   => esc_html__('For example a room', 'epfl-map'),
                     ),
                     array(

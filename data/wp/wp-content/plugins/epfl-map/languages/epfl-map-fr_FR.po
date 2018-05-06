@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl-map\n"
-"POT-Creation-Date: 2018-05-06 16:23+0200\n"
-"PO-Revision-Date: 2018-05-06 16:24+0200\n"
+"POT-Creation-Date: 2018-05-06 17:17+0200\n"
+"PO-Revision-Date: 2018-05-06 17:18+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -13,8 +13,52 @@ msgstr ""
 "X-Poedit-Basepath: ..\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Poedit-KeywordsList: __;_e;_n;_x;_ex;_nx;esc_attr__;esc_attr_e;esc_attr_x;"
+"X-Poedit-SearchPath-0: epfl-map.php;esc_html__\n"
 "X-Poedit-SearchPath-0: epfl-map.php\n"
+
+#: epfl-map.php:99
+#, fuzzy
+msgid "English"
+msgstr "Anglais"
+
+#: epfl-map.php:100
+#, fuzzy
+msgid "French"
+msgstr "Français"
 
 #: epfl-map.php:108
 msgid "Add Map shortcode"
 msgstr "Ajouter un shortcode plan EPFL"
+
+#: epfl-map.php:112
+msgid "Width"
+msgstr "Largeur"
+
+#: epfl-map.php:115
+msgid "Width of the map"
+msgstr "Largeur du plan"
+
+#: epfl-map.php:119
+msgid "Height"
+msgstr "Hauteur"
+
+#: epfl-map.php:122
+msgid "Height of the map"
+msgstr "Hauteur du plan"
+
+#: epfl-map.php:125
+msgid "Query"
+msgstr "Requête"
+
+#: epfl-map.php:128
+msgid "For example a room"
+msgstr "Par exemple, une salle."
+
+#: epfl-map.php:131
+#, fuzzy
+msgid "Language"
+msgstr "Langue"
+
+#: epfl-map.php:135
+msgid "The language used to render map result"
+msgstr "La langue utilisée pour afficher le plan"
