@@ -9,25 +9,6 @@
  * Text Domain: epfl-plugins
  * Domain Path: /languages
  */
- 
-add_action( 'muplugins_loaded', 'myplugin_load_textdomain' );
-/**
- * Load plugin textdomain.
- *
- * @since 1.0.0
- */
-function myplugin_load_textdomain() {
-  load_plugin_textdomain( 'epfl-plugins', false, basename( dirname( __FILE__ ) ) . '/languages' ); 
-}
-
- 
-/*
-function epfl_plugins_init() {
-	load_plugin_textdomain( 'epfl-plugins', false, plugin_basename( dirname( __FILE__ ) ) . '/lang' );
-	echo 'go fuck yourself';
-}
-add_filter( 'init', 'epfl_plugins_init' );
-*/
 
 Class EventUtils
 {
@@ -103,7 +84,7 @@ define("MEMENTO_API_URL_IFRAME", "https://memento.epfl.ch/webservice/?frame=1");
  *
  * L'événement est il annulé: $item->canceled
  */
- 
+
 
 /**
  * Template with only the title on the event (template 1)
@@ -115,13 +96,13 @@ function epfl_memento_template_short_text($events): string {
     $html_content = '<div class="list-events clearfix">';
     $html_content .= '<p>SHORT TEXT - template 1</p>';
 	foreach ($events->results as $item) {
-  	
+
   	$start_date = new DateTime($item->start_date);
     $start_date = $start_date->format('d M');
 
     $end_date = new DateTime($item->end_date);
     $end_date = $end_date->format('d M');
-        
+
     $html_content .= '<article class="event">';
     $html_content .= '  <div class="event-dates">';
     $html_content .= '    <p class="date-start"><time>' . $start_date . '</time></p>';
@@ -130,7 +111,7 @@ function epfl_memento_template_short_text($events): string {
     }
     $html_content .= '  </div>';
     $html_content .= '  <h2 class="event-title"><a href="' . $item->event_url . '" title="' . $item->title . '">' . $item->title . '</a></h2>';
-        
+
 		$html_content .= '</article>';
     }
     $html_content .= '</div>';
@@ -147,27 +128,27 @@ function epfl_memento_template_text($events): string {
     $html_content = '<div class="list-events clearfix">';
     $html_content .= '<p>TEMPLATE TEXT (template 5)</p>';
 	foreach ($events->results as $item) {
-  	
+
   	$start_date = new DateTime($item->start_date);
     $start_date = $start_date->format('d M');
 
     $end_date = new DateTime($item->end_date);
     $end_date = $end_date->format('d M');
-    
+
     if (is_null($item->start_time)){
       $start_time = "";
     } else {
       $start_time = new DateTime($item->start_time);
       $start_time = $start_time->format('G:i');
     }
-    
+
     if (is_null($item->end_time)){
       $end_time = "";
     } else {
       $end_time = new DateTime($item->end_time);
       $end_time = $end_time->format('G:i');
     }
-        
+
     $html_content .= '<article class="event">';
     $html_content .= '  <div class="event-dates">';
     $html_content .= '    <p class="date-start"><time>' . $start_date . '</time></p>';
@@ -189,12 +170,12 @@ function epfl_memento_template_text($events): string {
     $html_content .= '    <h2 class="event-title">';
     $html_content .= '      <a href="' . $item->event_url . '" title="' . $item->title . '">' . $item->title . '</a>';
     $html_content .= '    </h2>';
-    
+
     $html_content .= '  </div>';
     $html_content .= '  <div class="event-extra">';
     $html_content .= '    <p class="speakers">' . __( 'By: ', 'epfl-plugins' ) . $item->speaker . '</p>';
     $html_content .= '  </div>';
-        
+
 		$html_content .= '</article>';
     }
     $html_content .= '</div>';
@@ -217,14 +198,14 @@ function epfl_memento_template_with_3_events_and_right_column($events): string {
 
     $end_date = new DateTime($item->end_date);
     $end_date = $end_date->format('d M');
-    
+
     if (is_null($item->start_time)){
       $start_time = "";
     } else {
       $start_time = new DateTime($item->start_time);
       $start_time = $start_time->format('G:i');
     }
-    
+
     if (is_null($item->end_time)){
       $end_time = "";
     } else {
@@ -258,12 +239,12 @@ function epfl_memento_template_with_3_events_and_right_column($events): string {
     $html_content .= '      <a href="' . $item->event_url . '" title="' . $item->title . '">' . $item->title . '</a>';
     $html_content .= '    </h2>';
     $html_content .= '    <p class="teaser">' . $item->description . '</p>';
-    
+
     $html_content .= '  </div>';
     $html_content .= '  <div class="event-extra">';
     $html_content .= '    <p class="speakers">' . __( 'By: ', 'epfl-plugins' ) . $item->speaker . '</p>';
     $html_content .= '  </div>';
-    
+
 		$html_content .= '</article>';
     }
     $html_content .= '</div>';
@@ -286,14 +267,14 @@ function epfl_memento_template_with_5_events_and_right_column($events): string {
 
     $end_date = new DateTime($item->end_date);
     $end_date = $end_date->format('d M');
-    
+
     if (is_null($item->start_time)){
       $start_time = "";
     } else {
       $start_time = new DateTime($item->start_time);
       $start_time = $start_time->format('G:i');
     }
-    
+
     if (is_null($item->end_time)){
       $end_time = "";
     } else {
@@ -327,12 +308,12 @@ function epfl_memento_template_with_5_events_and_right_column($events): string {
     $html_content .= '      <a href="' . $item->event_url . '" title="' . $item->title . '">' . $item->title . '</a>';
     $html_content .= '    </h2>';
     $html_content .= '    <p class="teaser">' . $item->description . '</p>';
-    
+
     $html_content .= '  </div>';
     $html_content .= '  <div class="event-extra">';
     $html_content .= '    <p class="speakers">' . __( 'By: ', 'epfl-plugins' ) . $item->speaker . '</p>';
     $html_content .= '  </div>';
-    
+
 		$html_content .= '</article>';
     }
     $html_content .= '</div>';
@@ -355,14 +336,14 @@ function epfl_memento_template_with_2_events($events): string {
 
     $end_date = new DateTime($item->end_date);
     $end_date = $end_date->format('d M');
-    
+
     if (is_null($item->start_time)){
       $start_time = "";
     } else {
       $start_time = new DateTime($item->start_time);
       $start_time = $start_time->format('G:i');
     }
-    
+
     if (is_null($item->end_time)){
       $end_time = "";
     } else {
@@ -396,9 +377,9 @@ function epfl_memento_template_with_2_events($events): string {
     $html_content .= '    <h2 class="event-title">';
     $html_content .= '      <a href="' . $item->event_url . '" title="' . $item->title . '">' . $item->title . '</a>';
     $html_content .= '    </h2>';
-    
+
     $html_content .= '  </div>';
-    
+
 		$html_content .= '</article>';
     }
     $html_content.= '</div>';
@@ -422,14 +403,14 @@ function epfl_memento_template_with_3_events($events): string {
 
     $end_date = new DateTime($item->end_date);
     $end_date = $end_date->format('d M');
-    
+
     if (is_null($item->start_time)){
       $start_time = "";
     } else {
       $start_time = new DateTime($item->start_time);
       $start_time = $start_time->format('G:i');
     }
-    
+
     if (is_null($item->end_time)){
       $end_time = "";
     } else {
@@ -463,9 +444,9 @@ function epfl_memento_template_with_3_events($events): string {
     $html_content .= '    <h2 class="event-title">';
     $html_content .= '      <a href="' . $item->event_url . '" title="' . $item->title . '">' . $item->title . '</a>';
     $html_content .= '    </h2>';
-    
+
     $html_content .= '  </div>';
-    
+
 		$html_content .= '</article>';
     }
     $html_content.= '</div>';
@@ -489,7 +470,7 @@ function epfl_memento_template_student_portal($events): string {
 
     $end_date = new DateTime($item->end_date);
     $end_date = $end_date->format('d M');
-  	
+
     $html_content .= '<article class="event has-image has-cover-image">';
     $html_content .= '  <div class="event-dates">';
     $html_content .= '    <p class="date-start"><time>' . $start_date . '</time></p>';
@@ -720,9 +701,52 @@ add_action( 'init', function() {
 
     if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
 
+        // FIXME: How get all channels without bad tips ?limit=500
+        $memento_api_rest_url = MEMENTO_API_URL . "?limit=500";
+
+        $memento_response = EventUtils::get_items($memento_api_rest_url);
+
+        $memento_options = array();
+        foreach ($memento_response->results as $item) {
+
+            if (get_locale() == 'fr_FR') {
+                $memento_name = $item->fr_name;
+            } else {
+                $memento_name = $item->en_name;
+            }
+
+            $option = array(
+                'value' => $item->slug,
+                'label' => $memento_name,
+            );
+            array_push($memento_options, $option);
+        }
+
+        $template_options = array (
+            array('value' => '1', 'label' => esc_html__('Template short text', 'epfl-memento')),
+            array('value' => '5', 'label' => esc_html__('Template text', 'epfl-memento')),
+            array('value' => '6', 'label' => esc_html__('Template with 3 events for sidebar', 'epfl-memento')),
+            array('value' => '3', 'label' => esc_html__('Template with 5 events for sidebar', 'epfl-memento')),
+            array('value' => '2', 'label' => esc_html__('Template with 3 events', 'epfl-memento')),
+            array('value' => '8', 'label' => esc_html__('Template with 2 events', 'epfl-memento')),
+            array('value' => '7', 'label' => esc_html__('Template for portal website', 'epfl-memento')),
+            array('value' => '9', 'label' => esc_html__('Template for homepage faculty', 'epfl-memento')),
+            array('value' => '4', 'label' => esc_html__('Template with all events', 'epfl-memento')),
+        );
+
         $lang_options = array(
             array('value' => 'en', 'label' => esc_html__('English', 'epfl-memento')),
             array('value' => 'fr', 'label' => esc_html__('French', 'epfl-memento')),
+        );
+
+        $memento_description = sprintf(
+            __("Please select your memento.%sThe events come from the application %smemento.epfl.ch%s.%sIf you don't have a memento, please send a request to %s", 'epfl-memento' ),
+            '<br/>', '<a href=\"https://actu.epfl.ch\">', '</a>', '<br/>', '<a href=\"mailto:1234@epfl.ch\">1234@epfl.ch</a>'
+        );
+
+        $template_description = sprintf(
+            esc_html__('Do you need more information about templates? %sRead this documentation%s', 'epfl-memento'),
+            '<a href="">', '</a>'
         );
 
         shortcode_ui_register_for_shortcode(
@@ -733,16 +757,29 @@ add_action( 'init', function() {
                 'label' => __('Add Memento shortcode', 'epfl-memento'),
                 'listItemImage' => '',
                 'attrs'         => array(
-
-                        array(
-                            'label'         => '<h3>' . esc_html__('Language', 'epfl-memento') . '</h3>',
-                            'attr'          => 'lang',
-                            'type'          => 'select',
-                            'options'       => $lang_options,
-                            'description'   => esc_html__('The language used to render events results', 'epfl-memento'),
-                        ),
-
+                    array(
+                        'label'         => '<h3>' . esc_html__('Memento', 'epfl-memento') . '</h3>',
+                        'attr'          => 'memento',
+                        'type'          => 'select',
+                        'options'       => $memento_options,
+                        'description'   => $memento_description,
                     ),
+                    array(
+                        'label'         => '<h3>Template</h3>',
+                        'attr'          => 'template',
+                        'type'          => 'select',
+                        'options'       => $template_options,
+                        'description'   => $template_description,
+                    ),
+                    array(
+                        'label'         => '<h3>' . esc_html__('Language', 'epfl-memento') . '</h3>',
+                        'attr'          => 'lang',
+                        'type'          => 'select',
+                        'options'       => $lang_options,
+                        'description'   => esc_html__('The language used to render events results', 'epfl-memento'),
+                    ),
+
+                ),
 
                 'post_type'     => array( 'post', 'page' ),
             )
