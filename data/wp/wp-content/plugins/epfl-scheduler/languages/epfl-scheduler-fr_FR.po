@@ -1,0 +1,52 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: epfl-scheduler\n"
+"POT-Creation-Date: 2018-05-06 18:19+0200\n"
+"PO-Revision-Date: 2018-05-06 18:22+0200\n"
+"Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.7.1\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-KeywordsList: __;esc_html__\n"
+"X-Poedit-SearchPath-0: epfl-scheduler.php\n"
+
+#: epfl-scheduler.php:128
+msgid "Add Scheduler shortcode"
+msgstr "Ajouter un shorcode Planificateur"
+
+#: epfl-scheduler.php:132
+msgid "Start date"
+msgstr "Date de début"
+
+#: epfl-scheduler.php:135
+msgid "Please select a start date. Format: mm/dd/yyyy"
+msgstr "Veuillez sélectionner une date de début. Format: mm/dd/yyyy"
+
+#: epfl-scheduler.php:138
+msgid "End date"
+msgstr "Date de fin"
+
+#: epfl-scheduler.php:141
+msgid "Please select an end date. Format: mm/dd/yyyy"
+msgstr "Veuillez sélectionner une date de fin. Format: mm/dd/yyyy"
+
+#: epfl-scheduler.php:144
+msgid "Start time"
+msgstr "Heure de début"
+
+#: epfl-scheduler.php:148
+msgid "Please select a start time. Format: hh:mm:ss"
+msgstr "Veuillez sélectionner une heure de début. Format: hh:mm:ss"
+
+#: epfl-scheduler.php:151
+msgid "End time"
+msgstr "Heure de fin"
+
+#: epfl-scheduler.php:155
+msgid "Please select an end time. Format: hh:mm:ss"
+msgstr "Veuillez sélectionner une heure de fin. Format: hh:mm:ss"

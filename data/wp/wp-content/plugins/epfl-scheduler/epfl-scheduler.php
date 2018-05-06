@@ -109,6 +109,56 @@ function epfl_scheduler_shortcode( $atts, $content = '', $tag )
     }
 }
 
-add_shortcode('epfl_scheduler', epfl_scheduler_shortcode);
+// Load .mo file for translation
+function epfl_scheduler_load_plugin_textdomain() {
+    load_plugin_textdomain( 'epfl-scheduler', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
+}
+add_action( 'plugins_loaded', 'epfl_scheduler_load_plugin_textdomain' );
+
+add_action( 'init', function() {
+
+    // Define shortcode
+    add_shortcode('epfl_scheduler', epfl_scheduler_shortcode);
+
+    if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
+
+        shortcode_ui_register_for_shortcode(
+            'epfl_map',
+            array(
+                'label' => __('Add Scheduler shortcode', 'epfl-scheduler'),
+                'listItemImage' => '',
+                'attrs'         => array(
+                    array(
+                        'label'         => '<h3>' . esc_html__('Start date', 'epfl-scheduler') . '</h3>',
+                        'attr'          => 'start_date',
+                        'type'          => 'date',
+                        'description'   => esc_html__('Please select a start date. Format: mm/dd/yyyy', 'epfl-scheduler'),
+                    ),
+                    array(
+                        'label'         => '<h3>' . esc_html__('End date', 'epfl-scheduler') . '</h3>',
+                        'attr'          => 'end_date',
+                        'type'          => 'date',
+                        'description'   => esc_html__('Please select an end date. Format: mm/dd/yyyy', 'epfl-scheduler'),
+                    ),
+                    array(
+                        'label'         => '<h3>' . esc_html__('Start time', 'epfl-scheduler') . '</h3>',
+                        'attr'          => 'start_time',
+                        'type'          => 'text',
+                        'value'         => '00:00:00',
+                        'description'   => esc_html__('Please select a start time. Format: hh:mm:ss', 'epfl-scheduler'),
+                    ),
+                    array(
+                        'label'         => '<h3>' . esc_html__('End time', 'epfl-scheduler') . '</h3>',
+                        'attr'          => 'end_time',
+                        'type'          => 'text',
+                        'value'         => '00:00:00',
+                        'description'   => esc_html__('Please select an end time. Format: hh:mm:ss', 'epfl-scheduler'),
+                    ),
+                ),
+                'post_type'     => array( 'post', 'page' ),
+            )
+        );
+    endif;
+});
 
 ?>
