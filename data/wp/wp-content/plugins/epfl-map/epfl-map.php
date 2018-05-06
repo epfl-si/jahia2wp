@@ -109,24 +109,10 @@ add_action( 'init', function() {
                 'listItemImage' => '',
                 'attrs'         => array(
                     array(
-                        'label'         => '<h3>' . esc_html__('Width', 'epfl-map') . '</h3>',
-                        'attr'          => 'width',
-                        'type'          => 'text',
-                        'value'         => '600',
-                        'description'   => esc_html__('Width of the map', 'epfl-map'),
-                    ),
-                    array(
-                        'label'         => '<h3>' . esc_html__('Height', 'epfl-map') . '</h3>',
-                        'attr'          => 'height',
-                        'type'          => 'text',
-                        'value'         => '400',
-                        'description'   => esc_html__('Height of the map', 'epfl-map'),
-                    ),
-                    array(
-                        'label'         => '<h3>' . esc_html__('Query', 'epfl-map') . '</h3>',
+                        'label'         => '<h3>' . esc_html__('What information do you want to display?', 'epfl-map') . '</h3>',
                         'attr'          => 'query',
                         'type'          => 'text',
-			'value'         => 'INN011',
+			            'value'         => 'INN011',
                         'description'   => esc_html__('For example a room', 'epfl-map'),
                     ),
                     array(
@@ -135,6 +121,20 @@ add_action( 'init', function() {
                         'type'          => 'select',
                         'options'       => $lang_options,
                         'description'   => esc_html__('The language used to render map result', 'epfl-map'),
+                    ),
+                    array(
+                        'label'         => '<h3>' . esc_html__('Width of the map', 'epfl-map') . '</h3>',
+                        'attr'          => 'width',
+                        'type'          => 'text',
+                        'value'         => '600',
+                        'description'   => esc_html__('Width of the map. Recommended value: 600', 'epfl-map'),
+                    ),
+                    array(
+                        'label'         => '<h3>' . esc_html__('Height of the map', 'epfl-map') . '</h3>',
+                        'attr'          => 'height',
+                        'type'          => 'text',
+                        'value'         => '400',
+                        'description'   => esc_html__('Height of the map. Recommended value: 400', 'epfl-map'),
                     ),
                 ),
 
