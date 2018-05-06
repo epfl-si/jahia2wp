@@ -708,7 +708,46 @@ function epfl_memento_process_shortcode(
     return epfl_memento_build_html($events, $template);
 }
 
-// define the shortcode
-add_shortcode('epfl_memento', 'epfl_memento_process_shortcode');
+// Load .mo file for translation
+function epfl_memento_load_plugin_textdomain() {
+    load_plugin_textdomain( 'epfl-memento', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
+}
+add_action( 'plugins_loaded', 'epfl_memento_load_plugin_textdomain' );
 
+add_action( 'init', function() {
+    // define the shortcode
+    add_shortcode('epfl_memento', 'epfl_memento_process_shortcode');
+
+    if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
+
+        $lang_options = array(
+            array('value' => 'en', 'label' => esc_html__('English', 'epfl-memento')),
+            array('value' => 'fr', 'label' => esc_html__('French', 'epfl-memento')),
+        );
+
+        shortcode_ui_register_for_shortcode(
+
+            'epfl_memento',
+
+            array(
+                'label' => __('Add Memento shortcode', 'epfl-memento'),
+                'listItemImage' => '',
+                'attrs'         => array(
+
+                        array(
+                            'label'         => '<h3>' . esc_html__('Language', 'epfl-memento') . '</h3>',
+                            'attr'          => 'lang',
+                            'type'          => 'select',
+                            'options'       => $lang_options,
+                            'description'   => esc_html__('The language used to render events results', 'epfl-memento'),
+                        ),
+
+                    ),
+
+                'post_type'     => array( 'post', 'page' ),
+            )
+        );
+
+    endif;
+});
 ?>

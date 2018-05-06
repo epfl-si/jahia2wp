@@ -1,0 +1,45 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: epfl-memento\n"
+"POT-Creation-Date: 2018-05-06 07:37+0200\n"
+"PO-Revision-Date: 2018-05-06 07:44+0200\n"
+"Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.7.1\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-KeywordsList: __;_e;_n;_x;_ex;_nx;esc_attr__;esc_attr_e;esc_attr_x;"
+"esc_html__;esc_html_e;esc_html_x;_n_noop;_nx_noop;translate_nooped_plural\n"
+"X-Poedit-SearchPath-0: epfl-memento.php\n"
+
+#: epfl-memento.php:195 epfl-memento.php:264 epfl-memento.php:333
+msgid "By: "
+msgstr "Par:"
+
+#: epfl-memento.php:508
+msgid "Academic calendar "
+msgstr "Calendrier academique"
+
+#: epfl-memento.php:724
+msgid "English"
+msgstr "Anglais"
+
+#: epfl-memento.php:725
+msgid "French"
+msgstr "Français"
+
+#: epfl-memento.php:733
+msgid "Add Memento shortcode"
+msgstr "Ajouter du shortcode Memento"
+
+#: epfl-memento.php:738
+msgid "Language"
+msgstr "Langue"
+
+#: epfl-memento.php:742
+msgid "The language used to render events results"
+msgstr "La langue utilisée pour afficher les événements"

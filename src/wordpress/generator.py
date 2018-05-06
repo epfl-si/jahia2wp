@@ -397,7 +397,6 @@ class WPGenerator:
         WPMuPluginConfig(self.wp_site, "EPFL-SC-people.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL-map.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL-scheduler.php").install()
-        WPMuPluginConfig(self.wp_site, "EPFL-events.php").install()
 
         if self.wp_config.installs_locked:
             WPMuPluginConfig(self.wp_site, "EPFL_installs_locked.php").install()
