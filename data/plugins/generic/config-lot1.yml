@@ -37,3 +37,5 @@ plugins:
     config: !include remote-content-shortcode/v1/config-plugin.yml
   - name: shortcode-ui
     config: !include shortcode-ui/v1/config-plugin.yml
+  - name: epfl-news
+    config: !include epfl-news/v1/config-plugin.yml
