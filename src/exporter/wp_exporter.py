@@ -77,6 +77,7 @@ class WPExporter:
         rest_api_url = self._build_rest_api_url()
 
         logging.info("setting up API on '%s', with %s:xxxxxx", rest_api_url, wp_generator.wp_admin.username)
+
         self.wp = WordpressJsonWrapper(rest_api_url, wp_generator.wp_admin.username, wp_generator.wp_admin.password)
 
     def run_wp_cli(self, command, encoding=sys.getdefaultencoding(), pipe_input=None, extra_options=None):
@@ -102,9 +103,9 @@ class WPExporter:
         """
         return self.host == settings.HTTPD_CONTAINER_NAME
 
-    def import_all_data_to_wordpress(self):
+    def import_data_to_wordpress(self, skip_pages=False, skip_media=False):
         """
-        Import all data to worpdress via REST API and wp-cli
+        Import all data to WordPress via REST API and wp-cli
         """
         try:
             start_time = timeit.default_timer()
@@ -113,11 +114,18 @@ class WPExporter:
             # Allow unfiltered content
             self.run_wp_cli("plugin deactivate EPFL-Content-Filter")
 
-            # Existing widget deletion to start with empty sidebar contents
+            # Delete the existing widgets to start with an empty sidebar
             self.delete_widgets()
-            self.import_medias()
-            self.import_pages()
-            self.set_frontpage()
+
+            # media
+            if not skip_media:
+                self.import_medias()
+
+            # pages
+            if not skip_pages:
+                self.import_pages()
+                self.set_frontpage()
+
             self.populate_menu()
             self.import_sidebars()
             self.import_breadcrumb()
@@ -222,9 +230,19 @@ class WPExporter:
         # In that case convert to ascii with 'replace' option which replaces unknown characters by '?',
         # and rename the file with that new name.
         file_path = os.path.join(media.path, media.name)
+        size = os.path.getsize(file_path)
+
         # If the file is empty, do not try to import
-        if os.path.getsize(file_path) == 0:
+        if size == 0:
+            logging.warning('Media %s is empty', file_path)
+            self.report['failed_files'] += 1
             return None
+        # If the file is too big, do not try to import
+        elif size > settings.UPLOAD_MAX_FILESIZE:
+            logging.warning('Media %s is too big. Size: %s', file_path, size)
+            self.report['failed_files'] += 1
+            return None
+
         file = open(file_path, 'rb')
 
         files = {
@@ -873,7 +891,7 @@ class WPExporter:
                         url = "{}/{}".format(self.wp_generator.wp_site.url, url)
 
                     cmd = 'menu item add-custom {} "{}" "{}" --parent-id={} --porcelain' \
-                        .format(menu_name, menu_item.txt, url, parent_menu_id)
+                        .format(menu_name, menu_item.txt.replace('"', '\\"'), url, parent_menu_id)
                     menu_id = self.run_wp_cli(cmd)
                     if not menu_id:
                         logging.warning("Root menu item not created for URL (%s) " % url)
@@ -974,7 +992,7 @@ class WPExporter:
                                 url = "{}/{}".format(self.wp_generator.wp_site.url, url)
 
                             cmd = 'menu item add-custom {} "{}" "{}" --porcelain' \
-                                .format(menu_name, menu_item.txt, url)
+                                .format(menu_name, menu_item.txt.replace('"', '\\"'), url)
                             menu_id = self.run_wp_cli(cmd)
                             if not menu_id:
                                 logging.warning("Root menu item not created for URL (%s) ", url)
@@ -1023,7 +1041,7 @@ class WPExporter:
 
     def set_frontpage(self):
         """
-        Use wp-cli to set the two worpress options needed fotr the job
+        Use wp-cli to set the two WordPress options needed for the job
         """
         # sanity check on homepage
         if not self.site.homepage:

@@ -25,7 +25,17 @@ This file is named jahia_site to avoid a conflict with Site [https://docs.python
 class Site:
     """A Jahia Site. Have 1 to N Pages"""
 
-    def __init__(self, base_path, name, root_path=""):
+    def __init__(self, base_path, name, root_path="", fix_etx_chars=False):
+        """
+        Create an instance of object
+
+        :param base_path: Base path to dir containing extracted Jahia ZIP files
+        :param name: Site name
+        :param root_path: (optional) ?
+        :param fix_etx_chars: (optional) to tell if we have to fix x03 chars that may be in export_<lang>.xml files.
+                              If this character (=ETX -> End Of Text) is present in a value read by DOM utils, the
+                              string is truncated at x03 position and the following characters are ignored.
+        """
         # FIXME: base_path should not depend on output-dir
         self.base_path = base_path
         self.name = name
@@ -63,6 +73,10 @@ class Site:
                 path = self.base_path + "/" + file
                 self.export_files[language] = path
                 self.languages.append(language)
+
+        # If we have to fix ETX char in XML file,
+        if fix_etx_chars:
+            self.fix_etx_chars()
 
         # site params that are parsed later. There are dicts because
         # we have a value for each language. The dict key is the language,
@@ -132,6 +146,32 @@ class Site:
 
         # generate the report
         self.generate_report()
+
+    def fix_etx_chars(self):
+        """
+        Remove ETX (End of Text) characters from XML files. If this character is present in a value read by DOM utils,
+        the string is truncated at ETX position and the following characters are ignored.
+        :return:
+        """
+
+        # Fixing all XML files
+        for language, dom_path in self.export_files.items():
+            # To rename original file before reading it to remove ETX chars.
+            old_export_file = "{}.old".format(dom_path)
+            # Remove if exists
+            if os.path.exists(old_export_file):
+                os.remove(old_export_file)
+            os.rename(dom_path, old_export_file)
+
+            in_file = open(old_export_file, 'rb')
+            out_file = open(dom_path, 'wb')
+            # Reading file content, replacing ETX char and writing back to output file
+            out_file.write(in_file.read().replace(b'\x03', b''))
+
+            in_file.close()
+            out_file.close()
+            # Remove temp file
+            os.remove(old_export_file)
 
     def full_path(self, path):
         """
@@ -315,6 +355,8 @@ class Site:
             self.theme[language] = Utils.get_tag_attribute(dom, "theme", "jahia:value")
             if self.theme[language] == 'associations':
                 self.theme[language] = 'assoc'
+            if self.theme[language] == 'interfaculte':
+                self.theme[language] = None
             self.acronym[language] = Utils.get_tag_attribute(dom, "acronym", "jahia:value")
             self.css_url[language] = "//static.epfl.ch/v0.23.0/styles/{}-built.css".format(self.theme[language])
 
@@ -688,7 +730,8 @@ class Site:
                             new_link = new_link[:new_link.index("?")]
 
                     else:  # We don't have an UUID in the link
-                        new_link = new_link[:new_link.index("?")]
+                        if "?" in new_link:
+                            new_link = new_link[:new_link.index("?")]
 
                     tag[attribute] = self.full_path(new_link)
 

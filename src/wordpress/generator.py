@@ -51,20 +51,21 @@ class WPGenerator:
 
         self._site_params = site_params
 
-        # Setting default values
+        # set the default values
         if 'unit_name' in self._site_params and 'unit_id' not in self._site_params:
             logging.info("WPGenerator.__init__(): Please use 'unit_id' from CSV file (now recovered from 'unit_name')")
             self._site_params['unit_id'] = self.get_the_unit_id(self._site_params['unit_name'])
 
-        # If not given (can happens), we initialize title with a default value so we will be able, later, to
+        # if it's not given (it can happen), we initialize the title with a default value so we will be able, later, to
         # set a translation for it.
         if 'wp_site_title' not in self._site_params:
             self._site_params['wp_site_title'] = 'Title'
 
+        # tagline
         if 'wp_tagline' not in self._site_params:
             self._site_params['wp_tagline'] = None
         else:
-            # If information is not already in a dict (happens if info is coming for the source of truth in which
+            # if information is not already in a dict (it happen if info is coming for the source of truth in which
             # we only have tagline in primary language
             if not isinstance(self._site_params['wp_tagline'], dict):
                 wp_tagline = {}
@@ -108,13 +109,14 @@ class WPGenerator:
             self._site_params['wp_site_url'],
             wp_site_title=self._site_params['wp_site_title'],
             wp_tagline=self._site_params['wp_tagline'])
+
         self.wp_config = WPConfig(
             self.wp_site,
             installs_locked=self._site_params['installs_locked'],
             updates_automatic=self._site_params['updates_automatic'],
             from_export=self._site_params['from_export'])
 
-        # prepare admin for exploitation/maintenance
+        # prepare admin for exploitation / maintenance
         self.wp_admin = WPUser(self.WP_ADMIN_USER, self.WP_ADMIN_EMAIL)
         self.wp_admin.set_password(password=admin_password)
 
@@ -177,7 +179,7 @@ class WPGenerator:
         """
         Generate a complete and fully working WordPress website
         """
-        # check we have a clean place first
+        # check if we have a clean place first
         if self.wp_config.is_installed:
             logging.warning("%s - WordPress files already found", repr(self))
             return False
@@ -208,12 +210,12 @@ class WPGenerator:
         logging.info("%s - Installing mu-plugins...", repr(self))
         self.generate_mu_plugins()
 
-        # Delete all widgets, inactive themes
+        # delete all widgets, inactive themes and demo posts
         self.delete_widgets()
         self.delete_inactive_themes()
         self.delete_demo_posts()
 
-        # install, activate and config plugins
+        # install, activate and configure plugins
         logging.info("%s - Installing plugins...", repr(self))
         self.generate_plugins()
 
@@ -556,7 +558,7 @@ class WPGenerator:
 
     def install_basic_auth_plugin(self):
         """
-        Install basic auth plugin
+        Install and activate the basic auth plugin.
 
         This plugin is used to communicate with REST API of WordPress site.
         """
