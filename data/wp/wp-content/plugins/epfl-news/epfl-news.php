@@ -617,7 +617,7 @@ add_action( 'init', function() {
         foreach ($channel_response->results as $item) {
             $option = array(
                 'value' => strval($item->id),
-                'label' => esc_html__($item->name, 'epfl_infoscience_shortcode', 'epfl_infoscience_shortcode')
+                'label' => $item->name,
             );
             array_push($channel_options, $option);
         }
@@ -666,7 +666,7 @@ add_action( 'init', function() {
         );
 
         $channel_description = sprintf(
-            __("Please select your news channel.%sThe news come from the application %sactu.epfl.ch%s.%sIf you don't have a news channel, please send a request to %s", 'epfl-news' ), 
+            __("Please select your news channel.%sThe news come from the application %sactu.epfl.ch%s.%sIf you don't have a news channel, please send a request to %s", 'epfl-news' ),
             '<br/>', '<a href=\"https://actu.epfl.ch\">', '</a>', '<br/>', '<a href=\"mailto:1234@epfl.ch\">1234@epfl.ch</a>'
         );
 
