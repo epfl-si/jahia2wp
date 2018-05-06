@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl-memento\n"
-"POT-Creation-Date: 2018-05-06 07:37+0200\n"
-"PO-Revision-Date: 2018-05-06 07:44+0200\n"
+"POT-Creation-Date: 2018-05-06 09:01+0200\n"
+"PO-Revision-Date: 2018-05-06 09:15+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -16,30 +16,88 @@ msgstr ""
 "esc_html__;esc_html_e;esc_html_x;_n_noop;_nx_noop;translate_nooped_plural\n"
 "X-Poedit-SearchPath-0: epfl-memento.php\n"
 
-#: epfl-memento.php:195 epfl-memento.php:264 epfl-memento.php:333
+#: epfl-memento.php:176 epfl-memento.php:245 epfl-memento.php:314
 msgid "By: "
 msgstr "Par:"
 
-#: epfl-memento.php:508
+#: epfl-memento.php:489
 msgid "Academic calendar "
 msgstr "Calendrier academique"
 
-#: epfl-memento.php:724
+#: epfl-memento.php:726
+msgid "Template short text"
+msgstr "Template text court"
+
+#: epfl-memento.php:727
+msgid "Template text"
+msgstr "Template texte"
+
+#: epfl-memento.php:728
+msgid "Template with 3 events for sidebar"
+msgstr "Template pour la sidebar avec 3 événements "
+
+#: epfl-memento.php:729
+msgid "Template with 5 events for sidebar"
+msgstr "Template pour la sidebar avec 5 événements"
+
+#: epfl-memento.php:730
+msgid "Template with 3 events"
+msgstr "Template avec 3 événements"
+
+#: epfl-memento.php:731
+msgid "Template with 2 events"
+msgstr "Template avec 2 événements"
+
+#: epfl-memento.php:732
+msgid "Template for portal website"
+msgstr "Template pour un site portail"
+
+#: epfl-memento.php:733
+msgid "Template for homepage faculty"
+msgstr "Template pour les homepages de facultés"
+
+#: epfl-memento.php:734
+msgid "Template with all events"
+msgstr "Template avec tous les événements"
+
+#: epfl-memento.php:738
 msgid "English"
 msgstr "Anglais"
 
-#: epfl-memento.php:725
+#: epfl-memento.php:739
 msgid "French"
 msgstr "Français"
 
-#: epfl-memento.php:733
-msgid "Add Memento shortcode"
-msgstr "Ajouter du shortcode Memento"
+#: epfl-memento.php:743
+#, php-format
+msgid ""
+"Please select your memento.%sThe events come from the application %smemento."
+"epfl.ch%s.%sIf you don't have a memento, please send a request to %s"
+msgstr ""
+"Veuillez sélectionner votre memento.%sLes événements proviennent de "
+"l'application %smemento.epfl.ch%s.%sSi vous n'avez pas de mémento, merci "
+"d'envoyer une demande à %s"
 
-#: epfl-memento.php:738
+#: epfl-memento.php:748
+#, php-format
+msgid ""
+"Do you need more information about templates? %sRead this documentation%s"
+msgstr ""
+"Avez vous besoin de plus d'information à propos des templates? %sMerci de "
+"lire la documentation%s"
+
+#: epfl-memento.php:757
+msgid "Add Memento shortcode"
+msgstr "Ajouter un shortcode Memento"
+
+#: epfl-memento.php:761
+msgid "Memento"
+msgstr "Mémento"
+
+#: epfl-memento.php:775
 msgid "Language"
 msgstr "Langue"
 
-#: epfl-memento.php:742
+#: epfl-memento.php:779
 msgid "The language used to render events results"
 msgstr "La langue utilisée pour afficher les événements"

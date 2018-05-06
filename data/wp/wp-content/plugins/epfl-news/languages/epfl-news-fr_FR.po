@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2018-05-04 07:08+0200\n"
-"PO-Revision-Date: 2018-05-04 07:10+0200\n"
+"PO-Revision-Date: 2018-05-06 09:16+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -143,7 +143,7 @@ msgstr ""
 
 #: epfl-news.php:683
 msgid "Add News shortcode"
-msgstr "Ajout du shortcode des actualités"
+msgstr "Ajouter un shortcode actualités"
 
 #: epfl-news.php:687
 msgid "News channel"
