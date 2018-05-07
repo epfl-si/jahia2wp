@@ -354,11 +354,11 @@ class WPExporter:
             banner.content = str(soup)
 
     def fix_file_links_in_menu_items(self, menu_item, old_url, new_url):
-        if menu_item.target_is_file():
-                normalized_url = menu_item.target.encode('ascii', 'replace').decode('ascii').replace('?', '')
+        if menu_item.points_to_file():
+                normalized_url = menu_item.points_to.encode('ascii', 'replace').decode('ascii').replace('?', '')
                 normalized_url = normalized_url[normalized_url.rfind("/files"):]
                 if normalized_url == old_url.replace('?', ''):
-                    menu_item.target = new_url
+                    menu_item.points_to = new_url
 
     def fix_file_links_in_menus(self, old_url, new_url):
         for lang in self.site.languages:
@@ -414,7 +414,7 @@ class WPExporter:
             if "content" in wp_page:
                 content = wp_page["content"]["raw"]
             else:
-                logging.error("Expected content for page %s" % wp_page)
+                logging.error("Expected content for page %s", wp_page)
 
             # Step 1 - Fix in shortcode attributes
             # We loop 2 times through self.urls_mapping because the first time we modify directly HTML content
@@ -525,7 +525,7 @@ class WPExporter:
             # point the link to the new url of the page.
             if link.encode('ascii', 'replace').decode('ascii').replace('?', '') == old_url.replace('?', '') \
                     or (pid and link == pid):
-                logging.debug("Changing link from %s to %s" % (old_url, new_url))
+                logging.debug("Changing link from %s to %s", (old_url, new_url))
                 tag[tag_attribute] = new_url
 
     def fix_key_visual_boxes(self):
@@ -760,7 +760,7 @@ class WPExporter:
                 widget_pos_to_lang[str(widget_pos)] = lang
                 widget_pos += 1
 
-                logging.info("Banner imported for '%s' language" % lang)
+                logging.info("Banner imported for '%s' language", lang)
 
             # Then we import sidebar widgets
             for lang in self.site.homepage.contents.keys():
@@ -884,30 +884,39 @@ class WPExporter:
             if not menu_item.hidden:
 
                 # If menu entry is an hardcoded URL
-                if menu_item.target_is_url() or menu_item.target_is_sitemap():
+                if menu_item.points_to_url() or menu_item.points_to_sitemap():
 
                     # Recovering URL
-                    url = menu_item.target
+                    url = menu_item.points_to
 
-                    # If menu entry is sitemap, we add WP site base URL
-                    if menu_item.target_is_sitemap():
+                    # If menu entry is sitemap
+                    # OR
+                    # If points to an anchor on a page, URL is not is absolute (starts with 'http').
+                    # If URL is not absolute, this is because it points to a vanity URL defined in Jahia
+                    # THEN we add WP site base URL
+                    if menu_item.points_to_sitemap() or \
+                            (menu_item.points_to_anchor() and not url.startswith('http')):
                         url = "{}/{}".format(self.wp_generator.wp_site.url, url)
 
-                    cmd = 'menu item add-custom {} "{}" "{}" --parent-id={} --porcelain' \
-                        .format(menu_name, menu_item.txt.replace('"', '\\"'), url, parent_menu_id)
+                    # Generate target information if exists
+                    target = "--target={}".format(menu_item.target) if menu_item.target else ""
+
+                    cmd = 'menu item add-custom {} "{}" "{}" {} --parent-id={} --porcelain' \
+                        .format(menu_name, menu_item.txt.replace('"', '\\"'), url, target, parent_menu_id)
+
                     menu_id = self.run_wp_cli(cmd)
                     if not menu_id:
-                        logging.warning("Root menu item not created for URL (%s) " % url)
+                        logging.warning("Root menu item not created for URL (%s) ", url)
                     else:
                         self.report['menus'] += 1
 
                 # menu entry is page
                 else:
                     # Trying to get corresponding page corresponding to current page UUID
-                    child = self.site.homepage.get_child_with_uuid(menu_item.target, 4)
+                    child = self.site.homepage.get_child_with_uuid(menu_item.points_to, 4)
 
                     if child is None:
-                        logging.error("Submenu creation: No page found for UUID %s", menu_item.target)
+                        logging.error("Submenu creation: No page found for UUID %s", menu_item.points_to)
                         continue
 
                     if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict and \
@@ -984,18 +993,27 @@ class WPExporter:
 
                         # If root menu entry is an hardcoded URL
                         # OR a sitemap link
-                        if menu_item.target_is_url() or \
-                                menu_item.target_is_sitemap():
+                        if menu_item.points_to_url() or \
+                                menu_item.points_to_sitemap():
 
                             # Recovering URL
-                            url = menu_item.target
+                            url = menu_item.points_to
 
-                            # If menu entry is sitemap, we add WP site base URL
-                            if menu_item.target_is_sitemap():
+                            # If menu entry is sitemap
+                            # OR
+                            # If points to an anchor on a page, URL is not is absolute (starts with 'http').
+                            # If URL is not absolute, this is because it points to a vanity URL defined in Jahia
+                            # THEN we add WP site base URL
+                            if menu_item.points_to_sitemap() or \
+                                    (menu_item.points_to_anchor() and not url.startswith('http')):
                                 url = "{}/{}".format(self.wp_generator.wp_site.url, url)
 
-                            cmd = 'menu item add-custom {} "{}" "{}" --porcelain' \
-                                .format(menu_name, menu_item.txt.replace('"', '\\"'), url)
+                            # Generate target information if exists
+                            target = "--target={}".format(menu_item.target) if menu_item.target else ""
+
+                            cmd = 'menu item add-custom {} "{}" "{}" {} --porcelain' \
+                                .format(menu_name, menu_item.txt.replace('"', '\\"'), url, target)
+
                             menu_id = self.run_wp_cli(cmd)
                             if not menu_id:
                                 logging.warning("Root menu item not created for URL (%s) ", url)
@@ -1005,14 +1023,14 @@ class WPExporter:
                         # root menu entry is pointing to a page
                         else:
                             # Trying to get corresponding page corresponding to current page UUID
-                            homepage_child = self.site.homepage.get_child_with_uuid(menu_item.target, 3)
+                            homepage_child = self.site.homepage.get_child_with_uuid(menu_item.points_to, 3)
 
                             if homepage_child is None:
-                                logging.error("Menu creation: No page found for UUID %s", menu_item.target)
+                                logging.error("Menu creation: No page found for UUID %s", menu_item.points_to)
                                 continue
 
                             if lang not in homepage_child.contents:
-                                logging.warning("Page not translated %s" % homepage_child.pid)
+                                logging.warning("Page not translated %s", homepage_child.pid)
                                 continue
 
                             if homepage_child.contents[lang].wp_id:
