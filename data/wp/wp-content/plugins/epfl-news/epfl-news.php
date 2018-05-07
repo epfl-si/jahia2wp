@@ -596,11 +596,11 @@ function epfl_news_process_shortcode(
         return epfl_news_build_html($actus, $template, $stickers);
 }
 
-// Load .mo file for translation
+// load .mo file for translation
 function epfl_news_load_plugin_textdomain() {
-    load_plugin_textdomain( 'epfl-news', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
-  }
-  add_action( 'plugins_loaded', 'epfl_news_load_plugin_textdomain' );
+  load_plugin_textdomain( 'epfl-news', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
+}
+add_action( 'plugins_loaded', 'epfl_news_load_plugin_textdomain' );
 
 add_action( 'init', function() {
 
@@ -609,10 +609,16 @@ add_action( 'init', function() {
 
     if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
 
-        // FIXME: How get all channels without bad tips ?limit=500
-        $url = "https://actu.epfl.ch/api/v1/channels/?limit=500";
+        // call REST API to get the number of channels
+        $channel_response = NewsUtils::get_items(NEWS_API_URL);
+
+        // build URL with all channels
+        $url = NEWS_API_URL . '?limit=' . $channel_response->count;
+
+        // call REST API to get all channels
         $channel_response = NewsUtils::get_items($url);
 
+        // build select tag html
         $channel_options = array();
         foreach ($channel_response->results as $item) {
             $option = array(
@@ -633,6 +639,7 @@ add_action( 'init', function() {
         );
 
         $category_options = array(
+            array('value' => '', 'label' => esc_html__('No filter', 'epfl-news')),
             array('value' => '1', 'label' => esc_html__('Epfl', 'epfl-news')),
             array('value' => '2', 'label' => esc_html__('Education', 'epfl-news')),
             array('value' => '3', 'label' => esc_html__('Research', 'epfl-news')),
@@ -721,11 +728,11 @@ add_action( 'init', function() {
                             'description'   => esc_html__('Do you want filter news by category? Please select a category.', 'epfl-news'),
                         ),
                         array(
-                            'label'         => '<h3>' . esc_html__('Filter news by theme', 'epfl-news') . '</h3>',
-                            'attr'          => 'theme',
+                            'label'         => '<h3>' . esc_html__('Filter news by themes', 'epfl-news') . '</h3>',
+                            'attr'          => 'themes',
                             'type'          => 'select',
                             'options'       => $theme_options,
-                            'description'   => esc_html__('Do you want filter news by theme. Please select a theme.', 'epfl-news'),
+                            'description'   => esc_html__('Do you want filter news by themes?. Please select themes.', 'epfl-news'),
                             'meta'          => array( 'multiple' => true ),
                             'width'         => '400',
                         ),

@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2018-05-07 10:36+0200\n"
-"PO-Revision-Date: 2018-05-07 10:39+0200\n"
+"POT-Creation-Date: 2018-05-07 10:57+0200\n"
+"PO-Revision-Date: 2018-05-07 10:58+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -182,13 +182,14 @@ msgstr ""
 "catégorie."
 
 #: epfl-news.php:724
-msgid "Filter news by theme"
-msgstr "Filtrer les actualités par un thème"
+msgid "Filter news by themes"
+msgstr "Filtrer les actualités par thèmes"
 
 #: epfl-news.php:728
-msgid "Do you want filter news by theme. Please select a theme."
+msgid "Do you want filter news by themes?. Please select themes."
 msgstr ""
-"Voulez vous filtrer les actualités par thème? Veuillez sélectionner un thème."
+"Voulez vous filtrer les actualités par thèmes? Veuillez sélectionner un ou "
+"plusieurs thèmes."
 
 #~ msgid "Language"
 #~ msgstr "Langue"
