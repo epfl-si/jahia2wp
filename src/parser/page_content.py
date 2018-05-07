@@ -7,6 +7,7 @@ from settings import JAHIA_DATE_FORMAT
 from parser.sidebar import Sidebar
 import logging
 import re
+from utils import Utils
 
 
 class PageContent:
@@ -54,13 +55,18 @@ class PageContent:
         """
         # For menu title, we have to use default page title
         self.menu_title = self.element.getAttribute("jahia:title")
+        self.title = ""
 
-        # Looking if there is an overrided page title (that will be used only on page)
-        self.title = self.element.getElementsByTagName("pageTitle")
+        # Looking if there is an overrided page title (that will be used only on page). We have to look only
+        # in direct children otherwise there's a risque we get a child page's title.
+        page_list_list = Utils.get_dom_next_level_children(self.element, "pageTitleListList")
 
-        if self.title:
-            # Can have a value or be empty
-            self.title = self.title[0].getAttribute("jahia:value")
+        if page_list_list:
+            self.title = page_list_list[0].getElementsByTagName('pageTitle')
+
+            if self.title:
+                # Can have a value or be empty
+                self.title = self.title[0].getAttribute("jahia:value")
 
         # If page title is empty (equal to "")
         if not self.title:
