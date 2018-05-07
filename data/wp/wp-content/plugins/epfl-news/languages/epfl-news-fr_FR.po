@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2018-05-04 07:08+0200\n"
-"PO-Revision-Date: 2018-05-06 09:16+0200\n"
+"POT-Creation-Date: 2018-05-07 10:36+0200\n"
+"PO-Revision-Date: 2018-05-07 10:39+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -31,109 +31,108 @@ msgstr "Non"
 msgid "Yes"
 msgstr "Oui"
 
-#: epfl-news.php:636 epfl-news.php:656
-msgid "select an option"
-msgstr "sélectionner une option"
-
-#: epfl-news.php:637
+#: epfl-news.php:636
 msgid "Epfl"
 msgstr ""
 
-#: epfl-news.php:638
+#: epfl-news.php:637
 msgid "Education"
 msgstr "Enseignement"
 
-#: epfl-news.php:639
+#: epfl-news.php:638
 msgid "Research"
 msgstr "Recherche"
 
-#: epfl-news.php:640
+#: epfl-news.php:639
 msgid "Innovation"
 msgstr "Tech transfer"
 
-#: epfl-news.php:641
+#: epfl-news.php:640
 msgid "Campus Life"
 msgstr "Vie sur le campus"
 
-#: epfl-news.php:645
+#: epfl-news.php:644
 msgid "Template for laboratory website with 3 news"
 msgstr "Template pour les sites de laboratoires (avec 3 actualités)"
 
-#: epfl-news.php:646
+#: epfl-news.php:645
 msgid "Template for laboratory website with 5 news"
 msgstr "Template pour les sites de laboratoires (avec 5 actualités)"
 
-#: epfl-news.php:647
+#: epfl-news.php:646
 msgid "Template for faculty website with 3 news"
 msgstr "Template pour les sites de facultés (avec 3 actualités)"
 
-#: epfl-news.php:648
+#: epfl-news.php:647
 msgid "Template for faculty website with 4 news"
 msgstr "Template pour les sites de facultés (avec 4 actualités)"
 
-#: epfl-news.php:649
+#: epfl-news.php:648
 msgid "Template text only"
 msgstr "Template avec seulement du texte"
 
-#: epfl-news.php:650
+#: epfl-news.php:649
 msgid "Template with all news"
 msgstr "Template avec toutes les actualités"
 
-#: epfl-news.php:651
+#: epfl-news.php:650
 msgid "Template for portal website with image at the top"
 msgstr "Template pour un portail (avec l'image en haut)"
 
-#: epfl-news.php:652
+#: epfl-news.php:651
 msgid "Template for portal website image on the left"
 msgstr "Template pour un portail (avec l'image sur la gauche)"
 
-#: epfl-news.php:657
+#: epfl-news.php:655
+msgid "No filter"
+msgstr "Pas de filtre"
+
+#: epfl-news.php:656
 msgid "Basic Sciences"
 msgstr "Sciences de base"
 
-#: epfl-news.php:658
+#: epfl-news.php:657
 msgid "Health"
 msgstr "Santé"
 
-#: epfl-news.php:659
+#: epfl-news.php:658
 msgid "Computer Science"
 msgstr "Informatique"
 
-#: epfl-news.php:660
+#: epfl-news.php:659
 msgid "Engineering"
 msgstr "Ingénierie"
 
-#: epfl-news.php:661
+#: epfl-news.php:660
 msgid "Environment"
 msgstr "Environnement"
 
-#: epfl-news.php:662
+#: epfl-news.php:661
 msgid "Buildings"
 msgstr "Construction"
 
-#: epfl-news.php:663
+#: epfl-news.php:662
 msgid "Culture"
 msgstr "Société/Culture"
 
-#: epfl-news.php:664
+#: epfl-news.php:663
 msgid "Economy"
 msgstr "Eco/Finance"
 
-#: epfl-news.php:665
+#: epfl-news.php:664
 msgid "Energy"
 msgstr "Energie"
 
-#: epfl-news.php:669
+#: epfl-news.php:668
 #, php-format
 msgid ""
-"Please select your news channel.%sThe news come from the application %sactu."
-"epfl.ch%s.%sIf you don't have a news channel, please send a request to %s"
+"The news come from the application %sactu.epfl.ch%s.%sIf you don't have a "
+"news channel, please send a request to %s"
 msgstr ""
-"Veuillez sélectionner votre canal.%sLes actualités proviennent de "
-"l'application %sactu.epfl.ch%s.%sSi vous n'avez pas de canal, merci "
-"d'envoyer une demande à%s"
+"Les actualités proviennent de l'application %sactu.epfl.ch%s.%sSi vous "
+"n'avez pas de canal, merci d'envoyer une demande à%s"
 
-#: epfl-news.php:674
+#: epfl-news.php:673
 #, php-format
 msgid ""
 "Do you need more information about templates? %sRead this documentation%s"
@@ -141,51 +140,58 @@ msgstr ""
 "Avez vous besoin de plus d'information à propos des templates? %sMerci de "
 "lire la documentation%s"
 
-#: epfl-news.php:683
+#: epfl-news.php:682
 msgid "Add News shortcode"
 msgstr "Ajouter un shortcode actualités"
 
-#: epfl-news.php:687
-msgid "News channel"
-msgstr "Canal d'actualités"
+#: epfl-news.php:686
+msgid "Select your news channel"
+msgstr "Sélectionner votre canal d'actualités"
+
+#: epfl-news.php:693
+msgid "Select a template"
+msgstr "Sélectionner un template"
 
 #: epfl-news.php:701
-msgid "Language"
-msgstr "Langue"
+msgid "Select a language"
+msgstr "Sélectionner une langue"
 
 #: epfl-news.php:705
 msgid "The language used to render news results"
 msgstr "La langue utilisée pour afficher les actualités"
 
-#: epfl-news.php:708
+#: epfl-news.php:709
 msgid "Display the news category ?"
 msgstr "Afficher la catégorie de l'actualité ?"
 
-#: epfl-news.php:712
+#: epfl-news.php:713
 msgid ""
 "Do you want display the news category at the top right of the news image?"
 msgstr ""
 "Voulez vous afficher la catégorie de l'actualité en haut à droite du visuel "
 "de l'actualité?"
 
-#: epfl-news.php:715
+#: epfl-news.php:717
 msgid "Filter news by category"
 msgstr "Filtrer les actualités par une catégorie"
 
-#: epfl-news.php:719
-msgid "Do you want filter news by category. Please select a category."
+#: epfl-news.php:721
+msgid "Do you want filter news by category? Please select a category."
 msgstr ""
 "Voulez vous filtrer les actualités par catégorie? Veuillez sélectionner une "
 "catégorie."
 
-#: epfl-news.php:722
+#: epfl-news.php:724
 msgid "Filter news by theme"
 msgstr "Filtrer les actualités par un thème"
 
-#: epfl-news.php:726
+#: epfl-news.php:728
 msgid "Do you want filter news by theme. Please select a theme."
 msgstr ""
 "Voulez vous filtrer les actualités par thème? Veuillez sélectionner un thème."
+
+#~ msgid "Language"
+#~ msgstr "Langue"
 
 #~ msgid "Template for laboratory with 5 news"
 #~ msgstr "Template pour les sites de laboratoires (avec 5 actualités)"

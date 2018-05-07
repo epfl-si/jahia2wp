@@ -633,7 +633,6 @@ add_action( 'init', function() {
         );
 
         $category_options = array(
-            array('value' => '', 'label' => esc_html__('select an option', 'epfl-news')),
             array('value' => '1', 'label' => esc_html__('Epfl', 'epfl-news')),
             array('value' => '2', 'label' => esc_html__('Education', 'epfl-news')),
             array('value' => '3', 'label' => esc_html__('Research', 'epfl-news')),
@@ -653,7 +652,7 @@ add_action( 'init', function() {
         );
 
         $theme_options = array (
-            array('value' => '', 'label' => esc_html__('select an option', 'epfl-news')),
+            array('value' => '', 'label' => esc_html__('No filter', 'epfl-news')),
             array('value' => '1', 'label' => esc_html__('Basic Sciences', 'epfl-news')),
             array('value' => '2', 'label' => esc_html__('Health', 'epfl-news')),
             array('value' => '3', 'label' => esc_html__('Computer Science', 'epfl-news')),
@@ -666,8 +665,8 @@ add_action( 'init', function() {
         );
 
         $channel_description = sprintf(
-            __("Please select your news channel.%sThe news come from the application %sactu.epfl.ch%s.%sIf you don't have a news channel, please send a request to %s", 'epfl-news' ),
-            '<br/>', '<a href=\"https://actu.epfl.ch\">', '</a>', '<br/>', '<a href=\"mailto:1234@epfl.ch\">1234@epfl.ch</a>'
+            __("The news come from the application %sactu.epfl.ch%s.%sIf you don't have a news channel, please send a request to %s", 'epfl-news' ),
+            '<a href=\"https://actu.epfl.ch\">', '</a>', '<br/>', '<a href=\"mailto:1234@epfl.ch\">1234@epfl.ch</a>'
         );
 
         $template_description = sprintf(
@@ -684,39 +683,42 @@ add_action( 'init', function() {
                 'listItemImage' => '',
                 'attrs'         => array(
                         array(
-                            'label'         => '<h3>' . esc_html__('News channel', 'epfl-news') . '</h3>',
+                            'label'         => '<h3>' . esc_html__('Select your news channel', 'epfl-news') . '</h3>',
                             'attr'          => 'channel',
                             'type'          => 'select',
                             'options'       => $channel_options,
                             'description'   => $channel_description,
                         ),
                         array(
-                            'label'         => '<h3>Template</h3>',
+                            'label'         => '<h3>' . esc_html__('Select a template', 'epfl-news') . '</h3>',
                             'attr'          => 'template',
-                            'type'          => 'select',
+                            'type'          => 'radio',
                             'options'       => $template_options,
                             'description'   => $template_description,
+                            'value'         => '4',
                         ),
                         array(
-                            'label'         => '<h3>' . esc_html__('Language', 'epfl-news') . '</h3>',
+                            'label'         => '<h3>' . esc_html__('Select a language', 'epfl-news') . '</h3>',
                             'attr'          => 'lang',
-                            'type'          => 'select',
+                            'type'          => 'radio',
                             'options'       => $lang_options,
                             'description'   => esc_html__('The language used to render news results', 'epfl-news'),
+                            'value'         => 'en',
                         ),
                         array(
                             'label'         => '<h3>' . esc_html__('Display the news category ?', 'epfl-news') . '</h3>',
                             'attr'          => 'stickers',
-                            'type'          => 'select',
+                            'type'          => 'radio',
                             'options'       => $yes_or_no_options,
                             'description'   => esc_html__('Do you want display the news category at the top right of the news image?', 'epfl-news'),
+                            'value'         => 'no',
                         ),
                         array(
                             'label'         => '<h3>' . esc_html__('Filter news by category', 'epfl-news') . '</h3>',
                             'attr'          => 'category',
-                            'type'          => 'select',
+                            'type'          => 'radio',
                             'options'       => $category_options,
-                            'description'   => esc_html__('Do you want filter news by category. Please select a category.', 'epfl-news'),
+                            'description'   => esc_html__('Do you want filter news by category? Please select a category.', 'epfl-news'),
                         ),
                         array(
                             'label'         => '<h3>' . esc_html__('Filter news by theme', 'epfl-news') . '</h3>',
@@ -724,6 +726,8 @@ add_action( 'init', function() {
                             'type'          => 'select',
                             'options'       => $theme_options,
                             'description'   => esc_html__('Do you want filter news by theme. Please select a theme.', 'epfl-news'),
+                            'meta'          => array( 'multiple' => true ),
+                            'width'         => '400',
                         ),
                     ),
 
