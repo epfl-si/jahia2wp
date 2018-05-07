@@ -13,6 +13,9 @@ class FanGlobalSitemap:
 
         self.csv_file = csv_file
 
+        # WordPress installation path
+        self.wp_path = "."
+
         # the rows
         self.rows = []
 
@@ -22,8 +25,13 @@ class FanGlobalSitemap:
         # load the rows
         self.rows = Utils.csv_filepath_to_dict(file_path=self.csv_file, delimiter=self.DELIMITER)
 
-        # only the urls
+        # the urls, key is the URL, value is another dict with all the data
+        # (titles, UNIT, etc.)
         self.urls = {}
+
+        for row in self.rows:
+            url = row["url"]
+            self.urls[url] = row
 
     def generate_global_sitemap(self):
         """
@@ -40,10 +48,6 @@ class FanGlobalSitemap:
 
         # line
         i = 0
-
-        for row in self.rows:
-            url = row["url"]
-            self.urls[url] = url
 
         for row in self.rows:
             i = i + 1
@@ -83,15 +87,25 @@ class FanGlobalSitemap:
         # https://www.epfl.ch/research
         # https://www.epfl.ch/research/domains
         # https://www.epfl.ch/research/domains/enac
-        urls_sorted = sorted(self.urls.values())
+        urls_sorted = sorted(self.urls.keys())
 
         # the WordPress pages
         pages = {}
 
         for url in urls_sorted:
+            slug = url[len(self.ROOT_URL) + 1:]
+
+            title = self.urls[url]["title_en"]
+
             parent_url = url[:url.rfind("/")]
 
-            print(url, parent_url)
+            cmd = "wp post create --post_type=page " \
+                  "--post_status=publish " \
+                  "--post_name='{}' " \
+                  "--post_title='{}' " \
+                  "--path='{}'".format(slug, title, self.wp_path)
+
+            print(cmd)
 
     def _add_error(self, line, message):
         """

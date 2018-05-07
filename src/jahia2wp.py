@@ -549,6 +549,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
 @dispatch.on('fan-global-sitemap')
 def fan_global_sitemap(csv_file, **kwargs):
     generator = FanGlobalSitemap(csv_file)
+    generator.generate_global_sitemap()
 
 
 
