@@ -38,7 +38,7 @@ Usage:
   jahia2wp.py backup-many           <csv_file>                      [--debug | --quiet]
   jahia2wp.py rotate-backup         <csv_file>          [--dry-run] [--debug | --quiet]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
-  jahia2wp.py fan-tree              <csv_file>                      [--debug | --quiet]
+  jahia2wp.py fan-global-sitemap    <csv_file>                      [--debug | --quiet]
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
@@ -91,7 +91,7 @@ from veritas.casters import cast_boolean
 from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
 from ventilation import Ventilation
-from fan.fan_tree import FanTree
+from fan.fan_global_sitemap import FanGlobalSitemap
 
 
 def _check_site(wp_env, wp_url, **kwargs):
@@ -546,6 +546,11 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
 
     return wp_exporter
 
+@dispatch.on('fan-global-sitemap')
+def fan_global_sitemap(csv_file, **kwargs):
+    generator = FanGlobalSitemap(csv_file)
+
+
 
 @dispatch.on('export-many')
 def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None,
@@ -769,11 +774,6 @@ def inventory(path, **kwargs):
             site_details.admins
         ]))
     logging.info("Inventory made for %s", path)
-
-@dispatch.on('fan-tree')
-def fan_tree(csv_file, **kwargs):
-    tree = FanTree(csv_file)
-
 
 @dispatch.on('veritas')
 def veritas(csv_file, **kwargs):

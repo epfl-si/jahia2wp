@@ -4,8 +4,7 @@ from anytree import Node, RenderTree
 from django.core.validators import URLValidator, ValidationError
 
 
-class FanTree:
-
+class FanGlobalSitemap:
     # the csv delimiter
     DELIMITER = ","
     ROOT_URL = "https://www.epfl.ch"
@@ -23,15 +22,28 @@ class FanTree:
         # load the rows
         self.rows = Utils.csv_filepath_to_dict(file_path=self.csv_file, delimiter=self.DELIMITER)
 
+        # only the urls
+        self.urls = {}
+
+    def generate_global_sitemap(self):
+        """
+        Generates a global sitemap.
+        """
+        self.validate_data()
+
+        self.insert_pages()
+
+    def validate_data(self):
+        """
+        Validates the data.
+        """
+
         # line
         i = 0
 
-        # only the urs
-        urls = {}
-
         for row in self.rows:
             url = row["url"]
-            urls[url] = url
+            self.urls[url] = url
 
         for row in self.rows:
             i = i + 1
@@ -53,7 +65,7 @@ class FanTree:
 
             parent_url = url[:url.rfind("/")]
 
-            if parent_url != self.ROOT_URL and parent_url not in urls:
+            if parent_url != self.ROOT_URL and parent_url not in self.urls:
                 self._add_error(i, "URL '{}' doesn't have a parent".format(url))
 
         if self.errors:
@@ -62,11 +74,16 @@ class FanTree:
                 print(error)
             exit()
 
+    def insert_pages(self):
+        """
+        Insert the pages.
+        """
+
         # sort the urls, so the hierarchy is correct, e.g.
         # https://www.epfl.ch/research
         # https://www.epfl.ch/research/domains
         # https://www.epfl.ch/research/domains/enac
-        urls_sorted = sorted(urls.values())
+        urls_sorted = sorted(self.urls.values())
 
         # the WordPress pages
         pages = {}
@@ -74,10 +91,7 @@ class FanTree:
         for url in urls_sorted:
             parent_url = url[:url.rfind("/")]
 
-            if parent_url in self.rows:
-                print(self.rows[parent_url])
-
-
+            print(url, parent_url)
 
     def _add_error(self, line, message):
         """
