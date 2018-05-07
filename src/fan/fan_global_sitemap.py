@@ -90,20 +90,42 @@ class FanGlobalSitemap:
         urls_sorted = sorted(self.urls.keys())
 
         # the WordPress pages
-        pages = {}
+        pages_by_slug = {}
+
+        # TODO ids should be retrieved automatically
+        page_id = 183
 
         for url in urls_sorted:
             slug = url[len(self.ROOT_URL) + 1:]
 
-            title = self.urls[url]["title_en"]
+            parent_slug = ""
 
-            parent_url = url[:url.rfind("/")]
+            if "/" in slug:
+                parent_slug = slug[:slug.rfind("/")]
+
+            title = self.urls[url]["title_en"]
 
             cmd = "wp post create --post_type=page " \
                   "--post_status=publish " \
                   "--post_name='{}' " \
                   "--post_title='{}' " \
-                  "--path='{}'".format(slug, title, self.wp_path)
+                  "--path='{}' ".format(slug, title, self.wp_path)
+
+            # check if the page has a parent
+            if parent_slug:
+                parent = pages_by_slug[parent_slug]
+
+                cmd += "--post-parent={}".format(parent["id"])
+
+            # add the page info
+            page = {
+                "slug": slug,
+                "id": page_id
+            }
+
+            pages_by_slug[slug] = page
+
+            page_id = page_id + 1
 
             print(cmd)
 
