@@ -351,7 +351,7 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
         site_dir = unzip(site, output_dir=output_dir)
 
         # where to cache our parsing
-        pickle_file_path = os.path.join(site_dir, 'parsed_%s.pkl' % site)
+        pickle_file_path = os.path.join(site_dir, 'parsed_{}.pkl'.format(site))
 
         # when using-cache: check if already parsed
         pickle_site = False
@@ -366,7 +366,7 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
             site = pickle_site
         else:
             logging.info("Cache not used, parsing the Site")
-            site = Site(site_dir, site)
+            site = Site(site_dir, site, fix_etx_chars=True)
 
         print(site.report)
 
@@ -406,6 +406,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     :param updates_automatic: boolean
     :param openshift_env: openshift_env environment (prod, int, gcharmier ...)
     :param keep_extracted_files: command to keep files extracted from jahia zip
+    :param fix_etx_chars: Tell to remove ETX chars from XML files containing site pages.
     """
 
     # Download, Unzip the jahia zip and parse the xml data
@@ -423,20 +424,22 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     else:
         wp_site_title = site.acronym[default_language]
 
+    # theme
     if not site.theme[default_language] or site.theme[default_language] == "epfl":
         theme_faculty = ""
     else:
         theme_faculty = site.theme[default_language]
 
+    if not theme:
+        # Setting correct theme depending on parsing result
+        theme = BANNER_THEME_NAME if default_language in site.banner else DEFAULT_THEME_NAME
+
+    # tagline
     if not site.title[default_language]:
         logging.warning("No wp tagline in %s", default_language)
         wp_tagline = None
     else:
         wp_tagline = site.title
-
-    if not theme:
-        # Setting correct theme depending on parsing result
-        theme = BANNER_THEME_NAME if default_language in site.banner else DEFAULT_THEME_NAME
 
     info = {
         # information from parser
@@ -458,15 +461,37 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         'from_export': True
     }
 
+    # skip options, used only during development
+    #
+    # skip_base: if True don't install WordPress, use the existing site
+    # skip_media: if True don't import the media
+    # skip_pages: if True don't import the pages
+    skip_base = False
+    skip_media = False
+    skip_pages = False
+
     # Generate a WordPress site
     wp_generator = WPGenerator(info, admin_password)
-    wp_generator.generate()
 
-    wp_generator.install_basic_auth_plugin()
+    # base installation
+    if skip_base:
+        try:
+            # even if we skip the base installation we need to reactivate
+            # the basic auth plugin for the rest API
+            wp_generator.run_wp_cli("plugin activate Basic-Auth")
+        except:
+            # if activation fails it means the plugin is not installed
+            wp_generator.install_basic_auth_plugin()
+    else:
+        wp_generator.generate()
 
+        wp_generator.install_basic_auth_plugin()
+
+    # dual auth
     if settings.ACTIVE_DUAL_AUTH:
         wp_generator.active_dual_auth()
 
+    # exporter
     wp_exporter = WPExporter(
         site,
         wp_generator,
@@ -474,16 +499,18 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         output_dir=output_dir
     )
 
+    # clean
     if clean_wordpress:
         logging.info("Cleaning WordPress for %s...", site.name)
         wp_exporter.delete_all_content()
         logging.info("Data of WordPress site %s successfully deleted", site.name)
 
+    # to WordPress
     if to_wordpress:
         logging.info("Exporting %s to WordPress...", site.name)
         try:
             if wp_generator.get_number_of_pages() == 0:
-                wp_exporter.import_all_data_to_wordpress()
+                wp_exporter.import_data_to_wordpress(skip_pages=skip_pages, skip_media=skip_media)
                 wp_exporter.write_redirections()
                 _fix_menu_location(wp_generator, languages, default_language)
                 logging.info("Site %s successfully exported to WordPress", site.name)
@@ -497,12 +524,13 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
 
         Tracer.write_row(site=site.name, step="export", status="OK")
 
+    wp_generator.uninstall_basic_auth_plugin()
+    wp_generator.enable_updates_automatic_if_allowed()
+
+    # to dictionary
     if to_dictionary:
         data = DictExporter.generate_data(site)
         pprint(data, width=settings.LINE_LENGTH_ON_PPRINT)
-
-    wp_generator.uninstall_basic_auth_plugin()
-    wp_generator.enable_updates_automatic_if_allowed()
 
     _generate_csv_line(wp_generator)
 
