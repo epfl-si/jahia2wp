@@ -694,10 +694,13 @@ class WPExporter:
         for page in self.site.pages_by_pid.values():
             for lang, page_content in page.contents.items():
 
-                if page.parent and page_content.wp_id:
-                    parent_id = page.parent.contents[lang].wp_id
+                # If page has parent (is not homepage)
+                # AND parent is not homepage
+                # AND we have an ID for its content,
+                if page.parent and not page.parent.is_homepage() and page_content.wp_id:
+                    # We use the page parent id to update it in WordPress
                     wp_page_info = {
-                        'parent': parent_id
+                        'parent': page.parent.contents[lang].wp_id
                     }
                     self.wp.post_pages(page_id=page.contents[lang].wp_id, data=wp_page_info)
 
@@ -722,7 +725,7 @@ class WPExporter:
             wp_page = self.update_page(
                 page_id=sitemap_wp_id,
                 title='sitemap',
-                content='[simple-sitemap show_label="false" types="page orderby="menu_order"]'
+                content='[simple-sitemap show_label="false" types="page" orderby="menu_order"]'
             )
             self.create_footer_menu_for_sitemap(sitemap_wp_id=wp_page['id'], lang=lang)
 
