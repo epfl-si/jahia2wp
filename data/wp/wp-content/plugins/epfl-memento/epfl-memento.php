@@ -701,10 +701,12 @@ add_action( 'init', function() {
 
     if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
 
-        // FIXME: How get all channels without bad tips ?limit=500
-        $memento_api_rest_url = MEMENTO_API_URL . "?limit=500";
+        // call REST API to get the number of memento
+        $memento_response = EventUtils::get_items(MEMENTO_API_URL);
 
-        $memento_response = EventUtils::get_items($memento_api_rest_url);
+        // build URL with all mementos
+        $url = MEMENTO_API_URL . '?limit=' . $memento_response->count;
+        $memento_response = EventUtils::get_items($url);
 
         $memento_options = array();
         foreach ($memento_response->results as $item) {
