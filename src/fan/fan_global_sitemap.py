@@ -92,9 +92,6 @@ class FanGlobalSitemap:
         # the WordPress pages
         pages_by_slug = {}
 
-        # TODO ids should be retrieved automatically
-        page_id = 183
-
         for url in urls_sorted:
             slug = url[len(self.ROOT_URL) + 1:]
 
@@ -109,7 +106,10 @@ class FanGlobalSitemap:
                   "--post_status=publish " \
                   "--post_name='{}' " \
                   "--post_title='{}' " \
-                  "--path='{}' ".format(slug, title, self.wp_path)
+                  "--path='{}' " \
+                  "--porcelain ".format(slug, title, self.wp_path)
+
+            page_id = Utils.run_command(cmd)
 
             # check if the page has a parent
             if parent_slug:
@@ -124,10 +124,6 @@ class FanGlobalSitemap:
             }
 
             pages_by_slug[slug] = page
-
-            page_id = page_id + 1
-
-            print(cmd)
 
     def _add_error(self, line, message):
         """
