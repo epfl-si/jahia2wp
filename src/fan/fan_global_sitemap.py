@@ -33,6 +33,18 @@ class FanGlobalSitemap:
             url = row["url"]
             self.urls[url] = row
 
+    def clean(self):
+        """Deletes all the content"""
+        try:
+            cmd = "cd {}; wp post delete " \
+                  "$(wp post list --post_type='page' --post_status='all' --format=ids --path='{}') --force" \
+                .format(self.wp_path, self.wp_path)
+
+            Utils.run_command(cmd)
+        except:
+            # simply means there are not posts to delete
+            pass
+
     def generate_global_sitemap(self):
         """
         Generates a global sitemap.
@@ -147,5 +159,3 @@ class TreeNode(Node):
 
         for pre, fill, node in RenderTree(self):
             print("%s%s" % (pre, node.name))
-
-
