@@ -17,9 +17,9 @@ License: Copyright (c) 2018 Ecole Polytechnique Federale de Lausanne, Switzerlan
 function render_faq_item($question, $answer)
 {
     /* Generating uniq anchor id*/
-    $anchor = "#faq-".md5($content);
+    $anchor = "faq-".md5($content);
 
-    return array('<a href="'.$anchor.'">'.$question.'</a>',
+    return array('<a href="#'.$anchor.'">'.$question.'</a>',
                  '<div class="faq-item">'.
                  '<a name="'.$anchor.'"></a>'.
                  '<h4>'.$question.'</h4>'.
