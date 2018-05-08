@@ -15,7 +15,7 @@ from parser.sitemap_node import SitemapNode
 from parser.menu_item import MenuItem
 from parser.banner import Banner
 from utils import Utils
-
+from collections import OrderedDict
 
 """
 This file is named jahia_site to avoid a conflict with Site [https://docs.python.org/3/library/site.html]
@@ -25,7 +25,17 @@ This file is named jahia_site to avoid a conflict with Site [https://docs.python
 class Site:
     """A Jahia Site. Have 1 to N Pages"""
 
-    def __init__(self, base_path, name, root_path=""):
+    def __init__(self, base_path, name, root_path="", fix_etx_chars=False):
+        """
+        Create an instance of object
+
+        :param base_path: Base path to dir containing extracted Jahia ZIP files
+        :param name: Site name
+        :param root_path: (optional) ?
+        :param fix_etx_chars: (optional) to tell if we have to fix x03 chars that may be in export_<lang>.xml files.
+                              If this character (=ETX -> End Of Text) is present in a value read by DOM utils, the
+                              string is truncated at x03 position and the following characters are ignored.
+        """
         # FIXME: base_path should not depend on output-dir
         self.base_path = base_path
         self.name = name
@@ -34,6 +44,9 @@ class Site:
         # the root_path, by default it's empty
         # FIXME: would be better in exporter, or set by exporter
         self.root_path = root_path
+
+        # Type of links we have to ignore during link fix process
+        self.link_type_to_ignore = ["javascript", "tel://", "tel:", "callto:", "smb://", "file://"]
 
         # parse the properties at the beginning, we need the
         # server_name for later
@@ -64,6 +77,10 @@ class Site:
                 self.export_files[language] = path
                 self.languages.append(language)
 
+        # If we have to fix ETX char in XML file,
+        if fix_etx_chars:
+            self.fix_etx_chars()
+
         # site params that are parsed later. There are dicts because
         # we have a value for each language. The dict key is the language,
         # and the dict value is the specific value
@@ -84,7 +101,7 @@ class Site:
         self.footer = {}
 
         # the Pages indexed by their pid and uuid
-        self.pages_by_pid = {}
+        self.pages_by_pid = OrderedDict()
         self.pages_by_uuid = {}
 
         # the PageContents indexed by their path
@@ -132,6 +149,32 @@ class Site:
 
         # generate the report
         self.generate_report()
+
+    def fix_etx_chars(self):
+        """
+        Remove ETX (End of Text) characters from XML files. If this character is present in a value read by DOM utils,
+        the string is truncated at ETX position and the following characters are ignored.
+        :return:
+        """
+
+        # Fixing all XML files
+        for language, dom_path in self.export_files.items():
+            # To rename original file before reading it to remove ETX chars.
+            old_export_file = "{}.old".format(dom_path)
+            # Remove if exists
+            if os.path.exists(old_export_file):
+                os.remove(old_export_file)
+            os.rename(dom_path, old_export_file)
+
+            in_file = open(old_export_file, 'rb')
+            out_file = open(dom_path, 'wb')
+            # Reading file content, replacing ETX char and writing back to output file
+            out_file.write(in_file.read().replace(b'\x03', b''))
+
+            in_file.close()
+            out_file.close()
+            # Remove temp file
+            os.remove(old_export_file)
 
     def full_path(self, path):
         """
@@ -315,6 +358,8 @@ class Site:
             self.theme[language] = Utils.get_tag_attribute(dom, "theme", "jahia:value")
             if self.theme[language] == 'associations':
                 self.theme[language] = 'assoc'
+            if self.theme[language] == 'interfaculte':
+                self.theme[language] = None
             self.acronym[language] = Utils.get_tag_attribute(dom, "acronym", "jahia:value")
             self.css_url[language] = "//static.epfl.ch/v0.23.0/styles/{}-built.css".format(self.theme[language])
 
@@ -574,20 +619,97 @@ class Site:
 
     def fix_links(self):
         """
-        Fix all the boxes links. This must be done at the end,
-        when all the pages have been parsed.
+        Fix all the boxes and banners links. This must be done at the end, when all the pages have been parsed.
         """
+        # List of type and attributes that we have to fix
+        tag_attribute_tuples = [("a", "href"), ("img", "src"), ("script", "src")]
+
+        # 1. Looping through Boxes
         for box in self.get_all_boxes():
             soup = BeautifulSoup(box.content, 'html5lib')
             soup.body.hidden = True
 
-            self.fix_links_in_tag(box=box, soup=soup, tag_name="a", attribute="href")
-            self.fix_links_in_tag(box=box, soup=soup, tag_name="img", attribute="src")
-            self.fix_links_in_tag(box=box, soup=soup, tag_name="script", attribute="src")
+            for tag_name, tag_attribute in tag_attribute_tuples:
+                self.fix_all_links_in_tag(box=box, soup=soup, tag_name=tag_name, attribute=tag_attribute)
 
-    def fix_links_in_tag(self, box, soup, tag_name, attribute):
+        # 2. Looping through banners to fix only file links
+        # FIXME: Maybe, in the future, we will have to also fix other types of links in banners
+        for lang, banner in self.banner.items():
+
+            soup = BeautifulSoup(banner.content, 'html5lib')
+            soup.body.hidden = True
+
+            for tag_name, tag_attribute in tag_attribute_tuples:
+                self.fix_file_links_in_tag(soup=soup, tag_name=tag_name, attribute=tag_attribute)
+
+            # save the new banner content
+            banner.content = str(soup.body)
+
+    def fix_file_links_in_tag(self, soup, tag_name, attribute):
         """
-        Fix the links in the given type of tag
+        Fix only links to files in given BeautifulSoup object.
+        This code was previously in fix_all_links_in_tag() function but because we also have to fix file links for
+        banners and not only for boxes, it has been moved to a dedicated function.
+        File links update will be directly done in 'soup' parameter and nothing will be returned by the function
+
+        :param soup: instance of BeautifulSoup in which file links have to be fixed.
+        :param tag_name: name of tag to look for
+        :param attribute: name of tag attribute to update
+        :return:
+        """
+
+        tags = soup.find_all(tag_name)
+
+        for tag in tags:
+            link = tag.get(attribute)
+
+            if not link:
+                continue
+
+            for link_type in self.link_type_to_ignore:
+                if link.startswith(link_type):
+                    return
+
+            if link.startswith("###file"):
+
+                if "/files/" in link:
+                    new_link = link[link.index('/files/'):]
+
+                    # If we have a link like this :
+                    # ?uuid=default:a6d36162-07da-4036-9b58-a32e416f7769
+                    if "?" in new_link and "?uuid=default:" in new_link:
+
+                        uuid = new_link[new_link.index(":") + 1:]
+
+                        # If we have an UUID match, we take it. Otherwise, we take the "real" link.
+                        if uuid in self.file_uuid_to_url:
+                            new_link = self.file_uuid_to_url[uuid]
+                        else:
+                            new_link = new_link[:new_link.index("?")]
+
+                    else:  # We don't have an UUID in the link
+                        if "?" in new_link:
+                            new_link = new_link[:new_link.index("?")]
+
+                    tag[attribute] = self.full_path(new_link)
+
+                    self.file_links += 1
+
+                # if we don't have /files/ in the path the link is broken (happen
+                # only in 3 sites)
+                else:
+                    self.broken_links += 1
+                    logging.debug("Found broken file link %s", link)
+
+    def fix_all_links_in_tag(self, box, soup, tag_name, attribute):
+        """
+        Fix all types of links in given box for given tag and attribute.
+        Updates will directly be done in 'box' parameter and nothing will be returned by function.
+
+        :param box: instance of Box in which links have to be fixed
+        :param soup: instance of BeautifulSoup with box content
+        :param tag_name: name of tag to look for
+        :param attribute: name of tag attribute to update
         """
         tags = soup.find_all(tag_name)
 
@@ -597,11 +719,8 @@ class Site:
             if not link:
                 continue
 
-            # links we are ignoring
-            ignore = ["javascript", "tel://", "tel:", "callto:", "smb://", "file://"]
-
-            for element in ignore:
-                if link.startswith(element):
+            for link_type in self.link_type_to_ignore:
+                if link.startswith(link_type):
                     return
 
             # internal Jahia links
@@ -673,32 +792,9 @@ class Site:
                 self.absolute_links += 1
             # file links
             elif link.startswith("###file"):
-                if "/files/" in link:
-                    new_link = link[link.index('/files/'):]
 
-                    # If we have a link like this :
-                    # ?uuid=default:a6d36162-07da-4036-9b58-a32e416f7769
-                    if "?" in new_link and "?uuid=default:" in new_link:
+                self.fix_file_links_in_tag(soup, tag_name, attribute)
 
-                        uuid = new_link[new_link.index(":")+1:]
-                        # If we have an UUID match, we take it. Otherwise, we take the "real" link.
-                        if uuid in self.file_uuid_to_url:
-                            new_link = self.file_uuid_to_url[uuid]
-                        else:
-                            new_link = new_link[:new_link.index("?")]
-
-                    else:  # We don't have an UUID in the link
-                        if "?" in new_link:
-                            new_link = new_link[:new_link.index("?")]
-
-                    tag[attribute] = self.full_path(new_link)
-
-                    self.file_links += 1
-                # if we don't have /files/ in the path the link is broken (happen
-                # only in 3 sites)
-                else:
-                    self.broken_links += 1
-                    logging.debug("Found broken file link %s", link)
             # broken file links
             elif link.startswith("/fileNotFound###"):
                 self.broken_links += 1
