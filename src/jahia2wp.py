@@ -47,6 +47,8 @@ Usage:
   jahia2wp.py update-plugins-many   <csv_file>                      [--debug | --quiet]
     [--force] [--plugin=<PLUGIN_NAME>]
   jahia2wp.py global-report <csv_file> [--output-dir=<OUTPUT_DIR>] [--use-cache] [--debug | --quiet]
+  jahia2wp.py migrate-urls <csv_file> <wp_env>                    [--debug | --quiet]
+    --root_wp_dest=</srv/../epfl,/srv/../inside> [--context=<intra|inter|full>]
 
 Options:
   -h --help                 Show this screen.
@@ -87,6 +89,7 @@ from utils import Utils
 from veritas.casters import cast_boolean
 from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
+from ventilation import Ventilation
 
 
 def _check_site(wp_env, wp_url, **kwargs):
@@ -889,6 +892,18 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
 
             except Exception as e:
                 logging.error("Site %s - Error %s", report['name'], e)
+
+
+@dispatch.on('migrate-urls')
+def url_mapping(csv_file, wp_env, context='intra', root_wp_dest=None, htaccess=False, **kwargs):
+    """
+    :param csv_file: CSV containing the URL mapping rules for source and destination.
+    :param context: intra, inter, full. Replace the occurrences at intra, inter or both.
+    """
+
+    logging.info('Starting ventilation process...')
+    vent = Ventilation(wp_env, csv_file, root_wp_dest, htaccess, context)
+    vent.run_all()
 
 
 if __name__ == '__main__':
