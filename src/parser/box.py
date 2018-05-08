@@ -359,7 +359,7 @@ class Box:
 
         self.answer = Utils.get_tag_attribute(element, "answer", "jahia:value")
 
-        self.content = "<h2>{}</h2><p>{}</p>".format(self.question, self.answer)
+        self.content = "<h4>{}</h4><p>{}</p>".format(self.question, self.answer)
 
     def set_box_toggle(self, element):
         """set the attributes of a toggle box"""
