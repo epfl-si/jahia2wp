@@ -1,7 +1,7 @@
 #!/bin/bash
 
-export ROOT_SITE=www.epfl.ch
-CSV_FILE=../data/csv/ventilation-local.csv
+export ROOT_SITE=www2.epfl.ch
+CSV_FILE=../data/csv/ventilation-innov.csv
 
 ROOT_WP_DEST=/srv/$WP_ENV/$ROOT_SITE/
 DEMO_SITE=/srv/$WP_ENV/dcsl.epfl.ch
@@ -37,4 +37,4 @@ fi
 
 # Run the migration with the proper CSV and target destination tree. Encoding is important since CampToCamp did 
 # not set a proper input/output encoding despite the environment being utf8!
-PYTHONIOENCODING="utf-8" python jahia2wp.py migrate-urls $CSV_FILE $WP_ENV --root_wp_dest=$ROOT_WP_DEST
+PYTHONIOENCODING="utf-8" python jahia2wp.py migrate-urls $CSV_FILE $WP_ENV --root_wp_dest=$ROOT_WP_DEST --strict
