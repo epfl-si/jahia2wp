@@ -365,12 +365,12 @@ class Box:
         """set the attributes of a toggle box
 
         For this, we use Toggles shortcode and widget plugin:
-        https://wordpress.org/plugins/toggles-shortcode-and-widget/"""
+        https://wordpress.org/plugins/azurecurve-toggle-showhide/"""
 
-        self.shortcode_name = "otw_shortcode_content_toggle"
+        self.shortcode_name = "toggle"
 
         opened = Utils.get_tag_attribute(element, "opened", "jahia:value")
-        opened = 'opened="close"' if opened == 'false' else ''
+        opened = 'expand=1' if opened == 'false' else ''
         title = Utils.get_tag_attribute(element, "boxTitle", "jahia:value")
         content = Utils.get_tag_attribute(element, "content", "jahia:value")
 
