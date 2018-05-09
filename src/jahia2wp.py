@@ -38,7 +38,7 @@ Usage:
   jahia2wp.py backup-many           <csv_file>                      [--debug | --quiet]
   jahia2wp.py rotate-backup         <csv_file>          [--dry-run] [--debug | --quiet]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
-  jahia2wp.py fan-global-sitemap    <csv_file>                      [--debug | --quiet]
+  jahia2wp.py fan-global-sitemap    <csv_file> <wp_path>            [--debug | --quiet]
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
@@ -548,9 +548,9 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
 
 
 @dispatch.on('fan-global-sitemap')
-def fan_global_sitemap(csv_file, **kwargs):
-    generator = FanGlobalSitemap(csv_file)
-    generator.generate_global_sitemap()
+def fan_global_sitemap(csv_file, wp_path, **kwargs):
+    generator = FanGlobalSitemap(csv_file, wp_path)
+    generator.generate_website()
 
 
 @dispatch.on('export-many')
