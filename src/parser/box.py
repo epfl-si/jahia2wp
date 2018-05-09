@@ -495,8 +495,15 @@ class Box:
                         url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
 
             self.content = '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
-                           ' big_image="{}" enable_zoom="{}" description="{}"]'\
-                .format(self.shortcode_name, url, title, subtitle, image, big_image, enable_zoom, description)
+                           ' big_image="{}" enable_zoom="{}"]{}[/{}]'.format(self.shortcode_name,
+                                                                             url,
+                                                                             title,
+                                                                             subtitle,
+                                                                             image,
+                                                                             big_image,
+                                                                             enable_zoom,
+                                                                             description,
+                                                                             self.shortcode_name)
 
     def set_box_syntax_highlight(self, element):
         """Set the attributes of a syntaxHighlight box"""
