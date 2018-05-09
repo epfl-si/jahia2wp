@@ -52,13 +52,19 @@ function epfl_memento_get_limit(string $template): int
  * @param $template: id of the template
  * @param $lang: lang of the event (fr or en)
  * @param $category: id of the event category
+ * @param $keyword: keyword to filter events
+ * @param $period: period to filter past event or upcoming events
+ * @param $color: to choose a faculty color
  * @return the API URL of the memento
  */
 function epfl_memento_build_api_url(
     string $memento,
-    string $template,
     string $lang,
-    string $category
+    string $template,
+    string $category,
+    string $keyword,
+    string $period,
+    string $color
     ): string
 {
     // returns the number of events according to the template
@@ -84,6 +90,40 @@ function epfl_memento_build_api_url(
     if ($category !== '') {
         $url .= '&category=' . $category;
     }
+
+    // keyword
+    if ($keyword !== '') {
+        $url .= '&keywords=' . $keyword;
+    }
+
+    // period
+    $dtz = new DateTimeZone('Europe/Paris');
+    $now = new DateTime(date("Y-m-d"), $dtz);
+    EventUtils::debug($now);
+
+    if ($period === 'upcoming') {
+        // sélectionner tous les événements dont la date de fin est > date jour
+
+    } elseif ($period === 'past') {
+        // sélectionner tous les événements dont la date de fin est < date jour
+
+    }
+
+    // order
+    /**
+     * L'api REST ordonne les événements par
+     * - event__eventmemento__position
+     * - event__start_date
+     * - event__start_time
+     * - event
+     * - donc ne pas laisser le choix à l'utilisateur semble préférable.
+     */
+
+    // color
+    /**
+     * On doit récupérer le nom de la fac qui correspond à une couleur.
+     * puis dans le render on va faire si couleur alors on appel une classe css
+     */
 
     return $url;
 }
@@ -120,23 +160,23 @@ function epfl_memento_process_shortcode(
 
     // extract shortcode parameters
     $atts = shortcode_atts(array(
-            'memento' => '',
-            'lang' => '',
+            'memento'  => '',
+            'lang'     => '',
             'template' => '',
             'category' => '',
-            'order' => '',
-            'keyword' => '',
-            'period' => '',
+            'keyword'  => '',
+            'period'   => '',
+            'color'    => '',
     ), $atts, $tag);
 
     // sanitize parameters
     $memento  = sanitize_text_field( $atts['memento'] );
     $lang     = sanitize_text_field( $atts['lang'] );
     $template = sanitize_text_field( $atts['template'] );
-    $order = sanitize_text_field( $atts['order'] );
     $category = sanitize_text_field( $atts['category'] );
-    $keyword   = sanitize_text_field( $atts['keyword'] );
-    $period = sanitize_text_field( $atts['period'] );
+    $keyword  = sanitize_text_field( $atts['keyword'] );
+    $period   = sanitize_text_field( $atts['period'] );
+    $color    = sanitize_text_field( $atts['color'] );
 
     if (epfl_memento_check_required_parameters($memento, $lang) == FALSE) {
         return "";
@@ -149,9 +189,12 @@ function epfl_memento_process_shortcode(
 
     $url = epfl_memento_build_api_url(
         $memento,
-        $template,
         $lang,
-        $category
+        $template,
+        $category,
+        $keyword,
+        $period,
+        $color
     );
     $events = EventUtils::get_items($url);
     return MementoRender::epfl_memento_build_html($events, $template);

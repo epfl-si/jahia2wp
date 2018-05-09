@@ -10,7 +10,6 @@ Class MementoRender
  */
 public static function epfl_memento_template_short_text($events): string {
     $html_content = '<div class="list-events clearfix">';
-    $html_content .= '<p>SHORT TEXT - template 1</p>';
 	foreach ($events->results as $item) {
 
   	$start_date = new DateTime($item->start_date);
@@ -42,7 +41,6 @@ public static function epfl_memento_template_short_text($events): string {
  */
 public static function epfl_memento_template_text($events): string {
     $html_content = '<div class="list-events clearfix">';
-    $html_content .= '<p>TEMPLATE TEXT (template 5)</p>';
 	foreach ($events->results as $item) {
 
   	$start_date = new DateTime($item->start_date);
@@ -74,7 +72,7 @@ public static function epfl_memento_template_text($events): string {
     $html_content .= '  </div>';
     $html_content .= '  <div class="event-content">';
     $html_content .= '    <div class="event-meta">';
-    $html_content .= '      <a href="https://memento.epfl.ch/event/export/<translation-id>" class="event-export"><span class="sr-only">Export event</span></a>';
+    $html_content .= '      <a href="' . $item->icalendar_url . '" class="event-export"><span class="sr-only">Export event</span></a>';
     if (!is_null($item->start_time)) {
       $html_content .= '    <p class="event-times time-start">'.$start_time.'</p>';
       $html_content .= '    <p class="event-times time-end">' . $end_time . '</p>';
@@ -106,7 +104,6 @@ public static function epfl_memento_template_text($events): string {
  */
 public static function epfl_memento_template_with_3_events_and_right_column($events): string {
     $html_content = '<div class="list-events clearfix">';
-    $html_content .= '<p>template_with_3_events_and_right_column (template 6)</p>';
 	foreach ($events->results as $item) {
 
     $start_date = new DateTime($item->start_date);
@@ -142,7 +139,7 @@ public static function epfl_memento_template_with_3_events_and_right_column($eve
     $html_content .= '  </figure>';
     $html_content .= '  <div class="event-content">';
     $html_content .= '    <div class="event-meta">';
-    $html_content .= '      <a href="https://memento.epfl.ch/event/export/<translation-id>" class="event-export"><span class="sr-only">Export event</span></a>';
+    $html_content .= '      <a href="' . $item->icalendar_url . '" class="event-export"><span class="sr-only">Export event</span></a>';
     if (!is_null($item->start_time)) {
       $html_content .= '    <p class="event-times time-start">'.$start_time.'</p>';
       $html_content .= '    <p class="event-times time-end">' . $end_time . '</p>';
@@ -175,7 +172,6 @@ public static function epfl_memento_template_with_3_events_and_right_column($eve
  */
 public static function epfl_memento_template_with_5_events_and_right_column($events): string {
     $html_content = '<div class="list-events clearfix">';
-    $html_content .= '<p>template_with_5_events_and_right_column (template 3)</p>';
 	foreach ($events->results as $item) {
 
     $start_date = new DateTime($item->start_date);
@@ -211,7 +207,7 @@ public static function epfl_memento_template_with_5_events_and_right_column($eve
     $html_content .= '  </figure>';
     $html_content .= '  <div class="event-content">';
     $html_content .= '    <div class="event-meta">';
-    $html_content .= '      <a href="https://memento.epfl.ch/event/export/<translation-id>" class="event-export"><span class="sr-only">Export event</span></a>';
+    $html_content .= '      <a href="' . $item->icalendar_url . '" class="event-export"><span class="sr-only">Export event</span></a>';
     if (!is_null($item->start_time)) {
       $html_content .= '    <p class="event-times time-start">'.$start_time.'</p>';
       $html_content .= '    <p class="event-times time-end">' . $end_time . '</p>';
@@ -244,7 +240,6 @@ public static function epfl_memento_template_with_5_events_and_right_column($eve
  */
 public static function epfl_memento_template_with_2_events($events): string {
     $html_content = '<div class="list-events clearfix">';
-    $html_content .= '<p>template_with_2_events (template 8)</p>';
 	foreach ($events->results as $item) {
 
     $start_date = new DateTime($item->start_date);
@@ -281,7 +276,7 @@ public static function epfl_memento_template_with_2_events($events): string {
     $html_content .= '  </figure>';
     $html_content .= '  <div class="event-content">';
     $html_content .= '    <div class="event-meta">';
-    $html_content .= '      <a href="https://memento.epfl.ch/event/export/<translation-id>" class="event-export"><span class="sr-only">Export event</span></a>';
+    $html_content .= '      <a href="' . $item->icalendar_url . '" class="event-export"><span class="sr-only">Export event</span></a>';
     if (!is_null($item->start_time)) {
       $html_content .= '    <p class="event-times time-start">'.$start_time.'</p>';
       $html_content .= '    <p class="event-times time-end">' . $end_time . '</p>';
@@ -311,7 +306,6 @@ public static function epfl_memento_template_with_2_events($events): string {
 public static function epfl_memento_template_with_3_events($events): string {
 
     $html_content = '<div class="list-events clearfix">';
-    $html_content .= '<p>template_with_3_events - template 2</p>';
 	foreach ($events->results as $item) {
 
     $start_date = new DateTime($item->start_date);
@@ -348,7 +342,7 @@ public static function epfl_memento_template_with_3_events($events): string {
     $html_content .= '  </figure>';
     $html_content .= '  <div class="event-content">';
     $html_content .= '    <div class="event-meta">';
-    $html_content .= '      <a href="https://memento.epfl.ch/event/export/<translation-id>" class="event-export"><span class="sr-only">Export event</span></a>';
+    $html_content .= '      <a href="' . $item->icalendar_url . '" class="event-export"><span class="sr-only">Export event</span></a>';
     if (!is_null($item->start_time)) {
       $html_content .= '    <p class="event-times time-start">'.$start_time.'</p>';
       $html_content .= '    <p class="event-times time-end">' . $end_time . '</p>';
@@ -378,7 +372,6 @@ public static function epfl_memento_template_with_3_events($events): string {
 public static function epfl_memento_template_student_portal($events): string {
 
     $html_content = '<div class="list-events clearfix">';
-    $html_content .= '<p>template_student_portal (template 7)</p>';
 	foreach ($events->results as $item) {
 
     $start_date = new DateTime($item->start_date);
@@ -420,7 +413,7 @@ public static function epfl_memento_template_student_portal($events): string {
 public static function epfl_memento_template_homepage_faculty($events): string {
 
     $html_content = '<div>';
-    $html_content .= '<p>template_homepage_faculty</p>';
+
 	foreach ($events->results as $item) {
         $html_content .= '<div>';
         $html_content .= '<h3>' . $item->title . '</h3>';

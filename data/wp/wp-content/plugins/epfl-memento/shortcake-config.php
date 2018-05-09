@@ -75,21 +75,12 @@ Class ShortCakeMementoConfig
     private static function get_period_options() 
     {
         return array(
-            array('value' => '2', 'label' => esc_html__('Upcoming events', 'epfl-memento')),
-            array('value' => '1', 'label' => esc_html__('Past events', 'epfl-memento')),
+            array('value' => 'upcoming', 'label' => esc_html__('Upcoming events', 'epfl-memento')),
+            array('value' => 'past', 'label' => esc_html__('Past events', 'epfl-memento')),
         );
     }
 
-    private static function get_order_options() 
-    {
-        return array(
-            array('value' => '1', 'label' => esc_html__('Date', 'epfl-memento')),
-            array('value' => '2', 'label' => esc_html__('Position', 'epfl-memento')),
-        );
-        
-    }
-
-    private static function get_memento_description() 
+    private static function get_memento_description()
     {
         return sprintf(
             __("Please select your memento.%sThe events come from the application %smemento.epfl.ch%s.%sIf you don't have a memento, please send a request to %s", 'epfl-memento' ),
@@ -97,21 +88,21 @@ Class ShortCakeMementoConfig
         );
     }
 
-    private static function get_template_description() 
+    private static function get_template_description()
     {
         if (get_locale() == 'fr_FR') {
             $documentation_url = "https://help-wordpress.epfl.ch/autres-types-de-contenus/memento/";
         } else {
             $documentation_url = "https://help-wordpress.epfl.ch/en/other-types-of-content/memento/";
         }
- 
+
         return sprintf(
             esc_html__('Do you need more information about templates? %sRead this documentation%s', 'epfl-memento'),
             '<a href="' . $documentation_url . '">', '</a>'
         );
     }
 
-    public static function config() 
+    public static function config()
     {
        shortcode_ui_register_for_shortcode(
 
@@ -163,14 +154,6 @@ Class ShortCakeMementoConfig
                        'attr'          => 'keyword',
                        'type'          => 'text',
                        'description'   => esc_html__('Do you want filter events by keyword? Please type a keyword.', 'epfl-memento'),
-                   ),
-                   array(
-                       'label'         => '<h3>' .esc_html__('Order events', 'epfl-memento') . '</h3>',
-                       'attr'          => 'order',
-                       'type'          => 'radio',
-                       'options'       => ShortCakeMementoConfig::get_order_options(),
-                       'description'   => esc_html__('By default, events are ordered by date. If you have defined a custom order in memento, please choose order by position.', 'epfl-memento'),
-                       'value'         => '1',
                    ),
                ),
                'post_type'     => array( 'post', 'page' ),
