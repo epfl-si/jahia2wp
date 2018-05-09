@@ -39,6 +39,29 @@ class FanGlobalSitemap:
             url = row["url"]
             self.urls[url] = row
 
+    def _parse_existing(self, csv_file):
+        # Utility method for finding websites to put in the sitemap
+        # from a given list
+        rows = Utils.csv_filepath_to_dict(file_path=csv_file, delimiter=self.DELIMITER)
+
+        paths = set()
+
+        for row in rows:
+            url = row["url"]
+            url = url[1:]
+
+            data = url.split("/")
+
+            if len(data) == 1:
+                paths.add("/" + data[0])
+            elif len(data) >= 3:
+                paths.add("/" + data[0] + "/" + data[1])
+
+        paths = sorted(paths)
+
+        for path in paths:
+            print("https://www.epfl.ch" + path)
+
     def _clean(self):
         """Deletes all the content"""
         try:
@@ -130,13 +153,15 @@ class FanGlobalSitemap:
 
             title = self.urls[url]["title_en"]
 
+            content = url
+
             cmd = "wp post create --post_type=page " \
                   "--post_status=publish " \
                   "--post_name='{}' " \
                   "--post_title='{}' " \
                   "--post_content='{}' " \
                   "--path='{}' " \
-                  "--porcelain ".format(name, title, title, self.wp_path)
+                  "--porcelain ".format(name, title, content, self.wp_path)
 
             # check if the page has a parent
             if parent_path:
