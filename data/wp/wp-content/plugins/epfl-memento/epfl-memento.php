@@ -6,7 +6,7 @@
  * @version: 1.0
  * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
  *
- * Text Domain: epfl-plugins
+ * Text Domain: epfl-memento
  * Domain Path: /languages
  */
 
@@ -173,7 +173,7 @@ function epfl_memento_template_text($events): string {
 
     $html_content .= '  </div>';
     $html_content .= '  <div class="event-extra">';
-    $html_content .= '    <p class="speakers">' . __( 'By: ', 'epfl-plugins' ) . $item->speaker . '</p>';
+    $html_content .= '    <p class="speakers">' . __( 'By: ', 'epfl-memento' ) . $item->speaker . '</p>';
     $html_content .= '  </div>';
 
 		$html_content .= '</article>';
@@ -242,7 +242,7 @@ function epfl_memento_template_with_3_events_and_right_column($events): string {
 
     $html_content .= '  </div>';
     $html_content .= '  <div class="event-extra">';
-    $html_content .= '    <p class="speakers">' . __( 'By: ', 'epfl-plugins' ) . $item->speaker . '</p>';
+    $html_content .= '    <p class="speakers">' . __( 'By: ', 'epfl-memento' ) . $item->speaker . '</p>';
     $html_content .= '  </div>';
 
 		$html_content .= '</article>';
@@ -311,7 +311,7 @@ function epfl_memento_template_with_5_events_and_right_column($events): string {
 
     $html_content .= '  </div>';
     $html_content .= '  <div class="event-extra">';
-    $html_content .= '    <p class="speakers">' . __( 'By: ', 'epfl-plugins' ) . $item->speaker . '</p>';
+    $html_content .= '    <p class="speakers">' . __( 'By: ', 'epfl-memento' ) . $item->speaker . '</p>';
     $html_content .= '  </div>';
 
 		$html_content .= '</article>';
@@ -486,7 +486,7 @@ function epfl_memento_template_student_portal($events): string {
     $html_content .= '      <a href="' . $item->event_url . '" title="' . $item->title . '">' . $item->title . '</a>';
     $html_content .= '    </h2>';
     $html_content .= '    <p class="studying-calendar">';
-    $html_content .= '      <a href="https://memento.epfl.ch/academic-calendar/?period=14"><span class="label">' . __( 'Academic calendar ', 'epfl-plugins' ) . '</span></a>';
+    $html_content .= '      <a href="https://memento.epfl.ch/academic-calendar/?period=14"><span class="label">' . __( 'Academic calendar ', 'epfl-memento' ) . '</span></a>';
     $html_content .= '    </p>';
     $html_content .= '  </div>';
 		$html_content .= '</article>';
