@@ -598,8 +598,8 @@ class WPExporter:
                     if not box.is_shortcode():
                         contents[lang] += '<div class="{}">'.format(box.type + "Box")
 
-                    if box.title:
-                        contents[lang] += '<h3 id="{0}">{0}</h3>'.format(box.title)
+                        if box.title:
+                            contents[lang] += '<h3 id="{0}">{0}</h3>'.format(box.title)
 
                     # in the parser we can't know the current language.
                     # we assign a string that we replace with the current language
