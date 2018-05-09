@@ -107,22 +107,26 @@ class FanGlobalSitemap:
         Insert the pages.
         """
 
-        # sort the urls, so the hierarchy is correct, e.g.
+        # sort the urls, so the parents are before their children, e.g.:
         # https://www.epfl.ch/research
         # https://www.epfl.ch/research/domains
         # https://www.epfl.ch/research/domains/enac
         urls_sorted = sorted(self.urls.keys())
 
         # the WordPress pages
-        pages_by_slug = {}
+        pages_by_path = {}
 
         for url in urls_sorted:
-            slug = url[len(self.ROOT_URL) + 1:]
+            # the path, e.g. /research or /research/domains/enac
+            path = url[len(self.ROOT_URL):]
 
-            parent_slug = ""
+            parent_path = ""
 
-            if "/" in slug:
-                parent_slug = slug[:slug.rfind("/")]
+            if "/" in path:
+                parent_path = path[:path.rfind("/")]
+
+            # the page name (slug)
+            name = url[url.rfind("/") + 1:]
 
             title = self.urls[url]["title_en"]
 
@@ -132,11 +136,11 @@ class FanGlobalSitemap:
                   "--post_title='{}' " \
                   "--post_content='{}' " \
                   "--path='{}' " \
-                  "--porcelain ".format(slug, title, title, self.wp_path)
+                  "--porcelain ".format(name, title, title, self.wp_path)
 
             # check if the page has a parent
-            if parent_slug:
-                parent = pages_by_slug[parent_slug]
+            if parent_path:
+                parent = pages_by_path[parent_path]
 
                 cmd += "--post_parent={}".format(parent["id"])
 
@@ -144,11 +148,11 @@ class FanGlobalSitemap:
 
             # add the page info
             page = {
-                "slug": slug,
+                "path": path,
                 "id": page_id
             }
 
-            pages_by_slug[slug] = page
+            pages_by_path[path] = page
 
 
     def _generate_sitemap_page(self):
