@@ -9,16 +9,6 @@
 
 declare( strict_types = 1 );
 
-/**
- * Helper to debug the code
- * @param $var: variable to display
- */
-function epfl_snippets_debug( $var ) {
-    print "<pre>";
-    var_dump( $var );
-    print "</pre>";
-}
-
 
 /**
  * Execute the shortcode
@@ -30,15 +20,14 @@ function epfl_snippets_debug( $var ) {
 function epfl_snippets_process_shortcode( $attributes, string $content = null ): string
 {
     // get parameters
-    $atts = shortcode_atts(array(
+    extract(shortcode_atts(array(
         'url'          => '',
         'title'        => '',
         'subtitle'     => '',
         'image'        => '',
         'big_image'    => '',
         'enable_zoom'  => '',
-    ), $attributes);
-
+    ), $attributes));
 
     $html  = '<div class="snippetsBox">';
 
@@ -63,7 +52,7 @@ function epfl_snippets_process_shortcode( $attributes, string $content = null ):
       $html .= '<a href="' . $url . '">';
     }
 
-    $html .= '<div class="snippets-image"><img src="' . esc_attr($image) . '"/></div>';
+    $html .= '<div class="snippets-image"><img src="' . $image . '"/></div>';
 
     if ( $has_url ) {
       $html .= '</a>';
