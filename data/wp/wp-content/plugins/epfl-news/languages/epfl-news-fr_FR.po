@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2018-05-07 10:57+0200\n"
-"PO-Revision-Date: 2018-05-07 10:58+0200\n"
+"PO-Revision-Date: 2018-05-08 09:52+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -77,11 +77,11 @@ msgstr "Template avec toutes les actualités"
 
 #: epfl-news.php:650
 msgid "Template for portal website with image at the top"
-msgstr "Template pour un portail (avec l'image en haut)"
+msgstr "Template pour un portail (avec image en haut)"
 
 #: epfl-news.php:651
 msgid "Template for portal website image on the left"
-msgstr "Template pour un portail (avec l'image sur la gauche)"
+msgstr "Template pour un portail (avec image sur la gauche)"
 
 #: epfl-news.php:655
 msgid "No filter"

@@ -289,13 +289,17 @@ class Box:
             lang = parameters['lang'][0]
         else:
             lang = ""
-            logging.error("News Shortcode - lang is missing")
+            logging.warning("News Shortcode - lang is missing")
 
         if 'template' in parameters:
             template = parameters['template'][0]
         else:
             template = ""
-            logging.error("News Shortcode - template is missing")
+            logging.warning("News Shortcode - template is missing")
+
+        stickers = "no"
+        if 'sticker' in parameters:
+            stickers = parameters['sticker'][0]
 
         category = ""
         if 'category' in parameters:
@@ -305,7 +309,11 @@ class Box:
         if 'themes' in parameters:
             themes = parameters['theme']
 
-        return channel_id, lang, template, category, themes
+        project = ""
+        if 'project' in parameters:
+            project = parameters['project'][0]
+
+        return channel_id, lang, template, category, themes, stickers, project
 
     def set_box_people_list(self, element):
         """
@@ -363,7 +371,7 @@ class Box:
         """set the attributes of an actu box"""
 
         # extract parameters from the old url of webservice
-        channel_id, lang, template, category, themes = self._extract_epfl_news_parameters(
+        channel_id, lang, template, category, themes, stickers, projects = self._extract_epfl_news_parameters(
             Utils.get_tag_attribute(element, "url", "jahia:value")
         )
         self.shortcode_name = "epfl_news"
@@ -377,6 +385,11 @@ class Box:
             html_content += 'category="{}" '.format(category)
         if themes:
             html_content += 'themes="{}" '.format(",".join(themes))
+        if stickers:
+            html_content += 'stickers="{}" '.format(stickers)
+        if projects:
+            html_content += 'projects="{}" '.format(",".join(projects))
+
         html_content += '/]'
 
         self.content = html_content

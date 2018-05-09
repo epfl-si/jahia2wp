@@ -52,12 +52,12 @@ Class EventUtils
         $response = wp_remote_get($url);
 
         if (is_array($response)) {
-                $header = $response['headers']; // array of http header lines
-                $data = $response['body']; // use the content
-                if ( $header["content-type"] === "application/json" ) {
-                        $items = json_decode($data);
-                        return $items;
-                }
+            $header = $response['headers']; // array of http header lines
+            $data = $response['body']; // use the content
+            if ( $header["content-type"] === "application/json" ) {
+                    $items = json_decode($data);
+                    return $items;
+            }
         }
     }
 }
@@ -629,6 +629,7 @@ function epfl_memento_build_api_url(
     if ($category !== '') {
         $url .= '&category=' . $category;
     }
+
     return $url;
 }
 
@@ -668,6 +669,9 @@ function epfl_memento_process_shortcode(
             'lang' => '',
             'template' => '',
             'category' => '',
+            'order' => '',
+            'keyword' => '',
+            'period', => '',
     ), $atts, $tag));
 
     if (epfl_memento_check_required_parameters($memento, $lang) == FALSE) {
@@ -725,15 +729,15 @@ add_action( 'init', function() {
         }
 
         $template_options = array (
-            array('value' => '1', 'label' => esc_html__('Template short text', 'epfl-memento')),
-            array('value' => '5', 'label' => esc_html__('Template text', 'epfl-memento')),
-            array('value' => '6', 'label' => esc_html__('Template with 3 events for sidebar', 'epfl-memento')),
-            array('value' => '3', 'label' => esc_html__('Template with 5 events for sidebar', 'epfl-memento')),
             array('value' => '2', 'label' => esc_html__('Template with 3 events', 'epfl-memento')),
             array('value' => '8', 'label' => esc_html__('Template with 2 events', 'epfl-memento')),
+            array('value' => '6', 'label' => esc_html__('Template with 3 events for sidebar', 'epfl-memento')),
+            array('value' => '3', 'label' => esc_html__('Template with 5 events for sidebar', 'epfl-memento')),
+            array('value' => '1', 'label' => esc_html__('Template short text', 'epfl-memento')),
+            array('value' => '5', 'label' => esc_html__('Template text', 'epfl-memento')),
+            array('value' => '4', 'label' => esc_html__('Template with all events', 'epfl-memento')),
             array('value' => '7', 'label' => esc_html__('Template for portal website', 'epfl-memento')),
             array('value' => '9', 'label' => esc_html__('Template for homepage faculty', 'epfl-memento')),
-            array('value' => '4', 'label' => esc_html__('Template with all events', 'epfl-memento')),
         );
 
         $lang_options = array(
@@ -741,14 +745,44 @@ add_action( 'init', function() {
             array('value' => 'fr', 'label' => esc_html__('French', 'epfl-memento')),
         );
 
+        $category_options = array(
+            array('value' => '', 'label' => esc_html__('No filter', 'epfl-memento')),
+            array('value' => '1', 'label' => esc_html__('Conferences - Seminars', 'epfl-memento')),
+            array('value' => '2', 'label' => esc_html__('Management Board meetings', 'epfl-memento')),
+            array('value' => '4', 'label' => esc_html__('Miscellaneous', 'epfl-memento')),
+            array('value' => '5', 'label' => esc_html__('Exhibitions', 'epfl-memento')),
+            array('value' => '6', 'label' => esc_html__('Movies', 'epfl-memento')),
+            array('value' => '7', 'label' => esc_html__('Celebrations', 'epfl-memento')),
+            array('value' => '8', 'label' => esc_html__('Inaugural lectures - Honorary Lecture', 'epfl-memento')),
+            array('value' => '9', 'label' => esc_html__('Cultural events', 'epfl-memento')),
+            array('value' => '10', 'label' => esc_html__('Sporting events', 'epfl-memento')),
+            array('value' => '12', 'label' => esc_html__('Thesis defenses', 'epfl-memento')),
+        );
+
+        $period_options = array(
+            array('value' => '2', 'label' => esc_html__('Upcoming events', 'epfl-memento')),
+            array('value' => '1', 'label' => esc_html__('Past events', 'epfl-memento')),
+        );
+
+        $order_options = array(
+            array('value' => '1', 'label' => esc_html__('Date', 'epfl-memento')),
+            array('value' => '2', 'label' => esc_html__('Position', 'epfl-memento')),
+        );
+
         $memento_description = sprintf(
             __("Please select your memento.%sThe events come from the application %smemento.epfl.ch%s.%sIf you don't have a memento, please send a request to %s", 'epfl-memento' ),
             '<br/>', '<a href=\"https://actu.epfl.ch\">', '</a>', '<br/>', '<a href=\"mailto:1234@epfl.ch\">1234@epfl.ch</a>'
         );
 
+        if (get_locale() == 'fr_FR') {
+            $documentation_url = "https://help-wordpress.epfl.ch/autres-types-de-contenus/memento/";
+        } else {
+            $documentation_url = "https://help-wordpress.epfl.ch/en/other-types-of-content/memento/";
+        }
+
         $template_description = sprintf(
             esc_html__('Do you need more information about templates? %sRead this documentation%s', 'epfl-memento'),
-            '<a href="">', '</a>'
+            '<a href="' . $documentation_url . '">', '</a>'
         );
 
         shortcode_ui_register_for_shortcode(
@@ -760,29 +794,57 @@ add_action( 'init', function() {
                 'listItemImage' => '',
                 'attrs'         => array(
                     array(
-                        'label'         => '<h3>' . esc_html__('Memento', 'epfl-memento') . '</h3>',
+                        'label'         => '<h3>' . esc_html__('Select your memento', 'epfl-memento') . '</h3>',
                         'attr'          => 'memento',
                         'type'          => 'select',
                         'options'       => $memento_options,
                         'description'   => $memento_description,
                     ),
                     array(
-                        'label'         => '<h3>Template</h3>',
+                        'label'         => '<h3>' . esc_html__('Select a template', 'epfl-memento') . '</h3>',
                         'attr'          => 'template',
-                        'type'          => 'select',
+                        'type'          => 'radio',
                         'options'       => $template_options,
                         'description'   => $template_description,
+                        'value'         => '2',
                     ),
                     array(
-                        'label'         => '<h3>' . esc_html__('Language', 'epfl-memento') . '</h3>',
+                        'label'         => '<h3>' . esc_html__('Select a language', 'epfl-memento') . '</h3>',
                         'attr'          => 'lang',
-                        'type'          => 'select',
+                        'type'          => 'radio',
                         'options'       => $lang_options,
                         'description'   => esc_html__('The language used to render events results', 'epfl-memento'),
+                        'value'         => 'en',
                     ),
-
+                    array(
+                        'label'         => '<h3>' . esc_html__('Select a period', 'epfl-memento') . '</h3>',
+                        'attr'          => 'period',
+                        'type'          => 'radio',
+                        'options'       => $period_options,
+                        'value'         => '2',
+                    ),
+                    array(
+                        'label'         => '<h3>' . esc_html__('Filter events by category', 'epfl-memento') . '</h3>',
+                        'attr'          => 'category',
+                        'type'          => 'radio',
+                        'options'       => $category_options,
+                        'description'   => esc_html__('Do you want filter events by category? Please select a category.', 'epfl-memento'),
+                    ),
+                    array(
+                        'label'         => '<h3>' . esc_html__('Filter events by keyword', 'epfl-memento') . '</h3>',
+                        'attr'          => 'keyword',
+                        'type'          => 'text',
+                        'description'   => esc_html__('Do you want filter events by keyword? Please type a keyword.', 'epfl-memento'),
+                    ),
+                    array(
+                        'label'         => '<h3>' .esc_html__('Order events', 'epfl-memento') . '</h3>',
+                        'attr'          => 'order',
+                        'type'          => 'radio',
+                        'options'       => $order_options,
+                        'description'   => esc_html__('By default, events are ordered by date. If you have defined a custom order in memento, please choose order by position.', 'epfl-memento'),
+                        'value'         => '1',
+                    ),
                 ),
-
                 'post_type'     => array( 'post', 'page' ),
             )
         );

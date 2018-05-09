@@ -496,7 +496,8 @@ function epfl_news_build_api_url(
     string $template,
     string $lang,
     string $category,
-    string $themes
+    string $themes,
+    string $projects
     ): string
 {
     // returns the number of news according to the template
@@ -515,6 +516,14 @@ function epfl_news_build_api_url(
         $themes = explode(',', $themes);
         foreach ($themes as $theme) {
             $url .= '&themes=' . $theme;
+        }
+    }
+
+    // filter by projects
+    if ($projects !== '') {
+        $projects = explode(',', $projects);
+        foreach ($projects as $project) {
+            $url .= '&projects=' . $project;
         }
     }
     return $url;
@@ -570,6 +579,7 @@ function epfl_news_process_shortcode(
                 'stickers' => '',
                 'category' => '',
                 'themes'   => '',
+                'projects' => '',
         ), $atts, $tag));
 
         if (epfl_news_check_required_parameters($channel, $lang) == FALSE) {
@@ -589,7 +599,8 @@ function epfl_news_process_shortcode(
             $template,
             $lang,
             $category,
-            $themes
+            $themes,
+            $projects
         );
 
         $actus = NewsUtils::get_items($url);
@@ -676,9 +687,15 @@ add_action( 'init', function() {
             '<a href=\"https://actu.epfl.ch\">', '</a>', '<br/>', '<a href=\"mailto:1234@epfl.ch\">1234@epfl.ch</a>'
         );
 
+        if (get_locale() == 'fr_FR') {
+            $documentation_url = "https://help-wordpress.epfl.ch/autres-types-de-contenus/actualites-epfl/";
+        } else {
+            $documentation_url = "https://help-wordpress.epfl.ch/en/other-types-of-content/epfl-news/";
+        }
+
         $template_description = sprintf(
             esc_html__('Do you need more information about templates? %sRead this documentation%s', 'epfl-news'),
-            '<a href="">', '</a>'
+            '<a href="' . $documentation_url . '">', '</a>'
         );
 
         shortcode_ui_register_for_shortcode(
