@@ -5,7 +5,6 @@ import logging
 from pprint import pprint
 from time import time as tt
 from urllib.parse import urlparse
-import itertools
 import subprocess
 import os
 import re
@@ -482,7 +481,6 @@ class Ventilation:
 
             # Write back the filtered pages to the CSV file
             with open(csv_f, 'w', encoding='utf8') as f:
-                site_url = urlparse(site)
                 """IMPORTANT: The GUID column has to be in the middle or be the last one."""
                 header_cols = list(pages[0].keys())
                 header_cols.remove('guid')
@@ -794,7 +792,7 @@ class Ventilation:
                     # Load the JSON page data
                     with open(json_f, 'r', encoding='utf8') as f:
                         json_txt = f.read()
-                        pages = json.load(txt)
+                        pages = json.load(json_txt)
                         lngs = pages.keys()
                         # Get the languages in unaltered order
                         lngs = [(l, json_txt.find('"{}"'.format(l))) for l in lngs]
