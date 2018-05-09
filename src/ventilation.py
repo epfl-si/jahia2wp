@@ -916,8 +916,8 @@ class Ventilation:
                                 logging.warning('Could not set page_on_front option! Msg: {}. cmd: {}', msg, cmd)
 
             if migrate_menu_sidebar:
-                self.migrate_sidebars(src_site, dst_sidebars_url)
-                self.migrate_menu(src_site, menu_siteurl, table_ids)
+                self.migrate_sidebars(src_site, site_url)
+                self.migrate_menu(src_site, site_url, table_ids)
 
         return media_refs
 
