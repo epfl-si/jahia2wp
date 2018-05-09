@@ -370,7 +370,7 @@ class Box:
         self.shortcode_name = "toggle"
 
         opened = Utils.get_tag_attribute(element, "opened", "jahia:value")
-        opened = 'expand=1' if opened == 'false' else ''
+        opened = 'expand=1' if opened == 'true' else ''
         title = Utils.get_tag_attribute(element, "boxTitle", "jahia:value")
         content = Utils.get_tag_attribute(element, "content", "jahia:value")
 
