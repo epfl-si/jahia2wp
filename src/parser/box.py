@@ -362,10 +362,23 @@ class Box:
         self.content = "<h2>{}</h2><p>{}</p>".format(self.question, self.answer)
 
     def set_box_toggle(self, element):
-        """set the attributes of a toggle box"""
-        self.opened = Utils.get_tag_attribute(element, "opened", "jahia:value")
+        """set the attributes of a toggle box
 
-        self.content = Utils.get_tag_attribute(element, "content", "jahia:value")
+        For this, we use Toggles shortcode and widget plugin:
+        https://wordpress.org/plugins/azurecurve-toggle-showhide/"""
+
+        self.shortcode_name = "toggle"
+
+        opened = Utils.get_tag_attribute(element, "opened", "jahia:value")
+        opened = 'expand=1' if opened == 'true' else ''
+        title = Utils.get_tag_attribute(element, "boxTitle", "jahia:value")
+        content = Utils.get_tag_attribute(element, "content", "jahia:value")
+
+        self.content = '[{} Title="{}" {}]{}[/{}]'.format(self.shortcode_name,
+                                                          title,
+                                                          opened,
+                                                          content,
+                                                          self.shortcode_name)
 
     def set_box_include(self, element):
         """set the attributes of an include box"""
