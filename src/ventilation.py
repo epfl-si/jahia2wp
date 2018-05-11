@@ -5,7 +5,6 @@ import logging
 from pprint import pprint
 from time import time as tt
 from urllib.parse import urlparse
-import itertools
 import subprocess
 import os
 import re
@@ -482,8 +481,6 @@ class Ventilation:
 
             # Write back the filtered pages to the CSV file
             with open(csv_f, 'w', encoding='utf8') as f:
-                site_url = urlparse(site)
-                host = site_url._replace(path='').geturl()
                 """IMPORTANT: The GUID column has to be in the middle or be the last one."""
                 header_cols = list(pages[0].keys())
                 header_cols.remove('guid')
@@ -639,7 +636,7 @@ class Ventilation:
         consolidated_csv_files = []
         dest_sites_keys = self.dest_sites.keys()
         for site in self.rulesets.keys():
-            logging.info('Consolidating in a single CSV site ' + site)
+            logging.info('Consolidating ' + site)
             # Source CSV files from where to take the content
             csv_f = self.files[site]
             # Get the languages
@@ -712,9 +709,9 @@ class Ventilation:
                     # JSON file to contain the post data
                     tmp_json = "/tmp/j2wp_{}_{}.json".format(site.split('/').pop(), _pages[0]['ID'])
                     # Remove / Change attrs before dumping the post JSON.
-                    _pagesi = [{k: v for k, v in _p.items() if k not in ['ID', 'url']} for _p in _pages]
+                    # _pagesi = [{k: v for k, v in _p.items() if k not in ['ID', 'url']} for _p in _pages]
                     m = '"{}":{}'
-                    arr = [m.format(lngs_curr[i], json.dumps(p, ensure_ascii=False)) for i, p in enumerate(_pagesi)]
+                    arr = [m.format(lngs_curr[i], json.dumps(p, ensure_ascii=False)) for i, p in enumerate(_pages)]
                     json_data = '{' + ', '.join(arr) + '}'
                     # Dump the JSON to a file to avoid non escaped char issues.
                     with open(tmp_json, 'w', encoding='utf8') as j:
@@ -759,70 +756,70 @@ class Ventilation:
         The original code has been changed to iterate on destination sites instead of source sites.
 
         """
-        dest_sites_keys = self.dest_sites.keys()
+
         # Store the new keys per site after the insertion as URL => ID
         # This is useful to set the new parents
         table_ids = {}
+        table_ids_url = {}
         media_refs = {}
 
-        for site in self.rulesets.keys():
-            menu_siteurl = None
+        for dst_csv_f in dst_csv_files:
+            # Get all the pre-prepared hierarchy at destination from the corresponding CSV
+            entries = Utils.csv_filepath_to_dict(dst_csv_f)
+            # IMPORTANT: Sort the list by URL components to insert parents first. Even though the consolidation
+            # has to do it.
+            entries = sorted(entries, key=lambda e: len(e['url'].strip('/').split('/')), reverse=False)
+
             dst_sidebars_url = None
-            logging.info('Treating site ' + site)
-            # Source CSV files from where to take the content
-            # Start with the pages since it'll be faster than the media
-            csv_f = self.files[site]
-            # Get the languages
-            lngs = Utils.run_command('wp pll languages --path=' + self.site_paths[site])
-            lngs = [l[:2] for l in lngs.split("\n")]
-            # Get all the pre-replaced pages from the CSV
-            pages = Utils.csv_filepath_to_dict(csv_f)
-            # Group the pages by group of langs and sort them by URL components
-            # The key concept is to avoid children being inserted before parents
-            pages = [pages[pi:pi+len(lngs)] for pi in range(0, len(pages), len(lngs))]
-            pages = sorted(pages, key=lambda p: len(p[0]['url'].strip('/').split('/')))
-            # Unpack pages as a list again
-            pages = list(itertools.chain.from_iterable(pages))
+            menu_siteurl = None
 
-            # Get the content in all the languages per page
-            # The IDs are sequential in source WP (e.g. 580 => en, 581=>fr).
-            # Therefore group them by number of languages.
-            # ATTENTION: check for safety and errors (.e.g missing lang for page?)
-            table_ids[site] = {}
-            # Add the key to the media_refs dict
-            if site not in media_refs:
-                media_refs[site] = {}
-            for pi in range(0, len(pages), len(lngs)):
-                # All pages
-                _pages = pages[pi:pi+len(lngs)]
-
-                # ATTENTION: Selecting the page in EN since all URLs will be rewritten
-                # in english.
-                # ATTENTION: If no english is present, then the language at pos. 0 will be used (e.g. French)
-                p_en = _pages[lngs.index('en')] if 'en' in lngs else _pages[0]
-                logging.info("[en] Page {} {}".format(p_en['post_name'], p_en['url']))
+            for entry in entries:
+                p_url = entry['url']
                 # Find the longest matching URL among the target sites
-                matches = [s for s in dest_sites_keys if s in p_en['url']]
-                if not matches:
-                    logging.warning('No matching destination site for page {}, skipping...'.format(p_en['url']))
-                else:
-                    max_match = '/'.join(max([m.split('/') for m in matches]))
-                    # print(max_match, p_en['url'])
+                matches = [s for s in self.dest_sites.keys() if s in p_url]
+                max_match = '/'.join(max([m.split('/') for m in matches]))
+
+                json_f = entry['json_file']
+                if json_f:
+                    site = 'https://{}'.format(json_f.split('_').pop(1))
+
+                    if site not in table_ids:
+                        table_ids[site] = {}
+                    # Add the key to the media_refs dict
+                    if site not in media_refs:
+                        media_refs[site] = {}
+
+                    # Load the JSON page data
+                    with open(json_f, 'r', encoding='utf8') as f:
+                        json_txt = f.read()
+                        pages = json.load(json_txt)
+                        lngs = pages.keys()
+                        # Get the languages in unaltered order
+                        lngs = [(l, json_txt.find('"{}"'.format(l))) for l in lngs]
+                        lngs = [l for l, idx in sorted(lngs, key=lambda tup: tup[1])]
+                        _pages = pages.values()
+                        p_en = pages['en']
+
                     # Old IDs
                     old_ids = [p['ID'] for p in _pages]
+
                     # Update the parent ID if a new one exists already
-                    for _p in _pages:
-                        if max_match in table_ids[site] and _p['post_parent'] in table_ids[site][max_match]:
-                            _p['post_parent'] = table_ids[site][max_match][_p['post_parent']]
+                    for idx, _p in enumerate(_pages):
+                        parent_url = '/'.join(p_en['url'].strip('/').split('/')[:-1])
+                        if parent_url in table_ids_url:
+                            # Update the parent ID based on parent URL
+                            _p['post_parent'] = table_ids_url[parent_url][idx]
+                        # elif max_match in table_ids[site] and _p['post_parent'] in table_ids[site][max_match]:
+                        #     _p['post_parent'] = table_ids[site][max_match][_p['post_parent']]
                         else:
                             # Set the page at the root: post_parent 0
                             _p['post_parent'] = 0
                     # Rename the post if necessary to have a pretty (matching) URL
                     # If there is only one fragment and it's different of the post_name
                     # then change it.
-                    fragment = p_en['url'][len(max_match)+1:].strip('/')
+                    fragment = p_url[len(max_match)+1:].strip('/')
                     if len(fragment.split('/')) == 1:
-                        if p_en['post_name'] != fragment and max_match != p_en['url'].strip('/'):
+                        if p_en['post_name'] != fragment and max_match != p_url.strip('/'):
                             p_en['post_name'] = fragment
                             # for p in _pages:
                             #    p['post_name'] = fragment
@@ -845,39 +842,24 @@ class Ventilation:
                             if m_url not in media_refs[site][media_key]:
                                 media_refs[site][media_key].append(m_url)
 
-                    # IMPORTANT: Verify that the source and the destination have the same lang set.
-                    dst_path = self.dest_sites[max_match]
-                    dst_lngs = Utils.run_command('wp pll languages --path=' + dst_path)
-                    dst_lngs = [l[:2] for l in dst_lngs.split("\n")]
-                    if set(dst_lngs) != set(lngs):
-                        msg = 'Source {} [{}] and dest. {} [{}] have diff. langs, skipping...'
-                        msg = msg.format(site, lngs, max_match, dst_lngs)
-                        logging.warning(msg)
-                        continue
-
                     cmd = "cat {} | wp pll post create --post_type=page --porcelain --stdin --path={}"
-                    # Remove / Change attrs before dumping the post JSON.
-                    _pagesi = [{k: v for k, v in _p.items() if k not in ['ID', 'url']} for _p in _pages]
-                    arr = ['"{}":{}'.format(lngs[i], json.dumps(p, ensure_ascii=False)) for i, p in enumerate(_pagesi)]
-                    json_data = '{' + ', '.join(arr) + '}'
-                    # Dump the JSON to a file to avoid non escaped char issues.
-                    with open(tmp_json, 'w', encoding='utf8') as j:
-                        j.write(json_data)
-                    cmd = cmd.format(tmp_json, self.dest_sites[max_match])
+                    cmd = cmd.format(json_f, self.dest_sites[max_match])
                     logging.info(cmd)
                     ids = Utils.run_command(cmd, 'utf8').split(' ')
                     if 'Error' in ids:
                         logging.error('Failed to insert pages. Msg: {}. cmd: {}'.format(ids, cmd))
                     else:
                         logging.info('new IDs {} in lang order {}'.format(ids, lngs))
-                        # Keep the new IDs
+                        # Keep the new IDs in the URL => IDs dictionary
+                        table_ids_url[p_url] = ids
+                        # Keep the new IDs also in the table_ids: Site => Dest => IDs
                         if max_match not in table_ids[site]:
                             table_ids[site][max_match] = {}
                         for old_id, new_id in zip(old_ids, ids):
                             table_ids[site][max_match][old_id] = new_id
                         # VERIFY: Setting homepage instead of the default WP options
                         # Using URL in EN by default
-                        if max_match == p_en['url'].strip('/'):
+                        if max_match == p_url.strip('/'):
                             # Set the menu flag
                             menu_siteurl = max_match
                             logging.info('Updating home page for site {} to ID {}'.format(max_match, ids[0]))
@@ -891,6 +873,7 @@ class Ventilation:
                             if 'Success' not in msg:
                                 logging.warning('Could not set page_on_front option! Msg: {}. cmd: {}', msg, cmd)
                             dst_sidebars_url = max_match
+
             if dst_sidebars_url:
                 self.migrate_sidebars(site, dst_sidebars_url)
             if menu_siteurl:
@@ -1192,7 +1175,6 @@ class Ventilation:
         logging.info('[{:.2f}s] Consolidating a single CSV per destination + filtering:'.format(tt()-t))
         t = tt()
         dst_csv_files = self.consolidate_csv()
-        sys.exit()
 
         # At this point all the CSV files have the right URLs in place. It is the moment to effectively migrate
         # the content (pages and files / media)
@@ -1202,6 +1184,6 @@ class Ventilation:
 
         logging.info('[{:.2f}s], Preparing media insertion in target WP instances...'.format(tt()-t))
         t = tt()
-        # self.migrate_media(media_refs)
+        self.migrate_media(media_refs)
 
         logging.info('[{:.2f}s], Finished importing media. Finished all.'.format(tt()-t))
