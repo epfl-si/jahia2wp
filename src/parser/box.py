@@ -184,6 +184,11 @@ class Box:
                              " simply using content".format(start_date))
                 return content
 
+        # we don't need to check if end_date > today
+        # In case end_date < today the shortcode display nothing
+        if not start_date and end_date:
+            start_date = today
+
         return '[{} start_date="{}" end_date="{}" start_time="{}" end_time="{}"]{}[/{}]'.format(
             self.shortcode_name,
             start_date,
@@ -592,6 +597,8 @@ class Box:
 
         snippets = element.getElementsByTagName("snippetListList")[0].getElementsByTagName("snippetList")
 
+        self.content = ""
+
         for snippet in snippets:
             title = Utils.get_tag_attribute(snippet, "title", "jahia:value")
             subtitle = Utils.get_tag_attribute(snippet, "subtitle", "jahia:value")
@@ -600,10 +607,13 @@ class Box:
             big_image = Utils.get_tag_attribute(snippet, "bigImage", "jahia:value")
             enable_zoom = Utils.get_tag_attribute(snippet, "enableImageZoom", "jahia:value")
 
+            # Fix path if necessary
+            if "/files" in image:
+                image = image[image.rfind("/files"):]
+
             # escape
             title = title.replace('"', '\\"')
             subtitle = subtitle.replace('"', '\\"')
-            description = description.replace('"', '\\"')
 
             url = ""
 
@@ -621,9 +631,16 @@ class Box:
 
                         url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
 
-            self.content = '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
-                           ' big_image="{}" enable_zoom="{}" description="{}"]'\
-                .format(self.shortcode_name, url, title, subtitle, image, big_image, enable_zoom, description)
+            self.content += '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
+                            ' big_image="{}" enable_zoom="{}"]{}[/{}]'.format(self.shortcode_name,
+                                                                              url,
+                                                                              title,
+                                                                              subtitle,
+                                                                              image,
+                                                                              big_image,
+                                                                              enable_zoom,
+                                                                              description,
+                                                                              self.shortcode_name)
 
     def set_box_syntax_highlight(self, element):
         """Set the attributes of a syntaxHighlight box"""
@@ -654,27 +671,55 @@ class Box:
         self.content = content
 
     def _parse_links_to_list(self, element):
-        """Handles link tags that can be found in linksBox and textBox"""
-        elements = element.getElementsByTagName("link")
+        """Handles link tags that can be found in linksBox and textBox
+
+        Structure is the following:
+        <linksList>
+            <links>
+                <linkDesc></linkDesc>  <-- It seems that sometimes this is not present in Jahia export
+                <link>
+                    <jahia:url>     <-- If not present, 'jahia:link' is present
+                    <jahia:link>    <-- If not present, 'jahia:url' is present
+                </link>
+            </links>
+        </linksList>
+        """
+        elements = element.getElementsByTagName("links")
         content = "<ul>"
         for e in elements:
             if e.ELEMENT_NODE != e.nodeType:
                 continue
-            for jahia_tag in e.childNodes:
-                if jahia_tag.ELEMENT_NODE != jahia_tag.nodeType:
+
+            link_html = ""
+            desc = ""
+            # Going through 'linkDesc' and 'link' nodes
+            for link_node in e.childNodes:
+                if link_node.ELEMENT_NODE != link_node.nodeType:
                     continue
-                if jahia_tag.tagName == "jahia:link":
-                    # It happens that a link references a page that does not exist anymore
-                    # observed on site dii
-                    try:
-                        page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
-                    except KeyError as e:
-                        continue
-                    content += '<li><a href="{}">{}</a></li>'.format(page.pid, jahia_tag.getAttribute("jahia:title"))
-                elif jahia_tag.tagName == "jahia:url":
-                    url = jahia_tag.getAttribute("jahia:value")
-                    title = jahia_tag.getAttribute("jahia:title")
-                    content += '<li><a href="{}">{}</a></li>'.format(url, title)
+
+                if link_node.tagName == "linkDesc":
+                    desc = link_node.getAttribute("jahia:value")
+                elif link_node.tagName == "link":
+
+                    # Going through node containing link. It can be 'jahia:link' or 'jahia:url' node.
+                    for jahia_tag in link_node.childNodes:
+                        if jahia_tag.ELEMENT_NODE != jahia_tag.nodeType:
+                            continue
+                        if jahia_tag.tagName == "jahia:link":
+                            # It happens that a link references a page that does not exist anymore
+                            # observed on site dii
+                            try:
+                                page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
+                            except KeyError as e:
+                                continue
+                            link_html = '<a href="{}">{}</a>'.format(page.pid, jahia_tag.getAttribute("jahia:title"))
+
+                        elif jahia_tag.tagName == "jahia:url":
+                            link_html = '<a href="{}">{}</a>'.format(jahia_tag.getAttribute("jahia:value"),
+                                                                     jahia_tag.getAttribute("jahia:title"))
+
+            content += '<li>{}{}</li>'.format(link_html, desc)
+
         content += "</ul>"
 
         if content == "<ul></ul>":

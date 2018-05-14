@@ -156,10 +156,10 @@ class TestPages:
             for language, content in page.contents.items():
 
                 expected_content = data['pages_by_pid'][pid]['contents'][language]
-
                 assert content.language == expected_content['language']
                 assert content.path == expected_content['path']
                 assert content.title == expected_content['title']
+                assert content.menu_title == expected_content['menu_title']
                 assert content.last_update == expected_content['last_update']
 
     def test_boxes(self, site, data):
@@ -183,7 +183,7 @@ class TestPages:
                 # Box content
                 for index, box in enumerate(boxes):
                     expected_content = expected_boxes[index]['content__start']
-                assert box.content.startswith(expected_content)
+                    assert box.content.startswith(expected_content)
 
                 # Box type
                 box_type = [box.type for box in boxes]
