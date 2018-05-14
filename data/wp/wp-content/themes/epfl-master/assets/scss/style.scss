@@ -356,9 +356,9 @@ a.a2a_button_{
 .collapsible-header .title {
   border-bottom: 1px dotted #000;
   display: inline-block;
-  font-size: .8125em;
+  font-size: 1em;
   font-weight: 500;
-  margin-left: 1em;
+  margin-left: 16px;
   padding-right: 0;
   
   &:hover {
@@ -369,8 +369,9 @@ a.a2a_button_{
     @include icon;
     content: "\f0da";
     color: #000;
+    font-size: 16px;
     font-weight: 400;
-    line-height: 1em;
+    line-height: 20px;
     position: absolute;
     top: auto; right: auto; bottom: auto; left: 0;
   }
@@ -1583,7 +1584,7 @@ ul.bottin {
   }
 }
 
-.sidebar .widget-title {
+.sidebar-title {
   @include txt-narrow;
   border-bottom: 1px solid #000;
   color: #000;
@@ -1595,8 +1596,33 @@ ul.bottin {
   padding: 1px 0 4px 1px;
 }
 
+.sidebar .widget-title {
+  @extend .sidebar-title;
+}
+
 .sidebar .home-panel {
   @include colored-text-box;
+}
+
+.sidebar .collapsible {
+  
+  .collapsible-header {
+    @extend .sidebar-title;
+  
+    .title {
+      @include txt-narrow;
+      border: 0;
+      
+      &:before {
+        line-height: 24px;
+      }
+    }
+  }
+  
+  .collapsible-content {
+    padding: 0 0 0 16px;
+  }
+  
 }
 
 /*  ---------------------------------------
