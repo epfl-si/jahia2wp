@@ -465,6 +465,8 @@ class Box:
 
         snippets = element.getElementsByTagName("snippetListList")[0].getElementsByTagName("snippetList")
 
+        self.content = ""
+
         for snippet in snippets:
             title = Utils.get_tag_attribute(snippet, "title", "jahia:value")
             subtitle = Utils.get_tag_attribute(snippet, "subtitle", "jahia:value")
@@ -473,10 +475,13 @@ class Box:
             big_image = Utils.get_tag_attribute(snippet, "bigImage", "jahia:value")
             enable_zoom = Utils.get_tag_attribute(snippet, "enableImageZoom", "jahia:value")
 
+            # Fix path if necessary
+            if "/files" in image:
+                image = image[image.rfind("/files"):]
+
             # escape
             title = title.replace('"', '\\"')
             subtitle = subtitle.replace('"', '\\"')
-            description = description.replace('"', '\\"')
 
             url = ""
 
@@ -494,9 +499,16 @@ class Box:
 
                         url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
 
-            self.content = '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
-                           ' big_image="{}" enable_zoom="{}" description="{}"]'\
-                .format(self.shortcode_name, url, title, subtitle, image, big_image, enable_zoom, description)
+            self.content += '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
+                            ' big_image="{}" enable_zoom="{}"]{}[/{}]'.format(self.shortcode_name,
+                                                                              url,
+                                                                              title,
+                                                                              subtitle,
+                                                                              image,
+                                                                              big_image,
+                                                                              enable_zoom,
+                                                                              description,
+                                                                              self.shortcode_name)
 
     def set_box_syntax_highlight(self, element):
         """Set the attributes of a syntaxHighlight box"""
