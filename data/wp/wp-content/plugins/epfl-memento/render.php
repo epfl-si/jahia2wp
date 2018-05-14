@@ -9,27 +9,33 @@ Class MementoRender
  * @return html of template
  */
 public static function epfl_memento_template_short_text($events): string {
+
     $html_content = '<div class="list-events clearfix">';
+
 	foreach ($events->results as $item) {
 
-  	$start_date = new DateTime($item->start_date);
-    $start_date = $start_date->format('d M');
+  	    $start_date = new DateTime($item->start_date);
+        $start_date = $start_date->format('d M');
 
-    $end_date = new DateTime($item->end_date);
-    $end_date = $end_date->format('d M');
+        $end_date = new DateTime($item->end_date);
+        $end_date = $end_date->format('d M');
 
-    $html_content .= '<article class="event">';
-    $html_content .= '  <div class="event-dates">';
-    $html_content .= '    <p class="date-start"><time>' . $start_date . '</time></p>';
-    if ($end_date != $start_date) {
-      $html_content .= '  <p class="date-end"><time>' . $end_date . '</time></p>';
-    }
-    $html_content .= '  </div>';
-    $html_content .= '  <h2 class="event-title"><a href="' . $item->event_url . '" title="' . $item->title . '">' . $item->title . '</a></h2>';
+        $html_content .= '<article class="event">';
+        $html_content .= '  <div class="event-dates">';
+        $html_content .= '    <p class="date-start"><time>' . $start_date . '</time></p>';
+
+        if ($end_date != $start_date) {
+            $html_content .= '  <p class="date-end"><time>' . $end_date . '</time></p>';
+        }
+
+        $html_content .= '  </div>';
+        $html_content .= '  <h2 class="event-title"><a href="' . esc_attr($item->event_url) . '" title="' . esc_attr($item->title) . '">' . $item->title . '</a></h2>';
 
 		$html_content .= '</article>';
     }
+
     $html_content .= '</div>';
+
     return $html_content;
 }
 
@@ -40,55 +46,61 @@ public static function epfl_memento_template_short_text($events): string {
  * @return html of template
  */
 public static function epfl_memento_template_text($events): string {
+
     $html_content = '<div class="list-events clearfix">';
+
 	foreach ($events->results as $item) {
 
-  	$start_date = new DateTime($item->start_date);
-    $start_date = $start_date->format('d M');
+        $start_date = new DateTime($item->start_date);
+        $start_date = $start_date->format('d M');
 
-    $end_date = new DateTime($item->end_date);
-    $end_date = $end_date->format('d M');
+        $end_date = new DateTime($item->end_date);
+        $end_date = $end_date->format('d M');
 
-    if (is_null($item->start_time)){
-      $start_time = "";
-    } else {
-      $start_time = new DateTime($item->start_time);
-      $start_time = $start_time->format('G:i');
-    }
+        if (is_null($item->start_time)){
+          $start_time = "";
+        } else {
+          $start_time = new DateTime($item->start_time);
+          $start_time = $start_time->format('G:i');
+        }
 
-    if (is_null($item->end_time)){
-      $end_time = "";
-    } else {
-      $end_time = new DateTime($item->end_time);
-      $end_time = $end_time->format('G:i');
-    }
+        if (is_null($item->end_time)){
+          $end_time = "";
+        } else {
+          $end_time = new DateTime($item->end_time);
+          $end_time = $end_time->format('G:i');
+        }
 
-    $html_content .= '<article class="event">';
-    $html_content .= '  <div class="event-dates">';
-    $html_content .= '    <p class="date-start"><time>' . $start_date . '</time></p>';
-    if ($end_date != $start_date) {
-      $html_content .= '  <p class="date-end"><time>' . $end_date . '</time></p>';
-    }
-    $html_content .= '  </div>';
-    $html_content .= '  <div class="event-content">';
-    $html_content .= '    <div class="event-meta">';
-    $html_content .= '      <a href="' . $item->icalendar_url . '" class="event-export"><span class="sr-only">Export event</span></a>';
-    if (!is_null($item->start_time)) {
-      $html_content .= '    <p class="event-times time-start">'.$start_time.'</p>';
-      $html_content .= '    <p class="event-times time-end">' . $end_time . '</p>';
-    }
-    $html_content .= '      <p class="event-location">';
-    $html_content .= '        <a href="' . $item->url_place_and_room . '">' . $item->place_and_room . '</a>';
-    $html_content .= '      </p>';
-    $html_content .= '    </div>';
-    $html_content .= '    <h2 class="event-title">';
-    $html_content .= '      <a href="' . $item->event_url . '" title="' . $item->title . '">' . $item->title . '</a>';
-    $html_content .= '    </h2>';
+        $html_content .= '<article class="event">';
+        $html_content .= '  <div class="event-dates">';
+        $html_content .= '    <p class="date-start"><time>' . $start_date . '</time></p>';
 
-    $html_content .= '  </div>';
-    $html_content .= '  <div class="event-extra">';
-    $html_content .= '    <p class="speakers">' . __( 'By: ', 'epfl-memento' ) . $item->speaker . '</p>';
-    $html_content .= '  </div>';
+        if ($end_date != $start_date) {
+          $html_content .= '  <p class="date-end"><time>' . $end_date . '</time></p>';
+        }
+
+        $html_content .= '  </div>';
+        $html_content .= '  <div class="event-content">';
+        $html_content .= '    <div class="event-meta">';
+        $html_content .= '      <a href="' . esc_attr($item->icalendar_url) . '" class="event-export"><span class="sr-only">Export event</span></a>';
+
+        if (!is_null($item->start_time)) {
+          $html_content .= '    <p class="event-times time-start">'.$start_time.'</p>';
+          $html_content .= '    <p class="event-times time-end">' . $end_time . '</p>';
+        }
+
+        $html_content .= '      <p class="event-location">';
+        $html_content .= '        <a href="' . esc_attr($item->url_place_and_room) . '">' . $item->place_and_room . '</a>';
+        $html_content .= '      </p>';
+        $html_content .= '    </div>';
+        $html_content .= '    <h2 class="event-title">';
+        $html_content .= '      <a href="' . esc_attr($item->event_url) . '" title="' . esc_attr($item->title) . '">' . $item->title . '</a>';
+        $html_content .= '    </h2>';
+
+        $html_content .= '  </div>';
+        $html_content .= '  <div class="event-extra">';
+        $html_content .= '    <p class="speakers">' . __( 'By: ', 'epfl-memento' ) . $item->speaker . '</p>';
+        $html_content .= '  </div>';
 
 		$html_content .= '</article>';
     }
@@ -103,64 +115,71 @@ public static function epfl_memento_template_text($events): string {
  * @return html of template
  */
 public static function epfl_memento_template_with_3_events_and_right_column($events): string {
+
     $html_content = '<div class="list-events clearfix">';
+
 	foreach ($events->results as $item) {
 
-    $start_date = new DateTime($item->start_date);
-    $start_date = $start_date->format('d M');
+        $start_date = new DateTime($item->start_date);
+        $start_date = $start_date->format('d M');
 
-    $end_date = new DateTime($item->end_date);
-    $end_date = $end_date->format('d M');
+        $end_date = new DateTime($item->end_date);
+        $end_date = $end_date->format('d M');
 
-    if (is_null($item->start_time)){
-      $start_time = "";
-    } else {
-      $start_time = new DateTime($item->start_time);
-      $start_time = $start_time->format('G:i');
-    }
+        if (is_null($item->start_time)){
+          $start_time = "";
+        } else {
+          $start_time = new DateTime($item->start_time);
+          $start_time = $start_time->format('G:i');
+        }
 
-    if (is_null($item->end_time)){
-      $end_time = "";
-    } else {
-      $end_time = new DateTime($item->end_time);
-      $end_time = $end_time->format('G:i');
-    }
-    $html_content .= '<article class="event has-image has-teaser has-extra">';
-    $html_content .= '  <div class="event-dates">';
-    $html_content .= '    <p class="date-start"><time>' . $start_date . '</time></p>';
-    if ($end_date != $start_date) {
-      $html_content .= '  <p class="date-end"><time>' . $end_date . '</time></p>';
-    }
-    $html_content .= '  </div>';
-    $html_content .= '  <figure class="img event-img">';
-    $html_content .= '    <a href="' . $item->event_url . '" title="' . $item->title . '">';
-    $html_content .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'" alt="' . $item->image_description . '">';
-    $html_content .= '    </a>';
-    $html_content .= '  </figure>';
-    $html_content .= '  <div class="event-content">';
-    $html_content .= '    <div class="event-meta">';
-    $html_content .= '      <a href="' . $item->icalendar_url . '" class="event-export"><span class="sr-only">Export event</span></a>';
-    if (!is_null($item->start_time)) {
-      $html_content .= '    <p class="event-times time-start">'.$start_time.'</p>';
-      $html_content .= '    <p class="event-times time-end">' . $end_time . '</p>';
-    }
-    $html_content .= '      <p class="event-location">';
-    $html_content .= '        <a href="' . $item->url_place_and_room . '">' . $item->place_and_room . '</a>';
-    $html_content .= '      </p>';
-    $html_content .= '    </div>';
-    $html_content .= '    <h2 class="event-title">';
-    $html_content .= '      <a href="' . $item->event_url . '" title="' . $item->title . '">' . $item->title . '</a>';
-    $html_content .= '    </h2>';
-    $html_content .= '    <p class="teaser">' . $item->description . '</p>';
+        if (is_null($item->end_time)){
+          $end_time = "";
+        } else {
+          $end_time = new DateTime($item->end_time);
+          $end_time = $end_time->format('G:i');
+        }
 
-    $html_content .= '  </div>';
-    $html_content .= '  <div class="event-extra">';
-    $html_content .= '    <p class="speakers">' . __( 'By: ', 'epfl-memento' ) . $item->speaker . '</p>';
-    $html_content .= '  </div>';
+        $html_content .= '<article class="event has-image has-teaser has-extra">';
+        $html_content .= '  <div class="event-dates">';
+        $html_content .= '    <p class="date-start"><time>' . $start_date . '</time></p>';
 
+        if ($end_date != $start_date) {
+          $html_content .= '  <p class="date-end"><time>' . $end_date . '</time></p>';
+        }
+
+        $html_content .= '  </div>';
+        $html_content .= '  <figure class="img event-img">';
+        $html_content .= '    <a href="' . esc_attr($item->event_url) . '" title="' . esc_attr($item->title) . '">';
+        $html_content .= '      <img src="' . esc_attr($item->visual_url) . '" title="'. esc_attr($item->title) . '" alt="' . esc_attr($item->image_description) . '">';
+        $html_content .= '    </a>';
+        $html_content .= '  </figure>';
+        $html_content .= '  <div class="event-content">';
+        $html_content .= '    <div class="event-meta">';
+        $html_content .= '      <a href="' . esc_attr($item->icalendar_url) . '" class="event-export"><span class="sr-only">Export event</span></a>';
+
+        if (!is_null($item->start_time)) {
+          $html_content .= '    <p class="event-times time-start">'.$start_time.'</p>';
+          $html_content .= '    <p class="event-times time-end">' . $end_time . '</p>';
+        }
+
+        $html_content .= '      <p class="event-location">';
+        $html_content .= '        <a href="' . esc_attr($item->url_place_and_room) . '">' . $item->place_and_room . '</a>';
+        $html_content .= '      </p>';
+        $html_content .= '    </div>';
+        $html_content .= '    <h2 class="event-title">';
+        $html_content .= '      <a href="' . esc_attr($item->event_url) . '" title="' . esc_attr($item->title) . '">' . $item->title . '</a>';
+        $html_content .= '    </h2>';
+        $html_content .= '    <p class="teaser">' . $item->description . '</p>';
+        $html_content .= '  </div>';
+        $html_content .= '  <div class="event-extra">';
+        $html_content .= '    <p class="speakers">' . __( 'By: ', 'epfl-memento' ) . $item->speaker . '</p>';
+        $html_content .= '  </div>';
 		$html_content .= '</article>';
     }
+
     $html_content .= '</div>';
+
     return $html_content;
 }
 
@@ -171,64 +190,71 @@ public static function epfl_memento_template_with_3_events_and_right_column($eve
  * @return html of template
  */
 public static function epfl_memento_template_with_5_events_and_right_column($events): string {
+
     $html_content = '<div class="list-events clearfix">';
+
 	foreach ($events->results as $item) {
 
-    $start_date = new DateTime($item->start_date);
-    $start_date = $start_date->format('d M');
+        $start_date = new DateTime($item->start_date);
+        $start_date = $start_date->format('d M');
 
-    $end_date = new DateTime($item->end_date);
-    $end_date = $end_date->format('d M');
+        $end_date = new DateTime($item->end_date);
+        $end_date = $end_date->format('d M');
 
-    if (is_null($item->start_time)){
-      $start_time = "";
-    } else {
-      $start_time = new DateTime($item->start_time);
-      $start_time = $start_time->format('G:i');
+        if (is_null($item->start_time)){
+          $start_time = "";
+        } else {
+          $start_time = new DateTime($item->start_time);
+          $start_time = $start_time->format('G:i');
+        }
+
+        if (is_null($item->end_time)){
+          $end_time = "";
+        } else {
+          $end_time = new DateTime($item->end_time);
+          $end_time = $end_time->format('G:i');
+        }
+
+        $html_content .= '<article class="event has-image has-teaser has-extra">';
+        $html_content .= '  <div class="event-dates">';
+        $html_content .= '    <p class="date-start"><time>' . $start_date . '</time></p>';
+
+        if ($end_date != $start_date) {
+          $html_content .= '  <p class="date-end"><time>' . $end_date . '</time></p>';
+        }
+
+        $html_content .= '  </div>';
+        $html_content .= '  <figure class="img event-img">';
+        $html_content .= '    <a href="' . esc_attr($item->event_url) . '" title="' . esc_attr($item->title) . '">';
+        $html_content .= '      <img src="' . esc_attr($item->visual_url) . '" title="' . esc_attr($item->title) .'" alt="' . esc_attr($item->image_description) . '">';
+        $html_content .= '    </a>';
+        $html_content .= '  </figure>';
+        $html_content .= '  <div class="event-content">';
+        $html_content .= '    <div class="event-meta">';
+        $html_content .= '      <a href="' . esc_attr($item->icalendar_url) . '" class="event-export"><span class="sr-only">Export event</span></a>';
+
+        if (!is_null($item->start_time)) {
+          $html_content .= '    <p class="event-times time-start">'.$start_time.'</p>';
+          $html_content .= '    <p class="event-times time-end">' . $end_time . '</p>';
+        }
+
+        $html_content .= '      <p class="event-location">';
+        $html_content .= '        <a href="' . esc_attr($item->url_place_and_room) . '">' . $item->place_and_room . '</a>';
+        $html_content .= '      </p>';
+        $html_content .= '    </div>';
+        $html_content .= '    <h2 class="event-title">';
+        $html_content .= '      <a href="' . esc_attr($item->event_url) . '" title="' . esc_attr($item->title) . '">' . $item->title . '</a>';
+        $html_content .= '    </h2>';
+        $html_content .= '    <p class="teaser">' . $item->description . '</p>';
+        $html_content .= '  </div>';
+        $html_content .= '  <div class="event-extra">';
+        $html_content .= '    <p class="speakers">' . __( 'By: ', 'epfl-memento' ) . $item->speaker . '</p>';
+        $html_content .= '  </div>';
+        $html_content .= '</article>';
     }
 
-    if (is_null($item->end_time)){
-      $end_time = "";
-    } else {
-      $end_time = new DateTime($item->end_time);
-      $end_time = $end_time->format('G:i');
-    }
-    $html_content .= '<article class="event has-image has-teaser has-extra">';
-    $html_content .= '  <div class="event-dates">';
-    $html_content .= '    <p class="date-start"><time>' . $start_date . '</time></p>';
-    if ($end_date != $start_date) {
-      $html_content .= '  <p class="date-end"><time>' . $end_date . '</time></p>';
-    }
-    $html_content .= '  </div>';
-    $html_content .= '  <figure class="img event-img">';
-    $html_content .= '    <a href="' . $item->event_url . '" title="' . $item->title . '">';
-    $html_content .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'" alt="' . $item->image_description . '">';
-    $html_content .= '    </a>';
-    $html_content .= '  </figure>';
-    $html_content .= '  <div class="event-content">';
-    $html_content .= '    <div class="event-meta">';
-    $html_content .= '      <a href="' . $item->icalendar_url . '" class="event-export"><span class="sr-only">Export event</span></a>';
-    if (!is_null($item->start_time)) {
-      $html_content .= '    <p class="event-times time-start">'.$start_time.'</p>';
-      $html_content .= '    <p class="event-times time-end">' . $end_time . '</p>';
-    }
-    $html_content .= '      <p class="event-location">';
-    $html_content .= '        <a href="' . $item->url_place_and_room . '">' . $item->place_and_room . '</a>';
-    $html_content .= '      </p>';
-    $html_content .= '    </div>';
-    $html_content .= '    <h2 class="event-title">';
-    $html_content .= '      <a href="' . $item->event_url . '" title="' . $item->title . '">' . $item->title . '</a>';
-    $html_content .= '    </h2>';
-    $html_content .= '    <p class="teaser">' . $item->description . '</p>';
-
-    $html_content .= '  </div>';
-    $html_content .= '  <div class="event-extra">';
-    $html_content .= '    <p class="speakers">' . __( 'By: ', 'epfl-memento' ) . $item->speaker . '</p>';
-    $html_content .= '  </div>';
-
-		$html_content .= '</article>';
-    }
     $html_content .= '</div>';
+
     return $html_content;
 }
 
@@ -240,60 +266,67 @@ public static function epfl_memento_template_with_5_events_and_right_column($eve
  */
 public static function epfl_memento_template_with_2_events($events): string {
     $html_content = '<div class="list-events clearfix">';
+
 	foreach ($events->results as $item) {
 
-    $start_date = new DateTime($item->start_date);
-    $start_date = $start_date->format('d M');
+        $start_date = new DateTime($item->start_date);
+        $start_date = $start_date->format('d M');
 
-    $end_date = new DateTime($item->end_date);
-    $end_date = $end_date->format('d M');
+        $end_date = new DateTime($item->end_date);
+        $end_date = $end_date->format('d M');
 
-    if (is_null($item->start_time)){
-      $start_time = "";
-    } else {
-      $start_time = new DateTime($item->start_time);
-      $start_time = $start_time->format('G:i');
-    }
+        if (is_null($item->start_time)){
+          $start_time = "";
+        } else {
+          $start_time = new DateTime($item->start_time);
+          $start_time = $start_time->format('G:i');
+        }
 
-    if (is_null($item->end_time)){
-      $end_time = "";
-    } else {
-      $end_time = new DateTime($item->end_time);
-      $end_time = $end_time->format('G:i');
-    }
+        if (is_null($item->end_time)){
+          $end_time = "";
+        } else {
+          $end_time = new DateTime($item->end_time);
+          $end_time = $end_time->format('G:i');
+        }
 
-    $html_content .= '<article class="event has-image">';
-    $html_content .= '  <div class="event-dates">';
-    $html_content .= '    <p class="date-start"><time>' . $start_date . '</time></p>';
-    if ($end_date != $start_date) {
-      $html_content .= '  <p class="date-end"><time>' . $end_date . '</time></p>';
-    }
-    $html_content .= '  </div>';
-    $html_content .= '  <figure class="img event-img">';
-    $html_content .= '    <a href="' . $item->event_url . '" title="' . $item->title . '">';
-    $html_content .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'" alt="' . $item->image_description . '">';
-    $html_content .= '    </a>';
-    $html_content .= '  </figure>';
-    $html_content .= '  <div class="event-content">';
-    $html_content .= '    <div class="event-meta">';
-    $html_content .= '      <a href="' . $item->icalendar_url . '" class="event-export"><span class="sr-only">Export event</span></a>';
-    if (!is_null($item->start_time)) {
-      $html_content .= '    <p class="event-times time-start">'.$start_time.'</p>';
-      $html_content .= '    <p class="event-times time-end">' . $end_time . '</p>';
-    }
-    $html_content .= '      <p class="event-location">';
-    $html_content .= '        <a href="' . $item->url_place_and_room . '">' . $item->place_and_room . '</a>';
-    $html_content .= '      </p>';
-    $html_content .= '    </div>';
-    $html_content .= '    <h2 class="event-title">';
-    $html_content .= '      <a href="' . $item->event_url . '" title="' . $item->title . '">' . $item->title . '</a>';
-    $html_content .= '    </h2>';
+        $html_content .= '<article class="event has-image">';
+        $html_content .= '  <div class="event-dates">';
+        $html_content .= '    <p class="date-start"><time>' . $start_date . '</time></p>';
 
-    $html_content .= '  </div>';
+        if ($end_date != $start_date) {
+          $html_content .= '  <p class="date-end"><time>' . $end_date . '</time></p>';
+        }
+
+        $html_content .= '  </div>';
+        $html_content .= '  <figure class="img event-img">';
+        $html_content .= '    <a href="' . esc_attr($item->event_url) . '" title="' . esc_attr($item->title) . '">';
+        $html_content .= '      <img src="' . esc_attr($item->visual_url) . '" title="' . esc_attr($item->title) .'" alt="' . esc_attr($item->image_description) . '">';
+        $html_content .= '    </a>';
+        $html_content .= '  </figure>';
+        $html_content .= '  <div class="event-content">';
+        $html_content .= '    <div class="event-meta">';
+        $html_content .= '      <a href="' . esc_attr($item->icalendar_url) . '" class="event-export"><span class="sr-only">Export event</span></a>';
+
+        if (!is_null($item->start_time)) {
+          $html_content .= '    <p class="event-times time-start">' . $start_time . '</p>';
+          $html_content .= '    <p class="event-times time-end">' . $end_time . '</p>';
+        }
+
+        $html_content .= '      <p class="event-location">';
+        $html_content .= '        <a href="' . esc_attr($item->url_place_and_room) . '">' . $item->place_and_room . '</a>';
+        $html_content .= '      </p>';
+        $html_content .= '    </div>';
+        $html_content .= '    <h2 class="event-title">';
+        $html_content .= '      <a href="' . esc_attr($item->event_url) . '" title="' . esc_attr($item->title) . '">' . $item->title . '</a>';
+        $html_content .= '    </h2>';
+
+        $html_content .= '  </div>';
 
 		$html_content .= '</article>';
     }
+
     $html_content.= '</div>';
+
     return $html_content;
 }
 
@@ -306,60 +339,65 @@ public static function epfl_memento_template_with_2_events($events): string {
 public static function epfl_memento_template_with_3_events($events): string {
 
     $html_content = '<div class="list-events clearfix">';
+
 	foreach ($events->results as $item) {
 
-    $start_date = new DateTime($item->start_date);
-    $start_date = $start_date->format('d M');
+        $start_date = new DateTime($item->start_date);
+        $start_date = $start_date->format('d M');
 
-    $end_date = new DateTime($item->end_date);
-    $end_date = $end_date->format('d M');
+        $end_date = new DateTime($item->end_date);
+        $end_date = $end_date->format('d M');
 
-    if (is_null($item->start_time)){
-      $start_time = "";
-    } else {
-      $start_time = new DateTime($item->start_time);
-      $start_time = $start_time->format('G:i');
-    }
+        if (is_null($item->start_time)){
+          $start_time = "";
+        } else {
+          $start_time = new DateTime($item->start_time);
+          $start_time = $start_time->format('G:i');
+        }
 
-    if (is_null($item->end_time)){
-      $end_time = "";
-    } else {
-      $end_time = new DateTime($item->end_time);
-      $end_time = $end_time->format('G:i');
-    }
+        if (is_null($item->end_time)){
+          $end_time = "";
+        } else {
+          $end_time = new DateTime($item->end_time);
+          $end_time = $end_time->format('G:i');
+        }
 
-    $html_content .= '<article class="event has-image">';
-    $html_content .= '  <div class="event-dates">';
-    $html_content .= '    <p class="date-start"><time>' . $start_date . '</time></p>';
-    if ($end_date != $start_date) {
-      $html_content .= '  <p class="date-end"><time>' . $end_date . '</time></p>';
-    }
-    $html_content .= '  </div>';
-    $html_content .= '  <figure class="img event-img">';
-    $html_content .= '    <a href="' . $item->event_url . '" title="' . $item->title . '">';
-    $html_content .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'" alt="' . $item->image_description . '">';
-    $html_content .= '    </a>';
-    $html_content .= '  </figure>';
-    $html_content .= '  <div class="event-content">';
-    $html_content .= '    <div class="event-meta">';
-    $html_content .= '      <a href="' . $item->icalendar_url . '" class="event-export"><span class="sr-only">Export event</span></a>';
-    if (!is_null($item->start_time)) {
-      $html_content .= '    <p class="event-times time-start">'.$start_time.'</p>';
-      $html_content .= '    <p class="event-times time-end">' . $end_time . '</p>';
-    }
-    $html_content .= '      <p class="event-location">';
-    $html_content .= '        <a href="' . $item->url_place_and_room . '">' . $item->place_and_room . '</a>';
-    $html_content .= '      </p>';
-    $html_content .= '    </div>';
-    $html_content .= '    <h2 class="event-title">';
-    $html_content .= '      <a href="' . $item->event_url . '" title="' . $item->title . '">' . $item->title . '</a>';
-    $html_content .= '    </h2>';
+        $html_content .= '<article class="event has-image">';
+        $html_content .= '  <div class="event-dates">';
+        $html_content .= '    <p class="date-start"><time>' . $start_date . '</time></p>';
 
-    $html_content .= '  </div>';
+        if ($end_date != $start_date) {
+          $html_content .= '  <p class="date-end"><time>' . $end_date . '</time></p>';
+        }
 
+        $html_content .= '  </div>';
+        $html_content .= '  <figure class="img event-img">';
+        $html_content .= '    <a href="' . esc_attr($item->event_url) . '" title="' . esc_attr($item->title) . '">';
+        $html_content .= '      <img src="' . esc_attr($item->visual_url) . '" title="' . esc_attr($item->title) . '" alt="' . esc_attr($item->image_description) . '">';
+        $html_content .= '    </a>';
+        $html_content .= '  </figure>';
+        $html_content .= '  <div class="event-content">';
+        $html_content .= '    <div class="event-meta">';
+        $html_content .= '      <a href="' . esc_attr($item->icalendar_url) . '" class="event-export"><span class="sr-only">Export event</span></a>';
+
+        if (!is_null($item->start_time)) {
+          $html_content .= '    <p class="event-times time-start">' . $start_time . '</p>';
+          $html_content .= '    <p class="event-times time-end">' . $end_time . '</p>';
+        }
+
+        $html_content .= '      <p class="event-location">';
+        $html_content .= '        <a href="' . esc_attr($item->url_place_and_room) . '">' . $item->place_and_room . '</a>';
+        $html_content .= '      </p>';
+        $html_content .= '    </div>';
+        $html_content .= '    <h2 class="event-title">';
+        $html_content .= '      <a href="' . esc_attr($item->event_url) . '" title="' . esc_attr($item->title) . '">' . $item->title . '</a>';
+        $html_content .= '    </h2>';
+        $html_content .= '  </div>';
 		$html_content .= '</article>';
     }
+
     $html_content.= '</div>';
+
     return $html_content;
 }
 
@@ -372,35 +410,40 @@ public static function epfl_memento_template_with_3_events($events): string {
 public static function epfl_memento_template_student_portal($events): string {
 
     $html_content = '<div class="list-events clearfix">';
+
 	foreach ($events->results as $item) {
 
-    $start_date = new DateTime($item->start_date);
-    $start_date = $start_date->format('d M');
+        $start_date = new DateTime($item->start_date);
+        $start_date = $start_date->format('d M');
 
-    $end_date = new DateTime($item->end_date);
-    $end_date = $end_date->format('d M');
+        $end_date = new DateTime($item->end_date);
+        $end_date = $end_date->format('d M');
 
-    $html_content .= '<article class="event has-image has-cover-image">';
-    $html_content .= '  <div class="event-dates">';
-    $html_content .= '    <p class="date-start"><time>' . $start_date . '</time></p>';
-    if ($end_date != $start_date) {
-      $html_content .= '  <p class="date-end"><time>' . $end_date . '</time></p>';
-    }
-    $html_content .= '  </div>';
-    $html_content .= '  <figure class="img event-img cover-img">';
-    $html_content .= '     <img src="https://studying.epfl.ch/files/content/sites/studying/files/memento/empty_fr_en.png" title="'.$item->title.'" alt="">';
-    $html_content .= '  </figure>';
-    $html_content .= '  <div class="event-content">';
-    $html_content .= '    <h2 class="event-title">';
-    $html_content .= '      <a href="' . $item->event_url . '" title="' . $item->title . '">' . $item->title . '</a>';
-    $html_content .= '    </h2>';
-    $html_content .= '    <p class="studying-calendar">';
-    $html_content .= '      <a href="https://memento.epfl.ch/academic-calendar/?period=14"><span class="label">' . __( 'Academic calendar ', 'epfl-memento' ) . '</span></a>';
-    $html_content .= '    </p>';
-    $html_content .= '  </div>';
+        $html_content .= '<article class="event has-image has-cover-image">';
+        $html_content .= '  <div class="event-dates">';
+        $html_content .= '    <p class="date-start"><time>' . $start_date . '</time></p>';
+
+        if ($end_date != $start_date) {
+          $html_content .= '  <p class="date-end"><time>' . $end_date . '</time></p>';
+        }
+
+        $html_content .= '  </div>';
+        $html_content .= '  <figure class="img event-img cover-img">';
+        $html_content .= '     <img src="https://studying.epfl.ch/files/content/sites/studying/files/memento/empty_fr_en.png" title="' . esc_attr($item->title) . '" alt="">';
+        $html_content .= '  </figure>';
+        $html_content .= '  <div class="event-content">';
+        $html_content .= '    <h2 class="event-title">';
+        $html_content .= '      <a href="' . esc_attr($item->event_url) . '" title="' . esc_attr($item->title) . '">' . $item->title . '</a>';
+        $html_content .= '    </h2>';
+        $html_content .= '    <p class="studying-calendar">';
+        $html_content .= '      <a href="https://memento.epfl.ch/academic-calendar/?period=14"><span class="label">' . __( 'Academic calendar ', 'epfl-memento' ) . '</span></a>';
+        $html_content .= '    </p>';
+        $html_content .= '  </div>';
 		$html_content .= '</article>';
     }
+
     $html_content.= '</div>';
+
     return $html_content;
 }
 
@@ -421,7 +464,9 @@ public static function epfl_memento_template_homepage_faculty($events): string {
         $html_content .= '<p>' . $item->end_date . '</p>';
 		$html_content .= '</div>';
     }
+
     $html_content.= '</div>';
+
     return $html_content;
 }
 
