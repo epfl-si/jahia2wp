@@ -1,3 +1,4 @@
+import settings
 from utils import Utils
 from anytree import Node, RenderTree
 
@@ -64,6 +65,8 @@ class FanGlobalSitemap:
 
     def _clean(self):
         """Deletes all the content"""
+
+        # delete the pages
         try:
             cmd = "cd {}; wp post delete " \
                   "$(wp post list --post_type='page' --post_status='all' --format=ids --path='{}') --force" \
@@ -74,6 +77,16 @@ class FanGlobalSitemap:
             # simply means there are not posts to delete
             pass
 
+        # delete the menus
+        try:
+            cmd = "cd {}; wp menu delete " \
+                  "$(wp menu list --format=ids)".format(self.wp_path)
+
+            Utils.run_command(cmd)
+        except:
+            # simply means there are not menus to delete
+            pass
+
     def generate_website(self):
         """
         Generates a global sitemap.
@@ -81,6 +94,8 @@ class FanGlobalSitemap:
         self._clean()
 
         self._validate_data()
+
+        self._insert_main_menu()
 
         self._insert_pages()
 
@@ -156,18 +171,22 @@ class FanGlobalSitemap:
 
             content = url
 
-            parent = homepage_id
+            parent_id = homepage_id
+            menu_item_parent_id = None
 
             # check if the page has a parent
             if parent_path:
-                parent = pages_by_path[parent_path]["id"]
+                parent_id = pages_by_path[parent_path]["id"]
+                menu_item_parent_id = pages_by_path[parent_path]["menu_item_id"]
 
-            page_id = self._generate_page(name, title, content, parent)
+            page_id = self._generate_page(name, title, content, parent_id)
+            menu_item_id = self._add_to_menu(page_id, menu_item_parent_id)
 
             # add the page info
             page = {
+                "id": page_id,
+                "menu_item_id": menu_item_id,
                 "path": path,
-                "id": page_id
             }
 
             pages_by_path[path] = page
@@ -175,10 +194,34 @@ class FanGlobalSitemap:
         # sitemap
         self._generate_sitemap(homepage_id)
 
+    def _insert_main_menu(self):
+        """Inserts the Main menu"""
+
+        cmd = "wp menu create {} --path='{}' --porcelain"
+        cmd = cmd.format(settings.MAIN_MENU, self.wp_path)
+
+        return Utils.run_command(cmd)
+
+    def _add_to_menu(self, page_id, menu_item_parent_id=None):
+        """Add the given page to the Main menu"""
+
+        cmd = "wp menu item add-post {} {} --path='{}' --porcelain"
+
+        if menu_item_parent_id:
+            cmd += " --parent-id={}".format(menu_item_parent_id)
+
+        cmd = cmd.format(settings.MAIN_MENU, page_id, self.wp_path)
+
+        return Utils.run_command(cmd)
+
     def _generate_homepage(self):
         """Generates the homepage"""
 
-        return self._generate_page("home", "Home", "Home page")
+        homepage_id = self._generate_page("home", "Home", "Home page")
+
+        self._add_to_menu(homepage_id)
+
+        return homepage_id
 
     def _generate_sitemap(self, homepage_id):
         """Generates the sitemap"""
@@ -187,7 +230,7 @@ class FanGlobalSitemap:
 
         return self._generate_page("sitemap", "Sitemap", content, homepage_id)
 
-    def _generate_page(self, name, title, content, parent=None):
+    def _generate_page(self, name, title, content, parent_id=None):
         """Generates a page with the given informations"""
 
         cmd = "wp post create --post_type=page " \
@@ -198,8 +241,8 @@ class FanGlobalSitemap:
               "--path='{}' " \
               "--porcelain ".format(name, title, content, self.wp_path)
 
-        if parent:
-            cmd += "--post_parent={}".format(parent)
+        if parent_id:
+            cmd += "--post_parent={}".format(parent_id)
 
         return Utils.run_command(cmd)
 

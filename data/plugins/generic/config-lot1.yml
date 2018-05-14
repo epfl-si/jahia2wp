@@ -7,8 +7,6 @@ plugins:
     config: !include akismet/config-plugin.yml
   - name: hello
     config: !include hello/config-plugin.yml
-  - name: polylang
-    config: !include polylang/v1/config-plugin.yml
   - name: mainwp-child
     config: !include mainwp-child/v1/config-plugin.yml
   - name: tequila
