@@ -84,8 +84,6 @@ class FanGlobalSitemap:
 
         self._insert_pages()
 
-        self._generate_sitemap_page()
-
         print("Global sitemap generated successfully.")
 
     def _validate_data(self):
@@ -136,6 +134,9 @@ class FanGlobalSitemap:
         # https://www.epfl.ch/research/domains/enac
         urls_sorted = sorted(self.urls.keys())
 
+        # first insert the homepage
+        homepage_id = self._generate_homepage()
+
         # the WordPress pages
         pages_by_path = {}
 
@@ -155,21 +156,13 @@ class FanGlobalSitemap:
 
             content = url
 
-            cmd = "wp post create --post_type=page " \
-                  "--post_status=publish " \
-                  "--post_name='{}' " \
-                  "--post_title='{}' " \
-                  "--post_content='{}' " \
-                  "--path='{}' " \
-                  "--porcelain ".format(name, title, content, self.wp_path)
+            parent = homepage_id
 
             # check if the page has a parent
             if parent_path:
-                parent = pages_by_path[parent_path]
+                parent = pages_by_path[parent_path]["id"]
 
-                cmd += "--post_parent={}".format(parent["id"])
-
-            page_id = Utils.run_command(cmd)
+            page_id = self._generate_page(name, title, content, parent)
 
             # add the page info
             page = {
@@ -179,18 +172,36 @@ class FanGlobalSitemap:
 
             pages_by_path[path] = page
 
+        # sitemap
+        self._generate_sitemap(homepage_id)
 
-    def _generate_sitemap_page(self):
+    def _generate_homepage(self):
+        """Generates the homepage"""
+
+        return self._generate_page("home", "Home", "Home page")
+
+    def _generate_sitemap(self, homepage_id):
         """Generates the sitemap"""
+
+        content = '[simple-sitemap show_label="false" types="page orderby="menu_order"]'
+
+        return self._generate_page("sitemap", "Sitemap", content, homepage_id)
+
+    def _generate_page(self, name, title, content, parent=None):
+        """Generates a page with the given informations"""
 
         cmd = "wp post create --post_type=page " \
               "--post_status=publish " \
-              "--post_name='sitemap' " \
-              "--post_title='Sitemap' " \
-              "--post_content='[simple-sitemap show_label=\"false\" types=\"page orderby=\"menu_order\"]' " \
-              "--path='{}'".format(self.wp_path)
+              "--post_name='{}' " \
+              "--post_title='{}' " \
+              "--post_content='{}' " \
+              "--path='{}' " \
+              "--porcelain ".format(name, title, content, self.wp_path)
 
-        Utils.run_command(cmd)
+        if parent:
+            cmd += "--post_parent={}".format(parent)
+
+        return Utils.run_command(cmd)
 
     def _add_error(self, line, message):
         """
