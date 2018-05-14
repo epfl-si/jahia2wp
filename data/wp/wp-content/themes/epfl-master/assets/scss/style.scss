@@ -356,7 +356,6 @@ a.a2a_button_{
 .collapsible-header .title {
   border-bottom: 1px dotted #000;
   display: inline-block;
-  font-size: 1em;
   font-weight: 500;
   margin-left: 16px;
   padding-right: 0;
@@ -432,6 +431,35 @@ a.a2a_button_{
 /*  ---------------------------------------
     02 JAHIA IMPORTED CONTENT
 ----------------------------------------- */
+
+.entry-content .box {
+  font-size: .8125em;
+  line-height: 1.3em;
+  margin-bottom: 20px;
+  
+  p {
+    font-size: 1em;
+    margin: 7px 0;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.box h3,
+.fullbox h3 {
+  font-family: Impact,"Arial Black","DejaVu Sans",Arial,Helvetica,sans-serif;
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: .1em;
+  line-height: 26px;
+  color: #000;
+  text-transform: uppercase;
+  padding: 1px 0 4px 1px;
+  border-bottom: 1px solid #000;
+  margin: 0 0 10px 0;
+}
 
 .local-color {
   @include colored-text-box;
@@ -2474,6 +2502,7 @@ ul.bottin {
   
   .entry-content .box {
     float: left;
+    margin-bottom: 40px;
     padding-right: 2px;
     width: 50%;
     

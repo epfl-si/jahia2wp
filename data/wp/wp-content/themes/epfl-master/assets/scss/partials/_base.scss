@@ -57,6 +57,10 @@
   span.icon:empty {
     display: inline-block;
   }
+  
+  .clear:empty {
+    display: block;
+  }
 }
 
 .entry-content {
@@ -167,6 +171,7 @@ h6 {
 h2,
 h3 {
   font-family: "Arial black", Arial, Helvetica, Verdana, sans-serif;
+  margin-top: 1.25rem;
 }
 h4,
 h5,
