@@ -387,6 +387,10 @@ td {
   padding: 0.2em;
 }
 
+td[class*="col"] {
+  width: auto;
+}
+
 /* --- Grid and structure --- */
 
 .grid {
