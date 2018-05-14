@@ -2279,12 +2279,8 @@ ul.bottin {
 }
 
 .event .event-export {
+  @include color-icon;
   border: 0;
-  color: $primary-color;
-  
-  &:hover {
-    color: $primary-color-sec;
-  }
   
   &:before {
     @include icon;
@@ -2381,7 +2377,7 @@ ul.bottin {
   }
   
   .event-dates {
-    background: transparent;
+    background: transparent !important;
     float: none;
     position: absolute;
     top: 10px; right: auto; bottom: auto; left: 10px;
@@ -3055,7 +3051,7 @@ ul.bottin {
   /* Colored date box */
   
   .list-events .has-image .event-dates {
-    background: $primary-color;
+    @include color-background;
     height: 112px;
     padding: 9px 0 5px;
     width: 40px;
