@@ -9,6 +9,8 @@ class FanGlobalSitemap:
     # the csv delimiter
     DELIMITER = ","
     ROOT_URL = "https://www.epfl.ch"
+    # if True create a homepage that is the parent of all the pages
+    CREATE_HOMEPAGE = False
 
     def __init__(self, csv_file, wp_path):
         """
@@ -95,7 +97,7 @@ class FanGlobalSitemap:
 
         self._validate_data()
 
-        self._insert_main_menu()
+        self._insert_menus()
 
         self._insert_pages()
 
@@ -138,6 +140,11 @@ class FanGlobalSitemap:
                 print(error)
             exit()
 
+    def _insert_menus(self):
+        """Inserts the menus"""
+        self._generate_menu(settings.MAIN_MENU)
+        self._generate_menu(settings.FOOTER_MENU)
+
     def _insert_pages(self):
         """
         Insert the pages.
@@ -150,7 +157,10 @@ class FanGlobalSitemap:
         urls_sorted = sorted(self.urls.keys())
 
         # first insert the homepage
-        homepage_id = self._generate_homepage()
+        homepage_id = None
+
+        if self.CREATE_HOMEPAGE:
+            homepage_id = self._generate_homepage()
 
         # the WordPress pages
         pages_by_path = {}
@@ -180,7 +190,7 @@ class FanGlobalSitemap:
                 menu_item_parent_id = pages_by_path[parent_path]["menu_item_id"]
 
             page_id = self._generate_page(name, title, content, parent_id)
-            menu_item_id = self._add_to_menu(page_id, menu_item_parent_id)
+            menu_item_id = self._add_to_menu(settings.MAIN_MENU, page_id, menu_item_parent_id)
 
             # add the page info
             page = {
@@ -194,23 +204,15 @@ class FanGlobalSitemap:
         # sitemap
         self._generate_sitemap(homepage_id)
 
-    def _insert_main_menu(self):
-        """Inserts the Main menu"""
-
-        cmd = "wp menu create {} --path='{}' --porcelain"
-        cmd = cmd.format(settings.MAIN_MENU, self.wp_path)
-
-        return Utils.run_command(cmd)
-
-    def _add_to_menu(self, page_id, menu_item_parent_id=None):
-        """Add the given page to the Main menu"""
+    def _add_to_menu(self, menu_name, page_id, menu_item_parent_id=None):
+        """Add the given page to the given menu"""
 
         cmd = "wp menu item add-post {} {} --path='{}' --porcelain"
 
         if menu_item_parent_id:
             cmd += " --parent-id={}".format(menu_item_parent_id)
 
-        cmd = cmd.format(settings.MAIN_MENU, page_id, self.wp_path)
+        cmd = cmd.format(menu_name, page_id, self.wp_path)
 
         return Utils.run_command(cmd)
 
@@ -219,7 +221,7 @@ class FanGlobalSitemap:
 
         homepage_id = self._generate_page("home", "Home", "Home page")
 
-        self._add_to_menu(homepage_id)
+        self._add_to_menu(settings.MAIN_MENU, homepage_id)
 
         return homepage_id
 
@@ -228,7 +230,9 @@ class FanGlobalSitemap:
 
         content = '[simple-sitemap show_label="false" types="page orderby="menu_order"]'
 
-        return self._generate_page("sitemap", "Sitemap", content, homepage_id)
+        page_id = self._generate_page("sitemap", "Sitemap", content, homepage_id)
+
+        self._add_to_menu(settings.FOOTER_MENU, page_id)
 
     def _generate_page(self, name, title, content, parent_id=None):
         """Generates a page with the given informations"""
@@ -243,6 +247,13 @@ class FanGlobalSitemap:
 
         if parent_id:
             cmd += "--post_parent={}".format(parent_id)
+
+        return Utils.run_command(cmd)
+
+    def _generate_menu(self, name):
+        """Generates a menu with the given name"""
+        cmd = "wp menu create {} --path='{}' --porcelain"
+        cmd = cmd.format(name, self.wp_path)
 
         return Utils.run_command(cmd)
 
