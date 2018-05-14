@@ -89,7 +89,7 @@ SUPPORTED_LANGUAGES = {
     "de": "de_CH",
     "es": "es_ES",
     "ro": "ro_RO",
-    "gr": "el",
+    "el": "el",
     "it": "it_IT"
 }
 
