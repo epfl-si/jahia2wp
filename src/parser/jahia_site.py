@@ -625,7 +625,7 @@ class Site:
         Fix all the boxes and banners links. This must be done at the end, when all the pages have been parsed.
         """
         # List of type and attributes that we have to fix
-        tag_attribute_tuples = [("a", "href"), ("img", "src"), ("script", "src")]
+        tag_attribute_tuples = [("a", "href"), ("img", "src"), ("script", "src"), ("source", "src")]
 
         # 1. Looping through Boxes
         for box in self.get_all_boxes():
@@ -673,7 +673,7 @@ class Site:
                 if link.startswith(link_type):
                     return
 
-            if link.startswith("###file"):
+            if link.startswith("###file") or link.startswith('/repository'):
 
                 if "/files/" in link:
                     new_link = link[link.index('/files/'):]
@@ -794,7 +794,7 @@ class Site:
 
                 self.absolute_links += 1
             # file links
-            elif link.startswith("###file"):
+            elif link.startswith("###file") or link.startswith('/repository'):
 
                 self.fix_file_links_in_tag(soup, tag_name, attribute)
 
