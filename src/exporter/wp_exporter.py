@@ -311,7 +311,7 @@ class WPExporter:
         new_url = wp_media['source_url']
         self.medias_mapping[new_url] = wp_media['id']
 
-        tag_attribute_tuples = [("a", "href"), ("img", "src"), ("script", "src")]
+        tag_attribute_tuples = [("a", "href"), ("img", "src"), ("script", "src"), ("source", "src")]
 
         # 1. Looping through boxes
         for box in self.site.get_all_boxes():
