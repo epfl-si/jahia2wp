@@ -11,29 +11,31 @@ Class Render
     */
     public static function epfl_news_template_text_only($news): string
     {
-       $html = '<div class="list-articles list-news list-news-textonly clearfix">';
-       foreach ($news->results as $item) {
-   
-         $publish_date = new DateTime($item->publish_date);
-       $publish_date = $publish_date->format('d.m.y');
-   
-           $html .= '<article class="post">';
-           $html .= '  <header class="entry-header">';
-           $html .= '    <h2 class="entry-title">';
-           $html .= '      <a href="' . $item->news_url . '">';
-           $html .= $item->title;
-           $html .= '      </a>';
-           $html .= '    </h2>';
-           $html .= '  </header>';
-           $html .= '  <div class="entry-content">';
-           $html .= '    <div class="entry-meta">';
-           $html .= '      <time class="entry-date">' . $publish_date . '</time>';
-           $html .= '    </div>';
-           $html .= '    <div class="teaser">' . substr($item->subtitle, 0, 360) . '</div>';
-           $html .= '  </div>';
-           $html .= '</article>';
+        $html = '<div class="list-articles list-news list-news-textonly clearfix">';
+        foreach ($news->results as $item) {
+
+            $publish_date = new DateTime($item->publish_date);
+            $publish_date = $publish_date->format('d.m.y');
+
+            $html .= '<article class="post">';
+            $html .= '  <header class="entry-header">';
+            $html .= '    <h2 class="entry-title">';
+            $html .= '      <a href="' . esc_attr($item->news_url) . '">';
+            $html .= $item->title;
+            $html .= '      </a>';
+            $html .= '    </h2>';
+            $html .= '  </header>';
+            $html .= '  <div class="entry-content">';
+            $html .= '    <div class="entry-meta">';
+            $html .= '      <time class="entry-date">' . $publish_date . '</time>';
+            $html .= '    </div>';
+            $html .= '    <div class="teaser">' . substr($item->subtitle, 0, 360) . '</div>';
+            $html .= '  </div>';
+            $html .= '</article>';
        }
+
        $html .= '</div>';
+
        return $html;
    }
 
@@ -47,6 +49,7 @@ Class Render
     public static function epfl_news_template_fac_with_4_news($news, bool $stickers): string
     {
         $html = '<div class="list-articles list-news list-news-first-featured clearfix">';
+
         foreach ($news->results as $item) {
 
             $publish_date = new DateTime($item->publish_date);
@@ -59,19 +62,22 @@ Class Render
                     $category_label = $item->category->en_label;
                 }
             }
+
             $html .= '<article class="post">';
             $html .= '  <figure class="post-thumbnail">';
-            $html .= '    <a href="' . $item->news_url . '">';
-            $html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
+            $html .= '    <a href="' . esc_attr($item->news_url) . '">';
+            $html .= '      <img src="' . esc_attr($item->visual_url) . '" title="' . esc_attr($item->title) . '">';
             $html .= '    </a>';
             $html .= '  </figure>';
+
             if ($category_label) {
                 $html .= '  <p class="category-label">' . $category_label . ' </p>';
             }
+
             $html .= '  <div class="entry-content">';
             $html .= '    <header class="entry-header">';
             $html .= '      <h2 class="entry-title">';
-            $html .= '        <a href="' . $item->news_url . '">';
+            $html .= '        <a href="' . esc_attr($item->news_url) . '">';
             $html .= $item->title;
             $html .= '        </a>';
             $html .= '      </h2>';
@@ -83,7 +89,9 @@ Class Render
             $html .= '  </div>';
             $html .= '</article>';
         }
+
         $html .= '</div>';
+
         return $html;
     }
 
@@ -97,6 +105,7 @@ Class Render
     public static function epfl_news_template_fac_with_3_news($news, bool $stickers): string
     {
         $html = '<div class="list-articles list-news list-news-sidebar clearfix">';
+
         foreach ($news->results as $item) {
 
             if ($stickers == TRUE) {
@@ -112,8 +121,8 @@ Class Render
 
             $html .= '<article class="post">';
             $html .= '  <figure class="post-thumbnail">';
-            $html .= '    <a href="' . $item->news_url . '">';
-            $html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
+            $html .= '    <a href="' . esc_attr($item->news_url) . '">';
+            $html .= '      <img src="' . esc_attr($item->visual_url) . '" title="' . esc_attr($item->title) . '">';
             $html .= '    </a>';
             $html .= '  </figure>';
             if ($category_label) {
@@ -122,7 +131,7 @@ Class Render
             $html .= '  <div class="entry-content">';
             $html .= '    <header class="entry-header">';
             $html .= '      <h2 class="entry-title">';
-            $html .= '        <a href="' . $item->news_url . '">';
+            $html .= '        <a href="' . esc_attr($item->news_url) . '">';
             $html .= $item->title;
             $html .= '        </a>';
             $html .= '      </h2>';
@@ -134,7 +143,9 @@ Class Render
             $html .= '  </div>';
             $html .= '</article>';
         }
+
         $html .= '</div>';
+
         return $html;
     }
 
@@ -148,7 +159,9 @@ Class Render
     public static function epfl_news_template_labo_with_5_news($news, bool $stickers): string
     {
         $html = '<div class="list-articles list-news clearfix">';
+
         foreach ($news->results as $item) {
+
             if ($stickers == TRUE) {
                 if ($item->lang === "fr") {
                     $category_label = $item->category->fr_label;
@@ -156,22 +169,25 @@ Class Render
                     $category_label = $item->category->en_label;
                 }
             }
+
             $html .= '<article class="post">';
             $html .= '  <header class="entry-header">';
             $html .= '    <h2 class="entry-title">';
-            $html .= '      <a href="' . $item->news_url . '">';
+            $html .= '      <a href="' . esc_attr($item->news_url) . '">';
             $html .= $item->title;
             $html .= '      </a>';
             $html .= '    </h2>';
             $html .= '  </header>';
             $html .= '  <figure class="post-thumbnail">';
-            $html .= '    <a href="' . $item->news_url . '">';
-            $html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
+            $html .= '    <a href="' . esc_attr($item->news_url) . '">';
+            $html .= '      <img src="' . esc_attr($item->visual_url) . '" title="' . esc_attr($item->title) . '">';
             $html .= '    </a>';
             $html .= '  </figure>';
+
             if ($category_label) {
                 $html .= '  <p class="category-label">' . $category_label . ' </p>';
             }
+
             $html .= '  <div class="entry-content">';
             $html .= '    <div class="entry-meta">';
             $html .= '      <time class="entry-date">' . $item->publish_date . '</time>';
@@ -180,7 +196,9 @@ Class Render
             $html .= '  </div>';
             $html .= '</article>';
         }
+
         $html .= '</div>';
+
         return $html;
     }
 
@@ -210,14 +228,14 @@ Class Render
             $html .= '<article class="post">';
             $html .= '  <header class="entry-header">';
             $html .= '    <h2 class="entry-title">';
-            $html .= '      <a href="' . $item->news_url . '">';
+            $html .= '      <a href="' . esc_attr($item->news_url) . '">';
             $html .= $item->title;
             $html .= '      </a>';
             $html .= '    </h2>';
             $html .= '  </header>';
             $html .= '  <figure class="post-thumbnail">';
-            $html .= '    <a href="' . $item->news_url . '">';
-            $html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
+            $html .= '    <a href="' . esc_attr($item->news_url) . '">';
+            $html .= '      <img src="' . esc_attr($item->visual_url) . '" title="' . esc_attr($item->title) . '">';
             $html .= '    </a>';
             $html .= '  </figure>';
             if ($category_label) {
@@ -245,6 +263,7 @@ Class Render
     public static function epfl_news_template_portal_img_top($news, bool $stickers): string
     {
         $html = '<div class="list-articles list-news news-portal news-portal-img-top clearfix">';
+
         foreach ($news->results as $item) {
 
             if ($stickers == TRUE) {
@@ -260,17 +279,19 @@ Class Render
 
             $html .= '<article class="post">';
             $html .= '  <figure class="post-thumbnail">';
-            $html .= '    <a href="' . $item->news_url . '">';
-            $html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
+            $html .= '    <a href="' . esc_attr($item->news_url) . '">';
+            $html .= '      <img src="' . esc_attr($item->visual_url) . '" title="' . esc_attr($item->title) . '">';
             $html .= '    </a>';
             $html .= '  </figure>';
+
             if ($category_label) {
                 $html .= '  <p class="category-label">' . $category_label . ' </p>';
             }
+
             $html .= '  <div class="entry-content">';
             $html .= '    <header class="entry-header">';
             $html .= '      <h2 class="entry-title">';
-            $html .= '        <a href="' . $item->news_url . '">';
+            $html .= '        <a href="' . esc_attr($item->news_url) . '">';
             $html .= $item->title;
             $html .= '        </a>';
             $html .= '      </h2>';
@@ -282,7 +303,9 @@ Class Render
             $html .= '  </div>';
             $html .= '</article>';
         }
+
         $html .= '</div>';
+
         return $html;
     }
 
@@ -296,6 +319,7 @@ Class Render
     public static function epfl_news_template_portal_img_left($news, bool $stickers): string
     {
         $html = '<div class="list-articles list-news news-portal clearfix">';
+
         foreach ($news->results as $item) {
 
             if ($stickers == TRUE) {
@@ -311,17 +335,19 @@ Class Render
 
             $html .= '<article class="post">';
             $html .= '  <figure class="post-thumbnail">';
-            $html .= '    <a href="' . $item->news_url . '">';
-            $html .= '      <img src="' . $item->visual_url . '" title="'.$item->title.'">';
+            $html .= '    <a href="' . esc_attr($item->news_url) . '">';
+            $html .= '      <img src="' . esc_attr($item->visual_url) . '" title="' . esc_attr($item->title) . '">';
             $html .= '    </a>';
             $html .= '  </figure>';
+
             if ($category_label) {
                 $html .= '  <p class="category-label">' . $category_label . ' </p>';
             }
+
             $html .= '  <div class="entry-content">';
             $html .= '    <header class="entry-header">';
             $html .= '      <h2 class="entry-title">';
-            $html .= '        <a href="' . $item->news_url . '">';
+            $html .= '        <a href="' . esc_attr($item->news_url) . '">';
             $html .= $item->title;
             $html .= '        </a>';
             $html .= '      </h2>';
@@ -357,40 +383,40 @@ Class Render
         $url = NEWS_API_URL_IFRAME . $channel->name . "/" . $lang . "/nosticker";
 
         $result = '<IFRAME ';
-        $result .= 'src="' . $url . '" ';
+        $result .= 'src="' . esc_attr($url) . '" ';
         $result .= 'width="700" height="1100" scrolling="no" frameborder="0"></IFRAME>';
         return $result;
     }
 
-/**
- * Build HTML.
- *
- * @param $news: response of news API.
- * @param $template: id of template
- * @param $stickers: display stickers on images ?
- * @return html of template
- */
-function epfl_news_build_html($news, string $template, bool $stickers): string
-{
-    if ($template === "4") {
-        $html = Render::epfl_news_template_labo_with_3_news($news, $stickers);
-    } elseif ($template === "8") {
-        $html = Render::epfl_news_template_labo_with_5_news($news, $stickers);
-    } elseif ($template === "3") {
-        $html = Render::epfl_news_template_fac_with_4_news($news, $stickers);
-    } elseif ($template === "6") {
-        $html = Render::epfl_news_template_fac_with_3_news($news, $stickers);
-    } elseif ($template === "2") {
-        $html = Render::epfl_news_template_text_only($news);
-    } elseif ($template === "1") {
-        $html = Render::epfl_news_template_portal_img_top($news, $stickers);
-    } elseif ($template === "7") {
-        $html = Render::epfl_news_template_portal_img_left($news, $stickers);
-    } else {
-        $html = Render::epfl_news_template_labo_with_3_news($news, $stickers);
+    /**
+     * Build HTML.
+     *
+     * @param $news: response of news API.
+     * @param $template: id of template
+     * @param $stickers: display stickers on images ?
+     * @return html of template
+     */
+    function epfl_news_build_html($news, string $template, bool $stickers): string
+    {
+        if ($template === "4") {
+            $html = Render::epfl_news_template_labo_with_3_news($news, $stickers);
+        } elseif ($template === "8") {
+            $html = Render::epfl_news_template_labo_with_5_news($news, $stickers);
+        } elseif ($template === "3") {
+            $html = Render::epfl_news_template_fac_with_4_news($news, $stickers);
+        } elseif ($template === "6") {
+            $html = Render::epfl_news_template_fac_with_3_news($news, $stickers);
+        } elseif ($template === "2") {
+            $html = Render::epfl_news_template_text_only($news);
+        } elseif ($template === "1") {
+            $html = Render::epfl_news_template_portal_img_top($news, $stickers);
+        } elseif ($template === "7") {
+            $html = Render::epfl_news_template_portal_img_left($news, $stickers);
+        } else {
+            $html = Render::epfl_news_template_labo_with_3_news($news, $stickers);
+        }
+        return '<div class="newsBox">' . $html . '</div>';
     }
-    return '<div class="newsBox">' . $html . '</div>';
-}
     
 }
 
