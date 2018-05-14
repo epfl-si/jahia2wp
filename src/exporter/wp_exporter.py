@@ -775,7 +775,7 @@ class WPExporter:
                         widget_type = 'text'
                         title = ""
                         content = "[colored-box]"
-                        content += "<h3>{}</h3>".format(box.title)
+                        content += prepare_html("<h3>{}</h3>".format(box.title))
                         content += prepare_html(box.content)
                         content += "[/colored-box]"
 
