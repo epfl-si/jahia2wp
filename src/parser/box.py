@@ -419,15 +419,36 @@ class Box:
             template = ""
             logging.error("Memento Shortcode - template is missing")
 
-        return memento_name, lang, template
+        period = ""
+        if 'period' in parameters:
+            period = parameters['period'][0]
+
+        color = ""
+        if 'color' in parameters:
+            color = parameters['color'][0]
+
+        filters = ""
+        if 'filters' in parameters:
+            filters = parameters['filters'][0]
+
+        category = ""
+        if 'category' in parameters:
+            category = parameters['category'][0]
+
+        reorder = ""
+        if 'reorder' in parameters:
+            reorder = parameters['reorder'][0]
+
+        return memento_name, lang, template, period, color, filters, category, reorder
 
     def set_box_memento(self, element):
         """set the attributes of a memento box"""
 
         # extract parameters from the old url of webservice
-        memento_name, lang, template = self._extract_epfl_memento_parameters(
-            Utils.get_tag_attribute(element, "url", "jahia:value")
-        )
+        memento_name, lang, template, period, color, filters, category, reorder = \
+            self._extract_epfl_memento_parameters(
+                Utils.get_tag_attribute(element, "url", "jahia:value")
+            )
         self.shortcode_name = "epfl_memento"
         html_content = '[{} memento="{}" lang="{}" template="{}" '.format(
             self.shortcode_name,
@@ -435,6 +456,17 @@ class Box:
             lang,
             template
         )
+        if period:
+            html_content += 'period="{}" '.format(period)
+        if color:
+            html_content += 'color="{}" '.format(color)
+        if filters:
+            html_content += 'filters="{}" '.format(filters)
+        if category:
+            html_content += 'category="{}" '.format(category)
+        if reorder:
+            html_content += 'reorder="{}" '.format(reorder)
+
         html_content += '/]'
 
         self.content = html_content

@@ -277,8 +277,7 @@ class Data:
                                                                                        'href="mailto:webmaster@epfl.ch">Par email :\xa0<',
                                                                      'title': 'Support web',
                                                                      'type': 'text'},
-                                                                    {'content__start': '[memento '
-                                                                                       'url=https://memento.epfl.ch/webservice?memento=web&amp;lang=fr&amp;template=6&amp;period=2&amp;color=EPFL]',
+                                                                    {'content__start': '[epfl_memento memento="web" lang="fr" template="6" period="2" color="EPFL" /]',
                                                                      'title': 'Prochains cours',
                                                                      'type': 'memento'}],
                                                  'title': 'Pour les webmasters'}},
@@ -316,8 +315,7 @@ class Data:
                                                                                        'href="mailto:webmaster@epfl.ch">Par email :\xa0<',
                                                                      'title': 'Support web',
                                                                      'type': 'text'},
-                                                                    {'content__start': '[memento '
-                                                                                       'url=https://memento.epfl.ch/webservice?memento=web&amp;lang=fr&amp;template=6&amp;period=2&amp;color=EPFL]',
+                                                                    {'content__start': '[epfl_memento memento="web" lang="fr" template="6" period="2" color="EPFL" /]',
                                                                      'title': 'Prochains cours',
                                                                      'type': 'memento'}],
                                                  'title': 'Support et communication'}},
@@ -345,8 +343,7 @@ class Data:
                                                                                        'href="mailto:webmaster@epfl.ch">Par email :\xa0<',
                                                                      'title': 'Support web',
                                                                      'type': 'text'},
-                                                                    {'content__start': '[memento '
-                                                                                       'url=https://memento.epfl.ch/webservice?memento=web&amp;lang=fr&amp;template=6&amp;period=2&amp;color=EPFL]',
+                                                                    {'content__start': '[epfl_memento memento="web" lang="fr" template="6" period="2" color="EPFL" /]',
                                                                      'title': 'Prochains cours',
                                                                      'type': 'memento'}],
                                                  'title': '"Coffee, tea, cookies, internet and me"'}},
@@ -411,8 +408,7 @@ class Data:
                                                                                        'href="mailto:webmaster@epfl.ch">Par email :\xa0<',
                                                                      'title': 'Support web',
                                                                      'type': 'text'},
-                                                                    {'content__start': '[memento '
-                                                                                       'url=https://memento.epfl.ch/webservice?memento=web&amp;lang=fr&amp;template=6&amp;period=2&amp;color=EPFL]',
+                                                                    {'content__start': '[epfl_memento memento="web" lang="fr" template="6" period="2" color="EPFL" /]',
                                                                      'title': 'Prochains cours',
                                                                      'type': 'memento'}],
                                                  'title': 'Cours et formations'}},
@@ -1649,7 +1645,7 @@ class Data:
                                                  'path': '/page-143603-en.html',
                                                  'sidebar__boxes': [{'content__start': '', 'title': '', 'type': 'coloredText'},
                                                                     {'content__start': '', 'title': '', 'type': 'text'},
-                                                                    {'content__start': '[memento url=]', 'title': '', 'type': 'memento'}],
+                                                                    {'content__start': '[epfl_memento memento="" lang="" template="" /]', 'title': '', 'type': 'memento'}],
                                                  'title': 'Analytics use'},
                                           'fr': {'boxes': [{'content__start': "<h2>Description</h2><p></p><p>«\xa0La\xa0<b>mesure de l'audience d'un "
                                                                               'site Web</b>\xa0(également appelée\xa0<b><i>Web analytics</i></b>) '
@@ -1732,7 +1728,7 @@ class Data:
                                                 'path': '/index.html',
                                                 'sidebar__boxes': [{'content__start': '', 'title': '', 'type': 'coloredText'},
                                                                    {'content__start': '', 'title': '', 'type': 'text'},
-                                                                   {'content__start': '[memento url=]', 'title': '', 'type': 'memento'}],
+                                                                   {'content__start': '[epfl_memento memento="" lang="" template="" /]', 'title': '', 'type': 'memento'}],
                                                 'title': 'Atelier web EPFL'},
                                          'fr': {'boxes': [{'content__start': '<p><img alt="" height="184" src="/files/pictures/web-services2.jpg" '
                                                                              'width="652"/></p> ',
@@ -1772,8 +1768,8 @@ class Data:
                                                                                       'href="mailto:webmaster@epfl.ch">Par email :\xa0<',
                                                                     'title': 'Support web',
                                                                     'type': 'text'},
-                                                                   {'content__start': '[memento '
-                                                                                      'url=https://memento.epfl.ch/webservice?memento=web&amp;lang=fr&amp;template=6&amp;period=2&amp;color=EPFL]',
+                                                                   {'content__start': '[epfl_memento '
+                                                                                      'memento="web" lang="fr" template="6" period="2" color="EPFL" /]',
                                                                     'title': 'Prochains cours',
                                                                     'type': 'memento'}],
                                                 'title': 'Atelier web EPFL'}},
@@ -1789,7 +1785,7 @@ class Data:
                                                 'path': '/page-41443-en.html',
                                                 'sidebar__boxes': [{'content__start': '', 'title': '', 'type': 'coloredText'},
                                                                    {'content__start': '', 'title': '', 'type': 'text'},
-                                                                   {'content__start': '[memento url=]', 'title': '', 'type': 'memento'}],
+                                                                   {'content__start': '[epfl_memento memento="" lang="" template="" /]', 'title': '', 'type': 'memento'}],
                                                 'title': ''},
                                          'fr': {'boxes': [{'content__start': "<p>L'équipe des Services Web déploie des activités selon 3 missions "
                                                                              ':</p> <ul>  <li><span style="text-decoration: underline;">Coordinateur '

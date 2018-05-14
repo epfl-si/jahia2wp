@@ -97,32 +97,14 @@ function epfl_memento_build_api_url(
     }
 
     // period
-    $dtz = new DateTimeZone('Europe/Paris');
-    $now = new DateTime(date("Y-m-d"), $dtz);
-    EventUtils::debug($now);
-
-    if ($period === 'upcoming') {
-        // sélectionner tous les événements dont la date de fin est > date jour
-
-    } elseif ($period === 'past') {
-        // sélectionner tous les événements dont la date de fin est < date jour
-
+    if ($period === 'past' or $period === 'upcoming') {
+        $url .= '&period=' . $period;
     }
-
-    // order
-    /**
-     * L'api REST ordonne les événements par
-     * - event__eventmemento__position
-     * - event__start_date
-     * - event__start_time
-     * - event
-     * - donc ne pas laisser le choix à l'utilisateur semble préférable.
-     */
 
     // color
     /**
-     * On doit récupérer le nom de la fac qui correspond à une couleur.
-     * puis dans le render on va faire si couleur alors on appel une classe css
+     * Pour les templates sans iframe, c'est le thème qui va affecter directement la bonne couleur.
+     * Pour le template avec iframe, il faut passer un paramètre couleur.
      */
 
     return $url;
