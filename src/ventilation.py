@@ -774,8 +774,7 @@ class Ventilation:
             entries = Utils.csv_filepath_to_dict(dst_csv_f)
             if not entries:
                 continue
-            # IMPORTANT: Sort the list by URL components to insert parents first. Even though the consolidation
-            # has to do it.
+            # IMPORTANT: Sort the list by URL components to insert parents first. Usually done in consolidation phase.
             entries = sorted(entries, key=lambda e: len(e['url'].strip('/').split('/')), reverse=False)
 
             # Find the dest. site URL as the longuest match of any entry URL (all belong to the same dest.)
@@ -833,50 +832,36 @@ class Ventilation:
 
                     # Load the JSON page data
                     with open(json_f, 'r', encoding='utf8') as f:
-                        json_txt = f.read()
-                        pages = json.loads(json_txt)
-                        lngs = pages.keys()
-                        # Get the languages in unaltered order
-                        lngs = [(l, json_txt.find('"{}"'.format(l))) for l in lngs]
-                        lngs = [l for l, idx in sorted(lngs, key=lambda tup: tup[1])]
-                        _pages = pages.values()
-                        p_en = pages['en']
+                        pages = json.load(f)
 
                     # Old IDs
-                    old_ids = [p['ID'] for p in _pages]
+                    old_ids = [pages[lng]['ID'] for lng in lngs]
 
-                    # Update the parent ID if a new one exists already
-                    for idx, _p in enumerate(_pages):
-                        parent_url = '/'.join(p_en['url'].strip('/').split('/')[:-1])
+                    # Update the parent ID if a new one exists already for the parent URL
+                    for lng, p in pages.items():
+                        idx_post_name = p_url.rfind(p_url.strip('/').split('/').pop())
+                        parent_url = p_url[:idx_post_name]
+                        # print(parent_url, p['url'], table_ids_url, parent_url in table_ids_url)
                         if parent_url in table_ids_url and parent_url.strip('/') != site_url:
                             # Update the parent ID based on parent URL
-                            _p['post_parent'] = table_ids_url[parent_url][idx]
-                        # elif site_url in table_ids[src_site] and _p['post_parent'] in table_ids[src_site][site_url]:
-                        #     _p['post_parent'] = table_ids[src_site][site_url][_p['post_parent']]
+                            p['post_parent'] = table_ids_url[parent_url][lngs.index(lng)]
+                        # elif site_url in table_ids[src_site] and p['post_parent'] in table_ids[src_site][site_url]:
+                        #     p['post_parent'] = table_ids[src_site][site_url][p['post_parent']]
                         else:
                             # Set the page at the root: post_parent 0
-                            _p['post_parent'] = 0
-                    # Rename the post if necessary to have a pretty (matching) URL
-                    # If there is only one fragment and it's different of the post_name
-                    # then change it.
-                    fragment = p_url[len(site_url)+1:].strip('/')
-                    if len(fragment.split('/')) == 1:
-                        if p_en['post_name'] != fragment and site_url != p_url.strip('/'):
-                            p_en['post_name'] = fragment
-                            # for p in _pages:
-                            #    p['post_name'] = fragment
+                            p['post_parent'] = 0
 
                     # FIND all the media files in the page content
                     regex = re.compile(r'"(https://[^"]+/wp-content/uploads/.*?)"')
-                    for _p in _pages:
-                        m_urls = regex.findall(_p['post_content'])
+                    for _, p in pages.items():
+                        m_urls = regex.findall(p['post_content'])
                         # Verify that all the matched media is under the target domain (site_url)
                         for m_url in m_urls:
                             media_key = m_url[m_url.index('/wp-content/uploads'):]
                             if site_url not in m_url:
                                 # Set the right URL
                                 _m_url = site_url + media_key
-                                _p['post_content'] = _p['post_content'].replace(m_url, _m_url)
+                                p['post_content'] = p['post_content'].replace(m_url, _m_url)
                                 logging.debug('Media URL from {} to {}'.format(m_url, _m_url))
                                 m_url = _m_url
                             if media_key not in media_refs[src_site]:
@@ -884,9 +869,17 @@ class Ventilation:
                             if m_url not in media_refs[src_site][media_key]:
                                 media_refs[src_site][media_key].append(m_url)
 
+                    # Dump the JSON str back for wp-cli, keeping the dest. site lang order
+                    m = '"{}":{}'
+                    arr = [m.format(l, json.dumps(pages[l], ensure_ascii=False)) for l in lngs]
+                    json_data = '{' + ', '.join(arr) + '}'
+                    # Dump the JSON to a file to avoid non escaped char issues.
+                    with open(json_f, 'w', encoding='utf8') as j:
+                        j.write(json_data)
+
                     cmd = "cat {} | wp pll post create --post_type=page --porcelain --stdin --path={}"
                     cmd = cmd.format(json_f, self.dest_sites[site_url])
-                    logging.info(cmd)
+                    logging.debug(cmd)
                     ids = Utils.run_command(cmd, 'utf8').split(' ')
                     if 'Error' in ids:
                         logging.error('Failed to insert pages. Msg: {}. cmd: {}'.format(ids, cmd))
