@@ -244,6 +244,9 @@ class Site:
                     # If normal jahia page
                     if jahia_type.nodeName == "jahia:page":
                         txt = jahia_type.getAttribute("jahia:title")
+                        # If title is empty, it means page is not displayed on Jahia, so we skip it here
+                        if txt == '':
+                            continue
                         hidden = jahia_type.getAttribute("jahia:hideFromNavigationMenu") != ""
                         target = "sitemap" if jahia_type.getAttribute("jahia:template") == "sitemap" \
                             else jahia_type.getAttribute("jcr:uuid")
