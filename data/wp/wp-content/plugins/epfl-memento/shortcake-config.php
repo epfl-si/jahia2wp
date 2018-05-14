@@ -6,7 +6,7 @@ Class ShortCakeMementoConfig
 {   
     private static function get_memento_options() 
     {
-        // call REST API to get the number of memento
+       // call REST API to get the number of memento
        $memento_response = EventUtils::get_items(MEMENTO_API_URL);
 
        // build URL with all mementos

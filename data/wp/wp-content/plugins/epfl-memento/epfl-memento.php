@@ -70,8 +70,11 @@ function epfl_memento_build_api_url(
     // returns the number of events according to the template
     $limit = epfl_memento_get_limit($template);
 
-    // call API to get  of memento
-    $url = MEMENTO_API_URL. "?format=json&limit=300";
+    // call REST API to get the number of mementos
+    $memento_response = EventUtils::get_items(MEMENTO_API_URL);
+
+    // build URL with all mementos
+    $url = MEMENTO_API_URL . '?limit=' . $memento_response->count;
     $mementos = EventUtils::get_items($url);
 
     // FIXME: we must improve REST API MEMENTO to be able to filter by memento_slug
