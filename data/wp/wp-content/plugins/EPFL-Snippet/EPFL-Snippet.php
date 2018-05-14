@@ -20,14 +20,22 @@ declare( strict_types = 1 );
 function epfl_snippets_process_shortcode( $attributes, string $content = null ): string
 {
     // get parameters
-    extract(shortcode_atts(array(
-        'url'          => '',
-        'title'        => '',
-        'subtitle'     => '',
-        'image'        => '',
-        'big_image'    => '',
-        'enable_zoom'  => '',
-    ), $attributes));
+    $atts = shortcode_atts(array(
+            'url'          => '',
+            'title'        => '',
+            'subtitle'     => '',
+            'image'        => '',
+            'big_image'    => '',
+            'enable_zoom'  => '',
+        ), $attributes);
+
+    // sanitize parameters
+    $url         = sanitize_text_field($atts['url']);
+    $title       = sanitize_text_field($atts['title']);
+    $subtitle    = sanitize_text_field($atts['subtitle']);
+    $image       = sanitize_text_field($atts['image']);
+    $big_image   = sanitize_text_field($atts['big_image']);
+    $enable_zoom = sanitize_text_field($atts['enable_zoom']);
 
     $html  = '<div class="snippetsBox">';
 
@@ -52,7 +60,7 @@ function epfl_snippets_process_shortcode( $attributes, string $content = null ):
       $html .= '<a href="' . $url . '">';
     }
 
-    $html .= '<div class="snippets-image"><img src="' . $image . '"/></div>';
+    $html .= '<div class="snippets-image"><img src="' . esc_attr($image) . '"/></div>';
 
     if ( $has_url ) {
       $html .= '</a>';
