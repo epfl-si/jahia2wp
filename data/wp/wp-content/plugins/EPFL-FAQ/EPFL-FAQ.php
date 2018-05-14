@@ -17,17 +17,17 @@ $faq_ref_table = "";
 function epfl_faqboxitem_process_shortcode($attributes, $content = null)
 {
     global $faq_ref_table;
-    extract(shortcode_atts(array(
-        'question' => '',
-    ), $attributes));
+    $atts = shortcode_atts(array(
+            'question' => '',
+        ), $attributes);
 
     /* Generating uniq anchor id*/
     $anchor = "faq-".md5($content);
 
-    $faq_ref_table .= '<li><a href="#'.$anchor.'">'.$question.'</a></li>';
+    $faq_ref_table .= '<li><a href="#'.$anchor.'">'.$atts['question'].'</a></li>';
 
     return '<div class="faq-item">'.
-           '<a name="'.$anchor.'"></a>'.
+           '<a name="'.esc_attr($anchor).'"></a>'.
            '<h4>'.$question.'</h4>'.
            $content.
            '</div>';
@@ -41,9 +41,9 @@ function epfl_faqboxitem_process_shortcode($attributes, $content = null)
 function epfl_faqbox_process_shortcode($attributes, $content = null)
 {
     global $faq_ref_table;
-    extract(shortcode_atts(array(
-        'title' => '',   // for the future
-    ), $attributes));
+    $atts = shortcode_atts(array(
+            'title' => '',   // for the future
+        ), $attributes);
 
     $faq_ref_table = '<ul class="link-list">';
     $faq_items_html = do_shortcode($content);
