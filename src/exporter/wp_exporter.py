@@ -316,6 +316,10 @@ class WPExporter:
         # 1. Looping through boxes
         for box in self.site.get_all_boxes():
 
+            # We skip empty boxes because nothing to update in
+            if box.is_empty():
+                continue
+
             # first fix in shortcodes
             self.fix_file_links_in_shortcode_attributes(box, old_url, new_url)
 
@@ -381,6 +385,9 @@ class WPExporter:
         for lang in self.site.homepage.contents.keys():
 
             for box in self.site.homepage.contents[lang].sidebar.boxes:
+
+                if box.is_empty():
+                    continue
 
                 soup = BeautifulSoup(box.content, 'html5lib')
                 soup.body.hidden = True
@@ -531,6 +538,8 @@ class WPExporter:
     def fix_key_visual_boxes(self):
         """[su_slider source="media: 1650,1648,1649" title="no" arrows="yes"]"""
         for box in self.site.get_all_boxes():
+            if box.is_empty():
+                continue
             if box.type == Box.TYPE_KEY_VISUAL:
                 soup = BeautifulSoup(box.content, 'html.parser')
                 medias_ids = []
@@ -594,6 +603,10 @@ class WPExporter:
 
                 # create the page content
                 for box in page.contents[lang].boxes:
+
+                    # We skip empty boxes
+                    if box.is_empty():
+                        continue
 
                     if not box.is_shortcode():
                         contents[lang] += '<div class="{}">'.format(box.type + "Box")
@@ -766,6 +779,11 @@ class WPExporter:
             for lang in self.site.homepage.contents.keys():
 
                 for box in self.site.homepage.contents[lang].sidebar.boxes:
+
+                    # If box is empty, we don't handle it
+                    if box.is_empty():
+                        continue
+
                     if box.type in [Box.TYPE_TEXT, Box.TYPE_CONTACT, Box.TYPE_LINKS, Box.TYPE_FILES]:
                         widget_type = 'text'
                         title = prepare_html(box.title)
@@ -783,7 +801,7 @@ class WPExporter:
                     else:
                         logging.warning("Box type currently not supported for sidebar (%s)", box.type)
                         widget_type = 'text'
-                        title = prepare_html("TODO: {}".format(box.title))
+                        title = prepare_html("TODO ({}): {}".format(box.type, box.title))
                         content = prepare_html(box.content)
 
                     cmd = 'widget add {} page-widgets {} --text="{}" --title="{}"'.format(
