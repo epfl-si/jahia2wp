@@ -3285,14 +3285,17 @@ ul.bottin {
       padding-right: 35px;
     }
     
-    .colored-box p,
-    .colored-box h1,
-    .colored-box h2,
-    .colored-box h3,
-    .colored-box h4,
-    .colored-box h5,
-    .colored-box h6 {
-      padding-right: 0;
+    .colored-box,
+    td {
+      p,
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        padding-right: 0;
+      }
     }
     
   }
