@@ -314,11 +314,11 @@ class Box:
         if 'themes' in parameters:
             themes = parameters['theme']
 
-        project = ""
+        projects = ""
         if 'project' in parameters:
-            project = parameters['project'][0]
+            projects = parameters['project']
 
-        return channel_id, lang, template, category, themes, stickers, project
+        return channel_id, lang, template, category, themes, stickers, projects
 
     def set_box_people_list(self, element):
         """

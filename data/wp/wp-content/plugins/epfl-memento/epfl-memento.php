@@ -151,7 +151,7 @@ function epfl_memento_process_shortcode(
             'category' => '',
             'keyword'  => '',
             'period'   => '',
-            'color'    => '',
+            'color'    => 'EPFL',
     ), $atts, $tag);
 
     // sanitize parameters
@@ -169,7 +169,7 @@ function epfl_memento_process_shortcode(
 
     // iframe template
     if ($template === "4") {
-        return MementoRender::epfl_memento_built_html_pagination_template($memento, $lang);
+        return MementoRender::epfl_memento_built_html_pagination_template($memento, $lang, $color);
     }
 
     $url = epfl_memento_build_api_url(
