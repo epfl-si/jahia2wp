@@ -507,10 +507,16 @@ Class MementoRender
      * @param $memento: slug of memento
      * @param $lang: lang of event (fr or en)
      * @param $color: color of the faculty
+     * @param $period: period of events (past or upcoming)
      * @return html of iframe template
      */
-    public static function epfl_memento_built_html_pagination_template(string $memento, string $lang, string $color): string {
-        $url = MEMENTO_API_URL_IFRAME. '&memento=' . $memento . '&lang=' . $lang . '&template=4&period=2&color=' . $color;
+    public static function epfl_memento_built_html_pagination_template(string $memento, string $lang, string $color, string $period): string {
+        if ($period === 'upcoming') {
+            $period = 2;
+        } else {
+            $period = 1;
+        }
+        $url = MEMENTO_API_URL_IFRAME. '&memento=' . $memento . '&lang=' . $lang . '&template=4&period=' . $period . '&color=' . strtoupper($color);
         $result = '<IFRAME ';
         $result .= 'src="' . esc_attr($url) . '" ';
         $result .= 'width="660" height="1255" scrolling="no" frameborder="0"></IFRAME>';

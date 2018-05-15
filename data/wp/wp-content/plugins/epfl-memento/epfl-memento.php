@@ -41,6 +41,8 @@ function epfl_memento_get_limit(string $template): int
         case "7":
             $limit = 1;
             break;
+        default:
+            $limit = 3;
     endswitch;
     return $limit;
 }
@@ -104,12 +106,6 @@ function epfl_memento_build_api_url(
         $url .= '&period=' . $period;
     }
 
-    // color
-    /**
-     * Pour les templates sans iframe, c'est le thème qui va affecter directement la bonne couleur.
-     * Pour le template avec iframe, il faut passer un paramètre couleur.
-     */
-
     return $url;
 }
 
@@ -169,7 +165,7 @@ function epfl_memento_process_shortcode(
 
     // iframe template
     if ($template === "4") {
-        return MementoRender::epfl_memento_built_html_pagination_template($memento, $lang, $color);
+        return MementoRender::epfl_memento_built_html_pagination_template($memento, $lang, $color, $period);
     }
 
     $url = epfl_memento_build_api_url(
