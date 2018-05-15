@@ -109,13 +109,12 @@ Class MementoRender
     }
 
     /**
-     * Template with 3 events and right column (template 6)
+     * Template with 3 events. This template may be used in the sidebar (template 2)
      *
      * @param $events: response of memento API
      * @return html of template
      */
-    public static function epfl_memento_template_with_3_events_and_right_column($events): string {
-
+    public static function epfl_memento_template_with_3_events($events): string {
         $html_content = '<div class="list-events clearfix">';
 
         foreach ($events->results as $item) {
@@ -331,12 +330,12 @@ Class MementoRender
     }
 
     /**
-     * Template with 3 events. This template may be used in the sidebar (template 2)
+     * Template with 3 events and right column (template 6)
      *
      * @param $events: response of memento API
      * @return html of template
      */
-    public static function epfl_memento_template_with_3_events($events): string {
+    public static function epfl_memento_template_with_3_events_and_right_column($events): string {
 
         $html_content = '<div class="list-events clearfix">';
 
