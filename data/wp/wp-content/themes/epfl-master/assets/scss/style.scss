@@ -1277,6 +1277,11 @@ ul.bottin {
   &.toggled-on:after {
     content: "\f106";
   }
+  
+  .main-navigation .current-menu-item &,
+  .main-navigation .current_page_item & {
+    color: #fff;
+  }
 }
 
 .main-navigation .sub-menu {
