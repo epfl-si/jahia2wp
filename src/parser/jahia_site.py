@@ -944,7 +944,10 @@ Parsed for %s :
         self.report += "  - tags :\n\n"
 
         for tag in num_tags_ordered:
-            self.report += "    - <%s> %s\n" % (tag, self.num_tags[tag])
+            # Tag is encoded and decoded to remove special char that cause script to crash when report is printed if
+            # it contains surprising tags !
+            self.report += "    - <%s> %s\n" % (tag.encode('ascii', 'replace').decode('ascii').replace('?', ''),
+                                                self.num_tags[tag])
 
     def __repr__(self):
         return self.name
