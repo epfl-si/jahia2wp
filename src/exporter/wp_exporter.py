@@ -767,12 +767,12 @@ class WPExporter:
 
                 for box in self.site.homepage.contents[lang].sidebar.boxes:
                     if box.type in [Box.TYPE_TEXT, Box.TYPE_CONTACT, Box.TYPE_LINKS, Box.TYPE_FILES]:
-                        widget_type = 'text'
+                        widget_type = 'custom_html'
                         title = prepare_html(box.title)
                         content = prepare_html(box.content)
 
                     elif box.type == Box.TYPE_COLORED_TEXT:
-                        widget_type = 'text'
+                        widget_type = 'custom_html'
                         title = ""
                         content = "[colored-box]"
                         content += prepare_html("<h3>{}</h3>".format(box.title))
@@ -782,11 +782,11 @@ class WPExporter:
                     # Box type not supported for now,
                     else:
                         logging.warning("Box type currently not supported for sidebar (%s)", box.type)
-                        widget_type = 'text'
+                        widget_type = 'custom_html'
                         title = prepare_html("TODO: {}".format(box.title))
                         content = prepare_html(box.content)
 
-                    cmd = 'widget add {} page-widgets {} --text="{}" --title="{}"'.format(
+                    cmd = 'widget add {} page-widgets {} --content="{}" --title="{}"'.format(
                         widget_type,
                         widget_pos,
                         WPUtils.clean_html_comments(content),
@@ -805,7 +805,7 @@ class WPExporter:
             # If widgets were added
             if widget_pos_to_lang:
                 # Getting existing 'text' widget list
-                widgets = json.loads(self.run_wp_cli('option get widget_text --format=json'))
+                widgets = json.loads(self.run_wp_cli('option get widget_custom_html --format=json'))
 
                 # Looping through widget to apply correct lang
                 for widget_index in widgets:
@@ -822,7 +822,7 @@ class WPExporter:
                     f_json.flush()
 
                 # Updating languages for all widgets
-                self.run_wp_cli('option update widget_text --format=json < {}'.format(filename))
+                self.run_wp_cli('option update widget_custom_html --format=json < {}'.format(filename))
 
                 os.remove(filename)
 
