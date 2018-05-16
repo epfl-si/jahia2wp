@@ -292,7 +292,7 @@ Class MementoRender
             
             $html_content .= '  <p>canceled ' . $item->canceled . '</p>';
     
-            if ( $item->canceled == true ) {
+            if ( $item->canceled === 'True' ) {
               $html_content .= '<p class="canceled">' . __( 'Canceled', 'epfl-memento' ) . '</p>';
             }
             
