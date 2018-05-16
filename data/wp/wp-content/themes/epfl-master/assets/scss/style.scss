@@ -356,9 +356,8 @@ a.a2a_button_{
 .collapsible-header .title {
   border-bottom: 1px dotted #000;
   display: inline-block;
-  font-size: .8125em;
   font-weight: 500;
-  margin-left: 1em;
+  margin-left: 16px;
   padding-right: 0;
   
   &:hover {
@@ -369,8 +368,9 @@ a.a2a_button_{
     @include icon;
     content: "\f0da";
     color: #000;
+    font-size: 16px;
     font-weight: 400;
-    line-height: 1em;
+    line-height: 20px;
     position: absolute;
     top: auto; right: auto; bottom: auto; left: 0;
   }
@@ -431,6 +431,35 @@ a.a2a_button_{
 /*  ---------------------------------------
     02 JAHIA IMPORTED CONTENT
 ----------------------------------------- */
+
+.entry-content .box {
+  font-size: .8125em;
+  line-height: 1.3em;
+  margin-bottom: 20px;
+  
+  p {
+    font-size: 1em;
+    margin: 7px 0;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.box h3,
+.fullbox h3 {
+  font-family: Impact,"Arial Black","DejaVu Sans",Arial,Helvetica,sans-serif;
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: .1em;
+  line-height: 26px;
+  color: #000;
+  text-transform: uppercase;
+  padding: 1px 0 4px 1px;
+  border-bottom: 1px solid #000;
+  margin: 0 0 10px 0;
+}
 
 .local-color {
   @include colored-text-box;
@@ -1248,6 +1277,11 @@ ul.bottin {
   &.toggled-on:after {
     content: "\f106";
   }
+  
+  .main-navigation .current-menu-item &,
+  .main-navigation .current_page_item & {
+    color: #fff;
+  }
 }
 
 .main-navigation .sub-menu {
@@ -1583,7 +1617,7 @@ ul.bottin {
   }
 }
 
-.sidebar .widget-title {
+.sidebar-title {
   @include txt-narrow;
   border-bottom: 1px solid #000;
   color: #000;
@@ -1595,8 +1629,33 @@ ul.bottin {
   padding: 1px 0 4px 1px;
 }
 
+.sidebar .widget-title {
+  @extend .sidebar-title;
+}
+
 .sidebar .home-panel {
   @include colored-text-box;
+}
+
+.sidebar .collapsible {
+  
+  .collapsible-header {
+    @extend .sidebar-title;
+  
+    .title {
+      @include txt-narrow;
+      border: 0;
+      
+      &:before {
+        line-height: 24px;
+      }
+    }
+  }
+  
+  .collapsible-content {
+    padding: 0 0 0 16px;
+  }
+  
 }
 
 /*  ---------------------------------------
@@ -2279,12 +2338,8 @@ ul.bottin {
 }
 
 .event .event-export {
+  @include color-icon;
   border: 0;
-  color: $primary-color;
-  
-  &:hover {
-    color: $primary-color-sec;
-  }
   
   &:before {
     @include icon;
@@ -2381,7 +2436,7 @@ ul.bottin {
   }
   
   .event-dates {
-    background: transparent;
+    background: transparent !important;
     float: none;
     position: absolute;
     top: 10px; right: auto; bottom: auto; left: 10px;
@@ -2452,6 +2507,7 @@ ul.bottin {
   
   .entry-content .box {
     float: left;
+    margin-bottom: 40px;
     padding-right: 2px;
     width: 50%;
     
@@ -3055,7 +3111,7 @@ ul.bottin {
   /* Colored date box */
   
   .list-events .has-image .event-dates {
-    background: $primary-color;
+    @include color-background;
     height: 112px;
     padding: 9px 0 5px;
     width: 40px;
@@ -3234,14 +3290,17 @@ ul.bottin {
       padding-right: 35px;
     }
     
-    .colored-box p,
-    .colored-box h1,
-    .colored-box h2,
-    .colored-box h3,
-    .colored-box h4,
-    .colored-box h5,
-    .colored-box h6 {
-      padding-right: 0;
+    .colored-box,
+    td {
+      p,
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        padding-right: 0;
+      }
     }
     
   }
