@@ -289,6 +289,13 @@ Class MementoRender
             }
 
             $html_content .= '<article class="event has-image">';
+            
+            $html_content .= '  <p>canceled ' . $item->canceled . '</p>';
+    
+            if( $item->canceled == true ) {
+              $html_content .= '<p class="canceled">' . __( 'Canceled', 'epfl-memento' ) . '</p>';
+            }
+            
             $html_content .= '  <div class="event-dates">';
             $html_content .= '    <p class="date-start"><time>' . $start_date . '</time></p>';
 
