@@ -356,9 +356,8 @@ a.a2a_button_{
 .collapsible-header .title {
   border-bottom: 1px dotted #000;
   display: inline-block;
-  font-size: .8125em;
   font-weight: 500;
-  margin-left: 1em;
+  margin-left: 16px;
   padding-right: 0;
   
   &:hover {
@@ -369,8 +368,9 @@ a.a2a_button_{
     @include icon;
     content: "\f0da";
     color: #000;
+    font-size: 16px;
     font-weight: 400;
-    line-height: 1em;
+    line-height: 20px;
     position: absolute;
     top: auto; right: auto; bottom: auto; left: 0;
   }
@@ -431,6 +431,35 @@ a.a2a_button_{
 /*  ---------------------------------------
     02 JAHIA IMPORTED CONTENT
 ----------------------------------------- */
+
+.entry-content .box {
+  font-size: .8125em;
+  line-height: 1.3em;
+  margin-bottom: 20px;
+  
+  p {
+    font-size: 1em;
+    margin: 7px 0;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.box h3,
+.fullbox h3 {
+  font-family: Impact,"Arial Black","DejaVu Sans",Arial,Helvetica,sans-serif;
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: .1em;
+  line-height: 26px;
+  color: #000;
+  text-transform: uppercase;
+  padding: 1px 0 4px 1px;
+  border-bottom: 1px solid #000;
+  margin: 0 0 10px 0;
+}
 
 .local-color {
   @include colored-text-box;
@@ -1172,7 +1201,7 @@ ul.bottin {
   margin-bottom: 0 !important;
 }
 .site-title {
-  font-family: Impact, "Arial Black", "DejaVu Sans", Arial, Helvetica, sans-serif;
+  @include txt-narrow;
   font-size: 1.625em /* 26px */;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -1247,6 +1276,11 @@ ul.bottin {
   
   &.toggled-on:after {
     content: "\f106";
+  }
+  
+  .main-navigation .current-menu-item &,
+  .main-navigation .current_page_item & {
+    color: #fff;
   }
 }
 
@@ -1583,18 +1617,45 @@ ul.bottin {
   }
 }
 
-.sidebar .widget-title {
+.sidebar-title {
+  @include txt-narrow;
   border-bottom: 1px solid #000;
   color: #000;
-  font: normal 1.375em/1.2em Impact, "Arial Black","DejaVu Sans", Arial, Helvetica , sans-serif;
-  letter-spacing: 0.1em;
+  font-style: normal;
+  font-size: 1.375em;
+  line-height: 1.2em;
   margin-bottom: .5em;
   text-transform: uppercase;
   padding: 1px 0 4px 1px;
 }
 
+.sidebar .widget-title {
+  @extend .sidebar-title;
+}
+
 .sidebar .home-panel {
   @include colored-text-box;
+}
+
+.sidebar .collapsible {
+  
+  .collapsible-header {
+    @extend .sidebar-title;
+  
+    .title {
+      @include txt-narrow;
+      border: 0;
+      
+      &:before {
+        line-height: 24px;
+      }
+    }
+  }
+  
+  .collapsible-content {
+    padding: 0 0 0 16px;
+  }
+  
 }
 
 /*  ---------------------------------------
@@ -1663,9 +1724,12 @@ ul.bottin {
 .site-main .entry-header h1.entry-title {
   font-family: "Arial black", Arial, Helvetica, sans-serif;
   font-size: 1.6875em;
-  letter-spacing: normal;
   line-height: 1.4em;
   text-transform: none;
+}
+
+.entry-header .entry-title {
+  letter-spacing: normal;
 }
   
 .page-header,
@@ -1698,7 +1762,7 @@ ul.bottin {
 
 /* Article list */
 
-.list-articles .hentry {
+.list-articles .post {
   @include clearfix;
   @include border-bottom-dots;
 }
@@ -1711,7 +1775,7 @@ ul.bottin {
     font-size: .875rem;
     font-weight: bold;
     padding: 0;
-    margin: 0 0 .3075em 0;
+    margin: 0 0 6px 0;
     color: #000;
     text-transform: none;
 
@@ -1743,16 +1807,11 @@ ul.bottin {
     @include minor-text;
     color: #000;
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
   }
   
   .entry-date {
     margin-right: .5em;
-    
-    &:after {
-      content: "-";
-      margin-left: .4em;
-    }
   }
   
   .post-categories {
@@ -1764,6 +1823,32 @@ ul.bottin {
     li {
       display: inline-block;
       margin: 0 .1em;
+    }
+  }
+  
+  .teaser {
+    font-size: .8125rem;
+    height: 3.9em;
+    overflow: hidden;
+    position: relative;
+    
+    &:after {
+      content: "";
+      background: transparent;
+      height: 3.3em;
+      position: absolute;
+      top: auto; right: 0; bottom: 0; left: 0;
+      
+      /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&0+0,0.8+100 */
+      background: -moz-linear-gradient(top, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 100%); /* FF3.6-15 */
+      background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,0.8) 100%); /* Chrome10-25,Safari5.1-6 */
+      background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgba(255,255,255,0.8) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+      filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ccffffff',GradientType=0 ); /* IE6-9 */
+
+    }
+    
+    p {
+      margin: 0;
     }
   }
 }
@@ -1942,6 +2027,447 @@ ul.bottin {
   }
 }
 
+/*  ---------------------------------------
+    08 SHORTCODES
+----------------------------------------- */
+
+/* --- News --- */
+  
+@mixin news-narrow-content {
+  
+  .entry-header {
+    width: 100%;
+    
+    .entry-title {
+      line-height: 1.4em;
+      margin-bottom: 6px;
+      overflow: hidden;
+    }
+  }
+  
+  .entry-content {
+    @include gradient-fade;
+    float: right;
+    line-height: 0;
+    overflow: hidden;
+    padding: 0;
+    
+    &:after {
+      height: 2.1em;
+
+    }
+    
+    .entry-meta {
+      display: inline;
+      margin-bottom: 0;
+      
+      .entry-date {
+        margin-bottom: 0;
+      }
+    }
+    
+    .teaser {
+      display: inline;
+      line-height: 1;
+    
+      &:after {
+        display: none;
+      }
+      
+      p {
+        display: inline;
+        font-size: .75rem;
+        line-height: 1.3em;
+        padding: 0;
+      }
+    }
+  }
+}
+
+.list-articles.list-news {
+  border-top: 1px solid #000;
+  padding-top: 15px;
+  
+  .sidebar & {
+    border-top: 0;
+    padding-top: 0;
+  }
+}
+
+.list-news {
+  
+  .post {
+    position: relative;
+  }
+  
+  .entry-date {
+    @include minor-text;
+    color: #000;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+  
+  .category-label {
+    @include txt-narrow;
+    background: #000;
+    border: solid #fff;
+    border-width: 0 1px 1px 0;
+    color: #fff;
+    padding: 2px 6px;
+    position: absolute;
+    top: 0; right: auto; bottom: auto; left: 0;
+    text-transform: uppercase;
+  }
+  
+}
+  
+/* Portal news with image on the left */
+
+.list-articles.news-portal {
+  @include news-narrow-content;
+  
+  .entry-content {
+    float: none;
+    max-height: 93px;
+    width: 100%;
+  }
+  
+  .teaser p {
+    font-size: .75rem;
+  }
+  
+  .links {
+    margin-top: 4px;
+    
+    .link-action {
+      
+      &:before {
+        font-size: 11px;
+        line-height: 18px;
+        height: 18px;
+        width: 18px;
+      }
+      
+      &:not(:last-child) {
+        margin-right: 10px;
+      }
+    }
+  }
+}
+  
+/* Portal news with image on top */
+
+.list-articles.news-portal-img-top {
+  @include news-narrow-content;
+  
+  .post-thumbnail {
+    margin-bottom: 10px;
+  }
+  
+  .entry-content {
+    float: none;
+    max-height: 92px;
+    width: 100%;
+  }
+  
+}
+
+/* List sidebar */
+
+.list-news.list-news-sidebar {
+  @include news-narrow-content;
+  
+  border-top: none;
+  max-width: 320px;
+  padding-top: 0;
+  
+  article.post {
+    clear: right;
+    overflow: hidden;
+  }
+  
+  .post-thumbnail {
+    display: flex;
+    justify-content: center;
+    height: 86px;
+    overflow: hidden;
+    padding: 0;
+    width: 36%;
+    
+    a {
+      display: block;
+      height: inherit;
+    }
+    img {
+      height: inherit;
+      max-width: none;
+      width: auto;
+    }
+  }
+  
+  .entry-header {
+    width: 100%;
+    
+    .entry-title {
+      font-size: .75em;
+      line-height: 1.4em;
+      margin-bottom: 5px;
+    }
+  }
+  
+  .entry-content {
+    height: 86px;
+    width: 60%;
+    
+    &:after {
+      height: 2.8em;
+    }
+    
+    .teaser p {
+      font-size: .75rem;
+    }
+    
+  }
+}
+
+.sidebar .list-articles.list-news-textonly {
+  
+  .entry-title {
+    font-size: .8125em;
+    line-height: 1.4em;
+    margin-bottom: 5px;
+  }
+  
+  .entry-content {
+    @include gradient-fade;
+    
+    height: 3.9em;
+    line-height: 0;
+    overflow: hidden;
+    
+    &:after {
+      height: 2.8em;
+    }
+  
+    .entry-meta {
+      display: inline;
+      margin-bottom: 0;
+    }
+    
+    .teaser {
+      display: inline;
+      
+      &:after {
+        display: none;
+      }
+      
+      p {
+        display: inline;
+        font-size: .75rem;
+        line-height: 1.3em;
+      }
+    }
+  }
+  
+}
+
+/* --- Events --- */
+
+.list-events {
+  
+  .event {
+    @include clearfix;
+    @include border-bottom-dots;
+  }
+  
+  .event-title {
+    font-size: .875em;
+    margin-bottom: .3em;
+    padding: 0;
+  }
+  
+  .event-dates {
+    @include txt-narrow;
+    background: #000;
+    color: #fff;
+    font-size: .875em;
+    margin-bottom: 6px;
+    padding: 0 6px;
+    
+    p {
+      display: inline-block;
+      margin-bottom: 0;
+    }
+    
+    .date-end:before {
+      content: "–";
+      margin: 0 .25em;
+    }
+  }
+}
+
+.event .event-meta {
+  @include minor-text;
+  margin-bottom: 4px;
+  
+  p {
+    display: inline;
+    font-size: .75rem;
+    padding: 0;
+    
+    &:empty {
+      display: none;
+    }
+  }
+  
+  .event-times {
+    font-weight: bold;
+    
+    & + .event-location {
+      margin-left: .5em;
+    }
+  }
+  
+  .time-start + .time-end {
+    
+    &:before {
+      content: "-";
+      margin-right: .25em;
+    }
+  }
+}
+
+.event .event-export {
+  @include color-icon;
+  border: 0;
+  
+  &:before {
+    @include icon;
+    content: "\f271";
+    font-size: 16px;
+    margin-right: .25em;
+  }
+}
+
+.event.has-teaser .event-content {
+  
+  .teaser {
+    @include gradient-fade;
+    clear: both;
+    min-height: 2.6em;
+    max-height: 4em;
+    overflow: hidden;
+    padding: 0;
+    
+    &:after {
+      height: 72%;
+    }
+  }
+}
+
+.event .studying-calendar {
+  margin-top: 10px;
+  
+  a {
+    border: 0;
+    color: #fff;
+    
+    &:before {
+      @include icon;
+      content: "\f073";
+      margin-right: .5em;
+    }
+  }
+}
+
+/* Colored date box */
+  
+.list-events .has-image .event-dates {
+  background: $primary-color;
+}
+
+/* Events with featured image */
+
+.list-events .has-image {
+  
+  .event-img {
+    display: none;
+  }
+}
+
+/* Events with extra content */
+
+.list-events .event-extra {
+  margin-top: 1em;
+  
+  .speakers {
+    font-size: .6875em;
+    font-size: .6875rem;
+  }
+}
+
+/* Events with cover image */
+
+.list-events .event.has-cover-image {
+  border: 0;
+  padding: 0;
+  position: relative;
+  
+  a {
+    opacity: 1;
+    
+    &:hover {
+      opacity: .8;
+    }
+  }
+  
+  .cover-img {
+    background: $primary-color;
+    display: block;
+    height: auto;
+    margin: 0;
+    width: 100%;
+    
+    img {
+      height: auto;
+      vertical-align: top;
+      width: 100%;
+    }
+  }
+  
+  .event-dates {
+    background: transparent !important;
+    float: none;
+    position: absolute;
+    top: 10px; right: auto; bottom: auto; left: 10px;
+  }
+  
+  .event-content {
+    color: #fff;
+    float: none;
+    position: absolute;
+    top: auto; right: 10px; bottom: 10px; left: 10px;
+  }
+  
+  .event-title {
+    color: #fff;
+    
+    a {
+      color: #fff;
+      border-color: #fff;
+    }
+  }
+}
+
+/* Sidebar */
+
+.sidebar .list-events {
+  
+  .event-title {
+    font-size: .8125em;
+  }
+}
+
 
 /*  -----------------------------------------------------------
 
@@ -1981,6 +2507,7 @@ ul.bottin {
   
   .entry-content .box {
     float: left;
+    margin-bottom: 40px;
     padding-right: 2px;
     width: 50%;
     
@@ -2371,6 +2898,343 @@ ul.bottin {
     }
   }
   
+  /*  ---------------------------------------
+      08 SHORTCODES
+  ----------------------------------------- */
+  
+  /* --- News --- */
+  
+  /* List of articles with no picture */
+  
+  .list-articles.list-news-textonly {
+    
+    .entry-header {
+      float: none;
+      width: 100%;
+    }
+    
+    .entry-content {
+      padding: 0;
+    }
+  }
+  
+  /* List of articles with first article featured */
+  
+  .list-articles.list-news-first-featured {
+    @include news-narrow-content;
+    
+    article.post {
+      border: 0;
+      clear: right;
+      float: right;
+      height: 88px;
+      overflow: hidden;
+      padding: 0;
+      width: 50%;
+      
+      .post-thumbnail {
+        display: flex;
+        justify-content: center;
+        height: 88px;
+        overflow: hidden;
+        padding: 0;
+        width: 36%;
+        
+        a {
+          display: block;
+          height: inherit;
+        }
+        img {
+          height: inherit;
+          max-width: none;
+          width: auto;
+        }
+      }
+      
+      .entry-header .entry-title {
+        font-size: .75em;
+      }
+      
+      .entry-content {
+        height: 88px;
+        width: 60%;
+        
+        &:after {
+          height: 2.1em;
+    
+        }
+      }
+      
+      &:first-of-type {
+        float: left;
+        height: auto;
+        padding-right: 15px;
+        
+        .post-thumbnail {
+          float: none;
+          margin-bottom: 6px;
+          padding: 0;
+          height: auto;
+          width: 100%;
+        }
+        
+        .entry-header {
+          float: none;
+          width: 100%;
+          
+          .entry-title {
+            font-size: .875rem;
+          }
+        }
+        
+        .entry-content {
+          float: none;
+          padding: 0;
+          height: 108px;
+          width: 100%;
+          
+          &:after {
+            height: 3em;
+          }
+          
+          .teaser {
+            height: 4.6em;
+          }
+        }
+      }
+    }
+    
+  }
+  
+  /* Portal news with image on the left */
+  
+  .list-articles.news-portal {
+    
+    .post-thumbnail {
+      width: 50%;
+    }
+    
+    .entry-content {
+      height: 104px;
+      max-height: none;
+      width: 50%
+    }
+        
+    .entry-header .entry-title {
+      font-size: .8125rem;
+    }
+    
+    .links {
+      float: right;
+      width: 50%;
+    }
+  }
+  
+  /* Portal news with image on top */
+  
+  .list-articles.news-portal-img-top {
+    
+    .post-thumbnail {
+      float: none;
+      margin-bottom: 6px;
+      padding: 0;
+      width: 100%;
+    }
+    
+    .entry-content {
+      float: none;
+      max-height: 92px;
+      width: 100%
+    }
+  }
+
+  /* --- Events --- */
+  
+  .list-events .event-dates {
+    background: transparent;
+    color: #666;
+    float: left;
+    font-size: 1.125em;
+    margin: 0;
+    padding: 4px 0 0;
+    width: 36px;
+    
+    p {
+      display: block;
+      font-size: .75em;
+      letter-spacing: .05em;
+      padding: 0;
+      text-align: center;
+      text-transform: uppercase;
+      width: 100%;
+      
+      &.date-end {
+        margin-top: 8px;
+        padding-top: 14px;
+        position: relative;
+        
+        &:before {
+          display: none;
+        }
+        
+        &:after {
+          content: "";
+          border-top: 3px solid #666;
+          position: absolute;
+          top: 0; right: 7px; bottom: auto; left: 7px;
+        }
+      }
+      
+      &:first-line {
+        font-size: 1.5em;
+        letter-spacing: .05em;
+      }
+    }
+  }
+
+  .list-events .event-title,
+  .list-events .event-content,
+  .list-events .event-extra {
+    clear: none;
+    float: right;
+    width: 595px;
+    
+    .sidebar & {
+      width: 265px;
+    }
+  }
+  
+  .list-events .event .event-content > .event-title {
+    width: 100%;
+  }
+  
+  /* Colored date box */
+  
+  .list-events .has-image .event-dates {
+    @include color-background;
+    height: 112px;
+    padding: 9px 0 5px;
+    width: 40px;
+    
+    p {
+      color: #fff;
+      
+      &.date-end:after {
+        border-color: #fff;
+        right: 9px; left: 9px;
+      }
+    }
+  }
+  
+  /* Events with featured image */
+  
+  .list-events .has-image {
+    .event-img {
+      display: block;
+      float: left;
+      height: 112px;
+      margin: 0 10px 0 1px;
+      width: 112px;
+      
+      a {
+        display: block;
+      }
+    }
+    
+    .event-title,
+    .event-content {
+      width: 480px;
+      
+      .sidebar & {
+        width: 146px;
+      }
+    }
+  }
+  
+  .event.has-teaser.has-image .event-content {
+    height: 112px;
+    overflow: hidden;
+  }
+  
+  /* Events with extra content */
+  
+  .list-events .event-extra {
+    margin-top: .5em;
+  }
+  
+  .event.has-extra {
+    
+    .event-content {
+      float: left;
+      width: 330px;
+    }
+    
+    .event-extra {
+      float: right;
+      height: 112px;
+      margin-top: 0;
+      overflow: hidden;
+      width: 130px;
+      
+      .speakers {
+        padding: 0;
+      }
+    }
+  }
+  
+  /* Events with cover image */
+
+  .list-events .event.has-cover-image {
+    
+    .event-dates {
+      height: auto;
+      padding: 0;
+      top: auto; bottom: 25px; left: 20px;
+      
+      p {
+        font-size: 1em;
+      }
+    }
+    
+    .event-content {
+      top: auto; right: 20px; bottom: 25px; left: 90px;
+      width: auto;
+      
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      
+      .event-title {
+        float: left;
+        font-size: 1em;
+        vertical-align: bottom;
+        width: 320px;
+      }
+      
+      .studying-calendar {
+        float: right;
+        padding: 0;
+        vertical-align: bottom;
+        
+        a {
+          display: block;
+          
+          &:before {
+            font-size: 3.5em;
+            vertical-align: bottom;
+          }
+          
+          .label {
+            display: inline-block;
+            font-weight: bold;
+            vertical-align: bottom;
+            width: 100px;
+          }
+        }
+      }
+    }
+  }
+  
 }
 
 /*  -----------------------------------------------------------
@@ -2426,14 +3290,17 @@ ul.bottin {
       padding-right: 35px;
     }
     
-    .colored-box p,
-    .colored-box h1,
-    .colored-box h2,
-    .colored-box h3,
-    .colored-box h4,
-    .colored-box h5,
-    .colored-box h6 {
-      padding-right: 0;
+    .colored-box,
+    td {
+      p,
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        padding-right: 0;
+      }
     }
     
   }

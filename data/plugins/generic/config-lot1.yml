@@ -39,3 +39,5 @@ plugins:
     config: !include shortcode-ui/v1/config-plugin.yml
   - name: epfl-map
     config: !include epfl-map/v1/config-plugin.yml
+  - name: EPFL-Snippet
+    config: !include EPFL-Snippet/v1/config-plugin.yml

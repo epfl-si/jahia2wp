@@ -89,7 +89,7 @@ SUPPORTED_LANGUAGES = {
     "de": "de_CH",
     "es": "es_ES",
     "ro": "ro_RO",
-    "gr": "el",
+    "el": "el",
     "it": "it_IT"
 }
 
@@ -146,6 +146,7 @@ JAHIA_PROTOCOL = "https"
 JAHIA_ZIP_PATH = Utils.get_optional_env("JAHIA_ZIP_PATH", ".")
 JAHIA_DATA_PATH = Utils.get_optional_env("JAHIA_DATA_PATH", os.path.join(DATA_PATH, 'jahia-data'))
 JAHIA_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
+JAHIA2WP_VENT_TMP = Utils.get_optional_env("JAHIA2WP_VENT_TMP", "/tmp")
 
 MAIN_MENU = "Main"
 FOOTER_MENU = "footer_nav"
