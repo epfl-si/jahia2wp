@@ -776,6 +776,7 @@ def inventory(path, **kwargs):
         ]))
     logging.info("Inventory made for %s", path)
 
+
 @dispatch.on('veritas')
 def veritas(csv_file, **kwargs):
     validator = VeritasValidor(csv_file)
