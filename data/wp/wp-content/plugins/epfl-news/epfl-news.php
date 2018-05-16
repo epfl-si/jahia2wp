@@ -129,9 +129,9 @@ function epfl_news_check_required_parameters(string $channel, string $lang): boo
  * @param $tag: the name of shortcode. epfl_news in our case.
  */
 function epfl_news_process_shortcode(
-    array $atts,
-    string $content = '',
-    string $tag
+    $atts = [],
+    $content = '',
+    $tag = ''
     ): string {
 
         // shortcode parameters

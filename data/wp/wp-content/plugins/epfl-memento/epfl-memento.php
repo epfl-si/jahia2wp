@@ -134,9 +134,9 @@ function epfl_memento_check_required_parameters(string $memento, string $lang): 
  * Main function of shortcode
  */
 function epfl_memento_process_shortcode(
-    array $atts,
-    string $content = '',
-    string $tag): string
+    $atts = [],
+    $content = '',
+    $tag = ''): string
 {
 
     // extract shortcode parameters
