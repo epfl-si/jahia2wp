@@ -497,7 +497,12 @@ Class MementoRender
         } else {
             $html = MementoRender::epfl_memento_template_with_3_events($events);
         }
-        return '<div class="eventsBox">' . $html . '</div>';
+
+        if ($html === '<div class="list-events clearfix"></div>') {
+          return '<div class="eventsBox">' . esc_html__("No events scheduled") . $html . '</div>';
+        } else {
+          return '<div class="eventsBox">' . $html . '</div>';
+        }
     }
 
     /**
