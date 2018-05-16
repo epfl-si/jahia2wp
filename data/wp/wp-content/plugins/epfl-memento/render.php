@@ -70,8 +70,13 @@ Class MementoRender
               $end_time = new DateTime($item->end_time);
               $end_time = $end_time->format('G:i');
             }
-
-            $html_content .= '<article class="event">';
+            
+            if( $item->canceled == "True" ) {
+              $html_content .= '<article class="event has-extra event-canceled">';
+            } else {
+              $html_content .= '<article class="event has-extra">';
+            }
+            
             $html_content .= '  <div class="event-dates">';
             $html_content .= '    <p class="date-start"><time>' . $start_date . '</time></p>';
 
@@ -138,13 +143,22 @@ Class MementoRender
               $end_time = new DateTime($item->end_time);
               $end_time = $end_time->format('G:i');
             }
-
-            $html_content .= '<article class="event has-image has-teaser has-extra">';
+            
+            if( $item->canceled == "True" ) {
+              $html_content .= '<article class="event has-image has-teaser has-extra event-canceled">';
+            } else {
+              $html_content .= '<article class="event has-image has-teaser has-extra">';
+            }
+            
             $html_content .= '  <div class="event-dates">';
             $html_content .= '    <p class="date-start"><time>' . $start_date . '</time></p>';
 
             if ($end_date != $start_date) {
               $html_content .= '  <p class="date-end"><time>' . $end_date . '</time></p>';
+            }
+    
+            if( $item->canceled == "True" ) {
+              $html_content .= '<p class="canceled">' . __( 'Canceled', 'epfl-memento' ) . '</p>';
             }
 
             $html_content .= '  </div>';
@@ -213,13 +227,22 @@ Class MementoRender
               $end_time = new DateTime($item->end_time);
               $end_time = $end_time->format('G:i');
             }
-
-            $html_content .= '<article class="event has-image has-teaser has-extra">';
+            
+            if( $item->canceled == "True" ) {
+              $html_content .= '<article class="event has-image has-teaser has-extra event-canceled">';
+            } else {
+              $html_content .= '<article class="event has-image has-teaser has-extra">';
+            }
+            
             $html_content .= '  <div class="event-dates">';
             $html_content .= '    <p class="date-start"><time>' . $start_date . '</time></p>';
 
             if ($end_date != $start_date) {
               $html_content .= '  <p class="date-end"><time>' . $end_date . '</time></p>';
+            }
+    
+            if( $item->canceled == "True" ) {
+              $html_content .= '<p class="canceled">' . __( 'Canceled', 'epfl-memento' ) . '</p>';
             }
 
             $html_content .= '  </div>';
@@ -287,13 +310,11 @@ Class MementoRender
               $end_time = new DateTime($item->end_time);
               $end_time = $end_time->format('G:i');
             }
-
-            $html_content .= '<article class="event has-image">';
             
-            $html_content .= '  <p>canceled ' . $item->canceled . '</p>';
-    
-            if ( $item->canceled === 'True' ) {
-              $html_content .= '<p class="canceled">' . __( 'Canceled', 'epfl-memento' ) . '</p>';
+            if( $item->canceled == "True" ) {
+              $html_content .= '<article class="event has-image event-canceled">';
+            } else {
+              $html_content .= '<article class="event has-image">';
             }
             
             $html_content .= '  <div class="event-dates">';
@@ -301,6 +322,10 @@ Class MementoRender
 
             if ($end_date != $start_date) {
               $html_content .= '  <p class="date-end"><time>' . $end_date . '</time></p>';
+            }
+    
+            if( $item->canceled == "True" ) {
+              $html_content .= '<p class="canceled">' . __( 'Canceled', 'epfl-memento' ) . '</p>';
             }
 
             $html_content .= '  </div>';
@@ -367,13 +392,22 @@ Class MementoRender
               $end_time = new DateTime($item->end_time);
               $end_time = $end_time->format('G:i');
             }
-
-            $html_content .= '<article class="event has-image">';
+            
+            if( $item->canceled == "True" ) {
+              $html_content .= '<article class="event has-image event-canceled">';
+            } else {
+              $html_content .= '<article class="event has-image">';
+            }
+            
             $html_content .= '  <div class="event-dates">';
             $html_content .= '    <p class="date-start"><time>' . $start_date . '</time></p>';
 
             if ($end_date != $start_date) {
               $html_content .= '  <p class="date-end"><time>' . $end_date . '</time></p>';
+            }
+    
+            if( $item->canceled == "True" ) {
+              $html_content .= '<p class="canceled">' . __( 'Canceled', 'epfl-memento' ) . '</p>';
             }
 
             $html_content .= '  </div>';
