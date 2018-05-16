@@ -86,7 +86,7 @@ function epfl_map_process_shortcode( $attributes, string $content = null ): stri
 
 // Load .mo file for translation
 function epfl_map_load_plugin_textdomain() {
-    load_plugin_textdomain( 'epfl-map', FALSE, plugin_dir_path( __FILE__ ) . 'languages/' );
+    load_plugin_textdomain( 'epfl-map', FALSE, basename( plugin_dir_path( __FILE__ )) . '/languages/');
 }
 add_action( 'plugins_loaded', 'epfl_map_load_plugin_textdomain' );
 
