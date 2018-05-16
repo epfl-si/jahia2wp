@@ -311,8 +311,6 @@ class WPExporter:
         new_url = wp_media['source_url']
         self.medias_mapping[new_url] = wp_media['id']
 
-        tag_attribute_tuples = [("a", "href"), ("img", "src"), ("script", "src"), ("source", "src")]
-
         # 1. Looping through boxes
         for box in self.site.get_all_boxes():
 
@@ -323,7 +321,7 @@ class WPExporter:
             soup.body.hidden = True
 
             # fix in html tags
-            for tag_name, tag_attribute in tag_attribute_tuples:
+            for tag_name, tag_attribute in settings.FILE_LINKS_TAG_TO_FIX:
                 self.fix_links_in_tag(
                     soup=soup,
                     old_url=old_url,
@@ -342,7 +340,7 @@ class WPExporter:
 
             soup = BeautifulSoup(banner.content, 'html.parser')
 
-            for tag_name, tag_attribute in tag_attribute_tuples:
+            for tag_name, tag_attribute in settings.FILE_LINKS_TAG_TO_FIX:
                 self.fix_links_in_tag(
                     soup=soup,
                     old_url=old_url,
