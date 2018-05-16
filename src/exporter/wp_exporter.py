@@ -540,17 +540,19 @@ class WPExporter:
                 box.content = '[su_slider source="media: {}"'.format(','.join([str(m) for m in medias_ids]))
                 box.content += ' title="no" arrows="yes"]'
 
-    def update_page(self, page_id, content, title=None):
+    def update_page(self, page_id, content=None, title=None, slug=None):
         """
-        Import a page to Wordpress
+        Update a page in WordPress. All parameters are optional and updated only if given
         """
+
+        # List of elements that can be updated
         wp_page_info = {
             # date: auto => date/heure du jour
             # date_gmt: auto => date/heure du jour GMT
             # 'slug': slug,
             # 'status': 'publish',
             # password
-            'content': content,
+            # content
             # author
             # excerpt
             # featured_media
@@ -564,14 +566,24 @@ class WPExporter:
             # tags
         }
 
+        if content:
+            wp_page_info['content'] = content
+
         if title:
             wp_page_info['title'] = title
+
+        if slug:
+            wp_page_info['slug'] = slug
 
         return self.wp.post_pages(page_id=page_id, data=wp_page_info)
 
     def update_page_content(self, page_id, content):
         """Update the page content"""
-        return self.update_page(page_id, content)
+        return self.update_page(page_id, content=content)
+
+    def update_page_slug(self, page_id, slug):
+        """Update the page slug"""
+        return self.update_page(page_id, slug=slug)
 
     def import_pages(self):
         """
@@ -654,6 +666,14 @@ class WPExporter:
 
                 # Updating page in WordPress
                 wp_page = self.update_page(page_id=wp_id, title=page.contents[lang].title, content=content)
+
+                # If generated slug is a reserved terms and page is right under homepage, we have to change it
+                # We only change slug if it will be imported at root level because it's the only place where it
+                # causes problem
+                if wp_page['slug'] in settings.WORDPRESS_RESERVED_TERMS and page.parent and page.parent.is_homepage():
+                    # A new slug is generated, trying to be unique
+                    new_slug = "{}-{}".format(wp_page['slug'], len(content))
+                    wp_page = self.update_page_slug(page_id=wp_id, slug=new_slug)
 
                 # prepare mapping for htaccess redirection rules
                 mapping = {
