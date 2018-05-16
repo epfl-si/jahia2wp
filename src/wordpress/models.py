@@ -50,7 +50,16 @@ class WPSite:
         self.domain = url.netloc.strip('/')
         self.folder = url.path.strip('/')
         self.wp_site_title = wp_site_title or self.DEFAULT_TITLE
-        self.wp_tagline = wp_tagline or self.DEFAULT_TAGLINE
+        # If parameter not given
+        if not wp_tagline:
+            self.wp_tagline = self.DEFAULT_TAGLINE
+        # Parameter given (dict)
+        else:
+            self.wp_tagline = wp_tagline
+            # We check given information to be sure that we don't have a 'None' given
+            for lang, wp_tagline in self.wp_tagline.items():
+                if not wp_tagline:
+                    self.wp_tagline[lang] = self.DEFAULT_TAGLINE
 
     def __repr__(self):
         return self.url

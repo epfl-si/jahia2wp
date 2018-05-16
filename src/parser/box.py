@@ -183,6 +183,11 @@ class Box:
                              " simply using content".format(start_date))
                 return content
 
+        # we don't need to check if end_date > today
+        # In case end_date < today the shortcode display nothing
+        if not start_date and end_date:
+            start_date = today
+
         return '[{} start_date="{}" end_date="{}" start_time="{}" end_time="{}"]{}[/{}]'.format(
             self.shortcode_name,
             start_date,
@@ -541,6 +546,7 @@ class Box:
             if e.ELEMENT_NODE != e.nodeType:
                 continue
 
+            link_html = ""
             desc = ""
             # Going through 'linkDesc' and 'link' nodes
             for link_node in e.childNodes:

@@ -17,3 +17,7 @@ log/
 volumes/
 *.scssc
 *.map
+src/*.csv
+src/*.csv.*
+src/*tmp*.json
+src/*.zip
