@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export ROOT_SITE=www2.epfl.ch
+export ROOT_SITE=www.epfl.ch
 
 mpath="/srv/$WP_ENV/$ROOT_SITE/htdocs"
 
