@@ -11,6 +11,7 @@ class FanGlobalSitemap:
     ROOT_URL = "https://www.epfl.ch"
     # if True create a homepage that is the parent of all the pages
     CREATE_HOMEPAGE = False
+    ROOT_PATH = "/www.epfl.ch"
 
     def __init__(self, csv_file, wp_path):
         """
@@ -165,6 +166,28 @@ class FanGlobalSitemap:
         # the WordPress pages
         pages_by_path = {}
 
+        nodes_by_path = {}
+
+        homepage_node = GlobalSitemapNode("/", "Home")
+        nodes_by_path["/"] = homepage_node
+
+        for url in urls_sorted:
+            # the path, e.g. /research or /research/domains/enac
+            path = url[len(self.ROOT_URL):]
+
+            parent_path = path[:path.rfind("/")]
+
+            if not parent_path:
+                parent_path = "/"
+
+            parent_node = nodes_by_path[parent_path]
+
+            title = self.urls[url]["title_en"]
+
+            node = GlobalSitemapNode(path, title, parent_node)
+
+            nodes_by_path[path] = node
+
         for url in urls_sorted:
             # the path, e.g. /research or /research/domains/enac
             path = url[len(self.ROOT_URL):]
@@ -179,7 +202,7 @@ class FanGlobalSitemap:
 
             title = self.urls[url]["title_en"]
 
-            content = url
+            content = nodes_by_path[path].html()
 
             parent_id = homepage_id
             menu_item_parent_id = None
@@ -195,6 +218,7 @@ class FanGlobalSitemap:
             # add the page info
             page = {
                 "id": page_id,
+                "parent_id": parent_id,
                 "menu_item_id": menu_item_id,
                 "path": path,
             }
@@ -267,15 +291,45 @@ class FanGlobalSitemap:
         self.errors.append("Line {}: {}".format(line, message))
 
 
-class TreeNode(Node):
+class GlobalSitemapNode(Node):
 
-    def __init__(self, path, parent=None):
-        super().__init__(path, parent)
+    def __init__(self, path, title, parent_path=None):
+        super().__init__(path, parent_path)
 
-    pass
+        self.title = title
 
-    def print_node(self):
-        """Print the node"""
+    def li_html(self, path, name):
+        return "<li><a href='{}'>{}".format(FanGlobalSitemap.ROOT_PATH + path, name)
 
-        for pre, fill, node in RenderTree(self):
-            print("%s%s" % (pre, node.name))
+    def html(self):
+        """Returns the node html"""
+        html = ""
+
+        # the ancestors
+        for node in self.ancestors:
+            full_path = FanGlobalSitemap.ROOT_PATH + node.name
+
+            node_html = "<ul>\n"
+            node_html += "  <li><a href='{}'>{}</a>\n"
+
+            html += node_html.format(full_path, node.title)
+
+        # the node itself
+        html += "<ul><li><strong>{}</strong>".format(self.title)
+
+        # it's children
+        if self.children:
+            html += "<ul>"
+            for child in self.children:
+                html += self.li_html(child.name, child.title) + "</li>"
+            html += "</ul>"
+
+        # close the node
+        html += "</li></ul>"
+
+        # close the ancestors
+        for _ in self.ancestors:
+            html += "  </li>"
+            html += "  </ul>"
+
+        return html
