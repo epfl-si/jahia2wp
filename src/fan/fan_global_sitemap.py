@@ -8,10 +8,15 @@ from django.core.validators import URLValidator, ValidationError
 class FanGlobalSitemap:
     # the csv delimiter
     DELIMITER = ","
+    # the root url
     ROOT_URL = "https://www.epfl.ch"
     # if True create a homepage that is the parent of all the pages
     CREATE_HOMEPAGE = False
-    ROOT_PATH = "/www.epfl.ch"
+    # the root path of the WP site. For example if the global sitemap is deployed
+    # on https://jahia2wp-httpd/www.epfl.ch the root path is /www.epfl.ch. Having the
+    # root path as /www.epfl.ch allows us to simulate the final URLs, e.g.
+    # https://jahia2wp-httpd/www.epfl.ch/faculty/ic
+    WP_ROOT_PATH = "/www.epfl.ch"
 
     def __init__(self, csv_file, wp_path):
         """
@@ -21,21 +26,20 @@ class FanGlobalSitemap:
         :param wp_path: The path of the WordPress installation
         """
 
+        # save the attributes
         self.csv_file = csv_file
-
-        # WordPress installation path
         self.wp_path = wp_path
 
-        # the rows
+        # the CSV rows
         self.rows = []
 
-        # the errors
+        # the validation errors
         self.errors = []
 
         # load the rows
         self.rows = Utils.csv_filepath_to_dict(file_path=self.csv_file, delimiter=self.DELIMITER)
 
-        # the urls, key is the URL, value is another dict with all the data
+        # the urls as a dict, key is the URL, value is another dict with all the metadata
         # (titles, UNIT, etc.)
         self.urls = {}
 
@@ -43,31 +47,22 @@ class FanGlobalSitemap:
             url = row["url"]
             self.urls[url] = row
 
-    def _parse_existing(self, csv_file):
-        # Utility method for finding websites to put in the sitemap
-        # from a given list
-        rows = Utils.csv_filepath_to_dict(file_path=csv_file, delimiter=self.DELIMITER)
+    def create_website(self):
+        """
+        Creates the website with the global sitemap.
+        """
+        self._clean()
 
-        paths = set()
+        self._validate_data()
 
-        for row in rows:
-            url = row["url"]
-            url = url[1:]
+        self._create_menus()
 
-            data = url.split("/")
+        self._create_pages()
 
-            if len(data) == 1:
-                paths.add("/" + data[0])
-            elif len(data) >= 3:
-                paths.add("/" + data[0] + "/" + data[1])
-
-        paths = sorted(paths)
-
-        for path in paths:
-            print("https://www.epfl.ch" + path)
+        print("Global sitemap generated successfully.")
 
     def _clean(self):
-        """Deletes all the content"""
+        """Deletes all the site content"""
 
         # delete the pages
         try:
@@ -90,26 +85,12 @@ class FanGlobalSitemap:
             # simply means there are not menus to delete
             pass
 
-    def generate_website(self):
-        """
-        Generates a global sitemap.
-        """
-        self._clean()
-
-        self._validate_data()
-
-        self._insert_menus()
-
-        self._insert_pages()
-
-        print("Global sitemap generated successfully.")
-
     def _validate_data(self):
         """
-        Validates the data.
+        Validates the CSV data.
         """
 
-        # line
+        # line number
         i = 0
 
         for row in self.rows:
@@ -141,17 +122,39 @@ class FanGlobalSitemap:
                 print(error)
             exit()
 
-    def _insert_menus(self):
-        """Inserts the menus"""
-        self._generate_menu(settings.MAIN_MENU)
-        self._generate_menu(settings.FOOTER_MENU)
+    def _create_menus(self):
+        """Creates the menus"""
 
-    def _insert_pages(self):
+        self._create_menu(settings.MAIN_MENU)
+        self._create_menu(settings.FOOTER_MENU)
+
+    def _create_menu(self, name):
+        """Creates a menu with the given name"""
+
+        cmd = "wp menu create {} --path='{}' --porcelain"
+        cmd = cmd.format(name, self.wp_path)
+
+        return Utils.run_command(cmd)
+
+    def _add_to_menu(self, menu_name, page_id, menu_item_parent_id=None):
+        """Adds the given page to the given menu"""
+
+        cmd = "wp menu item add-post {} {} --path='{}' --porcelain"
+
+        # set the parent menu item, if any
+        if menu_item_parent_id:
+            cmd += " --parent-id={}".format(menu_item_parent_id)
+
+        cmd = cmd.format(menu_name, page_id, self.wp_path)
+
+        return Utils.run_command(cmd)
+
+    def _create_pages(self):
         """
-        Insert the pages.
+        Creates the pages.
         """
 
-        # sort the urls, so the parents are before their children, e.g.:
+        # sort the urls so the parents are before their children, e.g.:
         # https://www.epfl.ch/research
         # https://www.epfl.ch/research/domains
         # https://www.epfl.ch/research/domains/enac
@@ -161,7 +164,7 @@ class FanGlobalSitemap:
         homepage_id = None
 
         if self.CREATE_HOMEPAGE:
-            homepage_id = self._generate_homepage()
+            homepage_id = self._create_homepage()
 
         # the WordPress pages
         pages_by_path = {}
@@ -212,7 +215,7 @@ class FanGlobalSitemap:
                 parent_id = pages_by_path[parent_path]["id"]
                 menu_item_parent_id = pages_by_path[parent_path]["menu_item_id"]
 
-            page_id = self._generate_page(name, title, content, parent_id)
+            page_id = self._create_page(name, title, content, parent_id)
             menu_item_id = self._add_to_menu(settings.MAIN_MENU, page_id, menu_item_parent_id)
 
             # add the page info
@@ -226,40 +229,28 @@ class FanGlobalSitemap:
             pages_by_path[path] = page
 
         # sitemap
-        self._generate_sitemap(homepage_id)
+        self._create_sitemap(homepage_id)
 
-    def _add_to_menu(self, menu_name, page_id, menu_item_parent_id=None):
-        """Add the given page to the given menu"""
+    def _create_homepage(self):
+        """Creates the homepage"""
 
-        cmd = "wp menu item add-post {} {} --path='{}' --porcelain"
-
-        if menu_item_parent_id:
-            cmd += " --parent-id={}".format(menu_item_parent_id)
-
-        cmd = cmd.format(menu_name, page_id, self.wp_path)
-
-        return Utils.run_command(cmd)
-
-    def _generate_homepage(self):
-        """Generates the homepage"""
-
-        homepage_id = self._generate_page("home", "Home", "Home page")
+        homepage_id = self._create_page("home", "Home", "Home page")
 
         self._add_to_menu(settings.MAIN_MENU, homepage_id)
 
         return homepage_id
 
-    def _generate_sitemap(self, homepage_id):
-        """Generates the sitemap"""
+    def _create_sitemap(self, homepage_id):
+        """Creates the sitemap page"""
 
         content = '[simple-sitemap show_label="false" types="page orderby="menu_order"]'
 
-        page_id = self._generate_page("sitemap", "Sitemap", content, homepage_id)
+        page_id = self._create_page("sitemap", "Sitemap", content, homepage_id)
 
         self._add_to_menu(settings.FOOTER_MENU, page_id)
 
-    def _generate_page(self, name, title, content, parent_id=None):
-        """Generates a page with the given informations"""
+    def _create_page(self, name, title, content, parent_id=None):
+        """Creates a page with the given informations"""
 
         cmd = "wp post create --post_type=page " \
               "--post_status=publish " \
@@ -274,40 +265,35 @@ class FanGlobalSitemap:
 
         return Utils.run_command(cmd)
 
-    def _generate_menu(self, name):
-        """Generates a menu with the given name"""
-        cmd = "wp menu create {} --path='{}' --porcelain"
-        cmd = cmd.format(name, self.wp_path)
-
-        return Utils.run_command(cmd)
-
     def _add_error(self, line, message):
         """
-        Add an error.
+        Adds an error found in the CSV file.
 
-        :param line: the line number.
+        :param line: the line number
         :param message: the error message
         """
         self.errors.append("Line {}: {}".format(line, message))
 
 
 class GlobalSitemapNode(Node):
+    """
+    This class allows us to represent the sitemap as a Tree, using the
+    anytree library.
+    """
 
     def __init__(self, path, title, parent_path=None):
         super().__init__(path, parent_path)
 
         self.title = title
 
-    def li_html(self, path, name):
-        return "<li><a href='{}'>{}".format(FanGlobalSitemap.ROOT_PATH + path, name)
-
     def html(self):
         """Returns the node html"""
+
         html = ""
 
         # the ancestors
         for node in self.ancestors:
-            full_path = FanGlobalSitemap.ROOT_PATH + node.name
+            full_path = FanGlobalSitemap.WP_ROOT_PATH + node.name
 
             node_html = "<ul>\n"
             node_html += "  <li><a href='{}'>{}</a>\n"
@@ -317,11 +303,11 @@ class GlobalSitemapNode(Node):
         # the node itself
         html += "<ul><li><strong>{}</strong>".format(self.title)
 
-        # it's children
+        # it's children, if any
         if self.children:
             html += "<ul>"
             for child in self.children:
-                html += self.li_html(child.name, child.title) + "</li>"
+                html += self._li_html(child.name, child.title) + "</li>"
             html += "</ul>"
 
         # close the node
@@ -329,7 +315,12 @@ class GlobalSitemapNode(Node):
 
         # close the ancestors
         for _ in self.ancestors:
-            html += "  </li>"
-            html += "  </ul>"
+            html += "</li>"
+            html += "</ul>"
 
         return html
+
+    def _li_html(self, path, name):
+        """Returns the html for a <li> of the given path"""
+
+        return "<li><a href='{}'>{}".format(FanGlobalSitemap.WP_ROOT_PATH + path, name)
