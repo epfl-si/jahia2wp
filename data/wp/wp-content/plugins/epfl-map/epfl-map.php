@@ -78,7 +78,7 @@ function epfl_map_process_shortcode( $attributes, string $content = null ): stri
     $lang   = sanitize_text_field($atts['lang']);
 
     // check parameters
-    if ( epfl_map_check_parameters($width, $height, $query, $lang) == FALSE ) {
+    if ( false == epfl_map_check_parameters($width, $height, $query, $lang) ) {
         return "";
     }
     return epfl_map_build_html( $width, $height, $query, $lang );
@@ -86,7 +86,7 @@ function epfl_map_process_shortcode( $attributes, string $content = null ): stri
 
 // Load .mo file for translation
 function epfl_map_load_plugin_textdomain() {
-    load_plugin_textdomain( 'epfl-map', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
+    load_plugin_textdomain( 'epfl-map', FALSE, plugin_dir_path( __FILE__ ) . 'languages/' );
 }
 add_action( 'plugins_loaded', 'epfl_map_load_plugin_textdomain' );
 
