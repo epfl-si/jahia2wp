@@ -11,6 +11,14 @@ Class ShortCakeMementoConfig
 
        // build URL with all mementos
        $url = MEMENTO_API_URL . '?limit=' . $memento_response->count;
+
+       // order mementos by name
+       if (get_locale() == 'fr_FR') {
+           $url .= '&ordering=fr_name';
+       } else {
+           $url .= '&ordering=en_name';
+       }
+
        $memento_response = EventUtils::get_items($url);
 
        $memento_options = array();
@@ -140,7 +148,8 @@ Class ShortCakeMementoConfig
                        'attr'          => 'period',
                        'type'          => 'radio',
                        'options'       => ShortCakeMementoConfig::get_period_options(),
-                       'value'         => '2',
+                       'description'   => esc_html__('Do you want upcoming events or past events ?'),
+                       'value'         => 'upcoming',
                    ),
                    array(
                        'label'         => '<h3>' . esc_html__('Filter events by category', 'epfl-memento') . '</h3>',
