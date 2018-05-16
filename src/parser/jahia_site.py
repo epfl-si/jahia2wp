@@ -244,6 +244,9 @@ class Site:
                     # If normal jahia page
                     if jahia_type.nodeName == "jahia:page":
                         txt = jahia_type.getAttribute("jahia:title")
+                        # If title is empty, it means page is not displayed on Jahia, so we skip it here
+                        if txt == '':
+                            continue
                         hidden = jahia_type.getAttribute("jahia:hideFromNavigationMenu") != ""
                         target = "sitemap" if jahia_type.getAttribute("jahia:template") == "sitemap" \
                             else jahia_type.getAttribute("jcr:uuid")
@@ -622,7 +625,7 @@ class Site:
         Fix all the boxes and banners links. This must be done at the end, when all the pages have been parsed.
         """
         # List of type and attributes that we have to fix
-        tag_attribute_tuples = [("a", "href"), ("img", "src"), ("script", "src")]
+        tag_attribute_tuples = [("a", "href"), ("img", "src"), ("script", "src"), ("source", "src")]
 
         # 1. Looping through Boxes
         for box in self.get_all_boxes():
@@ -670,7 +673,7 @@ class Site:
                 if link.startswith(link_type):
                     return
 
-            if link.startswith("###file"):
+            if link.startswith("###file") or link.startswith('/repository'):
 
                 if "/files/" in link:
                     new_link = link[link.index('/files/'):]
@@ -791,7 +794,7 @@ class Site:
 
                 self.absolute_links += 1
             # file links
-            elif link.startswith("###file"):
+            elif link.startswith("###file") or link.startswith('/repository'):
 
                 self.fix_file_links_in_tag(soup, tag_name, attribute)
 
@@ -941,7 +944,10 @@ Parsed for %s :
         self.report += "  - tags :\n\n"
 
         for tag in num_tags_ordered:
-            self.report += "    - <%s> %s\n" % (tag, self.num_tags[tag])
+            # Tag is encoded and decoded to remove special char that cause script to crash when report is printed if
+            # it contains surprising tags !
+            self.report += "    - <%s> %s\n" % (tag.encode('ascii', 'replace').decode('ascii').replace('?', ''),
+                                                self.num_tags[tag])
 
     def __repr__(self):
         return self.name

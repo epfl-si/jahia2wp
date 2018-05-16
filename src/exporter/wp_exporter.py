@@ -311,7 +311,7 @@ class WPExporter:
         new_url = wp_media['source_url']
         self.medias_mapping[new_url] = wp_media['id']
 
-        tag_attribute_tuples = [("a", "href"), ("img", "src"), ("script", "src")]
+        tag_attribute_tuples = [("a", "href"), ("img", "src"), ("script", "src"), ("source", "src")]
 
         # 1. Looping through boxes
         for box in self.site.get_all_boxes():
@@ -775,7 +775,7 @@ class WPExporter:
                         widget_type = 'text'
                         title = ""
                         content = "[colored-box]"
-                        content += "<h3>{}</h3>".format(box.title)
+                        content += prepare_html("<h3>{}</h3>".format(box.title))
                         content += prepare_html(box.content)
                         content += "[/colored-box]"
 
