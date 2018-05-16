@@ -102,4 +102,3 @@ function EPFL_remove_customize_admin_bar_render()
 }
 
 ?>
-
