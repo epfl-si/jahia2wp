@@ -1793,7 +1793,7 @@ class Data:
                                                                    {'content__start': '', 'title': '', 'type': 'text'},
                                                                    {'content__start': '[epfl_memento memento="" lang="" template="" /]', 'title': '', 'type': 'memento'}],
                                                 'menu_title': 'Atelier web EPFL',
-                                                'title': 'Recommendations for use : Google Analytics'},
+                                                'title': 'Atelier web EPFL'},
                                          'fr': {'boxes': [{'content__start': '<p><img alt="" height="184" src="/files/pictures/web-services2.jpg" '
                                                                              'width="652"/></p> ',
                                                            'title': '',
@@ -1852,8 +1852,7 @@ class Data:
                                                                    {'content__start': '', 'title': '', 'type': 'text'},
                                                                    {'content__start': '[epfl_memento memento="" lang="" template="" /]', 'title': '', 'type': 'memento'}],
                                                 'menu_title': '',
-                                                'title': 'Recommendations for use : Google Analytics'},
-
+                                                'title': ''},
                                          'fr': {'boxes': [{'content__start': "<p>L'équipe des Services Web déploie des activités selon 3 missions "
                                                                              ':</p> <ul>  <li><span style="text-decoration: underline;">Coordinateur '
                                                                              'd’informati',
