@@ -12,7 +12,7 @@ Usage:
   jahia2wp.py parse                 <site>                          [--debug | --quiet]
     [--output-dir=<OUTPUT_DIR>] [--use-cache]
   jahia2wp.py export     <site>  <wp_site_url> <unit_name>          [--debug | --quiet]
-    [--to-wordpress | --clean-wordpress | --to-dictionary]
+    [--to-wordpress] [--clean-wordpress] [--to-dictionary]
     [--admin-password=<PASSWORD>]
     [--output-dir=<OUTPUT_DIR>]
     [--installs-locked=<BOOLEAN> --updates-automatic=<BOOLEAN>]
@@ -47,6 +47,8 @@ Usage:
   jahia2wp.py update-plugins-many   <csv_file>                      [--debug | --quiet]
     [--force] [--plugin=<PLUGIN_NAME>]
   jahia2wp.py global-report <csv_file> [--output-dir=<OUTPUT_DIR>] [--use-cache] [--debug | --quiet]
+  jahia2wp.py migrate-urls <csv_file> <wp_env>                    [--debug | --quiet]
+    --root_wp_dest=</srv/../epfl> [--strict] [--htaccess] [--context=<intra|inter|full>]
 
 Options:
   -h --help                 Show this screen.
@@ -66,6 +68,8 @@ from pprint import pprint
 
 import os
 import shutil
+
+import sys
 import yaml
 from docopt import docopt
 from docopt_dispatch import dispatch
@@ -85,6 +89,7 @@ from utils import Utils
 from veritas.casters import cast_boolean
 from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
+from ventilation import Ventilation
 
 
 def _check_site(wp_env, wp_url, **kwargs):
@@ -243,7 +248,7 @@ def _generate_csv_line(wp_generator):
 
     # Recovering values from WPGenerator or hardcode some
     csv_columns['wp_site_url'] = wp_generator._site_params['wp_site_url']  # from csv
-    csv_columns['wp_tagline'] = wp_generator._site_params['wp_tagline']  # from parser
+    csv_columns['wp_tagline'] = wp_generator._site_params['wp_tagline'][wp_generator.default_lang()]  # from parser
     csv_columns['wp_site_title'] = wp_generator._site_params['wp_site_title']  # from parser
     csv_columns['site_type'] = 'wordpress'
     csv_columns['openshift_env'] = 'subdomains'
@@ -333,11 +338,18 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
     Parse the give site.
     """
     try:
+        # without changing this parameter the following sites crash
+        # when they are dumped on disk with pickle:
+        # biorob, disopt, euler, last, master-architecture
+        # they are probably corrupted, so this is simply a hack
+        # to make it work
+        sys.setrecursionlimit(2000)
+
         # create subdir in output_dir
         site_dir = unzip(site, output_dir=output_dir)
 
         # where to cache our parsing
-        pickle_file_path = os.path.join(site_dir, 'parsed_%s.pkl' % site)
+        pickle_file_path = os.path.join(site_dir, 'parsed_{}.pkl'.format(site))
 
         # when using-cache: check if already parsed
         pickle_site = False
@@ -352,7 +364,7 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
             site = pickle_site
         else:
             logging.info("Cache not used, parsing the Site")
-            site = Site(site_dir, site)
+            site = Site(site_dir, site, fix_etx_chars=True)
 
         print(site.report)
 
@@ -392,6 +404,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     :param updates_automatic: boolean
     :param openshift_env: openshift_env environment (prod, int, gcharmier ...)
     :param keep_extracted_files: command to keep files extracted from jahia zip
+    :param fix_etx_chars: Tell to remove ETX chars from XML files containing site pages.
     """
 
     # Download, Unzip the jahia zip and parse the xml data
@@ -409,20 +422,22 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     else:
         wp_site_title = site.acronym[default_language]
 
+    # theme
     if not site.theme[default_language] or site.theme[default_language] == "epfl":
         theme_faculty = ""
     else:
         theme_faculty = site.theme[default_language]
 
+    if not theme:
+        # Setting correct theme depending on parsing result
+        theme = BANNER_THEME_NAME if default_language in site.banner else DEFAULT_THEME_NAME
+
+    # tagline
     if not site.title[default_language]:
         logging.warning("No wp tagline in %s", default_language)
         wp_tagline = None
     else:
-        wp_tagline = site.title[default_language]
-
-    if not theme:
-        # Setting correct theme depending on parsing result
-        theme = BANNER_THEME_NAME if default_language in site.banner else DEFAULT_THEME_NAME
+        wp_tagline = site.title
 
     info = {
         # information from parser
@@ -444,15 +459,37 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         'from_export': True
     }
 
+    # skip options, used only during development
+    #
+    # skip_base: if True don't install WordPress, use the existing site
+    # skip_media: if True don't import the media
+    # skip_pages: if True don't import the pages
+    skip_base = False
+    skip_media = False
+    skip_pages = False
+
     # Generate a WordPress site
     wp_generator = WPGenerator(info, admin_password)
-    wp_generator.generate()
 
-    wp_generator.install_basic_auth_plugin()
+    # base installation
+    if skip_base:
+        try:
+            # even if we skip the base installation we need to reactivate
+            # the basic auth plugin for the rest API
+            wp_generator.run_wp_cli("plugin activate Basic-Auth")
+        except:
+            # if activation fails it means the plugin is not installed
+            wp_generator.install_basic_auth_plugin()
+    else:
+        wp_generator.generate()
 
+        wp_generator.install_basic_auth_plugin()
+
+    # dual auth
     if settings.ACTIVE_DUAL_AUTH:
         wp_generator.active_dual_auth()
 
+    # exporter
     wp_exporter = WPExporter(
         site,
         wp_generator,
@@ -460,11 +497,18 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         output_dir=output_dir
     )
 
+    # clean
+    if clean_wordpress:
+        logging.info("Cleaning WordPress for %s...", site.name)
+        wp_exporter.delete_all_content()
+        logging.info("Data of WordPress site %s successfully deleted", site.name)
+
+    # to WordPress
     if to_wordpress:
         logging.info("Exporting %s to WordPress...", site.name)
         try:
             if wp_generator.get_number_of_pages() == 0:
-                wp_exporter.import_all_data_to_wordpress()
+                wp_exporter.import_data_to_wordpress(skip_pages=skip_pages, skip_media=skip_media)
                 wp_exporter.write_redirections()
                 _fix_menu_location(wp_generator, languages, default_language)
                 logging.info("Site %s successfully exported to WordPress", site.name)
@@ -478,17 +522,13 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
 
         Tracer.write_row(site=site.name, step="export", status="OK")
 
-    if clean_wordpress:
-        logging.info("Cleaning WordPress for %s...", site.name)
-        wp_exporter.delete_all_content()
-        logging.info("Data of WordPress site %s successfully deleted", site.name)
+    wp_generator.uninstall_basic_auth_plugin()
+    wp_generator.enable_updates_automatic_if_allowed()
 
+    # to dictionary
     if to_dictionary:
         data = DictExporter.generate_data(site)
         pprint(data, width=settings.LINE_LENGTH_ON_PPRINT)
-
-    wp_generator.uninstall_basic_auth_plugin()
-    wp_generator.enable_updates_automatic_if_allowed()
 
     _generate_csv_line(wp_generator)
 
@@ -852,6 +892,17 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
 
             except Exception as e:
                 logging.error("Site %s - Error %s", report['name'], e)
+
+
+@dispatch.on('migrate-urls')
+def url_mapping(csv_file, wp_env, strict=False, root_wp_dest=None, htaccess=False, context='intra', **kwargs):
+    """
+    :param csv_file: CSV containing the URL mapping rules for source and destination.
+    :param context: intra, inter, full. Replace the occurrences at intra, inter or both.
+    """
+    logging.info('Starting ventilation process...')
+    vent = Ventilation(wp_env, csv_file, strict, root_wp_dest, htaccess, context)
+    vent.run_all()
 
 
 if __name__ == '__main__':

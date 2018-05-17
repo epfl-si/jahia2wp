@@ -7,6 +7,7 @@ VERSION = "0.3.1"
 
 LINE_LENGTH_ON_PPRINT = 150
 LINE_LENGTH_ON_EXPORT = LINE_LENGTH_ON_PPRINT + 100
+UPLOAD_MAX_FILESIZE = 300000000
 
 DEBUG = False
 ACTIVE_DUAL_AUTH = False
@@ -88,9 +89,12 @@ SUPPORTED_LANGUAGES = {
     "de": "de_CH",
     "es": "es_ES",
     "ro": "ro_RO",
-    "gr": "el",
+    "el": "el",
     "it": "it_IT"
 }
+
+# List of tags and attribute to fix in file links when parsing and exporting Jahia site to WordPress
+FILE_LINKS_TAG_TO_FIX = [("a", "href"), ("img", "src"), ("script", "src"), ("source", "src"), ("embed", "src")]
 
 SUPPORTED_TRUE_STRINGS = ['true', 'yes', 'y', 'on', '1']
 
@@ -145,6 +149,94 @@ JAHIA_PROTOCOL = "https"
 JAHIA_ZIP_PATH = Utils.get_optional_env("JAHIA_ZIP_PATH", ".")
 JAHIA_DATA_PATH = Utils.get_optional_env("JAHIA_DATA_PATH", os.path.join(DATA_PATH, 'jahia-data'))
 JAHIA_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
+JAHIA2WP_VENT_TMP = Utils.get_optional_env("JAHIA2WP_VENT_TMP", "/tmp")
 
 MAIN_MENU = "Main"
 FOOTER_MENU = "footer_nav"
+
+# Reserved terms in WordPress. Can not be used as slug for pages (for example).
+# https://codex.wordpress.org/Reserved_Terms
+WORDPRESS_RESERVED_TERMS = [
+    'attachment',
+    'attachment_id',
+    'author',
+    'author_name',
+    'calendar',
+    'cat',
+    'category',
+    'category__and',
+    'category__in',
+    'category__not_in',
+    'category_name',
+    'comments_per_page',
+    'comments_popup',
+    'custom',
+    'customize_messenger_channel',
+    'customized',
+    'cpage',
+    'day',
+    'debug',
+    'embed',
+    'error',
+    'exact',
+    'feed',
+    'hour',
+    'link_category',
+    'm',
+    'minute',
+    'monthnum',
+    'more',
+    'name',
+    'nav_menu',
+    'nonce',
+    'nopaging',
+    'offset',
+    'order',
+    'orderby',
+    'p',
+    'page',
+    'page_id',
+    'paged',
+    'pagename',
+    'pb',
+    'perm',
+    'post',
+    'post__in',
+    'post__not_in',
+    'post_format',
+    'post_mime_type',
+    'post_status',
+    'post_tag',
+    'post_type',
+    'posts',
+    'posts_per_archive_page',
+    'posts_per_page',
+    'preview',
+    'robots',
+    's',
+    'search',
+    'second',
+    'sentence',
+    'showposts',
+    'static',
+    'subpost',
+    'subpost_id',
+    'tag',
+    'tag__and',
+    'tag__in',
+    'tag__not_in',
+    'tag_id',
+    'tag_slug__and',
+    'tag_slug__in',
+    'taxonomy',
+    'tb',
+    'term',
+    'terms',
+    'theme',
+    'title',
+    'type',
+    'w',
+    'withcomments',
+    'withoutcomments',
+    'year',
+]

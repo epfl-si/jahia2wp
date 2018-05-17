@@ -42,21 +42,38 @@ class WPGenerator:
 
         Argument keywords:
         site_params -- dict with row coming from CSV file (source of truth)
+                    - Field wp_tagline can be :
+                    None    -> No information
+                    String  -> Same tagline for all languages
+                    Dict    -> key=language, value=tagline for language
         admin_password -- (optional) Password to use for 'admin' account
         """
 
         self._site_params = site_params
 
-        # Setting default values
+        # set the default values
         if 'unit_name' in self._site_params and 'unit_id' not in self._site_params:
             logging.info("WPGenerator.__init__(): Please use 'unit_id' from CSV file (now recovered from 'unit_name')")
             self._site_params['unit_id'] = self.get_the_unit_id(self._site_params['unit_name'])
 
+        # if it's not given (it can happen), we initialize the title with a default value so we will be able, later, to
+        # set a translation for it.
         if 'wp_site_title' not in self._site_params:
-            self._site_params['wp_site_title'] = None
+            self._site_params['wp_site_title'] = 'Title'
 
+        # tagline
         if 'wp_tagline' not in self._site_params:
             self._site_params['wp_tagline'] = None
+        else:
+            # if information is not already in a dict (it happen if info is coming for the source of truth in which
+            # we only have tagline in primary language
+            if not isinstance(self._site_params['wp_tagline'], dict):
+                wp_tagline = {}
+                # We loop through languages to generate dict
+                for lang in self._site_params['langs'].split(','):
+                    # We set tagline for current language
+                    wp_tagline[lang] = self._site_params['wp_tagline']
+                self._site_params['wp_tagline'] = wp_tagline
 
         if self._site_params.get('installs_locked', None) is None:
             self._site_params['installs_locked'] = settings.DEFAULT_CONFIG_INSTALLS_LOCKED
@@ -92,13 +109,14 @@ class WPGenerator:
             self._site_params['wp_site_url'],
             wp_site_title=self._site_params['wp_site_title'],
             wp_tagline=self._site_params['wp_tagline'])
+
         self.wp_config = WPConfig(
             self.wp_site,
             installs_locked=self._site_params['installs_locked'],
             updates_automatic=self._site_params['updates_automatic'],
             from_export=self._site_params['from_export'])
 
-        # prepare admin for exploitation/maintenance
+        # prepare admin for exploitation / maintenance
         self.wp_admin = WPUser(self.WP_ADMIN_USER, self.WP_ADMIN_EMAIL)
         self.wp_admin.set_password(password=admin_password)
 
@@ -109,6 +127,13 @@ class WPGenerator:
 
     def __repr__(self):
         return repr(self.wp_site)
+
+    def default_lang(self):
+        """
+        Returns default language for generated website
+        :return:
+        """
+        return self._site_params['langs'].split(',')[0]
 
     def run_wp_cli(self, command, encoding=sys.getdefaultencoding(), pipe_input=None, extra_options=None):
         """
@@ -154,7 +179,7 @@ class WPGenerator:
         """
         Generate a complete and fully working WordPress website
         """
-        # check we have a clean place first
+        # check if we have a clean place first
         if self.wp_config.is_installed:
             logging.warning("%s - WordPress files already found", repr(self))
             return False
@@ -185,12 +210,12 @@ class WPGenerator:
         logging.info("%s - Installing mu-plugins...", repr(self))
         self.generate_mu_plugins()
 
-        # Delete all widgets, inactive themes
+        # delete all widgets, inactive themes and demo posts
         self.delete_widgets()
         self.delete_inactive_themes()
         self.delete_demo_posts()
 
-        # install, activate and config plugins
+        # install, activate and configure plugins
         logging.info("%s - Installing plugins...", repr(self))
         self.generate_plugins()
 
@@ -258,13 +283,16 @@ class WPGenerator:
             logging.error("%s - could not setup WP site", repr(self))
             return False
 
-        # Set Tagline (blog description)
-        # Command is in simple quotes and tagline between double quotes to avoid problems in case of simple quote
-        # in tagline text.
-        if not self.run_wp_cli('option update blogdescription "{}"'.format(self.wp_site.wp_tagline),
-                               encoding="utf-8"):
-            logging.error("%s - could not configure blog description", repr(self))
-            return False
+        # Set Tagline (blog description) if we have one. If we don't have a tagline and set it to "empty", it won't
+        # be available in Polylang to translate it so we let the default value set by WordPress
+        if self._site_params['wp_tagline']:
+            # Command is in simple quotes and tagline between double quotes to avoid problems in case of simple quote
+            # in tagline text. We initialize blogdescription with default language
+            if not self.run_wp_cli('option update blogdescription "{}"'.format(
+                    self._site_params['wp_tagline'][self.default_lang()]),
+                    encoding="utf-8"):
+                logging.error("%s - could not configure blog description", repr(self))
+                return False
 
         # Configure permalinks
         command = "rewrite structure '/%postname%/' --hard"
@@ -349,7 +377,7 @@ class WPGenerator:
         cmd = "post list --post_type=page,post --field=ID --format=csv"
         posts_list = self.run_wp_cli(cmd).split("\n")
         for post in posts_list:
-            cmd = "post delete {}".format(post)
+            cmd = "post delete {} --force".format(post)
             self.run_wp_cli(cmd)
         logging.info("%s - All demo posts deleted", repr(self))
 
@@ -364,7 +392,11 @@ class WPGenerator:
         # TODO: add those plugins into the general list of plugins (with the class WPMuPluginConfig)
         WPMuPluginConfig(self.wp_site, "epfl-functions.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL-SC-infoscience.php").install()
+        WPMuPluginConfig(self.wp_site, "EPFL-SC-grid.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL_custom_editor_menu.php").install()
+        WPMuPluginConfig(self.wp_site, "EPFL_xml.php").install()
+        WPMuPluginConfig(self.wp_site, "EPFL-SC-people.php").install()
+        WPMuPluginConfig(self.wp_site, "EPFL-scheduler.php").install()
 
         if self.wp_config.installs_locked:
             WPMuPluginConfig(self.wp_site, "EPFL_installs_locked.php").install()
@@ -525,7 +557,7 @@ class WPGenerator:
 
     def install_basic_auth_plugin(self):
         """
-        Install basic auth plugin
+        Install and activate the basic auth plugin.
 
         This plugin is used to communicate with REST API of WordPress site.
         """

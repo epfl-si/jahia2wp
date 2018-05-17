@@ -27,7 +27,13 @@ class WPSite:
     WP_VERSION = Utils.get_mandatory_env(key="WP_VERSION")
 
     def __init__(self, openshift_env, wp_site_url, wp_site_title=None, wp_tagline=None):
-
+        """
+        Class constructor
+        :param openshift_env: name of openshift environement
+        :param wp_site_url: WordPress website URL
+        :param wp_site_title: WordPress website title (same for all languages)
+        :param wp_tagline: Dict with langs as key and tagline as value
+        """
         # validate & transform args
         self.openshift_env = openshift_env.lower()
         url = urlparse(wp_site_url.lower())
@@ -37,13 +43,23 @@ class WPSite:
             validate_string(wp_site_title)
 
         if wp_tagline is not None:
-            validate_string(wp_tagline)
+            for lang, lang_tagline in wp_tagline.items():
+                validate_string(lang_tagline)
 
-        # set WP informations
+        # set WP information
         self.domain = url.netloc.strip('/')
         self.folder = url.path.strip('/')
         self.wp_site_title = wp_site_title or self.DEFAULT_TITLE
-        self.wp_tagline = wp_tagline or self.DEFAULT_TAGLINE
+        # If parameter not given
+        if not wp_tagline:
+            self.wp_tagline = self.DEFAULT_TAGLINE
+        # Parameter given (dict)
+        else:
+            self.wp_tagline = wp_tagline
+            # We check given information to be sure that we don't have a 'None' given
+            for lang, wp_tagline in self.wp_tagline.items():
+                if not wp_tagline:
+                    self.wp_tagline[lang] = self.DEFAULT_TAGLINE
 
     def __repr__(self):
         return self.url
@@ -58,7 +74,15 @@ class WPSite:
 
     @property
     def url(self):
-        return "{0.PROTOCOL}://{0.domain}/{0.folder}".format(self)
+        """
+        Returns WP site URL. URL is always returned without a / at the end.
+        """
+        # First, we generate only with hostname
+        result = "{0.PROTOCOL}://{0.domain}".format(self)
+        # If there a subfolder, we add it
+        if self.folder != "":
+            result = "{}/{}".format(result, self.folder)
+        return result
 
     @property
     def name(self):

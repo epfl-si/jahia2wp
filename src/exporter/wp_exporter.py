@@ -2,6 +2,7 @@
 import logging
 import os
 import sys
+import re
 from parser.box import Box
 import timeit
 from collections import OrderedDict
@@ -13,7 +14,6 @@ from wordpress_json import WordpressJsonWrapper, WordpressError
 import settings
 from exporter.utils import Utils
 from utils import Utils as WPUtils
-from urllib.parse import urlparse
 from parser.file import File
 
 
@@ -77,6 +77,7 @@ class WPExporter:
         rest_api_url = self._build_rest_api_url()
 
         logging.info("setting up API on '%s', with %s:xxxxxx", rest_api_url, wp_generator.wp_admin.username)
+
         self.wp = WordpressJsonWrapper(rest_api_url, wp_generator.wp_admin.username, wp_generator.wp_admin.password)
 
     def run_wp_cli(self, command, encoding=sys.getdefaultencoding(), pipe_input=None, extra_options=None):
@@ -102,9 +103,9 @@ class WPExporter:
         """
         return self.host == settings.HTTPD_CONTAINER_NAME
 
-    def import_all_data_to_wordpress(self):
+    def import_data_to_wordpress(self, skip_pages=False, skip_media=False):
         """
-        Import all data to worpdress via REST API and wp-cli
+        Import all data to WordPress via REST API and wp-cli
         """
         try:
             start_time = timeit.default_timer()
@@ -113,11 +114,18 @@ class WPExporter:
             # Allow unfiltered content
             self.run_wp_cli("plugin deactivate EPFL-Content-Filter")
 
-            # Existing widget deletion to start with empty sidebar contents
+            # Delete the existing widgets to start with an empty sidebar
             self.delete_widgets()
-            self.import_medias()
-            self.import_pages()
-            self.set_frontpage()
+
+            # media
+            if not skip_media:
+                self.import_medias()
+
+            # pages
+            if not skip_pages:
+                self.import_pages()
+                self.set_frontpage()
+
             self.populate_menu()
             self.import_sidebars()
             self.import_breadcrumb()
@@ -197,15 +205,22 @@ class WPExporter:
         if self.site.files:
             start = "{}/content/sites/{}/files".format(self.site.base_path, self.site.name)
             self.site.files = self._asciify_path(start)
+
+            count = 0
             for file in self.site.files:
                 wp_media = self.import_media(file)
                 if wp_media:
                     self.fix_file_links(file, wp_media)
                     self.report['files'] += 1
+                    count += 1
+
+                    if count % 10 == 0:
+                        logging.info("[%s/%s] WP medias imported", self.report['files'], len(self.site.files))
+
             self.fix_key_visual_boxes()
         # Remove the capability "unfiltered_upload" to the administrator group.
         self.run_wp_cli('cap remove administrator unfiltered_upload')
-        logging.info("WP medias imported")
+        logging.info("%s WP medias imported", self.report['files'])
 
     def import_media(self, media):
         """
@@ -215,9 +230,19 @@ class WPExporter:
         # In that case convert to ascii with 'replace' option which replaces unknown characters by '?',
         # and rename the file with that new name.
         file_path = os.path.join(media.path, media.name)
+        size = os.path.getsize(file_path)
+
         # If the file is empty, do not try to import
-        if os.path.getsize(file_path) == 0:
+        if size == 0:
+            logging.warning('Media %s is empty', file_path)
+            self.report['failed_files'] += 1
             return None
+        # If the file is too big, do not try to import
+        elif size > settings.UPLOAD_MAX_FILESIZE:
+            logging.warning('Media %s is too big. Size: %s', file_path, size)
+            self.report['failed_files'] += 1
+            return None
+
         file = open(file_path, 'rb')
 
         files = {
@@ -273,6 +298,7 @@ class WPExporter:
         Fix the links pointing to the given file. Following elements are processed:
         - All boxes
         - All banners (headers)
+        - Shortcodes
         """
 
         if "/files" not in file.path:
@@ -285,16 +311,21 @@ class WPExporter:
         new_url = wp_media['source_url']
         self.medias_mapping[new_url] = wp_media['id']
 
-        tag_attribute_tuples = [("a", "href"), ("img", "src"), ("script", "src")]
-
-        # Looping through boxes
+        # 1. Looping through boxes
         for box in self.site.get_all_boxes():
+
+            # We skip empty boxes because nothing to update in
+            if box.is_empty():
+                continue
+
+            # first fix in shortcodes
+            self.fix_file_links_in_shortcode_attributes(box, old_url, new_url)
 
             soup = BeautifulSoup(box.content, 'html5lib')
             soup.body.hidden = True
 
-            for tag_name, tag_attribute in tag_attribute_tuples:
-
+            # fix in html tags
+            for tag_name, tag_attribute in settings.FILE_LINKS_TAG_TO_FIX:
                 self.fix_links_in_tag(
                     soup=soup,
                     old_url=old_url,
@@ -305,14 +336,15 @@ class WPExporter:
             # save the new box content
             box.content = str(soup.body)
 
+        # 2. Menus
         self.fix_file_links_in_menus(old_url, new_url)
 
-        # Looping through banners
+        # 3. Looping through banners
         for lang, banner in self.site.banner.items():
 
             soup = BeautifulSoup(banner.content, 'html.parser')
 
-            for tag_name, tag_attribute in tag_attribute_tuples:
+            for tag_name, tag_attribute in settings.FILE_LINKS_TAG_TO_FIX:
                 self.fix_links_in_tag(
                     soup=soup,
                     old_url=old_url,
@@ -324,11 +356,11 @@ class WPExporter:
             banner.content = str(soup)
 
     def fix_file_links_in_menu_items(self, menu_item, old_url, new_url):
-        if menu_item.target_is_file():
-                normalized_url = menu_item.target.encode('ascii', 'replace').decode('ascii').replace('?', '')
+        if menu_item.points_to_file():
+                normalized_url = menu_item.points_to.encode('ascii', 'replace').decode('ascii').replace('?', '')
                 normalized_url = normalized_url[normalized_url.rfind("/files"):]
                 if normalized_url == old_url.replace('?', ''):
-                    menu_item.target = new_url
+                    menu_item.points_to = new_url
 
     def fix_file_links_in_menus(self, old_url, new_url):
         for lang in self.site.languages:
@@ -341,10 +373,45 @@ class WPExporter:
             self.fix_file_links_in_menu_items(child, old_url, new_url)
             self.fix_file_links_in_submenus(child, old_url, new_url)
 
-    def fix_page_content_links(self, wp_pages):
+    def fix_page_links_in_sidebar(self, site_folder):
+        """
+        Fix page links in sidebar widgets
+        :param site_folder: path to folder containing website files
+        :return:
+        """
+        logging.info("Fixing sidebar content links")
+        for lang in self.site.homepage.contents.keys():
+
+            for box in self.site.homepage.contents[lang].sidebar.boxes:
+
+                if box.is_empty():
+                    continue
+
+                soup = BeautifulSoup(box.content, 'html5lib')
+                soup.body.hidden = True
+
+                for url_mapping in self.urls_mapping:
+                    new_url = "{}/{}/".format(site_folder, url_mapping["wp_slug"])
+                    for old_url in url_mapping["jahia_urls"]:
+                        self.fix_links_in_tag(
+                            soup=soup,
+                            old_url=old_url,
+                            new_url=new_url,
+                            tag_name="a",
+                            tag_attribute="href"
+                        )
+
+                box.content = str(soup.body)
+
+    def fix_page_links_in_pages(self, wp_pages, site_folder):
         """
         Fix all the links once we know all the WordPress pages urls
+        :param wp_pages: list of pages to fix
+        :param site_folder: path to folder containing website files
+        :return:
         """
+        logging.info("Fixing page content links")
+
         for wp_page in wp_pages:
 
             content = ""
@@ -352,24 +419,58 @@ class WPExporter:
             if "content" in wp_page:
                 content = wp_page["content"]["raw"]
             else:
-                logging.error("Expected content for page %s" % wp_page)
+                logging.error("Expected content for page %s", wp_page)
+
+            # Step 1 - Fix in shortcode attributes
+            # We loop 2 times through self.urls_mapping because the first time we modify directly HTML content
+            # and the second time, we fix links in HTML tags and we use Beautiful Soup to do this.
+            for url_mapping in self.urls_mapping:
+                # Generating new URL from slug
+                new_url = "{}/{}/".format(site_folder, url_mapping["wp_slug"])
+
+                for old_url in url_mapping["jahia_urls"]:
+
+                    for shortcode, attributes_list in self.site.shortcodes.items():
+
+                        search = re.compile('\[{} [^\]]*\]'.format(shortcode))
+
+                        # Looping through founded shortcodes
+                        # ex: [epfl_infoscience url="<url>"]
+                        for code in search.findall(content):
+                            old_code = code
+                            # Looping through shortcodes attributes to update
+                            for attribute in attributes_list:
+                                # <query> in regex is to handle URL like this :
+                                # .../path/to/page#tag
+                                # .../path/to/page?query=string
+                                old_regex = re.compile('{}="(http(s)?://{})?{}(?P<query> [^"]*)"'.format(
+                                    attribute,
+                                    re.escape(self.site.server_name),
+                                    re.escape(old_url)), re.VERBOSE)
+
+                                # To build "new" URL and still having the "end" of the old URL (#tag, ?query=string)
+                                new_regex = r'{}="{}\g<query>"'.format(attribute, new_url)
+
+                                # Update attribute in shortcode
+                                code = old_regex.sub(new_regex, code)
+
+                            # Replace shortcode with the one updated with new urls
+                            content = content.replace(old_code, code)
 
             soup = BeautifulSoup(content, 'html5lib')
             soup.body.hidden = True
 
+            # Step 2 - Fix in HTML tags
             for url_mapping in self.urls_mapping:
-
-                # 'jahia_urls' contains a list of all URLs pointing on page. We arbitrary take the first of the list
-                old_url = url_mapping["jahia_urls"][0]
-                new_url = url_mapping["wp_url"]
-
-                self.fix_links_in_tag(
-                    soup=soup,
-                    old_url=old_url,
-                    new_url=new_url,
-                    tag_name="a",
-                    tag_attribute="href"
-                )
+                new_url = "{}/{}/".format(site_folder, url_mapping["wp_slug"])
+                for old_url in url_mapping["jahia_urls"]:
+                    self.fix_links_in_tag(
+                        soup=soup,
+                        old_url=old_url,
+                        new_url=new_url,
+                        tag_name="a",
+                        tag_attribute="href"
+                    )
 
             # update the page
             wp_id = wp_page["id"]
@@ -378,8 +479,26 @@ class WPExporter:
 
             self.update_page_content(page_id=wp_id, content=content)
 
+    def fix_file_links_in_shortcode_attributes(self, box, old_url, new_url):
+        """
+        Fix the link in a box shortcode for all registered attributes.
+
+        This will replace for example:
+
+        image="/files/51_recyclage/vignette_bois.png"
+
+        to:
+
+        image="/wp-content/uploads/2018/04/vignette_bois.png"
+        """
+        for attribute in box.shortcode_attributes_to_fix:
+            old_attribute = '{}="{}"'.format(attribute, old_url)
+            new_attribute = '{}="{}"'.format(attribute, new_url)
+
+            box.content = box.content.replace(old_attribute, new_attribute)
+
     def fix_links_in_tag(self, soup, old_url, new_url, tag_name, tag_attribute):
-        """Fix the links in the given tag"""
+        """Fix the links in the given HTML tag"""
 
         tags = soup.find_all(tag_name)
 
@@ -411,12 +530,14 @@ class WPExporter:
             # point the link to the new url of the page.
             if link.encode('ascii', 'replace').decode('ascii').replace('?', '') == old_url.replace('?', '') \
                     or (pid and link == pid):
-                logging.debug("Changing link from %s to %s" % (old_url, new_url))
+                logging.debug("Changing link from %s to %s", (old_url, new_url))
                 tag[tag_attribute] = new_url
 
     def fix_key_visual_boxes(self):
         """[su_slider source="media: 1650,1648,1649" title="no" arrows="yes"]"""
         for box in self.site.get_all_boxes():
+            if box.is_empty():
+                continue
             if box.type == Box.TYPE_KEY_VISUAL:
                 soup = BeautifulSoup(box.content, 'html.parser')
                 medias_ids = []
@@ -426,18 +547,19 @@ class WPExporter:
                 box.content = '[su_slider source="media: {}"'.format(','.join([str(m) for m in medias_ids]))
                 box.content += ' title="no" arrows="yes"]'
 
-    def update_page(self, page_id, title, content):
+    def update_page(self, page_id, content=None, title=None, slug=None):
         """
-        Import a page to Wordpress
+        Update a page in WordPress. All parameters are optional and updated only if given
         """
+
+        # List of elements that can be updated
         wp_page_info = {
             # date: auto => date/heure du jour
             # date_gmt: auto => date/heure du jour GMT
             # 'slug': slug,
             # 'status': 'publish',
             # password
-            'title': title,
-            'content': content,
+            # content
             # author
             # excerpt
             # featured_media
@@ -450,12 +572,25 @@ class WPExporter:
             # categories
             # tags
         }
+
+        if content:
+            wp_page_info['content'] = content
+
+        if title:
+            wp_page_info['title'] = title
+
+        if slug:
+            wp_page_info['slug'] = slug
+
         return self.wp.post_pages(page_id=page_id, data=wp_page_info)
 
     def update_page_content(self, page_id, content):
         """Update the page content"""
-        data = {"content": content}
-        return self.wp.post_pages(page_id=page_id, data=data)
+        return self.update_page(page_id, content=content)
+
+    def update_page_slug(self, page_id, slug):
+        """Update the page slug"""
+        return self.update_page(page_id, slug=slug)
 
     def import_pages(self):
         """
@@ -467,7 +602,10 @@ class WPExporter:
 
         for page in self.site.pages_by_pid.values():
 
-            contents = {}
+            # We have to use OrderedDict to avoid bad surprises when page has only one language. Sometimes, Dict isn't
+            # taken in the "correct" order and we try to modify page which has been deleted because no translation. So
+            # it was editing a page which was in the Trash.
+            contents = OrderedDict()
             info_page = OrderedDict()
 
             for lang in page.contents.keys():
@@ -476,8 +614,14 @@ class WPExporter:
                 # create the page content
                 for box in page.contents[lang].boxes:
 
-                    contents[lang] += '<div class="{}">'.format(box.type + "Box")
-                    if box.title and box.type != Box.TYPE_TOGGLE:
+                    # We skip empty boxes
+                    if box.is_empty():
+                        continue
+
+                    if not box.is_shortcode():
+                        contents[lang] += '<div class="{}">'.format(box.type + "Box")
+
+                    if box.title:
                         contents[lang] += '<h3 id="{0}">{0}</h3>'.format(box.title)
 
                     # in the parser we can't know the current language.
@@ -487,7 +631,9 @@ class WPExporter:
                             box.content = box.content.replace(Box.UPDATE_LANG, lang)
 
                     contents[lang] += box.content
-                    contents[lang] += "</div>"
+
+                    if not box.is_shortcode():
+                        contents[lang] += "</div>"
 
                 info_page[lang] = {
                     'post_name': page.contents[lang].path,
@@ -528,18 +674,27 @@ class WPExporter:
                 # we skip the update (because there is nothing to update and we don't have needed information...
                 if lang not in page.contents:
                     continue
+
                 # Updating page in WordPress
                 wp_page = self.update_page(page_id=wp_id, title=page.contents[lang].title, content=content)
+
+                # If generated slug is a reserved terms and page is right under homepage, we have to change it
+                # We only change slug if it will be imported at root level because it's the only place where it
+                # causes problem
+                if wp_page['slug'] in settings.WORDPRESS_RESERVED_TERMS and page.parent and page.parent.is_homepage():
+                    # A new slug is generated, trying to be unique
+                    new_slug = "{}-{}".format(wp_page['slug'], len(content))
+                    wp_page = self.update_page_slug(page_id=wp_id, slug=new_slug)
 
                 # prepare mapping for htaccess redirection rules
                 mapping = {
                     'jahia_urls': page.contents[lang].vanity_urls,
-                    'wp_url': wp_page['link']
+                    'wp_slug': wp_page['slug']
                 }
 
                 self.urls_mapping.append(mapping)
 
-                logging.info("WP page '%s' created", wp_page['link'])
+                logging.info("WP page '%s' created", wp_page['slug'])
 
                 # keep WordPress ID for further usages
                 page.contents[lang].wp_id = wp_page['id']
@@ -548,7 +703,16 @@ class WPExporter:
 
             self.report['pages'] += 1
 
-        self.fix_page_content_links(wp_pages)
+        if self.wp_generator.wp_site.folder == "":
+            site_folder = ""
+        else:
+            site_folder = "/{}".format(self.wp_generator.wp_site.folder)
+
+        # Update page links in all imported pages
+        self.fix_page_links_in_pages(wp_pages, site_folder)
+
+        # Update page links in sidebar boxes
+        self.fix_page_links_in_sidebar(site_folder)
 
         self.create_sitemaps()
 
@@ -561,10 +725,13 @@ class WPExporter:
         for page in self.site.pages_by_pid.values():
             for lang, page_content in page.contents.items():
 
-                if page.parent and page_content.wp_id:
-                    parent_id = page.parent.contents[lang].wp_id
+                # If page has parent (is not homepage)
+                # AND parent is not homepage
+                # AND we have an ID for its content,
+                if page.parent and not page.parent.is_homepage() and page_content.wp_id:
+                    # We use the page parent id to update it in WordPress
                     wp_page_info = {
-                        'parent': parent_id
+                        'parent': page.parent.contents[lang].wp_id
                     }
                     self.wp.post_pages(page_id=page.contents[lang].wp_id, data=wp_page_info)
 
@@ -589,7 +756,7 @@ class WPExporter:
             wp_page = self.update_page(
                 page_id=sitemap_wp_id,
                 title='sitemap',
-                content='[simple-sitemap show_label="false" types="page orderby="menu_order"]'
+                content='[simple-sitemap show_label="false" types="page" orderby="menu_order"]'
             )
             self.create_footer_menu_for_sitemap(sitemap_wp_id=wp_page['id'], lang=lang)
 
@@ -613,6 +780,10 @@ class WPExporter:
             # Banner is only one text widget per lang in a dedicated sidebar
             for lang, banner in self.site.banner.items():
 
+                if not banner.content:
+                    logging.warning("Banner is empty")
+                    continue
+
                 cmd = 'widget add text header-widgets --text="{}"'.format(
                     banner.content.replace('"', '\\"'))
 
@@ -620,14 +791,19 @@ class WPExporter:
                 widget_pos_to_lang[str(widget_pos)] = lang
                 widget_pos += 1
 
-                logging.info("Banner imported for '%s' language" % lang)
+                logging.info("Banner imported for '%s' language", lang)
 
             # Then we import sidebar widgets
             for lang in self.site.homepage.contents.keys():
 
                 for box in self.site.homepage.contents[lang].sidebar.boxes:
+
+                    # If box is empty, we don't handle it
+                    if box.is_empty():
+                        continue
+
                     if box.type in [Box.TYPE_TEXT, Box.TYPE_CONTACT, Box.TYPE_LINKS, Box.TYPE_FILES]:
-                        widget_type = 'text'
+                        widget_type = 'custom_html'
                         title = prepare_html(box.title)
                         content = prepare_html(box.content)
 
@@ -637,21 +813,21 @@ class WPExporter:
                         content = prepare_html(box.content)
 
                     elif box.type == Box.TYPE_COLORED_TEXT:
-                        widget_type = 'text'
+                        widget_type = 'custom_html'
                         title = ""
                         content = "[colored-box]"
-                        content += "<h3>{}</h3>".format(box.title)
+                        content += prepare_html("<h3>{}</h3>".format(box.title))
                         content += prepare_html(box.content)
                         content += "[/colored-box]"
 
                     # Box type not supported for now,
                     else:
                         logging.warning("Box type currently not supported for sidebar (%s)", box.type)
-                        widget_type = 'text'
-                        title = prepare_html("TODO: {}".format(box.title))
+                        widget_type = 'custom_html'
+                        title = prepare_html("TODO ({}): {}".format(box.type, box.title))
                         content = prepare_html(box.content)
 
-                    cmd = 'widget add {} page-widgets {} --text="{}" --title="{}"'.format(
+                    cmd = 'widget add {} page-widgets {} --content="{}" --title="{}"'.format(
                         widget_type,
                         widget_pos,
                         WPUtils.clean_html_comments(content),
@@ -661,7 +837,7 @@ class WPExporter:
                     self.run_wp_cli(cmd)
 
                     # Saving widget position for current widget (as string because this is a string that is
-                    # used to index informations in DB)
+                    # used to index information in DB)
                     widget_pos_to_lang[str(widget_pos)] = lang
                     widget_pos += 1
 
@@ -670,7 +846,7 @@ class WPExporter:
             # If widgets were added
             if widget_pos_to_lang:
                 # Getting existing 'text' widget list
-                widgets = json.loads(self.run_wp_cli('option get widget_text --format=json'))
+                widgets = json.loads(self.run_wp_cli('option get widget_custom_html --format=json'))
 
                 # Looping through widget to apply correct lang
                 for widget_index in widgets:
@@ -687,7 +863,7 @@ class WPExporter:
                     f_json.flush()
 
                 # Updating languages for all widgets
-                self.run_wp_cli('option update widget_text --format=json < {}'.format(filename))
+                self.run_wp_cli('option update widget_custom_html --format=json < {}'.format(filename))
 
                 os.remove(filename)
 
@@ -749,41 +925,53 @@ class WPExporter:
             if not menu_item.hidden:
 
                 # If menu entry is an hardcoded URL
-                if menu_item.target_is_url() or menu_item.target_is_sitemap():
+                if menu_item.points_to_url() or menu_item.points_to_sitemap():
 
                     # Recovering URL
-                    url = menu_item.target
+                    url = menu_item.points_to
 
-                    # If menu entry is sitemap, we add WP site base URL
-                    if menu_item.target_is_sitemap():
-                        url = "{}{}".format(self.wp_generator.wp_site.url, url)
+                    # If menu entry is sitemap
+                    # OR
+                    # If points to an anchor on a page, URL is not is absolute (starts with 'http').
+                    # If URL is not absolute, this is because it points to a vanity URL defined in Jahia
+                    # THEN we add WP site base URL
+                    if menu_item.points_to_sitemap() or \
+                            (menu_item.points_to_anchor() and not url.startswith('http')):
+                        url = "{}/{}".format(self.wp_generator.wp_site.url, url)
 
-                    cmd = 'menu item add-custom {} "{}" "{}" --parent-id={} --porcelain' \
-                        .format(menu_name, menu_item.txt, url, parent_menu_id)
+                    # Generate target information if exists
+                    target = "--target={}".format(menu_item.target) if menu_item.target else ""
+
+                    cmd = 'menu item add-custom {} "{}" "{}" {} --parent-id={} --porcelain' \
+                        .format(menu_name, menu_item.txt.replace('"', '\\"'), url, target, parent_menu_id)
+
                     menu_id = self.run_wp_cli(cmd)
                     if not menu_id:
-                        logging.warning("Root menu item not created for URL (%s) " % url)
+                        logging.warning("Root menu item not created for URL (%s) ", url)
                     else:
                         self.report['menus'] += 1
 
                 # menu entry is page
                 else:
                     # Trying to get corresponding page corresponding to current page UUID
-                    child = self.site.homepage.get_child_with_uuid(menu_item.target, 3)
+                    child = self.site.homepage.get_child_with_uuid(menu_item.points_to, 4)
 
                     if child is None:
-                        logging.error("Submenu creation: No page found for UUID %s", menu_item.target)
+                        logging.error("Submenu creation: No page found for UUID %s", menu_item.points_to)
                         continue
 
                     if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict and \
                             child.contents[lang].wp_id:  # FIXME For unknown reason, wp_id is sometimes None
 
-                        command = 'menu item add-post {} {} --parent-id={} --porcelain' \
-                            .format(menu_name, child.contents[lang].wp_id, parent_menu_id)
+                        command = 'menu item add-post {} {} --title="{}" --parent-id={} --porcelain' \
+                            .format(menu_name,
+                                    child.contents[lang].wp_id,
+                                    child.contents[lang].menu_title.replace('"', '\\"'),
+                                    parent_menu_id)
 
                         menu_id = self.run_wp_cli(command)
                         if not menu_id:
-                            logging.warning("Menu not created for page %s" % child.pid)
+                            logging.warning("Menu not created for page %s", child.pid)
                         else:
                             self.menu_id_dict[child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
                             self.report['menus'] += 1
@@ -799,6 +987,7 @@ class WPExporter:
         Add pages into the menu in wordpress.
         This menu was created when configuring the polylang plugin.
         """
+        logging.info("Populating menu...")
         try:
             # Create homepage menu
             for lang, page_content in self.site.homepage.contents.items():
@@ -819,7 +1008,7 @@ class WPExporter:
                     )
                     menu_id = self.run_wp_cli(cmd)
                     if not menu_id:
-                        logging.warning("Home root menu not created for page  %s" % page_content.pid)
+                        logging.warning("Home root menu not created for page  %s", page_content.pid)
                     else:
                         self.menu_id_dict[page_content.wp_id] = Utils.get_menu_id(menu_id)
                         self.report['menus'] += 1
@@ -845,44 +1034,55 @@ class WPExporter:
 
                         # If root menu entry is an hardcoded URL
                         # OR a sitemap link
-                        if menu_item.target_is_url() or \
-                                menu_item.target_is_sitemap():
+                        if menu_item.points_to_url() or \
+                                menu_item.points_to_sitemap():
 
                             # Recovering URL
-                            url = menu_item.target
+                            url = menu_item.points_to
 
-                            # If menu entry is sitemap, we add WP site base URL
-                            if menu_item.target_is_sitemap():
-                                url = "{}{}".format(self.wp_generator.wp_site.url, url)
+                            # If menu entry is sitemap
+                            # OR
+                            # If points to an anchor on a page, URL is not is absolute (starts with 'http').
+                            # If URL is not absolute, this is because it points to a vanity URL defined in Jahia
+                            # THEN we add WP site base URL
+                            if menu_item.points_to_sitemap() or \
+                                    (menu_item.points_to_anchor() and not url.startswith('http')):
+                                url = "{}/{}".format(self.wp_generator.wp_site.url, url)
 
-                            cmd = 'menu item add-custom {} "{}" "{}" --porcelain' \
-                                .format(menu_name, menu_item.txt, url)
+                            # Generate target information if exists
+                            target = "--target={}".format(menu_item.target) if menu_item.target else ""
+
+                            cmd = 'menu item add-custom {} "{}" "{}" {} --porcelain' \
+                                .format(menu_name, menu_item.txt.replace('"', '\\"'), url, target)
+
                             menu_id = self.run_wp_cli(cmd)
                             if not menu_id:
-                                logging.warning("Root menu item not created for URL (%s) " % url)
+                                logging.warning("Root menu item not created for URL (%s) ", url)
                             else:
                                 self.report['menus'] += 1
 
                         # root menu entry is pointing to a page
                         else:
                             # Trying to get corresponding page corresponding to current page UUID
-                            homepage_child = self.site.homepage.get_child_with_uuid(menu_item.target, 3)
+                            homepage_child = self.site.homepage.get_child_with_uuid(menu_item.points_to, 3)
 
                             if homepage_child is None:
-                                logging.error("Menu creation: No page found for UUID %s", menu_item.target)
+                                logging.error("Menu creation: No page found for UUID %s", menu_item.points_to)
                                 continue
 
                             if lang not in homepage_child.contents:
-                                logging.warning("Page not translated %s" % homepage_child.pid)
+                                logging.warning("Page not translated %s", homepage_child.pid)
                                 continue
 
                             if homepage_child.contents[lang].wp_id:
 
-                                cmd = 'menu item add-post {} {} --porcelain' \
-                                      .format(menu_name, homepage_child.contents[lang].wp_id)
+                                cmd = 'menu item add-post {} {} --title="{}" --porcelain' \
+                                      .format(menu_name,
+                                              homepage_child.contents[lang].wp_id,
+                                              homepage_child.contents[lang].menu_title.replace('"', '\\"'))
                                 menu_id = self.run_wp_cli(cmd)
                                 if not menu_id:
-                                    logging.warning("Root menu item not created %s for page " % homepage_child.pid)
+                                    logging.warning("Root menu item not created %s for page ", homepage_child.pid)
                                 else:
                                     self.menu_id_dict[homepage_child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
                                     self.report['menus'] += 1
@@ -903,7 +1103,7 @@ class WPExporter:
 
     def set_frontpage(self):
         """
-        Use wp-cli to set the two worpress options needed fotr the job
+        Use wp-cli to set the two WordPress options needed for the job
         """
         # sanity check on homepage
         if not self.site.homepage:
@@ -944,12 +1144,14 @@ class WPExporter:
         """
         Delete all pages in DRAFT status
         """
-        cmd = "post list --post_type='page' --post_status=draft --format=csv"
-        pages_id_list = self.run_wp_cli(cmd).split("\n")[1:]
-        for page_id in pages_id_list:
-            cmd = "post delete {}".format(page_id)
-            self.run_wp_cli(cmd)
-        logging.info("All pages in DRAFT status deleted")
+        cmd = "post list --post_type='page' --post_status=draft --format=csv --field=ID"
+        pages_id_list = self.run_wp_cli(cmd)
+
+        if not pages_id_list:
+            for page_id in pages_id_list.split("\n")[1:]:
+                cmd = "post delete {} --force".format(page_id)
+                self.run_wp_cli(cmd)
+            logging.info("All pages in DRAFT status deleted")
 
     def delete_pages(self):
         """
@@ -1019,8 +1221,9 @@ class WPExporter:
 
         # Add all rewrite jahia URI to WordPress URI
         for element in self.urls_mapping:
-
-            wp_url = urlparse(element['wp_url']).path
+            # WordPress URL is generated from slug so if admin change page location, it still will be available
+            # if we request and "old" Jahia URL
+            wp_url = "/{}/".format(element['wp_slug'])
 
             # Going through vanity URLs
             for jahia_url in element['jahia_urls']:
@@ -1028,9 +1231,10 @@ class WPExporter:
                 # We skip this redirection to avoid infinite redirection...
                 if jahia_url != "/index.html":
                     source_url = "{}{}".format(folder, jahia_url)
+                    target_url = "{}{}".format(folder, wp_url)
                     # To avoid Infinite loop
-                    if source_url != wp_url[:-1]:
-                        redirect_list.append("Redirect 301 {} {}".format(source_url,  wp_url))
+                    if source_url != target_url[:-1]:
+                        redirect_list.append("Redirect 301 {} {}".format(source_url,  target_url))
 
         if redirect_list:
             # Updating .htaccess file

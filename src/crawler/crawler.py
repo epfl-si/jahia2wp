@@ -8,7 +8,7 @@ import timeit
 import requests
 from collections import OrderedDict
 from datetime import timedelta
-from clint.textui import progress
+import os
 
 from tracer.tracer import Tracer
 from .config import JahiaConfig
@@ -29,7 +29,7 @@ class JahiaCrawler(object):
         if self.skip_download:
             files = self.config.existing_files
             file_path = files[-1]
-            logging.info("%s - zip already downloaded %sx. Last one is %s",
+            logging.info("%s - ZIP already downloaded %sx. Last one is %s",
                          self.site, len(files), file_path)
             Tracer.write_row(site=self.site, step="download", status="OK")
             return file_path
@@ -37,8 +37,8 @@ class JahiaCrawler(object):
         # set timer to measure execution time
         start_time = timeit.default_timer()
 
-        # make query
-        logging.info("%s - downloading %s...", self.site, self.config.file_name)
+        # make query. The call to session.post will wait until ZIP has been generated on Jahia site.
+        logging.info("%s - Downloading %s...", self.site, self.config.file_name)
         response = self.session_handler.session.post(
             self.config.file_url,
             params=self.config.download_params,
@@ -46,38 +46,31 @@ class JahiaCrawler(object):
         )
         logging.debug("%s - %s => %s", self.site, response.url, response.status_code)
 
+        # When we arrive here, the Jahia ZIP file is ready to be downloaded.
+
         # raise exception in case of error
         if not response.status_code == requests.codes.ok:
             response.raise_for_status()
 
         # adapt streaming function to content-length in header
-        logging.debug("%s - headers %s", self.site, response.headers)
-
-        if len(response.content) < 200:
-            logging.error("The jahia zip file for WordPress site is empty")
-            raise Exception("Jahia zip is empty")
-
-        total_length = response.headers.get('content-length')
-        if total_length is not None:
-            def read_stream():
-                return progress.bar(
-                    response.iter_content(chunk_size=4096),
-                    expected_size=(int(total_length) / 4096) + 1)
-        else:
-            def read_stream():
-                return response.iter_content(chunk_size=4096)
+        logging.debug("%s - Headers %s", self.site, response.headers)
 
         # download file
-        logging.info("%s - saving response into %s...", self.site, self.config.file_path)
+        logging.info("%s - Saving response into %s...", self.site, self.config.file_path)
         with open(self.config.file_path, 'wb') as output:
-            for chunk in read_stream():
+            for chunk in response.iter_content(chunk_size=4096):
                 if chunk:
                     output.write(chunk)
                     output.flush()
 
+        zip_stats = os.stat(self.config.file_path)
+        if zip_stats.st_size < 200:
+            logging.error("The Jahia ZIP file for WordPress site is empty")
+            raise Exception("Jahia ZIP is empty")
+
         # log execution time and return path to downloaded file
         elapsed = timedelta(seconds=timeit.default_timer() - start_time)
-        logging.info("%s - file downloaded in %s", self.site, elapsed)
+        logging.info("%s - File downloaded in %s", self.site, elapsed)
         Tracer.write_row(site=self.site, step="download", status="OK")
 
         # return PosixPath converted to string

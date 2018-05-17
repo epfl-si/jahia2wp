@@ -45,6 +45,11 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+@mixin txt-narrow {
+  font-family: Impact, "Arial Black","DejaVu Sans", Arial, Helvetica , sans-serif;
+  letter-spacing: 0.1em;
+}
+
 @mixin minor-text {
   font: italic .75rem Georgia, 'Times New Roman', Times, serif;
 }
@@ -121,4 +126,23 @@
     font-size: 1em;
   }
   
+}
+
+@mixin gradient-fade {
+  position: relative;
+  
+  &:after {
+    content: "";
+    background: transparent;
+    height: 2em;
+    position: absolute;
+    top: auto; right: 0; bottom: 0; left: 0;
+    
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&0+0,0.8+100 */
+    background: -moz-linear-gradient(top, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,0.8) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgba(255,255,255,0.8) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ccffffff',GradientType=0 ); /* IE6-9 */
+
+  }
 }
