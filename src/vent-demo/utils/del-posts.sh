@@ -1,6 +1,8 @@
 #!/bin/bash
 
-export ROOT_SITE=www.epfl.ch
+if [ -n "$ROOT_SITE" ]; then
+ 	ROOT_SITE=www.epfl.ch
+fi
 
 mpath="/srv/$WP_ENV/$ROOT_SITE/htdocs"
 

@@ -1,5 +1,8 @@
 #!/bin/bash
-export ROOT_SITE=www.epfl.ch
+if [ -n "$ROOT_SITE" ]; then
+	ROOT_SITE=www.epfl.ch
+fi
+
 python jahia2wp.py clean $WP_ENV http://$ROOT_SITE/ 
 python jahia2wp.py clean $WP_ENV http://$ROOT_SITE/schools 
 python jahia2wp.py clean $WP_ENV http://$ROOT_SITE/schools/ic 
