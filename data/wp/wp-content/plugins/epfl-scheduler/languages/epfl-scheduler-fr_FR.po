@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl-scheduler\n"
-"POT-Creation-Date: 2018-05-06 18:19+0200\n"
-"PO-Revision-Date: 2018-05-06 18:22+0200\n"
+"POT-Creation-Date: 2018-05-17 19:07+0200\n"
+"PO-Revision-Date: 2018-05-17 19:07+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -50,3 +50,7 @@ msgstr "Heure de fin"
 #: epfl-scheduler.php:155
 msgid "Please select an end time. Format: hh:mm:ss"
 msgstr "Veuillez sélectionner une heure de fin. Format: hh:mm:ss"
+
+#: epfl-scheduler.php:159
+msgid "Content of scheduler"
+msgstr "Contenu du planificateur"
