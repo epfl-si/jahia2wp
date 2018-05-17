@@ -813,8 +813,8 @@ class WPExporter:
                         content = prepare_html(box.content)
 
                     elif box.type == box.TYPE_TOGGLE:
-                        widget_type = 'text'
-                        title = ""
+                        widget_type = 'custom_html'
+                        title = prepare_html(self.title)
                         content = prepare_html(box.content)
 
                     elif box.type == Box.TYPE_COLORED_TEXT:
