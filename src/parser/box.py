@@ -526,9 +526,9 @@ class Box:
         else:
             state = 'close'
 
-        content = '[toggle-box title="{}" state="{}"]'.format(self.title, state)
+        content = '[epfl_toggle title="{}" state="{}"]'.format(self.title, state)
         content += Utils.get_tag_attribute(element, "content", "jahia:value")
-        content += '[/toggle-box]'
+        content += '[/epfl_toggle]'
 
         self.content = content
 
