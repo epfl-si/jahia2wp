@@ -7,7 +7,7 @@
  * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
-function toggle( $atts, $content = null ) {
+function epfl_toggle_process_shortcode( $atts, $content = null ) {
   $a = shortcode_atts( array(
         'title' => 'Title',
         'state' => 'open',
@@ -18,6 +18,6 @@ function toggle( $atts, $content = null ) {
   return $html;
 }
 
-add_shortcode('toggle-box', 'toggle');
+add_shortcode('epfl-toggle', 'epfl_toggle_process_shortcode');
 
 ?>
