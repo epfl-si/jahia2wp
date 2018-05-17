@@ -10,6 +10,11 @@ export ROOT_WP_DEST=/srv/$WP_ENV/$ROOT_SITE
 # 1) It tries to generate sites at the destination.
 # 2) It looks if the source site exists under $WP_ENV, if not it tries to export it.
 ./vent-demo/utils/setup-demo.sh
+exit_code=$?
+if [[ $exit_code > 0 ]]; then
+	echo 'error while setting up demo, exiting...';
+	exit;
+fi
 
 # 3) It deletes all the content from the destionation sites (pages, medias, sidebars, menu)
 # Delete all content (pages, media, menu, sidebars) from target WP destination tree.
