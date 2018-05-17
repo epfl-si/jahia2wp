@@ -520,10 +520,16 @@ class Box:
 
     def set_box_toggle(self, element, title):
         """set the attributes of a toggle box"""
-        self.opened = Utils.get_tag_attribute(element, "opened", "jahia:value")
-        content = '[toggle-box title="{}"]'.format(title)
+
+        if Utils.get_tag_attribute(element, "opened", "jahia:value"):
+            state = 'open'
+        else:
+            state = 'close'
+
+        content = '[toggle-box title="{}" state="{}"]'.format(title, state)
         content += Utils.get_tag_attribute(element, "content", "jahia:value")
         content += '[/toggle-box]'
+
         self.content = content
 
     def set_box_include(self, element):
