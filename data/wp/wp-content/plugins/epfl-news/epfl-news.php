@@ -159,7 +159,7 @@ function epfl_news_process_shortcode(
         }
 
         // display stickers on images ?
-        $stickers = $stickers == 'yes';
+        $stickers = ($stickers == 'yes');
 
         // iframe template
         if ($template === "10") {
