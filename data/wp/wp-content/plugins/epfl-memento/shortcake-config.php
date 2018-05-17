@@ -148,7 +148,7 @@ Class ShortCakeMementoConfig
                        'attr'          => 'period',
                        'type'          => 'radio',
                        'options'       => ShortCakeMementoConfig::get_period_options(),
-                       'description'   => esc_html__('Do you want upcoming events or past events ?'),
+                       'description'   => esc_html__('Do you want upcoming events or past events ?', 'epfl-memento'),
                        'value'         => 'upcoming',
                    ),
                    array(
