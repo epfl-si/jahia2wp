@@ -24,10 +24,9 @@ Class ToggleShortCakeConfig
 
                 'attrs'         => array(
                         array(
-                            'label'         => '<h3>' . esc_html__('Enter a title', 'epfl-toggle') . '</h3>',
+                            'label'         => '<h3>' . esc_html__('Enter the title of toggle', 'epfl-toggle') . '</h3>',
                             'attr'          => 'title',
                             'type'          => 'text',
-                            'description'   => esc_html__('title of toggle', 'epfl-toggle'),
                         ),
                         array(
                             'label'         => '<h3>' . esc_html__('Define the state of toggle', 'epfl-toggle') . '</h3>',
@@ -39,8 +38,7 @@ Class ToggleShortCakeConfig
                         ),
                     ),
                 'inner_content' => array(
-                    'label'        => esc_html__( 'Content', 'epfl-toggle'),
-                    'description'  => esc_html__( 'Include a statement from someone famous.', 'epfl-toggle' ),
+                    'label'        => '<h3>' . esc_html__( 'Content of toggle', 'epfl-toggle' ) . '</h3>',
                 ),
                 'post_type'     => array( 'post', 'page' ),
             )
