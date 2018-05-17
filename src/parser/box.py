@@ -74,7 +74,7 @@ class Box:
 
         # parse the content
         if self.type:
-            self.set_content(element, self.title, multibox)
+            self.set_content(element, multibox)
 
     def set_type(self, element):
         """
@@ -89,7 +89,7 @@ class Box:
         else:
             self.type = type
 
-    def set_content(self, element, title, multibox=False):
+    def set_content(self, element, multibox=False):
         """set the box attributes"""
 
         # text
@@ -112,7 +112,7 @@ class Box:
             self.set_box_faq(element)
         # toggle
         elif self.TYPE_TOGGLE == self.type:
-            self.set_box_toggle(element, title)
+            self.set_box_toggle(element)
         # include
         elif self.TYPE_INCLUDE == self.type:
             self.set_box_include(element)
@@ -518,7 +518,7 @@ class Box:
 
         self.content += "[/{}]".format(shortcode_outer_name)
 
-    def set_box_toggle(self, element, title):
+    def set_box_toggle(self, element):
         """set the attributes of a toggle box"""
 
         if Utils.get_tag_attribute(element, "opened", "jahia:value"):
@@ -526,7 +526,7 @@ class Box:
         else:
             state = 'close'
 
-        content = '[toggle-box title="{}" state="{}"]'.format(title, state)
+        content = '[toggle-box title="{}" state="{}"]'.format(self.title, state)
         content += Utils.get_tag_attribute(element, "content", "jahia:value")
         content += '[/toggle-box]'
 

@@ -48,4 +48,4 @@ plugins:
   - name: EPFL-Snippet
     config: !include EPFL-Snippet/v1/config-plugin.yml
   - name: epfl-toggle
-    config: !include epfl-toogle/v1/config-plugin.yml
+    config: !include epfl-toggle/v1/config-plugin.yml

@@ -18,6 +18,6 @@ function epfl_toggle_process_shortcode( $atts, $content = null ) {
   return $html;
 }
 
-add_shortcode('epfl-toggle', 'epfl_toggle_process_shortcode');
+add_shortcode('epfl_toggle', 'epfl_toggle_process_shortcode');
 
 ?>
