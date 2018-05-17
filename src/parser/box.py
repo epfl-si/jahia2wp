@@ -642,5 +642,8 @@ class Box:
     def is_shortcode(self):
         return self.shortcode_name != ""
 
+    def is_empty(self):
+        return self.title == "" and self.content == ""
+
     def __str__(self):
         return self.type + " " + self.title

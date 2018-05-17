@@ -4,6 +4,7 @@ import os
 import logging
 import collections
 import re
+import settings
 
 from bs4 import BeautifulSoup
 from parser.box import Box
@@ -613,15 +614,13 @@ class Site:
         """
         Fix all the boxes and banners links. This must be done at the end, when all the pages have been parsed.
         """
-        # List of type and attributes that we have to fix
-        tag_attribute_tuples = [("a", "href"), ("img", "src"), ("script", "src")]
 
         # 1. Looping through Boxes
         for box in self.get_all_boxes():
             soup = BeautifulSoup(box.content, 'html5lib')
             soup.body.hidden = True
 
-            for tag_name, tag_attribute in tag_attribute_tuples:
+            for tag_name, tag_attribute in settings.FILE_LINKS_TAG_TO_FIX:
                 self.fix_all_links_in_tag(box=box, soup=soup, tag_name=tag_name, attribute=tag_attribute)
 
         # 2. Looping through banners to fix only file links
@@ -631,7 +630,7 @@ class Site:
             soup = BeautifulSoup(banner.content, 'html5lib')
             soup.body.hidden = True
 
-            for tag_name, tag_attribute in tag_attribute_tuples:
+            for tag_name, tag_attribute in settings.FILE_LINKS_TAG_TO_FIX:
                 self.fix_file_links_in_tag(soup=soup, tag_name=tag_name, attribute=tag_attribute)
 
             # save the new banner content
@@ -662,7 +661,7 @@ class Site:
                 if link.startswith(link_type):
                     return
 
-            if link.startswith("###file"):
+            if link.startswith("###file") or link.startswith('/repository'):
 
                 if "/files/" in link:
                     new_link = link[link.index('/files/'):]
@@ -783,7 +782,7 @@ class Site:
 
                 self.absolute_links += 1
             # file links
-            elif link.startswith("###file"):
+            elif link.startswith("###file") or link.startswith('/repository'):
 
                 self.fix_file_links_in_tag(soup, tag_name, attribute)
 
@@ -933,7 +932,10 @@ Parsed for %s :
         self.report += "  - tags :\n\n"
 
         for tag in num_tags_ordered:
-            self.report += "    - <%s> %s\n" % (tag, self.num_tags[tag])
+            # Tag is encoded and decoded to remove special char that cause script to crash when report is printed if
+            # it contains surprising tags !
+            self.report += "    - <%s> %s\n" % (tag.encode('ascii', 'replace').decode('ascii').replace('?', ''),
+                                                self.num_tags[tag])
 
     def __repr__(self):
         return self.name
