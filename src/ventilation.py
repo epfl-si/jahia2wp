@@ -130,7 +130,44 @@ class Ventilation:
         # Return the site_url => site_path mapping
         return dest_sites
 
+    def _check_sites(self, sites):
+        """
+        Iterate over the list of sites and check if they are valid WP installs individually.
+        """
+        site_errs = []
+        for site in sites:
+            if not self._isvalid_site(site):
+                cmd = 'Site {} is not installed or wp_config is invalid'
+                logging.warning(cmd.format(site))
+                site_errs += [site]
+
+        return site_errs
+
+    def _isvalid_site(self, site):
+        """
+        Check if the given site URL is a valid installation under /srv/WP_ENV/
+        """
+        wp_conf = WPConfig(WPSite(self.wp_env, site))
+
+        if wp_conf.is_installed and wp_conf.is_config_valid:
+            return wp_conf
+
+        return None
+
     def rule_parsing(self, csv_file):
+        """
+        This function reads and loads the rules in a tree of site => rules like:
+
+        {'dcsl.epfl.ch': [('https://dcsl.epfl.ch/p1', 'https://www.epfl.ch/path/p1'),
+                        ('https://dcsl.epfl.ch/p1', 'https://www.epfl.ch/path/p1')],
+         'vpi.epfl.ch': [('https://vpi.epfl.ch/about', 'https://www.epfl.ch/innovation/about')]
+        }
+
+        precondition: The CSV MUST be passed to the csv validator before. No other syntactic or
+        semantic check in this function.
+
+        :param csv_file: CSV with the URL migration rules
+        """
         rules = {}
         rows = Utils.csv_filepath_to_dict(self.csv_file)
         for idx, row in enumerate(rows):
@@ -188,15 +225,12 @@ class Ventilation:
         # Create a copy of the keys to allow changes on the keyset
         for site in list(self.rulesets.keys()):
             logging.info('Treating site {}'.format(site))
-            # Load wp_config using existing functions, can't use _check_site since it exits
-            # if the site does not exist or is invalid.
-            wp_conf = WPConfig(WPSite(self.wp_env, site))
-            if not wp_conf.is_installed or not wp_conf.is_config_valid:
-                cmd = 'Site {} is not installed or wp_config is invalid, skipping...'
-                logging.warn(cmd.format(site))
-                # Remove the site and its ruleset, no cross-reference will be updated (no need)
-                del self.rulesets[site]
-                continue
+            # By security, check if the site is a valid install, in case _check_sites was skipped.
+            wp_conf = self._isvalid_site(site)
+            if not wp_conf:
+                cmd = 'Site {} is not installed or wp_config is invalid, _check_sites was not called?'
+                logging.error(cmd.format(site))
+                sys.exit(1)
 
             # IMPORTANT: Increase the 'field_size_limit' to allow dumping certain sites like vpi.epfl.ch
             csv.field_size_limit(sys.maxsize)
@@ -1158,65 +1192,79 @@ class Ventilation:
                         logging.warning('Could not import {}. Doing nothing. Warning: {}'.format(dest_path, mid))
 
     def run_all(self):
+        # Check that all source sites are valid WP installs.
         t = tt()
-        logging.info('Exploring the destination tree. Found wp instances:')
+        logging.info('Checking source WP sites for validity')
+        sites_errs = self._check_sites(self.rulesets.keys())
+        if sites_errs:
+            # Can't continue, we have to avoid partial migrations.
+            logging.error('Some sites to migrate are not valid: {}, fix it, check /etc/hosts too'.format(sites_errs))
+            sys.exit()
+        logging.info('[{:.2f}s] Finished checking sites'.format(tt()-t))
+
+        logging.info('Explored the destination tree. Found wp instances:')
         pprint(self.dest_sites)
-        logging.info("{} total sites found in rulesets.".format(len(self.rulesets)))
+        logging.info("{} total sites found in rulesets: ".format(len(self.rulesets)))
         logging.debug(self.rulesets)
         pprint(self.rulesets)
 
         # Iterate over all the sites to map and dump a CSV with the pages and another
         # one for the media / attachments. This will *greatly simplify* the reinsertion.
-        logging.info('[{:.2f}s] CSV dumping...'.format(tt()-t))
+        logging.info('CSV dumping...')
         t = tt()
         self.dump_csv()
+        logging.info('[{:.2f}s] Finished dumping sites'.format(tt()-t))
 
-        logging.info('[{:.2f}s] Starting rule expansion in diff. langs...'.format(tt()-t))
+        # Translate the JAHIA address into a WP address and also in all the available langs.
+        logging.info('Starting rule translation and lang expansion...')
         t = tt()
         self.rule_expansion()
+        logging.info('[{:.2f}s] Finished rule translation and lang expansion...'.format(tt()-t))
 
         # Sort the rules from most generic to specific or the reverse (-1).
-        logging.info('[{:.2f}s] Rule sorting...'.format(tt()-t))
-        t = tt()
+        logging.info('Rule sorting expanded rules: ')
         self.sort_rules()
         pprint(self.rulesets)
 
         # Write the .htaccess redirections for the new URL mapping
         if self.htaccess:
-            logging.info('[{:.2f}s] Writing .htaccess file ...'.format(tt()-t))
-            t = tt()
+            logging.info('Writing .htaccess file ...')
             self.update_htaccess()
 
-        # Apply rule filters (e.g. do not migrate, strict mode  vs greedy mode)
-        logging.info('[{:.2f}s] Starting with the filters phase...'.format(tt()-t))
+        # Filter the pages using the CSV rules (e.g. do not migrate, strict mode  vs greedy mode)
+        logging.info('Starting with the page filtering phase...')
         t = tt()
         self.apply_filters()
+        logging.info('[{:.2f}s] Finished with the page filtering phase...'.format(tt()-t))
 
         # At this point all the CSV files are generated and stored by sitename*
-        logging.info('[{:.2f}s] Starting rule execution to replace URLs...'.format(tt()-t))
+        logging.info('Starting rule execution to replace WP URLs... Stats:')
         t = tt()
         stats = self.execute_rules()
         pprint(stats)
+        logging.info('[{:.2f}s] Finished rule execution to replace WP URLs...'.format(tt()-t))
 
-        logging.info('[{:.2f}s] Replacing relative URLs (both relative GUID and post_name):'.format(tt()-t))
+        logging.info('Replacing relative WP URLs (both relative GUID and post_name)... Stats:')
         t = tt()
         stats = self.execute_rules_guid()
         pprint(stats)
+        logging.info('[{:.2f}s] Finished replacing relative URLs'.format(tt()-t))
 
         # Consolidate a single CSV per destination, applying filtering (e.g. migrate *, create empty pages..)
         # Also check multilang dest. and if necessary add / remove langs from the source.
-        logging.info('[{:.2f}s] Consolidating a single CSV per destination + filtering:'.format(tt()-t))
+        logging.info('Consolidating a single CSV per destination + filtering')
         t = tt()
         dst_csv_files = self.consolidate_csv()
+        logging.info('[{:.2f}s] Finished CSV consolidation'.format(tt()-t))
 
         # At this point all the CSV files have the right URLs in place. It is the moment to effectively migrate
         # the content (pages and files / media)
-        logging.info('[{:.2f}s], Preparing insertion in target WP instances...'.format(tt()-t))
+        logging.info('Preparing insertion in target WP instances (pages, menu, sidebars)...')
         t = tt()
         media_refs = self.migrate_content(dst_csv_files)
+        logging.info('[{:.2f}s], Finished insertion in target WP instances'.format(tt()-t))
 
-        logging.info('[{:.2f}s], Preparing media insertion in target WP instances...'.format(tt()-t))
+        logging.info('Preparing media insertion in target WP instances...'.format(tt()-t))
         t = tt()
         self.migrate_media(media_refs)
-
-        logging.info('[{:.2f}s], Finished importing media. Finished all.'.format(tt()-t))
+        logging.info('[{:.2f}s], Finished media insertion in target WP instances...'.format(tt()-t))
