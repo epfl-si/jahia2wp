@@ -1,6 +1,6 @@
 import settings
 from utils import Utils
-from anytree import Node, RenderTree
+from anytree import Node
 
 from django.core.validators import URLValidator, ValidationError
 
@@ -51,15 +51,56 @@ class FanGlobalSitemap:
         """
         Creates the website with the global sitemap.
         """
-        self._clean()
-
         self._validate_data()
+
+        self._clean()
 
         self._create_menus()
 
         self._create_pages()
 
         print("Global sitemap generated successfully.")
+
+    def _validate_data(self):
+        """
+        Validates the CSV data.
+        """
+
+        # line number
+        i = 0
+
+        for row in self.rows:
+            i = i + 1
+
+            url = row["url"]
+
+            # the URL must...
+
+            # be well formed
+            try:
+                url_validator = URLValidator()
+                url_validator(url)
+            except ValidationError:
+                self._add_error(i, "URL '{}' is invalid".format(url))
+                continue
+
+            # start with the ROOT_PATH
+            if not url.startswith(self.ROOT_URL):
+                self._add_error(i, "URL '{}' must start with {}".format(url, self.ROOT_URL))
+                continue
+
+            # have a parent
+            parent_url = url[:url.rfind("/")]
+
+            if parent_url != self.ROOT_URL and parent_url not in self.urls:
+                self._add_error(i, "URL '{}' doesn't have a parent".format(url))
+
+        # if there are errors we print them and stop
+        if self.errors:
+            print("The CSV contains errors, please correct them:\n")
+            for error in self.errors:
+                print(error)
+            exit()
 
     def _clean(self):
         """Deletes all the site content"""
@@ -84,43 +125,6 @@ class FanGlobalSitemap:
         except:
             # simply means there are not menus to delete
             pass
-
-    def _validate_data(self):
-        """
-        Validates the CSV data.
-        """
-
-        # line number
-        i = 0
-
-        for row in self.rows:
-            i = i + 1
-
-            url = row["url"]
-
-            # valid URL
-            try:
-                url_validator = URLValidator()
-                url_validator(url)
-            except ValidationError:
-                self._add_error(i, "URL '{}' is invalid".format(url))
-                continue
-
-            # start with the ROOT_PATH
-            if not url.startswith(self.ROOT_URL):
-                self._add_error(i, "URL '{}' must start with {}".format(url, self.ROOT_URL))
-                continue
-
-            parent_url = url[:url.rfind("/")]
-
-            if parent_url != self.ROOT_URL and parent_url not in self.urls:
-                self._add_error(i, "URL '{}' doesn't have a parent".format(url))
-
-        if self.errors:
-            print("The CSV contains errors, please correct them:\n")
-            for error in self.errors:
-                print(error)
-            exit()
 
     def _create_menus(self):
         """Creates the menus"""
@@ -169,11 +173,14 @@ class FanGlobalSitemap:
         # the WordPress pages
         pages_by_path = {}
 
+        # the nodes, this is used to create the static sitemap
         nodes_by_path = {}
 
+        # add the homepage
         homepage_node = GlobalSitemapNode("/", "Home")
         nodes_by_path["/"] = homepage_node
 
+        # first we add all the nodes, we will need the complete sitemap later
         for url in urls_sorted:
             # the path, e.g. /research or /research/domains/enac
             path = url[len(self.ROOT_URL):]
@@ -191,14 +198,12 @@ class FanGlobalSitemap:
 
             nodes_by_path[path] = node
 
+        # next we create the pages
         for url in urls_sorted:
             # the path, e.g. /research or /research/domains/enac
             path = url[len(self.ROOT_URL):]
 
-            parent_path = ""
-
-            if "/" in path:
-                parent_path = path[:path.rfind("/")]
+            parent_path = path[:path.rfind("/")]
 
             # the page name (slug)
             name = url[url.rfind("/") + 1:]

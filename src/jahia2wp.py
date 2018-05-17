@@ -549,6 +549,20 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
 
 @dispatch.on('fan-global-sitemap')
 def fan_global_sitemap(csv_file, wp_path, **kwargs):
+    """
+    Create a global sitemap at the given wp_path.
+
+    Prerequisites:
+        - You have a working WordPress installation at the given wp_path
+        - You have disabled polylang
+    After having launched this script:
+        - Activate polylang again
+        - Go to "Languages" at click on the link "You can set them all to the default language"
+        - In "Appearance" > "Menus" set the "Main" menu to "Primary menu English" and "footer_nav"
+          to "Footer menu English"
+        - In "Settings" > "Reading2 set the homepage to "Sitemap"
+    """
+
     generator = FanGlobalSitemap(csv_file, wp_path)
     generator.create_website()
 
