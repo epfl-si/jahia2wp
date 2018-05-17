@@ -515,22 +515,11 @@ class Site:
             if not self.belongs_to(element, page_content.page):
                 continue
 
-            type = element.getAttribute("jcr:primaryType")
-
-            # the "epfl:faqBox" element contains one or more "epfl:faqList"
-            if "epfl:faqBox" == type:
-                faq_list_elements = element.getElementsByTagName("faqList")
-
-                for faq_list_element in faq_list_elements:
-                    box = Box(site=self, page_content=page_content, element=faq_list_element)
-                    page_content.boxes.append(box)
-
-            else:
-                # TODO remove the multibox parameter and check for combo boxes instead
-                # Check if xml_box contains many boxes
-                multibox = element.getElementsByTagName("text").length > 1
-                box = Box(site=self, page_content=page_content, element=element, multibox=multibox)
-                page_content.boxes.append(box)
+            # TODO remove the multibox parameter and check for combo boxes instead
+            # Check if xml_box contains many boxes
+            multibox = element.getElementsByTagName("text").length > 1
+            box = Box(site=self, page_content=page_content, element=element, multibox=multibox)
+            page_content.boxes.append(box)
 
     def parse_files_uuids(self, node):
         """

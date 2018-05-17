@@ -41,7 +41,7 @@ class Box:
         "epfl:infoscienceBox": TYPE_INFOSCIENCE,
         "epfl:actuBox": TYPE_ACTU,
         "epfl:mementoBox": TYPE_MEMENTO,
-        "epfl:faqContainer": TYPE_FAQ,
+        "epfl:faqBox": TYPE_FAQ,
         "epfl:toggleBox": TYPE_TOGGLE,
         "epfl:htmlBox": TYPE_INCLUDE,
         "epfl:contactBox": TYPE_CONTACT,
@@ -212,7 +212,9 @@ class Box:
         shortcode_outer_name = "epfl_grid"
         shortcode_inner_name = "epfl_gridElem"
 
-        # register the shortcode
+        self.shortcode_name = shortcode_outer_name
+
+        # register the shortcodes
         self.site.register_shortcode(shortcode_inner_name, ["link", "image"], self)
 
         self.content = '[{}]\n'.format(shortcode_outer_name)
@@ -232,10 +234,6 @@ class Box:
 
             # Escape if necessary
             title = title.replace('"', '\\"')
-
-            # Fix path if necessary
-            if "/files" in image:
-                image = image[image.rfind("/files"):]
 
             self.content += '[{} layout="{}" link="{}" title="{}" image="{}"][/{}]\n'.format(
                 shortcode_inner_name, layout, link, title, image, shortcode_inner_name)
@@ -354,12 +352,38 @@ class Box:
         self.content = "[{} url={}]".format(self.shortcode_name, url)
 
     def set_box_faq(self, element):
-        """set the attributes of a faq box"""
-        self.question = Utils.get_tag_attribute(element, "question", "jahia:value")
+        """set the attributes of a faq box
 
-        self.answer = Utils.get_tag_attribute(element, "answer", "jahia:value")
+        FIXME: Handle boxTitle option
+        FIXME: Handle filesList option in FAQ item
+        FIXME: Handle linksList option in FAQ item
+        """
 
-        self.content = "<h2>{}</h2><p>{}</p>".format(self.question, self.answer)
+        shortcode_outer_name = "epfl_faq"
+        shortcode_inner_name = "epfl_faqItem"
+
+        self.shortcode_name = shortcode_outer_name
+
+        # register the shortcode
+        self.site.register_shortcode(shortcode_inner_name, ["link", "image"], self)
+
+        self.content = '[{}]\n'.format(shortcode_outer_name)
+
+        # Looking for entries
+        faq_entries = element.getElementsByTagName("faqList")
+
+        for entry in faq_entries:
+
+            # Get question and escape if necessary
+            question = Utils.get_tag_attribute(entry, "question", "jahia:value").replace('"', '\\"')
+
+            # Get answer
+            answer = Utils.get_tag_attribute(entry, "answer", "jahia:value")
+
+            self.content += '[{} question="{}"]{}[/{}]\n'.format(
+                shortcode_inner_name, question, answer, shortcode_inner_name)
+
+        self.content += "[/{}]".format(shortcode_outer_name)
 
     def set_box_toggle(self, element):
         """set the attributes of a toggle box"""
