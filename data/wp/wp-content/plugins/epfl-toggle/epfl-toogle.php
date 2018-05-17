@@ -29,6 +29,12 @@ function epfl_toggle_process_shortcode( $atts, $content = null ) {
   return $html;
 }
 
+// Load .mo file for translation
+function epfl_toggle_load_plugin_textdomain() {
+    load_plugin_textdomain( 'epfl-toggle', FALSE, basename( plugin_dir_path( __FILE__ )) . '/languages/');
+}
+add_action( 'plugins_loaded', 'epfl_toggle_load_plugin_textdomain' );
+
 add_action( 'init', function() {
 
   // define the shortcode

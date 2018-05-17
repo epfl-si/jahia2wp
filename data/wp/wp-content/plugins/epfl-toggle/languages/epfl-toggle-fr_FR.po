@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: plugin epfl-toggle\n"
-"POT-Creation-Date: 2018-05-17 17:19+0200\n"
-"PO-Revision-Date: 2018-05-17 17:21+0200\n"
+"POT-Creation-Date: 2018-05-17 17:43+0200\n"
+"PO-Revision-Date: 2018-05-17 17:45+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -12,7 +12,7 @@ msgstr ""
 "X-Generator: Poedit 1.8.7.1\n"
 "X-Poedit-Basepath: ..\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Poedit-KeywordsList: esc_html__\n"
+"X-Poedit-KeywordsList: esc_html__;__\n"
 "X-Poedit-SearchPath-0: shortcake-config.php\n"
 "X-Poedit-SearchPath-1: epfl-toogle.php\n"
 
@@ -23,6 +23,10 @@ msgstr "Ouvert"
 #: shortcake-config.php:10
 msgid "Close"
 msgstr "Fermé"
+
+#: shortcake-config.php:22
+msgid "Add toggle shortcode"
+msgstr "Ajouter le shortcode accordéon"
 
 #: shortcake-config.php:27
 msgid "Enter the title of toggle"
