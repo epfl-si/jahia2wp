@@ -560,7 +560,7 @@ def fan_global_sitemap(csv_file, wp_path, **kwargs):
         - Go to "Languages" at click on the link "You can set them all to the default language"
         - In "Appearance" > "Menus" set the "Main" menu to "Primary menu English" and "footer_nav"
           to "Footer menu English"
-        - In "Settings" > "Reading2 set the homepage to "Sitemap"
+        - In "Settings" > "Reading" set the homepage to "Sitemap"
     """
 
     generator = FanGlobalSitemap(csv_file, wp_path)

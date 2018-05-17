@@ -10,6 +10,8 @@ class FanGlobalSitemap:
     DELIMITER = ","
     # the root url
     ROOT_URL = "https://www.epfl.ch"
+    # the title (blogname)
+    WEBSITE_TITLE = "Global sitemap"
     # if True create a homepage that is the parent of all the pages
     CREATE_HOMEPAGE = False
     # the root path of the WP site. For example if the global sitemap is deployed
@@ -58,6 +60,8 @@ class FanGlobalSitemap:
         self._create_menus()
 
         self._create_pages()
+
+        self._set_options()
 
         print("Global sitemap generated successfully.")
 
@@ -253,6 +257,17 @@ class FanGlobalSitemap:
         page_id = self._create_page("sitemap", "Sitemap", content, homepage_id)
 
         self._add_to_menu(settings.FOOTER_MENU, page_id)
+
+        # set the sitemap as the homepage
+        cmd = "wp option update page_on_front {} --path='{}'".format(page_id, self.wp_path)
+        Utils.run_command(cmd)
+
+    def _set_options(self):
+        """Sets the website options"""
+
+        # title
+        cmd = "wp option update blogname '{}' --path='{}'".format(self.WEBSITE_TITLE, self.wp_path)
+        Utils.run_command(cmd)
 
     def _create_page(self, name, title, content, parent_id=None):
         """Creates a page with the given informations"""
