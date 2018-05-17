@@ -1,10 +1,11 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
-
 import logging
+from datetime import datetime
+from urllib import parse
 from urllib.parse import urlencode
 from xml.dom import minidom
+
 from bs4 import BeautifulSoup
-from datetime import datetime
 
 from utils import Utils
 
@@ -274,6 +275,49 @@ class Box:
 
         self.content = content
 
+    @staticmethod
+    def _extract_epfl_news_parameters(url):
+        """
+        Extract parameters form url
+        """
+        parameters = parse.parse_qs(parse.urlparse(url).query)
+
+        if 'channel' in parameters:
+            channel_id = parameters['channel'][0]
+        else:
+            channel_id = ""
+            logging.error("News Shortcode - channel ID is missing")
+
+        if 'lang' in parameters:
+            lang = parameters['lang'][0]
+        else:
+            lang = ""
+            logging.warning("News Shortcode - lang is missing")
+
+        if 'template' in parameters:
+            template = parameters['template'][0]
+        else:
+            template = ""
+            logging.warning("News Shortcode - template is missing")
+
+        stickers = "no"
+        if 'sticker' in parameters:
+            stickers = parameters['sticker'][0]
+
+        category = ""
+        if 'category' in parameters:
+            category = parameters['category'][0]
+
+        themes = ""
+        if 'themes' in parameters:
+            themes = parameters['theme']
+
+        projects = ""
+        if 'project' in parameters:
+            projects = parameters['project']
+
+        return channel_id, lang, template, category, themes, stickers, projects
+
     def set_box_people_list(self, element):
         """
         Set the attributes of a people list box
@@ -328,19 +372,107 @@ class Box:
 
     def set_box_actu(self, element):
         """set the attributes of an actu box"""
-        url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.shortcode_name = "actu"
+        # extract parameters from the old url of webservice
+        channel_id, lang, template, category, themes, stickers, projects = self._extract_epfl_news_parameters(
+            Utils.get_tag_attribute(element, "url", "jahia:value")
+        )
+        self.shortcode_name = "epfl_news"
+        html_content = '[{} channel="{}" lang="{}" template="{}" '.format(
+            self.shortcode_name,
+            channel_id,
+            lang,
+            template
+        )
+        if category:
+            html_content += 'category="{}" '.format(category)
+        if themes:
+            html_content += 'themes="{}" '.format(",".join(themes))
+        if stickers:
+            html_content += 'stickers="{}" '.format(stickers)
+        if projects:
+            html_content += 'projects="{}" '.format(",".join(projects))
 
-        self.content = "[{} url={}]".format(self.shortcode_name, url)
+        html_content += '/]'
+
+        self.content = html_content
+
+    @staticmethod
+    def _extract_epfl_memento_parameters(url):
+        """
+        Extract parameters form url
+        """
+        parameters = parse.parse_qs(parse.urlparse(url).query)
+
+        if 'memento' in parameters:
+            memento_name = parameters['memento'][0]
+        else:
+            memento_name = ""
+            logging.error("Memento Shortcode - event ID is missing")
+
+        if 'lang' in parameters:
+            lang = parameters['lang'][0]
+        else:
+            lang = ""
+            logging.error("Memento Shortcode - lang is missing")
+
+        if 'template' in parameters:
+            template = parameters['template'][0]
+        else:
+            template = ""
+            logging.error("Memento Shortcode - template is missing")
+
+        period = ""
+        if 'period' in parameters:
+            period = parameters['period'][0]
+
+        color = ""
+        if 'color' in parameters:
+            color = parameters['color'][0]
+
+        filters = ""
+        if 'filters' in parameters:
+            filters = parameters['filters'][0]
+
+        category = ""
+        if 'category' in parameters:
+            category = parameters['category'][0]
+
+        reorder = ""
+        if 'reorder' in parameters:
+            reorder = parameters['reorder'][0]
+
+        return memento_name, lang, template, period, color, filters, category, reorder
 
     def set_box_memento(self, element):
         """set the attributes of a memento box"""
-        url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.shortcode_name = "memento"
+        # extract parameters from the old url of webservice
+        memento_name, lang, template, period, color, filters, category, reorder = \
+            self._extract_epfl_memento_parameters(
+                Utils.get_tag_attribute(element, "url", "jahia:value")
+            )
+        self.shortcode_name = "epfl_memento"
+        html_content = '[{} memento="{}" lang="{}" template="{}" '.format(
+            self.shortcode_name,
+            memento_name,
+            lang,
+            template
+        )
+        if period:
+            html_content += 'period="{}" '.format(period)
+        if color:
+            html_content += 'color="{}" '.format(color)
+        if filters:
+            html_content += 'filters="{}" '.format(filters)
+        if category:
+            html_content += 'category="{}" '.format(category)
+        if reorder:
+            html_content += 'reorder="{}" '.format(reorder)
 
-        self.content = "[{} url={}]".format(self.shortcode_name, url)
+        html_content += '/]'
+
+        self.content = html_content
 
     def set_box_infoscience(self, element):
         """set the attributes of a infoscience box"""
