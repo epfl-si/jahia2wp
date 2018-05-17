@@ -123,7 +123,7 @@ add_action( 'init', function() {
     if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
 
         shortcode_ui_register_for_shortcode(
-            'epfl_map',
+            'epfl_scheduler',
             array(
                 'label' => __('Add Scheduler shortcode', 'epfl-scheduler'),
                 'listItemImage' => '',
