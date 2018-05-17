@@ -259,6 +259,9 @@ class FanGlobalSitemap:
         self._add_to_menu(settings.FOOTER_MENU, page_id)
 
         # set the sitemap as the homepage
+        cmd = "wp option update show_on_front page --path='{}'".format(self.wp_path)
+        Utils.run_command(cmd)
+
         cmd = "wp option update page_on_front {} --path='{}'".format(page_id, self.wp_path)
         Utils.run_command(cmd)
 
