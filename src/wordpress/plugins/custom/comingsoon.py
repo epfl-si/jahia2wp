@@ -25,7 +25,7 @@ class WPComingSoonConfig(WPPluginConfig):
 font-family:arial,helvetica,sans-serif;"><a href="{}/wp-admin/">Connexion / Login</a></span></p></div>'.format(
             self.wp_site.url
         )
-        option['footer_credit'] = '1'
+        option['footer_credit'] = '0'
 
         # If we have to force update, we display "ComingSoon" screen
         if force:
