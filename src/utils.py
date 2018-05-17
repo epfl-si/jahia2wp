@@ -419,3 +419,9 @@ class Utils(object):
             content = re.sub('(\"data:image/jpeg;base64.*?\")', "", content)
             logging.warning("Delete jpeg images in base64")
         return content
+
+    def is_html(content):
+        """
+        Return True if the content is HTML.
+        """
+        return bool(BeautifulSoup(content, "html.parser").find())

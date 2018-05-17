@@ -15,6 +15,7 @@ import settings
 from exporter.utils import Utils
 from utils import Utils as WPUtils
 from parser.file import File
+from django.utils.text import slugify
 
 
 class WPExporter:
@@ -622,7 +623,11 @@ class WPExporter:
                         contents[lang] += '<div class="{}">'.format(box.type + "Box")
 
                     if box.title:
-                        contents[lang] += '<h3 id="{0}">{0}</h3>'.format(box.title)
+                        if WPUtils.is_html(box.title):
+                            contents[lang] += '<h3>{0}</h3>'.format(box.title)
+                        else:
+                            slug = slugify(box.title)
+                            contents[lang] += '<h3 id="{0}">{0}</h3>'.format(slug, box.title)
 
                     # in the parser we can't know the current language.
                     # we assign a string that we replace with the current language
