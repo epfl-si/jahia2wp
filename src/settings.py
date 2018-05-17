@@ -93,6 +93,9 @@ SUPPORTED_LANGUAGES = {
     "it": "it_IT"
 }
 
+# List of tags and attribute to fix in file links when parsing and exporting Jahia site to WordPress
+FILE_LINKS_TAG_TO_FIX = [("a", "href"), ("img", "src"), ("script", "src"), ("source", "src"), ("embed", "src")]
+
 SUPPORTED_TRUE_STRINGS = ['true', 'yes', 'y', 'on', '1']
 
 DEFAULT_CONFIG_INSTALLS_LOCKED = True
