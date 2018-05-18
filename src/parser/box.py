@@ -521,6 +521,8 @@ class Box:
     def set_box_toggle(self, element):
         """set the attributes of a toggle box"""
 
+        self.shortcode_name = 'epfl_toggle'
+
         if Utils.get_tag_attribute(element, "opened", "jahia:value"):
             state = 'open'
         else:

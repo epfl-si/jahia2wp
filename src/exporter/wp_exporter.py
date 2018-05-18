@@ -807,14 +807,9 @@ class WPExporter:
                     if box.is_empty():
                         continue
 
-                    if box.type in [Box.TYPE_TEXT, Box.TYPE_CONTACT, Box.TYPE_LINKS, Box.TYPE_FILES]:
+                    if box.type in [Box.TYPE_TOGGLE, Box.TYPE_TEXT, Box.TYPE_CONTACT, Box.TYPE_LINKS, Box.TYPE_FILES]:
                         widget_type = 'custom_html'
                         title = prepare_html(box.title)
-                        content = prepare_html(box.content)
-
-                    elif box.type == box.TYPE_TOGGLE:
-                        widget_type = 'custom_html'
-                        title = prepare_html(self.title)
                         content = prepare_html(box.content)
 
                     elif box.type == Box.TYPE_COLORED_TEXT:
