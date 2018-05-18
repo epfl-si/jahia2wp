@@ -2278,11 +2278,13 @@ ul.bottin {
   .event {
     @include clearfix;
     @include border-bottom-dots;
+    position: relative;
   }
   
   .event-title {
     font-size: .875em;
     margin-bottom: .3em;
+    margin-top: 0;
     padding: 0;
   }
   
@@ -2384,6 +2386,7 @@ ul.bottin {
   
 .list-events .has-image .event-dates {
   background: $primary-color;
+  position: relative;
 }
 
 /* Events with featured image */
@@ -2465,6 +2468,28 @@ ul.bottin {
   
   .event-title {
     font-size: .8125em;
+  }
+}
+
+/* Canceled event */
+
+.list-events .event-canceled.has-image {
+  
+  .event-dates {
+    background: rgba($light-grey, .8);
+    color: rgba(0,0,0,.6);
+    
+    p {
+      color: rgba(0,0,0,.4);
+      
+      &.date-end:after {
+        border-color: rgba(0,0,0,.4);
+      }
+    }
+    
+    .canceled {
+      float: right;
+    }
   }
 }
 
@@ -3055,9 +3080,9 @@ ul.bottin {
     color: #666;
     float: left;
     font-size: 1.125em;
-    margin: 0;
-    padding: 4px 0 0;
-    width: 36px;
+    margin: 0 5px 0 0;
+    padding: 0;
+    width: 40px;
     
     p {
       display: block;
@@ -3096,7 +3121,8 @@ ul.bottin {
   .list-events .event-content,
   .list-events .event-extra {
     clear: none;
-    float: right;
+    //float: left;
+    padding-left: 50px;
     width: 595px;
     
     .sidebar & {
@@ -3105,15 +3131,16 @@ ul.bottin {
   }
   
   .list-events .event .event-content > .event-title {
+    padding: 0;
     width: 100%;
   }
   
   /* Colored date box */
   
   .list-events .has-image .event-dates {
-    @include color-background;
     height: 112px;
-    padding: 9px 0 5px;
+    margin: 0;
+    padding: 5px 0;
     width: 40px;
     
     p {
@@ -3141,8 +3168,8 @@ ul.bottin {
       }
     }
     
-    .event-title,
     .event-content {
+      padding-left: 0;
       width: 480px;
       
       .sidebar & {
@@ -3162,7 +3189,7 @@ ul.bottin {
     margin-top: .5em;
   }
   
-  .event.has-extra {
+  .event.has-extra.has-image {
     
     .event-content {
       float: left;
@@ -3174,6 +3201,7 @@ ul.bottin {
       height: 112px;
       margin-top: 0;
       overflow: hidden;
+      padding: 0;
       width: 130px;
       
       .speakers {
@@ -3232,6 +3260,37 @@ ul.bottin {
           }
         }
       }
+    }
+  }
+  
+  /* Sidebar */
+  
+  .sidebar {
+    //.list-events .has-image .event-title,
+    .list-events .has-image .event-content,
+    .list-events .has-extra.has-image .event-content {
+      float: left;
+      width: 146px;
+    }
+    
+    .has-extra.has-image .event-extra {
+      display: none;
+    }
+    
+  }
+  
+  
+  /* Canceled event */
+
+  .list-events .event-canceled.has-image {
+    
+    .event-dates .canceled {
+      background: $light-grey;
+      padding: 5px 0 3px;
+      position: absolute;
+      top: 50%; right: auto; bottom: auto; left: 41px;
+      transform: translateY(-50%);
+      width: 112px;
     }
   }
   
