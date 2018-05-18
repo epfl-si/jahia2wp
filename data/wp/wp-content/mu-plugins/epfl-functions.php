@@ -1,12 +1,12 @@
 <?php
 /*
-Plugin Name: EPFL Functions
-Plugin URI: 
-Description: Must-use plugin for the EPFL website.
-Version: 0.0.1
-Author: Aline Keller
-Author URI: http://www.alinekeller.ch
-*/
+ * Plugin Name: EPFL Functions
+ * Plugin URI: 
+ * Description: Must-use plugin for the EPFL website.
+ * Version: 0.0.1
+ * Author: Aline Keller
+ * Author URI: http://www.alinekeller.ch
+ */
 
 /*
  * File Upload Security
@@ -134,7 +134,7 @@ add_filter('wp_get_attachment_link', 'oikos_get_attachment_link_filter', 10, 4);
 /**
  * Create custom shortcodes
  *
- * @link https://codex.wordpress.org/Shortcode_API_
+ * @link https://codex.wordpress.org/Shortcode_API
  */
 
 // Désactive wpautop
@@ -148,7 +148,7 @@ function remove_wpautop($content) {
 // Publications
    
 function content_publication_list( $atts, $content = null ) { 
-  $return .= '<section class="publications clearfix">';
+  $return = '<section class="publications clearfix">';
   $return .= do_shortcode($content);
   $return .= '</section>';
   return $return;
@@ -156,7 +156,7 @@ function content_publication_list( $atts, $content = null ) {
 add_shortcode('list-publications', 'content_publication_list');
 
 function content_publication( $atts, $content = null ) { 
-  $return .= '<article class="publication clearfix">';
+  $return = '<article class="publication clearfix">';
   $return .= do_shortcode($content);
   $return .= '</article>';
   return $return;
@@ -164,29 +164,18 @@ function content_publication( $atts, $content = null ) {
 add_shortcode('publication', 'content_publication');
 
 function links( $atts, $content = null ) { 
-  $return .= '<p class="links">';
+  $return = '<p class="links">';
   $return .= do_shortcode(remove_wpautop($content));
   $return .= '</p>';
   return $return;
 }
 add_shortcode('links', 'links');
 
-function toggle( $atts, $content = null ) { 
-  $a = shortcode_atts( array(
-        'title' => 'Title',
-    ), $atts );
-  $return .= '<section class="collapsible"><div class="collapsible-header"><h3 class="title collapse-link">' . esc_attr( $a['title'] ) . '</h3></div><div class="content collapsible-content clearfix">';
-  $return .= do_shortcode($content);
-  $return .= '</div></section>';
-  return $return;
-}
-add_shortcode('toggle-box', 'toggle');
-
 function faq_item( $atts, $content = null ) { 
   $a = shortcode_atts( array(
         'title' => 'Title',
     ), $atts );
-  $return .= '<section class="faq-item"><h3 class="title faq-title" id="">' . esc_attr( $a['title'] ) . '</h3><div class="content">';
+  $return = '<section class="faq-item"><h3 class="title faq-title" id="">' . esc_attr( $a['title'] ) . '</h3><div class="content">';
   $return .= do_shortcode($content);
   $return .= '</div></section>';
   return $return;

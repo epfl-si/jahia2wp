@@ -4,6 +4,7 @@ import os
 import logging
 import collections
 import re
+import settings
 
 from bs4 import BeautifulSoup
 from parser.box import Box
@@ -15,7 +16,7 @@ from parser.sitemap_node import SitemapNode
 from parser.menu_item import MenuItem
 from parser.banner import Banner
 from utils import Utils
-
+from collections import OrderedDict
 
 """
 This file is named jahia_site to avoid a conflict with Site [https://docs.python.org/3/library/site.html]
@@ -44,6 +45,9 @@ class Site:
         # the root_path, by default it's empty
         # FIXME: would be better in exporter, or set by exporter
         self.root_path = root_path
+
+        # Type of links we have to ignore during link fix process
+        self.link_type_to_ignore = ["javascript", "tel://", "tel:", "callto:", "smb://", "file://"]
 
         # parse the properties at the beginning, we need the
         # server_name for later
@@ -98,7 +102,7 @@ class Site:
         self.footer = {}
 
         # the Pages indexed by their pid and uuid
-        self.pages_by_pid = {}
+        self.pages_by_pid = OrderedDict()
         self.pages_by_uuid = {}
 
         # the PageContents indexed by their path
@@ -241,6 +245,9 @@ class Site:
                     # If normal jahia page
                     if jahia_type.nodeName == "jahia:page":
                         txt = jahia_type.getAttribute("jahia:title")
+                        # If title is empty, it means page is not displayed on Jahia, so we skip it here
+                        if txt == '':
+                            continue
                         hidden = jahia_type.getAttribute("jahia:hideFromNavigationMenu") != ""
                         target = "sitemap" if jahia_type.getAttribute("jahia:template") == "sitemap" \
                             else jahia_type.getAttribute("jcr:uuid")
@@ -508,22 +515,11 @@ class Site:
             if not self.belongs_to(element, page_content.page):
                 continue
 
-            type = element.getAttribute("jcr:primaryType")
-
-            # the "epfl:faqBox" element contains one or more "epfl:faqList"
-            if "epfl:faqBox" == type:
-                faq_list_elements = element.getElementsByTagName("faqList")
-
-                for faq_list_element in faq_list_elements:
-                    box = Box(site=self, page_content=page_content, element=faq_list_element)
-                    page_content.boxes.append(box)
-
-            else:
-                # TODO remove the multibox parameter and check for combo boxes instead
-                # Check if xml_box contains many boxes
-                multibox = element.getElementsByTagName("text").length > 1
-                box = Box(site=self, page_content=page_content, element=element, multibox=multibox)
-                page_content.boxes.append(box)
+            # TODO remove the multibox parameter and check for combo boxes instead
+            # Check if xml_box contains many boxes
+            multibox = element.getElementsByTagName("text").length > 1
+            box = Box(site=self, page_content=page_content, element=element, multibox=multibox)
+            page_content.boxes.append(box)
 
     def parse_files_uuids(self, node):
         """
@@ -616,20 +612,95 @@ class Site:
 
     def fix_links(self):
         """
-        Fix all the boxes links. This must be done at the end,
-        when all the pages have been parsed.
+        Fix all the boxes and banners links. This must be done at the end, when all the pages have been parsed.
         """
+
+        # 1. Looping through Boxes
         for box in self.get_all_boxes():
             soup = BeautifulSoup(box.content, 'html5lib')
             soup.body.hidden = True
 
-            self.fix_links_in_tag(box=box, soup=soup, tag_name="a", attribute="href")
-            self.fix_links_in_tag(box=box, soup=soup, tag_name="img", attribute="src")
-            self.fix_links_in_tag(box=box, soup=soup, tag_name="script", attribute="src")
+            for tag_name, tag_attribute in settings.FILE_LINKS_TAG_TO_FIX:
+                self.fix_all_links_in_tag(box=box, soup=soup, tag_name=tag_name, attribute=tag_attribute)
 
-    def fix_links_in_tag(self, box, soup, tag_name, attribute):
+        # 2. Looping through banners to fix only file links
+        # FIXME: Maybe, in the future, we will have to also fix other types of links in banners
+        for lang, banner in self.banner.items():
+
+            soup = BeautifulSoup(banner.content, 'html5lib')
+            soup.body.hidden = True
+
+            for tag_name, tag_attribute in settings.FILE_LINKS_TAG_TO_FIX:
+                self.fix_file_links_in_tag(soup=soup, tag_name=tag_name, attribute=tag_attribute)
+
+            # save the new banner content
+            banner.content = str(soup.body)
+
+    def fix_file_links_in_tag(self, soup, tag_name, attribute):
         """
-        Fix the links in the given type of tag
+        Fix only links to files in given BeautifulSoup object.
+        This code was previously in fix_all_links_in_tag() function but because we also have to fix file links for
+        banners and not only for boxes, it has been moved to a dedicated function.
+        File links update will be directly done in 'soup' parameter and nothing will be returned by the function
+
+        :param soup: instance of BeautifulSoup in which file links have to be fixed.
+        :param tag_name: name of tag to look for
+        :param attribute: name of tag attribute to update
+        :return:
+        """
+
+        tags = soup.find_all(tag_name)
+
+        for tag in tags:
+            link = tag.get(attribute)
+
+            if not link:
+                continue
+
+            for link_type in self.link_type_to_ignore:
+                if link.startswith(link_type):
+                    return
+
+            if link.startswith("###file") or link.startswith('/repository'):
+
+                if "/files/" in link:
+                    new_link = link[link.index('/files/'):]
+
+                    # If we have a link like this :
+                    # ?uuid=default:a6d36162-07da-4036-9b58-a32e416f7769
+                    if "?" in new_link and "?uuid=default:" in new_link:
+
+                        uuid = new_link[new_link.index(":") + 1:]
+
+                        # If we have an UUID match, we take it. Otherwise, we take the "real" link.
+                        if uuid in self.file_uuid_to_url:
+                            new_link = self.file_uuid_to_url[uuid]
+                        else:
+                            new_link = new_link[:new_link.index("?")]
+
+                    else:  # We don't have an UUID in the link
+                        if "?" in new_link:
+                            new_link = new_link[:new_link.index("?")]
+
+                    tag[attribute] = self.full_path(new_link)
+
+                    self.file_links += 1
+
+                # if we don't have /files/ in the path the link is broken (happen
+                # only in 3 sites)
+                else:
+                    self.broken_links += 1
+                    logging.debug("Found broken file link %s", link)
+
+    def fix_all_links_in_tag(self, box, soup, tag_name, attribute):
+        """
+        Fix all types of links in given box for given tag and attribute.
+        Updates will directly be done in 'box' parameter and nothing will be returned by function.
+
+        :param box: instance of Box in which links have to be fixed
+        :param soup: instance of BeautifulSoup with box content
+        :param tag_name: name of tag to look for
+        :param attribute: name of tag attribute to update
         """
         tags = soup.find_all(tag_name)
 
@@ -639,11 +710,8 @@ class Site:
             if not link:
                 continue
 
-            # links we are ignoring
-            ignore = ["javascript", "tel://", "tel:", "callto:", "smb://", "file://"]
-
-            for element in ignore:
-                if link.startswith(element):
+            for link_type in self.link_type_to_ignore:
+                if link.startswith(link_type):
                     return
 
             # internal Jahia links
@@ -714,33 +782,10 @@ class Site:
 
                 self.absolute_links += 1
             # file links
-            elif link.startswith("###file"):
-                if "/files/" in link:
-                    new_link = link[link.index('/files/'):]
+            elif link.startswith("###file") or link.startswith('/repository'):
 
-                    # If we have a link like this :
-                    # ?uuid=default:a6d36162-07da-4036-9b58-a32e416f7769
-                    if "?" in new_link and "?uuid=default:" in new_link:
+                self.fix_file_links_in_tag(soup, tag_name, attribute)
 
-                        uuid = new_link[new_link.index(":")+1:]
-                        # If we have an UUID match, we take it. Otherwise, we take the "real" link.
-                        if uuid in self.file_uuid_to_url:
-                            new_link = self.file_uuid_to_url[uuid]
-                        else:
-                            new_link = new_link[:new_link.index("?")]
-
-                    else:  # We don't have an UUID in the link
-                        if "?" in new_link:
-                            new_link = new_link[:new_link.index("?")]
-
-                    tag[attribute] = self.full_path(new_link)
-
-                    self.file_links += 1
-                # if we don't have /files/ in the path the link is broken (happen
-                # only in 3 sites)
-                else:
-                    self.broken_links += 1
-                    logging.debug("Found broken file link %s", link)
             # broken file links
             elif link.startswith("/fileNotFound###"):
                 self.broken_links += 1
@@ -887,7 +932,10 @@ Parsed for %s :
         self.report += "  - tags :\n\n"
 
         for tag in num_tags_ordered:
-            self.report += "    - <%s> %s\n" % (tag, self.num_tags[tag])
+            # Tag is encoded and decoded to remove special char that cause script to crash when report is printed if
+            # it contains surprising tags !
+            self.report += "    - <%s> %s\n" % (tag.encode('ascii', 'replace').decode('ascii').replace('?', ''),
+                                                self.num_tags[tag])
 
     def __repr__(self):
         return self.name
