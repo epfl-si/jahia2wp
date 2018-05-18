@@ -653,9 +653,9 @@ class WPExporter:
                                 slug = slugify(box.title)
                                 contents[lang] += '<h3 id="{0}">{0}</h3>'.format(slug, box.title)
 
-                    # If cleaning required
-                    if features_flags:
-                        box.content = self.apply_features_flags(box.content)
+                        # If cleaning required
+                        if features_flags:
+                            box.content = self.apply_features_flags(box.content)
 
                     # in the parser we can't know the current language.
                     # we assign a string that we replace with the current language
