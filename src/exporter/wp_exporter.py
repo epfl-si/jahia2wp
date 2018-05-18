@@ -622,12 +622,12 @@ class WPExporter:
                     if not box.is_shortcode():
                         contents[lang] += '<div class="{}">'.format(box.type + "Box")
 
-                    if box.title:
-                        if WPUtils.is_html(box.title):
-                            contents[lang] += '<h3>{0}</h3>'.format(box.title)
-                        else:
-                            slug = slugify(box.title)
-                            contents[lang] += '<h3 id="{0}">{0}</h3>'.format(slug, box.title)
+                        if box.title:
+                            if WPUtils.is_html(box.title):
+                                contents[lang] += '<h3>{0}</h3>'.format(box.title)
+                            else:
+                                slug = slugify(box.title)
+                                contents[lang] += '<h3 id="{0}">{0}</h3>'.format(slug, box.title)
 
                     # in the parser we can't know the current language.
                     # we assign a string that we replace with the current language
@@ -807,7 +807,7 @@ class WPExporter:
                     if box.is_empty():
                         continue
 
-                    if box.type in [Box.TYPE_TEXT, Box.TYPE_CONTACT, Box.TYPE_LINKS, Box.TYPE_FILES]:
+                    if box.type in [Box.TYPE_TOGGLE, Box.TYPE_TEXT, Box.TYPE_CONTACT, Box.TYPE_LINKS, Box.TYPE_FILES]:
                         widget_type = 'custom_html'
                         title = prepare_html(box.title)
                         content = prepare_html(box.content)

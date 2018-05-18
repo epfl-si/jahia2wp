@@ -68,6 +68,7 @@ class Box:
         self.set_type(element)
         self.title = Utils.get_tag_attribute(element, "boxTitle", "jahia:value")
         self.content = ""
+
         # the shortcode attributes with URLs that must be fixed by the wp_exporter
         self.shortcode_attributes_to_fix = []
 
@@ -519,9 +520,19 @@ class Box:
 
     def set_box_toggle(self, element):
         """set the attributes of a toggle box"""
-        self.opened = Utils.get_tag_attribute(element, "opened", "jahia:value")
 
-        self.content = Utils.get_tag_attribute(element, "content", "jahia:value")
+        self.shortcode_name = 'epfl_toggle'
+
+        if Utils.get_tag_attribute(element, "opened", "jahia:value"):
+            state = 'open'
+        else:
+            state = 'close'
+
+        content = '[epfl_toggle title="{}" state="{}"]'.format(self.title, state)
+        content += Utils.get_tag_attribute(element, "content", "jahia:value")
+        content += '[/epfl_toggle]'
+
+        self.content = content
 
     def set_box_include(self, element):
         """set the attributes of an include box"""
