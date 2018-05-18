@@ -5,7 +5,9 @@
  * @version: 1.0
  * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
+
 declare( strict_types = 1 );
+
 /**
  * Helper to debug the code
  * @param $var: variable to display
@@ -15,6 +17,7 @@ function epfl_buttons_box_debug( $var ) {
     var_dump( $var );
     print "</pre>";
 }
+
 /**
  * Build html
  *
@@ -28,7 +31,7 @@ function epfl_buttons_box_build_html( string $type, string $url, string $image_u
 {
     $html  = '<div class="' . esc_attr($type) . 'ButtonsBox"><a href="'. esc_attr($url) . '">';
     $html .= '<img src="' . $image_url . '" alt="' . esc_attr($text) . '"/>';
-    $html .= esc_attr($text) . '</a></div>';
+    $html .= $text . '</a></div>';
     return $html;
 }
 /**
@@ -53,25 +56,29 @@ function epfl_buttons_box_check_parameters( string $type, string $url, string $i
  * @content: the content of the shortcode. In our case the content is empty
  * @return html of shortcode
  */
-function epfl_buttons_box_process_shortcode( $attributes, string $content = null ): string
+function epfl_buttons_process_shortcode( $attributes, string $content = null ): string
 {
     // get parameters
-    $atts = shortcode_atts(array(
-        'type' => 'big',
-        'image_url'  => '',
-        'url' => '',
-        'text'  => '',
+    $atts = shortcode_atts( array(
+        'type'      => 'big',
+        'image_url' => '',
+        'url'       => '',
+        'text'      => '',
     ), $attributes);
+
     // sanitize parameters
     $type = sanitize_text_field($atts['type']);
     $image_url = sanitize_text_field($atts['image_url']);
     $url      = sanitize_text_field($atts['url']);
     $text     = sanitize_text_field($atts['text']);
+
     // check parameters
-    if ( epfl_buttons_box_check_parameters($type, $url, $image_url, $text) === FALSE ) {
+    if ( false == epfl_buttons_box_check_parameters($type, $url, $image_url, $text) ) {
         return "";
     }
     return epfl_buttons_box_build_html( $type, $url, $image_url, $text );
 }
-add_shortcode( 'epfl_buttons_box', 'epfl_buttons_box_process_shortcode' );
+
+add_shortcode( 'epfl_buttons', 'epfl_buttons_process_shortcode' );
+
 ?>
