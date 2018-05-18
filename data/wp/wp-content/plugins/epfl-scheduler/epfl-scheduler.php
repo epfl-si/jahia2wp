@@ -111,7 +111,8 @@ function epfl_scheduler_shortcode( $atts, $content = '', $tag )
 
 // Load .mo file for translation
 function epfl_scheduler_load_plugin_textdomain() {
-    load_plugin_textdomain( 'epfl-scheduler', FALSE, plugin_dir_path( dirname( __FILE__ ) ) . '/languages/' );
+    $path = basename( plugin_dir_path( __FILE__ ) ) . '/languages/';
+    load_plugin_textdomain( 'epfl-scheduler', FALSE, $path );
 }
 add_action( 'plugins_loaded', 'epfl_scheduler_load_plugin_textdomain' );
 
@@ -157,6 +158,7 @@ add_action( 'init', function() {
                 ),
                 'inner_content' => array(
                     'label'        => '<h3>' . esc_html__( 'Content of scheduler', 'epfl-scheduler' ) . '</h3>',
+                    'description'  => esc_html__('You can enter text to display above'),
                 ),
                 'post_type'     => array( 'post', 'page' ),
             )
