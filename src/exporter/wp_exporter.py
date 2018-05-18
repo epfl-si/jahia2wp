@@ -103,9 +103,11 @@ class WPExporter:
         """
         return self.host == settings.HTTPD_CONTAINER_NAME
 
-    def import_data_to_wordpress(self, skip_pages=False, skip_media=False):
+    def import_data_to_wordpress(self, skip_pages=False, skip_media=False, features_flags=False):
         """
         Import all data to WordPress via REST API and wp-cli
+
+        :param feature_flags: To tell if page content have to be cleaned during import
         """
         try:
             start_time = timeit.default_timer()
@@ -123,7 +125,7 @@ class WPExporter:
 
             # pages
             if not skip_pages:
-                self.import_pages()
+                self.import_pages(features_flags)
                 self.set_frontpage()
 
             self.populate_menu()
@@ -592,9 +594,31 @@ class WPExporter:
         """Update the page slug"""
         return self.update_page(page_id, slug=slug)
 
-    def import_pages(self):
+    def apply_features_flags(self, content):
+        """
+        Do some cleaning in given content
+
+        :param content: content in which doing replacement
+        :return: content with replacement done.
+        """
+        soup = BeautifulSoup(content, 'html5lib')
+        soup.body.hidden = True
+
+        # 1 - Attributes to clean
+
+        tag_list = soup.findAll(lambda tag: len(tag.attrs) > 0)
+        for tag in tag_list:
+            for attribute in tag.attrs:
+                if attribute in settings.FEATURES_FLAGS_ATTRIBUTES_TO_CLEAN:
+                    tag[attribute] = ''
+
+        return str(soup.body)
+
+    def import_pages(self, features_flags=False):
         """
         Import all pages of jahia site to Wordpress
+
+        :param features_flags: To tell if page content have to be cleaned during import
         """
 
         # keep the pages for fixing the links later
@@ -623,6 +647,10 @@ class WPExporter:
 
                     if box.title:
                         contents[lang] += '<h3 id="{0}">{0}</h3>'.format(box.title)
+
+                    # If cleaning required
+                    if features_flags:
+                        box.content = self.apply_features_flags(box.content)
 
                     # in the parser we can't know the current language.
                     # we assign a string that we replace with the current language

@@ -17,7 +17,7 @@ Usage:
     [--output-dir=<OUTPUT_DIR>]
     [--installs-locked=<BOOLEAN> --updates-automatic=<BOOLEAN>]
     [--openshift-env=<OPENSHIFT_ENV> --theme=<THEME>]
-    [--use-cache]
+    [--use-cache] [--features-flags]
     [--keep-extracted-files]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--stop-on-errors]
@@ -388,7 +388,7 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
 @dispatch.on('export')
 def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=False, to_dictionary=False,
            admin_password=None, output_dir=None, theme=None, installs_locked=False, updates_automatic=False,
-           openshift_env=None, use_cache=None, keep_extracted_files=False, **kwargs):
+           openshift_env=None, use_cache=None, keep_extracted_files=False, features_flags=False, **kwargs):
     """
     Export the jahia content into a WordPress site.
 
@@ -405,6 +405,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     :param openshift_env: openshift_env environment (prod, int, gcharmier ...)
     :param keep_extracted_files: command to keep files extracted from jahia zip
     :param fix_etx_chars: Tell to remove ETX chars from XML files containing site pages.
+    :param features_flags: Tell to clean page content or not
     """
 
     # Download, Unzip the jahia zip and parse the xml data
@@ -508,7 +509,9 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         logging.info("Exporting %s to WordPress...", site.name)
         try:
             if wp_generator.get_number_of_pages() == 0:
-                wp_exporter.import_data_to_wordpress(skip_pages=skip_pages, skip_media=skip_media)
+                wp_exporter.import_data_to_wordpress(skip_pages=skip_pages,
+                                                     skip_media=skip_media,
+                                                     features_flags=features_flags)
                 wp_exporter.write_redirections()
                 _fix_menu_location(wp_generator, languages, default_language)
                 logging.info("Site %s successfully exported to WordPress", site.name)
@@ -560,6 +563,8 @@ def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None,
         row_bytes = repr(row).encode('utf-8')
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row_bytes)
 
+        features_flags = False if 'features_flags' not in row else row['features_flags'] == 'yes'
+
         try:
             export(
                 site=row['Jahia_zip'],
@@ -574,7 +579,8 @@ def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None,
                 wp_env=row['openshift_env'],
                 admin_password=admin_password,
                 use_cache=use_cache,
-                keep_extracted_files=keep_extracted_files
+                keep_extracted_files=keep_extracted_files,
+                features_flags=features_flags
             )
         except (Exception, subprocess.CalledProcessError) as e:
             Tracer.write_row(site=row['Jahia_zip'], step=e, status="KO")
