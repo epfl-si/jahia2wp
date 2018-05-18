@@ -93,7 +93,7 @@ class Ventilation:
         """
 
         dest_sites = {}
-        logging.info('Parsing target WP instances (inventory)...')
+        logging.info('Parsing target WP instances (inventory) at {}'.format(root_wp_dest))
         if not root_wp_dest:
             logging.error("No target location to scan for WP instances")
         # Split the root to get the target sites (e.g. ["/srv/hmuriel/epfl", "/srv/hmuriel/inside"])
@@ -117,15 +117,18 @@ class Ventilation:
                     # Find wp-config.php in the paths
                     dirs = Utils.run_command(
                         'find "' + path + '" -name "wp-config.php" -exec dirname "{}" \;')
-                    dirs = dirs.split('\n')
-                    # Create a WP Site per matching dir and get its URL
-                    # Doing it this way since WP site has some checks for the path and URL building.
-                    for path in dirs:
-                        wp_site = WPSite.from_path(path)
-                        if wp_site:
-                            # wp_config = WPConfig(wp_site)
-                            # if wp_config.is_config_valid:
-                            dest_sites[wp_site.url] = path
+                    if not dirs:
+                        logging.error('Cannot find WP instances (wp-config.php) at {}'.format(path))
+                    else:
+                        dirs = dirs.split('\n')
+                        # Create a WP Site per matching dir and get its URL
+                        # Doing it this way since WP site has some checks for the path and URL building.
+                        for path in dirs:
+                            wp_site = WPSite.from_path(path)
+                            if wp_site:
+                                # wp_config = WPConfig(wp_site)
+                                # if wp_config.is_config_valid:
+                                dest_sites[wp_site.url] = path
 
         # Return the site_url => site_path mapping
         return dest_sites
@@ -1207,14 +1210,14 @@ class Ventilation:
         else:
             logging.info('Explored the destination tree. Found wp instances:')
             pprint(self.dest_sites)
-            msg = Utils.something('Are all the WP sites regarding the rules present? ',
-                'You need to create the WP sites trees first (e.g. www.epfl.ch/innovation, ',
-                'www.epfl.ch/schools), they\'ll go under /srv/$WP_ENV/www.epfl.ch/... '
-                'Yes / No (y/n) ?')
+            msg = ' '.join(['Are all the *required* destination WP sites present above?',
+                            'You need to create the WP sites trees first (e.g. www.epfl.ch/innovation,',
+                            'www.epfl.ch/schools), they\'ll go under /srv/$WP_ENV/www.epfl.ch/...',
+                            'Yes/No (y/n) ? : '])
             uinput = input(msg)
             if uinput not in ['Yes', 'y']:
                 logging.info('Exiting, please create the tree hierarchy (arborescence).')
-                return;
+                return
 
         logging.info("{} total sites found in rulesets: ".format(len(self.rulesets)))
         logging.debug(self.rulesets)
