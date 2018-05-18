@@ -57,6 +57,10 @@
   span.icon:empty {
     display: inline-block;
   }
+  
+  .clear:empty {
+    display: block;
+  }
 }
 
 .entry-content {
@@ -111,6 +115,7 @@ body {
 
 p {
   line-height: 1.4em;
+  margin-top: .375em;
   margin-bottom: 1em;
   padding: 0;
   
@@ -154,6 +159,8 @@ h4,
 h5,
 h6 {
   color: #000;
+  letter-spacing: 0;
+  line-height: 1.3em;
   margin-bottom: .75em;
   @include transition-colors;
   
@@ -165,6 +172,7 @@ h6 {
 h2,
 h3 {
   font-family: "Arial black", Arial, Helvetica, Verdana, sans-serif;
+  margin-top: 1.25rem;
 }
 h4,
 h5,
@@ -233,12 +241,12 @@ ol {
   
   ul,
   ol {
-    margin-top: .375em;
+    margin-top: .5em;
   }
 }
 
 li {
-  margin-bottom: .375em;
+  margin-bottom: .5em;
 }
 
 ul {
@@ -378,6 +386,10 @@ th {
 
 td {
   padding: 0.2em;
+}
+
+td[class*="col"] {
+  width: auto;
 }
 
 /* --- Grid and structure --- */

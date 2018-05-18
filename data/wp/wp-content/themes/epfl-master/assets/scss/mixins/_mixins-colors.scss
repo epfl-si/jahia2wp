@@ -222,6 +222,80 @@ $primary-color-sec-assoc: #8d9c00;
   }
 }
 
+// Icon color
+@mixin color-icon {
+  color: $primary-color;
+  
+  &:hover {
+    color: $primary-color-sec;
+  }
+  
+  // CDH
+  .cdh & {
+    color: $primary-color-cdh;
+  
+    &:hover {
+      color: $primary-color-sec-cdh;
+    }
+  }
+  // CDM
+  .cdm & {
+    color: $primary-color-cdm;
+  
+    &:hover {
+      color: $primary-color-sec-cdm;
+    }
+  }
+  // ENAC
+  .enac & {
+    color: $primary-color-enac;
+  
+    &:hover {
+      color: $primary-color-sec-enac;
+    }
+  }
+  // IC
+  .ic & {
+    color: $primary-color-ic;
+  
+    &:hover {
+      color: $primary-color-sec-ic;
+    }
+  }
+  // SB
+  .sb & {
+    color: $primary-color-sb;
+  
+    &:hover {
+      color: $primary-color-sec-sb;
+    }
+  }
+  // STI
+  .sti & {
+    color: $primary-color-sti;
+  
+    &:hover {
+      color: $primary-color-sec-sti;
+    }
+  }
+  // SV
+  .sv & {
+    color: $primary-color-sv;
+  
+    &:hover {
+      color: $primary-color-sec-sv;
+    }
+  }
+  // ASSOC
+  .assoc & {
+    color: $primary-color-assoc;
+  
+    &:hover {
+      color: $primary-color-sec-assoc;
+    }
+  }
+}
+
 // Background icons
 @mixin color-bg-icons {
   
@@ -265,8 +339,6 @@ $primary-color-sec-assoc: #8d9c00;
       background-color: $primary-color-sec-assoc;
     }
   }
-  
-  
 }
 
 

@@ -3,7 +3,7 @@
  * Plugin Name: EPFL lock plugin and theme install and configuration
  * Plugin URI: 
  * Description: Must-use plugin for the EPFL website.
- * Version: 0.0.1
+ * Version: 0.0.2
  * Author: wwp-admin@epfl.ch
  * */
 
@@ -18,8 +18,7 @@
 
 /* Disable descativation and edit plug link
  * https://codex.wordpress.org/Plugin_API/Filter_Reference/plugin_action_links_(plugin_file_name)
- */
-add_filter( 'plugin_action_links', 'disable_plugin_deactivation', 10, 4 );
+ *
 function disable_plugin_deactivation( $actions, $plugin_file, $plugin_data, $context ) {
    // Remove edit link for all
    if ( array_key_exists( 'edit', $actions ) )
@@ -34,31 +33,41 @@ function disable_plugin_deactivation( $actions, $plugin_file, $plugin_data, $con
    unset( $actions['deactivate'] );
    return $actions;
 }
-
+*/
 /* Hide plugin configuration
  * https://developer.wordpress.org/reference/hooks/admin_init/
- */
+
 add_action( 'admin_init', 'EPFL_remove_menu_pages' );
 function EPFL_remove_menu_pages() {
    remove_menu_page( 'plugins.php' );
 }
-
 /* Hide apparence editor menu
  *
- */
+ 
 function EPFL_remove_menu_editor() {
    remove_action('admin_menu', '_add_themes_utility_last', 101);
 }
 add_action('_admin_menu', 'EPFL_remove_menu_editor', 1);
+*/
 
 /* Hide plugin bulk deactivate action
  * https://codex.wordpress.org/Plugin_API/Filter_Reference/bulk_actions
- */
 add_filter('bulk_actions-plugins','my_custom_bulk_actions');
 function my_custom_bulk_actions($actions){
        unset( $actions[ 'deactivate-selected' ] );
            return $actions;
 }
+*/
+
+/*
+ * Add capabilites to editor to manage options and export
+ */
+function EPFL_add_editor_caps() {
+		$role = get_role( 'editor' );
+			$role->add_cap( 'manage_options' ); 
+			$role->add_cap( 'export' ); 
+}
+add_action( 'admin_init', 'EPFL_add_editor_caps');
 
 /* Hide apparence backround and header menu
  * 
