@@ -1202,8 +1202,20 @@ class Ventilation:
             sys.exit()
         logging.info('[{:.2f}s] Finished checking sites'.format(tt()-t))
 
-        logging.info('Explored the destination tree. Found wp instances:')
-        pprint(self.dest_sites)
+        if not self.dest_sites:
+            logging.error('Not a single WP instance found at the destination {}!'.format(self.root_wp_dest))
+        else:
+            logging.info('Explored the destination tree. Found wp instances:')
+            pprint(self.dest_sites)
+            msg = Utils.something('Are all the WP sites regarding the rules present? ',
+                'You need to create the WP sites trees first (e.g. www.epfl.ch/innovation, ',
+                'www.epfl.ch/schools), they\'ll go under /srv/$WP_ENV/www.epfl.ch/... '
+                'Yes / No (y/n) ?')
+            uinput = input(msg)
+            if uinput not in ['Yes', 'y']:
+                logging.info('Exiting, please create the tree hierarchy (arborescence).')
+                return;
+
         logging.info("{} total sites found in rulesets: ".format(len(self.rulesets)))
         logging.debug(self.rulesets)
         pprint(self.rulesets)
