@@ -39,6 +39,7 @@ Usage:
   jahia2wp.py rotate-backup         <csv_file>          [--dry-run] [--debug | --quiet]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
+  jahia2wp.py consolidate-hierarchy <path>                          [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
     [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
@@ -61,6 +62,8 @@ import getpass
 import json
 import logging
 import pickle
+import json
+from urllib.parse import urlparse
 import subprocess
 from collections import OrderedDict
 from datetime import datetime
@@ -767,6 +770,34 @@ def inventory(path, **kwargs):
             site_details.admins
         ]))
     logging.info("Inventory made for %s", path)
+
+
+@dispatch.on('consolidate-hierarchy')
+def consolidate_hierarchy(path, **kwargs):
+    """
+    Consolidates the hierarchy of wordpress sites and sub-sites found in `path`. Also includes the pages of the
+    sites in the consolidated hierarchy.
+    """
+    logging.info("Consolidating sites and pages hierarchy...")
+    sites_hierarchy = {}
+    for site_details in WPConfig.inventory(path):
+        parsed_url = urlparse(site_details.url)
+        root = parsed_url.netloc
+        pages_hierarchy = WPConfig(site_details).get_page_hierarchy()
+        if parsed_url.path in ['/', '']:
+            sites_hierarchy[root] = {'path': site_details.path, 'url': site_details.url, **pages_hierarchy}
+        else:
+            splitted_path = parsed_url.path.split('/')
+            # Remove empty elements
+            splitted_path = list(filter(None, splitted_path))
+            current_depth = sites_hierarchy[root]
+            # Go to the right level in the hierarchy
+            for sub_site in splitted_path[:-1]:
+                current_depth = current_depth[sub_site]
+            current_depth[splitted_path[-1]] = {'path': site_details.path, 'url': site_details.url, **pages_hierarchy}
+    with open('consolidation.json', 'w+') as f:
+        json.dump(sites_hierarchy, f, indent=4)
+    logging.info("Consolidation made for %s", path)
 
 
 @dispatch.on('veritas')
