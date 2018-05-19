@@ -11,17 +11,6 @@
  * License: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
 */
 
-function epfl_infoscience_log( $message )
-{
-    if ( WP_DEBUG === true ) {
-        if ( is_array( $message ) || is_object( $message ) ) {
-            error_log( print_r( $message, true ) );
-        } else {
-            error_log( $message );
-        }
-    }
-}
-
 function epfl_infoscience_url_exists( $url )
 {
     $handle = curl_init( $url );
@@ -73,5 +62,44 @@ function epfl_infoscience_process_shortcode( $attributes, $content = null )
     }
 }
 
-add_shortcode( 'epfl_infoscience', 'epfl_infoscience_process_shortcode' );
+// Load .mo file for translation
+function epfl_infoscience_load_plugin_textdomain() {
+    load_plugin_textdomain( 'epfl-map', FALSE, basename( plugin_dir_path( __FILE__ )) . '/languages/');
+}
+add_action( 'plugins_loaded', 'epfl_infoscience_load_plugin_textdomain' );
+
+add_action( 'init', function() {
+
+    add_shortcode( 'epfl_infoscience', 'epfl_infoscience_process_shortcode' );
+
+    if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
+
+        $documentation_url = "";
+
+        $url_description = sprintf(
+            esc_html__('How to get an infoscience URL to insert publications? %sRead this documentation%s', 'epfl-infoscience'),
+            '<a href="' . $documentation_url . '">', '</a>'
+        );
+
+        shortcode_ui_register_for_shortcode(
+
+            'epfl_infoscience',
+
+            array(
+                'label' => __('Add Infoscience shortcode', 'epfl-infoscience'),
+                'listItemImage' => '',
+                'attrs'         => array(
+                    array(
+                        'label'         => '<h3>' . esc_html__('Enter infoscience URL', 'epfl-infoscience') . '</h3>',
+                        'attr'          => 'url',
+                        'type'          => 'text',
+                        'description'   => $url_description,
+                    ),
+                ),
+
+                'post_type'     => array( 'post', 'page' ),
+            )
+        );
+    endif;
+});
 ?>
