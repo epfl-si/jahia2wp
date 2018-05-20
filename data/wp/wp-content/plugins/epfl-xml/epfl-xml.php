@@ -64,13 +64,13 @@ function epfl_xml_process_shortcode( $attributes, string $content = null ): stri
 {
     // get parameters
     $atts = shortcode_atts(array(
-        'xml'          => '',
-        'xslt'         => ''
+        'xml_url'          => '',
+        'xslt_url'         => ''
     ), $attributes);
 
     // sanitize parameters
-    $xml  = sanitize_text_field($atts['xml']);
-    $xslt = sanitize_text_field($atts['xslt']);
+    $xml  = sanitize_text_field($atts['xml_url']);
+    $xslt = sanitize_text_field($atts['xslt_url']);
 
     return epfl_xml_build_html( $xml, $xslt );
 }
