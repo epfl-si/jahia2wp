@@ -51,3 +51,5 @@ plugins:
     config: !include EPFL-Snippet/v1/config-plugin.yml
   - name: epfl-toggle
     config: !include epfl-toggle/v1/config-plugin.yml
+  - name: epfl-grid
+    config: !include epfl-grid/v1/config-plugin.yml

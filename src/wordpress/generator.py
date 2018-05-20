@@ -392,7 +392,6 @@ class WPGenerator:
         # TODO: add those plugins into the general list of plugins (with the class WPMuPluginConfig)
         WPMuPluginConfig(self.wp_site, "epfl-functions.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL-SC-infoscience.php").install()
-        WPMuPluginConfig(self.wp_site, "EPFL-SC-grid.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL_custom_editor_menu.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL_xml.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL-SC-people.php").install()
