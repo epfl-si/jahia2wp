@@ -64,7 +64,7 @@ function epfl_infoscience_process_shortcode( $attributes, $content = null )
 
 // Load .mo file for translation
 function epfl_infoscience_load_plugin_textdomain() {
-    load_plugin_textdomain( 'epfl-map', FALSE, basename( plugin_dir_path( __FILE__ )) . '/languages/');
+    load_plugin_textdomain( 'epfl-infoscience', FALSE, basename( plugin_dir_path( __FILE__ )) . '/languages/');
 }
 add_action( 'plugins_loaded', 'epfl_infoscience_load_plugin_textdomain' );
 
@@ -74,11 +74,11 @@ add_action( 'init', function() {
 
     if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
 
-        $documentation_url = "";
+        $documentation_url = "https://support.epfl.ch/kb_view.do?sysparm_article=KB0014227";
 
         $url_description = sprintf(
             esc_html__('How to get an infoscience URL to insert publications? %sRead this documentation%s', 'epfl-infoscience'),
-            '<a href="' . $documentation_url . '">', '</a>'
+            '<a target="_blank" href="' . $documentation_url . '">', '</a>'
         );
 
         shortcode_ui_register_for_shortcode(
