@@ -64,13 +64,13 @@ function epfl_xml_process_shortcode( $attributes, string $content = null ): stri
 {
     // get parameters
     $atts = shortcode_atts(array(
-        'xml_url'          => '',
-        'xslt_url'         => ''
+        'xml'          => '',
+        'xslt'         => ''
     ), $attributes);
 
     // sanitize parameters
-    $xml  = sanitize_text_field($atts['xml_url']);
-    $xslt = sanitize_text_field($atts['xslt_url']);
+    $xml  = sanitize_text_field($atts['xml']);
+    $xslt = sanitize_text_field($atts['xslt']);
 
     return epfl_xml_build_html( $xml, $xslt );
 }
@@ -91,17 +91,17 @@ add_action( 'init', function() {
             'epfl_xml',
 
             array(
-                'label' => __('Add XML shortcode', 'epfl-xml'),
+                'label' => __('Add XML/XSLT shortcode', 'epfl-xml'),
                 'listItemImage' => '',
                 'attrs'         => array(
                     array(
                         'label'         => '<h3>' . esc_html__('URL of xml', 'epfl-xml') . '</h3>',
-                        'attr'          => 'xml_url',
+                        'attr'          => 'xml',
                         'type'          => 'text',
                     ),
                     array(
                         'label'         => '<h3>' . esc_html__('URL of xslt', 'epfl-xml') . '</h3>',
-                        'attr'          => 'xslt_url',
+                        'attr'          => 'xslt',
                         'type'          => 'text',
                     ),
                 ),

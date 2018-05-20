@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl-xml\n"
-"POT-Creation-Date: 2018-05-20 17:37+0200\n"
-"PO-Revision-Date: 2018-05-20 17:37+0200\n"
+"POT-Creation-Date: 2018-05-20 18:09+0200\n"
+"PO-Revision-Date: 2018-05-20 18:09+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -16,7 +16,7 @@ msgstr ""
 "X-Poedit-SearchPath-0: epfl-xml.php\n"
 
 #: epfl-xml.php:94
-msgid "Add XML shortcode"
+msgid "Add XML/XSLT shortcode"
 msgstr "Ajouter un shortcode XML/XSLT"
 
 #: epfl-xml.php:98
