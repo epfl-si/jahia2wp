@@ -1,0 +1,41 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: epfl-snippet\n"
+"POT-Creation-Date: 2018-05-21 07:51+0200\n"
+"PO-Revision-Date: 2018-05-21 07:51+0200\n"
+"Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.7.1\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-KeywordsList: __;esc_html__\n"
+"X-Poedit-SearchPath-0: shortcake-config.php\n"
+"X-Poedit-SearchPath-1: epfl-snippet.php\n"
+
+#: shortcake-config.php:12
+msgid "Add Snippet shortcode"
+msgstr "Ajouter un shortcode Snippet"
+
+#: shortcake-config.php:16 shortcake-config.php:19
+msgid "URL"
+msgstr "URL FR"
+
+#: shortcake-config.php:22 shortcake-config.php:25
+msgid "Title"
+msgstr "Title FR"
+
+#: shortcake-config.php:28 shortcake-config.php:31
+msgid "SubTitle"
+msgstr "Sous sitre"
+
+#: shortcake-config.php:34 shortcake-config.php:37
+msgid "Image"
+msgstr "Image FR"
+
+#: shortcake-config.php:40 shortcake-config.php:43
+msgid "Big Image"
+msgstr "Big IMage FR"

@@ -9,6 +9,8 @@
 
 declare( strict_types = 1 );
 
+require_once 'shortcake-config.php';
+
 
 /**
  * Execute the shortcode
@@ -72,6 +74,24 @@ function epfl_snippets_process_shortcode( $attributes, string $content = null ):
 
 }
 
-add_shortcode( 'epfl_snippets', 'epfl_snippets_process_shortcode' );
+
+
+
+// load .mo file for translation
+function epfl_snippet_load_plugin_textdomain() {
+    load_plugin_textdomain( 'epfl-snippet', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
+}
+add_action( 'plugins_loaded', 'epfl_snippet_load_plugin_textdomain' );
+
+add_action( 'init', function() {
+
+    // define the shortcode
+    add_shortcode( 'epfl_snippets', 'epfl_snippets_process_shortcode' );
+
+    // shortcake configuration
+    if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
+        ShortCakeSnippetConfig::config();
+    endif;
+} );
 
 ?>
