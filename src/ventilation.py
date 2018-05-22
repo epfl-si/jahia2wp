@@ -243,23 +243,33 @@ class Ventilation:
             fields = 'ID,post_title,post_name,post_parent,guid,url,post_status,post_content'
             # Only pages, all without paging. Sort them by post_parent ascendantly for ease of
             # reinsertion to insert first parent pages and avoiding parentless children.
-            params = '--post_type=page --nopaging --order=asc --orderby=ID --fields={} --format=csv'
+            params = '--post_type=page --nopaging --order=asc --orderby=ID --fields={} --format=json'
             cmd = 'wp post list ' + params + ' --path={} > {}'
             csv_f = JAHIA2WP_VENT_TMP + '/j2wp_' + site.split('/').pop() + '.csv'
             self.files[site] = csv_f
             cmd = cmd.format(fields, wp_conf.wp_site.path, csv_f)
             logging.debug(cmd)
             Utils.run_command(cmd, 'utf8')
+            # FIX: Convert the JSON to *proper* CSV with python
+            # This is necessary since WP-CLI can produce a non-standard CSV (e.g. not escaping colons)
+            pages = json.load(open(csv_f, 'r', encoding='utf8'))
+            if not pages:
+                logging.error('No pages for site {}, removing it from rulesets..'.format(site))
+                del self.rulesets[site]
+                continue
+            with open(csv_f, 'w', encoding='utf8') as f:
+                header_cols = list(pages[0].keys())
+                print(header_cols)
+                writer = csv.DictWriter(f, fieldnames=header_cols)
+                writer.writeheader()
+                for p in pages:
+                    writer.writerow(p)
             # Backup file
             shutil.copyfile(csv_f, csv_f + '.bak')
             # Append site path at the end of the CSV as a comment, useful for later processing.
             Utils.run_command('echo "#{}" >> {}'.format(wp_conf.wp_site.path, csv_f))
             # Convert the GUIDs to relative URLs to avoid rule replacement by URL
             pages = Utils.csv_filepath_to_dict(csv_f)
-            if not pages:
-                logging.error('No pages for site {}, removing it from rulesets..'.format(site))
-                del self.rulesets[site]
-                continue
             # Write back the CSV file
             with open(csv_f, 'w', encoding='utf8') as f:
                 site_url = urlparse(site)
@@ -283,10 +293,6 @@ class Ventilation:
                     p['guid'] = p['guid'].replace(host, '')
                     # Fix the rel links without domain / path info.
                     p['post_content'] = regex.sub(r'href="{}/\g<1>/"'.format(site_path), p['post_content'])
-                    if None in p:
-                        err = 'Page {} / {} contains an unknown column None: {}'.format(p['ID'], p['url'], p[None])
-                        logging.warning(err.encode('utf8'))
-                        del p[None]
                     writer.writerow(p)
             # Dump media / attachments
             fields = 'ID,post_title,post_name,post_parent,post_status,guid'
