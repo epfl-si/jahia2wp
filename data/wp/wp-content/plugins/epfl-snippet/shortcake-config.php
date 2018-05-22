@@ -6,7 +6,7 @@ Class ShortCakeSnippetConfig
     {
         shortcode_ui_register_for_shortcode(
 
-            'epfl_snippet',
+            'epfl_snippets',
 
             array(
                 'label' => __('Add Snippet shortcode', 'epfl-snippet'),
@@ -42,9 +42,11 @@ Class ShortCakeSnippetConfig
                             'type'          => 'text',
                             'description'   => esc_html__('Big Image', 'epfl-snippet'),
                         ),
-
                     ),
-
+                'inner_content' => array(
+                   'label'        => '<h3>' . esc_html__( 'Content of snippet', 'epfl-snippet' ) . '</h3>',
+                   'description'  => esc_html__('You can enter text to display above', 'epfl-snippet'),
+                ),
                 'post_type'     => array( 'post', 'page' ),
             )
         );
