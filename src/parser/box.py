@@ -544,7 +544,6 @@ class Box:
 
             self.content = '[{} url="{}" /]'.format(self.shortcode_name, url)
         else:
-            self.shortcode_name = "remote_content"
 
             self.content = '[remote_content url="{}"]'.format(Utils.get_redirected_url(url))
 
