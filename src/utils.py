@@ -12,8 +12,9 @@ import binascii
 import random
 import xml.dom.minidom
 import re
+import http.client
 
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, urlparse
 from bs4 import BeautifulSoup
 
 
@@ -425,3 +426,31 @@ class Utils(object):
         Return True if the content is HTML.
         """
         return bool(BeautifulSoup(content, "html.parser").find())
+
+    @staticmethod
+    def get_redirected_url(url):
+        """
+        Returns the URL on which HTTP GET is redirected  (can be different URL or simply HTTP to HTTPS)
+        :param url: URL we have to check
+        :return: URL on which we are redirected.
+        """
+
+        parsed_url = urlparse(url)
+
+        request_url = parsed_url.path
+        if parsed_url.query:
+            request_url += '?{}'.format(parsed_url.query)
+
+        h = http.client.HTTPConnection(parsed_url.netloc.strip('/'))
+
+        h.request('HEAD', request_url)
+        response = h.getresponse()
+
+        # Check for 30x status code
+        if 300 <= response.status < 400:
+            # It's a redirect
+            return response.getheader('Location')
+
+        else:
+            # If we cannot get a correct answer, we assume there is no redirect
+            return url
