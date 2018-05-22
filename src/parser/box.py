@@ -301,9 +301,9 @@ class Box:
             template = ""
             logging.warning("News Shortcode - template is missing")
 
-        # in actu.epfl.ch if sticker parameter exists, sticker is not display
+        # in actu.epfl.ch if sticker parameter exists, sticker is not displayed
         # (whatever the value of sticker parameter)
-        # if sticker parameter does not exist, sticker is display
+        # if sticker parameter does not exist, sticker is displayed
         if 'sticker' in parameters:
             stickers = "no"
         else:
