@@ -272,6 +272,10 @@ class FanGlobalSitemap:
         cmd = "wp option update blogname '{}' --path='{}'".format(self.WEBSITE_TITLE, self.wp_path)
         Utils.run_command(cmd)
 
+        # tagline
+        cmd = "wp option update blogdescription '{}' --path='{}'".format("", self.wp_path)
+        Utils.run_command(cmd)
+
     def _create_page(self, name, title, content, parent_id=None):
         """Creates a page with the given informations"""
 
