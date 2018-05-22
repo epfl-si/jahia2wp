@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import os
 import logging
 import copy
@@ -35,7 +37,7 @@ class WPPluginList:
             logging.error("%s - Specific config path not exists: %s", repr(self), specific_config_path)
 
         # For specific plugins configuration
-        self._generic_plugins = {}
+        self._generic_plugins = OrderedDict()
 
         # Extend possibilities of YAML reader
         yaml.add_constructor("!include", self._yaml_include)
