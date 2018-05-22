@@ -3,7 +3,7 @@
 export ROOT_SITE=www.epfl.ch
 CSV_FILE=/srv/$WP_ENV/jahia2wp/src/vent-demo/data/ventilation-innov.csv
 
-ROOT_WP_DEST=/srv/$WP_ENV/$ROOT_SITE
+ROOT_WP_DEST=/srv/$WP_ENV/$ROOT_SITE/htdocs
 
 # This DEMO reads the csv and migrates the content under the ROOT_SITE
 # ***** It does not export missing sites nor creates destination sites. ********

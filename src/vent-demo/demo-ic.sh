@@ -3,7 +3,7 @@
 export ROOT_SITE=www.epfl.ch
 CSV_FILE=/srv/$WP_ENV/jahia2wp/src/vent-demo/data/ventilation-ic.csv
 
-ROOT_WP_DEST=/srv/$WP_ENV/$ROOT_SITE
+ROOT_WP_DEST=/srv/$WP_ENV/$ROOT_SITE/htdocs
 
 # This DEMO reads the csv and migrates content under the ROOT_SITE
 # ***** It does not export missing sites nor creates destination sites. ********
@@ -19,8 +19,8 @@ ROOT_WP_DEST=/srv/$WP_ENV/$ROOT_SITE
 
 
 # Export the required sites
-demo_site_export='/tmp/j2wp_demosite.csv'
-echo 'wp_site_url,wp_tagline,wp_site_title,site_type,openshift_env,category,theme,theme_faculty,status,installs_locked,updates_automatic,langs,unit_name,Jahia_zip,comment' > $demo_site_export;
+ demo_site_export='/tmp/j2wp_demosite.csv'
+ echo 'wp_site_url,wp_tagline,wp_site_title,site_type,openshift_env,category,theme,theme_faculty,status,installs_locked,updates_automatic,langs,unit_name,Jahia_zip,comment' > $demo_site_export;
  echo 'https://ic.epfl.ch,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,ic-do,ic,' >> $demo_site_export;
  echo 'https://ic-it.epfl.ch,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,ic-it,icit,' >> $demo_site_export;
  echo 'https://tcs.epfl.ch,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,thl2,tcs,migrable' >> $demo_site_export;
