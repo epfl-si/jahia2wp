@@ -14,7 +14,7 @@ import xml.dom.minidom
 import re
 import requests
 
-from urllib.parse import urlsplit, urlparse
+from urllib.parse import urlsplit
 from bs4 import BeautifulSoup
 
 
