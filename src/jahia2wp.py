@@ -553,11 +553,15 @@ def fan_global_sitemap(csv_file, wp_path, **kwargs):
     Create a global sitemap at the given wp_path.
 
     Prerequisites:
-        - You have a working WordPress installation at the given wp_path
-        - You have disabled polylang
+        - You have installed WordPress at the given wp_path WITHOUT polylang (comment
+          the polylang plugin in config-lot1.yml). Note: it's not enough to disable
+          polylang after installation
+
     After having launched this script:
-        - Activate polylang again
-        - Go to "Languages" at click on the link "You can set them all to the default language"
+        - Install polylang
+        - Go to "Languages" and :
+          - Add the English language
+          - click on the link "You can set them all to the default language"
         - In "Appearance" > "Menus" set the "Main" menu to "Primary menu English" and "footer_nav"
           to "Footer menu English"
     """
