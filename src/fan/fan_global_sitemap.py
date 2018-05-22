@@ -46,7 +46,7 @@ class FanGlobalSitemap:
         self.urls = {}
 
         for row in self.rows:
-            url = row["url"]
+            url = row["wp_site_url"]
             self.urls[url] = row
 
     def create_website(self):
@@ -76,7 +76,7 @@ class FanGlobalSitemap:
         for row in self.rows:
             i = i + 1
 
-            url = row["url"]
+            url = row["wp_site_url"]
 
             # the URL must...
 
@@ -196,7 +196,7 @@ class FanGlobalSitemap:
 
             parent_node = nodes_by_path[parent_path]
 
-            title = self.urls[url]["title_en"]
+            title = self.urls[url]["wp_site_title"]
 
             node = GlobalSitemapNode(path, title, parent_node)
 
@@ -212,7 +212,7 @@ class FanGlobalSitemap:
             # the page name (slug)
             name = url[url.rfind("/") + 1:]
 
-            title = self.urls[url]["title_en"]
+            title = self.urls[url]["wp_site_title"]
 
             content = nodes_by_path[path].html()
 
