@@ -69,7 +69,7 @@ function epfl_faqbox_process_shortcode($attributes, $content = null)
         ), $attributes);
 
     $faq_ref_table = '<ul class="link-list">';
-    //var_dump($content);
+
     $faq_items_html = do_shortcode($content);
 
     $faq_ref_table .= '</ul>';
