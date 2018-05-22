@@ -12,7 +12,7 @@ import binascii
 import random
 import xml.dom.minidom
 import re
-import http.client
+import requests
 
 from urllib.parse import urlsplit, urlparse
 from bs4 import BeautifulSoup
@@ -30,7 +30,7 @@ def deprecated(message):
             return x + y
 
         class SomeClass:
-            @deprecated
+            @deprecat
             def some_old_method(self, x,y):
                 return x + y
     """
@@ -434,22 +434,16 @@ class Utils(object):
         :param url: URL we have to check
         :return: URL on which we are redirected.
         """
+        url = url.strip()
+        if url == "":
+            return ""
 
-        parsed_url = urlparse(url)
+        response = requests.get(url)
 
-        request_url = parsed_url.path
-        if parsed_url.query:
-            request_url += '?{}'.format(parsed_url.query)
-
-        h = http.client.HTTPConnection(parsed_url.netloc.strip('/'))
-
-        h.request('HEAD', request_url)
-        response = h.getresponse()
-
-        # Check for 30x status code
-        if 300 <= response.status < 400:
+        # Check for 30x or 200 status code
+        if 300 <= response.status_code < 400 or response.status_code == 200:
             # It's a redirect
-            return response.getheader('Location')
+            return response.url
 
         else:
             # If we cannot get a correct answer, we assume there is no redirect
