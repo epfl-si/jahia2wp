@@ -37,3 +37,17 @@ plugins:
     config: !include remote-content-shortcode/v1/config-plugin.yml
   - name: shortcode-ui
     config: !include shortcode-ui/v1/config-plugin.yml
+  - name: shortcode-ui-richtext
+    config: !include shortcode-ui-richtext/v1/config-plugin.yml
+  - name: epfl-news
+    config: !include epfl-news/v1/config-plugin.yml
+  - name: epfl-memento
+    config: !include epfl-memento/v1/config-plugin.yml
+  - name: EPFL-FAQ
+    config: !include EPFL-FAQ/v1/config-plugin.yml
+  - name: epfl-map
+    config: !include epfl-map/v1/config-plugin.yml
+  - name: EPFL-Snippet
+    config: !include EPFL-Snippet/v1/config-plugin.yml
+  - name: epfl-toggle
+    config: !include epfl-toggle/v1/config-plugin.yml

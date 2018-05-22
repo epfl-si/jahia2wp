@@ -10,6 +10,7 @@ jQuery(document).ready(function($){
     event.preventDefault();
     $(this).parents(".collapsible").find(".collapsible-content").slideToggle("fast");
     $(this).parents(".collapsible").toggleClass("open");
+    $(this).parents(".collapsible").toggleClass("close");
   });
   
   // Sitemap

@@ -1,10 +1,11 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
-
 import logging
+from datetime import datetime
+from urllib import parse
 from urllib.parse import urlencode
 from xml.dom import minidom
+
 from bs4 import BeautifulSoup
-from datetime import datetime
 
 from utils import Utils
 
@@ -41,7 +42,7 @@ class Box:
         "epfl:infoscienceBox": TYPE_INFOSCIENCE,
         "epfl:actuBox": TYPE_ACTU,
         "epfl:mementoBox": TYPE_MEMENTO,
-        "epfl:faqContainer": TYPE_FAQ,
+        "epfl:faqBox": TYPE_FAQ,
         "epfl:toggleBox": TYPE_TOGGLE,
         "epfl:htmlBox": TYPE_INCLUDE,
         "epfl:contactBox": TYPE_CONTACT,
@@ -67,6 +68,7 @@ class Box:
         self.set_type(element)
         self.title = Utils.get_tag_attribute(element, "boxTitle", "jahia:value")
         self.content = ""
+
         # the shortcode attributes with URLs that must be fixed by the wp_exporter
         self.shortcode_attributes_to_fix = []
 
@@ -212,7 +214,9 @@ class Box:
         shortcode_outer_name = "epfl_grid"
         shortcode_inner_name = "epfl_gridElem"
 
-        # register the shortcode
+        self.shortcode_name = shortcode_outer_name
+
+        # register the shortcodes
         self.site.register_shortcode(shortcode_inner_name, ["link", "image"], self)
 
         self.content = '[{}]\n'.format(shortcode_outer_name)
@@ -232,10 +236,6 @@ class Box:
 
             # Escape if necessary
             title = title.replace('"', '\\"')
-
-            # Fix path if necessary
-            if "/files" in image:
-                image = image[image.rfind("/files"):]
 
             self.content += '[{} layout="{}" link="{}" title="{}" image="{}"][/{}]\n'.format(
                 shortcode_inner_name, layout, link, title, image, shortcode_inner_name)
@@ -275,6 +275,49 @@ class Box:
                 content = self._set_scheduler_box(element_box_text, content)
 
         self.content = content
+
+    @staticmethod
+    def _extract_epfl_news_parameters(url):
+        """
+        Extract parameters form url
+        """
+        parameters = parse.parse_qs(parse.urlparse(url).query)
+
+        if 'channel' in parameters:
+            channel_id = parameters['channel'][0]
+        else:
+            channel_id = ""
+            logging.error("News Shortcode - channel ID is missing")
+
+        if 'lang' in parameters:
+            lang = parameters['lang'][0]
+        else:
+            lang = ""
+            logging.warning("News Shortcode - lang is missing")
+
+        if 'template' in parameters:
+            template = parameters['template'][0]
+        else:
+            template = ""
+            logging.warning("News Shortcode - template is missing")
+
+        stickers = "no"
+        if 'sticker' in parameters:
+            stickers = parameters['sticker'][0]
+
+        category = ""
+        if 'category' in parameters:
+            category = parameters['category'][0]
+
+        themes = ""
+        if 'themes' in parameters:
+            themes = parameters['theme']
+
+        projects = ""
+        if 'project' in parameters:
+            projects = parameters['project']
+
+        return channel_id, lang, template, category, themes, stickers, projects
 
     def set_box_people_list(self, element):
         """
@@ -330,19 +373,107 @@ class Box:
 
     def set_box_actu(self, element):
         """set the attributes of an actu box"""
-        url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.shortcode_name = "actu"
+        # extract parameters from the old url of webservice
+        channel_id, lang, template, category, themes, stickers, projects = self._extract_epfl_news_parameters(
+            Utils.get_tag_attribute(element, "url", "jahia:value")
+        )
+        self.shortcode_name = "epfl_news"
+        html_content = '[{} channel="{}" lang="{}" template="{}" '.format(
+            self.shortcode_name,
+            channel_id,
+            lang,
+            template
+        )
+        if category:
+            html_content += 'category="{}" '.format(category)
+        if themes:
+            html_content += 'themes="{}" '.format(",".join(themes))
+        if stickers:
+            html_content += 'stickers="{}" '.format(stickers)
+        if projects:
+            html_content += 'projects="{}" '.format(",".join(projects))
 
-        self.content = "[{} url={}]".format(self.shortcode_name, url)
+        html_content += '/]'
+
+        self.content = html_content
+
+    @staticmethod
+    def _extract_epfl_memento_parameters(url):
+        """
+        Extract parameters form url
+        """
+        parameters = parse.parse_qs(parse.urlparse(url).query)
+
+        if 'memento' in parameters:
+            memento_name = parameters['memento'][0]
+        else:
+            memento_name = ""
+            logging.error("Memento Shortcode - event ID is missing")
+
+        if 'lang' in parameters:
+            lang = parameters['lang'][0]
+        else:
+            lang = ""
+            logging.error("Memento Shortcode - lang is missing")
+
+        if 'template' in parameters:
+            template = parameters['template'][0]
+        else:
+            template = ""
+            logging.error("Memento Shortcode - template is missing")
+
+        period = ""
+        if 'period' in parameters:
+            period = parameters['period'][0]
+
+        color = ""
+        if 'color' in parameters:
+            color = parameters['color'][0]
+
+        filters = ""
+        if 'filters' in parameters:
+            filters = parameters['filters'][0]
+
+        category = ""
+        if 'category' in parameters:
+            category = parameters['category'][0]
+
+        reorder = ""
+        if 'reorder' in parameters:
+            reorder = parameters['reorder'][0]
+
+        return memento_name, lang, template, period, color, filters, category, reorder
 
     def set_box_memento(self, element):
         """set the attributes of a memento box"""
-        url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.shortcode_name = "memento"
+        # extract parameters from the old url of webservice
+        memento_name, lang, template, period, color, filters, category, reorder = \
+            self._extract_epfl_memento_parameters(
+                Utils.get_tag_attribute(element, "url", "jahia:value")
+            )
+        self.shortcode_name = "epfl_memento"
+        html_content = '[{} memento="{}" lang="{}" template="{}" '.format(
+            self.shortcode_name,
+            memento_name,
+            lang,
+            template
+        )
+        if period:
+            html_content += 'period="{}" '.format(period)
+        if color:
+            html_content += 'color="{}" '.format(color)
+        if filters:
+            html_content += 'filters="{}" '.format(filters)
+        if category:
+            html_content += 'category="{}" '.format(category)
+        if reorder:
+            html_content += 'reorder="{}" '.format(reorder)
 
-        self.content = "[{} url={}]".format(self.shortcode_name, url)
+        html_content += '/]'
+
+        self.content = html_content
 
     def set_box_infoscience(self, element):
         """set the attributes of a infoscience box"""
@@ -354,18 +485,54 @@ class Box:
         self.content = "[{} url={}]".format(self.shortcode_name, url)
 
     def set_box_faq(self, element):
-        """set the attributes of a faq box"""
-        self.question = Utils.get_tag_attribute(element, "question", "jahia:value")
+        """set the attributes of a faq box
 
-        self.answer = Utils.get_tag_attribute(element, "answer", "jahia:value")
+        FIXME: Handle boxTitle option
+        FIXME: Handle filesList option in FAQ item
+        FIXME: Handle linksList option in FAQ item
+        """
 
-        self.content = "<h2>{}</h2><p>{}</p>".format(self.question, self.answer)
+        shortcode_outer_name = "epfl_faq"
+        shortcode_inner_name = "epfl_faqItem"
+
+        self.shortcode_name = shortcode_outer_name
+
+        # register the shortcode
+        self.site.register_shortcode(shortcode_inner_name, ["link", "image"], self)
+
+        self.content = '[{}]\n'.format(shortcode_outer_name)
+
+        # Looking for entries
+        faq_entries = element.getElementsByTagName("faqList")
+
+        for entry in faq_entries:
+
+            # Get question and escape if necessary
+            question = Utils.get_tag_attribute(entry, "question", "jahia:value").replace('"', '\\"')
+
+            # Get answer
+            answer = Utils.get_tag_attribute(entry, "answer", "jahia:value")
+
+            self.content += '[{} question="{}"]{}[/{}]\n'.format(
+                shortcode_inner_name, question, answer, shortcode_inner_name)
+
+        self.content += "[/{}]".format(shortcode_outer_name)
 
     def set_box_toggle(self, element):
         """set the attributes of a toggle box"""
-        self.opened = Utils.get_tag_attribute(element, "opened", "jahia:value")
 
-        self.content = Utils.get_tag_attribute(element, "content", "jahia:value")
+        self.shortcode_name = 'epfl_toggle'
+
+        if Utils.get_tag_attribute(element, "opened", "jahia:value"):
+            state = 'open'
+        else:
+            state = 'close'
+
+        content = '[epfl_toggle title="{}" state="{}"]'.format(self.title, state)
+        content += Utils.get_tag_attribute(element, "content", "jahia:value")
+        content += '[/epfl_toggle]'
+
+        self.content = content
 
     def set_box_include(self, element):
         """set the attributes of an include box"""
@@ -465,6 +632,8 @@ class Box:
 
         snippets = element.getElementsByTagName("snippetListList")[0].getElementsByTagName("snippetList")
 
+        self.content = ""
+
         for snippet in snippets:
             title = Utils.get_tag_attribute(snippet, "title", "jahia:value")
             subtitle = Utils.get_tag_attribute(snippet, "subtitle", "jahia:value")
@@ -473,10 +642,13 @@ class Box:
             big_image = Utils.get_tag_attribute(snippet, "bigImage", "jahia:value")
             enable_zoom = Utils.get_tag_attribute(snippet, "enableImageZoom", "jahia:value")
 
+            # Fix path if necessary
+            if "/files" in image:
+                image = image[image.rfind("/files"):]
+
             # escape
             title = title.replace('"', '\\"')
             subtitle = subtitle.replace('"', '\\"')
-            description = description.replace('"', '\\"')
 
             url = ""
 
@@ -494,9 +666,16 @@ class Box:
 
                         url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
 
-            self.content = '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
-                           ' big_image="{}" enable_zoom="{}" description="{}"]'\
-                .format(self.shortcode_name, url, title, subtitle, image, big_image, enable_zoom, description)
+            self.content += '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
+                            ' big_image="{}" enable_zoom="{}"]{}[/{}]'.format(self.shortcode_name,
+                                                                              url,
+                                                                              title,
+                                                                              subtitle,
+                                                                              image,
+                                                                              big_image,
+                                                                              enable_zoom,
+                                                                              description,
+                                                                              self.shortcode_name)
 
     def set_box_syntax_highlight(self, element):
         """Set the attributes of a syntaxHighlight box"""
@@ -605,6 +784,9 @@ class Box:
 
     def is_shortcode(self):
         return self.shortcode_name != ""
+
+    def is_empty(self):
+        return self.title == "" and self.content == ""
 
     def __str__(self):
         return self.type + " " + self.title
