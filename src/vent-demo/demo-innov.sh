@@ -33,4 +33,4 @@ ROOT_WP_DEST=/srv/$WP_ENV/$ROOT_SITE/htdocs
 ./vent-demo/utils/del-posts.sh "$ROOT_WP_DEST/innovation"
 
 # 2) RUN the migration. Force utf8 for io since c2c container uses a variant of ascii for io.
-PYTHONIOENCODING="utf-8" python jahia2wp.py migrate-urls $CSV_FILE $WP_ENV --root_wp_dest=$ROOT_WP_DEST --strict
+PYTHONIOENCODING="utf-8" python jahia2wp.py migrate-urls $CSV_FILE $WP_ENV --root_wp_dest=$ROOT_WP_DEST

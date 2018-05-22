@@ -59,10 +59,10 @@ class Ventilation:
     site_paths = {}
     dest_sites = {}
 
-    def __init__(self, wp_env, csv_file, strict=False, root_wp_dest=None, htaccess=False, context="intra"):
+    def __init__(self, wp_env, csv_file, greedy=False, root_wp_dest=None, htaccess=False, context="intra"):
         self.wp_env = wp_env
         self.csv_file = csv_file
-        self.strict_mode = strict
+        self.strict_mode = not greedy
         self.root_wp_dest = root_wp_dest
         if context:
             self.context = context
