@@ -104,9 +104,14 @@ Class MementoRender
 
             $html_content .= '  </div>';
             $html_content .= '  <div class="event-extra">';
-            $html_content .= '    <p class="speakers">' . __( 'By: ', 'epfl-memento' ) . $item->speaker . '</p>';
-            $html_content .= '  </div>';
+            $html_content .= '    <p class="speakers">';
 
+            if ($item->speaker !== "") {
+              $html_content .=  __( 'By: ', 'epfl-memento' ) . $item->speaker;
+            }
+
+            $html_content .= '    </p>';
+            $html_content .= '  </div>';
             $html_content .= '</article>';
         }
         $html_content .= '</div>';
@@ -172,7 +177,7 @@ Class MementoRender
             $html_content .= '      <a href="' . esc_attr($item->icalendar_url) . '" class="event-export"><span class="sr-only">Export event</span></a>';
 
             if (!is_null($item->start_time)) {
-              $html_content .= '    <p class="event-times time-start">'.$start_time.'</p>';
+              $html_content .= '    <p class="event-times time-start">' . $start_time.'</p>';
               $html_content .= '    <p class="event-times time-end">' . $end_time . '</p>';
             }
 
@@ -186,7 +191,13 @@ Class MementoRender
             $html_content .= '    <p class="teaser">' . $item->description . '</p>';
             $html_content .= '  </div>';
             $html_content .= '  <div class="event-extra">';
-            $html_content .= '    <p class="speakers">' . __( 'By: ', 'epfl-memento' ) . $item->speaker . '</p>';
+            $html_content .= '    <p class="speakers">';
+
+            if ($item->speaker !== "") {
+              $html_content .=  __( 'By: ', 'epfl-memento' ) . $item->speaker;
+            }
+
+            $html_content .= '    </p>';
             $html_content .= '  </div>';
             $html_content .= '</article>';
         }
@@ -270,7 +281,13 @@ Class MementoRender
             $html_content .= '    <p class="teaser">' . $item->description . '</p>';
             $html_content .= '  </div>';
             $html_content .= '  <div class="event-extra">';
-            $html_content .= '    <p class="speakers">' . __( 'By: ', 'epfl-memento' ) . $item->speaker . '</p>';
+            $html_content .= '    <p class="speakers">';
+
+            if ($item->speaker !== "") {
+              $html_content .=  __( 'By: ', 'epfl-memento' ) . $item->speaker;
+            }
+
+            $html_content .= '    </p>';
             $html_content .= '  </div>';
             $html_content .= '</article>';
         }

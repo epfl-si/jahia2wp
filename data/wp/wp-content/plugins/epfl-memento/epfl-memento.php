@@ -94,7 +94,7 @@ function epfl_memento_build_api_url(
         $lang = 'fr,en';
     } else {
         $lang = 'en,fr';
-    }   
+    }
 
     // define API URL
     $url = MEMENTO_API_URL . $memento_id . '/events/?format=json&lang=' . $lang . '&limit=' . $limit;
