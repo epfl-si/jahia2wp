@@ -932,7 +932,7 @@ class WPExporter:
 
                     # If menu entry is sitemap
                     # OR
-                    # If points to an anchor on a page, URL is not is absolute (starts with 'http').
+                    # If points to an anchor on a page AND URL is not is absolute (starts with 'http').
                     # If URL is not absolute, this is because it points to a vanity URL defined in Jahia
                     # THEN we add WP site base URL
                     if menu_item.points_to_sitemap() or \
@@ -963,10 +963,16 @@ class WPExporter:
                     if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict and \
                             child.contents[lang].wp_id:  # FIXME For unknown reason, wp_id is sometimes None
 
+                        # If we have a menu entry title and it is different as the page title, we take the menu title
+                        if menu_item.txt != "" and menu_item.txt != child.contents[lang].menu_title:
+                            menu_txt = menu_item.txt
+                        else:
+                            menu_txt = child.contents[lang].menu_title
+
                         command = 'menu item add-post {} {} --title="{}" --parent-id={} --porcelain' \
                             .format(menu_name,
                                     child.contents[lang].wp_id,
-                                    child.contents[lang].menu_title.replace('"', '\\"'),
+                                    menu_txt.replace('"', '\\"'),
                                     parent_menu_id)
 
                         menu_id = self.run_wp_cli(command)
