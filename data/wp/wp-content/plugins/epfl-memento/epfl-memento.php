@@ -88,6 +88,14 @@ function epfl_memento_build_api_url(
         }
     }
 
+    // return events in FR if events exist in this language.
+    // otherwise return events in EN (if events exist in this language).
+    if ('fr' === $lang) {
+        $lang = 'fr,en';
+    } else {
+        $lang = 'en,fr';
+    }   
+
     // define API URL
     $url = MEMENTO_API_URL . $memento_id . '/events/?format=json&lang=' . $lang . '&limit=' . $limit;
 
