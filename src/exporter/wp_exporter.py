@@ -964,10 +964,7 @@ class WPExporter:
                             child.contents[lang].wp_id:  # FIXME For unknown reason, wp_id is sometimes None
 
                         # If we have a menu entry title and it is different as the page title, we take the menu title
-                        if menu_item.txt != "" and menu_item.txt != child.contents[lang].menu_title:
-                            menu_txt = menu_item.txt
-                        else:
-                            menu_txt = child.contents[lang].menu_title
+                        menu_txt = menu_item.txt if menu_item.txt != "" else child.contents[lang].menu_title
 
                         command = 'menu item add-post {} {} --title="{}" --parent-id={} --porcelain' \
                             .format(menu_name,
