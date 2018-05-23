@@ -2389,7 +2389,7 @@ ul.bottin {
 /* Colored date box */
   
 .list-events .has-image .event-dates {
-  background: $primary-color;
+  @include color-background;
   position: relative;
 }
 
