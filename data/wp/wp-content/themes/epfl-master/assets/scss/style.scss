@@ -397,12 +397,16 @@ a.a2a_button_{
   font-weight: bold;
 }
 
-/* Colored box */
+/* Colored content */
 
 .colored-box {
   @include colored-text-box;
   @include clearfix;
   margin: 1.5em 0;
+}
+
+.local-color-text {
+  @include color-text;
 }
 
 /* Search form */
