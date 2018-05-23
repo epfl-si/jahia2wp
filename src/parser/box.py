@@ -254,25 +254,59 @@ class Box:
 
         if not multibox:
             content = Utils.get_tag_attribute(element, "text", "jahia:value")
-            linksList = element.getElementsByTagName("linksList")
-            if linksList:
-                content += self._parse_links_to_list(linksList[0])
+            links_list = element.getElementsByTagName("linksList")
+            if links_list:
+                content += self._parse_links_to_list(links_list[0])
         else:
-            # copy textBox reference
-            element_box_text = element
 
-            # Concatenate HTML content of many boxes
-            content = ""
-            comboLists = element.getElementsByTagName("comboList")
-            for element in comboLists:
-                content += Utils.get_tag_attribute(element, "text", "jahia:value")
+            # Looking for sort information. If found, they looks like :
+            # "created;desc;true;true"
+            sort_infos = Utils.get_tag_attribute(element, "comboListList", "jahia:sortHandler")
+
+            # If we have information about sorting, we extract them
+            if sort_infos != "":
+                # It seems that sort field is corresponding to "jcr:<sort_field>" attribute in XML
+                sort_field = sort_infos.split(";")[0]
+                sort_way = sort_infos.split(";")[1]
+            else:
+                # If we don't have information about sorting, we still have to keep boxes order. So index will
+                # be used to add each encountered boxes at an index.
+                box_index = 0
+                # To sort by index to keep the correct order.
+                sort_way = "asc"
+
+            box_list = {}
+
+            combo_list = element.getElementsByTagName("comboList")
+            for combo in combo_list:
+                # We generate box content
+                box_content = Utils.get_tag_attribute(combo, "text", "jahia:value")
                 # linksList contain <link> tags exactly like linksBox, so we can just reuse
                 # the same code used to parse linksBox.
-                content += self._parse_links_to_list(element)
+                box_content += self._parse_links_to_list(combo)
+
+                # if we have sort infos, we have to get field information in XML
+                if sort_infos != "":
+                    box_key = combo.getAttribute('jcr:{}'.format(sort_field))
+                else:
+                    box_key = box_index
+                    box_index += 1
+                # Saving box content with sort field association
+                box_list[box_key] = box_content
+
+            # We sort boxes with correct information. As output, we will have a list of Tuples with dict key as
+            # first element (index 0) and dict value as second element (index 1)
+            box_list = sorted(box_list.items(), reverse=(sort_way == 'desc'))
+
+            # For all boxes content
+            content = ""
+
+            for box_key, box_content in box_list:
+                content += box_content
 
             # scheduler shortcode
-            if Utils.get_tag_attribute(element_box_text, "comboList", "jahia:ruleType") == "START_AND_END_DATE":
-                content = self._set_scheduler_box(element_box_text, content)
+            if Utils.get_tag_attribute(element, "comboList", "jahia:ruleType") == "START_AND_END_DATE":
+                content = self._set_scheduler_box(element, content)
 
         self.content = content
 
