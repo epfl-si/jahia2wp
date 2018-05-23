@@ -240,3 +240,5 @@ WORDPRESS_RESERVED_TERMS = [
     'withoutcomments',
     'year',
 ]
+
+FEATURES_FLAGS_ATTRIBUTES_TO_CLEAN = ['style']
