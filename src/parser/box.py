@@ -429,7 +429,10 @@ class Box:
 
         period = ""
         if 'period' in parameters:
-            period = parameters['period'][0]
+            if parameters['period'][0] == "2":
+                period = "upcoming"
+            else:
+                period = "past"
 
         color = ""
         if 'color' in parameters:
