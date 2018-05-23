@@ -548,7 +548,8 @@ class Box:
 
             self.content = '[{} url="{}" /]'.format(self.shortcode_name, url)
         else:
-            self.content = '[remote_content url="{}"]'.format(url)
+
+            self.content = '[remote_content url="{}"]'.format(Utils.get_redirected_url(url))
 
     def set_box_contact(self, element):
         """set the attributes of a contact box"""
