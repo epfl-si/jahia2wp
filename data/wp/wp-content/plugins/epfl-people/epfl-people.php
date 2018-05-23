@@ -87,8 +87,11 @@ add_action( 'init', function() {
 
     if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
 
-        $documentation_url = "https://people.epfl.ch";
-
+        if (get_locale() == 'fr_FR') {
+            $documentation_url = "https://help-wordpress.epfl.ch/autres-types-de-contenus/people/";
+        } else {
+            $documentation_url = "https://help-wordpress.epfl.ch/en/other-types-of-content/list-of-people/";
+        }
         $url_description = sprintf(
             esc_html__('How to get a people URL ? %sRead this documentation%s', 'epfl-people'),
             '<a target="_blank" href="' . $documentation_url . '">', '</a>'
