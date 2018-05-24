@@ -973,7 +973,6 @@ class Ventilation:
 
     def migrate_sidebars(self, site, dst_sidebars_url):
         # Find the widgets page in the CSV
-        csv_w = self.widgets[site]
         with open(self.widgets[site], "r", encoding='utf8') as f:
             sidebars_content = yaml.load(f)
         for side_id, widgets in sidebars_content.items():
