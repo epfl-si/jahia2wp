@@ -475,6 +475,23 @@ class WPExporter:
                         tag_attribute="href"
                     )
 
+            # Step 3 - Fix internal absolute link
+            tags = soup.find_all('a')
+
+            for tag in tags:
+                link = tag.get('href')
+
+                if not link:
+                    continue
+                # If it's a local absolute link, we have to rebuild it.
+                # FIXME: we may have to do the same for sidebar content
+                if link.startswith("http://" + self.site.server_name) or \
+                        link.startswith("https://" + self.site.server_name):
+
+                    relative_link = link[link.index(self.site.server_name) + len(self.site.server_name):]
+
+                    tag['href'] = "{}{}".format(self.wp_generator.wp_site.url, relative_link)
+
             # update the page
             wp_id = wp_page["id"]
 
@@ -755,6 +772,9 @@ class WPExporter:
         """
         Update all pages to define the pages hierarchy
         """
+
+        logging.info("Updating parent IDs...")
+
         for page in self.site.pages_by_pid.values():
             for lang, page_content in page.contents.items():
 
@@ -769,6 +789,8 @@ class WPExporter:
                     self.wp.post_pages(page_id=page.contents[lang].wp_id, data=wp_page_info)
 
     def create_sitemaps(self):
+
+        logging.info("Creating sitemap...")
 
         info_page = OrderedDict()
 
