@@ -18,7 +18,7 @@ do
 		ids=$(wp post list --post_type='page' --format=ids --path="${path}")
 		if [ -n "$ids" ]; then
 			echo "ids for $path: ${ids[@]}";
-			wp post delete --force --path=$path $ids
+			wp post delete --force --defer-term-counting --path=$path $ids
 		else
 			echo "No posts for $path"
 		fi
@@ -26,7 +26,7 @@ do
 		media=$(wp post list --post_type='attachment' --format=ids --path="${path}")
 		if [ -n "$media" ]; then
 			echo "Deleting media / attachments: $media";
-			wp post delete $media --path="${path}";
+			wp post delete $media --force --defer-term-counting --path="${path}";
 		fi
 		# Delete any remaining menu entries
 		menu_list=$(wp menu list --fields=term_id --format=ids --path="${path}")
