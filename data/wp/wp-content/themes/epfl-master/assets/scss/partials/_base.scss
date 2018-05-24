@@ -129,7 +129,8 @@ li,
 td,
 th,
 dt,
-dd {
+dd,
+address {
   font-size: .8125em;
   font-size: .8125rem /* 13px */;
   line-height: 1.3em;
@@ -141,12 +142,14 @@ th p,
 dt p,
 dd p,
 blockquote p,
+address p,
 
 li li,
 td li
 td li,
 dt li,
-dd li {
+dd li,
+address li {
   font-size: 1em;
 }
 

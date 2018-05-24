@@ -301,9 +301,13 @@ class Box:
             template = ""
             logging.warning("News Shortcode - template is missing")
 
-        stickers = "no"
+        # in actu.epfl.ch if sticker parameter exists, sticker is not displayed
+        # (whatever the value of sticker parameter)
+        # if sticker parameter does not exist, sticker is displayed
         if 'sticker' in parameters:
-            stickers = parameters['sticker'][0]
+            stickers = "no"
+        else:
+            stickers = "yes"
 
         category = ""
         if 'category' in parameters:
@@ -425,7 +429,10 @@ class Box:
 
         period = ""
         if 'period' in parameters:
-            period = parameters['period'][0]
+            if parameters['period'][0] == "2":
+                period = "upcoming"
+            else:
+                period = "past"
 
         color = ""
         if 'color' in parameters:
@@ -544,7 +551,8 @@ class Box:
 
             self.content = '[{} url="{}" /]'.format(self.shortcode_name, url)
         else:
-            self.content = '[remote_content url="{}"]'.format(url)
+
+            self.content = '[remote_content url="{}"]'.format(Utils.get_redirected_url(url))
 
     def set_box_contact(self, element):
         """set the attributes of a contact box"""
