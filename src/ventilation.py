@@ -14,6 +14,7 @@ import shutil
 from settings import JAHIA2WP_VENT_TMP
 from utils import Utils
 from wordpress import WPSite, WPConfig
+import yaml
 
 """
     It takes the mapping rules in a CSV, with 2 columns each: source => destination,
@@ -56,6 +57,7 @@ class Ventilation:
     rulesets = {}
     files = {}
     medias = {}
+    widgets = {}
     site_paths = {}
     dest_sites = {}
 
@@ -257,20 +259,7 @@ class Ventilation:
                 logging.error('No pages for site {}, removing it from rulesets..'.format(site))
                 del self.rulesets[site]
                 continue
-            with open(csv_f, 'w', encoding='utf8') as f:
-                header_cols = list(pages[0].keys())
-                print(header_cols)
-                writer = csv.DictWriter(f, fieldnames=header_cols)
-                writer.writeheader()
-                for p in pages:
-                    writer.writerow(p)
-            # Backup file
-            shutil.copyfile(csv_f, csv_f + '.bak')
-            # Append site path at the end of the CSV as a comment, useful for later processing.
-            Utils.run_command('echo "#{}" >> {}'.format(wp_conf.wp_site.path, csv_f))
             # Convert the GUIDs to relative URLs to avoid rule replacement by URL
-            pages = Utils.csv_filepath_to_dict(csv_f)
-            # Write back the CSV file
             with open(csv_f, 'w', encoding='utf8') as f:
                 site_url = urlparse(site)
                 host = site_url._replace(path='').geturl()
@@ -294,6 +283,25 @@ class Ventilation:
                     # Fix the rel links without domain / path info.
                     p['post_content'] = regex.sub(r'href="{}/\g<1>/"'.format(site_path), p['post_content'])
                     writer.writerow(p)
+            # Backup file
+            shutil.copyfile(csv_f, csv_f + '.bak')
+
+            # Dump all the widgets for the site in json format
+            sidebars_content = {}
+            wid = JAHIA2WP_VENT_TMP + '/j2wp_' + site.split('/').pop() + '_widgets.yaml'
+            # List the registered sidebars in the source site
+            cmd = 'wp sidebar list --format=ids --path={}'.format(wp_conf.wp_site.path)
+            sidebars = Utils.run_command(cmd, 'utf8').split(' ')
+            for side_id in sidebars:
+                # Get the sidebar entries if any
+                cmd = 'wp widget list {} --format=json --path={}'.format(side_id, wp_conf.wp_site.path)
+                side_entries = json.loads(Utils.run_command(cmd, 'utf8'))
+                sidebars_content[side_id] = side_entries
+            # Save the sidebars in YAML format to have *CLEAN URLs* (i.e. not backslash escaped) for URL replacements
+            with open(wid, 'w', encoding="utf8") as f:
+                f.write(yaml.dump(sidebars_content))
+            self.widgets[site] = wid
+
             # Dump media / attachments
             fields = 'ID,post_title,post_name,post_parent,post_status,guid'
             params = '--post_type=attachment --nopaging --order=asc --fields={} --format=csv'
@@ -315,6 +323,7 @@ class Ventilation:
                     writer.writerow(m)
             # Backup file
             shutil.copyfile(csv_m, csv_m + '.bak')
+
             # Add an entry to the site paths dict
             self.site_paths[site] = wp_conf.wp_site.path
 
@@ -574,6 +583,7 @@ class Ventilation:
                 # Target CSV file where to search matches to the rules of the current site.
                 csv_f = self.files[site2]
                 csv_m = self.medias[site2]
+                csv_w = self.widgets[site2]
                 # Ruleset for the site, IMPORTANT: the order has to be specific to generic
                 ruleset = self.rulesets[site]
                 if site2 not in stats[site]:
@@ -591,15 +601,15 @@ class Ventilation:
                         if prot + '://' not in _source:
                             _source = prot + '://' + _source.split('//').pop()
                         cmd = "awk 'END{{print t > \"/dev/stderr\"}}"
-                        cmd_m = cmd = cmd + " {{t+=gsub(\"{0}\",\"{1}\")}}1' {2} > {2}.1 && mv {2}.1 {2}"
+                        cmd_m = cmd_w = cmd = cmd + " {{t+=gsub(\"{0}\",\"{1}\")}}1' {2} > {2}.1 && mv {2}.1 {2}"
                         cmd = cmd.format(_source, dest, csv_f)
                         cmd_m = cmd_m.format(_source, dest, csv_m)
-                        logging.debug(cmd, cmd_m)
+                        cmd_w = cmd_w.format(_source, dest, csv_w)
+                        logging.debug(cmd, cmd_m, cmd_w)
                         # AWK is counting the replacement occurrences in the stderr.
-                        proc = subprocess.run(
-                            cmd, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
-                        subprocess.run(
-                            cmd_m, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
+                        proc = subprocess.run(cmd, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
+                        subprocess.run(cmd_m, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
+                        subprocess.run(cmd_w, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
                         # This has to be a number normally, but it can also contain return errors, to be analized
                         reps = proc.stderr.strip()
                         matches[prot] = reps
@@ -620,6 +630,7 @@ class Ventilation:
             if site not in stats:
                 stats[site] = []
             csv_f = self.files[site]
+            csv_w = self.widgets[site]
             pages = Utils.csv_filepath_to_dict(csv_f)
             """ ASSUMPTION: The GUID column is set manually to the last column in the CSV header
             This is useful to replace exactly that column.
@@ -650,14 +661,16 @@ class Ventilation:
                     new_guid = os.path.join(post_path, post_name + '/')
                     # Replace first the GUID column and then the href occurrences in the text
                     cmd = "awk 'END{{print t > \"/dev/stderr\"}}"
-                    cmd_body = cmd = cmd + " {{t+=gsub(\"{0}\",\"{1}\")}}1' {2} > {2}.1 && mv {2}.1 {2}"
+                    cmd_body = cmd_widget = cmd = cmd + " {{t+=gsub(\"{0}\",\"{1}\")}}1' {2} > {2}.1 && mv {2}.1 {2}"
                     # Replace the GUID column, use the same quotes to mark the boundaries.
                     cmd = cmd.format(',' + guid, ',' + new_guid, csv_f)
                     # Replace the HTML attrs (e.g. href="") containing the GUID
                     cmd_body = cmd_body.format('\\"' + guid + '\\"', '\\"' + new_guid + '\\"', csv_f)
                     logging.debug(cmd_body)
+                    cmd_widget = cmd_widget.format('\\"' + guid + '\\"', '\\"' + new_guid + '\\"', csv_w)
                     # AWK is counting the replacement occurrences in the stderr.
                     subprocess.run(cmd, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
+                    subprocess.run(cmd_widget, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
                     proc_body = subprocess.run(cmd_body, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
                     # This has to be a number normally, but it can also contain return errors, to be analized
                     reps = proc_body.stderr.strip()
@@ -687,6 +700,7 @@ class Ventilation:
             lngs = [l[:2] for l in lngs.split("\n")]
             # Get all the pre-replaced pages from the CSV
             pages = Utils.csv_filepath_to_dict(csv_f)
+
             prev_max_match = None
             for pi in range(0, len(pages), len(lngs)):
                 # All pages in all langs
@@ -958,32 +972,24 @@ class Ventilation:
         return media_refs
 
     def migrate_sidebars(self, site, dst_sidebars_url):
-        # List the registered sidebars in the source site
-        site_path = self.site_paths[site]
-        cmd = 'wp sidebar list --format=ids --path={}'.format(site_path)
-        sidebars = Utils.run_command(cmd, 'utf8').split(' ')
-        widget_pos = 1
-        widget_pos_lang = {}
-        for side_id in sidebars:
-            # Get the sidebar entries if any
-            cmd = 'wp widget list {} --format=json --path={}'.format(side_id, site_path)
-            side_entries = json.loads(Utils.run_command(cmd, 'utf8'))
-            for e in side_entries:
-                # Set the entry at the destination sidebar
+        # Find the widgets page in the CSV
+        csv_w = self.widgets[site]
+        with open(self.widgets[site], "r", encoding='utf8') as f:
+            sidebars_content = yaml.load(f)
+        for side_id, widgets in sidebars_content.items():
+            for w in widgets:
                 # IMPORTANT: The destination sidebars are created while the site is generated.
                 # Therefore no need to create them.
                 cmd = 'wp widget add {} ' + side_id + ' {} --title="{}" --path={} --text="{}"'
                 dst = self.dest_sites[dst_sidebars_url]
-                o = e['options']
+                o = w['options']
                 # Escape html quotes
                 text = o['text'].replace('"', '\\"')
-                cmd = cmd.format(e['name'], e['position'], o['title'], dst, text)
-                print('sidebar cmd: ' + cmd)
+                cmd = cmd.format(w['name'], w['position'], o['title'] + '--' + o['pll_lang'], dst, text)
+                # print('sidebar cmd: ' + cmd)
                 sidebar_out = Utils.run_command(cmd, 'utf8')
                 logging.info('sidebar {} added: {}'.format(side_id, sidebar_out))
-                # Update dict containing widget pos => lang
-                widget_pos_lang[str(widget_pos)] = o['pll_lang']
-                widget_pos += 1
+
         # Set manually the Polylang lang into the widget text since the pll_lang option does not
         # exist in the wp widget add command.
         # Get all the widgets for the site in json format
@@ -991,9 +997,12 @@ class Ventilation:
         for widget_idx in widgets:
             # If it is a widget (can be just an integer)
             if isinstance(widgets[widget_idx], dict):
-                widgets[widget_idx]['pll_lang'] = widget_pos_lang[widget_idx]
+                title_comp = widgets[widget_idx]['title'].split('--')
+                if len(title_comp) == 2:
+                    widgets[widget_idx]['pll_lang'] = title_comp.pop()
+                    widgets[widget_idx]['title'] = title_comp.pop()
         # Write back the widget_text option
-        widget_f = "/tmp/.tmp_{}_widgets.json".format(os.path.basename(site))
+        widget_f = "/tmp/.tmp_{}_widget_text.json".format(os.path.basename(site))
         with open(widget_f, "w") as f:
             f.write(json.dumps(widgets))
         Utils.run_command('wp option update widget_text --format=json --path={} < {}'.format(dst, widget_f))
