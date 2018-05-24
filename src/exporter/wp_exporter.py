@@ -665,10 +665,10 @@ class WPExporter:
 
                         if box.title:
                             if WPUtils.is_html(box.title):
-                                contents[lang] += '<h3>{0}</h3>'.format(box.title)
+                                contents[lang] += '<h3>{}</h3>'.format(box.title)
                             else:
                                 slug = slugify(box.title)
-                                contents[lang] += '<h3 id="{0}">{0}</h3>'.format(slug, box.title)
+                                contents[lang] += '<h3 id="{}">{}</h3>'.format(slug, box.title)
 
                         # If cleaning required
                         if features_flags:
