@@ -775,11 +775,7 @@ class Site:
             # absolute links rewritten as relative links
             elif link.startswith("http://" + self.server_name) or \
                     link.startswith("https://" + self.server_name):
-
-                new_link = link[link.index(self.server_name) + len(self.server_name):]
-
-                tag[attribute] = self.full_path(new_link)
-
+                # Link will be rebuild in exporter
                 self.absolute_links += 1
             # file links
             elif link.startswith("###file") or link.startswith('/repository'):
