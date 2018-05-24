@@ -37,6 +37,8 @@ plugins:
     config: !include remote-content-shortcode/v1/config-plugin.yml
   - name: shortcode-ui
     config: !include shortcode-ui/v1/config-plugin.yml
+  - name: epfl-scheduler
+    config: !include epfl-scheduler/v1/config-plugin.yml
   - name: shortcode-ui-richtext
     config: !include shortcode-ui-richtext/v1/config-plugin.yml
   - name: epfl-news
@@ -51,3 +53,7 @@ plugins:
     config: !include EPFL-Snippet/v1/config-plugin.yml
   - name: epfl-toggle
     config: !include epfl-toggle/v1/config-plugin.yml
+  - name: epfl-infoscience
+    config: !include epfl-infoscience/v1/config-plugin.yml
+  - name: epfl-xml
+    config: !include epfl-xml/v1/config-plugin.yml
