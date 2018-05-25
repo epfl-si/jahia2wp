@@ -476,6 +476,7 @@ class Ventilation:
             filtered_pages = []
             # Get index-html parent page (if present)
             page_index = ([p['ID'] for p in pages if p['post_name'] == 'index-html'] or ['']).pop()
+            logging.debug('page_index ID: {}, for {}'.format(page_index, site))
             for pi in range(0, len(pages), len(lngs)):
                 # All pages in all langs
                 _pages = pages[pi:pi+len(lngs)]
@@ -706,7 +707,7 @@ class Ventilation:
                 # All pages in all langs
                 _pages = pages[pi:pi+len(lngs)]
 
-                # ATTENTION: Selecting the page in EN, if no then the language at pos. 0 will be used (e.g. French)
+                # ATTENTION: Selecting the page in EN, if not then the language at pos. 0 will be used (e.g. French)
                 p_en = _pages[lngs.index('en')] if 'en' in lngs else _pages[0]
                 logging.info("[en or default] Page {}/{} {}".format(site, p_en['post_name'], p_en['url']))
 
@@ -899,13 +900,28 @@ class Ventilation:
                         idx_post_name = p_url.rfind(p_url.strip('/').split('/').pop())
                         parent_url = p_url[:idx_post_name]
                         # print(parent_url, p['url'], table_ids_url, parent_url in table_ids_url)
-                        if parent_url in table_ids_url and parent_url.strip('/') != site_url:
+                        if parent_url.strip('/') == site_url:
+                            # Set the page at the root: post_parent 0
+                            msg = 'Changing parent to the root=0 (old parent [{}]) at {} for post [{}] {}/{}'
+                            logging.debug(msg.format(p['post_parent'], site_url, p['ID'], src_site, p['post_name']))
+                            p['post_parent'] = 0
+                        elif parent_url in table_ids_url and parent_url.strip('/') != site_url:
                             # Update the parent ID based on parent URL
                             p['post_parent'] = table_ids_url[parent_url][lngs.index(lng)]
-                        # elif site_url in table_ids[src_site] and p['post_parent'] in table_ids[src_site][site_url]:
-                        #     p['post_parent'] = table_ids[src_site][site_url][p['post_parent']]
+                            msg = 'Setting parent for page {} to {} [{}]'
+                            logging.info(msg.format(p['post_name'], parent_url, p['post_parent']))
+                        elif site_url in table_ids[src_site] and p['post_parent'] in table_ids[src_site][site_url]:
+                            p['post_parent'] = table_ids[src_site][site_url][p['post_parent']]
+                            msg = 'Parent for post {}/{} not derived from URL, keeping same parent with new ID {}'
+                            logging.info(msg.format(src_site, p['post_name'], p['post_parent']))
+                        elif p['post_parent'] == '0':
+                            # Nothing to do, page already at the root
+                            msg = 'Page {}/{} already at the root of the site, no need to change parent'
+                            logging.debug(msg.format(src_site, p['post_name']))
                         else:
                             # Set the page at the root: post_parent 0
+                            msg = 'Could not match parent [{}] at {} for post [{}] {}/{}, setting to root=0'
+                            logging.warning(msg.format(p['post_parent'], site_url, p['ID'], src_site, p['post_name']))
                             p['post_parent'] = 0
 
                     # FIND all the media files in the page content
@@ -941,7 +957,8 @@ class Ventilation:
                     if 'Error' in ids:
                         logging.error('Failed to insert pages. Msg: {}. cmd: {}'.format(ids, cmd))
                     else:
-                        logging.info('new IDs {} in lang order {}'.format(ids, lngs))
+                        p_info = [src_site + '/' + pages[l]['post_name'] for l in lngs]
+                        logging.info('new IDs {} for {} for {}'.format(ids, lngs, p_info))
                         # Keep the new IDs in the URL => IDs dictionary
                         table_ids_url[p_url] = ids
                         # Keep the new IDs also in the table_ids: Site => Dest => IDs
