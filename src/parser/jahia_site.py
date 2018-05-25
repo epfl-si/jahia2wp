@@ -249,24 +249,24 @@ class Site:
                         if txt == '':
                             continue
                         hidden = jahia_type.getAttribute("jahia:hideFromNavigationMenu") != ""
-                        target = "sitemap" if jahia_type.getAttribute("jahia:template") == "sitemap" \
+                        points_to = "sitemap" if jahia_type.getAttribute("jahia:template") == "sitemap" \
                             else jahia_type.getAttribute("jcr:uuid")
                     # If URL
                     elif jahia_type.nodeName == "jahia:url":
                         txt = jahia_type.getAttribute("jahia:title")
-                        target = jahia_type.getAttribute("jahia:value")
+                        points_to = jahia_type.getAttribute("jahia:value")
 
                         self.num_url_menu += 1
                     # If link to another page in the menu
                     elif jahia_type.nodeName == "jahia:link":
                         txt = jahia_type.getAttribute("jahia:title")
-                        target = jahia_type.getAttribute("jahia:reference")
+                        points_to = jahia_type.getAttribute("jahia:reference")
 
                         self.num_link_menu += 1
                     else:
                         continue
 
-                    menu_item = MenuItem(txt, target, hidden)
+                    menu_item = MenuItem(txt, points_to, hidden)
 
                     # If we are parsing root menu entries
                     if parent_menu is None:
