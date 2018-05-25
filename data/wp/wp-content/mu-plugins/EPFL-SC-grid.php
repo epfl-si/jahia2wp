@@ -22,7 +22,7 @@ function epfl_gridboxelement_process_shortcode($attributes, $content = null)
     ), $attributes));
 
     return '<div class="grid '.$layout.'">'.
-            '<div class="bg" style="background-image: url('.$image.')"><img src="' .$image. '"></div>'.
+            '<div class="bg" style="background-image: url('.$image.')"></div>'.
             '<h3><a href="'.$link.'">'.$title.'</a></h3>'.
             '</div>';
 }
