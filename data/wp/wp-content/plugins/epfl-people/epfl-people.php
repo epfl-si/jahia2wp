@@ -75,6 +75,47 @@ function epfl_people_process_shortcode( $attributes, $content = null )
     }
 }
 
-add_shortcode('epfl_people', 'epfl_people_process_shortcode');
+// Load .mo file for translation
+function epfl_people_load_plugin_textdomain() {
+    load_plugin_textdomain( 'epfl-people', FALSE, basename( plugin_dir_path( __FILE__ )) . '/languages/');
+}
+add_action( 'plugins_loaded', 'epfl_people_load_plugin_textdomain' );
+
+add_action( 'init', function() {
+
+    add_shortcode('epfl_people', 'epfl_people_process_shortcode');
+
+    if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
+
+        if (get_locale() == 'fr_FR') {
+            $documentation_url = "https://help-wordpress.epfl.ch/autres-types-de-contenus/people/";
+        } else {
+            $documentation_url = "https://help-wordpress.epfl.ch/en/other-types-of-content/list-of-people/";
+        }
+        $url_description = sprintf(
+            esc_html__('How to get a people URL ? %sRead this documentation%s', 'epfl-people'),
+            '<a target="_blank" href="' . $documentation_url . '">', '</a>'
+        );
+
+        shortcode_ui_register_for_shortcode(
+
+            'epfl_people',
+
+            array(
+                'label' => __('Add People shortcode', 'epfl-people'),
+                'listItemImage' => '',
+                'attrs'         => array(
+                    array(
+                        'label'         => '<h3>' . esc_html__('Enter people URL', 'epfl-people') . '</h3>',
+                        'attr'          => 'url',
+                        'type'          => 'text',
+                        'description'   => $url_description,
+                    ),
+                ),
+                'post_type'     => array( 'post', 'page' ),
+            )
+        );
+    endif;
+});
 
 ?>
