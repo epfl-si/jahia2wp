@@ -636,6 +636,15 @@ class Site:
             # save the new banner content
             banner.content = str(soup.body)
 
+    def is_file_link(self, link):
+        """
+        Tells if given link is a pointing to a file
+        :param link:
+        :return:
+        """
+        return link.startswith("###file") or link.startswith('/repository') or \
+            (link.startswith('../') and '/files/' in link)
+
     def fix_file_links_in_tag(self, soup, tag_name, attribute):
         """
         Fix only links to files in given BeautifulSoup object.
@@ -661,10 +670,10 @@ class Site:
                 if link.startswith(link_type):
                     return
 
-            if link.startswith("###file") or link.startswith('/repository'):
+            if self.is_file_link(link):
 
                 if "/files/" in link:
-                    new_link = link[link.index('/files/'):]
+                    new_link = link[link.rindex('/files/'):]
 
                     # If we have a link like this :
                     # ?uuid=default:a6d36162-07da-4036-9b58-a32e416f7769
@@ -782,7 +791,7 @@ class Site:
 
                 self.absolute_links += 1
             # file links
-            elif link.startswith("###file") or link.startswith('/repository'):
+            elif self.is_file_link(link):
 
                 self.fix_file_links_in_tag(soup, tag_name, attribute)
 
