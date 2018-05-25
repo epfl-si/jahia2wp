@@ -2242,7 +2242,7 @@ class Data:
                                                 'path': '/page-41472-fr.html',
                                                 'sidebar__boxes': [{'content__start': '<div class="migration_info">  <div class="header">Migration '
                                                                                       'info</div>  <div class="content">   Page "Métadonnées" has '
-                                                                                      'been imported from <a href="/pa',
+                                                                                      'been imported from <a href="http://atelierweb.epfl.ch/pa',
                                                                     'title': '',
                                                                     'type': 'text'}],
                                                 'menu_title': 'Métadonnées',
@@ -3715,7 +3715,7 @@ class Data:
                                                 'path': '/page-68062-fr.html',
                                                 'sidebar__boxes': [{'content__start': '<div class="migration_info">  <div class="header">Migration '
                                                                                       'info</div>  <div class="content">   Page "Statistiques" has '
-                                                                                      'been imported from <a href="/p',
+                                                                                      'been imported from <a href="http://atelierweb.epfl.ch/p',
                                                                     'title': '',
                                                                     'type': 'text'}],
                                                 'menu_title': 'Statistiques Google',
