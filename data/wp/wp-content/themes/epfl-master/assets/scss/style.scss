@@ -2566,6 +2566,36 @@ ul.bottin {
   }
 }
 
+/* --- GridBox --- */
+
+.gridBox  .grid {
+  margin: 0 0 4px;
+  
+  .bg {
+    background-size: cover;
+    
+    img {
+      @include visuallyhidden;
+    }
+  }
+  
+  h3 {
+    padding: 0;
+  }
+  
+  h3 a {
+    @include color-link;
+    border-bottom: 0;
+  }
+  
+  &.large {
+    
+    h3 {
+      height: 54px;
+    }
+  }
+}
+
 
 /*  -----------------------------------------------------------
 
