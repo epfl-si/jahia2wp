@@ -94,7 +94,6 @@ from ventilation import Ventilation
 from fan.fan_global_sitemap import FanGlobalSitemap
 
 
-
 def _check_site(wp_env, wp_url, **kwargs):
     """ Helper function to validate wp site given arguments """
     wp_site = WPSite(wp_env, wp_url, wp_site_title=kwargs.get('wp_title'))
