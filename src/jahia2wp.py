@@ -38,6 +38,7 @@ Usage:
   jahia2wp.py backup-many           <csv_file>                      [--debug | --quiet]
   jahia2wp.py rotate-backup         <csv_file>          [--dry-run] [--debug | --quiet]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
+  jahia2wp.py fan-global-sitemap    <csv_file> <wp_path>            [--debug | --quiet]
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
@@ -48,7 +49,7 @@ Usage:
     [--force] [--plugin=<PLUGIN_NAME>]
   jahia2wp.py global-report <csv_file> [--output-dir=<OUTPUT_DIR>] [--use-cache] [--debug | --quiet]
   jahia2wp.py migrate-urls <csv_file> <wp_env>                    [--debug | --quiet]
-    --root_wp_dest=</srv/../epfl> [--strict] [--htaccess] [--context=<intra|inter|full>]
+    --root_wp_dest=</srv/../epfl> [--greedy] [--htaccess] [--context=<intra|inter|full>]
 
 Options:
   -h --help                 Show this screen.
@@ -90,6 +91,7 @@ from veritas.casters import cast_boolean
 from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
 from ventilation import Ventilation
+from fan.fan_global_sitemap import FanGlobalSitemap
 
 
 def _check_site(wp_env, wp_url, **kwargs):
@@ -548,6 +550,29 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     return wp_exporter
 
 
+@dispatch.on('fan-global-sitemap')
+def fan_global_sitemap(csv_file, wp_path, **kwargs):
+    """
+    Create a global sitemap at the given wp_path.
+
+    Prerequisites:
+        - You have installed WordPress at the given wp_path WITHOUT polylang (comment
+          the polylang plugin in config-lot1.yml). Note: it's not enough to disable
+          polylang after installation
+
+    After having launched this script:
+        - Install polylang
+        - Go to "Languages" and :
+          - Add the English language
+          - click on the link "You can set them all to the default language"
+        - In "Appearance" > "Menus" set the "Main" menu to "Primary menu English" and "footer_nav"
+          to "Footer menu English"
+    """
+
+    generator = FanGlobalSitemap(csv_file, wp_path)
+    generator.create_website()
+
+
 @dispatch.on('export-many')
 def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None,
                 keep_extracted_files=False, **kwargs):
@@ -901,13 +926,13 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
 
 
 @dispatch.on('migrate-urls')
-def url_mapping(csv_file, wp_env, strict=False, root_wp_dest=None, htaccess=False, context='intra', **kwargs):
+def url_mapping(csv_file, wp_env, greedy=False, root_wp_dest=None, htaccess=False, context='intra', **kwargs):
     """
     :param csv_file: CSV containing the URL mapping rules for source and destination.
     :param context: intra, inter, full. Replace the occurrences at intra, inter or both.
     """
     logging.info('Starting ventilation process...')
-    vent = Ventilation(wp_env, csv_file, strict, root_wp_dest, htaccess, context)
+    vent = Ventilation(wp_env, csv_file, greedy, root_wp_dest, htaccess, context)
     vent.run_all()
 
 

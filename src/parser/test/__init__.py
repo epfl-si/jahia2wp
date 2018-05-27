@@ -2242,7 +2242,7 @@ class Data:
                                                 'path': '/page-41472-fr.html',
                                                 'sidebar__boxes': [{'content__start': '<div class="migration_info">  <div class="header">Migration '
                                                                                       'info</div>  <div class="content">   Page "Métadonnées" has '
-                                                                                      'been imported from <a href="/pa',
+                                                                                      'been imported from <a href="http://atelierweb.epfl.ch/pa',
                                                                     'title': '',
                                                                     'type': 'text'}],
                                                 'menu_title': 'Métadonnées',
@@ -3715,7 +3715,7 @@ class Data:
                                                 'path': '/page-68062-fr.html',
                                                 'sidebar__boxes': [{'content__start': '<div class="migration_info">  <div class="header">Migration '
                                                                                       'info</div>  <div class="content">   Page "Statistiques" has '
-                                                                                      'been imported from <a href="/p',
+                                                                                      'been imported from <a href="http://atelierweb.epfl.ch/p',
                                                                     'title': '',
                                                                     'type': 'text'}],
                                                 'menu_title': 'Statistiques Google',
@@ -4703,12 +4703,12 @@ class Data:
                            'broken_links': 1,
                            'data_links': 0,
                            'external_links': 384,
-                           'file_links': 347,
+                           'file_links': 389,
                            'internal_links': 113,
                            'mailto_links': 162,
                            'num_files': 434,
                            'num_pages': 146,
-                           'unknown_links': 54},
+                           'unknown_links': 12},
                 'server_name': 'atelierweb.epfl.ch',
                 'theme': {'en': 'epfl', 'fr': 'epfl'},
                 'title': {'en': 'WEB at EPFL', 'fr': 'ATELIER WEB'}}}

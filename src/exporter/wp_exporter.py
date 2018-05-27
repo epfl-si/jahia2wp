@@ -475,6 +475,23 @@ class WPExporter:
                         tag_attribute="href"
                     )
 
+            # Step 3 - Fix internal absolute link
+            tags = soup.find_all('a')
+
+            for tag in tags:
+                link = tag.get('href')
+
+                if not link:
+                    continue
+                # If it's a local absolute link, we have to rebuild it.
+                # FIXME: we may have to do the same for sidebar content
+                if link.startswith("http://" + self.site.server_name) or \
+                        link.startswith("https://" + self.site.server_name):
+
+                    relative_link = link[link.index(self.site.server_name) + len(self.site.server_name):]
+
+                    tag['href'] = "{}{}".format(self.wp_generator.wp_site.url, relative_link)
+
             # update the page
             wp_id = wp_page["id"]
 
@@ -755,6 +772,9 @@ class WPExporter:
         """
         Update all pages to define the pages hierarchy
         """
+
+        logging.info("Updating parent IDs...")
+
         for page in self.site.pages_by_pid.values():
             for lang, page_content in page.contents.items():
 
@@ -769,6 +789,8 @@ class WPExporter:
                     self.wp.post_pages(page_id=page.contents[lang].wp_id, data=wp_page_info)
 
     def create_sitemaps(self):
+
+        logging.info("Creating sitemap...")
 
         info_page = OrderedDict()
 
@@ -835,7 +857,8 @@ class WPExporter:
                     if box.is_empty():
                         continue
 
-                    if box.type in [Box.TYPE_TOGGLE, Box.TYPE_TEXT, Box.TYPE_CONTACT, Box.TYPE_LINKS, Box.TYPE_FILES]:
+                    if box.type in [Box.TYPE_TOGGLE, Box.TYPE_TEXT, Box.TYPE_CONTACT, Box.TYPE_LINKS, Box.TYPE_FILES,
+                                    Box.TYPE_INCLUDE, Box.TYPE_MEMENTO, Box.TYPE_ACTU]:
                         widget_type = 'custom_html'
                         title = prepare_html(box.title)
                         content = prepare_html(box.content)
@@ -960,7 +983,7 @@ class WPExporter:
 
                     # If menu entry is sitemap
                     # OR
-                    # If points to an anchor on a page, URL is not is absolute (starts with 'http').
+                    # If points to an anchor on a page AND URL is not is absolute (starts with 'http').
                     # If URL is not absolute, this is because it points to a vanity URL defined in Jahia
                     # THEN we add WP site base URL
                     if menu_item.points_to_sitemap() or \
@@ -991,10 +1014,13 @@ class WPExporter:
                     if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict and \
                             child.contents[lang].wp_id:  # FIXME For unknown reason, wp_id is sometimes None
 
+                        # If we have a menu entry title and it is different as the page title, we take the menu title
+                        menu_txt = menu_item.txt if menu_item.txt != "" else child.contents[lang].menu_title
+
                         command = 'menu item add-post {} {} --title="{}" --parent-id={} --porcelain' \
                             .format(menu_name,
                                     child.contents[lang].wp_id,
-                                    child.contents[lang].menu_title.replace('"', '\\"'),
+                                    menu_txt.replace('"', '\\"'),
                                     parent_menu_id)
 
                         menu_id = self.run_wp_cli(command)
