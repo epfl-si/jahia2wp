@@ -39,43 +39,37 @@ function epfl_snippets_process_shortcode( $attributes, string $content = null ):
     $big_image   = sanitize_text_field($atts['big_image']);
     $enable_zoom = sanitize_text_field($atts['enable_zoom']);
 
-    $html  = '<div class="snippetsBox">';
+    $image_url = wp_get_attachment_url( $image );
 
     $has_url = filter_var($url, FILTER_VALIDATE_URL);
 
+    $html  = '<div class="snippetsBox">';
+    $html .= '  <div class="snippets-image"><a href="#"><img src="' . esc_attr($image_url) . '"/></a></div>';
+    $html .= '  <div class="snippets-content">';
+    $html .= '      <div class="snippets-title"><h2>';
+
     if ( $has_url ) {
-      $html .= '<a href="' . $url . '">';
+        $html .= '          <a href="#">';
     }
+
+    $html .= $title;
+
+    if ( $has_url ) {
+        $html .= '          </a>';
+    }
+
+    $html .= '      </h2></div>';
 
     // note: we don't use esc_attr() here because the user is
-    // allowed to put HTML, same for subtitle and description
-    $html .= '<div class="snippets-title">' . $title . '</div>';
-
-    if ( $has_url ) {
-      $html .= '</a>';
-    }
-
-    $html .= '<div class="snippets-subtitle">' . $subtitle . '</div>';
-    $html .= '<div class="snippets-description">' . $content . '</div>';
-
-    if ( $has_url ) {
-      $html .= '<a href="' . $url . '">';
-    }
-
-    $html .= '<div class="snippets-image"><img src="' . esc_attr($image) . '"/></div>';
-
-    if ( $has_url ) {
-      $html .= '</a>';
-    }
-
+    // allowed to put HTML
+    $html .= '      <div class="snippets-subtitle"><p>' . $subtitle . '</p></div>';
+    $html .= '      <div class="snippets-description"><p>' . $content . '</p></div>';
+    $html .= '  </div>';
     $html .= '</div>';
 
     return $html;
 
 }
-
-
-
 
 // load .mo file for translation
 function epfl_snippet_load_plugin_textdomain() {
