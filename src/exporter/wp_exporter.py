@@ -519,7 +519,7 @@ class WPExporter:
             if box.type == 'snippets':
                 medias = self.wp.get_media()
                 for media in medias:
-                    if media['guid']['rendered'] == new_url:
+                    if 'guid' in media and 'rendered' in media['guid'] and media['guid']['rendered'] == new_url:
                         new_attribute = '{}="{}"'.format(attribute, media['id'])
                         break
 
