@@ -95,7 +95,7 @@ class FanGlobalSitemap:
 
             # not end with a /
             if url.endswith("/"):
-                self._add_error(i, "URL '{}' must not end with a /".format(url, self.ROOT_URL))
+                self._add_error(i, "URL '{}' must not end with a /".format(url))
                 continue
 
             # have a parent
