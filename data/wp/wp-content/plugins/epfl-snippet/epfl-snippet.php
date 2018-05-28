@@ -44,18 +44,30 @@ function epfl_snippets_process_shortcode( $attributes, string $content = null ):
     $has_url = filter_var($url, FILTER_VALIDATE_URL);
 
     $html  = '<div class="snippetsBox">';
-    $html .= '  <div class="snippets-image"><a href="#"><img src="' . esc_attr($image_url) . '"/></a></div>';
-    $html .= '  <div class="snippets-content">';
-    $html .= '      <div class="snippets-title"><h2>';
+    $html .= '  <div class="snippets-image">';
 
     if ( $has_url ) {
-        $html .= '          <a href="#">';
+        $html .= '      <a href="' .  esc_attr($url) . '">';
+    }
+
+    $html .= '        <img src="' . esc_attr($image_url) . '"/>';
+
+    if ( $has_url ) {
+        $html .= '      </a>';
+    }
+
+    $html .= '</div>';
+    $html .= '  <div class="snippets-content">';
+    $html .= '    <div class="snippets-title"><h2>';
+
+    if ( $has_url ) {
+        $html .= '      <a href="' .  esc_attr($url) . '">';
     }
 
     $html .= $title;
 
     if ( $has_url ) {
-        $html .= '          </a>';
+        $html .= '      </a>';
     }
 
     $html .= '      </h2></div>';
@@ -68,12 +80,11 @@ function epfl_snippets_process_shortcode( $attributes, string $content = null ):
     $html .= '</div>';
 
     return $html;
-
 }
 
 // load .mo file for translation
 function epfl_snippet_load_plugin_textdomain() {
-    load_plugin_textdomain( 'epfl-snippet', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
+    load_plugin_textdomain( 'epfl-snippet', FALSE, basename( plugin_dir_path( __FILE__ ) ) . '/languages/' );
 }
 add_action( 'plugins_loaded', 'epfl_snippet_load_plugin_textdomain' );
 
