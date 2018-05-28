@@ -397,12 +397,16 @@ a.a2a_button_{
   font-weight: bold;
 }
 
-/* Colored box */
+/* Colored content */
 
 .colored-box {
   @include colored-text-box;
   @include clearfix;
   margin: 1.5em 0;
+}
+
+.local-color-text {
+  @include color-text;
 }
 
 /* Search form */
@@ -1159,7 +1163,7 @@ ul.bottin {
 	clear: none;
 	font-size: 24px;
 	font-size: 1.5rem;
-	font-weight: 800;
+	//font-weight: 800;
 	line-height: 1.25;
 	letter-spacing: 0.08em;
 	margin: 0;
@@ -2113,6 +2117,7 @@ ul.bottin {
     border: solid #fff;
     border-width: 0 1px 1px 0;
     color: #fff;
+    margin: 0;
     padding: 2px 6px;
     position: absolute;
     top: 0; right: auto; bottom: auto; left: 0;
@@ -2184,6 +2189,473 @@ ul.bottin {
   article.post {
     clear: right;
     overflow: hidden;
+  }
+  
+  .post-thumbnail {
+    display: flex;
+    justify-content: center;
+    height: 86px;
+    overflow: hidden;
+    padding: 0;
+    width: 36%;
+    
+    a {
+      display: block;
+      height: inherit;
+    }
+    img {
+      height: inherit;
+      max-width: none;
+      width: auto;
+    }
+  }
+  
+  .entry-header {
+    width: 100%;
+    
+    .entry-title {
+      font-size: .75em;
+      line-height: 1.4em;
+      margin-bottom: 5px;
+    }
+  }
+  
+  .entry-content {
+    height: 86px;
+    width: 60%;
+    
+    &:after {
+      height: 2.8em;
+    }
+    
+    .teaser p {
+      font-size: .75rem;
+    }
+    
+  }
+}
+
+.sidebar .list-articles.list-news-textonly {
+  
+  .entry-title {
+    font-size: .8125em;
+    line-height: 1.4em;
+    margin-bottom: 5px;
+  }
+  
+  .entry-content {
+    @include gradient-fade;
+    
+    height: 3.9em;
+    line-height: 0;
+    overflow: hidden;
+    
+    &:after {
+      height: 2.8em;
+    }
+  
+    .entry-meta {
+      display: inline;
+      margin-bottom: 0;
+    }
+    
+    .teaser {
+      display: inline;
+      
+      &:after {
+        display: none;
+      }
+      
+      p {
+        display: inline;
+        font-size: .75rem;
+        line-height: 1.3em;
+      }
+    }
+  }
+  
+}
+
+/* --- Events --- */
+
+.list-events {
+  
+  .event {
+    @include clearfix;
+    @include border-bottom-dots;
+    position: relative;
+  }
+  
+  .event-title {
+    font-size: .875em;
+    margin-bottom: .3em;
+    margin-top: 0;
+    padding: 0;
+  }
+  
+  .event-dates {
+    @include txt-narrow;
+    background: #000;
+    color: #fff;
+    font-size: .875em;
+    margin-bottom: 6px;
+    padding: 0 6px;
+    
+    p {
+      display: inline-block;
+      margin-bottom: 0;
+    }
+    
+    .date-end:before {
+      content: "–";
+      margin: 0 .25em;
+    }
+  }
+}
+
+.event .event-meta {
+  @include minor-text;
+  margin-bottom: 4px;
+  
+  p {
+    display: inline;
+    font-size: .75rem;
+    padding: 0;
+    
+    &:empty {
+      display: none;
+    }
+  }
+  
+  .event-times {
+    font-weight: bold;
+    
+    & + .event-location {
+      margin-left: .5em;
+    }
+  }
+  
+  .time-start + .time-end {
+    
+    &:before {
+      content: "-";
+      margin-right: .25em;
+    }
+  }
+}
+
+.event .event-export {
+  @include color-icon;
+  border: 0;
+  
+  &:before {
+    @include icon;
+    content: "\f271";
+    font-size: 16px;
+    margin-right: .25em;
+  }
+}
+
+.event.has-teaser .event-content {
+  
+  .teaser {
+    @include gradient-fade;
+    clear: both;
+    min-height: 2.6em;
+    max-height: 4em;
+    overflow: hidden;
+    padding: 0;
+    
+    &:after {
+      height: 72%;
+    }
+  }
+}
+
+.event .studying-calendar {
+  margin-top: 10px;
+  
+  a {
+    border: 0;
+    color: #fff;
+    
+    &:before {
+      @include icon;
+      content: "\f073";
+      margin-right: .5em;
+    }
+  }
+}
+
+/* Colored date box */
+  
+.list-events .has-image .event-dates {
+  @include color-background;
+  position: relative;
+}
+
+/* Events with featured image */
+
+.list-events .has-image {
+  
+  .event-img {
+    display: none;
+  }
+}
+
+/* Events with extra content */
+
+.list-events .event-extra {
+  margin-top: 1em;
+  
+  .speakers {
+    font-size: .6875em;
+    font-size: .6875rem;
+  }
+}
+
+/* Events with cover image */
+
+.list-events .event.has-cover-image {
+  border: 0;
+  padding: 0;
+  position: relative;
+  
+  a {
+    opacity: 1;
+    
+    &:hover {
+      opacity: .8;
+    }
+  }
+  
+  .cover-img {
+    background: $primary-color;
+    display: block;
+    height: auto;
+    margin: 0;
+    width: 100%;
+    
+    img {
+      height: auto;
+      vertical-align: top;
+      width: 100%;
+    }
+  }
+  
+  .event-dates {
+    background: transparent !important;
+    float: none;
+    position: absolute;
+    top: 10px; right: auto; bottom: auto; left: 10px;
+  }
+  
+  .event-content {
+    color: #fff;
+    float: none;
+    position: absolute;
+    top: auto; right: 10px; bottom: 10px; left: 10px;
+  }
+  
+  .event-title {
+    color: #fff;
+    
+    a {
+      color: #fff;
+      border-color: #fff;
+    }
+  }
+}
+
+/* Sidebar */
+
+.sidebar .list-events {
+  
+  .event-title {
+    font-size: .8125em;
+  }
+}
+
+/* Canceled event */
+
+.list-events .event-canceled.has-image {
+  
+  .event-dates {
+    background: rgba($light-grey, .8);
+    color: rgba(0,0,0,.6);
+    
+    p {
+      color: rgba(0,0,0,.4);
+      
+      &.date-end:after {
+        border-color: rgba(0,0,0,.4);
+      }
+    }
+    
+    .canceled {
+      float: right;
+    }
+  }
+}
+
+
+/*  -----------------------------------------------------------
+
+	Media Queries - Mobile phones (> 480px)
+
+------------------------------------------------------------ */
+
+@media screen and (min-width: 30em) {
+  
+  /*  ---------------------------------------
+    04 HEADER
+  ----------------------------------------- */
+  
+  /* --- Site title --- */
+  
+  .site-branding {
+    padding: 1em 0 !important;
+  }
+  
+}
+
+/*  -----------------------------------------------------------
+
+	Media Queries - Small desktop & vertical tablets (> 768px)
+
+------------------------------------------------------------ */
+
+@media screen and (min-width: 48em) {
+  
+  /*  ---------------------------------------
+    02 JAHIA IMPORTED CONTENT
+  ----------------------------------------- */
+  
+  .box-flat-panel {
+    width: 50%;
+  }
+  
+  .entry-content .box {
+    float: left;
+    margin-bottom: 40px;
+    padding-right: 2px;
+    width: 50%;
+    
+    .box-flat-panel {
+      width: 100%;
+    }
+    
+    &.last-col {
+      padding-left: 2px;
+      padding-right: 0;
+    }
+  }
+  
+  .entry-content .right {
+    margin-left: 25px;
+    float: right;
+  }
+  
+  /* --- People boxes --- */
+  
+  // Photo box
+
+  .bottin .photo_box {
+    width: 25% !important;
+  }
+  
+  /*  ---------------------------------------
+    03 GLOBAL CONTENT & SITE STRUCTURE
+  ----------------------------------------- */
+  
+  .wrap {
+    max-width: 1000px;
+    padding-left: 3em;
+    padding-right: 3em;
+  }
+  
+  #primary.col,
+  #secondary.col {
+    padding-left: 7px;
+  	padding-right: 8px; 
+  }
+  
+  #secondary {
+    font-size: 1rem;
+  }
+  
+  /*  ---------------------------------------
+    04 HEADER
+  ----------------------------------------- */
+  
+  /* --- EPFL Header --- */
+  
+  .site-header.epfl .logo {
+    margin-top: 6px;
+  }
+  .epflnav .nav-link {
+    margin: 6px 0;
+  }
+  
+  /* --- Site logo --- */
+
+  .custom-logo-link {
+    margin-bottom: 20px;
+    
+     img {
+       max-width: none;
+     }
+  }
+  
+  /* --- Site title --- */
+  
+  .site-branding {
+    padding: 24px 0 !important;
+    
+    .has-header-image & {
+      padding-top: 12px !important;
+    }
+  }
+  
+  .custom-header {
+    margin-bottom: 0 !important;
+  }
+  
+  /* --- Main navigation --- */
+  
+  .menu-toggle,
+	.dropdown-toggle {
+		display: none;
+	}
+
+	.main-navigation {
+		width: auto;
+	}
+
+	.main-navigation ul,
+	.main-navigation ul ul,
+	.main-navigation > div > ul {
+		display: block;
+	}
+  
+  .site-header .navigation-top {
+    background: #fff;
+    font-size: 1em;
+    position: static;
+    
+    nav {
+      margin: 0;
+    }
+  }
+  .main-navigation {
+    @include color-background;
+  }
+  
+  .main-navigation .menu {
+    @include clearfix;
+    background: transparent;
+    border: 0;
+    padding: 0;
   }
   
   .post-thumbnail {

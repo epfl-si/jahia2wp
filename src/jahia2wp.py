@@ -17,7 +17,7 @@ Usage:
     [--output-dir=<OUTPUT_DIR>]
     [--installs-locked=<BOOLEAN> --updates-automatic=<BOOLEAN>]
     [--openshift-env=<OPENSHIFT_ENV> --theme=<THEME>]
-    [--use-cache]
+    [--use-cache] [--features-flags]
     [--keep-extracted-files]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--stop-on-errors]
@@ -38,6 +38,7 @@ Usage:
   jahia2wp.py backup-many           <csv_file>                      [--debug | --quiet]
   jahia2wp.py rotate-backup         <csv_file>          [--dry-run] [--debug | --quiet]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
+  jahia2wp.py fan-global-sitemap    <csv_file> <wp_path>            [--debug | --quiet]
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
@@ -48,7 +49,7 @@ Usage:
     [--force] [--plugin=<PLUGIN_NAME>]
   jahia2wp.py global-report <csv_file> [--output-dir=<OUTPUT_DIR>] [--use-cache] [--debug | --quiet]
   jahia2wp.py migrate-urls <csv_file> <wp_env>                    [--debug | --quiet]
-    --root_wp_dest=</srv/../epfl> [--strict] [--htaccess] [--context=<intra|inter|full>]
+    --root_wp_dest=</srv/../epfl> [--greedy] [--htaccess] [--context=<intra|inter|full>]
 
 Options:
   -h --help                 Show this screen.
@@ -90,6 +91,7 @@ from veritas.casters import cast_boolean
 from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
 from ventilation import Ventilation
+from fan.fan_global_sitemap import FanGlobalSitemap
 
 
 def _check_site(wp_env, wp_url, **kwargs):
@@ -388,7 +390,7 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
 @dispatch.on('export')
 def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=False, to_dictionary=False,
            admin_password=None, output_dir=None, theme=None, installs_locked=False, updates_automatic=False,
-           openshift_env=None, use_cache=None, keep_extracted_files=False, **kwargs):
+           openshift_env=None, use_cache=None, keep_extracted_files=False, features_flags=False, **kwargs):
     """
     Export the jahia content into a WordPress site.
 
@@ -405,6 +407,10 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     :param openshift_env: openshift_env environment (prod, int, gcharmier ...)
     :param keep_extracted_files: command to keep files extracted from jahia zip
     :param fix_etx_chars: Tell to remove ETX chars from XML files containing site pages.
+<<<<<<< HEAD
+=======
+    :param features_flags: Tell to clean page content or not
+>>>>>>> release
     """
 
     # Download, Unzip the jahia zip and parse the xml data
@@ -482,7 +488,6 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
             wp_generator.install_basic_auth_plugin()
     else:
         wp_generator.generate()
-
         wp_generator.install_basic_auth_plugin()
 
     # dual auth
@@ -508,7 +513,9 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         logging.info("Exporting %s to WordPress...", site.name)
         try:
             if wp_generator.get_number_of_pages() == 0:
-                wp_exporter.import_data_to_wordpress(skip_pages=skip_pages, skip_media=skip_media)
+                wp_exporter.import_data_to_wordpress(skip_pages=skip_pages,
+                                                     skip_media=skip_media,
+                                                     features_flags=features_flags)
                 wp_exporter.write_redirections()
                 _fix_menu_location(wp_generator, languages, default_language)
                 logging.info("Site %s successfully exported to WordPress", site.name)
@@ -545,6 +552,29 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     return wp_exporter
 
 
+@dispatch.on('fan-global-sitemap')
+def fan_global_sitemap(csv_file, wp_path, **kwargs):
+    """
+    Create a global sitemap at the given wp_path.
+
+    Prerequisites:
+        - You have installed WordPress at the given wp_path WITHOUT polylang (comment
+          the polylang plugin in config-lot1.yml). Note: it's not enough to disable
+          polylang after installation
+
+    After having launched this script:
+        - Install polylang
+        - Go to "Languages" and :
+          - Add the English language
+          - click on the link "You can set them all to the default language"
+        - In "Appearance" > "Menus" set the "Main" menu to "Primary menu English" and "footer_nav"
+          to "Footer menu English"
+    """
+
+    generator = FanGlobalSitemap(csv_file, wp_path)
+    generator.create_website()
+
+
 @dispatch.on('export-many')
 def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None,
                 keep_extracted_files=False, **kwargs):
@@ -560,6 +590,8 @@ def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None,
         row_bytes = repr(row).encode('utf-8')
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row_bytes)
 
+        features_flags = False if 'features_flags' not in row else row['features_flags'] == 'yes'
+
         try:
             export(
                 site=row['Jahia_zip'],
@@ -574,7 +606,8 @@ def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None,
                 wp_env=row['openshift_env'],
                 admin_password=admin_password,
                 use_cache=use_cache,
-                keep_extracted_files=keep_extracted_files
+                keep_extracted_files=keep_extracted_files,
+                features_flags=features_flags
             )
         except (Exception, subprocess.CalledProcessError) as e:
             Tracer.write_row(site=row['Jahia_zip'], step=e, status="KO")
@@ -895,13 +928,13 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
 
 
 @dispatch.on('migrate-urls')
-def url_mapping(csv_file, wp_env, strict=False, root_wp_dest=None, htaccess=False, context='intra', **kwargs):
+def url_mapping(csv_file, wp_env, greedy=False, root_wp_dest=None, htaccess=False, context='intra', **kwargs):
     """
     :param csv_file: CSV containing the URL mapping rules for source and destination.
     :param context: intra, inter, full. Replace the occurrences at intra, inter or both.
     """
     logging.info('Starting ventilation process...')
-    vent = Ventilation(wp_env, csv_file, strict, root_wp_dest, htaccess, context)
+    vent = Ventilation(wp_env, csv_file, greedy, root_wp_dest, htaccess, context)
     vent.run_all()
 
 
