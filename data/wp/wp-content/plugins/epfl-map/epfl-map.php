@@ -106,7 +106,7 @@ add_action( 'init', function() {
 
             array(
                 'label' => __('Add Map shortcode', 'epfl-map'),
-                'listItemImage' => '',
+                'listItemImage' => '<img src="' . plugins_url( 'map.svg', __FILE__ ) . '" >', 
                 'attrs'         => array(
                     array(
                         'label'         => '<h3>' . esc_html__('What information do you want to display?', 'epfl-map') . '</h3>',

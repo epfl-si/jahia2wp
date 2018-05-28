@@ -92,7 +92,7 @@ add_action( 'init', function() {
 
             array(
                 'label' => __('Add XML/XSLT shortcode', 'epfl-xml'),
-                'listItemImage' => '',
+                'listItemImage' => '<img src="' . plugins_url( 'xml.svg', __FILE__ ) . '" >',
                 'attrs'         => array(
                     array(
                         'label'         => '<h3>' . esc_html__('URL of xml', 'epfl-xml') . '</h3>',

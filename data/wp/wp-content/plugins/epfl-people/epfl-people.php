@@ -103,7 +103,7 @@ add_action( 'init', function() {
 
             array(
                 'label' => __('Add People shortcode', 'epfl-people'),
-                'listItemImage' => '',
+                'listItemImage' => '<img src="' . plugins_url( 'people.svg', __FILE__ ) . '" >',
                 'attrs'         => array(
                     array(
                         'label'         => '<h3>' . esc_html__('Enter people URL', 'epfl-people') . '</h3>',
