@@ -721,9 +721,10 @@ class Ventilation:
                     # If there is only one fragment and it's different of the post_name
                     # then change it.
                     fragment = p_en['url'][len(max_match)+1:].strip('/')
-                    if len(fragment.split('/')) == 1:
-                        if p_en['post_name'] != fragment and max_match != p_en['url'].strip('/'):
-                            p_en['post_name'] = fragment
+                    if fragment:
+                        fragment = fragment.split('/').pop()
+                    if p_en['post_name'] != fragment and max_match != p_en['url'].strip('/'):
+                        p_en['post_name'] = fragment
 
                     # IMPORTANT: Verify that the source and the destination have the same lang set.
                     dst_path = self.dest_sites[max_match]
@@ -899,13 +900,17 @@ class Ventilation:
                     for lng, p in pages.items():
                         idx_post_name = p_url.rfind(p_url.strip('/').split('/').pop())
                         parent_url = p_url[:idx_post_name]
-                        # print(parent_url, p['url'], table_ids_url, parent_url in table_ids_url)
-                        if parent_url.strip('/') == site_url:
+                        # print('parent_url: ', parent_url, 'p_url', p_url)
+                        if p['post_parent'] == '0':
+                            # Nothing to do, page already at the root
+                            msg = 'Page {}/{} already at the root of the site, no need to change parent'
+                            logging.debug(msg.format(src_site, p['post_name']))
+                        elif parent_url.strip('/') == site_url:
                             # Set the page at the root: post_parent 0
                             msg = 'Changing parent to the root=0 (old parent [{}]) at {} for post [{}] {}/{}'
                             logging.debug(msg.format(p['post_parent'], site_url, p['ID'], src_site, p['post_name']))
                             p['post_parent'] = 0
-                        elif parent_url in table_ids_url and parent_url.strip('/') != site_url:
+                        elif parent_url in table_ids_url:
                             # Update the parent ID based on parent URL
                             p['post_parent'] = table_ids_url[parent_url][lngs.index(lng)]
                             msg = 'Setting parent for page {} to {} [{}]'
@@ -914,15 +919,13 @@ class Ventilation:
                             p['post_parent'] = table_ids[src_site][site_url][p['post_parent']]
                             msg = 'Parent for post {}/{} not derived from URL, keeping same parent with new ID {}'
                             logging.info(msg.format(src_site, p['post_name'], p['post_parent']))
-                        elif p['post_parent'] == '0':
-                            # Nothing to do, page already at the root
-                            msg = 'Page {}/{} already at the root of the site, no need to change parent'
-                            logging.debug(msg.format(src_site, p['post_name']))
                         else:
                             # Set the page at the root: post_parent 0
                             msg = 'Could not match parent [{}] at {} for post [{}] {}/{}, setting to root=0'
                             logging.warning(msg.format(p['post_parent'], site_url, p['ID'], src_site, p['post_name']))
                             p['post_parent'] = 0
+                            # pprint(table_ids_url)
+                            # pprint(table_ids)
 
                     # FIND all the media files in the page content
                     regex = re.compile(r'"(https://[^"]+/wp-content/uploads/.*?)"')
