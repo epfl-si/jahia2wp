@@ -31,7 +31,7 @@ Class ShortCakeSnippetConfig
 			            'frameTitle'    => esc_html__( 'Select Image', 'shortcode-snippet'),
                     ),
                     /**
-                     * We don't know is this attribut is used
+                     * We don't know if this attribut is used
                     array(
                         'label'         => '<h3>' . esc_html__('Big Image', 'epfl-snippet') . '</h3>',
                         'attr'          => 'big_image',
