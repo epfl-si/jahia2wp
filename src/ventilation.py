@@ -61,7 +61,8 @@ class Ventilation:
     site_paths = {}
     dest_sites = {}
 
-    def __init__(self, wp_env, csv_file, greedy=False, root_wp_dest=None, htaccess=False, context="intra"):
+    def __init__(self, wp_env, csv_file, greedy=False, root_wp_dest=None, htaccess=False,
+        context="intra", dry_run=False):
         self.wp_env = wp_env
         self.csv_file = csv_file
         self.strict_mode = not greedy
@@ -69,6 +70,7 @@ class Ventilation:
         if context:
             self.context = context
         self.htaccess = htaccess
+        self.dry_run = dry_run
         _rulesets = self.rule_parsing(self.csv_file)
         if _rulesets:
             self.rulesets = _rulesets
@@ -174,7 +176,13 @@ class Ventilation:
         :param csv_file: CSV with the URL migration rules
         """
         rules = {}
+        if not os.path.isfile(self.csv_file):
+            raise Exception('CSV file does not exist!')
+
         rows = Utils.csv_filepath_to_dict(self.csv_file)
+        if not rows:
+            raise Exception('Empty CSV file!')
+
         for idx, row in enumerate(rows):
             source = row['source']
             # Split the path and take the first arg as site
@@ -235,7 +243,7 @@ class Ventilation:
             if not wp_conf:
                 cmd = 'Site {} is not installed or wp_config is invalid, _check_sites was not called?'
                 logging.error(cmd.format(site))
-                sys.exit(1)
+                raise Exception('Invalid WP site! Did you call _check_sites?')
 
             # IMPORTANT: Increase the 'field_size_limit' to allow dumping certain sites like vpi.epfl.ch
             csv.field_size_limit(sys.maxsize)
@@ -252,6 +260,11 @@ class Ventilation:
             cmd = cmd.format(fields, wp_conf.wp_site.path, csv_f)
             logging.debug(cmd)
             Utils.run_command(cmd, 'utf8')
+
+            # Check if it's a non empty CSV
+            if os.path.getsize(csv_f) == 0:
+                raise Exception('Empty CSV exported! Cannot continue')
+
             # FIX: Convert the JSON to *proper* CSV with python
             # This is necessary since WP-CLI can produce a non-standard CSV (e.g. not escaping colons)
             pages = json.load(open(csv_f, 'r', encoding='utf8'))
@@ -326,6 +339,8 @@ class Ventilation:
 
             # Add an entry to the site paths dict
             self.site_paths[site] = wp_conf.wp_site.path
+
+        return True
 
     def rule_expansion(self):
         """
@@ -435,7 +450,13 @@ class Ventilation:
             # Replace the current ruleset with the extended version
             self.rulesets[site] = ext_ruleset
 
-    def sort_rules(self, order=-1):
+        # Sort the rules from most generic to specific or the reverse (-1).
+        logging.info('Rule sorting expanded rules: ')
+        self._sort_rules()
+
+        return True
+
+    def _sort_rules(self, order=-1):
         for site in self.rulesets:
             self.rulesets[site].sort(key=lambda rule: len(rule[0].split('/')) * order)
 
@@ -473,6 +494,8 @@ class Ventilation:
             lngs = [l[:2] for l in lngs.split("\n")]
             # Get all the original pages from the CSV
             pages = Utils.csv_filepath_to_dict(csv_f)
+            excl_pages = []
+            incl_pages = []
             filtered_pages = []
             # Get index-html parent page (if present)
             page_index = ([p['ID'] for p in pages if p['post_name'] == 'index-html'] or ['']).pop()
@@ -495,33 +518,45 @@ class Ventilation:
                         # Strict mode, exact match. Take sub-paths only if star is present
                         if p_en['url'] == matches[0]:
                             logging.info('[Do not migrate - Strict mode] single match for: {}'.format(p_en['url']))
+                            excl_pages.append((p_en['url'], 'don-t migrate'))
                             continue
                         elif (matches[0] + '*') in dont_migrate:
                             logging.info('[Do not migrate - Strict mode *] star match for: {}'.format(p_en['url']))
+                            excl_pages.append((p_en['url'], 'don-t migrate *'))
                             continue
                     else:
                         # Greedy mode, [in case]. It's the equivalent of using an implicit * star
                         logging.info('[Do not migrate - Greedy mode] - URL: {}'.format(p_en['url']))
+                        excl_pages.append((p_en['url'], 'don-t migrate implicit mode'))
                         continue
 
                 # Check if the page is allowed to be migrated (star * notation and strict mode)
-                matches = [r[0].strip('*') for r in self.rulesets[site] if r[0] and r[0].strip('*') in p_en['url']]
+                matches = [r for r in self.rulesets[site] if r[0] and r[0].strip('*') in p_en['url']]
+                # Remove the star at the moment, first check for a full match then for a star match
+                matches = [(r[0].strip('*'), r[1]) for r in matches]
                 if not matches:
                     logging.warning('[Migration - Strict / Greedy mode] no rule for: {}'.format(p_en['url']))
+                    excl_pages.append((p_en['url'], 'no rule'))
                 else:
                     # Sort matches by specificity (number or URL comps)
-                    matches = sorted(matches, key=lambda u: len(u.strip('/').split('/')), reverse=True)
+                    matches = sorted(matches, key=lambda r: len(r[0].strip('/').split('/')), reverse=True)
                     if self.strict_mode:
                         # Strict mode = exact match. Subpath valid only if star * notation.
-                        if matches[0] != p_en['url']:
+                        if matches[0][0] != p_en['url']:
                             # A star * notation might still match the page
-                            matches_star = [m for m in matches if m + '*' in list(zip(*self.rulesets[site])).pop(0)]
+                            matches_star = [m for m in matches if m[0] + '*' in list(zip(*self.rulesets[site])).pop(0)]
                             if not matches_star:
                                 logging.debug('matches: {} for {}'.format(matches, p_en['url']))
                                 logging.info('[Migration - Strict mode *] No single/* match: {}'.format(p_en['url']))
+                                excl_pages.append((p_en['url'], 'no strict match'))
                                 continue
+                            else:
+                                incl_pages.append((p_en['url'], matches[0][1] + '*'))
+                        else:
+                            incl_pages.append((p_en['url'], matches[0][1]))
                     elif matches[0] != p_en['url']:
                         logging.info('[Migration - Greedy mode *] Implicit * match for: {}'.format(p_en['url']))
+                        excl_pages.append((p_en['url'], 'no implicit match'))
 
                 # FIX: Current version always has index-html as parent, if it's the case, change it to 0 (root)
                 if p_en['post_parent'] == page_index:
@@ -542,6 +577,69 @@ class Ventilation:
                 writer.writeheader()
                 for p in filtered_pages:
                     writer.writerow(p)
+
+            # Export CSV filtered files into a human readable format: JAHIA URL => WP URL
+            if self.dry_run:
+                base_f,_ = os.path.splitext(csv_f)
+                incl_csv = base_f + '_included.csv'
+                with open(incl_csv, 'w', encoding='utf8') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(['SOURCE', 'DESTINATION'])
+                    # Translate the WP URLs to JAHIA URLs (extract 1st col)
+                    jahia_urls = self._jahia_lookup(site, list(zip(*incl_pages)).pop(0))
+                    # Join the JAHIA URLs and the DESTINATION (last col of incl_pages)
+                    incl_pages = list(zip(jahia_urls, list(zip(*incl_pages)).pop()))
+                    for p in incl_pages:
+                        writer.writerow(p)
+                excl_csv = base_f + '_excluded.csv'
+                with open(excl_csv, 'w', encoding='utf8') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(['SOURCE', 'REASON'])
+                    # Translate the WP URLs to JAHIA URLs (extract 1st col)
+                    jahia_urls = self._jahia_lookup(site, list(zip(*excl_pages)).pop(0))
+                    # Join the JAHIA URLs and the REASON (last col of excl_pages)
+                    excl_pages = list(zip(jahia_urls, list(zip(*excl_pages)).pop()))
+                    for p in excl_pages:
+                        writer.writerow(p)
+
+        return True
+
+    def _jahia_lookup(self, site, urls=[], only_translated=False):
+        wp_conf = self._isvalid_site(site)
+        if not wp_conf:
+            logging.error('Something weird, site {} should be valid.')
+            sys.exit(1)
+
+        # Get hold of the .htaccess file
+        htaccess = wp_conf.wp_site.path + '/.htaccess'
+        if not os.path.isfile(htaccess):
+            logging.error('Cannot find .htaccess file for {}, exiting..'.format(site))
+            raise Exception('Cannot find .htaccess file to resolve WP URL to JAHIA URL')
+
+        with open(htaccess, 'r', encoding='utf8') as f:
+            lines = list(reversed(f.readlines()))
+        logging.info('Retrieved {} lines of .htaccess for {}'.format(len(lines), site))
+
+        jahia_urls = []
+        for u in urls:
+            # Obtain the GUID
+            guid = '/' + u.strip('/').split('/').pop() + '/'
+            # By default keep the url if no match found
+            jahia_url = None
+            if not only_translated:
+                jahia_url = u
+            # Find the last match in the .htaccess file
+            for l in lines:
+                comps = l.split(' ')
+                if comps.pop().strip() == guid:
+                    jahia_url = comps.pop()
+
+            if jahia_url:
+                if site not in jahia_url:
+                    jahia_url = site + jahia_url
+                jahia_urls.append(jahia_url)
+
+        return jahia_urls
 
     def execute_rules(self):
         """
@@ -1270,11 +1368,6 @@ class Ventilation:
         self.rule_expansion()
         logging.info('[{:.2f}s] Finished rule translation and lang expansion...'.format(tt()-t))
 
-        # Sort the rules from most generic to specific or the reverse (-1).
-        logging.info('Rule sorting expanded rules: ')
-        self.sort_rules()
-        pprint(self.rulesets)
-
         # Write the .htaccess redirections for the new URL mapping
         if self.htaccess:
             logging.info('Writing .htaccess file ...')
@@ -1305,6 +1398,9 @@ class Ventilation:
         t = tt()
         dst_csv_files = self.consolidate_csv()
         logging.info('[{:.2f}s] Finished CSV consolidation'.format(tt()-t))
+
+        if self.dry_run:
+            sys.exit(0)
 
         # At this point all the CSV files have the right URLs in place. It is the moment to effectively migrate
         # the content (pages and files / media)
