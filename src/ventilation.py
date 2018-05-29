@@ -618,7 +618,7 @@ class Ventilation:
 
         with open(htaccess, 'r', encoding='utf8') as f:
             lines = list(reversed(f.readlines()))
-        logging.info('Retrieved {} lines of .htaccess for {}'.format(len(lines), site))
+        logging.debug('Retrieved {} lines of .htaccess for {}'.format(len(lines), site))
 
         jahia_urls = []
         for u in urls:
