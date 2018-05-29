@@ -1379,6 +1379,9 @@ class Ventilation:
         self.apply_filters()
         logging.info('[{:.2f}s] Finished with the page filtering phase...'.format(tt()-t))
 
+        if self.dry_run:
+            sys.exit(0)
+
         # At this point all the CSV files are generated and stored by sitename*
         logging.info('Starting rule execution to replace WP URLs... Stats:')
         t = tt()
@@ -1398,9 +1401,6 @@ class Ventilation:
         t = tt()
         dst_csv_files = self.consolidate_csv()
         logging.info('[{:.2f}s] Finished CSV consolidation'.format(tt()-t))
-
-        if self.dry_run:
-            sys.exit(0)
 
         # At this point all the CSV files have the right URLs in place. It is the moment to effectively migrate
         # the content (pages and files / media)
