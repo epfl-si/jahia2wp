@@ -53,7 +53,11 @@ plugins:
     config: !include EPFL-Snippet/v1/config-plugin.yml
   - name: epfl-toggle
     config: !include epfl-toggle/v1/config-plugin.yml
+  - name: epfl-grid
+    config: !include epfl-grid/v1/config-plugin.yml
   - name: epfl-infoscience
     config: !include epfl-infoscience/v1/config-plugin.yml
   - name: epfl-xml
     config: !include epfl-xml/v1/config-plugin.yml
+  - name: epfl-people
+    config: !include epfl-people/v1/config-plugin.yml
