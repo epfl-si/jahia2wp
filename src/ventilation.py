@@ -14,6 +14,7 @@ import shutil
 from settings import JAHIA2WP_VENT_TMP
 from utils import Utils
 from wordpress import WPSite, WPConfig
+import yaml
 
 """
     It takes the mapping rules in a CSV, with 2 columns each: source => destination,
@@ -56,13 +57,14 @@ class Ventilation:
     rulesets = {}
     files = {}
     medias = {}
+    widgets = {}
     site_paths = {}
     dest_sites = {}
 
-    def __init__(self, wp_env, csv_file, strict=False, root_wp_dest=None, htaccess=False, context="intra"):
+    def __init__(self, wp_env, csv_file, greedy=False, root_wp_dest=None, htaccess=False, context="intra"):
         self.wp_env = wp_env
         self.csv_file = csv_file
-        self.strict_mode = strict
+        self.strict_mode = not greedy
         self.root_wp_dest = root_wp_dest
         if context:
             self.context = context
@@ -93,7 +95,7 @@ class Ventilation:
         """
 
         dest_sites = {}
-        logging.info('Parsing target WP instances (inventory)...')
+        logging.info('Parsing target WP instances (inventory) at {}'.format(root_wp_dest))
         if not root_wp_dest:
             logging.error("No target location to scan for WP instances")
         # Split the root to get the target sites (e.g. ["/srv/hmuriel/epfl", "/srv/hmuriel/inside"])
@@ -117,20 +119,60 @@ class Ventilation:
                     # Find wp-config.php in the paths
                     dirs = Utils.run_command(
                         'find "' + path + '" -name "wp-config.php" -exec dirname "{}" \;')
-                    dirs = dirs.split('\n')
-                    # Create a WP Site per matching dir and get its URL
-                    # Doing it this way since WP site has some checks for the path and URL building.
-                    for path in dirs:
-                        wp_site = WPSite.from_path(path)
-                        if wp_site:
-                            # wp_config = WPConfig(wp_site)
-                            # if wp_config.is_config_valid:
-                            dest_sites[wp_site.url] = path
+                    if not dirs:
+                        logging.error('Cannot find WP instances (wp-config.php) at {}'.format(path))
+                    else:
+                        dirs = dirs.split('\n')
+                        # Create a WP Site per matching dir and get its URL
+                        # Doing it this way since WP site has some checks for the path and URL building.
+                        for path in dirs:
+                            wp_site = WPSite.from_path(path)
+                            if wp_site:
+                                # wp_config = WPConfig(wp_site)
+                                # if wp_config.is_config_valid:
+                                dest_sites[wp_site.url] = path
 
         # Return the site_url => site_path mapping
         return dest_sites
 
+    def _check_sites(self, sites):
+        """
+        Iterate over the list of sites and check if they are valid WP installs individually.
+        """
+        site_errs = []
+        for site in sites:
+            if not self._isvalid_site(site):
+                cmd = 'Site {} is not installed or wp_config is invalid'
+                logging.warning(cmd.format(site))
+                site_errs += [site]
+
+        return site_errs
+
+    def _isvalid_site(self, site):
+        """
+        Check if the given site URL is a valid installation under /srv/WP_ENV/
+        """
+        wp_conf = WPConfig(WPSite(self.wp_env, site))
+
+        if wp_conf.is_installed and wp_conf.is_config_valid:
+            return wp_conf
+
+        return None
+
     def rule_parsing(self, csv_file):
+        """
+        This function reads and loads the rules in a tree of site => rules like:
+
+        {'dcsl.epfl.ch': [('https://dcsl.epfl.ch/p1', 'https://www.epfl.ch/path/p1'),
+                        ('https://dcsl.epfl.ch/p1', 'https://www.epfl.ch/path/p1')],
+         'vpi.epfl.ch': [('https://vpi.epfl.ch/about', 'https://www.epfl.ch/innovation/about')]
+        }
+
+        precondition: The CSV MUST be passed to the csv validator before. No other syntactic or
+        semantic check in this function.
+
+        :param csv_file: CSV with the URL migration rules
+        """
         rules = {}
         rows = Utils.csv_filepath_to_dict(self.csv_file)
         for idx, row in enumerate(rows):
@@ -188,15 +230,12 @@ class Ventilation:
         # Create a copy of the keys to allow changes on the keyset
         for site in list(self.rulesets.keys()):
             logging.info('Treating site {}'.format(site))
-            # Load wp_config using existing functions, can't use _check_site since it exits
-            # if the site does not exist or is invalid.
-            wp_conf = WPConfig(WPSite(self.wp_env, site))
-            if not wp_conf.is_installed or not wp_conf.is_config_valid:
-                cmd = 'Site {} is not installed or wp_config is invalid, skipping...'
-                logging.warn(cmd.format(site))
-                # Remove the site and its ruleset, no cross-reference will be updated (no need)
-                del self.rulesets[site]
-                continue
+            # By security, check if the site is a valid install, in case _check_sites was skipped.
+            wp_conf = self._isvalid_site(site)
+            if not wp_conf:
+                cmd = 'Site {} is not installed or wp_config is invalid, _check_sites was not called?'
+                logging.error(cmd.format(site))
+                sys.exit(1)
 
             # IMPORTANT: Increase the 'field_size_limit' to allow dumping certain sites like vpi.epfl.ch
             csv.field_size_limit(sys.maxsize)
@@ -206,22 +245,21 @@ class Ventilation:
             fields = 'ID,post_title,post_name,post_parent,guid,url,post_status,post_content'
             # Only pages, all without paging. Sort them by post_parent ascendantly for ease of
             # reinsertion to insert first parent pages and avoiding parentless children.
-            params = '--post_type=page --nopaging --order=asc --orderby=ID --fields={} --format=csv'
+            params = '--post_type=page --nopaging --order=asc --orderby=ID --fields={} --format=json'
             cmd = 'wp post list ' + params + ' --path={} > {}'
             csv_f = JAHIA2WP_VENT_TMP + '/j2wp_' + site.split('/').pop() + '.csv'
             self.files[site] = csv_f
             cmd = cmd.format(fields, wp_conf.wp_site.path, csv_f)
             logging.debug(cmd)
             Utils.run_command(cmd, 'utf8')
-            # Append site path at the end of the CSV as a comment, useful for later processing.
-            Utils.run_command('echo "#{}" >> {}'.format(wp_conf.wp_site.path, csv_f))
-            # Convert the GUIDs to relative URLs to avoid rule replacement by URL
-            pages = Utils.csv_filepath_to_dict(csv_f)
+            # FIX: Convert the JSON to *proper* CSV with python
+            # This is necessary since WP-CLI can produce a non-standard CSV (e.g. not escaping colons)
+            pages = json.load(open(csv_f, 'r', encoding='utf8'))
             if not pages:
                 logging.error('No pages for site {}, removing it from rulesets..'.format(site))
                 del self.rulesets[site]
                 continue
-            # Write back the CSV file
+            # Convert the GUIDs to relative URLs to avoid rule replacement by URL
             with open(csv_f, 'w', encoding='utf8') as f:
                 site_url = urlparse(site)
                 host = site_url._replace(path='').geturl()
@@ -244,13 +282,26 @@ class Ventilation:
                     p['guid'] = p['guid'].replace(host, '')
                     # Fix the rel links without domain / path info.
                     p['post_content'] = regex.sub(r'href="{}/\g<1>/"'.format(site_path), p['post_content'])
-                    if None in p:
-                        err = 'Page {} / {} contains an unknown column None: {}'.format(p['ID'], p['url'], p[None])
-                        logging.warning(err.encode('utf8'))
-                        del p[None]
                     writer.writerow(p)
             # Backup file
             shutil.copyfile(csv_f, csv_f + '.bak')
+
+            # Dump all the widgets for the site in json format
+            sidebars_content = {}
+            wid = JAHIA2WP_VENT_TMP + '/j2wp_' + site.split('/').pop() + '_widgets.yaml'
+            # List the registered sidebars in the source site
+            cmd = 'wp sidebar list --format=ids --path={}'.format(wp_conf.wp_site.path)
+            sidebars = Utils.run_command(cmd, 'utf8').split(' ')
+            for side_id in sidebars:
+                # Get the sidebar entries if any
+                cmd = 'wp widget list {} --format=json --path={}'.format(side_id, wp_conf.wp_site.path)
+                side_entries = json.loads(Utils.run_command(cmd, 'utf8'))
+                sidebars_content[side_id] = side_entries
+            # Save the sidebars in YAML format to have *CLEAN URLs* (i.e. not backslash escaped) for URL replacements
+            with open(wid, 'w', encoding="utf8") as f:
+                f.write(yaml.dump(sidebars_content))
+            self.widgets[site] = wid
+
             # Dump media / attachments
             fields = 'ID,post_title,post_name,post_parent,post_status,guid'
             params = '--post_type=attachment --nopaging --order=asc --fields={} --format=csv'
@@ -272,6 +323,7 @@ class Ventilation:
                     writer.writerow(m)
             # Backup file
             shutil.copyfile(csv_m, csv_m + '.bak')
+
             # Add an entry to the site paths dict
             self.site_paths[site] = wp_conf.wp_site.path
 
@@ -531,6 +583,7 @@ class Ventilation:
                 # Target CSV file where to search matches to the rules of the current site.
                 csv_f = self.files[site2]
                 csv_m = self.medias[site2]
+                csv_w = self.widgets[site2]
                 # Ruleset for the site, IMPORTANT: the order has to be specific to generic
                 ruleset = self.rulesets[site]
                 if site2 not in stats[site]:
@@ -548,15 +601,15 @@ class Ventilation:
                         if prot + '://' not in _source:
                             _source = prot + '://' + _source.split('//').pop()
                         cmd = "awk 'END{{print t > \"/dev/stderr\"}}"
-                        cmd_m = cmd = cmd + " {{t+=gsub(\"{0}\",\"{1}\")}}1' {2} > {2}.1 && mv {2}.1 {2}"
+                        cmd_m = cmd_w = cmd = cmd + " {{t+=gsub(\"{0}\",\"{1}\")}}1' {2} > {2}.1 && mv {2}.1 {2}"
                         cmd = cmd.format(_source, dest, csv_f)
                         cmd_m = cmd_m.format(_source, dest, csv_m)
-                        logging.debug(cmd, cmd_m)
+                        cmd_w = cmd_w.format(_source, dest, csv_w)
+                        logging.debug(cmd, cmd_m, cmd_w)
                         # AWK is counting the replacement occurrences in the stderr.
-                        proc = subprocess.run(
-                            cmd, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
-                        subprocess.run(
-                            cmd_m, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
+                        proc = subprocess.run(cmd, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
+                        subprocess.run(cmd_m, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
+                        subprocess.run(cmd_w, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
                         # This has to be a number normally, but it can also contain return errors, to be analized
                         reps = proc.stderr.strip()
                         matches[prot] = reps
@@ -577,6 +630,7 @@ class Ventilation:
             if site not in stats:
                 stats[site] = []
             csv_f = self.files[site]
+            csv_w = self.widgets[site]
             pages = Utils.csv_filepath_to_dict(csv_f)
             """ ASSUMPTION: The GUID column is set manually to the last column in the CSV header
             This is useful to replace exactly that column.
@@ -607,14 +661,16 @@ class Ventilation:
                     new_guid = os.path.join(post_path, post_name + '/')
                     # Replace first the GUID column and then the href occurrences in the text
                     cmd = "awk 'END{{print t > \"/dev/stderr\"}}"
-                    cmd_body = cmd = cmd + " {{t+=gsub(\"{0}\",\"{1}\")}}1' {2} > {2}.1 && mv {2}.1 {2}"
+                    cmd_body = cmd_widget = cmd = cmd + " {{t+=gsub(\"{0}\",\"{1}\")}}1' {2} > {2}.1 && mv {2}.1 {2}"
                     # Replace the GUID column, use the same quotes to mark the boundaries.
                     cmd = cmd.format(',' + guid, ',' + new_guid, csv_f)
                     # Replace the HTML attrs (e.g. href="") containing the GUID
                     cmd_body = cmd_body.format('\\"' + guid + '\\"', '\\"' + new_guid + '\\"', csv_f)
                     logging.debug(cmd_body)
+                    cmd_widget = cmd_widget.format('\\"' + guid + '\\"', '\\"' + new_guid + '\\"', csv_w)
                     # AWK is counting the replacement occurrences in the stderr.
                     subprocess.run(cmd, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
+                    subprocess.run(cmd_widget, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
                     proc_body = subprocess.run(cmd_body, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
                     # This has to be a number normally, but it can also contain return errors, to be analized
                     reps = proc_body.stderr.strip()
@@ -644,6 +700,7 @@ class Ventilation:
             lngs = [l[:2] for l in lngs.split("\n")]
             # Get all the pre-replaced pages from the CSV
             pages = Utils.csv_filepath_to_dict(csv_f)
+
             prev_max_match = None
             for pi in range(0, len(pages), len(lngs)):
                 # All pages in all langs
@@ -706,12 +763,18 @@ class Ventilation:
                         lngs_curr = lngs_common + new_langs
                     prev_max_match = max_match
 
-                    # JSON file to contain the post data
-                    tmp_json = "/tmp/j2wp_{}_{}.json".format(site.split('/').pop(), _pages[0]['ID'])
                     # Remove / Change attrs before dumping the post JSON.
                     # _pagesi = [{k: v for k, v in _p.items() if k not in ['ID', 'url']} for _p in _pages]
+
+                    pages_by_lang = {lngs_curr[i]: p for i, p in enumerate(_pages)}
+                    # JSON file to contain the post data
+                    tmp_json = "/tmp/j2wp_{}_{}.json".format(site.split('/').pop(), _pages[0]['ID'])
+                    # IMPORTANT: Keep the pages according to the langs at the destination, consistent polylang
+                    # inserts depend on it (i.e. inserts pages as they appear, has no notion of lang order).
+                    # Therefore, passing [fr, en] would result in [id1, id2] and [en, fr] will result in [id1, id2].
+                    # Due to this, the json is exported manually to keep the order {"lang": page}
                     m = '"{}":{}'
-                    arr = [m.format(lngs_curr[i], json.dumps(p, ensure_ascii=False)) for i, p in enumerate(_pages)]
+                    arr = [m.format(l, json.dumps(pages_by_lang[l], ensure_ascii=False)) for l in dst_lngs]
                     json_data = '{' + ', '.join(arr) + '}'
                     # Dump the JSON to a file to avoid non escaped char issues.
                     with open(tmp_json, 'w', encoding='utf8') as j:
@@ -766,85 +829,114 @@ class Ventilation:
         for dst_csv_f in dst_csv_files:
             # Get all the pre-prepared hierarchy at destination from the corresponding CSV
             entries = Utils.csv_filepath_to_dict(dst_csv_f)
-            # IMPORTANT: Sort the list by URL components to insert parents first. Even though the consolidation
-            # has to do it.
+            if not entries:
+                continue
+            # IMPORTANT: Sort the list by URL components to insert parents first. Usually done in consolidation phase.
             entries = sorted(entries, key=lambda e: len(e['url'].strip('/').split('/')), reverse=False)
 
-            dst_sidebars_url = None
-            menu_siteurl = None
+            # Find the dest. site URL as the longuest match of any entry URL (all belong to the same dest.)
+            site_url_matches = [s for s in self.dest_sites.keys() if s in entries[0]['url']]
+            site_url = '/'.join(max([m.split('/') for m in site_url_matches]))
+
+            # Get the dest site langs
+            lngs = Utils.run_command('wp pll languages --path=' + self.dest_sites[site_url])
+            lngs = [l[:2] for l in lngs.split("\n")]
+
+            migrate_menu_sidebar = False
 
             for entry in entries:
                 p_url = entry['url']
-                # Find the longest matching URL among the target sites
-                matches = [s for s in self.dest_sites.keys() if s in p_url]
-                max_match = '/'.join(max([m.split('/') for m in matches]))
-
                 json_f = entry['json_file']
-                if json_f:
-                    site = 'https://{}'.format(json_f.split('_').pop(1))
 
-                    if site not in table_ids:
-                        table_ids[site] = {}
+                if not json_f:
+                    # IMPORTANT: This is a path for a new (blank) page
+                    # Last fragment of the URL as post_name and / or post_title (with first letter uppercase)
+                    post_name = p_url.strip('/').split('/').pop()
+                    post_title = post_name.title()
+
+                    # Associate langs to new BLANK pages
+                    blanks = {l: {'post_title': post_title, 'post_status': 'publish', 'post_parent': 0} for l in lngs}
+                    # Set the post_parent
+                    p_url_parent = p_url.split(post_name).pop(0)
+                    if p_url_parent in table_ids_url and p_url_parent.strip('/') != site_url:
+                        for idx, l in enumerate(lngs):
+                            post_parent = table_ids_url[p_url_parent][idx]
+                            blanks[l]['post_parent'] = post_parent
+
+                    # Prepare a JSON as str for the posts in all dest. langs
+                    m = '"{}":{}'
+                    arr = [m.format(l, json.dumps(blanks[l])) for l in lngs]
+                    blanks_json = '{' + ', '.join(arr) + '}'
+
+                    cmd = "echo '{}' | wp pll post create --post_type=page --porcelain --stdin --path={}"
+                    cmd = cmd.format(blanks_json, self.dest_sites[site_url])
+                    logging.debug(cmd)
+                    ids = Utils.run_command(cmd, 'utf8').split(' ')
+                    if 'Error' in ids:
+                        logging.error('Failed to insert pages. Msg: {}. cmd: {}'.format(ids, cmd))
+                    else:
+                        logging.info('new IDs {} in lang order {}'.format(ids, lngs))
+                        # Keep the new IDs in the URL => IDs dictionary
+                        table_ids_url[p_url] = ids
+                else:
+                    src_site = 'https://{}'.format(json_f.split('_').pop(1))
+
+                    if src_site not in table_ids:
+                        table_ids[src_site] = {}
                     # Add the key to the media_refs dict
-                    if site not in media_refs:
-                        media_refs[site] = {}
+                    if src_site not in media_refs:
+                        media_refs[src_site] = {}
 
                     # Load the JSON page data
                     with open(json_f, 'r', encoding='utf8') as f:
-                        json_txt = f.read()
-                        pages = json.load(json_txt)
-                        lngs = pages.keys()
-                        # Get the languages in unaltered order
-                        lngs = [(l, json_txt.find('"{}"'.format(l))) for l in lngs]
-                        lngs = [l for l, idx in sorted(lngs, key=lambda tup: tup[1])]
-                        _pages = pages.values()
-                        p_en = pages['en']
+                        pages = json.load(f)
 
                     # Old IDs
-                    old_ids = [p['ID'] for p in _pages]
+                    old_ids = [pages[lng]['ID'] for lng in lngs]
 
-                    # Update the parent ID if a new one exists already
-                    for idx, _p in enumerate(_pages):
-                        parent_url = '/'.join(p_en['url'].strip('/').split('/')[:-1])
-                        if parent_url in table_ids_url:
+                    # Update the parent ID if a new one exists already for the parent URL
+                    for lng, p in pages.items():
+                        idx_post_name = p_url.rfind(p_url.strip('/').split('/').pop())
+                        parent_url = p_url[:idx_post_name]
+                        # print(parent_url, p['url'], table_ids_url, parent_url in table_ids_url)
+                        if parent_url in table_ids_url and parent_url.strip('/') != site_url:
                             # Update the parent ID based on parent URL
-                            _p['post_parent'] = table_ids_url[parent_url][idx]
-                        # elif max_match in table_ids[site] and _p['post_parent'] in table_ids[site][max_match]:
-                        #     _p['post_parent'] = table_ids[site][max_match][_p['post_parent']]
+                            p['post_parent'] = table_ids_url[parent_url][lngs.index(lng)]
+                        # elif site_url in table_ids[src_site] and p['post_parent'] in table_ids[src_site][site_url]:
+                        #     p['post_parent'] = table_ids[src_site][site_url][p['post_parent']]
                         else:
                             # Set the page at the root: post_parent 0
-                            _p['post_parent'] = 0
-                    # Rename the post if necessary to have a pretty (matching) URL
-                    # If there is only one fragment and it's different of the post_name
-                    # then change it.
-                    fragment = p_url[len(max_match)+1:].strip('/')
-                    if len(fragment.split('/')) == 1:
-                        if p_en['post_name'] != fragment and max_match != p_url.strip('/'):
-                            p_en['post_name'] = fragment
-                            # for p in _pages:
-                            #    p['post_name'] = fragment
+                            p['post_parent'] = 0
 
                     # FIND all the media files in the page content
                     regex = re.compile(r'"(https://[^"]+/wp-content/uploads/.*?)"')
-                    for _p in _pages:
-                        m_urls = regex.findall(_p['post_content'])
-                        # Verify that all the matched media is under the target domain (max_match)
+                    for _, p in pages.items():
+                        m_urls = regex.findall(p['post_content'])
+                        # Verify that all the matched media is under the target domain (site_url)
                         for m_url in m_urls:
                             media_key = m_url[m_url.index('/wp-content/uploads'):]
-                            if max_match not in m_url:
+                            if site_url not in m_url:
                                 # Set the right URL
-                                _m_url = max_match + media_key
-                                _p['post_content'] = _p['post_content'].replace(m_url, _m_url)
+                                _m_url = site_url + media_key
+                                p['post_content'] = p['post_content'].replace(m_url, _m_url)
                                 logging.debug('Media URL from {} to {}'.format(m_url, _m_url))
                                 m_url = _m_url
-                            if media_key not in media_refs[site]:
-                                media_refs[site][media_key] = []
-                            if m_url not in media_refs[site][media_key]:
-                                media_refs[site][media_key].append(m_url)
+                            if media_key not in media_refs[src_site]:
+                                media_refs[src_site][media_key] = []
+                            if m_url not in media_refs[src_site][media_key]:
+                                media_refs[src_site][media_key].append(m_url)
+
+                    # Dump the JSON str back for wp-cli, keeping the dest. site lang order
+                    m = '"{}":{}'
+                    arr = [m.format(l, json.dumps(pages[l], ensure_ascii=False)) for l in lngs]
+                    json_data = '{' + ', '.join(arr) + '}'
+                    # Dump the JSON to a file to avoid non escaped char issues.
+                    with open(json_f, 'w', encoding='utf8') as j:
+                        j.write(json_data)
 
                     cmd = "cat {} | wp pll post create --post_type=page --porcelain --stdin --path={}"
-                    cmd = cmd.format(json_f, self.dest_sites[max_match])
-                    logging.info(cmd)
+                    cmd = cmd.format(json_f, self.dest_sites[site_url])
+                    logging.debug(cmd)
                     ids = Utils.run_command(cmd, 'utf8').split(' ')
                     if 'Error' in ids:
                         logging.error('Failed to insert pages. Msg: {}. cmd: {}'.format(ids, cmd))
@@ -853,17 +945,17 @@ class Ventilation:
                         # Keep the new IDs in the URL => IDs dictionary
                         table_ids_url[p_url] = ids
                         # Keep the new IDs also in the table_ids: Site => Dest => IDs
-                        if max_match not in table_ids[site]:
-                            table_ids[site][max_match] = {}
+                        if site_url not in table_ids[src_site]:
+                            table_ids[src_site][site_url] = {}
                         for old_id, new_id in zip(old_ids, ids):
-                            table_ids[site][max_match][old_id] = new_id
+                            table_ids[src_site][site_url][old_id] = new_id
                         # VERIFY: Setting homepage instead of the default WP options
                         # Using URL in EN by default
-                        if max_match == p_url.strip('/'):
-                            # Set the menu flag
-                            menu_siteurl = max_match
-                            logging.info('Updating home page for site {} to ID {}'.format(max_match, ids[0]))
-                            dest_site = self.dest_sites[max_match]
+                        if site_url == p_url.strip('/'):
+                            # Set the menu / sidebar flag
+                            migrate_menu_sidebar = True
+                            logging.info('Updating home page for site {} to ID {}'.format(site_url, ids[0]))
+                            dest_site = self.dest_sites[site_url]
                             cmd = 'wp option update show_on_front page --path={}'.format(dest_site)
                             msg = Utils.run_command(cmd, 'utf8')
                             if 'Success' not in msg:
@@ -872,42 +964,31 @@ class Ventilation:
                             msg = Utils.run_command(cmd, 'utf8')
                             if 'Success' not in msg:
                                 logging.warning('Could not set page_on_front option! Msg: {}. cmd: {}', msg, cmd)
-                            dst_sidebars_url = max_match
 
-            if dst_sidebars_url:
-                self.migrate_sidebars(site, dst_sidebars_url)
-            if menu_siteurl:
-                self.migrate_menu(site, menu_siteurl, table_ids)
+            if migrate_menu_sidebar:
+                self.migrate_sidebars(src_site, site_url)
+                self.migrate_menu(src_site, site_url, table_ids)
 
         return media_refs
 
     def migrate_sidebars(self, site, dst_sidebars_url):
-        # List the registered sidebars in the source site
-        site_path = self.site_paths[site]
-        cmd = 'wp sidebar list --format=ids --path={}'.format(site_path)
-        sidebars = Utils.run_command(cmd, 'utf8').split(' ')
-        widget_pos = 1
-        widget_pos_lang = {}
-        for side_id in sidebars:
-            # Get the sidebar entries if any
-            cmd = 'wp widget list {} --format=json --path={}'.format(side_id, site_path)
-            side_entries = json.loads(Utils.run_command(cmd, 'utf8'))
-            for e in side_entries:
-                # Set the entry at the destination sidebar
+        # Find the widgets page in the CSV
+        with open(self.widgets[site], "r", encoding='utf8') as f:
+            sidebars_content = yaml.load(f)
+        for side_id, widgets in sidebars_content.items():
+            for w in widgets:
                 # IMPORTANT: The destination sidebars are created while the site is generated.
                 # Therefore no need to create them.
                 cmd = 'wp widget add {} ' + side_id + ' {} --title="{}" --path={} --text="{}"'
                 dst = self.dest_sites[dst_sidebars_url]
-                o = e['options']
+                o = w['options']
                 # Escape html quotes
                 text = o['text'].replace('"', '\\"')
-                cmd = cmd.format(e['name'], e['position'], o['title'], dst, text)
-                print('sidebar cmd: ' + cmd)
+                cmd = cmd.format(w['name'], w['position'], o['title'] + '--' + o['pll_lang'], dst, text)
+                # print('sidebar cmd: ' + cmd)
                 sidebar_out = Utils.run_command(cmd, 'utf8')
                 logging.info('sidebar {} added: {}'.format(side_id, sidebar_out))
-                # Update dict containing widget pos => lang
-                widget_pos_lang[str(widget_pos)] = o['pll_lang']
-                widget_pos += 1
+
         # Set manually the Polylang lang into the widget text since the pll_lang option does not
         # exist in the wp widget add command.
         # Get all the widgets for the site in json format
@@ -915,9 +996,12 @@ class Ventilation:
         for widget_idx in widgets:
             # If it is a widget (can be just an integer)
             if isinstance(widgets[widget_idx], dict):
-                widgets[widget_idx]['pll_lang'] = widget_pos_lang[widget_idx]
+                title_comp = widgets[widget_idx]['title'].split('--')
+                if len(title_comp) == 2:
+                    widgets[widget_idx]['pll_lang'] = title_comp.pop()
+                    widgets[widget_idx]['title'] = title_comp.pop()
         # Write back the widget_text option
-        widget_f = "/tmp/.tmp_{}_widgets.json".format(os.path.basename(site))
+        widget_f = "/tmp/.tmp_{}_widget_text.json".format(os.path.basename(site))
         with open(widget_f, "w") as f:
             f.write(json.dumps(widgets))
         Utils.run_command('wp option update widget_text --format=json --path={} < {}'.format(dst, widget_f))
@@ -1125,65 +1209,91 @@ class Ventilation:
                         logging.warning('Could not import {}. Doing nothing. Warning: {}'.format(dest_path, mid))
 
     def run_all(self):
+        # Check that all source sites are valid WP installs.
         t = tt()
-        logging.info('Exploring the destination tree. Found wp instances:')
-        pprint(self.dest_sites)
-        logging.info("{} total sites found in rulesets.".format(len(self.rulesets)))
+        logging.info('Checking source WP sites for validity')
+        sites_errs = self._check_sites(self.rulesets.keys())
+        if sites_errs:
+            # Can't continue, we have to avoid partial migrations.
+            logging.error('Some sites to migrate are not valid: {}, fix it, check /etc/hosts too'.format(sites_errs))
+            sys.exit()
+        logging.info('[{:.2f}s] Finished checking sites'.format(tt()-t))
+
+        if not self.dest_sites:
+            logging.error('Not a single WP instance found at the destination {}!'.format(self.root_wp_dest))
+        else:
+            logging.info('Explored the destination tree. Found wp instances:')
+            pprint(self.dest_sites)
+            msg = ' '.join(['Are all the *required* destination WP sites present above?',
+                            'You need to create the WP sites trees first (e.g. www.epfl.ch/innovation,',
+                            'www.epfl.ch/schools), they\'ll go under /srv/$WP_ENV/www.epfl.ch/...',
+                            'Yes/No (y/n) ? : '])
+            uinput = input(msg)
+            if uinput not in ['Yes', 'y']:
+                logging.info('Exiting, please create the tree hierarchy (arborescence).')
+                return
+
+        logging.info("{} total sites found in rulesets: ".format(len(self.rulesets)))
         logging.debug(self.rulesets)
         pprint(self.rulesets)
 
         # Iterate over all the sites to map and dump a CSV with the pages and another
         # one for the media / attachments. This will *greatly simplify* the reinsertion.
-        logging.info('[{:.2f}s] CSV dumping...'.format(tt()-t))
+        logging.info('CSV dumping...')
         t = tt()
         self.dump_csv()
+        logging.info('[{:.2f}s] Finished dumping sites'.format(tt()-t))
 
-        logging.info('[{:.2f}s] Starting rule expansion in diff. langs...'.format(tt()-t))
+        # Translate the JAHIA address into a WP address and also in all the available langs.
+        logging.info('Starting rule translation and lang expansion...')
         t = tt()
         self.rule_expansion()
+        logging.info('[{:.2f}s] Finished rule translation and lang expansion...'.format(tt()-t))
 
         # Sort the rules from most generic to specific or the reverse (-1).
-        logging.info('[{:.2f}s] Rule sorting...'.format(tt()-t))
-        t = tt()
+        logging.info('Rule sorting expanded rules: ')
         self.sort_rules()
         pprint(self.rulesets)
 
         # Write the .htaccess redirections for the new URL mapping
         if self.htaccess:
-            logging.info('[{:.2f}s] Writing .htaccess file ...'.format(tt()-t))
-            t = tt()
+            logging.info('Writing .htaccess file ...')
             self.update_htaccess()
 
-        # Apply rule filters (e.g. do not migrate, strict mode  vs greedy mode)
-        logging.info('[{:.2f}s] Starting with the filters phase...'.format(tt()-t))
+        # Filter the pages using the CSV rules (e.g. do not migrate, strict mode  vs greedy mode)
+        logging.info('Starting with the page filtering phase...')
         t = tt()
         self.apply_filters()
+        logging.info('[{:.2f}s] Finished with the page filtering phase...'.format(tt()-t))
 
         # At this point all the CSV files are generated and stored by sitename*
-        logging.info('[{:.2f}s] Starting rule execution to replace URLs...'.format(tt()-t))
+        logging.info('Starting rule execution to replace WP URLs... Stats:')
         t = tt()
         stats = self.execute_rules()
         pprint(stats)
+        logging.info('[{:.2f}s] Finished rule execution to replace WP URLs...'.format(tt()-t))
 
-        logging.info('[{:.2f}s] Replacing relative URLs (both relative GUID and post_name):'.format(tt()-t))
+        logging.info('Replacing relative WP URLs (both relative GUID and post_name)... Stats:')
         t = tt()
         stats = self.execute_rules_guid()
         pprint(stats)
+        logging.info('[{:.2f}s] Finished replacing relative URLs'.format(tt()-t))
 
         # Consolidate a single CSV per destination, applying filtering (e.g. migrate *, create empty pages..)
         # Also check multilang dest. and if necessary add / remove langs from the source.
-        logging.info('[{:.2f}s] Consolidating a single CSV per destination + filtering:'.format(tt()-t))
+        logging.info('Consolidating a single CSV per destination + filtering')
         t = tt()
         dst_csv_files = self.consolidate_csv()
+        logging.info('[{:.2f}s] Finished CSV consolidation'.format(tt()-t))
 
         # At this point all the CSV files have the right URLs in place. It is the moment to effectively migrate
         # the content (pages and files / media)
-        logging.info('[{:.2f}s], Preparing insertion in target WP instances...'.format(tt()-t))
+        logging.info('Preparing insertion in target WP instances (pages, menu, sidebars)...')
         t = tt()
         media_refs = self.migrate_content(dst_csv_files)
+        logging.info('[{:.2f}s], Finished insertion in target WP instances'.format(tt()-t))
 
-        logging.info('[{:.2f}s], Preparing media insertion in target WP instances...'.format(tt()-t))
+        logging.info('Preparing media insertion in target WP instances...'.format(tt()-t))
         t = tt()
         self.migrate_media(media_refs)
-
-        logging.info('[{:.2f}s], Finished importing media. Finished all.'.format(tt()-t))
+        logging.info('[{:.2f}s], Finished media insertion in target WP instances...'.format(tt()-t))

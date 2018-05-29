@@ -105,9 +105,11 @@ class WPExporter:
         """
         return self.host == settings.HTTPD_CONTAINER_NAME
 
-    def import_data_to_wordpress(self, skip_pages=False, skip_media=False):
+    def import_data_to_wordpress(self, skip_pages=False, skip_media=False, features_flags=False):
         """
         Import all data to WordPress via REST API and wp-cli
+
+        :param feature_flags: To tell if page content have to be cleaned during import
         """
         try:
             start_time = timeit.default_timer()
@@ -125,7 +127,7 @@ class WPExporter:
 
             # pages
             if not skip_pages:
-                self.import_pages()
+                self.import_pages(features_flags)
                 self.set_frontpage()
 
             self.populate_menu()
@@ -490,6 +492,23 @@ class WPExporter:
                         tag_attribute="href"
                     )
 
+            # Step 3 - Fix internal absolute link
+            tags = soup.find_all('a')
+
+            for tag in tags:
+                link = tag.get('href')
+
+                if not link:
+                    continue
+                # If it's a local absolute link, we have to rebuild it.
+                # FIXME: we may have to do the same for sidebar content
+                if link.startswith("http://" + self.site.server_name) or \
+                        link.startswith("https://" + self.site.server_name):
+
+                    relative_link = link[link.index(self.site.server_name) + len(self.site.server_name):]
+
+                    tag['href'] = "{}{}".format(self.wp_generator.wp_site.url, relative_link)
+
             # update the page
             wp_id = wp_page["id"]
 
@@ -634,9 +653,31 @@ class WPExporter:
         """Update the page slug"""
         return self.update_page(page_id, slug=slug)
 
-    def import_pages(self):
+    def apply_features_flags(self, content):
+        """
+        Do some cleaning in given content
+
+        :param content: content in which doing replacement
+        :return: content with replacement done.
+        """
+        soup = BeautifulSoup(content, 'html5lib')
+        soup.body.hidden = True
+
+        # 1 - Attributes to clean
+
+        tag_list = soup.findAll(lambda tag: len(tag.attrs) > 0)
+        for tag in tag_list:
+            for attribute in tag.attrs:
+                if attribute in settings.FEATURES_FLAGS_ATTRIBUTES_TO_CLEAN:
+                    tag[attribute] = ''
+
+        return str(soup.body)
+
+    def import_pages(self, features_flags=False):
         """
         Import all pages of jahia site to Wordpress
+
+        :param features_flags: To tell if page content have to be cleaned during import
         """
 
         # keep the pages for fixing the links later
@@ -663,12 +704,16 @@ class WPExporter:
                     if not box.is_shortcode():
                         contents[lang] += '<div class="{}">'.format(box.type + "Box")
 
-                    if box.title:
-                        if WPUtils.is_html(box.title):
-                            contents[lang] += '<h3>{0}</h3>'.format(box.title)
-                        else:
-                            slug = slugify(box.title)
-                            contents[lang] += '<h3 id="{0}">{0}</h3>'.format(slug, box.title)
+                        if box.title:
+                            if WPUtils.is_html(box.title):
+                                contents[lang] += '<h3>{}</h3>'.format(box.title)
+                            else:
+                                slug = slugify(box.title)
+                                contents[lang] += '<h3 id="{}">{}</h3>'.format(slug, box.title)
+
+                        # If cleaning required
+                        if features_flags:
+                            box.content = self.apply_features_flags(box.content)
 
                     # in the parser we can't know the current language.
                     # we assign a string that we replace with the current language
@@ -768,6 +813,9 @@ class WPExporter:
         """
         Update all pages to define the pages hierarchy
         """
+
+        logging.info("Updating parent IDs...")
+
         for page in self.site.pages_by_pid.values():
             for lang, page_content in page.contents.items():
 
@@ -782,6 +830,8 @@ class WPExporter:
                     self.wp.post_pages(page_id=page.contents[lang].wp_id, data=wp_page_info)
 
     def create_sitemaps(self):
+
+        logging.info("Creating sitemap...")
 
         info_page = OrderedDict()
 
@@ -848,7 +898,8 @@ class WPExporter:
                     if box.is_empty():
                         continue
 
-                    if box.type in [Box.TYPE_TEXT, Box.TYPE_CONTACT, Box.TYPE_LINKS, Box.TYPE_FILES]:
+                    if box.type in [Box.TYPE_TOGGLE, Box.TYPE_TEXT, Box.TYPE_CONTACT, Box.TYPE_LINKS, Box.TYPE_FILES,
+                                    Box.TYPE_INCLUDE, Box.TYPE_MEMENTO, Box.TYPE_ACTU, Box.TYPE_SNIPPETS]:
                         widget_type = 'custom_html'
                         title = prepare_html(box.title)
                         content = prepare_html(box.content)
@@ -973,7 +1024,7 @@ class WPExporter:
 
                     # If menu entry is sitemap
                     # OR
-                    # If points to an anchor on a page, URL is not is absolute (starts with 'http').
+                    # If points to an anchor on a page AND URL is not is absolute (starts with 'http').
                     # If URL is not absolute, this is because it points to a vanity URL defined in Jahia
                     # THEN we add WP site base URL
                     if menu_item.points_to_sitemap() or \
@@ -1004,10 +1055,13 @@ class WPExporter:
                     if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict and \
                             child.contents[lang].wp_id:  # FIXME For unknown reason, wp_id is sometimes None
 
+                        # If we have a menu entry title and it is different as the page title, we take the menu title
+                        menu_txt = menu_item.txt if menu_item.txt != "" else child.contents[lang].menu_title
+
                         command = 'menu item add-post {} {} --title="{}" --parent-id={} --porcelain' \
                             .format(menu_name,
                                     child.contents[lang].wp_id,
-                                    child.contents[lang].menu_title.replace('"', '\\"'),
+                                    menu_txt.replace('"', '\\"'),
                                     parent_menu_id)
 
                         menu_id = self.run_wp_cli(command)

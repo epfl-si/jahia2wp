@@ -24,7 +24,7 @@
         			
         			if( $currentLang == "fr_FR" ) {
           			$linkLegal = "https://mediacom.epfl.ch/disclaimer-fr";
-                $linkAccess = "https://https://www.epfl.ch/accessibility.fr.shtml";
+                $linkAccess = "https://www.epfl.ch/accessibility.fr.shtml";
         			} else {
           			$linkLegal = "https://mediacom.epfl.ch/disclaimer-en";
                 $linkAccess = "https://www.epfl.ch/accessibility.en.shtml";

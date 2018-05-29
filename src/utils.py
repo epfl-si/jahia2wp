@@ -12,6 +12,7 @@ import binascii
 import random
 import xml.dom.minidom
 import re
+import requests
 
 from urllib.parse import urlsplit
 from bs4 import BeautifulSoup
@@ -29,7 +30,7 @@ def deprecated(message):
             return x + y
 
         class SomeClass:
-            @deprecated
+            @deprecat
             def some_old_method(self, x,y):
                 return x + y
     """
@@ -425,3 +426,25 @@ class Utils(object):
         Return True if the content is HTML.
         """
         return bool(BeautifulSoup(content, "html.parser").find())
+
+    @staticmethod
+    def get_redirected_url(url):
+        """
+        Returns the URL on which HTTP GET is redirected  (can be different URL or simply HTTP to HTTPS)
+        :param url: URL we have to check
+        :return: URL on which we are redirected.
+        """
+        url = url.strip()
+        if url == "":
+            return ""
+
+        response = requests.get(url)
+
+        # Check for 30x or 200 status code
+        if 300 <= response.status_code < 400 or response.status_code == 200:
+            # It's a redirect
+            return response.url
+
+        else:
+            # If we cannot get a correct answer, we assume there is no redirect
+            return url

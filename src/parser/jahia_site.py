@@ -249,24 +249,24 @@ class Site:
                         if txt == '':
                             continue
                         hidden = jahia_type.getAttribute("jahia:hideFromNavigationMenu") != ""
-                        target = "sitemap" if jahia_type.getAttribute("jahia:template") == "sitemap" \
+                        points_to = "sitemap" if jahia_type.getAttribute("jahia:template") == "sitemap" \
                             else jahia_type.getAttribute("jcr:uuid")
                     # If URL
                     elif jahia_type.nodeName == "jahia:url":
                         txt = jahia_type.getAttribute("jahia:title")
-                        target = jahia_type.getAttribute("jahia:value")
+                        points_to = jahia_type.getAttribute("jahia:value")
 
                         self.num_url_menu += 1
                     # If link to another page in the menu
                     elif jahia_type.nodeName == "jahia:link":
                         txt = jahia_type.getAttribute("jahia:title")
-                        target = jahia_type.getAttribute("jahia:reference")
+                        points_to = jahia_type.getAttribute("jahia:reference")
 
                         self.num_link_menu += 1
                     else:
                         continue
 
-                    menu_item = MenuItem(txt, target, hidden)
+                    menu_item = MenuItem(txt, points_to, hidden)
 
                     # If we are parsing root menu entries
                     if parent_menu is None:
@@ -636,6 +636,15 @@ class Site:
             # save the new banner content
             banner.content = str(soup.body)
 
+    def is_file_link(self, link):
+        """
+        Tells if given link is a pointing to a file
+        :param link:
+        :return:
+        """
+        return link.startswith("###file") or link.startswith('/repository') or \
+            (link.startswith('../') and '/files/' in link)
+
     def fix_file_links_in_tag(self, soup, tag_name, attribute):
         """
         Fix only links to files in given BeautifulSoup object.
@@ -661,10 +670,10 @@ class Site:
                 if link.startswith(link_type):
                     return
 
-            if link.startswith("###file") or link.startswith('/repository'):
+            if self.is_file_link(link):
 
                 if "/files/" in link:
-                    new_link = link[link.index('/files/'):]
+                    new_link = link[link.rindex('/files/'):]
 
                     # If we have a link like this :
                     # ?uuid=default:a6d36162-07da-4036-9b58-a32e416f7769
@@ -775,14 +784,10 @@ class Site:
             # absolute links rewritten as relative links
             elif link.startswith("http://" + self.server_name) or \
                     link.startswith("https://" + self.server_name):
-
-                new_link = link[link.index(self.server_name) + len(self.server_name):]
-
-                tag[attribute] = self.full_path(new_link)
-
+                # Link will be rebuild in exporter
                 self.absolute_links += 1
             # file links
-            elif link.startswith("###file") or link.startswith('/repository'):
+            elif self.is_file_link(link):
 
                 self.fix_file_links_in_tag(soup, tag_name, attribute)
 
