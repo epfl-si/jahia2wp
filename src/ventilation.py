@@ -937,12 +937,13 @@ class Ventilation:
             # Find the dest. site URL as the longuest match of any entry URL (all belong to the same dest.)
             site_url_matches = [s for s in self.dest_sites.keys() if s in entries[0]['url']]
             site_url = '/'.join(max([m.split('/') for m in site_url_matches]))
+            logging.info('Migrating content for {}'.format(site_url))
 
             # Get the dest site langs
             lngs = Utils.run_command('wp pll languages --path=' + self.dest_sites[site_url])
             lngs = [l[:2] for l in lngs.split("\n")]
 
-            migrate_menu_sidebar = False
+            migrate_menu_sidebar_from = None
 
             for entry in entries:
                 p_url = entry['url']
@@ -1071,7 +1072,7 @@ class Ventilation:
                         # Using URL in EN by default
                         if site_url == p_url.strip('/'):
                             # Set the menu / sidebar flag
-                            migrate_menu_sidebar = True
+                            migrate_menu_sidebar_from = src_site
                             logging.info('Updating home page for site {} to ID {}'.format(site_url, ids[0]))
                             dest_site = self.dest_sites[site_url]
                             cmd = 'wp option update show_on_front page --path={}'.format(dest_site)
@@ -1083,22 +1084,29 @@ class Ventilation:
                             if 'Success' not in msg:
                                 logging.warning('Could not set page_on_front option! Msg: {}. cmd: {}', msg, cmd)
 
-            if migrate_menu_sidebar:
-                self.migrate_sidebars(src_site, site_url)
-                self.migrate_menu(src_site, site_url, table_ids)
+            if migrate_menu_sidebar_from:
+                self.migrate_sidebars(migrate_menu_sidebar_from, site_url)
+                self.migrate_menu(migrate_menu_sidebar_from, site_url, table_ids)
 
         return media_refs
 
     def migrate_sidebars(self, site, dst_sidebars_url):
+        logging.info('Trying to export sidebars from {} to {}'.format(site, dst_sidebars_url))
+        # Get all sidebars at the destination
+        dst = self.dest_sites[dst_sidebars_url]
+        cmd = 'wp sidebar list --format=ids --path={}'.format(dst)
+        sidebars_dst = Utils.run_command(cmd, 'utf8').split(' ')
         # Find the widgets page in the CSV
         with open(self.widgets[site], "r", encoding='utf8') as f:
             sidebars_content = yaml.load(f)
         for side_id, widgets in sidebars_content.items():
+            if side_id not in sidebars_dst:
+                logging.error('Sidebar {} does not exist at destination, skipping..'.format(side_id))
+                continue
             for w in widgets:
                 # IMPORTANT: The destination sidebars are created while the site is generated.
                 # Therefore no need to create them.
                 cmd = 'wp widget add {} ' + side_id + ' {} --title="{}" --path={} --text="{}"'
-                dst = self.dest_sites[dst_sidebars_url]
                 o = w['options']
                 # Escape html quotes
                 text = o['text'].replace('"', '\\"')
@@ -1132,7 +1140,7 @@ class Ventilation:
         # Getting menu list at the source (site)
         cmd = 'wp menu list --fields=slug,locations,term_id --format=json --path={}'.format(path)
         menu_list = Utils.run_command(cmd, 'utf8')
-        logging.info('Current menu at source: {}'.format(menu_list))
+        logging.info('Current menu at source {}: {}'.format(site, menu_list))
         if not menu_list:
             logging.error("Cannot get menu list for {}".format(path))
             return
