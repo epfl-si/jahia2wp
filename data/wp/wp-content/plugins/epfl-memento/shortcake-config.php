@@ -118,7 +118,7 @@ Class ShortCakeMementoConfig
 
            array(
                'label' => __('Add Memento shortcode', 'epfl-memento'),
-               'listItemImage' => '<img src="' . plugins_url( 'memento.svg', __FILE__ ) . '" >', 
+               'listItemImage' => '<img src="' . plugins_url( 'img/memento.svg', __FILE__ ) . '" >', 
                'attrs'         => array(
                    array(
                        'label'         => '<h3>' . esc_html__('Select your memento', 'epfl-memento') . '</h3>',

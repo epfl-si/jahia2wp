@@ -127,7 +127,7 @@ add_action( 'init', function() {
             'epfl_scheduler',
             array(
                 'label' => __('Add Scheduler shortcode', 'epfl-scheduler'),
-                'listItemImage' => '<img src="' . plugins_url( 'scheduler.svg', __FILE__ ) . '" >',
+                'listItemImage' => '<img src="' . plugins_url( 'img/scheduler.svg', __FILE__ ) . '" >',
                 'attrs'         => array(
                     array(
                         'label'         => '<h3>' . esc_html__('Start date', 'epfl-scheduler') . '</h3>',
