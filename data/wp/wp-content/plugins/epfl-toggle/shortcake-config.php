@@ -20,7 +20,7 @@ Class ToggleShortCakeConfig
 
             array(
                 'label' => __('Add toggle shortcode', 'epfl-toggle'),
-                'listItemImage' => '',
+                'listItemImage' => '<img src="' . plugins_url( 'img/toggle.svg', __FILE__ ) . '" >',
 
                 'attrs'         => array(
                         array(
