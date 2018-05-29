@@ -323,7 +323,7 @@ class WPExporter:
                 # but separatly, so we go through each occurence via a regular expression and replace the full
                 # full shortcode when an update of link is needed. This allows us to override only the correct part
                 # of the content of the box.
-                regex = r'\[epfl_buttons_box type="(small|big)" url="(.*?)" image_url="(.*?)" text="(.*?)"\]'
+                regex = r'\[epfl_buttons type="(small|big)" url="(.*?)" image_url="(.*?)" text="(.*?)"\]'
                 if re.search(regex, box.content):
                     for box_type, url, image_url, text in re.findall(regex, box.content):
                         original = Box.build_buttons_box_content(box_type, url, image_url, text)
@@ -518,8 +518,8 @@ class WPExporter:
 
                 # 'jahia_urls' contains a list of all URLs pointing on page. We arbitrary take the first of the list
                 old_url = url_mapping["jahia_urls"][0]
-                new_url = url_mapping["wp_url"]
-                regex = r'\[epfl_buttons_box type="(small|big)" url="(.*?)" image_url="(.*?)" text="(.*?)"\]'
+                new_url = url_mapping["wp_slug"]
+                regex = r'\[epfl_buttons type="(small|big)" url="(.*?)" image_url="(.*?)" text="(.*?)"\]'
                 if re.search(regex, content):
                     for box_type, url, image_url, text in re.findall(regex, content):
                         original = Box.build_buttons_box_content(box_type, url, image_url, text)

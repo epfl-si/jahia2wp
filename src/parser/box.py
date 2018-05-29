@@ -667,6 +667,9 @@ class Box:
         self.content = content
 
     def set_buttons_box(self, element):
+
+        self.shortcode_name = 'epfl_buttons'
+
         box_type = element.getAttribute("jcr:primaryType")
         if 'small' in box_type:
             elements = element.getElementsByTagName("smallButtonList")
@@ -714,7 +717,7 @@ class Box:
 
     @classmethod
     def build_buttons_box_content(cls, box_type, url, image_url, text):
-        return '[epfl_buttons_box type="{}" url="{}" image_url="{}" text="{}"]\n'.format(box_type, url, image_url, text)
+        return '[epfl_buttons type="{}" url="{}" image_url="{}" text="{}"]\n'.format(box_type, url, image_url, text)
 
     def set_box_snippets(self, element):
         """set the attributes of a snippets box"""
