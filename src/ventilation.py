@@ -62,7 +62,7 @@ class Ventilation:
     dest_sites = {}
 
     def __init__(self, wp_env, csv_file, greedy=False, root_wp_dest=None, htaccess=False,
-        context="intra", dry_run=False):
+                 context="intra", dry_run=False):
         self.wp_env = wp_env
         self.csv_file = csv_file
         self.strict_mode = not greedy
@@ -580,7 +580,7 @@ class Ventilation:
 
             # Export CSV filtered files into a human readable format: JAHIA URL => WP URL
             if self.dry_run:
-                base_f,_ = os.path.splitext(csv_f)
+                base_f, _ = os.path.splitext(csv_f)
                 incl_csv = base_f + '_included.csv'
                 with open(incl_csv, 'w', encoding='utf8') as f:
                     writer = csv.writer(f)

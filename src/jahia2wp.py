@@ -902,7 +902,7 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
 
 @dispatch.on('migrate-urls')
 def url_mapping(csv_file, wp_env, greedy=False, root_wp_dest=None, htaccess=False,
-    context='intra', dry_run=False, **kwargs):
+                context='intra', dry_run=False, **kwargs):
     """
     :param csv_file: CSV containing the URL mapping rules for source and destination.
     :param context: intra, inter, full. Replace the occurrences at intra, inter or both.
