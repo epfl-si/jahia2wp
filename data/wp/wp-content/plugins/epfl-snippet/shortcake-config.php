@@ -9,8 +9,8 @@ Class ShortCakeSnippetConfig
             'epfl_snippets',
 
             array(
-                'label' => __('Add Snippet shortcode', 'epfl-snippet'),
-                'listItemImage' => '',
+                'label'         => __('Add Snippet shortcode', 'epfl-snippet'),
+                'listItemImage' => '<img src="' . plugins_url( 'snippet.svg', __FILE__ ) . '" >',
                 'attrs'         => array(
                     array(
                         'label'         => '<h3>' . esc_html__('Title', 'epfl-snippet') . '</h3>',
