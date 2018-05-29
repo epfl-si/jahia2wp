@@ -49,11 +49,7 @@ Usage:
     [--force] [--plugin=<PLUGIN_NAME>]
   jahia2wp.py global-report <csv_file> [--output-dir=<OUTPUT_DIR>] [--use-cache] [--debug | --quiet]
   jahia2wp.py migrate-urls <csv_file> <wp_env>                    [--debug | --quiet]
-<<<<<<< HEAD
     --root_wp_dest=</srv/../epfl> [--greedy] [--htaccess] [--context=<intra|inter|full>] [--dry_run]
-=======
-    --root_wp_dest=</srv/../epfl> [--greedy] [--htaccess] [--context=<intra|inter|full>]
->>>>>>> b1585b83a1bcacdd34ad33f098b2c3f2f53b4b5b
 
 Options:
   -h --help                 Show this screen.
