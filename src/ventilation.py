@@ -61,12 +61,8 @@ class Ventilation:
     site_paths = {}
     dest_sites = {}
 
-<<<<<<< HEAD
     def __init__(self, wp_env, csv_file, greedy=False, root_wp_dest=None, htaccess=False,
                  context="intra", dry_run=False):
-=======
-    def __init__(self, wp_env, csv_file, greedy=False, root_wp_dest=None, htaccess=False, context="intra"):
->>>>>>> b1585b83a1bcacdd34ad33f098b2c3f2f53b4b5b
         self.wp_env = wp_env
         self.csv_file = csv_file
         self.strict_mode = not greedy
@@ -247,11 +243,7 @@ class Ventilation:
             if not wp_conf:
                 cmd = 'Site {} is not installed or wp_config is invalid, _check_sites was not called?'
                 logging.error(cmd.format(site))
-<<<<<<< HEAD
                 raise Exception('Invalid WP site! Did you call _check_sites?')
-=======
-                sys.exit(1)
->>>>>>> b1585b83a1bcacdd34ad33f098b2c3f2f53b4b5b
 
             # IMPORTANT: Increase the 'field_size_limit' to allow dumping certain sites like vpi.epfl.ch
             csv.field_size_limit(sys.maxsize)
@@ -268,14 +260,11 @@ class Ventilation:
             cmd = cmd.format(fields, wp_conf.wp_site.path, csv_f)
             logging.debug(cmd)
             Utils.run_command(cmd, 'utf8')
-<<<<<<< HEAD
 
             # Check if it's a non empty CSV
             if os.path.getsize(csv_f) == 0:
                 raise Exception('Empty CSV exported! Cannot continue')
 
-=======
->>>>>>> b1585b83a1bcacdd34ad33f098b2c3f2f53b4b5b
             # FIX: Convert the JSON to *proper* CSV with python
             # This is necessary since WP-CLI can produce a non-standard CSV (e.g. not escaping colons)
             pages = json.load(open(csv_f, 'r', encoding='utf8'))
@@ -1378,14 +1367,6 @@ class Ventilation:
         t = tt()
         self.rule_expansion()
         logging.info('[{:.2f}s] Finished rule translation and lang expansion...'.format(tt()-t))
-<<<<<<< HEAD
-=======
-
-        # Sort the rules from most generic to specific or the reverse (-1).
-        logging.info('Rule sorting expanded rules: ')
-        self.sort_rules()
-        pprint(self.rulesets)
->>>>>>> b1585b83a1bcacdd34ad33f098b2c3f2f53b4b5b
 
         # Write the .htaccess redirections for the new URL mapping
         if self.htaccess:
@@ -1397,12 +1378,9 @@ class Ventilation:
         t = tt()
         self.apply_filters()
         logging.info('[{:.2f}s] Finished with the page filtering phase...'.format(tt()-t))
-<<<<<<< HEAD
 
         if self.dry_run:
             sys.exit(0)
-=======
->>>>>>> b1585b83a1bcacdd34ad33f098b2c3f2f53b4b5b
 
         # At this point all the CSV files are generated and stored by sitename*
         logging.info('Starting rule execution to replace WP URLs... Stats:')
