@@ -890,8 +890,8 @@ class Ventilation:
                     # Add the pages to the consolidated collection for the dest site
                     if max_match not in dest_csv:
                         dest_csv[max_match] = []
-                    csv_entry = {'url': p_en['url'], 'post_name': p_en['post_name'], 'json_file': tmp_json}
-                    dest_csv[max_match].append(csv_entry)
+                    entry = {'url': p_en['url'], 'post_name': p_en['post_name'], 'site': site, 'json_file': tmp_json}
+                    dest_csv[max_match].append(entry)
 
         # Dump a CSV per destination site
         for dst_site_url in dest_csv:
@@ -987,7 +987,7 @@ class Ventilation:
                         # Keep the new IDs in the URL => IDs dictionary
                         table_ids_url[p_url] = ids
                 else:
-                    src_site = 'https://{}'.format(json_f.split('_').pop(1))
+                    src_site = entry['site']
 
                     if src_site not in table_ids:
                         table_ids[src_site] = {}
