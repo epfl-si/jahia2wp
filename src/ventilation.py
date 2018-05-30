@@ -908,7 +908,7 @@ class Ventilation:
             csv_entries = sorted(csv_entries, key=lambda e: len(e['url'].strip('/').split('/')), reverse=False)
             csv_cons_f = "/tmp/j2wp_consolidated_{}.json".format(dst_site_url.split('//').pop().replace('/', '_'))
             with open(csv_cons_f, 'w', encoding='utf8') as f:
-                writer = csv.DictWriter(f, fieldnames=['url', 'post_name', 'json_file'])
+                writer = csv.DictWriter(f, fieldnames=['url', 'post_name', 'site', 'json_file'])
                 writer.writeheader()
                 for e in csv_entries:
                     writer.writerow(e)
@@ -1116,7 +1116,7 @@ class Ventilation:
                 cmd = 'wp widget add {} ' + side_id + ' {} --title="{}" --path={} --text="{}"'
                 o = w['options']
                 # Escape html quotes
-                text = o['text'].replace('"', '\\"')
+                text = (o.get('text') or o.get('content')).replace('"', '\\"')
                 cmd = cmd.format(w['name'], w['position'], o['title'] + '--' + o['pll_lang'], dst, text)
                 # print('sidebar cmd: ' + cmd)
                 sidebar_out = Utils.run_command(cmd, 'utf8')
