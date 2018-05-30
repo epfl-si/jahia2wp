@@ -93,6 +93,11 @@ class FanGlobalSitemap:
                 self._add_error(i, "URL '{}' must start with {}".format(url, self.ROOT_URL))
                 continue
 
+            # not end with a /
+            if url.endswith("/"):
+                self._add_error(i, "URL '{}' must not end with a /".format(url))
+                continue
+
             # have a parent
             parent_url = url[:url.rfind("/")]
 

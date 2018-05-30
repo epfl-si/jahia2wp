@@ -117,7 +117,7 @@ Class ShortCakeConfig
 
             array(
                 'label' => __('Add News shortcode', 'epfl-news'),
-                'listItemImage' => '',
+                'listItemImage' => '<img src="' . plugins_url( 'img/news.svg', __FILE__ ) . '" >',
                 'attrs'         => array(
                         array(
                             'label'         => '<h3>' . esc_html__('Select your news channel', 'epfl-news') . '</h3>',
