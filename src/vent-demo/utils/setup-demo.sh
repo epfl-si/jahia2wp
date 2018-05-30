@@ -20,7 +20,7 @@ if [ ! -d $demo_site1 -o ! -d $demo_site2 ]; then
 fi
 
 # If dir empty, just delete it.
-if [ -d "$demo_site1" -a ! "$(ls -A $DEMO_SITE)" ]; then rmdir $DEMO_SITE; fi
+if [ -d "$DEMO_SITE" -a ! "$(ls -A $DEMO_SITE)" ]; then rmdir $DEMO_SITE; fi
 # Check if the dcsl.epfl.ch folder exists
 if [ ! -d $DEMO_SITE ]; then
 	echo
