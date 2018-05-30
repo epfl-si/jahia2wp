@@ -713,13 +713,12 @@ class Box:
                     image_url = '/' + image_url
             if text == "" and url_title != "":
                 text = url_title
-            content += self.build_buttons_box_content(box_type, url, image_url, text)
+            content += '[{} type="{}" url="{}" image_url="{}" text="{}"]'.format(self.shortcode_name, box_type, url, image_url, text)
         self.content = content
-        print(self.content)
 
-    @classmethod
-    def build_buttons_box_content(cls, box_type, url, image_url, text):
-        return '[epfl_buttons type="{}" url="{}" image_url="{}" text="{}"]\n'.format(box_type, url, image_url, text)
+    # @classmethod
+    # def build_buttons_box_content(cls, box_type, url, image_url, text):
+    #     return '[epfl_buttons type="{}" url="{}" image_url="{}" text="{}"]\n'.format(box_type, url, image_url, text)
 
     def set_box_snippets(self, element):
         """set the attributes of a snippets box"""
