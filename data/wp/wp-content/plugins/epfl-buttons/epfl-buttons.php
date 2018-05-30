@@ -8,6 +8,8 @@
 
 declare( strict_types = 1 );
 
+require_once 'shortcake-config.php';
+
 /**
  * Helper to debug the code
  * @param $var: variable to display
@@ -61,16 +63,18 @@ function epfl_buttons_process_shortcode( $attributes, string $content = null ): 
     // get parameters
     $atts = shortcode_atts( array(
         'type'      => 'big',
-        'image_url' => '',
+        'image'     => '',
         'url'       => '',
         'text'      => '',
     ), $attributes);
 
     // sanitize parameters
-    $type = sanitize_text_field($atts['type']);
-    $image_url = sanitize_text_field($atts['image_url']);
-    $url      = sanitize_text_field($atts['url']);
-    $text     = sanitize_text_field($atts['text']);
+    $type  = sanitize_text_field($atts['type']);
+    $image = sanitize_text_field($atts['image']);
+    $url   = sanitize_text_field($atts['url']);
+    $text  = sanitize_text_field($atts['text']);
+
+    $image_url = wp_get_attachment_url( $image );
 
     // check parameters
     if ( false == epfl_buttons_box_check_parameters($type, $url, $image_url, $text) ) {
@@ -79,6 +83,18 @@ function epfl_buttons_process_shortcode( $attributes, string $content = null ): 
     return epfl_buttons_box_build_html( $type, $url, $image_url, $text );
 }
 
-add_shortcode( 'epfl_buttons', 'epfl_buttons_process_shortcode' );
+// load .mo file for translation
+function epfl_buttons_load_plugin_textdomain() {
+    load_plugin_textdomain( 'epfl-buttons', FALSE, basename( plugin_dir_path( __FILE__ ) ) . '/languages/' );
+}
+add_action( 'plugins_loaded', 'epfl_buttons_load_plugin_textdomain' );
+add_action( 'init', function() {
+    // define the shortcode
+    add_shortcode( 'epfl_buttons', 'epfl_buttons_process_shortcode' );
+    // shortcake configuration
+    if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
+        ShortCakeButtonsConfig::config();
+    endif;
+} );
 
 ?>
