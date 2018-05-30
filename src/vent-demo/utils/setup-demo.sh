@@ -38,7 +38,7 @@ if [ ! -d $DEMO_SITE ]; then
 	# Export the site
 	demo_site_export='/tmp/j2wp_demosite.csv'
 	header='wp_site_url,wp_tagline,wp_site_title,site_type,openshift_env,category,theme,theme_faculty,status,installs_locked,updates_automatic,langs,unit_name,Jahia_zip,comment'
-	site_demo='https://$DEMO_SITE_DOMAIN,#parser,#parser,wordpress,gcharmier,GeneralPublic,epfl-master,#parser,yes,no,yes,#parser,DCSL,dcsl,'
+	site_demo="https://${DEMO_SITE_DOMAIN},#parser,#parser,wordpress,gcharmier,GeneralPublic,epfl-master,#parser,yes,no,yes,#parser,DCSL,dcsl,"
 	echo $header > $demo_site_export;
 	echo $site_demo >> $demo_site_export;
 	echo "**** Make sure the wp_exporter has port 8080 to enable the API Rest during export. By default only for jahia2wp-httpd"
