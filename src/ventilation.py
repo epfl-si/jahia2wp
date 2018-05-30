@@ -184,39 +184,28 @@ class Ventilation:
             raise Exception('Empty CSV file!')
 
         for idx, row in enumerate(rows):
-            source = row['source']
-            # Split the path and take the first arg as site
-            # Consider special case of http(s):// and local sites
-            # ATTENTION: At this stage, a site = domain name. Relative paths are not considered as sites.
-            # this is true at least during the 'consolidation' phase wp => wp
-            site_name = source.split('//').pop().split('/').pop(0)
-            # There can be 3 type of rules identified
-            # 1. Root path = sitename = full site
-            # 2. Partial Path = Intermediate path with children
-            # 3. Full path = a leaf / page with no children.
-            # It's expected to find * in the rules but its absence has the same
-            # meaning (i.e. apply the rule to all the sub-content under the path
-            # Sytactically, only 2 cases will be detected: root and non-root path.
-
+            source = row['source'].strip()
             # DO NOT remove the trailing * anymore, necessary to keep track in strict mode.
-            source = source.strip()
             _source = source.strip('*')
             if _source != '':
-                if 'http://' not in _source and 'https://' not in _source:
-                    # Local development case, append the host
-                    site = self.local_env + '/' + site_name
-                    source = self.local_env + '/' + source
-                else:
-                    site = '{}//{}'.format(_source.split('//').pop(0), site_name)
+                # Split the path and take the first arg as site
+                # Consider special case of http(s):// and local sites
+                # ATTENTION: At this stage, a site = domain name. Relative paths are not considered as sites.
+                # this is true at least during the 'consolidation' phase wp => wp
+                prot = source.split('//').pop(0)
+                site_comps = source.split('//').pop().split('/')
+                site_name = site_comps.pop(0)
+                # Special cases where source sites are subfolders: jahia2wp-httpd, ventilation-wp.epfl.ch
+                if site_name in ['jahia2wp-httpd', 'ventilation-wp.epfl.ch']:
+                    site_name += '/' + site_comps.pop(0)
+
+                site = '{}//{}'.format(prot, site_name)
 
             dest = row['destination'].strip()
             if dest != '':
                 # IMPORTANT: Add trailing slash, specially since now the source gets translated
                 # into the new intermediate WP URL that always has a trailing slash.
                 dest = dest.strip('/') + '/'
-                if 'http://' not in dest and 'https://' not in dest:
-                    # Local development case, append the host
-                    dest = self.local_env + '/' + dest
 
             # Start with an empty ruleset
             if site not in rules:
