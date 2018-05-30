@@ -1,13 +1,10 @@
-DEMO_SITE_DOMAIN=dcsl.epfl.ch
-DEMO_SITE=/srv/$WP_ENV/$DEMO_SITE_DOMAIN/htdocs
-
 # Switch to the src/ path.
 cd /srv/$WP_ENV/jahia2wp/src/;
 
 # ======= DEMO CODE ======
 # Check if the destination root tree (arborescence) exists.
-demo_site1="$ROOT_WP_DEST/htdocs/research/domains/laboratories/dcsl"
-demo_site2="$ROOT_WP_DEST/htdocs/research/domains/ic/dcsl"
+demo_site1="$ROOT_WP_DEST/research/domains/laboratories/dcsl"
+demo_site2="$ROOT_WP_DEST/research/domains/ic/dcsl"
 # If dir empty, just delete it.
 if [ -d "$demo_site1" -a ! "$(ls -A $demo_site1)" ]; then rmdir $demo_site1; fi
 if [ -d "$demo_site2" -a ! "$(ls -A $demo_site2)" ]; then rmdir $demo_site2; fi
