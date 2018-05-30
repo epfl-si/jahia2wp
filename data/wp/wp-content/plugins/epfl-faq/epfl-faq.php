@@ -49,8 +49,7 @@ function epfl_faqboxitem_process_shortcode($attributes, $content = null)
 
     $faq_ref_table .= '<li><a href="#'.$anchor.'">'.$question.'</a></li>';
 
-    return '<div class="faq-item">'.
-           '<a name="'.esc_attr($anchor).'"></a>'.
+    return '<div class="faq-item" id="'.esc_attr($anchor).'">'.
            '<h4>'.$question.'</h4>'.
            $content.
            '</div>';
