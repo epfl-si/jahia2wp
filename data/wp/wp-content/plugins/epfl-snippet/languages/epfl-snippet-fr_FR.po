@@ -1,0 +1,59 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: epfl-snippet\n"
+"POT-Creation-Date: 2018-05-28 14:03+0200\n"
+"PO-Revision-Date: 2018-05-28 14:05+0200\n"
+"Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.7.1\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-KeywordsList: __;esc_html__\n"
+"X-Poedit-SearchPath-0: shortcake-config.php\n"
+"X-Poedit-SearchPath-1: epfl-snippet.php\n"
+
+#: shortcake-config.php:12
+msgid "Add Snippet shortcode"
+msgstr "Ajouter un shortcode Snippet"
+
+#: shortcake-config.php:16
+msgid "Title"
+msgstr "Titre"
+
+#: shortcake-config.php:21
+msgid "SubTitle"
+msgstr "Sous-titre"
+
+#: shortcake-config.php:26
+msgid "Image"
+msgstr "Image"
+
+#: shortcake-config.php:30 shortcake-config.php:31
+msgid "Select Image"
+msgstr "Sélectionner une image"
+
+#: shortcake-config.php:40
+msgid "Link"
+msgstr "Lien"
+
+#: shortcake-config.php:43
+msgid "You can define a link in this field. For that, please enter an URL."
+msgstr "Vous pouvez définir un lien dans ce champ. Pour cela, merci de saisir une URL."
+
+#: shortcake-config.php:48
+msgid "Content of snippet"
+msgstr "Contenu du snippet"
+
+#: shortcake-config.php:49
+msgid "You can enter text to display above"
+msgstr "Vous pouvez saisir ci dessus le texte à afficher"
+
+#~ msgid "URL"
+#~ msgstr "URL FR"
+
+#~ msgid "Big Image"
+#~ msgstr "Big IMage FR"
