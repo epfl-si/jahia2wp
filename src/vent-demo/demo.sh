@@ -2,8 +2,8 @@
 
 export ROOT_SITE=www.epfl.ch
 CSV_FILE=/srv/$WP_ENV/jahia2wp/src/vent-demo/data/ventilation-demo.csv
-DEMO_SITE_DOMAIN=dcsl.epfl.ch
-DEMO_SITE=/srv/$WP_ENV/$DEMO_SITE_DOMAIN/htdocs
+export DEMO_SITE_DOMAIN=dcsl.epfl.ch
+export DEMO_SITE=/srv/$WP_ENV/$DEMO_SITE_DOMAIN/htdocs
 
 export ROOT_WP_DEST=/srv/$WP_ENV/$ROOT_SITE/htdocs
 
