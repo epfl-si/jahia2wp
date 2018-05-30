@@ -516,7 +516,7 @@ class WPExporter:
             new_attribute = '{}="{}"'.format(attribute, new_url)
 
             # To use shortcake for snippet plugin we must define url="23" with 23 is the media id.
-            if box.type == 'snippets':
+            if box.type == Box.TYPE_SNIPPETS:
                 medias = self.wp.get_media()
                 for media in medias:
                     if 'guid' in media and 'rendered' in media['guid'] and media['guid']['rendered'] == new_url:
