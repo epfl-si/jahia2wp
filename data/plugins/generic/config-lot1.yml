@@ -49,10 +49,10 @@ plugins:
     config: !include EPFL-FAQ/v1/config-plugin.yml
   - name: epfl-map
     config: !include epfl-map/v1/config-plugin.yml
-  - name: EPFL-Snippet
-    config: !include EPFL-Snippet/v1/config-plugin.yml
   - name: epfl-buttons
     config: !include epfl-buttons/v1/config-plugin.yml
+  - name: epfl-snippet
+    config: !include epfl-snippet/v1/config-plugin.yml
   - name: epfl-toggle
     config: !include epfl-toggle/v1/config-plugin.yml
   - name: epfl-grid
