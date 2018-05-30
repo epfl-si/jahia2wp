@@ -15,6 +15,7 @@ from settings import JAHIA2WP_VENT_TMP
 from utils import Utils
 from wordpress import WPSite, WPConfig
 import yaml
+import socket
 
 """
     It takes the mapping rules in a CSV, with 2 columns each: source => destination,
@@ -358,6 +359,12 @@ class Ventilation:
 
         # Use port 8443 for local_env only (wp-mgmt does not have 443=>8443 redirection for httpd cont.)
         for site in self.rulesets.keys():
+            port = '443'
+            # Try to connect to port 8443 during 5s max, if got an answer then switch ports.
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(10)
+            if sock.connect_ex((urlparse(site).netloc, 8443)) == 0:
+                port = '8443'
             # IMPORTANT: Before expanding any rules, restore the .htaccess to remove ventilation redirs.
             # Restore the .htaccess (always)
             with open(self.site_paths[site] + '/.htaccess', 'r+', encoding='utf8') as f:
@@ -386,8 +393,11 @@ class Ventilation:
                     continue
 
                 orig_src = src
-                src_url = urlparse(src)
-                src_url = src_url._replace(netloc=src_url.netloc + ':8443').geturl()
+                # By safety remove any star *
+                src_url = src.strip('*')
+                if port == '8443':
+                    src_url = urlparse(src_url)
+                    src_url = src_url._replace(netloc=src_url.netloc + ':' + port).geturl()
                 # GET only the HEADERS *of course* in silent mode and ignoring cert validity
                 # WARNING:::: This first curl call will only get the .htaccess redirection (i.e. page GUID)
                 # The second call (redir) will translate the GUID into the actual URL that doesn't have a port
@@ -395,24 +405,32 @@ class Ventilation:
                 out = Utils.run_command('curl -I -s -k {}'.format(src_url))
                 # Parse the Location header if present.
                 loc = [l.split('Location: ').pop().strip() for l in out.split('\n') if 'Location:' in l]
+                # e.g.: HTTP/1.1 301 Moved Permanently, empty answer case included
+                http_status = (out.split(' ') or ['HTTP/1.1', None])[1]
+                # In some cases (e.g. HTTP 200) there is no Location header (i.e. no redirect).
                 if not loc:
-                    logging.warning('cURL fail for URL location in WP instance for {}, removing rule'.format(src))
-                    continue
+                    # If the status is 200 (OK), just use the src url
+                    if http_status not in ['200']:
+                        logging.warning('cURL fail for URL location in WP instance for {}, removing rule'.format(src))
+                        raise Exception('Cannot resolve (with cURL): {}'.format(src_url))
                 else:
+                    # Get the redirected URL
                     src = loc.pop()
-                    # Continue only if the location has a 8443 port.
-                    # Special case: The root URL does only need one cURL.
-                    if ':8443' in src:
+                    # Special case, if port is 8443 and is not present, do nothing (e.g. Home page)
+                    if port == '443' or (port == '8443' and port in src):
                         out = Utils.run_command('curl -I -s -k {}'.format(src))
                         # Parse the Location header if present.
                         loc = [l.split('Location: ').pop().strip() for l in out.split('\n') if 'Location:' in l]
+                        http_status = (out.split(' ') or ['HTTP/1.1', None])[1]
                         if not loc:
-                            logging.warning('cURL fail (location) in WP instance for {}, removing rule'.format(src))
-                            continue
+                            if http_status not in ['200']:
+                                logging.warning('cURL fail (location) in WP instance for {}, removing rule'.format(src))
+                                raise Exception('Cannot resolve (with cURL): {}'.format(src))
                         else:
+                            # Get the final (2nd level redirected URL)
                             src = loc.pop()
-                # Append the star * notation if present in the original rule
-                if '*' == orig_src[:-1]:
+                # Append the star * notation if present in the original rule and not present in src already.
+                if '*' == orig_src[-1] and src[-1] != '*':
                     src += '*'
                 ext_ruleset.append((src, dst))
 
@@ -440,7 +458,7 @@ class Ventilation:
             self.rulesets[site] = ext_ruleset
 
         # Sort the rules from most generic to specific or the reverse (-1).
-        logging.info('Rule sorting expanded rules: ')
+        logging.info('Rule sorting expanded rules..')
         self._sort_rules()
 
         return True
@@ -1363,7 +1381,8 @@ class Ventilation:
         logging.info('Starting rule translation and lang expansion...')
         t = tt()
         self.rule_expansion()
-        logging.info('[{:.2f}s] Finished rule translation and lang expansion...'.format(tt()-t))
+        logging.info('[{:.2f}s] Finished rule translation and lang expansion...:'.format(tt()-t))
+        pprint(self.rulesets)
 
         # Write the .htaccess redirections for the new URL mapping
         if self.htaccess:
