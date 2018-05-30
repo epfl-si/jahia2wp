@@ -147,12 +147,12 @@ class Utils(object):
             raise err
 
     @classmethod
-    def csv_stream_do_dict(cls, stream, delimiter=','):
+    def csv_stream_to_dict(cls, stream, delimiter=','):
         """
-        Transform Stream (in CSV format) into a dictionnary
+        Transform Stream (in CSV format) into a dictionary.
 
         Arguments keywords:
-        stream -- stream containing infos to put in dictionnary
+        stream -- stream containing infos to put in dictionary
                   For stream information, have a look here: https://docs.python.org/3.5/library/io.html
         delimiter -- character to use to split infos coming from stream (CSV)
 
@@ -177,22 +177,22 @@ class Utils(object):
         Return: list of dictionnaries
         """
         with io.StringIO(text) as stream:
-            return cls.csv_stream_do_dict(stream, delimiter=delimiter)
+            return cls.csv_stream_to_dict(stream, delimiter=delimiter)
 
     @classmethod
     def csv_filepath_to_dict(cls, file_path, delimiter=',', encoding="utf-8"):
         """
-        Returns the rows of the given CSV file as a list of dicts
+        Returns the rows of the given CSV file as a list of dictionaries.
 
         Arguments keywords:
         file_path -- path to file containing infos (in CSV format)
         delimiter -- character to use to split infos coming from file (CSV)
         encoding -- encoding used in file 'file_path'
 
-        Retur: list of dictionnaries
+        Return: list of dictionaries
         """
         with open(file_path, 'r', encoding=encoding) as stream:
-            return cls.csv_stream_do_dict(stream, delimiter=delimiter)
+            return cls.csv_stream_to_dict(stream, delimiter=delimiter)
 
     @classmethod
     def get_optional_env(cls, key, default):
