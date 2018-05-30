@@ -90,7 +90,7 @@ function epfl_buttons_load_plugin_textdomain() {
 add_action( 'plugins_loaded', 'epfl_buttons_load_plugin_textdomain' );
 add_action( 'init', function() {
     // define the shortcode
-    add_shortcode( 'epfl_buttons_box', 'epfl_buttons_process_shortcode' );
+    add_shortcode( 'epfl_buttons', 'epfl_buttons_process_shortcode' );
     // shortcake configuration
     if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
         ShortCakeButtonsConfig::config();

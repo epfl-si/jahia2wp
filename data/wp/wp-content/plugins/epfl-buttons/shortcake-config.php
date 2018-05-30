@@ -13,7 +13,7 @@ Class ShortCakeButtonsConfig
     {
         shortcode_ui_register_for_shortcode(
 
-            'epfl_buttons_box',
+            'epfl_buttons',
 
             array(
                 'label'         => __('Add Buttons shortcode', 'epfl-buttons'),
