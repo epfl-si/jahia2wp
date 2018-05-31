@@ -316,16 +316,19 @@ class Ventilation:
             Utils.run_command(cmd, 'utf8')
             # Add a column file_path to indicate where the media is located physically ####
             wp_medias = Utils.csv_filepath_to_dict(csv_m)
-            # Write back the CSV file
-            with open(csv_m, 'w', encoding='utf8') as f:
-                fields = list(wp_medias[0].keys()) + ['file_path']
-                writer = csv.DictWriter(f, fieldnames=fields)
-                writer.writeheader()
-                for m in wp_medias:
-                    m['file_path'] = m['guid'].replace(site, wp_conf.wp_site.path)
-                    writer.writerow(m)
-            # Backup file
-            shutil.copyfile(csv_m, csv_m + '.bak')
+            if not wp_medias:
+                logging.info('NO MEDIA files for {}, continue..'.format(site))
+            else:
+                # Write back the CSV file
+                with open(csv_m, 'w', encoding='utf8') as f:
+                    fields = list(wp_medias[0].keys()) + ['file_path']
+                    writer = csv.DictWriter(f, fieldnames=fields)
+                    writer.writeheader()
+                    for m in wp_medias:
+                        m['file_path'] = m['guid'].replace(site, wp_conf.wp_site.path)
+                        writer.writerow(m)
+                # Backup file
+                shutil.copyfile(csv_m, csv_m + '.bak')
 
             # Add an entry to the site paths dict
             self.site_paths[site] = wp_conf.wp_site.path
