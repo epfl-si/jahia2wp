@@ -1106,38 +1106,49 @@ class Ventilation:
         # Find the widgets page in the CSV
         with open(self.widgets[site], "r", encoding='utf8') as f:
             sidebars_content = yaml.load(f)
+        widget_types = []
+        supported_widgets = {'text': 'text', 'custom_html': 'content'}
         for side_id, widgets in sidebars_content.items():
             if side_id not in sidebars_dst:
                 logging.error('Sidebar {} does not exist at destination, skipping..'.format(side_id))
                 continue
+            # IMPORTANT: The destination sidebars are created while the site is generated.
+            # Therefore no need to create them.
             for w in widgets:
-                # IMPORTANT: The destination sidebars are created while the site is generated.
-                # Therefore no need to create them.
-                cmd = 'wp widget add {} ' + side_id + ' {} --title="{}" --path={} --text="{}"'
+                if w.get('name') not in supported_widgets:
+                    msg = 'Not supported widget type {}, suported types: {}. skipping...'
+                    logging.warning(msg.format(w.get('name', ''), supported_widgets))
+                    continue
+                w_key = supported_widgets[w['name']]
+                cmd = 'wp widget add {} ' + side_id + ' {} --title="{}" --path={} --' + w_key + '="{}"'
                 o = w['options']
                 # Escape html quotes
-                text = (o.get('text') or o.get('content')).replace('"', '\\"')
-                cmd = cmd.format(w['name'], w['position'], o['title'] + '--' + o['pll_lang'], dst, text)
+                content = o[w_key].replace('"', '\\"')
+                cmd = cmd.format(w['name'], w['position'], o['title'] + '--' + o['pll_lang'], dst, content)
                 # print('sidebar cmd: ' + cmd)
                 sidebar_out = Utils.run_command(cmd, 'utf8')
                 logging.info('sidebar {} added: {}'.format(side_id, sidebar_out))
 
         # Set manually the Polylang lang into the widget text since the pll_lang option does not
         # exist in the wp widget add command.
-        # Get all the widgets for the site in json format
-        widgets = json.loads(Utils.run_command('wp option get widget_text --format=json --path={}'.format(dst)))
-        for widget_idx in widgets:
-            # If it is a widget (can be just an integer)
-            if isinstance(widgets[widget_idx], dict):
-                title_comp = widgets[widget_idx]['title'].split('--')
-                if len(title_comp) == 2:
-                    widgets[widget_idx]['pll_lang'] = title_comp.pop()
-                    widgets[widget_idx]['title'] = title_comp.pop()
-        # Write back the widget_text option
-        widget_f = "/tmp/.tmp_{}_widget_text.json".format(os.path.basename(site))
-        with open(widget_f, "w") as f:
-            f.write(json.dumps(widgets))
-        Utils.run_command('wp option update widget_text --format=json --path={} < {}'.format(dst, widget_f))
+        # DO IT for all supported types
+        for key_widget in supported_widgets:
+            # Get all the widgets for the site in json format
+            cmd = 'wp option get widget_{} --format=json --path={}'
+            widgets = json.loads(Utils.run_command(cmd.format(key_widget, dst)))
+            for widget_idx in widgets:
+                # If it is a widget (can be just an integer)
+                if isinstance(widgets[widget_idx], dict):
+                    title_comp = widgets[widget_idx]['title'].split('--')
+                    if len(title_comp) == 2:
+                        widgets[widget_idx]['pll_lang'] = title_comp.pop()
+                        widgets[widget_idx]['title'] = title_comp.pop()
+            # Write back the widget_text option
+            widget_f = "/tmp/.tmp_{}_widget_{}.json".format(site.split('//').pop().replace('/', '_'), key_widget)
+            with open(widget_f, "w") as f:
+                f.write(json.dumps(widgets))
+            cmd = 'wp option update widget_{} --format=json --path={} < {}'
+            Utils.run_command(cmd.format(key_widget, dst, widget_f))
 
     def migrate_menu(self, site, menu_siteurl, table_ids):
         path = self.site_paths[site]
