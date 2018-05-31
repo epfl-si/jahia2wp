@@ -651,9 +651,6 @@ class WPExporter:
         if slug:
             wp_page_info['slug'] = slug
 
-        if title == "Research":
-            toto = "toto"
-
         return self.wp.post_pages(page_id=page_id, data=wp_page_info)
 
     def update_page_content(self, page_id, content):

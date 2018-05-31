@@ -670,7 +670,7 @@ class Box:
 
         self.shortcode_name = 'epfl_buttons'
 
-        self.site.register_shortcode(self.shortcode_name, ["url", "url_image"], self)
+        self.site.register_shortcode(self.shortcode_name, ["image", ], self)
 
         box_type = element.getAttribute("jcr:primaryType")
         if 'small' in box_type:
@@ -713,7 +713,7 @@ class Box:
                     image_url = '/' + image_url
             if text == "" and url_title != "":
                 text = url_title
-            content += '[{} type="{}" url="{}" image_url="{}" text="{}"]'.format(self.shortcode_name, box_type, url, image_url, text)
+            content += '[{} type="{}" url="{}" image="{}" text="{}"]'.format(self.shortcode_name, box_type, url, image_url, text)
         self.content = content
 
     # @classmethod

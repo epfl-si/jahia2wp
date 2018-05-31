@@ -75,6 +75,9 @@ function epfl_buttons_process_shortcode( $attributes, string $content = null ): 
     $text  = sanitize_text_field($atts['text']);
 
     $image_url = wp_get_attachment_url( $image );
+    if (false == $image_url) {
+        $image_url = "BAD MEDIA ID";
+    }
 
     // check parameters
     if ( false == epfl_buttons_box_check_parameters($type, $url, $image_url, $text) ) {
