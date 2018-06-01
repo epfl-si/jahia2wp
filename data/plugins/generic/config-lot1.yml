@@ -61,3 +61,5 @@ plugins:
     config: !include epfl-xml/v1/config-plugin.yml
   - name: epfl-people
     config: !include epfl-people/v1/config-plugin.yml
+  - name: epfl-my
+    config: !include epfl-my/v1/config-plugin.yml
