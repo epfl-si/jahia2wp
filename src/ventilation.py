@@ -1010,24 +1010,29 @@ class Ventilation:
                         idx_post_name = p_url.rfind(p_url.strip('/').split('/').pop())
                         parent_url = p_url[:idx_post_name]
                         # print('parent_url: ', parent_url, 'p_url', p_url)
-                        if p['post_parent'] == '0':
-                            # Nothing to do, page already at the root
-                            msg = 'Page {}/{} already at the root of the site, no need to change parent'
-                            logging.debug(msg.format(src_site, p['post_name']))
-                        elif parent_url.strip('/') == site_url:
+                        if p_url.strip('/') == site_url:
                             # Set the page at the root: post_parent 0
                             msg = 'Changing parent to the root=0 (old parent [{}]) at {} for post [{}] {}/{}'
-                            logging.debug(msg.format(p['post_parent'], site_url, p['ID'], src_site, p['post_name']))
+                            logging.info(msg.format(p['post_parent'], site_url, p['ID'], src_site, p['post_name']))
                             p['post_parent'] = 0
                         elif parent_url in table_ids_url:
                             # Update the parent ID based on parent URL
                             p['post_parent'] = table_ids_url[parent_url][lngs.index(lng)]
                             msg = 'Setting parent for page {} to {} [{}]'
                             logging.info(msg.format(p['post_name'], parent_url, p['post_parent']))
+                        elif parent_url.strip('/') == site_url:
+                            # Set the page at the root: post_parent 0
+                            msg = 'Changing parent to the root=0 (old parent [{}]) at {} for post [{}] {}/{}'
+                            logging.info(msg.format(p['post_parent'], site_url, p['ID'], src_site, p['post_name']))
+                            p['post_parent'] = 0
                         elif site_url in table_ids[src_site] and p['post_parent'] in table_ids[src_site][site_url]:
                             p['post_parent'] = table_ids[src_site][site_url][p['post_parent']]
                             msg = 'Parent for post {}/{} not derived from URL, keeping same parent with new ID {}'
                             logging.info(msg.format(src_site, p['post_name'], p['post_parent']))
+                        elif p['post_parent'] == '0':
+                            # Nothing to do, page already at the root
+                            msg = 'Page {}/{} already at the root of the site, no need to change parent'
+                            logging.info(msg.format(src_site, p['post_name']))
                         else:
                             # Set the page at the root: post_parent 0
                             msg = 'Could not match parent [{}] at {} for post [{}] {}/{}, setting to root=0'
@@ -1069,8 +1074,8 @@ class Ventilation:
                     if 'Error' in ids:
                         logging.error('Failed to insert pages. Msg: {}. cmd: {}'.format(ids, cmd))
                     else:
-                        p_info = [src_site + '/' + pages[l]['post_name'] for l in lngs]
-                        logging.info('new IDs {} for {} for {}'.format(ids, lngs, p_info))
+                        p_info = [pages[l]['url'] for l in lngs]
+                        logging.info('new IDs {}, json {}, for {}'.format(ids, json_f, p_info))
                         # Keep the new IDs in the URL => IDs dictionary
                         table_ids_url[p_url] = ids
                         # Keep the new IDs also in the table_ids: Site => Dest => IDs
