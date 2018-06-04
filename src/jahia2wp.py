@@ -19,6 +19,7 @@ Usage:
     [--openshift-env=<OPENSHIFT_ENV> --theme=<THEME>]
     [--use-cache] [--features-flags]
     [--keep-extracted-files]
+    [--zip-path=<PATH>]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--stop-on-errors]
   jahia2wp.py clean-many            <csv_file>                      [--debug | --quiet]
@@ -320,8 +321,11 @@ def download_many(csv_file, output_dir=None, **kwargs):
 @dispatch.on('unzip')
 def unzip(site, username=None, host=None, zip_path=None, force=False, output_dir=None, **kwargs):
 
-    # get zip file
-    zip_file = download(site, username, host, zip_path, force)
+    if zip_path and os.path.exists(zip_path):
+        logging.info("Re-using existing %s" % zip_path)
+        zip_file = zip_path
+    else:
+        zip_file = download(site, username, host, zip_path, force)
 
     if output_dir is None:
         output_dir = settings.JAHIA_DATA_PATH
@@ -335,7 +339,7 @@ def unzip(site, username=None, host=None, zip_path=None, force=False, output_dir
 
 
 @dispatch.on('parse')
-def parse(site, output_dir=None, use_cache=False, **kwargs):
+def parse(site, output_dir=None, use_cache=False, zip_path=None, **kwargs):
     """
     Parse the give site.
     """
@@ -348,7 +352,7 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
         sys.setrecursionlimit(2000)
 
         # create subdir in output_dir
-        site_dir = unzip(site, output_dir=output_dir)
+        site_dir = unzip(site, output_dir=output_dir, zip_path=zip_path)
 
         # where to cache our parsing
         pickle_file_path = os.path.join(site_dir, 'parsed_{}.pkl'.format(site))
@@ -390,7 +394,7 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
 @dispatch.on('export')
 def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=False, to_dictionary=False,
            admin_password=None, output_dir=None, theme=None, installs_locked=False, updates_automatic=False,
-           openshift_env=None, use_cache=None, keep_extracted_files=False, features_flags=False, **kwargs):
+           openshift_env=None, use_cache=None, keep_extracted_files=False, features_flags=False, zip_path=None, **kwargs):
     """
     Export the jahia content into a WordPress site.
 
@@ -408,10 +412,12 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     :param keep_extracted_files: command to keep files extracted from jahia zip
     :param fix_etx_chars: Tell to remove ETX chars from XML files containing site pages.
     :param features_flags: Tell to clean page content or not
+    :param zip_path: Download or re-use the Jahia ZIP archive there
     """
 
     # Download, Unzip the jahia zip and parse the xml data
-    site = parse(site=site, use_cache=use_cache, output_dir=output_dir)
+    site = parse(site=site, use_cache=use_cache, output_dir=output_dir,
+                 zip_path=zip_path)
 
     # Define the default language
     default_language = _get_default_language(site.languages)
