@@ -48,7 +48,17 @@ We spent [6 sprints](https://github.com/epfl-idevelop/jahia2wp/projects/1?) to f
 
 1. :balloon: installing a functional WordPress to any given URL
 
-        $ python jahia2wp.py generate $WP_ENV http://localhost
+   1. Create a file named `generate.yaml` containing the following:<pre>
+langs: en
+unit_name: si-dev
+unit_id: 13028
+</pre>
+   1. Type the following commands:
+
+        $ wp option update plugin:epfl_tequila:has_dual_auth 1
+        $ export PLUGINS_CONFIG_BASE_PATH=/srv/$WP_ENV/jahia2wp/data/plugins
+        $ python jahia2wp.py generate $WP_ENV http://localhost --extra-config=generate.yaml
+        $ python jahia2wp.py generate $WP_ENV http://localhost/test2
         ...
 
         $ python jahia2wp.py check $WP_ENV http://localhost
@@ -57,6 +67,10 @@ We spent [6 sprints](https://github.com/epfl-idevelop/jahia2wp/projects/1?) to f
         $ python jahia2wp.py admins $WP_ENV http://localhost
         admin:admin@example.com <administrator>
         user123456:user@epfl.ch <administrator>
+
+💡 If you want to start over with a clean slate (e.g. after an error):
+
+        $ rm -rf /srv/$WP_ENV/localhost/htdocs/
 
 2. :tada: add, list plugins
 
