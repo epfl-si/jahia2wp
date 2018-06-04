@@ -16,6 +16,7 @@ from utils import Utils
 from wordpress import WPSite, WPConfig
 import yaml
 import socket
+from wordpress.plugins.manager import WPPluginConfigManager
 
 """
     It takes the mapping rules in a CSV, with 2 columns each: source => destination,
@@ -59,6 +60,7 @@ class Ventilation:
     files = {}
     medias = {}
     widgets = {}
+    polylang_rel_files = {}
     site_paths = {}
     dest_sites = {}
 
@@ -235,6 +237,7 @@ class Ventilation:
                 logging.error(cmd.format(site))
                 raise Exception('Invalid WP site! Did you call _check_sites?')
 
+            csv_f_basename = site.split('//').pop().replace('/', '_')
             # IMPORTANT: Increase the 'field_size_limit' to allow dumping certain sites like vpi.epfl.ch
             csv.field_size_limit(sys.maxsize)
             # Dump the site content in plain CSV format.
@@ -245,7 +248,7 @@ class Ventilation:
             # reinsertion to insert first parent pages and avoiding parentless children.
             params = '--post_type=page --nopaging --order=asc --orderby=ID --fields={} --format=json'
             cmd = 'wp post list ' + params + ' --path={} > {}'
-            csv_f = JAHIA2WP_VENT_TMP + '/j2wp_' + site.split('/').pop() + '.csv'
+            csv_f = JAHIA2WP_VENT_TMP + '/j2wp_' + csv_f_basename + '.csv'
             self.files[site] = csv_f
             cmd = cmd.format(fields, wp_conf.wp_site.path, csv_f)
             logging.debug(cmd)
@@ -262,6 +265,37 @@ class Ventilation:
                 logging.error('No pages for site {}, removing it from rulesets..'.format(site))
                 del self.rulesets[site]
                 continue
+
+            # ************ GET the language term_ids ********************
+            cmd = 'wp term list language --fields=term_id,slug --format=json --path={}'.format(wp_conf.wp_site.path)
+            lang_terms = json.loads(Utils.run_command(cmd, 'utf8'))
+
+            # Dump the TERM_RELATIONSHIPS table where the term_taxonomy matches the languages
+            # (i.e. pages associated with each language: en => page_ids, fr =>page_ids)
+            lang_pages = {}
+            # ********* QUERY directly the term_relationships table in the database ***************
+            config_manager = WPPluginConfigManager(self.wp_env, site)
+            for lang_term in lang_terms:
+                query = 'select object_id from wp_term_relationships where term_taxonomy_id={}'
+                query = query.format(lang_term['term_id'])
+                ids = [o['object_id'] for o in config_manager._exec_mysql_request(query)]
+                lang = lang_term['slug']
+                lang_pages.update({_id: lang for _id in ids})
+                logging.info('pages in {}: {}'.format(lang, ids))
+            # ********* Retrieve the POLYLANG relations (i.e. pages linked by langs) ***********
+            cmd_pll = 'wp term list post_translations --fields=description --format=json --path={}'
+            cmd_pll = cmd_pll.format(wp_conf.wp_site.path)
+            polylang_rels = [o['description'] for o in json.loads(Utils.run_command(cmd_pll, 'utf8'))]
+            # The relations are serialized in PHP format. Extract only the IDs in format: ;i:00;
+            ids_regex = re.compile(';i:(\d+);')
+            polylang_rels = [ids_regex.findall(d) for d in polylang_rels]
+            logging.info('Polylang lang-page pairs (all incl. trashed): {}'.format(polylang_rels))
+            # Save the lang-page relations to a json file for later processing
+            json_pll_rels_f = JAHIA2WP_VENT_TMP + '/j2wp_' + csv_f_basename + '_polylang_rels.csv'
+            with open(json_pll_rels_f, 'w', encoding='utf8') as f:
+                f.write(json.dumps(polylang_rels))
+            self.polylang_rel_files[site] = json_pll_rels_f
+
             # Convert the GUIDs to relative URLs to avoid rule replacement by URL
             with open(csv_f, 'w', encoding='utf8') as f:
                 site_url = urlparse(site)
@@ -274,6 +308,7 @@ class Ventilation:
                 header_cols = list(pages[0].keys())
                 header_cols.remove('guid')
                 header_cols.append('guid')
+                header_cols.append('pll_lang')
                 writer = csv.DictWriter(f, fieldnames=header_cols)
                 writer.writeheader()
                 # FIX: scan if the content has relative URLs not starting with a slash /
@@ -285,13 +320,17 @@ class Ventilation:
                     p['guid'] = p['guid'].replace(host, '')
                     # Fix the rel links without domain / path info.
                     p['post_content'] = regex.sub(r'href="{}/\g<1>/"'.format(site_path), p['post_content'])
+                    # Add a lang column pll_lang useful for multilang sites.
+                    p['pll_lang'] = lang_pages[p['ID']]
+                    # FORCE HTTPS in pages (sometimes WP keeps them as HTTP)
+                    p['url'] = p['url'].replace('http://', 'https://')
                     writer.writerow(p)
             # Backup file
             shutil.copyfile(csv_f, csv_f + '.bak')
 
             # Dump all the widgets for the site in json format
             sidebars_content = {}
-            wid = JAHIA2WP_VENT_TMP + '/j2wp_' + site.split('/').pop() + '_widgets.yaml'
+            wid = JAHIA2WP_VENT_TMP + '/j2wp_' + csv_f_basename + '_widgets.yaml'
             # List the registered sidebars in the source site
             cmd = 'wp sidebar list --format=ids --path={}'.format(wp_conf.wp_site.path)
             sidebars = Utils.run_command(cmd, 'utf8').split(' ')
@@ -309,7 +348,7 @@ class Ventilation:
             fields = 'ID,post_title,post_name,post_parent,post_status,guid'
             params = '--post_type=attachment --nopaging --order=asc --fields={} --format=csv'
             cmd = 'wp post list ' + params + ' --path={} > {}'
-            csv_m = JAHIA2WP_VENT_TMP + '/j2wp_' + site.split('/').pop() + '_media.csv'
+            csv_m = JAHIA2WP_VENT_TMP + '/j2wp_' + csv_f_basename + '_media.csv'
             self.medias[site] = csv_m
             cmd = cmd.format(fields, wp_conf.wp_site.path, csv_m)
             logging.debug(cmd)
@@ -389,6 +428,12 @@ class Ventilation:
             if len(lngs) > 1:
                 logging.info('Multilang site {} for {}, decoupling rules...'.format(lngs, site))
 
+            # Preload the pages (for multilang processing)
+            pages = Utils.csv_filepath_to_dict(self.files[site])
+            # Preload tĥe polylang lang-page relations
+            with open(self.polylang_rel_files[site], 'r', encoding='utf8') as f:
+                polylang_rels = json.load(f)
+
             for (src, dst) in self.rulesets[site]:
                 # If the source is empty (verb: create empty page), do not expand.
                 if src == '':
@@ -439,18 +484,20 @@ class Ventilation:
 
                 # LANGUAGE EXPANSION
                 # GET the URL in all languages (pages)
+                # N.B. Not all pages are available in all langs due to many reasons and possible changes.
                 if len(lngs) > 1:
-                    pages = Utils.csv_filepath_to_dict(self.files[site])
-                    # Iterate the pages grouped by number of langs
-                    for pi in range(0, len(pages), len(lngs)):
-                        page_set = pages[pi:pi + len(lngs)]
-                        # FORCE HTTPS in pages (sometimes WP keeps them as HTTP)
-                        for p in page_set:
-                            p['url'] = p['url'].replace('http://', 'https://')
-                        # Check if one of the URLs matches the src
-                        matches = [p['url'] for p in page_set if p['url'] == src.strip('*')]
-                        if matches:
-                            logging.debug('found: {}, {}'.format(src, [p['url'] for p in page_set]))
+                    # Get all the lang-page relations
+                    for p in pages:
+                        # Check if the URL matches the src
+                        if p['url'] == src.strip('*'):
+                            pll_pagset = [pll_rel for pll_rel in polylang_rels if p['ID'] in pll_rel]
+                            # Skip if no match (i.e. single rule already added)
+                            if not pll_pagset:
+                                continue
+                            pll_pagset = pll_pagset.pop()
+                            # Get all the page_set from pages
+                            page_set = [p for p in pages if p['ID'] in pll_pagset]
+                            logging.info('Multilang rule: {}, {}'.format(src, [p['url'] for p in page_set]))
                             # Remove previous single-lang rule
                             ext_ruleset.pop()
                             # Build the ruleset for all langs and extend the current site rules
@@ -507,18 +554,34 @@ class Ventilation:
             excl_pages = []
             incl_pages = []
             filtered_pages = []
+            # Preload tĥe polylang lang-page relations
+            with open(self.polylang_rel_files[site], 'r', encoding='utf8') as f:
+                polylang_rels = json.load(f)
             # Get index-html parent page (if present)
             page_index = ([p['ID'] for p in pages if p['post_name'] == 'index-html'] or ['']).pop()
             logging.debug('page_index ID: {}, for {}'.format(page_index, site))
-            for pi in range(0, len(pages), len(lngs)):
-                # All pages in all langs
-                _pages = pages[pi:pi+len(lngs)]
-                # Force HTTPS in all pages
-                for p in _pages:
-                    p['url'] = p['url'].replace('http://', 'https://')
+
+            explored_pages = set()
+            for p in pages:
+                # The page might have already been explored as part of a set of langs
+                # i.e. the IDs for multi lang pages are not necessarily sequential or close.
+                if p['ID'] in explored_pages:
+                    continue
+                # Get the group of pages for all langs, by default a single page (e.g. one lang)
+                _pages = [p]
+                # Set of page IDs for all langs like en, fr: [34, 37]
+                pll_pagset = [pll_rel for pll_rel in polylang_rels if p['ID'] in pll_rel]
+                if pll_pagset:
+                    _pages = [_p for _p in pages if _p['ID'] in pll_pagset[0]]
+                    logging.debug('Sets of pages / polylang (not trashed): {}'.format([_p['ID'] for _p in _pages]))
+                # Update the explored pages
+                for _p in _pages:
+                    explored_pages.add(_p['ID'])
+
                 # ATTENTION: Selecting the page in EN, if no english is present, then the language at pos. 0
                 # will be used (e.g. French)
-                p_en = _pages[lngs.index('en')] if 'en' in lngs else _pages[0]
+                p_en = [_p for _p in _pages if _p['pll_lang'] == 'en']
+                p_en = p_en.pop() if p_en else _pages[0]
 
                 # Check if the page is marked as do not migrate (assume * notation as well)
                 matches = [u.strip('*') for u in dont_migrate if u.strip('*') in p_en['url']]
@@ -571,8 +634,8 @@ class Ventilation:
                 # FIX: Current version always has index-html as parent, if it's the case, change it to 0 (root)
                 if p_en['post_parent'] == page_index:
                     logging.info('Found index-html as parent of {}, setting it to 0 = root.'.format(p_en['post_name']))
-                    for p in _pages:
-                        p['post_parent'] = 0
+                    for _p in _pages:
+                        _p['post_parent'] = 0
 
                 # Append the filtered pages
                 filtered_pages.extend(_pages)
@@ -804,19 +867,34 @@ class Ventilation:
             logging.info('Consolidating ' + site)
             # Source CSV files from where to take the content
             csv_f = self.files[site]
-            # Get the languages
-            lngs = Utils.run_command('wp pll languages --path=' + self.site_paths[site])
-            lngs = [l[:2] for l in lngs.split("\n")]
             # Get all the pre-replaced pages from the CSV
             pages = Utils.csv_filepath_to_dict(csv_f)
 
             prev_max_match = None
-            for pi in range(0, len(pages), len(lngs)):
-                # All pages in all langs
-                _pages = pages[pi:pi+len(lngs)]
+            explored_pages = set()
+            # Preload tĥe polylang lang-page relations
+            with open(self.polylang_rel_files[site], 'r', encoding='utf8') as f:
+                polylang_rels = json.load(f)
+            for p in pages:
+                # The page might have already been explored as part of a set of langs
+                # i.e. the IDs for multi lang pages are not necessarily sequential or close.
+                if p['ID'] in explored_pages:
+                    continue
+                # Get the group of pages for all langs, by default a single page (e.g. one lang)
+                _pages = [p]
+                # Set of page IDs for all langs like en, fr: [34, 37]
+                pll_pagset = [pll_rel for pll_rel in polylang_rels if p['ID'] in pll_rel]
+                if pll_pagset:
+                    _pages = [_p for _p in pages if _p['ID'] in pll_pagset[0]]
+                    logging.debug('Sets of pages / polylang (not trashed): {}'.format([_p['ID'] for _p in _pages]))
+                # Update the explored pages
+                for _p in _pages:
+                    explored_pages.add(_p['ID'])
 
-                # ATTENTION: Selecting the page in EN, if not then the language at pos. 0 will be used (e.g. French)
-                p_en = _pages[lngs.index('en')] if 'en' in lngs else _pages[0]
+                # ATTENTION: Selecting the page in EN, if no english is present, then the language at pos. 0
+                # will be used (e.g. French)
+                p_en = [_p for _p in _pages if _p['pll_lang'] == 'en']
+                p_en = p_en.pop() if p_en else _pages[0]
                 logging.info("[en or default] Page {}/{} {}".format(site, p_en['post_name'], p_en['url']))
 
                 # Find the longest matching URL among the target sites
@@ -838,6 +916,8 @@ class Ventilation:
                     dst_path = self.dest_sites[max_match]
                     dst_lngs = Utils.run_command('wp pll languages --path=' + dst_path)
                     dst_lngs = [l[:2] for l in dst_lngs.split("\n")]
+                    # Instead of using the global site-level langs, use nb of langs at page level.
+                    lngs = [_p['pll_lang'] for _p in _pages]
                     lngs_curr = lngs
                     if set(dst_lngs) != set(lngs):
                         if prev_max_match != max_match:
@@ -1007,6 +1087,9 @@ class Ventilation:
 
                     # Update the parent ID if a new one exists already for the parent URL
                     for lng, p in pages.items():
+                        # Replace any lang fragment in the URL (e.g. /fr/...)
+                        for l in lngs:
+                            p_url = p_url.replace('/{}/'.format(l), '/')
                         idx_post_name = p_url.rfind(p_url.strip('/').split('/').pop())
                         parent_url = p_url[:idx_post_name]
                         # print('parent_url: ', parent_url, 'p_url', p_url)
@@ -1019,7 +1102,7 @@ class Ventilation:
                             # Update the parent ID based on parent URL
                             p['post_parent'] = table_ids_url[parent_url][lngs.index(lng)]
                             msg = 'Setting parent for page {} to {} [{}]'
-                            logging.info(msg.format(p['post_name'], parent_url, p['post_parent']))
+                            logging.info(msg.format(p['url'], parent_url, p['post_parent']))
                         elif parent_url.strip('/') == site_url:
                             # Set the page at the root: post_parent 0
                             msg = 'Changing parent to the root=0 (old parent [{}]) at {} for post [{}] {}/{}'
@@ -1027,16 +1110,17 @@ class Ventilation:
                             p['post_parent'] = 0
                         elif site_url in table_ids[src_site] and p['post_parent'] in table_ids[src_site][site_url]:
                             p['post_parent'] = table_ids[src_site][site_url][p['post_parent']]
-                            msg = 'Parent for post {}/{} not derived from URL, keeping same parent with new ID {}'
-                            logging.info(msg.format(src_site, p['post_name'], p['post_parent']))
+                            msg = 'Parent for post {}/{} not derived from URL, keeping parent with new ID {}, at {}'
+                            logging.info(msg.format(src_site, p['post_name'], p['post_parent'], p['url']))
                         elif p['post_parent'] == '0':
                             # Nothing to do, page already at the root
-                            msg = 'Page {}/{} already at the root of the site, no need to change parent'
-                            logging.info(msg.format(src_site, p['post_name']))
+                            msg = 'Page {}/{} already at the root of the site {}, no need to change parent'
+                            logging.info(msg.format(src_site, p['post_name'], p['url']))
                         else:
                             # Set the page at the root: post_parent 0
-                            msg = 'Could not match parent [{}] at {} for post [{}] {}/{}, setting to root=0'
-                            logging.warning(msg.format(p['post_parent'], site_url, p['ID'], src_site, p['post_name']))
+                            msg = 'Couldn\'t match parent [{}] @ {} for post [{}] {}/{}, set it to root=0, expected {}'
+                            msg = msg.format(p['post_parent'], site_url, p['ID'], src_site, p['post_name'], p['url'])
+                            logging.warning(msg)
                             p['post_parent'] = 0
                             # pprint(table_ids_url)
                             # pprint(table_ids)
