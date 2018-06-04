@@ -1198,7 +1198,6 @@ class Ventilation:
         # Find the widgets page in the CSV
         with open(self.widgets[site], "r", encoding='utf8') as f:
             sidebars_content = yaml.load(f)
-        widget_types = []
         supported_widgets = {'text': 'text', 'custom_html': 'content'}
         for side_id, widgets in sidebars_content.items():
             if side_id not in sidebars_dst:
