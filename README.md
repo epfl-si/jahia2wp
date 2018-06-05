@@ -134,8 +134,10 @@ unit_id: 13028
         Jahia password for user 'foo':
         ...
 
-1. :tent: Parse zipped package (XML and files) as python objects
 1. :tent: Import parsed pages into WordPress (raw content)
+
+        $ python jahia2wp.py export dcsl https://localhost/dcsl DCSL  --admin-password=admin
+
 1. :tent: Support translation, hierarchy, menu, sidebar
 1. Import static Jahia boxes into WordPress (shortcodes)
 1. Import web-services powered Jahia boxes into WordPress (people, faq, actu, memento, infoscience, and so on ...)
