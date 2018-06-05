@@ -23,7 +23,7 @@ def unzip_one(output_dir, site_name, zip_file):
     output_subdir = os.path.join(output_dir, site_name)
     if output_subdir:
         if not os.path.isdir(output_subdir):
-            os.mkdir(output_subdir)
+            os.makedirs(output_subdir, exist_ok=True)
 
     # check if unzipped files already exists
     unzip_path = os.path.join(output_subdir, site_name)
