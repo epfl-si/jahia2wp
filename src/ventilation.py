@@ -1131,13 +1131,22 @@ class Ventilation:
                         m_urls = regex.findall(p['post_content'])
                         # Verify that all the matched media is under the target domain (site_url)
                         for m_url in m_urls:
+                            # IMPORTANT: If it's a thumbnail, remove the -yyyxzzz.jpg suffix (i.e. deduce main media)
+                            media_key_orig = m_url[m_url.index('/wp-content/uploads'):]
+                            m_url_orig = m_url
+                            m_url = re.sub(r'-\d+x\d+', '', m_url)
                             media_key = m_url[m_url.index('/wp-content/uploads'):]
-                            if site_url not in m_url:
-                                # Set the right URL
-                                _m_url = site_url + media_key
-                                p['post_content'] = p['post_content'].replace(m_url, _m_url)
-                                logging.debug('Media URL from {} to {}'.format(m_url, _m_url))
-                                m_url = _m_url
+                            media_siteurl = m_url[0:m_url.index(media_key)]
+                            # IMPORTANT: If the dest URL is not the root of a WP site (e.g. URL path) then the media
+                            # would try to be copied to a wrong place. Place the media always at the root of dests site
+                            if site_url not in m_url or site_url + media_key != m_url:
+                                # Set the right URL (conserving thumb information)
+                                _m_url = site_url + media_key_orig
+                                # Replace the URL in the post_content
+                                p['post_content'] = p['post_content'].replace(m_url_orig, _m_url)
+                                logging.debug('Media URL from {} to {}'.format(m_url_orig, _m_url))
+                                # Set the final URL (not thumbnail)
+                                m_url = site_url + media_key
                             if media_key not in media_refs[src_site]:
                                 media_refs[src_site][media_key] = []
                             if m_url not in media_refs[src_site][media_key]:
@@ -1395,7 +1404,7 @@ class Ventilation:
             # print(media_refs)
             for wp_key, wp_media in wp_medias.items():
                 # All the sites where to migrate the media file, by default one only.
-                wp_media_urls = [wp_media['guid']]
+                wp_media_urls = []  # [wp_media['guid']]
                 # Check if media_key is in the references (i.e. if a page points to it)
                 if wp_key not in media_refs[site]:
                     msg = 'wp_media {} not ref. by any page, skipping...'.format(wp_key)
@@ -1412,6 +1421,7 @@ class Ventilation:
                 for wp_media_url in wp_media_urls:
                     # wp_site before /wp-content, without trailing slash since the inventory doesn't have it either.
                     wp_site = wp_media_url[:wp_media_url.index('/wp-content')]
+                    # print(wp_site, dest_sites_keys)
                     if wp_site not in dest_sites_keys:
                         logging.warning('wp_media {} not migrated to {}, no valid dest site.'.format(wp_key, wp_site))
                         continue
@@ -1419,6 +1429,7 @@ class Ventilation:
                     # IMPORTANT: If not done, WP would insert into a different location (e.g. ../uploads/2018/06/..)
                     dest_path = self.dest_sites[wp_site] + wp_key
                     dest_dir = os.path.dirname(dest_path)
+                    # print(dest_path, dest_dir)
                     if not os.path.isdir(dest_dir):
                         try:
                             os.mkdirs(dest_dir, exist_ok=True)
@@ -1428,7 +1439,8 @@ class Ventilation:
                     try:
                         # Copy all the thumbnails using the * wildcard (e.g. img.jpg and img-150x150.jpg...)
                         media_path = wp_media['file_path']
-                        for media_file in glob.glob(os.path.splitext(media_path)[0] + '*'):
+                        media_basepath = os.path.splitext(media_path)[0]
+                        for media_file in glob.glob(media_basepath + '*'):
                             shutil.copy(media_file, os.path.dirname(dest_path))
                     except Exception as e:
                         logging.error('Cannot copy {} to {}. Err: {}.skipping..'.format(media_path, dest_path, e))
