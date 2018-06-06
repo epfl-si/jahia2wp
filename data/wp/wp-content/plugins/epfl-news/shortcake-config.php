@@ -18,7 +18,7 @@ Class ShortCakeConfig
         // build select tag html
         $channel_options = array();
 
-        if(property_exists($channel_response 'results'))
+        if(property_exists($channel_response, 'results'))
         {
             foreach ($channel_response->results as $item) {
                 $option = array(
