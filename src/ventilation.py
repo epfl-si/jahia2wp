@@ -1131,12 +1131,11 @@ class Ventilation:
                         m_urls = regex.findall(p['post_content'])
                         # Verify that all the matched media is under the target domain (site_url)
                         for m_url in m_urls:
-                            # IMPORTANT: If it's a thumbnail, remove the -yyyxzzz.jpg suffix (i.e. deduce main media)
                             media_key_orig = m_url[m_url.index('/wp-content/uploads'):]
                             m_url_orig = m_url
+                            # IMPORTANT: If it's a thumbnail, remove the -yyyxzzz.jpg suffix (i.e. deduce main media)
                             m_url = re.sub(r'-\d+x\d+', '', m_url)
                             media_key = m_url[m_url.index('/wp-content/uploads'):]
-                            media_siteurl = m_url[0:m_url.index(media_key)]
                             # IMPORTANT: If the dest URL is not the root of a WP site (e.g. URL path) then the media
                             # would try to be copied to a wrong place. Place the media always at the root of dests site
                             if site_url not in m_url or site_url + media_key != m_url:
