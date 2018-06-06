@@ -209,21 +209,21 @@ class WPExporter:
             start = "{}/content/sites/{}/files".format(self.site.base_path, self.site.name)
             self.site.files = self._asciify_path(start)
 
-            count = 0
             for file in self.site.files:
                 wp_media = self.import_media(file)
                 if wp_media:
                     self.fix_file_links(file, wp_media)
                     self.report['files'] += 1
-                    count += 1
 
-                    if count % 10 == 0:
+                    if self.report['files'] % 10 == 0:
                         logging.info("[%s/%s] WP medias imported", self.report['files'], len(self.site.files))
 
             self.fix_key_visual_boxes()
         # Remove the capability "unfiltered_upload" to the administrator group.
         self.run_wp_cli('cap remove administrator unfiltered_upload')
         logging.info("%s WP medias imported", self.report['files'])
+        if self.report['failed_files'] > 0:
+            logging.info("%s WP medias import failed", self.report['failed_files'])
 
     def import_media(self, media):
         """
@@ -274,9 +274,12 @@ class WPExporter:
             wp_media = self.wp.post_media(data=wp_media_info, files=files)
             return wp_media
         except Exception as e:
-            logging.error("%s - WP export - media failed: %s", self.site.name, e)
+            logging.error("%s - WP export - media failed, it may be corrupted (%s/%s): %s",
+                          self.site.name,
+                          media.path,
+                          media.name,
+                          e)
             self.report['failed_files'] += 1
-            raise e
 
     def import_breadcrumb(self):
         """
