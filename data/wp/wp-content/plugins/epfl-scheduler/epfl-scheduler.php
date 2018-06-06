@@ -119,7 +119,7 @@ add_action( 'plugins_loaded', 'epfl_scheduler_load_plugin_textdomain' );
 add_action( 'init', function() {
 
     // Define shortcode
-    add_shortcode('epfl_scheduler', epfl_scheduler_shortcode);
+    add_shortcode('epfl_scheduler', 'epfl_scheduler_shortcode');
 
     if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
 
