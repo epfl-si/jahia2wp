@@ -81,10 +81,13 @@ function epfl_memento_build_api_url(
 
     // FIXME: we must improve REST API MEMENTO to be able to filter by memento_slug
     $memento_id = "";
-    foreach($mementos->results as $current_memento) {
-        if ($current_memento->slug === $memento) {
-            $memento_id = $current_memento->id;
-            break;
+    if(property_exists($mementos, 'results'))
+    {
+        foreach($mementos->results as $current_memento) {
+            if ($current_memento->slug === $memento) {
+                $memento_id = $current_memento->id;
+                break;
+            }
         }
     }
 
