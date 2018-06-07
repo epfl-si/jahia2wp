@@ -1271,15 +1271,34 @@ class WPExporter:
 
     def write_redirections(self):
         """
-        Update .htaccess file with redirections
+        Update .htaccess file with redirections.
+        The added redirections are for :
+        - Jahia pages to WordPress pages
+        - Jahia medias (files) to WordPress medias. For medias, we will redirect to the upload directory corresponding
+        to year/month of Jahia to WordPress site migration.
         """
-        redirect_list = []
 
+        # Step 1 - Medias
+        current_month = datetime.now().strftime('%m')
+        current_year = datetime.now().strftime('%Y')
+
+        redirect_list = ["RewriteRule ^files/content/(.*/)*(.*)$ wp-content/uploads/{}/{}/$2 "
+                         "[R=301,NC,L]".format(current_year, current_month)]
+
+        if redirect_list:
+            # Updating .htaccess file
+            WPUtils.insert_in_htaccess(self.wp_generator.wp_site.path,
+                                       "Jahia-Files-Redirect",
+                                       redirect_list,
+                                       at_beginning=True)
+
+        # Step 2 - Pages
         # Init WP install folder path for source URLs
         if self.wp_generator.wp_site.folder == "":
             folder = ""
         else:
             folder = "/{}".format(self.wp_generator.wp_site.folder)
+        redirect_list = []
 
         # Add all rewrite jahia URI to WordPress URI
         for element in self.urls_mapping:
