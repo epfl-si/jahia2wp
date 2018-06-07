@@ -57,6 +57,8 @@ plugins:
     config: !include epfl-grid/v1/config-plugin.yml
   - name: epfl-infoscience
     config: !include epfl-infoscience/v1/config-plugin.yml
+    - name: epfl-infoscience-search
+    config: !include epfl-infoscience-search/v1/config-plugin.yml
   - name: epfl-xml
     config: !include epfl-xml/v1/config-plugin.yml
   - name: epfl-people
