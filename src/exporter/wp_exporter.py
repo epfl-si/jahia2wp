@@ -1279,13 +1279,13 @@ class WPExporter:
         """
 
         # Step 1 - Medias
-        current_month = datetime.now().strftime('%m')
-        current_year = datetime.now().strftime('%Y')
+        if self.site.files:
+            current_month = datetime.now().strftime('%m')
+            current_year = datetime.now().strftime('%Y')
 
-        redirect_list = ["RewriteRule ^files/content/(.*/)*(.*)$ wp-content/uploads/{}/{}/$2 "
-                         "[R=301,NC,L]".format(current_year, current_month)]
+            redirect_list = ["RewriteRule ^files/content/(.*/)*(.*)$ wp-content/uploads/{}/{}/$2 "
+                             "[R=301,NC,L]".format(current_year, current_month)]
 
-        if redirect_list:
             # Updating .htaccess file
             WPUtils.insert_in_htaccess(self.wp_generator.wp_site.path,
                                        "Jahia-Files-Redirect",
