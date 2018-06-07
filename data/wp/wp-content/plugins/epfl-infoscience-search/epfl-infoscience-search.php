@@ -23,6 +23,19 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     $infoscience_search_mangaged_attributes = array(
         # Content
         'url' => '',
+        # or 
+        'pattern' => '',
+        'field' => 'any',  # "any", "author", "title", "year", "unit", "collection", "journal", "summary", "keyword", "issn", "doi"
+        'limit' => 25,  # 10,25,50,100,250,500,1000
+        'order' => 'desc',  # "asc", "desc"
+        # Advanced content
+        'pattern2' => '',
+        'field2' => 'any',
+        'operator2' => 'and', # "and", "or", "and_not"
+        'pattern3' => '',
+        'field3' => '',
+        'operator3' => 'and',        
+        'collection' => 'Infoscience/Research',        
         # Presentation
         'format' => 'short',  # "short", "detailed", "full"
         'show_thumbnail' => true,
@@ -34,11 +47,13 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     $attributes = shortcode_atts($infoscience_search_mangaged_attributes, $atts, $tag);
 
     // Sanitize parameter
-    $pattern = sanitize_text_field( $attributes['url'] );
+    $url = sanitize_text_field( $attributes['url'] );
+    # hardcode the url for the demo
+    $url =  "https://infoscience.epfl.ch/publication-exports/232/";
 
     // Check if the result is already in cache
     $result = wp_cache_get( $url, 'epfl_infoscience_search' );
-    if ( false === $result ){
+    if ( false == $result ){
         if ( strcasecmp( parse_url( $url, PHP_URL_HOST ), 'infoscience.epfl.ch' ) == 0 && epfl_infoscience_url_exists( $url ) ) {
 
             $response = wp_remote_get( $url );
