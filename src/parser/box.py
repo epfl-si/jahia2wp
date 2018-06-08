@@ -670,7 +670,7 @@ class Box:
 
         self.shortcode_name = 'epfl_buttons'
 
-        self.site.register_shortcode(self.shortcode_name, ["image", ], self)
+        self.site.register_shortcode(self.shortcode_name, ["image", "url"], self)
 
         box_type = element.getAttribute("jcr:primaryType")
         if 'small' in box_type:
@@ -683,13 +683,13 @@ class Box:
         for button_list in elements:
             url = ""
             image_url = ""
-            text = ""
-            url_title = ""
+            alt_text = ""
+            title = ""
             for child in button_list.childNodes:
                 if child.ELEMENT_NODE != child.nodeType:
                     continue
                 if child.tagName == "label":
-                    text = child.getAttribute("jahia:value")
+                    alt_text = child.getAttribute("jahia:value")
                 elif child.tagName == "url":
                     for jahia_tag in child.childNodes:
                         if jahia_tag.ELEMENT_NODE != jahia_tag.nodeType:
@@ -701,8 +701,10 @@ class Box:
                                 page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
                             except KeyError as e:
                                 continue
-                            url = page.pid
-                            url_title = jahia_tag.getAttribute("jahia:title")
+
+                            # We generate "Jahia like" URL so exporter will be able to fix it with WordPress URL
+                            url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
+                            title = jahia_tag.getAttribute("jahia:title")
                         elif jahia_tag.tagName == "jahia:url":
                             url = jahia_tag.getAttribute("jahia:value")
                 elif child.tagName == "image":
@@ -711,9 +713,14 @@ class Box:
                     # result of join is files/file and we add the missing '/' in front.
                     image_url = '/'.join(child.getAttribute("jahia:value").split("/")[4:])
                     image_url = '/' + image_url
-            if text == "" and url_title != "":
-                text = url_title
-            content += '[{} type="{}" url="{}" image="{}" text="{}"]'.format(self.shortcode_name, box_type, url, image_url, text)
+            if alt_text == "" and title != "":
+                alt_text = title
+            content += '[{} type="{}" url="{}" image="{}" alt_text="{}" title="{}"]'.format(self.shortcode_name,
+                                                                                            box_type,
+                                                                                            url,
+                                                                                            image_url,
+                                                                                            alt_text,
+                                                                                            title)
         self.content = content
 
     # @classmethod
@@ -766,6 +773,7 @@ class Box:
                     if uuid in self.site.pages_by_uuid:
                         page = self.site.pages_by_uuid[uuid]
 
+                        # We generate "Jahia like" URL so exporter will be able to fix it with WordPress URL
                         url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
 
             self.content += '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
@@ -849,7 +857,9 @@ class Box:
                                 page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
                             except KeyError as e:
                                 continue
-                            link_html = '<a href="{}">{}</a>'.format(page.pid, jahia_tag.getAttribute("jahia:title"))
+                            # We generate "Jahia like" URL so exporter will be able to fix it with WordPress URL
+                            url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
+                            link_html = '<a href="{}">{}</a>'.format(url, jahia_tag.getAttribute("jahia:title"))
 
                         elif jahia_tag.tagName == "jahia:url":
                             link_html = '<a href="{}">{}</a>'.format(jahia_tag.getAttribute("jahia:value"),
