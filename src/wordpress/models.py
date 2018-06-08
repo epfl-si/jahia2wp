@@ -44,6 +44,9 @@ class WPSite:
 
         if wp_tagline is not None:
             for lang, lang_tagline in wp_tagline.items():
+                # If tagline empty, we set it to site title. Same behaviour as 'export' function in jahia2wp.py file
+                if lang_tagline == "":
+                    lang_tagline = wp_site_title
                 validate_string(lang_tagline)
 
         # set WP information
