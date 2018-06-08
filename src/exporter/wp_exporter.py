@@ -1274,7 +1274,7 @@ class WPExporter:
         Update .htaccess file with redirections.
         The added redirections are for :
         - Jahia pages to WordPress pages
-        - Jahia medias (files) to WordPress medias. For medias, we will redirect to the upload directory corresponding
+        - Jahia media (files) to WordPress media. For media, we will redirect to the upload directory corresponding
         to year/month of Jahia to WordPress site migration.
         """
 
