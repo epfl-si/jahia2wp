@@ -28,3 +28,6 @@ install:
 script:
 - ci_env=`bash <(curl -s https://codecov.io/env)`
 - docker exec --user=www-data $ci_env $(docker ps -q --filter "label=com.docker.compose.service=mgmt") make -C /srv/$WP_ENV/jahia2wp test-travis
+
+env:
+- PLUGINS_CONFIG_BASE_PATH=wordpress/tests/plugins/
