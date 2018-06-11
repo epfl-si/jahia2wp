@@ -22,8 +22,6 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
 
     $infoscience_search_mangaged_attributes = array(
         # Content
-        'url' => '',
-        # or 
         'pattern' => '',
         'field' => 'any',  # "any", "author", "title", "year", "unit", "collection", "journal", "summary", "keyword", "issn", "doi"
         'limit' => 25,  # 10,25,50,100,250,500,1000
@@ -82,6 +80,8 @@ function epfl_infoscience_search_load_plugin_textdomain() {
 }
 
 add_action( 'plugins_loaded', 'epfl_infoscience_search_load_plugin_textdomain' );
+
+add_action( 'admin_enqueue_scripts', ['InfoscienceSearchShortCakeConfig', 'load_epfl_infoscience_search_wp_admin_style'], 99);
 
 add_action( 'init', function() {
 

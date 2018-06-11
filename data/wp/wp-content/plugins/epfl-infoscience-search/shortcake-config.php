@@ -35,17 +35,16 @@ Class InfoscienceSearchShortCakeConfig
         );
     }
 
-    private static function get_sort_options() 
+    private static function get_sort_options()
     {
         return array (
             array('value' => 'desc', 'label' => esc_html__('Descending', 'epfl-infoscience-search')),
             array('value' => 'asc', 'label' => esc_html__('Ascending', 'epfl-infoscience-search')),
         );
     }
-    private static function get_operator_options() 
+    private static function get_operator_options()
     {
         return array (
-            array('value' => '', 'label' => ''),
             array('value' => 'and', 'label' => esc_html__('AND', 'epfl-infoscience-search')),
             array('value' => 'or', 'label' => esc_html__('OR', 'epfl-infoscience-search')),
             array('value' => 'and_not', 'label' => esc_html__('AND NOT', 'epfl-infoscience-search')),
@@ -70,10 +69,91 @@ Class InfoscienceSearchShortCakeConfig
        );
     }
 
+    public static function shortcode_ui_fields( $fields ) {
+        # taken from https://github.com/humanmade/protected-embeds/blob/master/protected-embeds.php
+        $fields['epfl-text'] = array(
+            'template' => 'epfl-shortcode-ui-field',
+        );
+        $fields['epfl-checkbox'] = array(
+            'template' => 'epfl-shortcode-ui-field-checkbox',
+        );
+        $fields['epfl-select'] = array(
+            'template' => 'epfl-shortcode-ui-field-select',
+        );        
+        return $fields;
+    }
+
+    public static function shortcode_ui_epfl_field_template() {
+        # taken from https://github.com/humanmade/protected-embeds/blob/master/protected-embeds.php
+        //@formatter:off
+        ?>
+    <script type="text/html" id="tmpl-epfl-shortcode-ui-field">
+        <# if (data.title) { #>
+        <h2>{{ data.title }}</h2>
+        <# } #>
+        <div class="field-block epfl-shortcode-ui-field shortcode-ui-attribute-{{ data.attr }}">
+            <label for="{{ data.attr }}">{{{ data.label }}}</label>
+            <input type="text" class="regular-text" name="{{ data.attr }}" id="{{ data.id }}" value="{{ data.value }}" {{{ data.meta }}} />
+            <# if ( typeof data.description == 'string' ) { #>
+                        <p class="description">{{{ data.description }}}</p>
+            <# } #>
+        </div>
+    </script>
+
+    <script type="text/html" id="tmpl-epfl-shortcode-ui-field-checkbox">
+        <# if (data.title) { #>
+        <h2>{{ data.title }}</h2>
+        <# } #>
+        <div class="field-block epfl-shortcode-ui-field-checkbox shortcode-ui-attribute-{{ data.attr }}">
+                <label>{{{ data.label }}}<br><input type="checkbox" name="{{ data.attr }}" id="{{ data.id }}" value="{{ data.value }}" <# if ( 'true' == data.value ){ print('checked'); } #>></label>
+            <# if ( typeof data.description == 'string' && data.description.length ) { #>
+                <p class="description">{{{ data.description }}}</p>
+            <# } #>
+        </div>
+    </script>
+
+    <script type="text/html" id="tmpl-epfl-shortcode-ui-field-select">
+    <# if (data.title) { #>
+        <h2>{{ data.title }}</h2>
+    <# } #>    
+	<div class="field-block epfl-shortcode-ui-field-select shortcode-ui-attribute-{{ data.attr }}">
+		<label for="{{ data.id }}">{{{ data.label }}}</label>
+		<select name="{{ data.attr }}" id="{{ data.id }}" {{{ data.meta }}}>
+			<# _.each( data.options, function( option ) { #>
+
+				<# if ( 'options' in option && 'label' in option ) { #>
+					<optgroup label="{{ option.label }}">
+						<# _.each( option.options, function( optgroupOption ) { #>
+							<option value="{{ optgroupOption.value }}" <# if ( _.contains( _.isArray( data.value ) ? data.value : data.value.split(','), optgroupOption.value ) ) { print('selected'); } #>>{{ optgroupOption.label }}</option>
+						<# }); #>
+					</optgroup>
+				<# } else { #>
+					<option value="{{ option.value }}" <# if ( _.contains( _.isArray( data.value ) ? data.value : data.value.split(','), option.value ) ) { print('selected'); } #>>{{ option.label }}</option>
+				<# } #>
+
+			<# }); #>
+		</select>
+		<# if ( typeof data.description == 'string' && data.description.length ) { #>
+			<p class="description">{{{ data.description }}}</p>
+		<# } #>
+	</div>
+</script>    
+        <?php
+        //@formatter:on
+    }
+
+    public static function load_epfl_infoscience_search_wp_admin_style($hook) {
+        wp_enqueue_style( 'epfl-infoscience-search-shortcake-style', plugins_url('css/epfl-infoscience-search-shortcake-style.css', __FILE__) );
+    }
 
     public static function config() 
     {
         if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
+
+            # add custom epfl style
+            add_filter( 'shortcode_ui_fields', array('InfoscienceSearchShortCakeConfig', 'shortcode_ui_fields'));
+            add_action( 'print_shortcode_ui_templates', array('InfoscienceSearchShortCakeConfig', 'shortcode_ui_epfl_field_template'));
+            
             $documentation_url = "https://support.epfl.ch/kb_view.do?sysparm_article=KB0014227";
     
             $url_description = sprintf(
@@ -87,12 +167,6 @@ Class InfoscienceSearchShortCakeConfig
             );
 
             $default_description = esc_html__('', 'epfl-infoscience-search');
-
-            $build_url_separator = '<h3>' . esc_html__('Or build your list here', 'epfl-infoscience') . '</h3>';
-
-            $visual_seperator = '<h3>' . esc_html__('Visual configuration', 'epfl-infoscience') . '</h3>';
-            
-            $advanced_content_seperator = '<h3>' . esc_html__('Advanced options', 'epfl-infoscience') . '</h3>';
     
             shortcode_ui_register_for_shortcode(
                 'epfl_infoscience_search',
@@ -100,116 +174,115 @@ Class InfoscienceSearchShortCakeConfig
                     'label' => __('Add Infoscience search result shortcode', 'epfl-infoscience-search'),
                     'listItemImage' => '<img src="' . plugins_url( 'img/infoscience.svg', __FILE__ ) . '" >',
                     'attrs'         => array(
-                        array(
-                            'label'         => '<h3>' . esc_html__('Enter your infoscience search url', 'epfl-infoscience') . '</h3>',
-                            'attr'          => 'url',
-                            'type'          => 'text',
-                            'description'   => $url_description,
-                        ),
                         # url builder
                         array(
-                            'label'         => $build_url_separator . '<h4>' . esc_html__('Search key', 'epfl-infoscience') . '</h4>',
+                            'title'         => esc_html__('Build your list', 'epfl-infoscience'),
+                            'label'         => esc_html__('Search key', 'epfl-infoscience'),
                             'attr'          => 'pattern',
-                            'type'          => 'text',
+                            'type'          => 'epfl-text',
                             'description'   => $pattern_description,
                         ),
                         array(
-                            'label'         => '<h4>' . esc_html__('Field restriction', 'epfl-infoscience') . '</h4>',
+                            'label'         => esc_html__('Field restriction', 'epfl-infoscience'),
                             'attr'          => 'field',
-                            'type'          => 'select',
+                            'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_field_options(),
                             'description'   => $default_description,
                         ),
                         array(
-                            'label'         => '<h4>' . esc_html__('limit', 'epfl-infoscience') . '</h4>',
+                            'label'         => esc_html__('Limit', 'epfl-infoscience'),
                             'attr'          => 'limit',
-                            'type'          => 'select',
+                            'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_limit_options(),
                             'description'   => $default_description,
                         ),
                         array(
-                            'label'         => '<h4>' . esc_html__('limit', 'epfl-infoscience') . '</h4>',
+                            'label'         => esc_html__('Order', 'epfl-infoscience'),
                             'attr'          => 'order',
-                            'type'          => 'select',
+                            'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_sort_options(),
                             'description'   => $default_description,
                         ),
+                        array(
+                            'label'         => esc_html__('Collection', 'epfl-infoscience'),
+                            'attr'          => 'collection',
+                            'type'          => 'epfl-text',
+                            'description'   => $default_description,
+                            'meta'        => array(
+                                'placeholder' => 'Infoscience/Research',
+                            ),                            
+                        ),                        
                         # Advanced content
                         array(
-                            'label'         => $advanced_content_seperator. '<h4>' . esc_html__('pattern 2', 'epfl-infoscience') . '</h4>',
+                            'title'         => esc_html__('Search 2', 'epfl-infoscience'),
+                            'label'         => '',
                             'attr'          => 'operator2',
-                            'type'          => 'select',
+                            'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_operator_options(),
                             'description'   => $default_description,
                         ),
                         array(
                             'label'         => esc_html__('Field restriction', 'epfl-infoscience'),
                             'attr'          => 'field2',
-                            'type'          => 'select',
+                            'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_field_options(),
                             'description'   => $default_description,
                         ),
                         array(
-                            'label'         => '',
+                            'label'         => esc_html__('Search key', 'epfl-infoscience'),
                             'attr'          => 'pattern2',
-                            'type'          => 'text',
+                            'type'          => 'epfl-text',
                             'description'   => $default_description,
                         ),
                         array(
-                            'label'         => '<h4>' . esc_html__('pattern 3', 'epfl-infoscience') . '</h4>',
+                            'title'         => esc_html__('Search 3', 'epfl-infoscience'),
+                            'label'         => '',
                             'attr'          => 'operator3',
-                            'type'          => 'select',
+                            'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_operator_options(),
                             'description'   => $default_description,
                         ),
                         array(
                             'label'         => esc_html__('Field restriction', 'epfl-infoscience'),
                             'attr'          => 'field3',
-                            'type'          => 'select',
+                            'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_field_options(),
                             'description'   => $default_description,
                         ),                        
                         array(
-                            'label'         => '',
+                            'label'         => 'Search key',
                             'attr'          => 'pattern3',
-                            'type'          => 'text',
+                            'type'          => 'epfl-text',
                             'description'   => $default_description,
-                        ),
-                        array(
-                            'label'         => '<h4>' . esc_html__('Collection', 'epfl-infoscience') . '</h4>',
-                            'attr'          => 'collection',
-                            'type'          => 'text',
-                            'description'   => $default_description,
-                            'meta'        => array(
-                                'placeholder' => 'Infoscience/Research',
-                            ),                            
                         ),
 
                         # Presentation
                         array(
-                            'label'         => $visual_seperator . '<h4>' . esc_html__('Format', 'epfl-infoscience') . '</h4>',
+                            'title'         => esc_html__('Visual configuration', 'epfl-infoscience'),
+                            'label'         => esc_html__('Format', 'epfl-infoscience'),
                             'attr'          => 'format',
-                            'type'          => 'select',
+                            'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_format_options(),
                             'description'   => __('Detail level for a publication', 'epfl-infoscience-search'),
                         ),
                         array(
-                            'label'         => '<h4>' . esc_html__('Thumbnails', 'epfl-infoscience') . '</h4>',
+                            'label'         => esc_html__('Thumbnails', 'epfl-infoscience'),
                             'attr'          => 'show_thumbnail',
-                            'type'          => 'checkbox',
+                            'type'          => 'epfl-checkbox',
                             'description'   => $default_description,
                         ),                           
                         array(
-                            'label'         => '<h4>' . esc_html__('Group by', 'epfl-infoscience') . '</h4>' . '<h5>' . esc_html__('Group by', 'epfl-infoscience') . '(1)</h5>',
+                            'title'         => esc_html__('Group by', 'epfl-infoscience'),
+                            'label'         => esc_html__('Group by', 'epfl-infoscience') . '(1)',
                             'attr'          => 'group_by',
-                            'type'          => 'select',
+                            'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_group_by_options(),
                             'description'   => $default_description,
                         ),
                         array(
-                            'label'         => '<h5>' . esc_html__('Group by', 'epfl-infoscience') . ' (2)</h5>',
+                            'label'         => esc_html__('Group by', 'epfl-infoscience') . ' (2)',
                             'attr'          => 'group_by2',
-                            'type'          => 'select',
+                            'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_group_by_options(),
                             'description'   => $default_description,
                         ),                        
