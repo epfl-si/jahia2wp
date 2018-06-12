@@ -1,0 +1,6 @@
+# Delete a WordPress site
+
+- name: Sanity check
+  meta: end_play
+  when: not force_regenerate
+

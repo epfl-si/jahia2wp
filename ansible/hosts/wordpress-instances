@@ -8,4 +8,4 @@ charte-wordpresses
 [charte-wordpresses]
 charte-wp-dcsl          wp_path=dcsl
 2doptoelectronics2018   wp_path=2doptoelectronics2018
-charte-sti              wp_path=sti
+charte-sti              wp_path=sti                    wp_unit_id=STI wp_unit_name="School of Engineering"

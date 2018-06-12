@@ -1,16 +1,25 @@
 # file: roles/wordpress/tasks/main.yml
 #
 # What to do to install and configure a WordPress instance
+#
+# Variables:: (in addition to those defined or documented in
+#              ../vars/main.yml)
+#
+# - force_regenerate: Delete and recreate (from backup) this WordPress instance
 
 - name: Check whether WordPress is working
   command: wp --path={{ wp_dir }} eval '1;'
   ignore_errors: yes
   register: wordpress_status
-- name: Debug env
-  command: env
-  environment: "{{ jahia2wp_env }}"
-  register: debug_env
 
+- include: delete.yml
+  when: force_regenerate
+
+- include: generate.yml
+  when: "(wordpress_status.rc != 0) or (force_regenerate)"
+
+- include: restore.yml
+  when: "(wordpress_status.rc != 0) or (force_regenerate)"
 
 
 ## Debug scaffolding #########################################

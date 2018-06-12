@@ -1,0 +1,15 @@
+# Generate an empty WordPress site.
+
+- name: Create auxiliary YAML file for "jahia2wp.py generate"
+  copy:
+    content: |
+      langs: en,fr
+      unit_name: {{wp_unit_name}}
+      unit_id: {{wp_unit_id}}
+    dest: "{{ansible_remote_tmp}}/{{inventory_hostname}}-generate.yaml"
+  register: jahia2wp_generate_yaml_tmp
+
+- name: jahia2wp.py generate
+  shell: "{{jahia2wp_shell}} generate {{ wp_env }} https://{{ wp_hostname }}/{{ wp_path }} --extra-config={{ jahia2wp_generate_yaml_tmp.dest }}"
+  environment: "{{ jahia2wp_env }}"
+ 

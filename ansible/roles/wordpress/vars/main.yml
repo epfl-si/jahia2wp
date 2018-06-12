@@ -15,6 +15,10 @@
 # - wp_path: The path relative to the htdocs directory where the WordPress
 #            instance is installed
 #
+# - wp_unit_name: The unit name
+#
+# - wp_unit_id: The unit ID
+#
 # Required facts:
 #
 # - ansible_remote_tmp: The directory for temporary files
@@ -24,6 +28,7 @@
 # The environment variables required by the jahia2wp Python script
 jahia2wp_env:
   WP_ENV: "{{wp_env}}"
+  WP_VERSION: latest
   PYTHONPATH: "/srv/{{ wp_env }}/jahia2wp/src"
   # Required by jahia2wp generate and generate-many (lest we get
   # the wrong set of plugins)
@@ -35,3 +40,20 @@ jahia2wp_env:
 
 # The top-level directory of this WordPress instance
 wp_dir: "/srv/{{ wp_env }}/{{ wp_hostname }}/htdocs/{{ wp_path }}"
+
+# The directories where the jahia2wp.py tool resides
+jahia2wp_dir: "/srv/{{ wp_env }}/jahia2wp"
+
+# The things that one should send to the shell prior to running any
+# jahia2wp command. Use like so:
+#
+# shell: {{ jahia2wp_shell }} generate --foo=bar ...
+jahia2wp_shell: set -e; . {{ jahia2wp_dir }}/.env; export MYSQL_DB_HOST MYSQL_SUPER_USER MYSQL_SUPER_PASSWORD WP_ADMIN_USER WP_ADMIN_EMAIL; cd {{ jahia2wp_dir }}/src; {{ ansible_python_interpreter }} ./jahia2wp.py
+
+# Whether to perform a delete/restore cycle on this WordPress instance.
+# This is the default value (override with --extra-vars "force_regenerate=true")
+force_regenerate: false
+
+# The unit name. Override either on the command line with --extra-vars,
+# or in the inventory file (../../../hosts/wordpress-instances)
+wp_unit_name: "{{ wp_unit_id }}"

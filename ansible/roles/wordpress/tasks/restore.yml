@@ -1,0 +1,4 @@
+# Restore a WordPress site from backup
+
+- name: Nothing
+  command: ":"
