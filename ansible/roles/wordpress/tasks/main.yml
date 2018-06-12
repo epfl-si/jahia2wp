@@ -1,0 +1,5 @@
+# What to do to install and configure a WordPress instance.
+- name: just a demo
+  copy:
+    content: "{{inventory_hostname}}"
+    dest: /tmp/test-{{inventory_hostname}}

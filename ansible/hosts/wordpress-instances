@@ -1,0 +1,10 @@
+;; Target list for Ansible, grouped into groups
+;;
+;; Ansible has a concept of "hosts", that we (ab)use for
+;; WordPress instances in this case.
+[all-wordpresses:children]
+charte-wordpresses
+
+[charte-wordpresses]
+charte-wp-dcsl
+2doptoelectronics2018
