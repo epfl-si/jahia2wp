@@ -3,15 +3,20 @@
 # "hosts" are not really hosts; rather, they are WordPress instances
 # See the list in hosts/wordpress-instances
 - hosts: all-wordpresses
-  environment:
-    # WP_ENV is a group variable set from ansible/hosts/group_vars/*
-    WP_ENV: "{{WP_ENV}}"
   gather_facts: no   # Delayed, see below
   pre_tasks:
     - name: Ansible pre-configuration
       set_fact:
         ansible_user: www-data
-        ansible_python_interpreter: "/srv/{{WP_ENV}}/venv/bin/python"
+        ansible_python_interpreter: "/srv/{{wp_env}}/venv/bin/python"
+    - name: Create temporary directory
+      tempfile:
+        state: directory
+        prefix: ansible-jahia2wp-
+      register: tempfile
+    - name: Use temporary directory
+      set_fact:
+        ansible_remote_tmp: "{{ tempfile.path }}"
     - name: Gathering facts (delayed after Ansible pre-configuration)
       setup:
   roles:

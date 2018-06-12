@@ -1,0 +1,37 @@
+# file: roles/wordpress/vars/main.yml
+#
+# Define variables that this role relies on.
+#
+# Required variables (typically coming out of hosts/group_vars/* and
+# hosts/wordpress-instances):
+#
+#
+# - wp_env: The name of the top-level directory (under the /srv of the
+#            Openshift instance) where the server root resides
+#
+# - wp_hostname: The HTTP host name (fully qualified domain name) this
+#                  WordPress is served under
+#
+# - wp_path: The path relative to the htdocs directory where the WordPress
+#            instance is installed
+#
+# Required facts:
+#
+# - ansible_remote_tmp: The directory for temporary files
+#
+# Exported Variables::
+
+# The environment variables required by the jahia2wp Python script
+jahia2wp_env:
+  WP_ENV: "{{wp_env}}"
+  PYTHONPATH: "/srv/{{ wp_env }}/jahia2wp/src"
+  # Required by jahia2wp generate and generate-many (lest we get
+  # the wrong set of plugins)
+  PLUGINS_CONFIG_BASE_PATH: ../data/plugins
+  # Required by jahia2wp migrate-urls
+  PYTHONIOENCODING: "utf-8"
+  # Control where jahia2wp migrate-urls puts its temp files
+  JAHIA2WP_VENT_TMP: "{{ansible_remote_tmp}}"
+
+# The top-level directory of this WordPress instance
+wp_dir: "/srv/{{ wp_env }}/{{ wp_hostname }}/htdocs/{{ wp_path }}"

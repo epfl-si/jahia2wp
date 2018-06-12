@@ -1,5 +1,28 @@
-# What to do to install and configure a WordPress instance.
-- name: just a demo
-  copy:
-    content: "{{inventory_hostname}}"
-    dest: /tmp/test-{{inventory_hostname}}
+# file: roles/wordpress/tasks/main.yml
+#
+# What to do to install and configure a WordPress instance
+
+- name: Check whether WordPress is working
+  command: wp --path={{ wp_dir }} eval '1;'
+  ignore_errors: yes
+  register: wordpress_status
+- name: Debug env
+  command: env
+  environment: "{{ jahia2wp_env }}"
+  register: debug_env
+
+
+
+## Debug scaffolding #########################################
+- name: Save facts (for debug)
+  when: false  # That is, never
+  local_action:
+    module: copy
+    content: "{{vars['ansible_facts'] | to_nice_json}}"
+    dest: facts-{{inventory_hostname}}.json
+- name: Save all variables (for debug)
+  when: false  # That is, never
+  local_action:
+    module: copy
+    content: "{{vars | to_nice_json}}"
+    dest: vars-{{inventory_hostname}}.json
