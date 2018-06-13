@@ -32,24 +32,24 @@
 	<div class="header-top wrap">
 		<?php
 		/* Configuration */
-		$allowed_langs = array('en', 'fr');
-		$default_lang = 'en';
+		$epfl_allowed_langs = array('en', 'fr');
+		$epfl_default_lang = 'en';
 		/* If Polylang installed */
 		if(function_exists('pll_current_language'))
 		{
 			/* Get current lang */
-			 $cur_lang = pll_current_language('slug');
+			 $epfl_cur_lang = pll_current_language('slug');
 			 /* Check if current lang is supported. If not, use default lang*/
-			 if(!in_array($cur_lang, $allowed_langs)) $cur_lang=$default_lang;
+			 if(!in_array($epfl_cur_lang, $epfl_allowed_langs)) $epfl_cur_lang=$epfl_default_lang;
 
 		}
 		else /* Polylang not installed */
 		{
-			$cur_lang = $default_lang;
+			$epfl_cur_lang = $epfl_default_lang;
 		}
 
 		?>
-  	<header id="epfl-header" class="site-header epfl" data-ajax-header="https://static.epfl.ch/latest/includes/epfl-header.<?php echo $cur_lang; ?>.html"></header>
+  	<header id="epfl-header" class="site-header epfl" data-ajax-header="https://static.epfl.ch/latest/includes/epfl-header.<?php echo $epfl_cur_lang; ?>.html"></header>
 	</div><!-- .header-top -->
 
 	<header id="masthead" class="site-header" role="banner">
