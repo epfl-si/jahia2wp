@@ -119,7 +119,7 @@ add_action( 'plugins_loaded', 'epfl_scheduler_load_plugin_textdomain' );
 add_action( 'init', function() {
 
     // Define shortcode
-    add_shortcode('epfl_scheduler', epfl_scheduler_shortcode);
+    add_shortcode('epfl_scheduler', 'epfl_scheduler_shortcode');
 
     if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
 
@@ -127,7 +127,7 @@ add_action( 'init', function() {
             'epfl_scheduler',
             array(
                 'label' => __('Add Scheduler shortcode', 'epfl-scheduler'),
-                'listItemImage' => '',
+                'listItemImage' => '<img src="' . plugins_url( 'img/scheduler.svg', __FILE__ ) . '" >',
                 'attrs'         => array(
                     array(
                         'label'         => '<h3>' . esc_html__('Start date', 'epfl-scheduler') . '</h3>',

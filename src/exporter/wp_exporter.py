@@ -209,21 +209,21 @@ class WPExporter:
             start = "{}/content/sites/{}/files".format(self.site.base_path, self.site.name)
             self.site.files = self._asciify_path(start)
 
-            count = 0
             for file in self.site.files:
                 wp_media = self.import_media(file)
                 if wp_media:
                     self.fix_file_links(file, wp_media)
                     self.report['files'] += 1
-                    count += 1
 
-                    if count % 10 == 0:
+                    if self.report['files'] % 10 == 0:
                         logging.info("[%s/%s] WP medias imported", self.report['files'], len(self.site.files))
 
             self.fix_key_visual_boxes()
         # Remove the capability "unfiltered_upload" to the administrator group.
         self.run_wp_cli('cap remove administrator unfiltered_upload')
         logging.info("%s WP medias imported", self.report['files'])
+        if self.report['failed_files'] > 0:
+            logging.info("%s WP medias import failed", self.report['failed_files'])
 
     def import_media(self, media):
         """
@@ -274,9 +274,12 @@ class WPExporter:
             wp_media = self.wp.post_media(data=wp_media_info, files=files)
             return wp_media
         except Exception as e:
-            logging.error("%s - WP export - media failed: %s", self.site.name, e)
+            logging.error("%s - WP export - media failed, it may be corrupted (%s/%s): %s",
+                          self.site.name,
+                          media.path,
+                          media.name,
+                          e)
             self.report['failed_files'] += 1
-            raise e
 
     def import_breadcrumb(self):
         """
@@ -514,6 +517,14 @@ class WPExporter:
         for attribute in box.shortcode_attributes_to_fix:
             old_attribute = '{}="{}"'.format(attribute, old_url)
             new_attribute = '{}="{}"'.format(attribute, new_url)
+
+            # To use shortcake for snippet plugin we must define url="23" with 23 is the media id.
+            if box.type == Box.TYPE_SNIPPETS:
+                medias = self.wp.get_media()
+                for media in medias:
+                    if 'guid' in media and 'rendered' in media['guid'] and media['guid']['rendered'] == new_url:
+                        new_attribute = '{}="{}"'.format(attribute, media['id'])
+                        break
 
             box.content = box.content.replace(old_attribute, new_attribute)
 
@@ -858,7 +869,7 @@ class WPExporter:
                         continue
 
                     if box.type in [Box.TYPE_TOGGLE, Box.TYPE_TEXT, Box.TYPE_CONTACT, Box.TYPE_LINKS, Box.TYPE_FILES,
-                                    Box.TYPE_INCLUDE, Box.TYPE_MEMENTO, Box.TYPE_ACTU]:
+                                    Box.TYPE_INCLUDE, Box.TYPE_MEMENTO, Box.TYPE_ACTU, Box.TYPE_SNIPPETS]:
                         widget_type = 'custom_html'
                         title = prepare_html(box.title)
                         content = prepare_html(box.content)
@@ -1263,15 +1274,34 @@ class WPExporter:
 
     def write_redirections(self):
         """
-        Update .htaccess file with redirections
+        Update .htaccess file with redirections.
+        The added redirections are for :
+        - Jahia pages to WordPress pages
+        - Jahia media (files) to WordPress media. For media, we will redirect to the upload directory corresponding
+        to year/month of Jahia to WordPress site migration.
         """
-        redirect_list = []
 
+        # Step 1 - Medias
+        if self.site.files:
+            current_month = datetime.now().strftime('%m')
+            current_year = datetime.now().strftime('%Y')
+
+            redirect_list = ["RewriteRule ^files/content/(.*/)*(.*)$ wp-content/uploads/{}/{}/$2 "
+                             "[R=301,NC,L]".format(current_year, current_month)]
+
+            # Updating .htaccess file
+            WPUtils.insert_in_htaccess(self.wp_generator.wp_site.path,
+                                       "Jahia-Files-Redirect",
+                                       redirect_list,
+                                       at_beginning=True)
+
+        # Step 2 - Pages
         # Init WP install folder path for source URLs
         if self.wp_generator.wp_site.folder == "":
             folder = ""
         else:
             folder = "/{}".format(self.wp_generator.wp_site.folder)
+        redirect_list = []
 
         # Add all rewrite jahia URI to WordPress URI
         for element in self.urls_mapping:

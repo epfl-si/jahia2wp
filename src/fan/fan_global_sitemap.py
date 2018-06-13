@@ -45,7 +45,9 @@ class FanGlobalSitemap:
         # (titles, UNIT, etc.)
         self.urls = {}
 
-        for row in self.rows:
+        for position, row in enumerate(self.rows):
+            # save the position
+            row["position"] = position
             url = row["wp_site_url"]
             self.urls[url] = row
 
@@ -91,6 +93,11 @@ class FanGlobalSitemap:
             # start with the ROOT_PATH
             if not url.startswith(self.ROOT_URL):
                 self._add_error(i, "URL '{}' must start with {}".format(url, self.ROOT_URL))
+                continue
+
+            # not end with a /
+            if url.endswith("/"):
+                self._add_error(i, "URL '{}' must not end with a /".format(url))
                 continue
 
             # have a parent
@@ -144,16 +151,16 @@ class FanGlobalSitemap:
 
         return Utils.run_command(cmd)
 
-    def _add_to_menu(self, menu_name, page_id, menu_item_parent_id=None):
+    def _add_to_menu(self, menu_name, page_id, position, menu_item_parent_id=None):
         """Adds the given page to the given menu"""
 
-        cmd = "wp menu item add-post {} {} --path='{}' --porcelain"
+        cmd = "wp menu item add-post {} {} --position={} --path='{}' --porcelain"
 
         # set the parent menu item, if any
         if menu_item_parent_id:
             cmd += " --parent-id={}".format(menu_item_parent_id)
 
-        cmd = cmd.format(menu_name, page_id, self.wp_path)
+        cmd = cmd.format(menu_name, page_id, position, self.wp_path)
 
         return Utils.run_command(cmd)
 
@@ -214,6 +221,8 @@ class FanGlobalSitemap:
 
             title = self.urls[url]["wp_site_title"]
 
+            position = self.urls[url]["position"]
+
             content = nodes_by_path[path].html()
 
             parent_id = homepage_id
@@ -224,8 +233,8 @@ class FanGlobalSitemap:
                 parent_id = pages_by_path[parent_path]["id"]
                 menu_item_parent_id = pages_by_path[parent_path]["menu_item_id"]
 
-            page_id = self._create_page(name, title, content, parent_id)
-            menu_item_id = self._add_to_menu(settings.MAIN_MENU, page_id, menu_item_parent_id)
+            page_id = self._create_page(name, title, content, position, parent_id)
+            menu_item_id = self._add_to_menu(settings.MAIN_MENU, page_id, position, menu_item_parent_id)
 
             # add the page info
             page = {
@@ -243,20 +252,23 @@ class FanGlobalSitemap:
     def _create_homepage(self):
         """Creates the homepage"""
 
-        homepage_id = self._create_page("home", "Home", "Home page")
+        homepage_id = self._create_page("home", "Home", 0, "Home page")
 
-        self._add_to_menu(settings.MAIN_MENU, homepage_id)
+        self._add_to_menu(settings.MAIN_MENU, homepage_id, 0)
 
         return homepage_id
 
     def _create_sitemap(self, homepage_id):
         """Creates the sitemap page"""
 
+        # the sitemap should be displayed last
+        position = len(self.rows)
+
         content = '[simple-sitemap show_label="false" types="page orderby="menu_order"]'
 
-        page_id = self._create_page("sitemap", "Sitemap", content, homepage_id)
+        page_id = self._create_page("sitemap", "Sitemap", content, position, homepage_id)
 
-        self._add_to_menu(settings.FOOTER_MENU, page_id)
+        self._add_to_menu(settings.FOOTER_MENU, page_id, position)
 
         # set the sitemap as the homepage
         cmd = "wp option update show_on_front page --path='{}'".format(self.wp_path)
@@ -276,7 +288,7 @@ class FanGlobalSitemap:
         cmd = "wp option update blogdescription '{}' --path='{}'".format("", self.wp_path)
         Utils.run_command(cmd)
 
-    def _create_page(self, name, title, content, parent_id=None):
+    def _create_page(self, name, title, content, position, parent_id=None):
         """Creates a page with the given informations"""
 
         cmd = "wp post create --post_type=page " \
@@ -284,8 +296,9 @@ class FanGlobalSitemap:
               "--post_name='{}' " \
               "--post_title='{}' " \
               "--post_content='{}' " \
+              "--menu_order='{}' " \
               "--path='{}' " \
-              "--porcelain ".format(name, title, content, self.wp_path)
+              "--porcelain ".format(name, title, content, position, self.wp_path)
 
         if parent_id:
             cmd += "--post_parent={}".format(parent_id)

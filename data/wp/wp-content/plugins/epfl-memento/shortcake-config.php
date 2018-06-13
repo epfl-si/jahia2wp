@@ -22,19 +22,22 @@ Class ShortCakeMementoConfig
        $memento_response = EventUtils::get_items($url);
 
        $memento_options = array();
-       foreach ($memento_response->results as $item) {
+       if(property_exists($memento_response, 'results'))
+       {
+           foreach ($memento_response->results as $item) {
 
-           if (get_locale() == 'fr_FR') {
-               $memento_name = $item->fr_name;
-           } else {
-               $memento_name = $item->en_name;
+               if (get_locale() == 'fr_FR') {
+                   $memento_name = $item->fr_name;
+               } else {
+                   $memento_name = $item->en_name;
+               }
+
+               $option = array(
+                   'value' => $item->slug,
+                   'label' => $memento_name,
+               );
+               array_push($memento_options, $option);
            }
-
-           $option = array(
-               'value' => $item->slug,
-               'label' => $memento_name,
-           );
-           array_push($memento_options, $option);
        }
        return $memento_options;
     }
@@ -118,7 +121,7 @@ Class ShortCakeMementoConfig
 
            array(
                'label' => __('Add Memento shortcode', 'epfl-memento'),
-               'listItemImage' => '',
+               'listItemImage' => '<img src="' . plugins_url( 'img/memento.svg', __FILE__ ) . '" >',
                'attrs'         => array(
                    array(
                        'label'         => '<h3>' . esc_html__('Select your memento', 'epfl-memento') . '</h3>',

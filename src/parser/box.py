@@ -532,6 +532,7 @@ class Box:
         FIXME: Handle filesList option in FAQ item
         FIXME: Handle linksList option in FAQ item
         """
+
         shortcode_outer_name = "epfl_faq"
         shortcode_inner_name = "epfl_faqItem"
 

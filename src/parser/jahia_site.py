@@ -678,6 +678,7 @@ class Site:
                     # If we have a link like this :
                     # ?uuid=default:a6d36162-07da-4036-9b58-a32e416f7769
                     if "?" in new_link and "?uuid=default:" in new_link:
+
                         uuid = new_link[new_link.index(":") + 1:]
 
                         # If we have an UUID match, we take it. Otherwise, we take the "real" link.

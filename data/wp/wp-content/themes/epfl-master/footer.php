@@ -19,10 +19,26 @@
     			<nav class="footer-navigation" role="navigation">
       			
       			<?php
-          			
-        			$currentLang = pll_current_language(locale);
-        			
-        			if( $currentLang == "fr_FR" ) {
+
+                    /* Configuration */
+                    $epfl_allowed_langs = array('en', 'fr');
+                    $epfl_default_lang = 'en';
+                    /* If Polylang installed */
+                    if(function_exists('pll_current_language'))
+                    {
+                        /* Get current lang */
+                         $epfl_cur_lang = pll_current_language('slug');
+                         /* Check if current lang is supported. If not, use default lang*/
+                         if(!in_array($epfl_cur_lang, $epfl_allowed_langs)) $epfl_cur_lang=$epfl_default_lang;
+
+                    }
+                    else /* Polylang not installed */
+                    {
+                        $epfl_cur_lang = $epfl_default_lang;
+                    }
+
+
+        			if( $epfl_cur_lang == "fr" ) {
           			$linkLegal = "https://mediacom.epfl.ch/disclaimer-fr";
                 $linkAccess = "https://www.epfl.ch/accessibility.fr.shtml";
         			} else {

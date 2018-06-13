@@ -49,7 +49,7 @@ Usage:
     [--force] [--plugin=<PLUGIN_NAME>]
   jahia2wp.py global-report <csv_file> [--output-dir=<OUTPUT_DIR>] [--use-cache] [--debug | --quiet]
   jahia2wp.py migrate-urls <csv_file> <wp_env>                    [--debug | --quiet]
-    --root_wp_dest=</srv/../epfl> [--greedy] [--htaccess] [--context=<intra|inter|full>]
+    --root_wp_dest=</srv/../epfl> [--greedy] [--htaccess] [--context=<intra|inter|full>] [--dry_run]
 
 Options:
   -h --help                 Show this screen.
@@ -407,10 +407,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     :param openshift_env: openshift_env environment (prod, int, gcharmier ...)
     :param keep_extracted_files: command to keep files extracted from jahia zip
     :param fix_etx_chars: Tell to remove ETX chars from XML files containing site pages.
-<<<<<<< HEAD
-=======
     :param features_flags: Tell to clean page content or not
->>>>>>> release
     """
 
     # Download, Unzip the jahia zip and parse the xml data
@@ -488,6 +485,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
             wp_generator.install_basic_auth_plugin()
     else:
         wp_generator.generate()
+
         wp_generator.install_basic_auth_plugin()
 
     # dual auth
@@ -928,13 +926,14 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
 
 
 @dispatch.on('migrate-urls')
-def url_mapping(csv_file, wp_env, greedy=False, root_wp_dest=None, htaccess=False, context='intra', **kwargs):
+def url_mapping(csv_file, wp_env, greedy=False, root_wp_dest=None, htaccess=False,
+                context='intra', dry_run=False, **kwargs):
     """
     :param csv_file: CSV containing the URL mapping rules for source and destination.
     :param context: intra, inter, full. Replace the occurrences at intra, inter or both.
     """
     logging.info('Starting ventilation process...')
-    vent = Ventilation(wp_env, csv_file, greedy, root_wp_dest, htaccess, context)
+    vent = Ventilation(wp_env, csv_file, greedy, root_wp_dest, htaccess, context, dry_run)
     vent.run_all()
 
 

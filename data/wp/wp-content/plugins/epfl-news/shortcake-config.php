@@ -17,12 +17,16 @@ Class ShortCakeConfig
 
         // build select tag html
         $channel_options = array();
-        foreach ($channel_response->results as $item) {
-            $option = array(
-                'value' => strval($item->id),
-                'label' => $item->name,
-            );
-            array_push($channel_options, $option);
+
+        if(property_exists($channel_response, 'results'))
+        {
+            foreach ($channel_response->results as $item) {
+                $option = array(
+                    'value' => strval($item->id),
+                    'label' => $item->name,
+                );
+                array_push($channel_options, $option);
+            }
         }
         return $channel_options;
     }
@@ -117,7 +121,7 @@ Class ShortCakeConfig
 
             array(
                 'label' => __('Add News shortcode', 'epfl-news'),
-                'listItemImage' => '',
+                'listItemImage' => '<img src="' . plugins_url( 'img/news.svg', __FILE__ ) . '" >',
                 'attrs'         => array(
                         array(
                             'label'         => '<h3>' . esc_html__('Select your news channel', 'epfl-news') . '</h3>',

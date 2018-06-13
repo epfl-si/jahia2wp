@@ -1,50 +1,66 @@
 wp_site_url,wp_site_title,unit_name
-https://www.epfl.ch/about,About,
-https://www.epfl.ch/about/campus,Campus,
-https://www.epfl.ch/about/cooperation,Cooperation,
-https://www.epfl.ch/about/job,Jobs,
-https://www.epfl.ch/about/organization,Organization,
+https://www.epfl.ch/about,About,MEDIACOM
 https://www.epfl.ch/about/overview,Overview,
-https://www.epfl.ch/about/philanthropy,Philanthropy,
+https://www.epfl.ch/about/president,President,
+https://www.epfl.ch/about/presidency,Direction,
+https://www.epfl.ch/about/vice-presidencies,Vice-presidencies,
+https://www.epfl.ch/about/campus,Antennes EPFL,
+https://www.epfl.ch/about/cooperation,Cooperation,
+https://www.epfl.ch/about/working,Working at EPFL,
+https://www.epfl.ch/about/recruiting,Recruiting,
+https://www.epfl.ch/about/news-and-media-information,News & Media,
 https://www.epfl.ch/about/scientific-activities,Scientific activities,
-https://www.epfl.ch/campus,Campus,
-https://www.epfl.ch/campus/associations,Associations,
-https://www.epfl.ch/campus/building-services,Building services,
-https://www.epfl.ch/campus/events,Events,
-https://www.epfl.ch/campus/facilities,Facilities,
-https://www.epfl.ch/campus/housing,Housing,
-https://www.epfl.ch/campus/kindergarten,Kindergarten,
-https://www.epfl.ch/campus/sports,Sports,
-https://www.epfl.ch/education,Education,
+https://www.epfl.ch/about/philanthropy,Philanthropy,
+https://www.epfl.ch/about/cooperation,Cooperation,
+https://www.epfl.ch/about/alumni,Alumni,
+https://www.epfl.ch/about/polylex,Laws & regulations,
+https://www.epfl.ch/education,Education,VPE
 https://www.epfl.ch/education/about,About,
-https://www.epfl.ch/education/admissions,Admissions,
-https://www.epfl.ch/education/continuing-education,Continuing education,
+https://www.epfl.ch/education/bachelor,Bachelor,
+https://www.epfl.ch/education/master,Master,
 https://www.epfl.ch/education/phd,PhD,
+https://www.epfl.ch/education/continuing-education,Continuing education,
+https://www.epfl.ch/education/mobility,Mobility,
+https://www.epfl.ch/education/admissions,Admissions,
+https://www.epfl.ch/education/support,Stuying & teaching at EPFL,
 https://www.epfl.ch/innovation,Innovation,VPI
 https://www.epfl.ch/innovation/about,About,
+https://www.epfl.ch/innovation/partner,Collaboration & partnership,
 https://www.epfl.ch/innovation/entrepreneurship,Entrepreneurship,
-https://www.epfl.ch/innovation/events,Events,
-https://www.epfl.ch/innovation/news,News,
-https://www.epfl.ch/innovation/partner,Partners,
 https://www.epfl.ch/innovation/startup,Startups,
-https://www.epfl.ch/research,Research,MEDIACOM
+https://www.epfl.ch/innovation/learn-develop,Learn & develop,
+https://www.epfl.ch/innovation/join-engage,Join & engage,
+https://www.epfl.ch/innovation/news-events,News & Events,
+https://www.epfl.ch/innovation/contacts,Contacts,
+https://www.epfl.ch/research,Research,VPR
 https://www.epfl.ch/research/about,About,
-https://www.epfl.ch/research/collaborate-partner,Collaborate partner,
-https://www.epfl.ch/research/domains,Domains,MEDIACOM
-https://www.epfl.ch/research/domains/enac,ENAC,ENAC
-https://www.epfl.ch/research/domains/ic,IC,IC
+https://www.epfl.ch/research/domains,Domains,
 https://www.epfl.ch/research/domains/laboratories,Laboratories,
-https://www.epfl.ch/research/domains/sb,SB,SB
-https://www.epfl.ch/research/domains/sti,STI,STI
-https://www.epfl.ch/research/domains/sv,SV,SV
-https://www.epfl.ch/research/facilities,Facilities,
-https://www.epfl.ch/research/faculty,Faculties,
-https://www.epfl.ch/research/library,Library,
-https://www.epfl.ch/research/output,Output,
-https://www.epfl.ch/research/services,Services,
+https://www.epfl.ch/research/faculty-members,Meet our faculty members,
+https://www.epfl.ch/research/facilities,Use our facilities,
+https://www.epfl.ch/research/collaborate-partner,Collaborate & partner,
+https://www.epfl.ch/research/services,Services to our researchers,
+https://www.epfl.ch/research/scientific-events,"Events, news & deadlines",
+https://www.epfl.ch/campus,Campus,MEDIACOM
+https://www.epfl.ch/campus/access,Access,
+https://www.epfl.ch/campus/library,Library,
+https://www.epfl.ch/campus/facilities,"Restaurants. shops, hotels",
+https://www.epfl.ch/campus/childcare,Childcare,
+https://www.epfl.ch/campus/chaplaincy,Chaplaincy,
+https://www.epfl.ch/campus/sports,Sports,
+https://www.epfl.ch/campus/sustainability,Sustainability,
+https://www.epfl.ch/campus/art-culture,"Art, culture, exhibitions",
+https://www.epfl.ch/campus/security-help,"Help, security, health",
+https://www.epfl.ch/campus/associations,Associations,
+https://www.epfl.ch/campus/events,Events,
+https://www.epfl.ch/campus/living-in-switzerland,Living in Switzerland,
+https://www.epfl.ch/campus/services,EPFL services,
+https://www.epfl.ch/campus/students-desk,Students desk,
 https://www.epfl.ch/schools,Faculties,MEDIACOM
-https://www.epfl.ch/schools/enac,ENAC,ENAC
-https://www.epfl.ch/schools/ic,IC,IC
-https://www.epfl.ch/schools/sb,SB,SB
-https://www.epfl.ch/schools/sti,STI,STI
-https://www.epfl.ch/schools/sv,SV,SV
+https://www.epfl.ch/schools/enac,"Architecture, Civil and Environmental Engineering ENAC",ENAC
+https://www.epfl.ch/schools/sb,Basic Sciences SB,SB
+https://www.epfl.ch/schools/ic,Computer and Communication Sciences IC,IC
+https://www.epfl.ch/schools/sti,Engineering STI,STI
+https://www.epfl.ch/schools/sv,Life Sciences SV,SV
+https://www.epfl.ch/schools/cdm,Management of Technology CDM,CDM
+https://www.epfl.ch/schools/cdh,College of Humanities CDH,CDH

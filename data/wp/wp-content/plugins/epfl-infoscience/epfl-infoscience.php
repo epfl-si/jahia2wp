@@ -87,7 +87,7 @@ add_action( 'init', function() {
 
             array(
                 'label' => __('Add Infoscience shortcode', 'epfl-infoscience'),
-                'listItemImage' => '',
+                'listItemImage' => '<img src="' . plugins_url( 'img/infoscience.svg', __FILE__ ) . '" >',
                 'attrs'         => array(
                     array(
                         'label'         => '<h3>' . esc_html__('Enter infoscience URL', 'epfl-infoscience') . '</h3>',

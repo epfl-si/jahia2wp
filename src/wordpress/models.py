@@ -42,10 +42,6 @@ class WPSite:
         if wp_site_title is not None:
             validate_string(wp_site_title)
 
-        if wp_tagline is not None:
-            for lang, lang_tagline in wp_tagline.items():
-                validate_string(lang_tagline)
-
         # set WP information
         self.domain = url.netloc.strip('/')
         self.folder = url.path.strip('/')
@@ -60,6 +56,7 @@ class WPSite:
             for lang, wp_tagline in self.wp_tagline.items():
                 if not wp_tagline:
                     self.wp_tagline[lang] = self.DEFAULT_TAGLINE
+                validate_string(self.wp_tagline[lang])
 
     def __repr__(self):
         return self.url

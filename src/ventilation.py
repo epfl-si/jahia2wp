@@ -15,6 +15,7 @@ from settings import JAHIA2WP_VENT_TMP
 from utils import Utils
 from wordpress import WPSite, WPConfig
 import yaml
+import socket
 
 """
     It takes the mapping rules in a CSV, with 2 columns each: source => destination,
@@ -61,7 +62,8 @@ class Ventilation:
     site_paths = {}
     dest_sites = {}
 
-    def __init__(self, wp_env, csv_file, greedy=False, root_wp_dest=None, htaccess=False, context="intra"):
+    def __init__(self, wp_env, csv_file, greedy=False, root_wp_dest=None, htaccess=False,
+                 context="intra", dry_run=False):
         self.wp_env = wp_env
         self.csv_file = csv_file
         self.strict_mode = not greedy
@@ -69,6 +71,7 @@ class Ventilation:
         if context:
             self.context = context
         self.htaccess = htaccess
+        self.dry_run = dry_run
         _rulesets = self.rule_parsing(self.csv_file)
         if _rulesets:
             self.rulesets = _rulesets
@@ -174,41 +177,36 @@ class Ventilation:
         :param csv_file: CSV with the URL migration rules
         """
         rules = {}
-        rows = Utils.csv_filepath_to_dict(self.csv_file)
-        for idx, row in enumerate(rows):
-            source = row['source']
-            # Split the path and take the first arg as site
-            # Consider special case of http(s):// and local sites
-            # ATTENTION: At this stage, a site = domain name. Relative paths are not considered as sites.
-            # this is true at least during the 'consolidation' phase wp => wp
-            site_name = source.split('//').pop().split('/').pop(0)
-            # There can be 3 type of rules identified
-            # 1. Root path = sitename = full site
-            # 2. Partial Path = Intermediate path with children
-            # 3. Full path = a leaf / page with no children.
-            # It's expected to find * in the rules but its absence has the same
-            # meaning (i.e. apply the rule to all the sub-content under the path
-            # Sytactically, only 2 cases will be detected: root and non-root path.
+        if not os.path.isfile(self.csv_file):
+            raise Exception('CSV file does not exist!')
 
+        rows = Utils.csv_filepath_to_dict(self.csv_file)
+        if not rows:
+            raise Exception('Empty CSV file!')
+
+        for idx, row in enumerate(rows):
+            source = row['source'].strip()
             # DO NOT remove the trailing * anymore, necessary to keep track in strict mode.
-            source = source.strip()
             _source = source.strip('*')
             if _source != '':
-                if 'http://' not in _source and 'https://' not in _source:
-                    # Local development case, append the host
-                    site = self.local_env + '/' + site_name
-                    source = self.local_env + '/' + source
-                else:
-                    site = '{}//{}'.format(_source.split('//').pop(0), site_name)
+                # Split the path and take the first arg as site
+                # Consider special case of http(s):// and local sites
+                # ATTENTION: At this stage, a site = domain name. Relative paths are not considered as sites.
+                # this is true at least during the 'consolidation' phase wp => wp
+                prot = source.split('//').pop(0)
+                site_comps = source.split('//').pop().split('/')
+                site_name = site_comps.pop(0)
+                # Special cases where source sites are subfolders: jahia2wp-httpd, ventilation-wp.epfl.ch
+                if site_name in ['jahia2wp-httpd', 'ventilation-wp.epfl.ch']:
+                    site_name += '/' + site_comps.pop(0)
+
+                site = '{}//{}'.format(prot, site_name)
 
             dest = row['destination'].strip()
             if dest != '':
                 # IMPORTANT: Add trailing slash, specially since now the source gets translated
                 # into the new intermediate WP URL that always has a trailing slash.
                 dest = dest.strip('/') + '/'
-                if 'http://' not in dest and 'https://' not in dest:
-                    # Local development case, append the host
-                    dest = self.local_env + '/' + dest
 
             # Start with an empty ruleset
             if site not in rules:
@@ -235,7 +233,7 @@ class Ventilation:
             if not wp_conf:
                 cmd = 'Site {} is not installed or wp_config is invalid, _check_sites was not called?'
                 logging.error(cmd.format(site))
-                sys.exit(1)
+                raise Exception('Invalid WP site! Did you call _check_sites?')
 
             # IMPORTANT: Increase the 'field_size_limit' to allow dumping certain sites like vpi.epfl.ch
             csv.field_size_limit(sys.maxsize)
@@ -252,6 +250,11 @@ class Ventilation:
             cmd = cmd.format(fields, wp_conf.wp_site.path, csv_f)
             logging.debug(cmd)
             Utils.run_command(cmd, 'utf8')
+
+            # Check if it's a non empty CSV
+            if os.path.getsize(csv_f) == 0:
+                raise Exception('Empty CSV exported! Cannot continue')
+
             # FIX: Convert the JSON to *proper* CSV with python
             # This is necessary since WP-CLI can produce a non-standard CSV (e.g. not escaping colons)
             pages = json.load(open(csv_f, 'r', encoding='utf8'))
@@ -327,6 +330,8 @@ class Ventilation:
             # Add an entry to the site paths dict
             self.site_paths[site] = wp_conf.wp_site.path
 
+        return True
+
     def rule_expansion(self):
         """
         The rule expansion has 2 parts.
@@ -354,6 +359,12 @@ class Ventilation:
 
         # Use port 8443 for local_env only (wp-mgmt does not have 443=>8443 redirection for httpd cont.)
         for site in self.rulesets.keys():
+            port = '443'
+            # Try to connect to port 8443 during 5s max, if got an answer then switch ports.
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(10)
+            if sock.connect_ex((urlparse(site).netloc, 8443)) == 0:
+                port = '8443'
             # IMPORTANT: Before expanding any rules, restore the .htaccess to remove ventilation redirs.
             # Restore the .htaccess (always)
             with open(self.site_paths[site] + '/.htaccess', 'r+', encoding='utf8') as f:
@@ -382,8 +393,11 @@ class Ventilation:
                     continue
 
                 orig_src = src
-                src_url = urlparse(src)
-                src_url = src_url._replace(netloc=src_url.netloc + ':8443').geturl()
+                # By safety remove any star *
+                src_url = src.strip('*')
+                if port == '8443':
+                    src_url = urlparse(src_url)
+                    src_url = src_url._replace(netloc=src_url.netloc + ':' + port).geturl()
                 # GET only the HEADERS *of course* in silent mode and ignoring cert validity
                 # WARNING:::: This first curl call will only get the .htaccess redirection (i.e. page GUID)
                 # The second call (redir) will translate the GUID into the actual URL that doesn't have a port
@@ -391,24 +405,32 @@ class Ventilation:
                 out = Utils.run_command('curl -I -s -k {}'.format(src_url))
                 # Parse the Location header if present.
                 loc = [l.split('Location: ').pop().strip() for l in out.split('\n') if 'Location:' in l]
+                # e.g.: HTTP/1.1 301 Moved Permanently, empty answer case included
+                http_status = (out.split(' ') or ['HTTP/1.1', None])[1]
+                # In some cases (e.g. HTTP 200) there is no Location header (i.e. no redirect).
                 if not loc:
-                    logging.warning('cURL fail for URL location in WP instance for {}, removing rule'.format(src))
-                    continue
+                    # If the status is 200 (OK), just use the src url
+                    if http_status not in ['200']:
+                        logging.warning('cURL fail for URL location in WP instance for {}, removing rule'.format(src))
+                        raise Exception('Cannot resolve (with cURL): {}'.format(src_url))
                 else:
+                    # Get the redirected URL
                     src = loc.pop()
-                    # Continue only if the location has a 8443 port.
-                    # Special case: The root URL does only need one cURL.
-                    if ':8443' in src:
+                    # Special case, if port is 8443 and is not present, do nothing (e.g. Home page)
+                    if port == '443' or (port == '8443' and port in src):
                         out = Utils.run_command('curl -I -s -k {}'.format(src))
                         # Parse the Location header if present.
                         loc = [l.split('Location: ').pop().strip() for l in out.split('\n') if 'Location:' in l]
+                        http_status = (out.split(' ') or ['HTTP/1.1', None])[1]
                         if not loc:
-                            logging.warning('cURL fail (location) in WP instance for {}, removing rule'.format(src))
-                            continue
+                            if http_status not in ['200']:
+                                logging.warning('cURL fail (location) in WP instance for {}, removing rule'.format(src))
+                                raise Exception('Cannot resolve (with cURL): {}'.format(src))
                         else:
+                            # Get the final (2nd level redirected URL)
                             src = loc.pop()
-                # Append the star * notation if present in the original rule
-                if '*' == orig_src[:-1]:
+                # Append the star * notation if present in the original rule and not present in src already.
+                if '*' == orig_src[-1] and src[-1] != '*':
                     src += '*'
                 ext_ruleset.append((src, dst))
 
@@ -435,7 +457,13 @@ class Ventilation:
             # Replace the current ruleset with the extended version
             self.rulesets[site] = ext_ruleset
 
-    def sort_rules(self, order=-1):
+        # Sort the rules from most generic to specific or the reverse (-1).
+        logging.info('Rule sorting expanded rules..')
+        self._sort_rules()
+
+        return True
+
+    def _sort_rules(self, order=-1):
         for site in self.rulesets:
             self.rulesets[site].sort(key=lambda rule: len(rule[0].split('/')) * order)
 
@@ -473,9 +501,12 @@ class Ventilation:
             lngs = [l[:2] for l in lngs.split("\n")]
             # Get all the original pages from the CSV
             pages = Utils.csv_filepath_to_dict(csv_f)
+            excl_pages = []
+            incl_pages = []
             filtered_pages = []
             # Get index-html parent page (if present)
             page_index = ([p['ID'] for p in pages if p['post_name'] == 'index-html'] or ['']).pop()
+            logging.debug('page_index ID: {}, for {}'.format(page_index, site))
             for pi in range(0, len(pages), len(lngs)):
                 # All pages in all langs
                 _pages = pages[pi:pi+len(lngs)]
@@ -494,33 +525,45 @@ class Ventilation:
                         # Strict mode, exact match. Take sub-paths only if star is present
                         if p_en['url'] == matches[0]:
                             logging.info('[Do not migrate - Strict mode] single match for: {}'.format(p_en['url']))
+                            excl_pages.append((p_en['url'], 'don-t migrate'))
                             continue
                         elif (matches[0] + '*') in dont_migrate:
                             logging.info('[Do not migrate - Strict mode *] star match for: {}'.format(p_en['url']))
+                            excl_pages.append((p_en['url'], 'don-t migrate *'))
                             continue
                     else:
                         # Greedy mode, [in case]. It's the equivalent of using an implicit * star
                         logging.info('[Do not migrate - Greedy mode] - URL: {}'.format(p_en['url']))
+                        excl_pages.append((p_en['url'], 'don-t migrate implicit mode'))
                         continue
 
                 # Check if the page is allowed to be migrated (star * notation and strict mode)
-                matches = [r[0].strip('*') for r in self.rulesets[site] if r[0] and r[0].strip('*') in p_en['url']]
+                matches = [r for r in self.rulesets[site] if r[0] and r[0].strip('*') in p_en['url']]
+                # Remove the star at the moment, first check for a full match then for a star match
+                matches = [(r[0].strip('*'), r[1]) for r in matches]
                 if not matches:
                     logging.warning('[Migration - Strict / Greedy mode] no rule for: {}'.format(p_en['url']))
+                    excl_pages.append((p_en['url'], 'no rule'))
                 else:
                     # Sort matches by specificity (number or URL comps)
-                    matches = sorted(matches, key=lambda u: len(u.strip('/').split('/')), reverse=True)
+                    matches = sorted(matches, key=lambda r: len(r[0].strip('/').split('/')), reverse=True)
                     if self.strict_mode:
                         # Strict mode = exact match. Subpath valid only if star * notation.
-                        if matches[0] != p_en['url']:
+                        if matches[0][0] != p_en['url']:
                             # A star * notation might still match the page
-                            matches_star = [m for m in matches if m + '*' in list(zip(*self.rulesets[site])).pop(0)]
+                            matches_star = [m for m in matches if m[0] + '*' in list(zip(*self.rulesets[site])).pop(0)]
                             if not matches_star:
                                 logging.debug('matches: {} for {}'.format(matches, p_en['url']))
                                 logging.info('[Migration - Strict mode *] No single/* match: {}'.format(p_en['url']))
+                                excl_pages.append((p_en['url'], 'no strict match'))
                                 continue
+                            else:
+                                incl_pages.append((p_en['url'], matches[0][1] + '*'))
+                        else:
+                            incl_pages.append((p_en['url'], matches[0][1]))
                     elif matches[0] != p_en['url']:
                         logging.info('[Migration - Greedy mode *] Implicit * match for: {}'.format(p_en['url']))
+                        excl_pages.append((p_en['url'], 'no implicit match'))
 
                 # FIX: Current version always has index-html as parent, if it's the case, change it to 0 (root)
                 if p_en['post_parent'] == page_index:
@@ -541,6 +584,69 @@ class Ventilation:
                 writer.writeheader()
                 for p in filtered_pages:
                     writer.writerow(p)
+
+            # Export CSV filtered files into a human readable format: JAHIA URL => WP URL
+            if self.dry_run:
+                base_f, _ = os.path.splitext(csv_f)
+                incl_csv = base_f + '_included.csv'
+                with open(incl_csv, 'w', encoding='utf8') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(['SOURCE', 'DESTINATION'])
+                    # Translate the WP URLs to JAHIA URLs (extract 1st col)
+                    jahia_urls = self._jahia_lookup(site, list(zip(*incl_pages)).pop(0))
+                    # Join the JAHIA URLs and the DESTINATION (last col of incl_pages)
+                    incl_pages = list(zip(jahia_urls, list(zip(*incl_pages)).pop()))
+                    for p in incl_pages:
+                        writer.writerow(p)
+                excl_csv = base_f + '_excluded.csv'
+                with open(excl_csv, 'w', encoding='utf8') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(['SOURCE', 'REASON'])
+                    # Translate the WP URLs to JAHIA URLs (extract 1st col)
+                    jahia_urls = self._jahia_lookup(site, list(zip(*excl_pages)).pop(0))
+                    # Join the JAHIA URLs and the REASON (last col of excl_pages)
+                    excl_pages = list(zip(jahia_urls, list(zip(*excl_pages)).pop()))
+                    for p in excl_pages:
+                        writer.writerow(p)
+
+        return True
+
+    def _jahia_lookup(self, site, urls=[], only_translated=False):
+        wp_conf = self._isvalid_site(site)
+        if not wp_conf:
+            logging.error('Something weird, site {} should be valid.')
+            sys.exit(1)
+
+        # Get hold of the .htaccess file
+        htaccess = wp_conf.wp_site.path + '/.htaccess'
+        if not os.path.isfile(htaccess):
+            logging.error('Cannot find .htaccess file for {}, exiting..'.format(site))
+            raise Exception('Cannot find .htaccess file to resolve WP URL to JAHIA URL')
+
+        with open(htaccess, 'r', encoding='utf8') as f:
+            lines = list(reversed(f.readlines()))
+        logging.debug('Retrieved {} lines of .htaccess for {}'.format(len(lines), site))
+
+        jahia_urls = []
+        for u in urls:
+            # Obtain the GUID
+            guid = '/' + u.strip('/').split('/').pop() + '/'
+            # By default keep the url if no match found
+            jahia_url = None
+            if not only_translated:
+                jahia_url = u
+            # Find the last match in the .htaccess file
+            for l in lines:
+                comps = l.split(' ')
+                if comps.pop().strip() == guid:
+                    jahia_url = comps.pop()
+
+            if jahia_url:
+                if site not in jahia_url:
+                    jahia_url = site + jahia_url
+                jahia_urls.append(jahia_url)
+
+        return jahia_urls
 
     def execute_rules(self):
         """
@@ -706,7 +812,7 @@ class Ventilation:
                 # All pages in all langs
                 _pages = pages[pi:pi+len(lngs)]
 
-                # ATTENTION: Selecting the page in EN, if no then the language at pos. 0 will be used (e.g. French)
+                # ATTENTION: Selecting the page in EN, if not then the language at pos. 0 will be used (e.g. French)
                 p_en = _pages[lngs.index('en')] if 'en' in lngs else _pages[0]
                 logging.info("[en or default] Page {}/{} {}".format(site, p_en['post_name'], p_en['url']))
 
@@ -720,9 +826,10 @@ class Ventilation:
                     # If there is only one fragment and it's different of the post_name
                     # then change it.
                     fragment = p_en['url'][len(max_match)+1:].strip('/')
-                    if len(fragment.split('/')) == 1:
-                        if p_en['post_name'] != fragment and max_match != p_en['url'].strip('/'):
-                            p_en['post_name'] = fragment
+                    if fragment:
+                        fragment = fragment.split('/').pop()
+                    if p_en['post_name'] != fragment and max_match != p_en['url'].strip('/'):
+                        p_en['post_name'] = fragment
 
                     # IMPORTANT: Verify that the source and the destination have the same lang set.
                     dst_path = self.dest_sites[max_match]
@@ -783,8 +890,8 @@ class Ventilation:
                     # Add the pages to the consolidated collection for the dest site
                     if max_match not in dest_csv:
                         dest_csv[max_match] = []
-                    csv_entry = {'url': p_en['url'], 'post_name': p_en['post_name'], 'json_file': tmp_json}
-                    dest_csv[max_match].append(csv_entry)
+                    entry = {'url': p_en['url'], 'post_name': p_en['post_name'], 'site': site, 'json_file': tmp_json}
+                    dest_csv[max_match].append(entry)
 
         # Dump a CSV per destination site
         for dst_site_url in dest_csv:
@@ -801,7 +908,7 @@ class Ventilation:
             csv_entries = sorted(csv_entries, key=lambda e: len(e['url'].strip('/').split('/')), reverse=False)
             csv_cons_f = "/tmp/j2wp_consolidated_{}.json".format(dst_site_url.split('//').pop().replace('/', '_'))
             with open(csv_cons_f, 'w', encoding='utf8') as f:
-                writer = csv.DictWriter(f, fieldnames=['url', 'post_name', 'json_file'])
+                writer = csv.DictWriter(f, fieldnames=['url', 'post_name', 'site', 'json_file'])
                 writer.writeheader()
                 for e in csv_entries:
                     writer.writerow(e)
@@ -837,12 +944,13 @@ class Ventilation:
             # Find the dest. site URL as the longuest match of any entry URL (all belong to the same dest.)
             site_url_matches = [s for s in self.dest_sites.keys() if s in entries[0]['url']]
             site_url = '/'.join(max([m.split('/') for m in site_url_matches]))
+            logging.info('Migrating content for {}'.format(site_url))
 
             # Get the dest site langs
             lngs = Utils.run_command('wp pll languages --path=' + self.dest_sites[site_url])
             lngs = [l[:2] for l in lngs.split("\n")]
 
-            migrate_menu_sidebar = False
+            migrate_menu_sidebar_from = None
 
             for entry in entries:
                 p_url = entry['url']
@@ -879,7 +987,7 @@ class Ventilation:
                         # Keep the new IDs in the URL => IDs dictionary
                         table_ids_url[p_url] = ids
                 else:
-                    src_site = 'https://{}'.format(json_f.split('_').pop(1))
+                    src_site = entry['site']
 
                     if src_site not in table_ids:
                         table_ids[src_site] = {}
@@ -898,15 +1006,32 @@ class Ventilation:
                     for lng, p in pages.items():
                         idx_post_name = p_url.rfind(p_url.strip('/').split('/').pop())
                         parent_url = p_url[:idx_post_name]
-                        # print(parent_url, p['url'], table_ids_url, parent_url in table_ids_url)
-                        if parent_url in table_ids_url and parent_url.strip('/') != site_url:
+                        # print('parent_url: ', parent_url, 'p_url', p_url)
+                        if p['post_parent'] == '0':
+                            # Nothing to do, page already at the root
+                            msg = 'Page {}/{} already at the root of the site, no need to change parent'
+                            logging.debug(msg.format(src_site, p['post_name']))
+                        elif parent_url.strip('/') == site_url:
+                            # Set the page at the root: post_parent 0
+                            msg = 'Changing parent to the root=0 (old parent [{}]) at {} for post [{}] {}/{}'
+                            logging.debug(msg.format(p['post_parent'], site_url, p['ID'], src_site, p['post_name']))
+                            p['post_parent'] = 0
+                        elif parent_url in table_ids_url:
                             # Update the parent ID based on parent URL
                             p['post_parent'] = table_ids_url[parent_url][lngs.index(lng)]
-                        # elif site_url in table_ids[src_site] and p['post_parent'] in table_ids[src_site][site_url]:
-                        #     p['post_parent'] = table_ids[src_site][site_url][p['post_parent']]
+                            msg = 'Setting parent for page {} to {} [{}]'
+                            logging.info(msg.format(p['post_name'], parent_url, p['post_parent']))
+                        elif site_url in table_ids[src_site] and p['post_parent'] in table_ids[src_site][site_url]:
+                            p['post_parent'] = table_ids[src_site][site_url][p['post_parent']]
+                            msg = 'Parent for post {}/{} not derived from URL, keeping same parent with new ID {}'
+                            logging.info(msg.format(src_site, p['post_name'], p['post_parent']))
                         else:
                             # Set the page at the root: post_parent 0
+                            msg = 'Could not match parent [{}] at {} for post [{}] {}/{}, setting to root=0'
+                            logging.warning(msg.format(p['post_parent'], site_url, p['ID'], src_site, p['post_name']))
                             p['post_parent'] = 0
+                            # pprint(table_ids_url)
+                            # pprint(table_ids)
 
                     # FIND all the media files in the page content
                     regex = re.compile(r'"(https://[^"]+/wp-content/uploads/.*?)"')
@@ -941,7 +1066,8 @@ class Ventilation:
                     if 'Error' in ids:
                         logging.error('Failed to insert pages. Msg: {}. cmd: {}'.format(ids, cmd))
                     else:
-                        logging.info('new IDs {} in lang order {}'.format(ids, lngs))
+                        p_info = [src_site + '/' + pages[l]['post_name'] for l in lngs]
+                        logging.info('new IDs {} for {} for {}'.format(ids, lngs, p_info))
                         # Keep the new IDs in the URL => IDs dictionary
                         table_ids_url[p_url] = ids
                         # Keep the new IDs also in the table_ids: Site => Dest => IDs
@@ -953,7 +1079,7 @@ class Ventilation:
                         # Using URL in EN by default
                         if site_url == p_url.strip('/'):
                             # Set the menu / sidebar flag
-                            migrate_menu_sidebar = True
+                            migrate_menu_sidebar_from = src_site
                             logging.info('Updating home page for site {} to ID {}'.format(site_url, ids[0]))
                             dest_site = self.dest_sites[site_url]
                             cmd = 'wp option update show_on_front page --path={}'.format(dest_site)
@@ -965,25 +1091,32 @@ class Ventilation:
                             if 'Success' not in msg:
                                 logging.warning('Could not set page_on_front option! Msg: {}. cmd: {}', msg, cmd)
 
-            if migrate_menu_sidebar:
-                self.migrate_sidebars(src_site, site_url)
-                self.migrate_menu(src_site, site_url, table_ids)
+            if migrate_menu_sidebar_from:
+                self.migrate_sidebars(migrate_menu_sidebar_from, site_url)
+                self.migrate_menu(migrate_menu_sidebar_from, site_url, table_ids)
 
         return media_refs
 
     def migrate_sidebars(self, site, dst_sidebars_url):
+        logging.info('Trying to export sidebars from {} to {}'.format(site, dst_sidebars_url))
+        # Get all sidebars at the destination
+        dst = self.dest_sites[dst_sidebars_url]
+        cmd = 'wp sidebar list --format=ids --path={}'.format(dst)
+        sidebars_dst = Utils.run_command(cmd, 'utf8').split(' ')
         # Find the widgets page in the CSV
         with open(self.widgets[site], "r", encoding='utf8') as f:
             sidebars_content = yaml.load(f)
         for side_id, widgets in sidebars_content.items():
+            if side_id not in sidebars_dst:
+                logging.error('Sidebar {} does not exist at destination, skipping..'.format(side_id))
+                continue
             for w in widgets:
                 # IMPORTANT: The destination sidebars are created while the site is generated.
                 # Therefore no need to create them.
                 cmd = 'wp widget add {} ' + side_id + ' {} --title="{}" --path={} --text="{}"'
-                dst = self.dest_sites[dst_sidebars_url]
                 o = w['options']
                 # Escape html quotes
-                text = o['text'].replace('"', '\\"')
+                text = (o.get('text') or o.get('content')).replace('"', '\\"')
                 cmd = cmd.format(w['name'], w['position'], o['title'] + '--' + o['pll_lang'], dst, text)
                 # print('sidebar cmd: ' + cmd)
                 sidebar_out = Utils.run_command(cmd, 'utf8')
@@ -1014,7 +1147,7 @@ class Ventilation:
         # Getting menu list at the source (site)
         cmd = 'wp menu list --fields=slug,locations,term_id --format=json --path={}'.format(path)
         menu_list = Utils.run_command(cmd, 'utf8')
-        logging.info('Current menu at source: {}'.format(menu_list))
+        logging.info('Current menu at source {}: {}'.format(site, menu_list))
         if not menu_list:
             logging.error("Cannot get menu list for {}".format(path))
             return
@@ -1248,11 +1381,7 @@ class Ventilation:
         logging.info('Starting rule translation and lang expansion...')
         t = tt()
         self.rule_expansion()
-        logging.info('[{:.2f}s] Finished rule translation and lang expansion...'.format(tt()-t))
-
-        # Sort the rules from most generic to specific or the reverse (-1).
-        logging.info('Rule sorting expanded rules: ')
-        self.sort_rules()
+        logging.info('[{:.2f}s] Finished rule translation and lang expansion...:'.format(tt()-t))
         pprint(self.rulesets)
 
         # Write the .htaccess redirections for the new URL mapping
@@ -1265,6 +1394,9 @@ class Ventilation:
         t = tt()
         self.apply_filters()
         logging.info('[{:.2f}s] Finished with the page filtering phase...'.format(tt()-t))
+
+        if self.dry_run:
+            sys.exit(0)
 
         # At this point all the CSV files are generated and stored by sitename*
         logging.info('Starting rule execution to replace WP URLs... Stats:')
