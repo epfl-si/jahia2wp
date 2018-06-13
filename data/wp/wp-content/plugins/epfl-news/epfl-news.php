@@ -114,7 +114,7 @@ function epfl_news_check_required_parameters(string $channel, string $lang): boo
     // check that the channel exists
     $url = NEWS_API_URL . $channel;
     $channel_response = NewsUtils::get_items($url);
-    if ($channel_response->detail === "Not found.") {
+    if(property_exists($channel_response, 'detail') && $channel_response->detail === "Not found.") {
         return FALSE;
     }
     return TRUE;

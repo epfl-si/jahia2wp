@@ -17,12 +17,16 @@ Class ShortCakeConfig
 
         // build select tag html
         $channel_options = array();
-        foreach ($channel_response->results as $item) {
-            $option = array(
-                'value' => strval($item->id),
-                'label' => $item->name,
-            );
-            array_push($channel_options, $option);
+
+        if(property_exists($channel_response, 'results'))
+        {
+            foreach ($channel_response->results as $item) {
+                $option = array(
+                    'value' => strval($item->id),
+                    'label' => $item->name,
+                );
+                array_push($channel_options, $option);
+            }
         }
         return $channel_options;
     }
