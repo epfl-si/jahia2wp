@@ -28,15 +28,15 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         'order' => 'desc',  # "asc", "desc"
         # Advanced content
         'pattern2' => '',
-        'field2' => 'any',
-        'operator2' => 'and', # "and", "or", "and_not"
+        'field2' => 'any',  # see field
+        'operator2' => 'and',  # "and", "or", "and_not"
         'pattern3' => '',
-        'field3' => '',
-        'operator3' => 'and',        
+        'field3' => '',  # see field
+        'operator3' => 'and',  # "and", "or", "and_not"
         'collection' => 'Infoscience/Research',        
         # Presentation
         'format' => 'short',  # "short", "detailed", "full"
-        'show_thumbnail' => true,
+        'show_thumbnail' => "false",  # "true", "false"
         'group_by' => '', # "", "year", "doctype"
         'group_by2' => '', # "", "year", "doctype"
     );
@@ -80,8 +80,6 @@ function epfl_infoscience_search_load_plugin_textdomain() {
 }
 
 add_action( 'plugins_loaded', 'epfl_infoscience_search_load_plugin_textdomain' );
-
-add_action( 'admin_enqueue_scripts', ['InfoscienceSearchShortCakeConfig', 'load_epfl_infoscience_search_wp_admin_style'], 99);
 
 add_action( 'init', function() {
 

@@ -4,9 +4,11 @@
 
 .shortcode-ui-edit-epfl_infoscience_search div[class^='epfl-shortcode-ui-field'], .shortcode-ui-edit-epfl_infoscience_search div[class*=' epfl-shortcode-ui-field']{
     padding: 0;
+    margin-top: 18px;
 }
 
 .shortcode-ui-edit-epfl_infoscience_search div[class^='epfl-shortcode-ui-field']  > label,
 .shortcode-ui-edit-epfl_infoscience_search div[class*=' epfl-shortcode-ui-field'] > label {
     font-weight: bold;
+    margin-bottom: 6px;
 }
