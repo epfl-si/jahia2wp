@@ -682,45 +682,67 @@ class Box:
         content = ""
         for button_list in elements:
             url = ""
-            image_url = ""
-            alt_text = ""
             title = ""
+            text = ""
+            big_button_image = ""
+            small_button_key = ""
             for child in button_list.childNodes:
                 if child.ELEMENT_NODE != child.nodeType:
                     continue
-                if child.tagName == "label":
-                    alt_text = child.getAttribute("jahia:value")
-                elif child.tagName == "url":
-                    for jahia_tag in child.childNodes:
-                        if jahia_tag.ELEMENT_NODE != jahia_tag.nodeType:
-                            continue
-                        if jahia_tag.tagName == "jahia:link":
-                            # It happens that a link references a page that does not exist anymore
-                            # observed on site dii
-                            try:
-                                page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
-                            except KeyError as e:
-                                continue
 
-                            # We generate "Jahia like" URL so exporter will be able to fix it with WordPress URL
-                            url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
-                            title = jahia_tag.getAttribute("jahia:title")
-                        elif jahia_tag.tagName == "jahia:url":
-                            url = jahia_tag.getAttribute("jahia:value")
+                if child.tagName == "label":
+                    title = child.getAttribute("jahia:value")
+
+                elif child.tagName == "url":
+                    if box_type == 'small':
+                        url = child.getAttribute("jahia:value")
+
+                    elif box_type == 'big':
+                        for jahia_tag in child.childNodes:
+                            if jahia_tag.ELEMENT_NODE != jahia_tag.nodeType:
+                                continue
+                            if jahia_tag.tagName == "jahia:link":
+                                # It happens that a link references a page that does not exist anymore
+                                # observed on site dii
+                                try:
+                                    page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
+                                except KeyError as e:
+                                    continue
+
+                                # We generate "Jahia like" URL so exporter will be able to fix it with WordPress URL
+                                url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
+
+                                text = jahia_tag.getAttribute("jahia:title")
+                            elif jahia_tag.tagName == "jahia:url":
+                                url = jahia_tag.getAttribute("jahia:value")
+
+                # 'image' tag is only used for BigButton
                 elif child.tagName == "image":
                     # URL is like /content/sites/<site_name>/files/file
                     # splitted gives ['', content, sites, <site_name>, files, file]
                     # result of join is files/file and we add the missing '/' in front.
                     image_url = '/'.join(child.getAttribute("jahia:value").split("/")[4:])
                     image_url = '/' + image_url
-            if alt_text == "" and title != "":
-                alt_text = title
-            content += '[{} type="{}" url="{}" image="{}" alt_text="{}" title="{}"]'.format(self.shortcode_name,
+                    big_button_image = 'image="{}"'.format(image_url)
+
+                # 'type' tag is only used for SmallButton and is storing reference to image to display
+                elif child.tagName == "type":
+                    jahia_resource_ref = child.getAttribute("jahia:value")
+                    soup = BeautifulSoup(jahia_resource_ref, "lxml")
+                    key = soup.find("jahia-resource").get('default-value')
+                    small_button_key = 'key="{}"'.format(key)
+
+            if box_type == 'small' and text == "":
+                text = title
+
+            # bigButton will have 'image' attribute and smallButton will have 'key' attribute.
+            content += '[{} type="{}" url="{}" {} title="{}" text="{}" {}]'.format(self.shortcode_name,
                                                                                             box_type,
                                                                                             url,
-                                                                                            image_url,
-                                                                                            alt_text,
-                                                                                            title)
+                                                                                            big_button_image,
+                                                                                            title,
+                                                                                            text,
+                                                                                            small_button_key)
         self.content = content
 
     # @classmethod
