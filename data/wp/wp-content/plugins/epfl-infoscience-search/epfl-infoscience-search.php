@@ -75,7 +75,9 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         'pattern3' => '',
         'field3' => '',  # see field
         'operator3' => 'and',  # "and", "or", "and_not"
-        'collection' => 'Infoscience/Research',        
+        /* TODO?:
+        'collection' => 'Infoscience/Research',
+        */
         # Presentation
         'format' => 'short',  # "short", "detailed", "full"
         'show_thumbnail' => "false",  # "true", "false"

@@ -209,6 +209,7 @@ Class InfoscienceSearchShortCakeConfig
                             'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_sort_options(),
                         ),
+                        /* TODO?:
                         array(
                             'label'         => esc_html__('Collection', 'epfl-infoscience'),
                             'attr'          => 'collection',
@@ -216,7 +217,7 @@ Class InfoscienceSearchShortCakeConfig
                             'meta'        => array(
                                 'placeholder' => 'Infoscience/Research',
                             ),                            
-                        ),                        
+                        ),*/
                         # Advanced content
                         array(
                             'title'         => esc_html__('Additional search keys', 'epfl-infoscience'),
@@ -281,7 +282,7 @@ Class InfoscienceSearchShortCakeConfig
                             'attr'          => 'group_by2',
                             'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_group_by_options(),
-                        ),                        
+                        ),
                     ),
     
                     'post_type'     => array( 'post', 'page' ),
