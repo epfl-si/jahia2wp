@@ -178,12 +178,9 @@ Class InfoscienceSearchShortCakeConfig
                 esc_html__('%sSearch tips%s', 'epfl-infoscience-search'),
                 '<a target="_blank" href="' . $documentation_url . '">', '</a>'
             );
-            $sort_description = esc_html__('Sort by', 'epfl-infoscience-search');
 
             $thumbnails_description = esc_html__('Show illustration', 'epfl-infoscience-search');
 
-            $default_description = esc_html__('', 'epfl-infoscience-search');
-    
             shortcode_ui_register_for_shortcode(
                 'epfl_infoscience_search',
                 array(
@@ -193,7 +190,6 @@ Class InfoscienceSearchShortCakeConfig
                         # Content
                         array(
                             'title'         => esc_html__('Create an Infoscience listing', 'epfl-infoscience'),
-                            'label'         => '', # esc_html__('Search text', 'epfl-infoscience'),
                             'attr'          => 'pattern',
                             'type'          => 'epfl-text',
                             'description'   => $pattern_description,
@@ -206,20 +202,17 @@ Class InfoscienceSearchShortCakeConfig
                             'attr'          => 'field',
                             'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_field_options(),
-                            'description'   => $default_description,
                         ),
                         array(
                             'label'         => esc_html__('Sort', 'epfl-infoscience'),
                             'attr'          => 'order',
                             'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_sort_options(),
-                            'description'   => $sort_description,
                         ),
                         array(
                             'label'         => esc_html__('Collection', 'epfl-infoscience'),
                             'attr'          => 'collection',
                             'type'          => 'epfl-text',
-                            'description'   => $default_description,
                             'meta'        => array(
                                 'placeholder' => 'Infoscience/Research',
                             ),                            
@@ -231,45 +224,34 @@ Class InfoscienceSearchShortCakeConfig
                             'attr'          => 'operator2',
                             'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_operator_options(),
-                            'description'   => $default_description,
                             'is_toggle'     => 'true',
                         ),
                         array(
-                            'label'         => '', #esc_html__('Field restriction', 'epfl-infoscience'),
                             'attr'          => 'field2',
                             'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_field_options(),
-                            'description'   => $default_description,
                         ),
                         array(
-                            'label'         => '', #esc_html__('Search key', 'epfl-infoscience'),
                             'attr'          => 'pattern2',
                             'type'          => 'epfl-text',
-                            'description'   => $default_description,
                             'meta'        => array(
                                 'placeholder' => 'Search key',
                             ),  
                         ),
                         array(
-                            #'title'         => esc_html__('Third search text', 'epfl-infoscience'),
                             'label'         => esc_html__('Third search text'),
                             'attr'          => 'operator3',
                             'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_operator_options(),
-                            'description'   => $default_description,
                         ),
                         array(
-                            'label'         => '', #esc_html__('Field restriction', 'epfl-infoscience'),
                             'attr'          => 'field3',
                             'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_field_options(),
-                            'description'   => $default_description,
                         ),                        
                         array(
-                            'label'         => '',
                             'attr'          => 'pattern3',
                             'type'          => 'epfl-text',
-                            'description'   => $default_description,
                         ),
 
                         # Presentation
@@ -293,14 +275,12 @@ Class InfoscienceSearchShortCakeConfig
                             'attr'          => 'group_by',
                             'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_group_by_options(),
-                            'description'   => $default_description,
                         ),
                         array(
                             'label'         => esc_html__('Group by', 'epfl-infoscience') . ' (2)',
                             'attr'          => 'group_by2',
                             'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_group_by_options(),
-                            'description'   => $default_description,
                         ),                        
                     ),
     
