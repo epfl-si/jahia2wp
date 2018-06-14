@@ -295,7 +295,7 @@ Class InfoscienceSearchShortCakeConfig
                             'options'       => InfoscienceSearchShortCakeConfig::get_thumbnail_options(),
                         ),                           
                         array(
-                            'label'         => esc_html__('Group by', 'epfl-infoscience') . '(1)',
+                            'label'         => esc_html__('Group by', 'epfl-infoscience') . ' (1)',
                             'attr'          => 'group_by',
                             'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_group_by_options(),
