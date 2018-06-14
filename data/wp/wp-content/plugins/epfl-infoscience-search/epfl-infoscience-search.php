@@ -93,6 +93,11 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     $attributes['collection'] = sanitize_text_field( $attributes['collection'] );
     
     $attributes['show_thumbnail'] = $attributes['show_thumnail'] === 'true'? true: false;
+    # if limit is empty, set it to max
+    if($attributes['limit'] === '')
+    {
+        $attributes['limit'] = 1000;
+    }
 
     # Unused element at the moment
     unset($attributes['format']);
