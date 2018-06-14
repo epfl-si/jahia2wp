@@ -2640,10 +2640,6 @@ ul.bottin {
   @include color-background-ter;
 }
 
-.homepage-fullwidth .page .box {
-  margin-bottom: 0;
-}
-
 .homepage-fullwidth .page .page-header {
   border: 0;
   font-size: .8125rem;
@@ -2674,6 +2670,10 @@ ul.bottin {
     p {
       font-size: 1em;
     }
+  }
+  
+  .box {
+    margin-bottom: 0;
   }
 }
 
