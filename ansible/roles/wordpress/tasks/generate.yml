@@ -10,6 +10,6 @@
   register: jahia2wp_generate_yaml_tmp
 
 - name: jahia2wp.py generate
-  shell: "{{jahia2wp_shell}} generate {{ wp_env }} https://{{ wp_hostname }}/{{ wp_path }} --extra-config={{ jahia2wp_generate_yaml_tmp.dest }}"
+  shell: "{{ jahia2wp_shell }} generate {{ wp_env }} https://{{ wp_hostname }}/{{ wp_path }} --extra-config={{ jahia2wp_generate_yaml_tmp.dest }}"
   environment: "{{ jahia2wp_env }}"
  
