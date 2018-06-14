@@ -148,6 +148,7 @@ body {
   & > .label {
     @include minor-text;
     border-bottom: 1px dotted #000;
+    margin-right: 1em;
     transition: all .2s ease-in-out;
     vertical-align: middle;
   }
@@ -219,6 +220,9 @@ body {
 }
 .fa-icon.time:before {
   content: "\f017";
+}
+.fa-icon.calendar:before {
+  content: "\f073";
 }
 .fa-icon.url:before {
   content: "\f0c1";
@@ -493,6 +497,18 @@ a.a2a_button_{
 .news-list li,
 .list-layout li {
   @include no-bullet;
+}
+
+.colored-box,
+[class*="local-bg-color"] {
+
+  ul li:before {
+    background: #fff;
+  }
+  
+  .btn-icon > .label {
+    border-color: #fff;
+  }
 }
 
 /* --- People boxes --- */
@@ -2603,6 +2619,116 @@ ul.bottin {
 }
 
 
+/*  ---------------------------------------
+    09 STATIC HOMEPAGES
+----------------------------------------- */
+
+.local-bg-color1,
+.local-bg-color2,
+.local-bg-color3,
+.local-bg-color4 {
+  border-color: #fff;
+  color: #fff;
+}
+.local-bg-color1 {
+  @include color-background;
+}
+.local-bg-color2 {
+  @include color-background-sec;
+}
+.local-bg-color3 {
+  @include color-background-ter;
+}
+
+.homepage-fullwidth .page .box {
+  margin-bottom: 0;
+}
+
+.homepage-fullwidth .page .page-header {
+  border: 0;
+  font-size: .8125rem;
+  margin-left: -0.3075em;
+  margin-bottom: 30px;
+  padding: 0;
+  
+  img {
+    margin: 0;
+  }
+  
+  p {
+    font-size: .8125rem;
+  }
+  
+  h3 {
+    border: 0;
+    color: #fff;
+    font-family: Arial,Helvetica,Verdana,sans-serif;
+    font-size: .9375rem;
+    letter-spacing: 0;
+    margin-top: 1.5em;
+    text-transform: none;
+  }
+  
+  .media-ribbon {
+    
+    p {
+      font-size: 1em;
+    }
+  }
+}
+
+.homepage-fullwidth .page .page-content {
+  margin-left: -0.3075em;
+  padding: 0;
+}
+
+/* Faculty slider */
+
+.layout-faculty .su-slider {
+  height: 100%;
+  
+  .su-slider-slides,
+  .su-slider-slide,
+  .su-slider-slide > a,
+  .su-slider-slide img {
+    height: 100% !important;
+  }
+}
+
+/* Resets */
+
+.panel-header {
+  a {
+    @include color-link;
+    border: 0;
+  }
+}
+
+.panel-content .media-footer {
+  margin-top: 10px;
+}
+
+.media-list.fac .media-ribbon {
+  height: auto;
+  
+  span > br {
+    display: none;
+  }
+}
+
+.layout-faculty .panel {
+  margin-bottom: 10px;
+}
+
+.layout-faculty .page-header::before {
+  display: none;
+}
+
+.layout-faculty .page-header .panel-cell .media,
+.layout-faculty .page-header .panel.themed .media {
+  width: 100%;
+}
+
 /*  -----------------------------------------------------------
 
 	Media Queries - Mobile phones (> 480px)
@@ -2644,6 +2770,10 @@ ul.bottin {
     margin-bottom: 40px;
     padding-right: 2px;
     width: 50%;
+  
+    &.panel {
+      width: 100%;
+    }
     
     .box-flat-panel {
       width: 100%;
@@ -3421,6 +3551,14 @@ ul.bottin {
     }
   }
   
+  /*  ---------------------------------------
+      09 STATIC HOMEPAGES
+  ----------------------------------------- */
+  
+  .layout-faculty .panel-cell:empty {
+    display: block;
+  }
+  
 }
 
 /*  -----------------------------------------------------------
@@ -3440,7 +3578,8 @@ ul.bottin {
     margin-right: auto;
     padding-left: 0;
     padding-right: 0;
-    width: 976px;
+    //width: 976px;
+    width: 980px;
   }
   
   #primary.col,
@@ -3490,5 +3629,6 @@ ul.bottin {
     }
     
   }
+  
   
 }
