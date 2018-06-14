@@ -15,6 +15,45 @@ declare(strict_types=1);
 require_once 'utils.php';
 require_once 'shortcake-config.php';
 
+define("INFOSCIENCE_SEARCH_URL", "https://infoscience.epfl.ch/search?");
+define("SHORTCAKE_INFOSCIENCE_PARAMETERS_MAP", array(
+    'pattern' => 'p1',
+    'field' => 'f1',
+    'limit' => 'rg',
+    'order' => 'so',
+    'pattern2' => 'p2',
+    'field2' => 'f2',
+    'operator2' => 'op1',
+    'pattern3' => 'p3',
+    'field3' => 'f3',
+    'operator3' => 'op2',
+    'collection' => 'c',
+));
+
+ /**
+  * From any attributes, set them as url parameters for Infoscience
+  *
+  * @param array $attrs attributes that need to be sent to Infoscience
+  *
+  * @return string $url the url build
+  */
+function epfl_infoscience_search_generate_url_from_attrs($attrs) {
+    $url = INFOSCIENCE_SEARCH_URL;
+
+    $parameters = array(
+        'as' => '1',  # advanced search 
+        'ln' => 'en',  #TODO: dynamic langage
+        'of' => 'xm'  # template format
+    );
+
+    $parameters = $parameters + $attrs;
+
+    $parameters = InfoscienceSearchUtils::convert_keys($parameters, SHORTCAKE_INFOSCIENCE_PARAMETERS_MAP);
+
+    return INFOSCIENCE_SEARCH_URL . http_build_query($parameters);
+}
+
+
 function epfl_infoscience_search_process_shortcode($provided_attributes = [], $content = null, $tag = '')
 {
     // normalize attribute keys, lowercase
@@ -44,15 +83,22 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     # TODO: use array_diff_key and compare unmanage attributes
     $attributes = shortcode_atts($infoscience_search_mangaged_attributes, $atts, $tag);
 
-    // Sanitize parameter
-    $url = sanitize_text_field( $attributes['url'] );
-    # hardcode the url for the demo
-    $url =  "https://infoscience.epfl.ch/publication-exports/232/";
+    # Sanitize parameters
+    $attributes['pattern'] = sanitize_text_field( $attributes['pattern'] );
+    $attributes['pattern2'] = sanitize_text_field( $attributes['pattern2'] );
+    $attributes['pattern3'] = sanitize_text_field( $attributes['pattern3'] );
+    $attributes['collection'] = sanitize_text_field( $attributes['collection'] );
+    
+    $attributes['show_thumbnail'] = $attributes['show_thumnail'] === 'true'? true: false;
+
+    $url = epfl_infoscience_search_generate_url_from_attrs($attributes);
 
     // Check if the result is already in cache
     $result = wp_cache_get( $url, 'epfl_infoscience_search' );
-    if ( false == $result ){
-        if ( strcasecmp( parse_url( $url, PHP_URL_HOST ), 'infoscience.epfl.ch' ) == 0 && epfl_infoscience_url_exists( $url ) ) {
+
+    # TODO: remove uncache
+    if ( false == false ){  # if ( false == $result ){
+        if (epfl_infoscience_url_exists( $url ) ) {
 
             $response = wp_remote_get( $url );
             $page = wp_remote_retrieve_body( $response );
@@ -61,7 +107,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
             wp_cache_set( $url, $page, 'epfl_infoscience_search' );
 
             // return the page
-            return '<div class="infoscienceBox">'.
+            return $url . '<div class="infoscienceBox">'.
                     $page.
                     '</div>';
         } else {
