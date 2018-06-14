@@ -46,7 +46,7 @@ function epfl_infoscience_search_generate_url_from_attrs($attrs) {
         'of' => 'xm'  # template format
     );
 
-    $parameters = $parameters + $attrs;
+    $parameters = $attrs + $parameters;
 
     $parameters = InfoscienceSearchUtils::convert_keys($parameters, SHORTCAKE_INFOSCIENCE_PARAMETERS_MAP);
 
@@ -62,7 +62,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     // normalize attribute keys, lowercase
     $atts = array_change_key_case((array)$provided_attributes, CASE_LOWER);
 
-    $infoscience_search_mangaged_attributes = array(
+    $infoscience_search_managed_attributes = array(
         # Content
         'pattern' => '',
         'field' => 'any',  # "any", "author", "title", "year", "unit", "collection", "journal", "summary", "keyword", "issn", "doi"
@@ -85,10 +85,16 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         'group_by2' => '', # "", "year", "doctype"
     );
 
-    # TODO: use array_diff_key and compare unmanage attributes
-    $attributes = shortcode_atts($infoscience_search_mangaged_attributes, $atts, $tag);
+    # TODO: use array_diff_key and compare unmanaged attributes
+    $attributes = shortcode_atts($infoscience_search_managed_attributes, $atts, $tag);
+
+    $unmanaged_attributes = array_diff_key($atts, $attributes);
 
     # Sanitize parameters
+    foreach ($unmanaged_attributes as $key => $value) {
+        $unmanaged_attributes[$key] = sanitize_text_field($value);
+    }
+
     $attributes['pattern'] = sanitize_text_field( $attributes['pattern'] );
     $attributes['pattern2'] = sanitize_text_field( $attributes['pattern2'] );
     $attributes['pattern3'] = sanitize_text_field( $attributes['pattern3'] );
@@ -107,7 +113,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     unset($attributes['group_by']);
     unset($attributes['group_by2']);
     
-    $url = epfl_infoscience_search_generate_url_from_attrs($attributes);
+    $url = epfl_infoscience_search_generate_url_from_attrs($attributes+$unmanaged_attributes);
 
     // Check if the result is already in cache
     $result = wp_cache_get( $url, 'epfl_infoscience_search' );
