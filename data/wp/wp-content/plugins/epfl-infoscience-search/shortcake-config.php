@@ -144,7 +144,7 @@ Class InfoscienceSearchShortCakeConfig
 			<p class="description">{{{ data.description }}}</p>
 		<# } #>
 	</div>
-</script>    
+</script>  
         <?php
         //@formatter:on
     }
@@ -206,13 +206,6 @@ Class InfoscienceSearchShortCakeConfig
                             'attr'          => 'field',
                             'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_field_options(),
-                            'description'   => $default_description,
-                        ),
-                        array(
-                            'label'         => esc_html__('Limit', 'epfl-infoscience'),
-                            'attr'          => 'limit',
-                            'type'          => 'epfl-select',
-                            'options'       => InfoscienceSearchShortCakeConfig::get_limit_options(),
                             'description'   => $default_description,
                         ),
                         array(
@@ -293,6 +286,7 @@ Class InfoscienceSearchShortCakeConfig
                             'attr'          => 'show_thumbnail',
                             'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_thumbnail_options(),
+                            'value' => 'true',
                         ),                           
                         array(
                             'label'         => esc_html__('Group by', 'epfl-infoscience') . ' (1)',

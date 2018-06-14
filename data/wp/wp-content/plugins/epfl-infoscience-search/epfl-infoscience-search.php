@@ -50,6 +50,9 @@ function epfl_infoscience_search_generate_url_from_attrs($attrs) {
 
     $parameters = InfoscienceSearchUtils::convert_keys($parameters, SHORTCAKE_INFOSCIENCE_PARAMETERS_MAP);
 
+    # sort before build, for the caching system
+    ksort($parameters);
+
     return INFOSCIENCE_SEARCH_URL . http_build_query($parameters);
 }
 
@@ -63,7 +66,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         # Content
         'pattern' => '',
         'field' => 'any',  # "any", "author", "title", "year", "unit", "collection", "journal", "summary", "keyword", "issn", "doi"
-        'limit' => 25,  # 10,25,50,100,250,500,1000
+        'limit' => 1000,  # 10,25,50,100,250,500,1000
         'order' => 'desc',  # "asc", "desc"
         # Advanced content
         'pattern2' => '',
@@ -91,25 +94,33 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     
     $attributes['show_thumbnail'] = $attributes['show_thumnail'] === 'true'? true: false;
 
+    # Unused element at the moment
+    unset($attributes['format']);
+    unset($attributes['show_thumbnail']);
+    unset($attributes['group_by']);
+    unset($attributes['group_by2']);
+    
     $url = epfl_infoscience_search_generate_url_from_attrs($attributes);
 
     // Check if the result is already in cache
     $result = wp_cache_get( $url, 'epfl_infoscience_search' );
 
-    # TODO: remove uncache
-    if ( false == false ){  # if ( false == $result ){
+    if ( false == $result ){
         if (epfl_infoscience_url_exists( $url ) ) {
 
             $response = wp_remote_get( $url );
             $page = wp_remote_retrieve_body( $response );
 
+            // wrap the page
+            $page = '<div class="infoscienceBox">'.
+                        $page.
+                    '</div>';
+
             // cache the result
             wp_cache_set( $url, $page, 'epfl_infoscience_search' );
 
             // return the page
-            return $url . '<div class="infoscienceBox">'.
-                    $page.
-                    '</div>';
+            return '<div style="border:2px solid black;padding:8px;">' . $url . '</div>' . $page;
         } else {
             $error = new WP_Error( 'not found', 'The url passed is not part of Infoscience or is not found', $url );
             epfl_infoscience_log( $error );
