@@ -4,7 +4,7 @@
 #
 # zip-plugin.sh epfl-news
 #
-# will update the zip content at ../data/wp/wp-content/plugins/v1/epfl-news.zip
+# will update the zip content at ../data/plugins/generic/epfl-news/v1/epfl-news.zip
 
 # variable check
 if [ -z "$1" ]
