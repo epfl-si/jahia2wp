@@ -1,6 +1,7 @@
 FROM debian:stretch
 
 RUN apt-get -y update && apt-get install -y --no-install-recommends \
+    apt-transport-https \
     bash-completion \
     curl \
     composer \
