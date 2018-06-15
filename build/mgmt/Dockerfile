@@ -1,30 +1,48 @@
 FROM debian:stretch
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get -y update && apt-get install -y --no-install-recommends \
     bash-completion \
     curl \
+    composer \
     git \
+    gnupg \
     htop \
     less \
+    lsb-release \
     make \
     mysql-client \
     openssh-server \
     tree \
-    php7.0 \
-    php7.0-gd \
-    php7.0-cli \
-    php7.0-curl \
-    php7.0-mysql \
-    php7.0-zip \
-    php7.0-xml \
     python3 \
     python3-pip \
     python3-virtualenv \
     virtualenv \
     screen \
+    software-properties-common \
     unzip \
-    vim && \
+    vim \
+  && \
+    apt-get -y autoremove && \
     apt-get clean
+
+RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
+RUN curl https://packages.sury.org/php/apt.gpg > /etc/apt/trusted.gpg.d/php.gpg
+RUN echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list
+RUN apt-get -y update
+# The following goodies have dependencies above this line, and
+# thus must be installed in another round of apt-get
+RUN apt-get -y install nodejs \
+    php7.1 \
+    php7.1-gd \
+    php7.1-cli \
+    php7.1-curl \
+    php7.1-mysql \
+    php7.1-zip \
+    php7.1-xml \
+  && \
+    apt-get -y autoremove && \
+    apt-get clean
+
 
 RUN mkdir /var/run/sshd && \
     sed -ri 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config && \
