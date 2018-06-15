@@ -789,7 +789,8 @@ class Box:
                                 page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
                             except KeyError as e:
                                 continue
-                            link_html = '<a href="{}">{}</a>'.format(page.pid, jahia_tag.getAttribute("jahia:title"))
+                            url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
+                            link_html = '<a href="{}">{}</a>'.format(url, jahia_tag.getAttribute("jahia:title"))
 
                         elif jahia_tag.tagName == "jahia:url":
                             link_html = '<a href="{}">{}</a>'.format(jahia_tag.getAttribute("jahia:value"),
