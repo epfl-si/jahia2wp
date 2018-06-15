@@ -3,7 +3,9 @@ FROM debian:stretch
 RUN apt-get update && apt-get install -y --no-install-recommends \
     bash-completion \
     curl \
+    composer \
     git \
+    gnupg \
     htop \
     less \
     make \
@@ -25,6 +27,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
     vim && \
     apt-get clean
+
+RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
+RUN apt-get -y install nodejs
 
 RUN mkdir /var/run/sshd && \
     sed -ri 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config && \
