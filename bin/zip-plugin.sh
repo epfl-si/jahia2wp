@@ -14,7 +14,7 @@ then
 fi
 
 # paths we will use (use $PWD to have the absolute paths because we will do a 'cd' later
-ZIP_FILE=$PWD/../data/plugins/generic/epfl-news/v1/$1.zip
+ZIP_FILE=$PWD/../data/plugins/generic/$1/v1/$1.zip
 PLUGIN_DIR=$PWD/../data/wp/wp-content/plugins/$1
 
 # check if the plugin directory exists
