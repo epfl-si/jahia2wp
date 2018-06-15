@@ -248,6 +248,8 @@ class Box:
             or it contains a <comboListList> which contains <comboList> tags which
             contain <text>, <filesList>, <linksList> tags. The last two tags may miss from time
             to time because the jahia export is not perfect.
+            FIXME: filesList and linksList are processed in a given order. It may correspond to export but they also
+            may be switched. So maybe we will have to correct it in the future.
         """
 
         if not multibox:
