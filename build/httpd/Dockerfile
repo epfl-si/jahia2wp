@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     libapache2-mod-security2 \
     lsb-release \
+    apt-transport-https \
     modsecurity-crs \
     vim \
   && \
