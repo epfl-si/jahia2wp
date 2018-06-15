@@ -251,7 +251,6 @@ class Box:
             FIXME: filesList and linksList are processed in a given order. It may correspond to export but they also
             may be switched. So maybe we will have to correct it in the future.
         """
-
         if not multibox:
             content = Utils.get_tag_attribute(element, "text", "jahia:value")
 
