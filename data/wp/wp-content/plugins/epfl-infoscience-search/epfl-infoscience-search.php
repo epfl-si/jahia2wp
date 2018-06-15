@@ -69,6 +69,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         'limit' => 1000,  # 10,25,50,100,250,500,1000
         'order' => 'desc',  # "asc", "desc"
         # Advanced content
+        'collection' => '',
         'pattern2' => '',
         'field2' => 'any',  # see field
         'operator2' => 'and',  # "and", "or", "and_not"
