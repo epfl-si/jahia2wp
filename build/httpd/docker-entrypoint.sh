@@ -35,6 +35,7 @@ EOF
 /bin/mkdir -p /var/www/html/probes/ready
 echo "OK" > /var/www/html/probes/ready/index.html
 
+set -x
 # Change max upload size for http requests
 sed -i "s/upload_max_filesize = .*/upload_max_filesize = 300M/" /etc/php/7.1/apache2/php.ini
 sed -i "s/post_max_size = .*/post_max_size = 300M/" /etc/php/7.1/apache2/php.ini
