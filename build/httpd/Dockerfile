@@ -2,18 +2,29 @@ FROM debian:stretch
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apache2 \
+    curl \
     ca-certificates \
-    libapache2-mod-php7.0 \
     libapache2-mod-security2 \
     modsecurity-crs \
-    php7.0 \
-    php7.0-gd \
-    php7.0-curl \
-    php7.0-mysql \
-    php7.0-mbstring \
-    php7.0-ldap \
-    php7.0-xml \
     vim \
+  && \
+    apt-get -y autoremove && \
+    apt-get clean
+
+RUN curl https://packages.sury.org/php/apt.gpg > /etc/apt/trusted.gpg.d/php.gpg
+RUN echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list
+# The following goodies have dependencies above this line, and
+# thus must be installed in another round of apt-get
+RUN  apt-get -y update && \
+  apt-get -y install nodejs \
+    libapache2-mod-php7.1 \
+    php7.1 \
+    php7.1-gd \
+    php7.1-cli \
+    php7.1-curl \
+    php7.1-mysql \
+    php7.1-zip \
+    php7.1-xml \
   && \
     apt-get -y autoremove && \
     apt-get clean
