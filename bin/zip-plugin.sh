@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# Zip the plugin having the given name, e.g.
+# Zip the plugin having the given name, e.g.:
 #
 # zip-plugin.sh epfl-news
+#
+# will update the zip content at ../data/wp/wp-content/plugins/v1/epfl-news.zip
 
 # variable check
 if [ -z "$1" ]
@@ -26,7 +28,7 @@ fi
 rm -f ${ZIP_FILE}
 
 # do the zipping
-# we need to cd into the plugin dir otherwise we have all the relative paths
+# we need to cd into the plugin directory otherwise we have all the relative paths
 # in the zip (../data/wp/wp-content/...)
 cd ${PLUGIN_DIR}/..
 zip -r ${ZIP_FILE} $1
