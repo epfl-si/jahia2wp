@@ -8,6 +8,7 @@ RUN apt-get -y update && apt-get install -y --no-install-recommends \
     gnupg \
     htop \
     less \
+    lsb-release \
     make \
     mysql-client \
     openssh-server \
