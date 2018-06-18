@@ -41,6 +41,16 @@
       rm -rf wp-content/uploads
       {{ backup_prod_shell_untar }} --wildcards --wildcards-match-slash */wp-content/uploads
 
+# Temporary kludge for incremental backups that span across directory
+# rename operations such as https://github.com/epfl-idevelop/jahia2wp/pull/452
+- name: Remove duplicate plugins (temporary kludge)
+  shell:
+    cmd: |
+      set -e
+      cd {{ wp_dir }}/wp-content/plugins
+      if [ -d "EPFL-FAQ" ]     && [ -d "epfl-faq" ];     then rm -rf "EPFL-FAQ";     fi
+      if [ -d "EPFL-Snippet" ] && [ -d "epfl-snippet" ]; then rm -rf "EPFL-Snippet"; fi
+
 - name: Discover latest sql backup on {{ backup_prod_ssh_location }}:{{ backup_ssh_sql_file_glob }}
   shell: >-
     {{ backup_ssh_cmdprefix }} ls -1 {{ backup_ssh_sql_file_glob }} | tail -1
