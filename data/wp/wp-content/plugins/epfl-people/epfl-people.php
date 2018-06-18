@@ -11,6 +11,7 @@
  * License: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
  **/
 
+require_once 'render.php';
 require_once 'shortcake-config.php';
 
 function epfl_people_log( $message ) {
@@ -38,14 +39,27 @@ function epfl_people_process_shortcode( $attributes, $content = null )
 	
 	$items = PeopleUtils::get_items($url);
 	
-	$html = "";
-	
-	foreach ($items as $sciper => $data)
-	{
-		 $html .= "Sciper: $sciper <br/>";
-	}
-	
-	return $html;
+	// if supported delegate the rendering to the theme
+   if (has_action("epfl_people_action"))
+   {
+   	ob_start();
+   	
+   	try
+   	{
+   		do_action("epfl_people_action", $items);
+   		
+         return ob_get_contents();
+      }
+      finally
+      {
+      	ob_end_clean();
+      }
+   }   
+   // otherwise the plugin does the rendering
+   else 
+   {
+   	return PeopleRender::epfl_people_build_html($items);
+   }
 }
 
 // Load .mo file for translation
