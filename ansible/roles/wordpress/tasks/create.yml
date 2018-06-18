@@ -4,9 +4,6 @@
     that:
       - inventory_hostname in wp_destructive
       - (wp_destructive[inventory_hostname] == "wipe") or (not _wp_config_php_stat.stat.exists)
-  register: _sanitycheck_create
-- meta: end_play
-  when: _sanitycheck_create.failed
 
 - include_vars: jahia2wp-vars.yml
 

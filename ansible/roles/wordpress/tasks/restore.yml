@@ -5,9 +5,6 @@
       - inventory_hostname in wp_destructive
       - wp_destructive[inventory_hostname] is search("^(data|wipe)")
       - wp_restore_from is search("^backup")
-  register: _sanitycheck_restore
-- meta: end_play
-  when: _sanitycheck_restore.failed
 
 - include: restore-over-ssh.yml
   when: wp_restore_from == "backup-prod"
