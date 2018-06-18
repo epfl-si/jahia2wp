@@ -12,8 +12,12 @@
 */
 declare(strict_types=1);
 
+ set_include_path(get_include_path() . PATH_SEPARATOR . dirname( __FILE__) . '/lib');
+
 require_once 'utils.php';
 require_once 'shortcake-config.php';
+require_once 'render.php';
+require_once 'marc_converter.php';
 
 define("INFOSCIENCE_SEARCH_URL", "https://infoscience.epfl.ch/search?");
 define("SHORTCAKE_INFOSCIENCE_PARAMETERS_MAP", array(
@@ -21,13 +25,13 @@ define("SHORTCAKE_INFOSCIENCE_PARAMETERS_MAP", array(
     'field' => 'f1',
     'limit' => 'rg',
     'order' => 'so',
+    'collection' => 'c',
     'pattern2' => 'p2',
     'field2' => 'f2',
     'operator2' => 'op1',
     'pattern3' => 'p3',
     'field3' => 'f3',
     'operator3' => 'op2',
-    'collection' => 'c',
 ));
 
  /**
@@ -76,9 +80,6 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         'pattern3' => '',
         'field3' => '',  # see field
         'operator3' => 'and',  # "and", "or", "and_not"
-        /* TODO?:
-        'collection' => 'Infoscience/Research',
-        */
         # Presentation
         'format' => 'short',  # "short", "detailed", "full"
         'show_thumbnail' => "false",  # "true", "false"
@@ -100,7 +101,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     $attributes['pattern2'] = sanitize_text_field( $attributes['pattern2'] );
     $attributes['pattern3'] = sanitize_text_field( $attributes['pattern3'] );
     $attributes['collection'] = sanitize_text_field( $attributes['collection'] );
-    
+
     $attributes['show_thumbnail'] = $attributes['show_thumnail'] === 'true'? true: false;
     # if limit is empty, set it to max
     if($attributes['limit'] === '')
@@ -119,11 +120,27 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     // Check if the result is already in cache
     $result = wp_cache_get( $url, 'epfl_infoscience_search' );
 
-    if ( false == $result ){
+    # TODO: reactivate cache
+    #if ( false == $result ){
+    if ( false == false ){
         if (epfl_infoscience_url_exists( $url ) ) {
 
             $response = wp_remote_get( $url );
-            $page = wp_remote_retrieve_body( $response );
+            $marc_xml = wp_remote_retrieve_body( $response );
+
+            $publications = InfoscienceMarcConverter::convert_marc_to_array($marc_xml);
+
+            if (has_action("epfl_infoscience_search_action")) {
+                ob_start();
+                try {
+                    do_action("epfl_infoscience_search_action", $publications);
+                    $page = ob_get_contents();
+                } finally {
+                    ob_end_clean();
+                }
+            } else {
+                $page = InfoscienceRender::epfl_infoscience_search_build_html($publications);
+            }
 
             // wrap the page
             $page = '<div class="infoscienceBox">'.
@@ -136,7 +153,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
             // return the page
             return '<div style="border:2px solid black;padding:8px;">' . $url . '</div>' . $page;
         } else {
-            $error = new WP_Error( 'not found', 'The url passed is not part of Infoscience or is not found', $url );
+            $error = new WP_Error( 'not found', 'The url passed is not found', $url );
             epfl_infoscience_log( $error );
         }
     } else {
