@@ -13,7 +13,7 @@ Class PeopleRender
 		
 		foreach ($items as $sciper => $data)
 		{
-			$html .= "Sciper : $sciper <br/>";
+			$html .= "<div><strong>$data->nom</strong> $data->prenom</div>";
 		}
 		
 		return $html;
