@@ -4,15 +4,16 @@
 # This is an Ansible playbook to do or redo all the things.
 #
 #
-# Usage:
+# Usage: this script expects to be invoked from the top
+#        of the source tree.
 #
-# ./deploy
+# ./ansible/deploy
 #
-# ./deploy -l charte-wp-dcsl
+# ./ansible/deploy -l charte-wp-dcsl
 #
 #
 # If you are unfamiliar with Ansible, read up on it at
 # - https://www.ansible.com/overview/how-ansible-works
 # - https://github.com/jdauphant/awesome-ansible
 
-- import_playbook: ansible/wordpress-playbook.yml
+- import_playbook: wordpress-playbook.yml
