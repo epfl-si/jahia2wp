@@ -14,6 +14,7 @@
         state: directory
         prefix: ansible-jahia2wp-
       register: tempfile
+      changed_when: false
     - name: Use temporary directory
       set_fact:
         ansible_remote_tmp: "{{ tempfile.path }}"
