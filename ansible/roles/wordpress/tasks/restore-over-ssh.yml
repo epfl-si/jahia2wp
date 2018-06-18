@@ -20,7 +20,7 @@
   changed_when: false
 
 - name: Restore data + code from tar backups
-  when: wp_destructive[inventory_hostname] == "data-and-code"
+  when: wp_destructive[inventory_hostname] != "data-only"
   shell:
     cmd: |
       set -e

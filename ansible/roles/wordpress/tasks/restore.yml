@@ -19,7 +19,7 @@
     cd "{{ wp_dir }}"
     cp -a wp-content wp-includes wp-admin {{ _restore_revert_tmpdir }}
   changed_when: false
-  when: wp_destructive[inventory_hostname] == "data-and-code"
+  when: wp_destructive[inventory_hostname] != "data-only"
 
 - name: Back up uploads to {{ _restore_revert_tmpdir }} before restoring — 💡 In case of a catastrophe, you will find your files there.
   shell: |
