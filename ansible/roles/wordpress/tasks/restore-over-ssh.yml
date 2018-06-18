@@ -1,0 +1,13 @@
+# Restore a WordPress site from its *production* backup
+#
+# Requires ssh access from the OpenShift where the WordPress resides to
+# production, which is only achievable by setting up an ssh agent
+# on your client workstation.
+
+- include_vars: backup-vars.yml
+
+- set_fact:
+    ansible_ssh_common_args: "-o ForwardAgent=yes"
+- name: "ping {{ wp_restore_from }} over ssh (💡 if this doesn't work, check your ssh agent and/or set up public-key access to {{ backup_prod_ssh_location }})"
+  command: "{{ backup_ssh_cmdprefix }} /bin/true"
+  changed_when: false

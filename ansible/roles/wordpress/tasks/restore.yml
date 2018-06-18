@@ -9,8 +9,7 @@
 - meta: end_play
   when: _sanitycheck_restore.failed
 
-- include_vars: backup-vars.yml
+- include: restore-over-ssh.yml
+  when: wp_restore_from == "backup-prod"
 
-- name: TODO
-  debug:
-    msg: TODO
+# TODO: There should be a choice to restore from local tarball as well.

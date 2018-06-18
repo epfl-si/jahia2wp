@@ -17,7 +17,7 @@
   when: (not _wp_config_php_stat.stat.exists) or ((inventory_hostname in wp_destructive) and (wp_destructive[inventory_hostname] == 'wipe'))
 
 - include: restore.yml
-  when: false  # TODO
+  when: (inventory_hostname in wp_destructive) and (wp_destructive[inventory_hostname] is search("^data")) and (wp_restore_from is search("^backup"))
 
 - name: Check whether WordPress is working
   command: wp --path={{ wp_dir }} eval '1;'

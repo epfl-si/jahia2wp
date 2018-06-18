@@ -1,0 +1,5 @@
+backup_prod_ssh_location: www-data@ssh-wwp.epfl.ch
+backup_prod_ssh_port: 32222
+
+# For now, there are no backups except the production ones
+backup_ssh_cmdprefix: ssh -o PasswordAuthentication=no -n -x -T -p {{ backup_prod_ssh_port }} {{ backup_prod_ssh_location }}
