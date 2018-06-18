@@ -1,11 +1,12 @@
 # Delete a WordPress site
 
-# Sanity checks - Will prevent damage, WILL NOT be helpful
-# in debugging (the playbook cuts short while apparently successful)
+- assert:
+    that:
+      - inventory_hostname in wp_destructive_for
+      - wp_destructive_action == 'wipe'
+  register: _sanitycheck_delete
 - meta: end_play
-  when: not (inventory_hostname in wp_destructive_for)
-- meta: end_play
-  when: wp_destructive_action != "wipe"
+  when: _sanitycheck_delete.failed
 
 - include_vars: jahia2wp-vars.yml
 

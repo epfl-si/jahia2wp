@@ -1,11 +1,13 @@
 # Restore a WordPress site from backup
 
-# Sanity checks - Will prevent damage, WILL NOT be helpful
-# in debugging (the playbook cuts short while apparently successful)
+- assert:
+    that:
+      - inventory_hostname in wp_destructive_for
+      - wp_destructive_action is search("data")
+      - wp_restore_from is search("^backup")
+  register: _sanitycheck_restore
 - meta: end_play
-  when: not (inventory_hostname in wp_destructive_for)
-- meta: end_play
-  when: wp_destructive_action == "none"
+  when: _sanitycheck_restore.failed
 
 - include_vars: backup-vars.yml
 
