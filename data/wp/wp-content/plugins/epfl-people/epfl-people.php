@@ -30,7 +30,6 @@ function epfl_people_process_shortcode( $attributes, $content = null )
    $attributes = shortcode_atts( array(
         'unit' => ''
     ), $attributes );
-    
    
    // Sanitize parameter
 	$unit = sanitize_text_field( $attributes['unit'] );
