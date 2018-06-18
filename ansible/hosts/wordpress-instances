@@ -13,3 +13,4 @@ charte-sti              wp_path=sti                    wp_unit_id=STI wp_unit_na
 
 [migration-int-wordpresses]
 secure-it-next          wp_path=secure-it-next
+datacenter-hosting      wp_path=datacenter-hosting
