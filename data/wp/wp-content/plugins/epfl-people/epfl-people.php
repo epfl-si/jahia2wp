@@ -21,21 +21,6 @@ function epfl_people_log( $message ) {
     }
 }
 
-function epfl_people_url_exists( $url )
-{
-    $handle = curl_init( $url );
-    curl_setopt( $handle, CURLOPT_RETURNTRANSFER, TRUE );
-
-    $response = curl_exec( $handle );
-    $httpCode = curl_getinfo( $handle, CURLINFO_HTTP_CODE );
-
-    if ( $httpCode >= 200 && $httpCode <= 400 ) {
-        return true;
-    } else {
-        return false;
-    }
-    curl_close( $handle );
-}
 
 function epfl_people_process_shortcode( $attributes, $content = null )
 {
@@ -52,7 +37,7 @@ function epfl_people_process_shortcode( $attributes, $content = null )
     if ( false === $result ){
 
         // Make sure the content is actually coming from the people pages and does exist
-        if ( ( strcasecmp( parse_url( $url, PHP_URL_HOST ), 'people.epfl.ch' ) == 0 or strcasecmp( parse_url( $url, PHP_URL_HOST ), 'test-people.epfl.ch' ) == 0 ) && epfl_people_url_exists( $url ) ) {
+        if ( ( strcasecmp( parse_url( $url, PHP_URL_HOST ), 'people.epfl.ch' ) == 0 or strcasecmp( parse_url( $url, PHP_URL_HOST ), 'test-people.epfl.ch' ) == 0 ) ) {
 
             // Get the content of the page
             $response = wp_remote_get( $url );
@@ -79,6 +64,7 @@ function epfl_people_process_shortcode( $attributes, $content = null )
 function epfl_people_load_plugin_textdomain() {
     load_plugin_textdomain( 'epfl-people', FALSE, basename( plugin_dir_path( __FILE__ )) . '/languages/');
 }
+
 add_action( 'plugins_loaded', 'epfl_people_load_plugin_textdomain' );
 
 add_action( 'init', function() {
