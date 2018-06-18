@@ -1,68 +1,20 @@
 # file: roles/wordpress/vars/main.yml
 #
-# Define variables that this role relies on.
+# Define variables that are used throughout this role.
 #
-# Required per-host variables (typically coming out of hosts/group_vars/* and
-# hosts/wordpress-instances):
+# See ../defaults/main.yml for the variables the user is expected to
+# provide (either through the inventory file, so-called "group_vars",
+# or on the command line)
 #
-#
-# - wp_env: The name of the top-level directory (under the /srv of the
-#            Openshift instance) where the server root resides
-#
-# - wp_hostname: The HTTP host name (fully qualified domain name) this
-#                  WordPress is served under
-#
-# - wp_path: The path relative to the htdocs directory where the WordPress
-#            instance is installed
-#
-# - wp_unit_name: The unit name
-#
-# - wp_unit_id: The unit ID
-#
-# Command-line variables:
-#
-# - wp_destructive_for: A list of WordPresses on which destructive action is
-#                             permitted.
-
-wp_destructive_for: []   # Default value
-
-#
-# - wp_destructive_action: One of "none" (the default), "wipe",
-#                             "data-and-code" or "data-only". "wipe"
-#                             means to completely and unconditionally
-#                             delete everything; "data-and-code" and
-#                             "data-only" allows performing restores
-#                             (depending on the setting of
-#                             wp_restore_from, below) for the
-#                             corresponding assets. "none" means do
-#                             no harm, yet doesn't rule out harmless
-#                             mutations such as creating a WP site
-#                             that does not yet exist.
-
-wp_destructive_action: 'none'   # Default value
-
-#
-# - wp_restore_from: One of "generate" (the default), "backup-prod",
-#                      or "none" to skip the restore process
-#                      altogether and leave the destroyed /
-#                      nonexistent WordPresses in whatever state they
-#                      are currently in.
-
-wp_restore_from: 'generate'
-
-#
-# Required facts:
-#
-# - ansible_remote_tmp: The directory for temporary files
-#
-# Exported Variables:: (See below)
+# See also the other files in this directory for variables that are
+# only used by some of the tasks in this role. While this file,
+# roles/wordpress/vars/main.yml is implicitly imported whenever the
+# "wordpress" role is in play in a playbook, the other files in this
+# directory need to be imported explicitly using the import_vars
+# task.
 
 # The top-level directory of this WordPress instance
 wp_dir: "/srv/{{ wp_env }}/{{ wp_hostname }}/htdocs/{{ wp_path }}"
 
 # The path to the wp-config.php file
 wp_path_config_php: "{{ wp_dir }}/wp-config.php"
-
-# The unit name. Override either on the command line with --extra-vars,
-# or in the inventory file (../../../hosts/wordpress-instances)
-wp_unit_name: "{{ wp_unit_id }}"

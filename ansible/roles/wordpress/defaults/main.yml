@@ -1,0 +1,65 @@
+# file: roles/wordpress/defaults/main.yml
+#
+# The variables that the role relies on, and that the user is supposed
+# to pass either
+#
+# - through per-host variables (in hosts/wordpress-instances),
+#
+# - through per-group variables (in hosts/group_vars/*),
+#
+# - or on the command line using -e / --extra-vars.
+#
+
+########################################################################
+# Host variables
+########################################################################
+# - wp_env: The name of the top-level directory (under the /srv of the
+#            Openshift instance) where the server root resides
+#
+# - wp_hostname: The HTTP host name (fully qualified domain name) this
+#                  WordPress is served under
+#
+# - wp_path: The path relative to the htdocs directory where the WordPress
+#            instance is installed
+#
+# - wp_unit_name: The unit name (used by jahia2wp.py generate); defaults
+#                 to being equal to wp_unit_id
+
+wp_unit_name: "{{ wp_unit_id }}"   # Default value
+
+#
+# - wp_unit_id: The unit ID (used by jahia2wp.py generate)
+#
+########################################################################
+# Variables from the command line
+########################################################################
+#
+# - wp_destructive_for: A list of WordPresses on which destructive action is
+#                             permitted.
+
+wp_destructive_for: []   # Default value
+
+#
+# - wp_destructive_action: One of "none" (the default), "wipe",
+#                             "data-and-code" or "data-only". "wipe"
+#                             means to completely and unconditionally
+#                             delete everything; "data-and-code" and
+#                             "data-only" allows performing restores
+#                             (depending on the setting of
+#                             wp_restore_from, below) for the
+#                             corresponding assets. "none" means do
+#                             no harm, yet doesn't rule out harmless
+#                             mutations such as creating a WP site
+#                             that does not yet exist.
+
+wp_destructive_action: 'none'   # Default value
+
+#
+# - wp_restore_from: One of "generate" (the default), "backup-prod",
+#                      or "none" to skip the restore process
+#                      altogether and leave the destroyed /
+#                      nonexistent WordPresses in whatever state they
+#                      are currently in.
+
+wp_restore_from: 'generate'
+
