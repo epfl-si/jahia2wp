@@ -11,10 +11,10 @@
   register: _wp_config_php_stat
 
 - include: delete.yml
-  when: (inventory_hostname in wp_destructive_for) and (wp_destructive_action == "wipe")
+  when: (inventory_hostname in wp_destructive) and (wp_destructive[inventory_hostname] == "wipe")
 
 - include: create.yml
-  when: (inventory_hostname in wp_destructive_for) and ((wp_destructive_action == 'wipe') or (not _wp_config_php_stat.stat.exists))
+  when: (not _wp_config_php_stat.stat.exists) or ((inventory_hostname in wp_destructive) and (wp_destructive[inventory_hostname] == 'wipe'))
 
 - include: restore.yml
   when: false  # TODO
