@@ -33,7 +33,8 @@
 - include: restore-over-ssh.yml
   when: wp_restore_from == "backup-prod"
 
-# TODO: There should be a choice to restore from local tarball as well.
+# TODO: There should be a choice to restore from other sources, such as
+# local tarball, possibly in sti-test.epfl.ch format
 
 - name: delete {{ _restore_revert_tmpdir }} upon successful restore
   file:
