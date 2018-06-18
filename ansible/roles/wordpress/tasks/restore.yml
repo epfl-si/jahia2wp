@@ -6,7 +6,37 @@
       - wp_destructive[inventory_hostname] is search("^(data|wipe)")
       - wp_restore_from is search("^backup")
 
+- name: Create directory to revert backup in case of trouble
+  command: mktemp -d -p {{ wp_dir }} -t ansible-tmp-XXXXXX
+  changed_when: false
+  register: _restore_revert_tmpdir_cmd
+- set_fact:
+    _restore_revert_tmpdir: "{{ _restore_revert_tmpdir_cmd.stdout }}"
+
+- name: Back up code and data to {{ _restore_revert_tmpdir }} before restoring — 💡 In case of a catastrophe, you will find your files there.
+  shell: |
+    set -e
+    cd "{{ wp_dir }}"
+    cp -a wp-content wp-includes wp-admin {{ _restore_revert_tmpdir }}
+  changed_when: false
+  when: wp_destructive[inventory_hostname] == "data-and-code"
+
+- name: Back up uploads to {{ _restore_revert_tmpdir }} before restoring — 💡 In case of a catastrophe, you will find your files there.
+  shell: |
+    set -e
+    cd "{{ wp_dir }}"
+    mkdir "{{ _restore_revert_tmpdir }}"/wp-content
+    cp -a wp-content/uploads {{ _restore_revert_tmpdir }}/wp-content
+  changed_when: false
+  when: wp_destructive[inventory_hostname] == "data-only"
+
 - include: restore-over-ssh.yml
   when: wp_restore_from == "backup-prod"
 
 # TODO: There should be a choice to restore from local tarball as well.
+
+- name: delete {{ _restore_revert_tmpdir }} upon successful restore
+  file:
+    path: "{{ _restore_revert_tmpdir }}"
+    state: absent
+  changed_when: false

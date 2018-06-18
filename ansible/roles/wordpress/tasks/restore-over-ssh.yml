@@ -21,11 +21,25 @@
 
 - name: Restore data + code from tar backups
   when: wp_destructive[inventory_hostname] == "data-and-code"
-  shell: "{{ backup_prod_shell_untar }} --exclude wp-config.php"
+  shell:
+    cmd: |
+      set -e
+      cd {{ wp_dir }}
+      # Delete files that will be untarred at the last possible moment,
+      # obviating the neeed for manual recovery unless the next command
+      # is the one that fails
+      rm -rf wp-content wp-includes wp-admin
+      {{ backup_prod_shell_untar }} --exclude wp-config.php
 
 - name: Restore data only (uploads) from tar backups
   when: wp_destructive[inventory_hostname] == "data-only"
-  shell: "{{ backup_prod_shell_untar }} --wildcards --wildcards-match-slash */wp-content/uploads"
+  shell:
+    cmd: |
+      set -e
+      cd {{ wp_dir }}
+      # See comment above
+      rm -rf wp-content/uploads
+      {{ backup_prod_shell_untar }} --wildcards --wildcards-match-slash */wp-content/uploads
 
 - name: Discover latest sql backup on {{ backup_prod_ssh_location }}:{{ backup_ssh_sql_file_glob }}
   shell: >-

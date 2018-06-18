@@ -5,7 +5,7 @@ backup_prod_ssh_port: 32222
 backup_ssh_cmdprefix: ssh -o PasswordAuthentication=no -n -x -T -p {{ backup_prod_ssh_port }} {{ backup_prod_ssh_location }}
 
 # Regarding -i, see https://superuser.com/a/941552/48763
-backup_prod_shell_untar: "{{ backup_ssh_cmdprefix }} cat {{ _backup_prod_tar_files.stdout_lines | join(' ') }} | tar --xform 's|.*/htdocs/||' -C {{ wp_dir }} -ix"
+backup_prod_shell_untar: "{{ backup_ssh_cmdprefix }} cat {{ _backup_prod_tar_files.stdout_lines | join(' ') }} | tar --xform 's|.*/htdocs/||' -ix"
 
 backup_ssh_tar_file_glob: /backups/{{ backup_short_name }}/{{ backup_short_name }}_'*'.tar
 
