@@ -57,40 +57,11 @@ wp_restore_from: 'generate'
 #
 # Exported Variables:: (See below)
 
-# The environment variables required by the jahia2wp Python script
-jahia2wp_env:
-  WP_ENV: "{{wp_env}}"
-  WP_VERSION: latest
-  PYTHONPATH: "/srv/{{ wp_env }}/jahia2wp/src"
-  # Required by jahia2wp generate and generate-many (lest we get
-  # the wrong set of plugins)
-  PLUGINS_CONFIG_BASE_PATH: ../data/plugins
-  # Required by jahia2wp migrate-urls
-  PYTHONIOENCODING: "utf-8"
-  # Control where jahia2wp migrate-urls puts its temp files
-  JAHIA2WP_VENT_TMP: "{{ansible_remote_tmp}}"
-
 # The top-level directory of this WordPress instance
 wp_dir: "/srv/{{ wp_env }}/{{ wp_hostname }}/htdocs/{{ wp_path }}"
 
 # The path to the wp-config.php file
 wp_path_config_php: "{{ wp_dir }}/wp-config.php"
-
-# The directories where the jahia2wp.py tool resides
-jahia2wp_dir: "/srv/{{ wp_env }}/jahia2wp"
-
-# The URL that jahia2wp expects
-jahia2wp_url:  "https://{{ wp_hostname }}/{{ wp_path }}"
-
-# The things that one should send to the shell prior to running any
-# jahia2wp command. Use like so:
-#
-# shell: {{ jahia2wp_shell }} generate --foo=bar ...
-jahia2wp_shell: set -e; . {{ jahia2wp_dir }}/.env; export MYSQL_DB_HOST MYSQL_SUPER_USER MYSQL_SUPER_PASSWORD WP_ADMIN_USER WP_ADMIN_EMAIL; cd {{ jahia2wp_dir }}/src; {{ ansible_python_interpreter }} ./jahia2wp.py
-
-# Whether to perform a delete/restore cycle on this WordPress instance.
-# This is the default value (override with --extra-vars "force_regenerate=true")
-force_regenerate: false
 
 # The unit name. Override either on the command line with --extra-vars,
 # or in the inventory file (../../../hosts/wordpress-instances)

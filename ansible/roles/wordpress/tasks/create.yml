@@ -7,6 +7,8 @@
 - meta: end_play
   when: _wp_config_php_stat.stat.exists and not (wp_destructive_action == "wipe")
 
+- include_vars: jahia2wp-vars.yml
+
 - name: Create auxiliary YAML file for "jahia2wp.py generate"
   when: wp_restore_from == 'generate'
   copy:

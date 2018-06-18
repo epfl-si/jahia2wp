@@ -7,6 +7,8 @@
 - meta: end_play
   when: wp_destructive_action != "wipe"
 
+- include_vars: jahia2wp-vars.yml
+
 - name: jahia2wp.py clean
   shell: "{{ jahia2wp_shell }} clean {{ wp_env }} {{ jahia2wp_url }}"
   environment: "{{ jahia2wp_env }}"

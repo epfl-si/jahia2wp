@@ -2,6 +2,8 @@
 # exact DB configuration, lineup of plugins etc. (Typically because
 # we are going to restore these from a database dump)
 
+- include_vars: jahia2wp-vars.yml
+
 # Create empty plugin hierarchy
 - name: Empty plugins hierarchy for jahia2wp generate "quick"
   file:

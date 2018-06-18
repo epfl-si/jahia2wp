@@ -1,5 +1,7 @@
 # Generate an empty WordPress site with "jahia2wp generate".
 
+- include_vars: jahia2wp-vars.yml
+
 - name: Create auxiliary YAML file for "jahia2wp.py generate"
   copy:
     content: |

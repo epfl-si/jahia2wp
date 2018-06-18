@@ -7,6 +7,8 @@
 - meta: end_play
   when: wp_destructive_action == "none"
 
+- include_vars: backup-vars.yml
+
 - name: TODO
   debug:
     msg: TODO
