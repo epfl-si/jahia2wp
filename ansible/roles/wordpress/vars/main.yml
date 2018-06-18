@@ -2,7 +2,7 @@
 #
 # Define variables that this role relies on.
 #
-# Required variables (typically coming out of hosts/group_vars/* and
+# Required per-host variables (typically coming out of hosts/group_vars/* and
 # hosts/wordpress-instances):
 #
 #
@@ -19,11 +19,43 @@
 #
 # - wp_unit_id: The unit ID
 #
+# Command-line variables:
+#
+# - wp_destructive_for: A list of WordPresses on which destructive action is
+#                             permitted.
+
+wp_destructive_for: []   # Default value
+
+#
+# - wp_destructive_action: One of "none" (the default), "wipe",
+#                             "data-and-code" or "data-only". "wipe"
+#                             means to completely and unconditionally
+#                             delete everything; "data-and-code" and
+#                             "data-only" allows performing restores
+#                             (depending on the setting of
+#                             wp_restore_from, below) for the
+#                             corresponding assets. "none" means do
+#                             no harm, yet doesn't rule out harmless
+#                             mutations such as creating a WP site
+#                             that does not yet exist.
+
+wp_destructive_action: 'none'   # Default value
+
+#
+# - wp_restore_from: One of "generate" (the default), "backup-prod",
+#                      or "none" to skip the restore process
+#                      altogether and leave the destroyed /
+#                      nonexistent WordPresses in whatever state they
+#                      are currently in.
+
+wp_restore_from: 'generate'
+
+#
 # Required facts:
 #
 # - ansible_remote_tmp: The directory for temporary files
 #
-# Exported Variables::
+# Exported Variables:: (See below)
 
 # The environment variables required by the jahia2wp Python script
 jahia2wp_env:
@@ -41,8 +73,14 @@ jahia2wp_env:
 # The top-level directory of this WordPress instance
 wp_dir: "/srv/{{ wp_env }}/{{ wp_hostname }}/htdocs/{{ wp_path }}"
 
+# The path to the wp-config.php file
+wp_path_config_php: "{{ wp_dir }}/wp-config.php"
+
 # The directories where the jahia2wp.py tool resides
 jahia2wp_dir: "/srv/{{ wp_env }}/jahia2wp"
+
+# The URL that jahia2wp expects
+jahia2wp_url:  "https://{{ wp_hostname }}/{{ wp_path }}"
 
 # The things that one should send to the shell prior to running any
 # jahia2wp command. Use like so:

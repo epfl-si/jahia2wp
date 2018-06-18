@@ -1,4 +1,4 @@
-# Generate an empty WordPress site.
+# Generate an empty WordPress site with "jahia2wp generate".
 
 - name: Create auxiliary YAML file for "jahia2wp.py generate"
   copy:

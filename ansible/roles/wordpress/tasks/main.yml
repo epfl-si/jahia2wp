@@ -3,24 +3,25 @@
 # What to do to install and configure a WordPress instance
 #
 # Variables:: (in addition to those defined or documented in
-#              ../vars/main.yml)
-#
-# - force_regenerate: Delete and recreate (from backup) this WordPress instance
+#              ../vars/*.yml)
+
+- name: Check whether WordPress is already installed
+  stat:
+    path: "{{ wp_path_config_php }}"
+  register: _wp_config_php_stat
+
+- include: delete.yml
+  when: (inventory_hostname in wp_destructive_for) and (wp_destructive_action == "wipe")
+
+- include: create.yml
+  when: (inventory_hostname in wp_destructive_for) and ((wp_destructive_action == 'wipe') or (not _wp_config_php_stat.stat.exists))
+
+- include: restore.yml
+  when: false  # TODO
 
 - name: Check whether WordPress is working
   command: wp --path={{ wp_dir }} eval '1;'
-  ignore_errors: yes
-  register: wordpress_status
-
-- include: delete.yml
-  when: force_regenerate
-
-- include: generate.yml
-  when: "(wordpress_status.rc != 0) or (force_regenerate)"
-
-- include: restore.yml
-  when: "(wordpress_status.rc != 0) or (force_regenerate)"
-
+  changed_when: false
 
 ## Debug scaffolding #########################################
 - name: Save facts (for debug)
