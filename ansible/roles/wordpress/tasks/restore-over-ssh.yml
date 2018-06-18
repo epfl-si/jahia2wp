@@ -11,3 +11,10 @@
 - name: "ping {{ wp_restore_from }} over ssh (💡 if this doesn't work, check your ssh agent and/or set up public-key access to {{ backup_prod_ssh_location }})"
   command: "{{ backup_ssh_cmdprefix }} /bin/true"
   changed_when: false
+
+- name: Discover latest backups (full + incremental) on {{ backup_prod_ssh_location }}:{{ backup_ssh_tar_file_glob }}
+  shell: >-
+    {{ backup_ssh_cmdprefix }} ls -1 {{ backup_ssh_tar_file_glob }} |
+    perl -ne 'if (m/_full.tar$/) { @lines = ($_); } elsif (@lines) { push @lines, $_; }; END {print join("", @lines);}'
+  register: _backup_prod_tar_files
+  changed_when: false
