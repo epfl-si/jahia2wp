@@ -16,5 +16,14 @@
 # The top-level directory of this WordPress instance
 wp_dir: "/srv/{{ wp_env }}/{{ wp_hostname }}/htdocs/{{ wp_path }}"
 
+# The .htaccess commanding over this WordPress instance
+wp_htaccess_path: "{{ wp_dir }}/.htaccess"
+
 # The path to the wp-config.php file
 wp_path_config_php: "{{ wp_dir }}/wp-config.php"
+
+# The prefix to invoke the WP-CLI for this WordPress instance
+wp_cli_command: "wp --path={{ wp_dir }}"
+
+# The public-facing URL of this instance
+wp_base_url: "https://{{ wp_hostname }}/{{ wp_path }}"

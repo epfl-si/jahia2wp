@@ -3,7 +3,7 @@
 - assert:
     that:
       - inventory_hostname in wp_destructive
-      - wp_destructive[inventory_hostname] is search("data")
+      - wp_destructive[inventory_hostname] is search("^data")
       - wp_restore_from is search("^backup")
   register: _sanitycheck_restore
 - meta: end_play

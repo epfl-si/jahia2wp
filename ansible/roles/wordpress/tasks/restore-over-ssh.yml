@@ -12,9 +12,41 @@
   command: "{{ backup_ssh_cmdprefix }} /bin/true"
   changed_when: false
 
-- name: Discover latest backups (full + incremental) on {{ backup_prod_ssh_location }}:{{ backup_ssh_tar_file_glob }}
+- name: Discover latest tar backups (full + incremental) on {{ backup_prod_ssh_location }}:{{ backup_ssh_tar_file_glob }}
   shell: >-
     {{ backup_ssh_cmdprefix }} ls -1 {{ backup_ssh_tar_file_glob }} |
     perl -ne 'if (m/_full.tar$/) { @lines = ($_); } elsif (@lines) { push @lines, $_; }; END {print join("", @lines);}'
   register: _backup_prod_tar_files
   changed_when: false
+
+- name: Restore data + code from tar backups
+  when: wp_destructive[inventory_hostname] == "data-and-code"
+  shell: "{{ backup_prod_shell_untar }} --exclude wp-config.php"
+
+- name: Restore data only (uploads) from tar backups
+  when: wp_destructive[inventory_hostname] == "data-only"
+  shell: "{{ backup_prod_shell_untar }} --wildcards --wildcards-match-slash */wp-content/uploads"
+
+- name: Discover latest sql backup on {{ backup_prod_ssh_location }}:{{ backup_ssh_sql_file_glob }}
+  shell: >-
+    {{ backup_ssh_cmdprefix }} ls -1 {{ backup_ssh_sql_file_glob }} | tail -1
+  register: _backup_prod_sql_file
+
+- name: Restore latest sql backup
+  shell: "{{ backup_ssh_cmdprefix }} cat {{ _backup_prod_sql_file.stdout }} | {{ wp_cli_command }} db import -"
+
+# Fix up whatever is misaligned between a production backup and {{ wp_dir }}
+# This is all quite fuzzy, see also ../vars/backup-vars.yml for more fuzzyness
+- name: wp search-replace {{ backup_base_url }} → {{ wp_base_url }}
+  command: "{{ wp_cli_command }} search-replace {{ backup_base_url }} {{ wp_base_url }}"
+
+- name: Straighten out RewriteBase in {{ wp_htaccess_path }}
+  replace:
+    path: "{{ wp_htaccess_path }}"
+    regexp: 'RewriteBase /'
+    replace: "RewriteBase /{{ wp_path }}"
+- name: Straighten out index.php redirect in {{ wp_htaccess_path }}
+  replace:
+    path: "{{ wp_htaccess_path }}"
+    regexp: '/index.php'
+    replace: '/{{ wp_path }}/index.php'

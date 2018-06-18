@@ -20,7 +20,7 @@ jahia2wp_env:
   JAHIA2WP_VENT_TMP: "{{ansible_remote_tmp}}"
 
 # The site URL that jahia2wp expects on its command line
-jahia2wp_url:  "https://{{ wp_hostname }}/{{ wp_path }}"
+jahia2wp_url: "{{ wp_base_url }}"
 
 # The things that one should send to the shell prior to running any
 # jahia2wp command. Use like so:
