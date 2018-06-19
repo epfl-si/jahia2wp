@@ -63,6 +63,53 @@ Class InfoscienceMarcConverter
     }
     
     public static function parse_authors($record, $field, $ind1, $ind2, $subfields) {
+        $compute_name = function ($full_name) {
+            $names = explode(',', $full_name);
+            $family = count(names) > 0 ? trim($names[0]) : '';
+            $fnames = count($names) > 1 ? explode(' ', $names[1]) : '';
+
+            $initname = "";
+
+            foreach($fnames as $fname) {
+                if (!$fname || empty($fname)) {
+                    continue;
+                }
+                
+
+                $fname = trim($fname);
+                
+                if (strpos($fname, '-') !== false) {
+                    $sname = explode('-', $fname);
+
+                    if ($count($sname[0]) > 1) {
+                        $initname .= $sname[0][0];
+                    }
+
+                    if ($count($sname[0]) > 1 || $count($sname[1]) > 1) {
+                        $initname .= "-";
+                    } 
+                    
+                    if ($count($sname[1]) > 1) {
+                        $initname .= $sname[1][0] . ". ";
+                    }
+                }
+                else {
+                    $fname = trim($fname);
+                    if (count($fname) > 0) {
+                        $initname .= trim($fname[0]) . ". ";
+                    }
+                }
+            }
+
+            if ($family && !empty($family)) {
+                $initname .= $family;
+            }
+
+            return $initname;
+
+        };
+
+
         $authors = [];
         $people = $record->getFields($field);
         $subfield = $subfields[0];
@@ -75,16 +122,16 @@ Class InfoscienceMarcConverter
                         $indicator = $person->getIndicator(1);
 
                         if ($indicator == $ind1) {
-                            $authors[] = $person->getSubfield($subfield)->getData();
+                            $authors[] = $compute_name($person->getSubfield($subfield)->getData());
                         }
                     } elseif ($ind2) {
                         $indicator = $person->getIndicator(2);
 
                         if ($indicator == $ind2) {
-                            $authors[] = $person->getSubfield($subfield)->getData();
+                            $authors[] = $compute_name($person->getSubfield($subfield)->getData());
                         }                        
                     } else {
-                        $authors[] = $person->getSubfield($subfield)->getData();
+                        $authors[] = $compute_name($person->getSubfield($subfield)->getData());
                     }
                 }
             }
