@@ -20,19 +20,66 @@ require_once 'render.php';
 require_once 'marc_converter.php';
 
 define("INFOSCIENCE_SEARCH_URL", "https://infoscience.epfl.ch/search?");
-define("SHORTCAKE_INFOSCIENCE_PARAMETERS_MAP", array(
-    'pattern' => 'p1',
-    'field' => 'f1',
-    'limit' => 'rg',
-    'order' => 'so',
-    'collection' => 'c',
-    'pattern2' => 'p2',
-    'field2' => 'f2',
-    'operator2' => 'op1',
-    'pattern3' => 'p3',
-    'field3' => 'f3',
-    'operator3' => 'op2',
-));
+
+ /**
+  * From any attributes, set them as url parameters for Infoscience
+  *
+  * @param array $attrs attributes that need to be sent to Infoscience
+  *
+  * @return string $url the url build
+  */
+  function convert_keys_values($array_to_convert) {
+    $convert_fields = function($value) {
+        if ($value == 'any'){
+           return '';
+        }
+        return $value; 
+    };
+
+    $convert_operators = function($value) {
+        if ($value == 'and'){
+           return 'a';
+        }
+        return $value; 
+    };
+
+    $map = array(
+        'pattern' => ['p1', sanitize_text_field],
+        'field' => ['f1', $convert_fields],
+        'limit' => ['rg', function($value) {
+            if ($value == ''){
+               return 1000;
+            }
+            return $value; 
+        }],
+        'order' => ['so', null],
+        'collection' => ['c', sanitize_text_field],
+        'pattern2' => ['p2', sanitize_text_field],
+        'field2' => ['f2', $convert_fields],
+        'operator2' => ['op1', $convert_operators],
+        'pattern3' => ['p3', sanitize_text_field],
+        'field3' => ['f3', $convert_fields],
+        'operator3' => ['op2', $convert_operators],
+    );
+
+    $converted_array = array();
+
+    foreach ($array_to_convert as $key => $value) {
+        if (array_key_exists($key, $map)) {
+            # is the convert function defined
+            if (array_key_exists(1, $map[$key]) && $map[$key][1])
+            {
+                $converted_array[$map[$key][0]] = $map[$key][1]($value);
+            } else {
+                $converted_array[$map[$key][0]] = $value;
+            }
+        }
+        else {
+            $converted_array[$key] = $value;
+        }
+    }
+    return $converted_array;
+}
 
  /**
   * From any attributes, set them as url parameters for Infoscience
@@ -44,15 +91,14 @@ define("SHORTCAKE_INFOSCIENCE_PARAMETERS_MAP", array(
 function epfl_infoscience_search_generate_url_from_attrs($attrs) {
     $url = INFOSCIENCE_SEARCH_URL;
 
-    $parameters = array(
+    $default_parameters = array(
         'as' => '1',  # advanced search 
         'ln' => 'en',  #TODO: dynamic langage
-        'of' => 'xm'  # template format
+        'of' => 'xm',  # template format
     );
-
-    $parameters = $attrs + $parameters;
-
-    $parameters = InfoscienceSearchUtils::convert_keys($parameters, SHORTCAKE_INFOSCIENCE_PARAMETERS_MAP);
+    $parameters = convert_keys_values($attrs);
+    $parameters = $default_parameters + $parameters;
+    $parameters = array_filter($parameters);
 
     # sort before build, for the caching system
     ksort($parameters);
@@ -97,18 +143,8 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         $unmanaged_attributes[$key] = sanitize_text_field($value);
     }
 
-    $attributes['pattern'] = sanitize_text_field( $attributes['pattern'] );
-    $attributes['pattern2'] = sanitize_text_field( $attributes['pattern2'] );
-    $attributes['pattern3'] = sanitize_text_field( $attributes['pattern3'] );
-    $attributes['collection'] = sanitize_text_field( $attributes['collection'] );
-
     $attributes['show_thumbnail'] = $attributes['show_thumnail'] === 'true'? true: false;
-    # if limit is empty, set it to max
-    if($attributes['limit'] === '')
-    {
-        $attributes['limit'] = 1000;
-    }
-
+    
     # Unused element at the moment
     unset($attributes['format']);
     unset($attributes['show_thumbnail']);
