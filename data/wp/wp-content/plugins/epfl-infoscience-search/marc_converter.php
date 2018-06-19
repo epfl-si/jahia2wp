@@ -4,6 +4,24 @@ require_once 'File/MARCXML.php';
 
 Class InfoscienceMarcConverter
 {
+
+    /**
+    * Parse all entries and drop them 'as is'
+    */
+    public static function parse_all($record, $field) {
+        $list_fields = [];
+
+        foreach ($record->getFields($field) as $tag => $subfields) {
+            if (method_exists($subfields, 'getSubfields')) {
+                foreach ($subfields->getSubfields() as $code => $value) {
+                    $list_fields[$tag] = $value;
+                }
+            }
+        }
+
+        return $list_fields;
+    }
+    
     /**
     * Parse a specified entry. Provide multiple subfields with name to have a key value return
     */
@@ -98,6 +116,16 @@ Class InfoscienceMarcConverter
         $record_array['publication_year'] = InfoscienceMarcConverter::parse_text($record, '269', '', '', ['a']);
         $record_array['publication_page'] = InfoscienceMarcConverter::parse_text($record, '300', '', '', ['a']);
 
+        /* if needed, uncomment this generic 
+        $record_array['description'] = InfoscienceMarcConverter::parse_all($record, '300');
+        */
+        
+        /* if needed, uncomment
+        $record_array['subjects'] = InfoscienceMarcConverter::parse_all($record, ['600', '610', '611', '630', '648', '650',
+            '651', '653', '654', '655', '656', '657', '658', '662', '690',
+            '691', '696', '697', '698', '699']);
+        */
+
         $record_array['doctype'] = InfoscienceMarcConverter::parse_text($record, '336', '', '', ['a']);
         
         $record_array['summary'] = InfoscienceMarcConverter::parse_text($record, '520', '', '', ['a']);
@@ -145,7 +173,7 @@ Class InfoscienceMarcConverter
         $marc_source = new File_MARCXML($marc_xml, File_MARC::SOURCE_STRING);
 
         while ($marc_record = $marc_source->next()) {
-            array_push($publications, InfoscienceMarcConverter::parse_record($marc_record, true));
+            array_push($publications, InfoscienceMarcConverter::parse_record($marc_record, false));
         }
         return $publications;
     }
