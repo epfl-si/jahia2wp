@@ -15,6 +15,7 @@ from parser.page_content import PageContent
 from parser.sitemap_node import SitemapNode
 from parser.menu_item import MenuItem
 from parser.banner import Banner
+from parser.box_sorted_group import BoxSortedGroup
 from utils import Utils
 from collections import OrderedDict
 
@@ -64,6 +65,9 @@ class Site:
 
         # the site languages
         self.languages = []
+
+        # List of sort groups used to sort groups of boxes
+        self.box_sort_groups = {}
 
         # the WordPress shortcodes used in the site. The key is the shortcode name,
         # and the value is the shortcode attributes containing URLs that must be
@@ -176,6 +180,25 @@ class Site:
             out_file.close()
             # Remove temp file
             os.remove(old_export_file)
+
+    def get_box_sort_group(self, uuid, sort_params):
+        """
+        Generate (if not exists) a Box sort group associated to given uuid.
+        Sort handlers are managed here
+        :param uuid: ID of sortHandler
+        :param sort_params: String containing sort parameters
+        :return: SortHandler object
+        """
+
+        if uuid not in self.box_sort_groups:
+
+            # Sort handler for uuid doesn't exists so we have to create it
+            # First, we extract params from sort_params: ex => "lastModified;desc;true;true"
+            params = sort_params.split(";")
+
+            self.box_sort_groups[uuid] = BoxSortedGroup(uuid, params[0], params[1])
+
+        return self.box_sort_groups[uuid]
 
     def full_path(self, path):
         """
@@ -570,7 +593,8 @@ class Site:
 
     def register_shortcode(self, name, attributes, box):
         """
-        Register the given shortcode.
+        Register the given shortcode with specified attributes. Content of those attributes (usually links) will be
+        fixed during export in WordPress.
 
         :param name: the shortcode name
         :param attributes: a list with the shortcode attributes that must be fixed by WPExporter

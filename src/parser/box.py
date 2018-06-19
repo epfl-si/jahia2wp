@@ -68,6 +68,7 @@ class Box:
         self.set_type(element)
         self.title = Utils.get_tag_attribute(element, "boxTitle", "jahia:value")
         self.content = ""
+        self.sort_group = None
 
         # the shortcode attributes with URLs that must be fixed by the wp_exporter
         self.shortcode_attributes_to_fix = []
@@ -75,6 +76,32 @@ class Box:
         # parse the content
         if self.type:
             self.set_content(element, multibox)
+
+    def set_sort_infos(self, element):
+        """
+        Tells if element needs to be sort or not. We check if it has a parant of type "mainList" with a
+        "jahia:sortHandler" attribute which is not empty
+
+        :param element: Element to check.
+        :return:
+        """
+        if element.parentNode.nodeName == 'mainList':
+
+            sort_params = element.parentNode.getAttribute("jahia:sortHandler")
+
+            # If we have parameters for sorting
+            if sort_params != "":
+                # We get sortHandler uuid to identify it so it will be unique
+                uuid = element.parentNode.getAttribute("jcr:uuid")
+                # Getting (or creating) sortHandler. It may already exists if another box use it.
+                self.sort_group = self.site.get_box_sort_group(uuid, sort_params)
+
+                # Generate name of field in which we have to look for sort value
+                sort_field = "jcr:{}".format(self.sort_group.sort_field)
+
+                sort_value = element.getAttribute(sort_field)
+                # Add box to sort handler
+                self.sort_group.add_box_to_sort(self, sort_value)
 
     def set_type(self, element):
         """
@@ -91,6 +118,9 @@ class Box:
 
     def set_content(self, element, multibox=False):
         """set the box attributes"""
+
+        # Init sort handler if needed
+        self.set_sort_infos(element)
 
         # text
         if self.TYPE_TEXT == self.type or self.TYPE_COLORED_TEXT == self.type:
@@ -523,7 +553,7 @@ class Box:
 
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.content = "[{} url={}]".format(self.shortcode_name, url)
+        self.content = '[{} url="{}"]'.format(self.shortcode_name, url)
 
     def set_box_faq(self, element):
         """set the attributes of a faq box
