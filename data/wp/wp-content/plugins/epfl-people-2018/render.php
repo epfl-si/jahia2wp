@@ -18,6 +18,9 @@ Class PeopleRender
 		}
 	}
 	
+	/**
+	 * The renderer used by the "wsgetpeople" web service.
+	 */
 	private static function build_html_ws($items)
 	{
 		$html = "";
@@ -30,16 +33,16 @@ Class PeopleRender
 		return $html;	
 	}
 	
+   /**
+	 * The renderer used by the "getProfiles" web service.
+	 */
 	private static function build_html_template($items)
 	{
-		$html = "Template";
+		ob_start();
+		var_dump($items);
+		$debug = ob_get_clean();
 		
-		foreach ($items as $sciper => $data)
-		{
-			$html .= "<div><strong>$data->nom</strong> $data->prenom</div>";
-		}
-		
-		return $html;	
+		return $debug;	
 	}
 }
 
