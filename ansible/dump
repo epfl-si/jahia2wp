@@ -1,21 +1,23 @@
 #!/usr/bin/env ansible-playbook -i ansible/hosts
 # -*- mode: yaml; -*-
 ---
-# This is an Ansible playbook to do or redo all the things.
-#
+# This is an Ansible playbook to dump sites in the WXR format, and
+# recover the spoils to localhost.
 #
 # Usage: this script expects to be invoked from the top
 #        of the source tree.
 #
-# ./ansible/deploy
+#     ./ansible/dump -e "to=/some/where"
 #
-# ./ansible/deploy -l charte-wp-dcsl
+# or equivalently
 #
+#     ./ansible/dump -e "dump_local_dir=/some/where"
 #
 # If you are unfamiliar with Ansible, read up on it at
 # - https://www.ansible.com/overview/how-ansible-works
 # - https://github.com/jdauphant/awesome-ansible
 
 - vars:
-    play_create_or_restore: true
+    play_dump: true
+    dump_local_dir: "{{ to }}"  # Unless overridden as shown above
   import_playbook: wordpress-playbook.yml

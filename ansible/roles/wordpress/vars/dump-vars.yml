@@ -1,0 +1,5 @@
+# file: roles/wordpress/vars/dump-vars.yml
+#
+# What ../tasks/dump.yml & friends need to know in order to function
+
+dump_wxr_file: "{{ dump_local_dir }}/{{ inventory_hostname }}.xml"
