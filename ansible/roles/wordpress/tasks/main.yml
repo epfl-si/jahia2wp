@@ -10,29 +10,21 @@
     path: "{{ wp_path_config_php }}"
   register: _wp_config_php_stat
 
-- include: delete.yml
-  when: (inventory_hostname in wp_destructive) and (wp_destructive[inventory_hostname] == "wipe")
 
-- include: create.yml
-  when: (not _wp_config_php_stat.stat.exists) or ((inventory_hostname in wp_destructive) and (wp_destructive[inventory_hostname] == 'wipe'))
+- name: "Create or restore (if requested)"
+  include: '{{ "create-or-restore.yml" if play_create_or_restore is defined else "noop.yml" }}'
 
-- include: restore.yml
-  when: (inventory_hostname in wp_destructive) and (wp_destructive[inventory_hostname] is search("^(data|wipe)")) and (wp_restore_from is search("^backup"))
-
-- name: Check whether WordPress is working
-  command: wp --path={{ wp_dir }} eval '1;'
-  changed_when: false
+- name: "Dump (if requested)"
+  include: '{{ "dump.yml" if (play_dump is defined) and (dump_local_dir is defined) else "noop.yml" }}'
 
 ## Debug scaffolding #########################################
-- name: Save facts (for debug)
-  when: false  # That is, never
-  local_action:
-    module: copy
-    content: "{{vars['ansible_facts'] | to_nice_json}}"
-    dest: facts-{{inventory_hostname}}.json
-- name: Save all variables (for debug)
-  when: false  # That is, never
-  local_action:
-    module: copy
-    content: "{{vars | to_nice_json}}"
-    dest: vars-{{inventory_hostname}}.json
+# - name: Save facts (for debug)
+#   local_action:
+#     module: copy
+#     content: "{{vars['ansible_facts'] | to_nice_json}}"
+#     dest: facts-{{inventory_hostname}}.json
+# - name: Save all variables (for debug)
+#   local_action:
+#     module: copy
+#     content: "{{vars | to_nice_json}}"
+#     dest: vars-{{inventory_hostname}}.json

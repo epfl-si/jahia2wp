@@ -9,15 +9,8 @@
       set_fact:
         ansible_user: www-data
         ansible_python_interpreter: "/srv/{{wp_env}}/venv/bin/python"
-    - name: Create temporary directory
-      tempfile:
-        state: directory
-        prefix: ansible-jahia2wp-
-      register: tempfile
-      changed_when: false
-    - name: Use temporary directory
-      set_fact:
-        ansible_remote_tmp: "{{ tempfile.path }}"
+    - name: Create and use remote temporary directory (if required)
+      include_tasks: '{{ "remote-tempdir-tasks.yml" if play_dump is not defined else "noop.yml" }}'
     - name: Gathering facts (delayed after Ansible pre-configuration)
       setup:
   roles:

@@ -9,6 +9,8 @@
 #
 # - or on the command line using -e / --extra-vars.
 #
+# (unless of course there is a default value defined below - That's
+# what the "defaults" part of defaults/main.yml is for)
 
 ########################################################################
 # Host variables
@@ -21,6 +23,9 @@
 #
 # - wp_path: The path relative to the htdocs directory where the WordPress
 #            instance is installed
+
+wp_path: "{{ inventory_hostname }}"
+
 #
 # - wp_unit_name: The unit name (used by jahia2wp.py generate); defaults
 #                 to being equal to wp_unit_id
@@ -66,3 +71,5 @@ wp_destructive: {}   # Default value
 
 wp_restore_from: 'generate'
 
+# - dump_local_dir: The directory where ../tasks/dump.yml should
+#                   dump the WXR (XML) files
