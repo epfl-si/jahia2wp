@@ -414,12 +414,6 @@ class Utils(object):
         Clean HTML comments and images base64
         """
         content = re.sub("(<!--.*?-->)", "", content)
-        if "data:image/png;base64" in content:
-            content = re.sub('(\"data:image/png;base64.*?\")', "", content)
-            logging.warning("Delete png images in base64")
-        if "data:image/jpeg;base64" in content:
-            content = re.sub('(\"data:image/jpeg;base64.*?\")', "", content)
-            logging.warning("Delete jpeg images in base64")
         return content
 
     def is_html(content):
