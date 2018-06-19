@@ -30,7 +30,20 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
    // Sanitize parameter
 	$unit = sanitize_text_field( $attributes['unit'] );
 	
-	$url = "https://people.epfl.ch/cgi-bin/wsgetpeople?units=$unit&app=self&caller=104782";
+	// the web service we use to retrieve the data, can be "wsgetpeople" or "getProfiles"
+	$ws = "wsgetpeople";
+	
+	switch($ws)
+	{
+		case "wsgetpeople":
+			$url = "https://people.epfl.ch/cgi-bin/wsgetpeople?units=$unit&app=self&caller=104782";
+			break;
+		case "getProfiles":
+			$url = "https://people.epfl.ch/cgi-bin/getProfiles?unit=$unit&tmpl=JSON";
+			break;
+		default:
+		   throw new Exception("Unknown web service: $ws");	
+	}
 	
 	$items = PeopleUtils::get_items($url);
 	
@@ -53,7 +66,7 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
    // otherwise the plugin does the rendering
    else 
    {
-   	return PeopleRender::epfl_people_build_html($items);
+   	return PeopleRender::build_html($items, $ws);
    }
 }
 
@@ -72,7 +85,7 @@ add_action( 'init', function() {
 
     // shortcake configuration
     if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
-       ShortCakePeopleConfig::config();
+       ShortCakePeople2018Config::config();
     endif;
 
 });
