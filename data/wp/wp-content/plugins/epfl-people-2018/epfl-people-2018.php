@@ -2,12 +2,9 @@
 
 /**
  * Plugin Name: EPFL People shortcode
- * Plugin URI: https://github.com/epfl-idevelop/EPFL-WP-SC-People
+ * Plugin URI: https://github.com/epfl-idevelop/jahia2wp
  * Description: provides a shortcode to display results from People
  * Version: 1.1
- * Author: Emmanuel JAEP
- * Author URI: https://people.epfl.ch/emmanuel.jaep?lang=en
- * Contributors: LuluTchab, GregLeBarbar
  * License: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
  **/
 
@@ -24,9 +21,8 @@ function epfl_people_log( $message ) {
     }
 }
 
-function epfl_people_process_shortcode( $attributes, $content = null )
+function epfl_people_2018_process_shortcode( $attributes, $content = null )
 {
-	
    $attributes = shortcode_atts( array(
         'unit' => ''
     ), $attributes );
@@ -62,17 +58,17 @@ function epfl_people_process_shortcode( $attributes, $content = null )
 }
 
 // Load .mo file for translation
-function epfl_people_load_plugin_textdomain()
+function epfl_people_2018_load_plugin_textdomain()
 {
-    load_plugin_textdomain( 'epfl-people', FALSE, basename( plugin_dir_path( __FILE__ )) . '/languages/');
+    load_plugin_textdomain( 'epfl-people-2018', FALSE, basename( plugin_dir_path( __FILE__ )) . '/languages/');
 }
 
-add_action( 'plugins_loaded', 'epfl_people_load_plugin_textdomain' );
+add_action( 'plugins_loaded', 'epfl_people_2018_load_plugin_textdomain' );
 
 add_action( 'init', function() {
 
     // define the shortcode
-    add_shortcode('epfl_people', 'epfl_people_process_shortcode');
+    add_shortcode('epfl_people_2018', 'epfl_people_2018_process_shortcode');
 
     // shortcake configuration
     if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
