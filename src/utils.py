@@ -14,6 +14,7 @@ import xml.dom.minidom
 import re
 import requests
 
+
 from urllib.parse import urlsplit
 from bs4 import BeautifulSoup
 
@@ -448,3 +449,13 @@ class Utils(object):
         else:
             # If we cannot get a correct answer, we assume there is no redirect
             return url
+
+    @staticmethod
+    def get_random_string(length):
+        """
+        Generate a random string of asked length
+
+        :param length:
+        :return:
+        """
+        return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(length))
