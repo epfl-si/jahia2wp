@@ -878,8 +878,6 @@ class Site:
         # because this is how it works
         tag[attribute] = file_directory[file_directory.rindex('/files/'):]
 
-
-
     def build_sitemaps(self):
         """Build the sitemaps"""
 
