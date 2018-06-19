@@ -4,15 +4,50 @@ require_once 'File/MARCXML.php';
 
 Class InfoscienceMarcConverter
 {
-    public static function parse_text($record, $field, $ind1, $ind2, $subfield) {
-        # TODO: manage subfield & indicators
-        $value = $record->getField($field)->getData();
+    /**
+    * Parse a specified entry. Provide multiple subfields with name to have a key value return
+    */
+    public static function parse_text($record, $field, $ind1='', $ind2='', $subfields=[''], $subfields_name = []) {
+         if (!$subfields[0]){
+            return [$record->getField($field)->getData()];
+         }
+        
+         $fields = $record->getFields($field);
+         $value = [];
+         $sub_values_mode = false;
+
+         if (count($subfields) > 1) {
+            $sub_values_mode = true;
+         }
+
+        foreach ($fields as $field) {
+            $sub_value = [];
+            foreach($subfields as $index=>$subfield) {
+                if ($subfield && subfield !== '') {
+                    if ($field->getSubfield($subfield)) {
+                        if ($subfields_name && array_key_exists($index, $subfields_name)) {
+                            $sub_value[$subfields_name[$index]] = $field->getSubfield($subfield)->getData();
+                        } else {
+                            $sub_value[] = $field->getSubfield($subfield)->getData();
+                        }
+                    }
+                }
+            }
+            if ($sub_value) {
+                if ($sub_values_mode) {
+                    $value[] = $sub_value;
+                } else {
+                    $value = $sub_value;
+                }
+            }
+        }
         return $value; 
     }
-
-    public static function parse_authors($record, $field, $ind1, $ind2, $subfield) {
+    
+    public static function parse_authors($record, $field, $ind1, $ind2, $subfields) {
         $authors = [];
         $people = $record->getFields($field);
+        $subfield = $subfields[0];
 
         if ($people) {
             foreach ($people as $person) {
@@ -46,15 +81,50 @@ Class InfoscienceMarcConverter
     public static function parse_record($record, $filter_empty=false) {
         $record_array = [];
 
-        $record_array['control_number'] = InfoscienceMarcConverter::parse_text($record, '001', '', '', '');
+        $record_array['record_id'] = InfoscienceMarcConverter::parse_text($record, '001', '', '', ['']);
+        
+        # SPEC: how we show it ?
+        $record_array['patent'] = InfoscienceMarcConverter::parse_text($record, '013', '', '',['a', 'c'], ['number', 'state']);
 
-        #$record_array['patent_control_information'] = $record->getField('013');#->getSubfield('a')->getData();
-        #InfoscienceMarcConverter::parse_text($record, '013', '', '', 'a');
+        $record_array['isbn'] = InfoscienceMarcConverter::parse_text($record, '020', '', '', ['a']);
+        
+        # SPEC: don't get doi if patents, as 0247_a has the TTO id too
+        $record_array['doi'] = InfoscienceMarcConverter::parse_text($record, '024', '7', '', ['a']);
 
-        $record_array['authors'] = InfoscienceMarcConverter::parse_authors($record, '700', '', '', 'a');
-        $record_array['authors_1'] = InfoscienceMarcConverter::parse_authors($record, '720', '', '1', 'a');
-        $record_array['directors'] = InfoscienceMarcConverter::parse_authors($record, '720', '', '2', 'a');
-        $record_array['authors_3'] = InfoscienceMarcConverter::parse_authors($record, '720', '', '3', 'a');
+        $record_array['title'] = InfoscienceMarcConverter::parse_text($record, '245', '', '', ['a']);
+        
+        $record_array['publication_location'] = InfoscienceMarcConverter::parse_text($record, '260', '', '', ['a']);
+        $record_array['publication_institution'] = InfoscienceMarcConverter::parse_text($record, '260', '', '', ['b']);
+        $record_array['publication_year'] = InfoscienceMarcConverter::parse_text($record, '269', '', '', ['a']);
+        $record_array['publication_page'] = InfoscienceMarcConverter::parse_text($record, '300', '', '', ['a']);
+
+        $record_array['doctype'] = InfoscienceMarcConverter::parse_text($record, '336', '', '', ['a']);
+        
+        $record_array['summary'] = InfoscienceMarcConverter::parse_text($record, '520', '', '', ['a']);
+        
+        $record_array['author'] = InfoscienceMarcConverter::parse_authors($record, '700', '', '', ['a']);
+
+        $record_array['corporate_name'] = InfoscienceMarcConverter::parse_text($record, '710', '', '', ['a']);
+        
+        $record_array['conference'] = InfoscienceMarcConverter::parse_text($record, '711', '', '', ['a', 'c', 'd'], ['name', 'location', 'date']);
+        if (empty($record_array['conference'])) {
+            $record_array['conference'] = InfoscienceMarcConverter::parse_text($record, '711', '2', '', ['a', 'c', 'd'], ['name', 'location', 'date']);
+        }
+
+        $record_array['author_1'] = InfoscienceMarcConverter::parse_authors($record, '720', '', '1', ['a']);
+        $record_array['director'] = InfoscienceMarcConverter::parse_authors($record, '720', '', '2', ['a']);
+        $record_array['author_3'] = InfoscienceMarcConverter::parse_authors($record, '720', '', '3', ['a']);
+
+        $record_array['company_name'] = InfoscienceMarcConverter::parse_text($record, '720', '', '5', ['a']);
+
+        $record_array['journal'] = InfoscienceMarcConverter::parse_text($record, '773', '', '5', ['j', 'k', 'q', 't'], ['volume', 'number', 'page', 'publisher']);
+
+        $record_array['report_url'] = InfoscienceMarcConverter::parse_text($record, '790', '', '', ['w']);
+
+        $record_array['url'] = InfoscienceMarcConverter::parse_text($record, '856', '4', '', ['u']);
+
+        $record_array['approved'] = InfoscienceMarcConverter::parse_text($record, '909', 'C', '0', ['p']);
+        $record_array['pending'] = InfoscienceMarcConverter::parse_text($record, '999', 'C', '0', ['p']);
 
         if ($filter_empty) {
             $record_array = array_filter($record_array);
@@ -75,7 +145,7 @@ Class InfoscienceMarcConverter
         $marc_source = new File_MARCXML($marc_xml, File_MARC::SOURCE_STRING);
 
         while ($marc_record = $marc_source->next()) {
-            array_push($publications, InfoscienceMarcConverter::parse_record($marc_record));
+            array_push($publications, InfoscienceMarcConverter::parse_record($marc_record, true));
         }
         return $publications;
     }
