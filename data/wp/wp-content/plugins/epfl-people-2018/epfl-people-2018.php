@@ -28,14 +28,14 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
 	
 	switch($ws)
 	{
-		case "wsgetpeople":
-			$url = "https://people.epfl.ch/cgi-bin/wsgetpeople?units=$unit&app=self&caller=104782";
-			break;
-		case "getProfiles":
-			$url = "https://people.epfl.ch/cgi-bin/getProfiles?unit=$unit&tmpl=JSON";
-			break;
-		default:
-		   throw new Exception("Unknown web service: $ws");	
+    case "wsgetpeople":
+      $url = "https://people.epfl.ch/cgi-bin/wsgetpeople?units=$unit&app=self&caller=104782";
+      break;
+    case "getProfiles":
+      $url = "https://people.epfl.ch/cgi-bin/getProfiles?unit=$unit&tmpl=JSON";
+      break;
+    default:
+      throw new Exception("Unknown web service: $ws");	
 	}
 	
 	// retrieve the data in JSON
@@ -48,9 +48,9 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
    	
     try
     {
-   	  do_action("epfl_people_action", $items);
+      do_action("epfl_people_action", $items);
    		
-		  return ob_get_contents();
+   		return ob_get_contents();
     }
     finally
     {
