@@ -38,8 +38,10 @@ Usage : wp eval [...] <filename>
     die();
 }
 
-// Must set WP_LOAD_IMPORTERS before loading the plugin:
+// WP_LOAD_IMPORTERS must be set before loading the plugin (hence why
+// the user must set the command line to skip it; see above)
 define('WP_LOAD_IMPORTERS', true);
+define('IMPORT_DEBUG', true);
 require("$importer_plugin_file");
 wordpress_importer_init();
 
