@@ -54,6 +54,8 @@ require("$importer_plugin_file");
 wordpress_importer_init();
 
 $fetch_attachments = FALSE !== array_search("-fetch-attachments", $argv);
+add_filter("wp_import_existing_post", "identify_structural_pages_by_guid", 10, 2);
+add_action("wp_import_insert_post", "record_guid_of_structural_pages", 10, 4);
 do_import($filename, $fetch_attachments);
 
 ############################# FUNCTIONS ##################################
@@ -87,4 +89,37 @@ function do_import ($filename, $fetch_attachments = false) {
         ob_flush();
         ob_end_clean();
     }
+}
+
+# Items with a negative ID have been created by the EPFL XML
+# processing pipeline, not by "wp export". Unlike the default behavior
+# for "normal" pages and posts, identified by their title and creation
+# date, we identify such pages by their <guid> field (in the sense
+# that if we didn't, they could be erroneously imported multiple
+# times)
+
+$EPFL_IMPORT_GUID_META = "epfl-ventilation-guid";
+
+function identify_structural_pages_by_guid ($post_exists_orig, $post)
+{
+    if (! ($post->ID < 0)) return $post_exists_orig;
+
+    $query = new \WP_Query(array(
+        'post_type' => 'page',
+        'meta_query' => array(array(
+            'key'     => $EPFL_IMPORT_GUID_META,
+            'value'   => $post['guid'],
+            'compare' => '='
+        ))));
+    $results = $query->get_posts();
+    if (sizeof($results) >= 1) {
+        return $results[0]->ID;
+    } else {
+        return 0;  # Unknown structural node, must insert
+    }
+}
+
+function record_guid_of_structural_pages ($post_id, $original_post_ID, $postdata, $post)
+{
+    update_post_meta($post_id, $EPFL_IMPORT_GUID_META, $postdata['guid']);
 }

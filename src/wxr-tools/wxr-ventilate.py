@@ -88,9 +88,12 @@ class Ventilator:
         assert len(path_components) > 0
 
         previous_id = 0
+        path_so_far = ""
         for path_component in path_components[:-1]:
+            path_so_far += path_component + "/"
             structural_page = Page.insert_structural(
                 self.etree, path_component)
+            structural_page.guid = self.new_root_url + path_so_far
             structural_page.post_title = '[%s]' % path_component
             structural_page.parent_id = previous_id
             previous_id = structural_page.id
