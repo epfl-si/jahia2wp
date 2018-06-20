@@ -438,13 +438,17 @@ class Utils(object):
         if url == "":
             return ""
 
-        response = requests.get(url)
+        # To catch invalid URLs
+        try:
+            response = requests.get(url)
 
-        # Check for 30x or 200 status code
-        if 300 <= response.status_code < 400 or response.status_code == 200:
-            # It's a redirect
-            return response.url
+            # Check for 30x or 200 status code. If condition satisfied, it means it's a redirect
+            if 300 <= response.status_code < 400 or response.status_code == 200:
+                return response.url
 
-        else:
-            # If we cannot get a correct answer, we assume there is no redirect
+            else:
+                # If we cannot get a correct answer, we assume there is no redirect
+                return url
+        except:
+            # URL seems to be invalid but not our problem, so we return it as it is.
             return url
