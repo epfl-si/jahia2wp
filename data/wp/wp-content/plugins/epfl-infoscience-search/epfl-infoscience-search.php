@@ -127,7 +127,8 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         'field3' => '',  # see field
         'operator3' => 'and',  # "and", "or", "and_not"
         # Presentation
-        'format' => 'short',  # "short", "detailed", "full"
+        'format' => 'short',  # "short", "detailed"
+        'show_summary' => 'false', 
         'show_thumbnail' => "false",  # "true", "false"
         'group_by' => '', # "", "year", "doctype"
         'group_by2' => '', # "", "year", "doctype"

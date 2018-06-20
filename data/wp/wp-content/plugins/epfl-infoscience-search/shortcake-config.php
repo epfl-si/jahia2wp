@@ -55,9 +55,16 @@ Class InfoscienceSearchShortCakeConfig
         return array (
             array('value' => 'short', 'label' => esc_html__('Short', 'epfl-infoscience-search')),
             array('value' => 'detailed', 'label' => esc_html__('Detailed', 'epfl-infoscience-search')),
-            array('value' => 'full', 'label' => esc_html__('Detailed with abstract', 'epfl-infoscience-search')),
        );
     }
+
+    private static function get_summary_options() 
+    {
+        return array (
+            array('value' => 'false', 'label' => esc_html__('No summary', 'epfl-infoscience-search')),
+            array('value' => 'true', 'label' => esc_html__('Show summary', 'epfl-infoscience-search')),
+       );
+    }    
 
     private static function get_thumbnail_options() 
     {
@@ -264,6 +271,13 @@ Class InfoscienceSearchShortCakeConfig
                             'options'       => InfoscienceSearchShortCakeConfig::get_format_options(),
                             'description'   => __('Detail level for a publication', 'epfl-infoscience-search'),
                         ),
+                        array(
+                            'label'         => esc_html__('Summary', 'epfl-infoscience'),
+                            'attr'          => 'show_summary',
+                            'type'          => 'epfl-select',
+                            'options'       => InfoscienceSearchShortCakeConfig::get_summary_options(),
+                            'value' => 'false',
+                        ),                        
                         array(
                             'label'         => esc_html__('Thumbnail', 'epfl-infoscience'),
                             'attr'          => 'show_thumbnail',
