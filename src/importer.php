@@ -47,10 +47,30 @@ wordpress_importer_init();
 
 $wp_import->fetch_attachments = false;
 
-$wp_import->import($filename);
+function html2text ($html) {
+    $html = preg_replace("|<br[ ]*[/]?>|", "\n", $html);
+    $html = preg_replace("|<[/]?p[ ]*[/]?>|", "\n", $html);
+    $html = preg_replace("|<[^>]*>|", "\n", $html);
+
+    $html = str_replace("&#8220;", '"', $html);
+    $html = str_replace("&#8221;", '"', $html);
+
+    return $html;
+}
+
+ob_start(function ($buf, $phase) {
+    static $accumulator = "";
+    $accumulator .= $buf;
+    $accumulator = html2text($accumulator);
+    [$out, $accumulator] = explode("<", $accumulator);
+    return $out;
+}, 1);
+try {
+    $wp_import->import($filename);
+} finally {
+    ob_flush();
+    ob_end_clean();
+}
 ?>
 
 ****** IMPORT COMPLETE *******
-
-Stats: XXX
-
