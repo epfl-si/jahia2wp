@@ -442,9 +442,8 @@ class Utils(object):
         try:
             response = requests.get(url)
 
-            # Check for 30x or 200 status code
+            # Check for 30x or 200 status code. If condition satisfied, it means it's a redirect
             if 300 <= response.status_code < 400 or response.status_code == 200:
-                # It's a redirect
                 return response.url
 
             else:
