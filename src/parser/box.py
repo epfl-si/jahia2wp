@@ -180,6 +180,8 @@ class Box:
         else:
             self.set_box_unknown(element)
 
+        self.fix_youtube_iframes()
+
     def _set_scheduler_box(self, element, content):
         """set the attributes of a scheduler box"""
 
@@ -879,6 +881,37 @@ class Box:
                                                                                  height,
                                                                                  query,
                                                                                  lang)
+
+    def fix_youtube_iframes(self):
+        """
+        Look for <iframe src="https://www.youtube.com... and replace it with a shortcode
+        :return:
+        """
+        soup = BeautifulSoup(self.content, 'html5lib')
+        soup.body.hidden = True
+
+        iframes = soup.find_all('iframe')
+
+        for iframe in iframes:
+
+            src = iframe.get('src')
+
+            if 'youtube.com' in src or 'youtu.be' in src:
+                width = iframe.get('width')
+                height = iframe.get('height')
+
+                # Creating <p> element to store shortcode content
+                p = soup.new_tag('p', 'youtube')
+                p.append('[su_youtube url="{}" width="{}" height="{}"]'.format(src,
+                                                                               width if width else '600',
+                                                                               height if height else '400'))
+
+                # if iframe's parent is a <p> we will replace it to avoid to have 2 nested <p>
+                elem_to_replace = iframe if iframe.parent.name != 'p' else iframe.parent
+                # Replacing the iframe with paragraph
+                elem_to_replace.replaceWith(p)
+
+        self.content = str(soup.body)
 
     def is_shortcode(self):
         return self.shortcode_name != ""
