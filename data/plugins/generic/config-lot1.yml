@@ -61,7 +61,5 @@ plugins:
     config: !include epfl-xml/v1/config-plugin.yml
   - name: epfl-people
     config: !include epfl-people/v1/config-plugin.yml
-  # Note: the epfl-people-2018 plugin is intended to be used only
-  # with the new web2018 theme
-  #- name: epfl-people-2018
-  #  config: !include epfl-people-2018/v1/config-plugin.yml
+  - name: epfl-people-2018
+    config: !include epfl-people-2018/v1/config-plugin.yml
