@@ -1,5 +1,13 @@
 <?php
 
+# This script is meant for "wp eval-file".
+#
+# Usage:
+#
+#   wp --path=..... \
+#      eval-file importer.php [ -fetch-attachments ] <wxr_file.xml>
+
+
 $importer_plugin_file = WP_PLUGIN_DIR .
                       '/wordpress-importer/wordpress-importer.php';
 if (! is_file($importer_plugin_file)) {
@@ -45,7 +53,8 @@ define('IMPORT_DEBUG', true);
 require("$importer_plugin_file");
 wordpress_importer_init();
 
-do_import($filename);
+$fetch_attachments = FALSE !== array_search("-fetch-attachments", $argv);
+do_import($filename, $fetch_attachments);
 
 ############################# FUNCTIONS ##################################
 
@@ -68,9 +77,9 @@ function accumulate_and_transform ($buf, $phase) {
     return $out;
 }
 
-function do_import ($filename) {
+function do_import ($filename, $fetch_attachments = false) {
     global $wp_import;
-    $wp_import->fetch_attachments = false;
+    $wp_import->fetch_attachments = $fetch_attachments;
     ob_start("accumulate_and_transform", 1);
     try {
         $wp_import->import($filename);
