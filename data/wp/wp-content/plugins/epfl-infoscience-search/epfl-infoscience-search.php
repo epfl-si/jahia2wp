@@ -174,7 +174,10 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     $page = wp_cache_get( $url, 'epfl_infoscience_search' );
     
     # not in cache ?
-    if ($page == false || $debug){
+    # TODO: reactivate cache
+    # if ($page == false || $debug){
+    if (true){
+    
         if (epfl_infoscience_url_exists( $url ) ) {
             $response = wp_remote_get( $url );
             $marc_xml = wp_remote_retrieve_body( $response );

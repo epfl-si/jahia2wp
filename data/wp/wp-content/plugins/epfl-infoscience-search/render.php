@@ -14,29 +14,44 @@ Class HtmlInfoscienceRender extends InfoscienceRender {
      */
     public static function render($publications, $format="short", $has_summary=false) {
         $rendered = '';
+        $template_base_path = plugin_dir_path(__FILE__). 'templates/';
+        $links_path = $template_base_path . 'common/' . 'links-bar.php';
+
         foreach ($publications as $publication) {
-            $templated_publication = "<br/><br/>";
+            $templated_publication = "";
             # doctype and render type determine template
             $doctype =  strtolower(str_replace(' ', '_', $publication['doctype'][0]));
-
-            $template_base_path = plugin_dir_path(__FILE__). 'templates/';
             $template_path = $template_base_path . $doctype . '_' . $format . '.php';
 
-            if (file_exists($template_path)) {
+            if ($doctype && file_exists($template_path)) {
                 ob_start();
+                echo '<div class="infoscience_record">';
+                echo '  <div class="infoscience_data">';
+                echo '      <div class="record-content">';
                 include($template_path);
-                $templated_publication .= ob_get_clean();
-    
-                $rendered .= $templated_publication;
-
-                if ($has_summary){
-                    $rendered .= " with summary please";
-                } else {
-                    $rendered .= " without summary please";
+                #add summary
+                if ($has_summary) {
+                echo '          <p class="infoscience_abstract">' . $publication['summary'][0] . '</p>';
                 }
-            } else {
+                echo '      </div>';
+                include($links_path);
+                echo '  </div>';
+                echo '</div>';
+
+                # TODO: sanitize this ?
+                $templated_publication = ob_get_clean();
                 $rendered .= $templated_publication;
-                $rendered .= "Untemplated doctype error - " . $template_path;
+            } else {
+                ob_start();
+                echo '<div class="infoscience_record">';
+                echo '  <div class="infoscience_data">';
+                echo '      <div class="record-content">';                
+                echo "          Untemplated doctype error - " . $template_path;
+                echo '      </div>';
+                echo '  </div>';
+                echo '</div>';                
+                $templated_publication = ob_get_clean();
+                $rendered .= $templated_publication;                
             }
         }
         return $rendered;
