@@ -81,15 +81,15 @@ Class InfoscienceMarcConverter
                 if (strpos($fname, '-') !== false) {
                     $sname = explode('-', $fname);
 
-                    if ($count($sname[0]) > 1) {
+                    if (count($sname[0]) > 1) {
                         $initname .= $sname[0][0];
                     }
 
-                    if ($count($sname[0]) > 1 || $count($sname[1]) > 1) {
+                    if (count($sname[0]) > 1 || count($sname[1]) > 1) {
                         $initname .= "-";
                     } 
                     
-                    if ($count($sname[1]) > 1) {
+                    if (count($sname[1]) > 1) {
                         $initname .= $sname[1][0] . ". ";
                     }
                 }
