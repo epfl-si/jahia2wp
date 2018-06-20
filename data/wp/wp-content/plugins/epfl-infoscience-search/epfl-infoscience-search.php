@@ -132,6 +132,8 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         'show_thumbnail' => "false",  # "true", "false"
         'group_by' => '', # "", "year", "doctype"
         'group_by2' => '', # "", "year", "doctype"
+        # Dev
+        'debug' => 'false',
     );
 
     # TODO: use array_diff_key and compare unmanaged attributes
@@ -144,29 +146,47 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         $unmanaged_attributes[$key] = sanitize_text_field($value);
     }
 
-    $attributes['show_thumbnail'] = $attributes['show_thumnail'] === 'true'? true: false;
+    $attributes['show_summary'] = $attributes['show_summary'] === 'true' ? true : false;
+    $attributes['show_thumbnail'] = $attributes['show_thumnail'] === 'false' ? false : true;
+    $attributes['format'] = in_array($attributes['format'], ['short', 'detailed']) ? $attributes['format'] : 'short';
+
+    $attributes['debug'] = $attributes['debug'] === 'true' ? true : false;
     
-    # Unused element at the moment
-    unset($attributes['format']);
+    # Unset element unused in url
+    $format = $attributes['format'];
+    unset($attributes['format']);    
+
+    $show_summary = $attributes['show_summary'];
+    unset($attributes['show_summary']);
+
+    $show_thumbnail = $attributes['show_thumbnail'];
     unset($attributes['show_thumbnail']);
+
+    $debug = $attributes['debug'];
+    unset($attributes['debug']);   
+
     unset($attributes['group_by']);
     unset($attributes['group_by2']);
     
     $url = epfl_infoscience_search_generate_url_from_attrs($attributes+$unmanaged_attributes);
 
     // Check if the result is already in cache
-    $result = wp_cache_get( $url, 'epfl_infoscience_search' );
-
-    # TODO: reactivate cache
-    #if ( false == $result ){
-    if ( false == false ){
+    $page = wp_cache_get( $url, 'epfl_infoscience_search' );
+    
+    # not in cache ?
+    if ($page == false || $debug){
         if (epfl_infoscience_url_exists( $url ) ) {
-
             $response = wp_remote_get( $url );
             $marc_xml = wp_remote_retrieve_body( $response );
 
             $publications = InfoscienceMarcConverter::convert_marc_to_array($marc_xml);
 
+            if ($debug) {
+                $page = RawInfoscienceRender::render($publications, $url);
+                return $page;
+            }
+
+            # try to load render from theme if available
             if (has_action("epfl_infoscience_search_action")) {
                 ob_start();
                 try {
@@ -176,7 +196,8 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
                     ob_end_clean();
                 }
             } else {
-                $page = InfoscienceRender::epfl_infoscience_search_build_html($publications);
+                # use the self renderer
+                $page = HtmlInfoscienceRender::render($publications, $format, $show_summary);
             }
 
             // wrap the page
@@ -188,16 +209,16 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
             wp_cache_set( $url, $page, 'epfl_infoscience_search' );
 
             // return the page
-            return '<div style="border:2px solid black;padding:8px;">' . $url . '</div>' . $page;
+            return $page;
         } else {
             $error = new WP_Error( 'not found', 'The url passed is not found', $url );
             epfl_infoscience_log( $error );
         }
     } else {
         // Use cache
-        return $result;
-    }
-}
+        return $page;
+    }        
+ }
 
 // Load .mo file for translation
 function epfl_infoscience_search_load_plugin_textdomain() {
