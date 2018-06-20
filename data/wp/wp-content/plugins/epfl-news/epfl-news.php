@@ -176,8 +176,29 @@ function epfl_news_process_shortcode(
         );
 
         $actus = NewsUtils::get_items($url);
-        return Render::epfl_news_build_html($actus, $template, $stickers);
-}
+
+        // if supported delegate the rendering to the theme
+        if (has_action("epfl_news_action")) {
+
+            ob_start();
+
+            try {
+
+               do_action("epfl_news_action", $actus, $template, $stickers);
+
+               return ob_get_contents();
+
+            } finally {
+
+                ob_end_clean();
+            }
+
+        // otherwise the plugin does the rendering
+        } else {
+
+            return Render::epfl_news_build_html($actus, $template, $stickers);
+        }
+    }
 
 // load .mo file for translation
 function epfl_news_load_plugin_textdomain() {

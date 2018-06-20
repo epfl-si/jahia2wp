@@ -45,13 +45,16 @@ function epfl_infoscience_process_shortcode( $attributes, $content = null )
             $response = wp_remote_get( $url );
             $page = wp_remote_retrieve_body( $response );
 
+            // wrap the page
+            $page = '<div class="infoscienceBox">'.
+                        $page.
+                    '</div>';
+
             // cache the result
             wp_cache_set( $url, $page, 'epfl_infoscience' );
 
             // return the page
-            return '<div class="infoscienceBox">'.
-                    $page.
-                    '</div>';
+            return $page;
         } else {
             $error = new WP_Error( 'not found', 'The url passed is not part of Infoscience or is not found', $url );
             epfl_infoscience_log( $error );

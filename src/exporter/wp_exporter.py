@@ -411,7 +411,7 @@ class WPExporter:
 
     def fix_page_links_in_pages(self, wp_pages, site_folder):
         """
-        Fix all the links once we know all the WordPress pages urls
+        Fix all the links once we know all the WordPress pages urls and then update page in WordPress
         :param wp_pages: list of pages to fix
         :param site_folder: path to folder containing website files
         :return:
@@ -661,40 +661,58 @@ class WPExporter:
             contents = OrderedDict()
             info_page = OrderedDict()
 
+            # To save processed boxes. When we find a box that needs to be sort with other boxes, we directly will
+            # process all boxes to sort and we will add them to this list. This will avoid to process sorted boxes twice
+            done_boxes = []
+
             for lang in page.contents.keys():
                 contents[lang] = ""
 
                 # create the page content
                 for box in page.contents[lang].boxes:
 
-                    # We skip empty boxes
-                    if box.is_empty():
+                    # We skip empty boxes and the ones already processed
+                    if box.is_empty() or box in done_boxes:
                         continue
 
-                    if not box.is_shortcode():
-                        contents[lang] += '<div class="{}">'.format(box.type + "Box")
+                    # If box have to be sort
+                    if box.sort_group:
+                        # We recover all boxes belonging to the "sort group".
+                        sorted_boxes = box.sort_group.get_sorted_boxes()
+                    else:
+                        # There's only one box to "sort"
+                        sorted_boxes = [box]
 
-                        if box.title:
-                            if WPUtils.is_html(box.title):
-                                contents[lang] += '<h3>{}</h3>'.format(box.title)
-                            else:
-                                slug = slugify(box.title)
-                                contents[lang] += '<h3 id="{}">{}</h3>'.format(slug, box.title)
+                    # Looping through boxes to sort (in correct order)
+                    for box_to_sort in sorted_boxes:
 
-                        # If cleaning required
-                        if features_flags:
-                            box.content = self.apply_features_flags(box.content)
+                        if not box_to_sort.is_shortcode():
+                            contents[lang] += '<div class="{}">'.format(box_to_sort.type + "Box")
 
-                    # in the parser we can't know the current language.
-                    # we assign a string that we replace with the current language
-                    if box.type in (Box.TYPE_PEOPLE_LIST, Box.TYPE_MAP):
-                        if Box.UPDATE_LANG in box.content:
-                            box.content = box.content.replace(Box.UPDATE_LANG, lang)
+                            if box_to_sort.title:
+                                if WPUtils.is_html(box_to_sort.title):
+                                    contents[lang] += '<h3>{}</h3>'.format(box_to_sort.title)
+                                else:
+                                    slug = slugify(box_to_sort.title)
+                                    contents[lang] += '<h3 id="{}">{}</h3>'.format(slug, box_to_sort.title)
 
-                    contents[lang] += box.content
+                            # If cleaning required
+                            if features_flags:
+                                box_to_sort.content = self.apply_features_flags(box_to_sort.content)
 
-                    if not box.is_shortcode():
-                        contents[lang] += "</div>"
+                        # in the parser we can't know the current language.
+                        # we assign a string that we replace with the current language
+                        if box_to_sort.type in (Box.TYPE_PEOPLE_LIST, Box.TYPE_MAP):
+                            if Box.UPDATE_LANG in box_to_sort.content:
+                                box_to_sort.content = box_to_sort.content.replace(Box.UPDATE_LANG, lang)
+
+                        contents[lang] += box_to_sort.content
+
+                        if not box_to_sort.is_shortcode():
+                            contents[lang] += "</div>"
+
+                        # To remember that box was processed
+                        done_boxes.append(box_to_sort)
 
                 info_page[lang] = {
                     'post_name': page.contents[lang].path,
