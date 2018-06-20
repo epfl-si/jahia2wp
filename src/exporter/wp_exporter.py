@@ -1040,8 +1040,8 @@ class WPExporter:
                         logging.error("Submenu creation: No page found for UUID %s", menu_item.points_to)
                         continue
 
-                    if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict and \
-                            child.contents[lang].wp_id:  # FIXME For unknown reason, wp_id is sometimes None
+                    # FIXME For unknown reason, wp_id is sometimes None
+                    if lang in child.contents and child.contents[lang].wp_id:
 
                         # If we have a menu entry title and it is different as the page title, we take the menu title
                         menu_txt = menu_item.txt if menu_item.txt != "" else child.contents[lang].menu_title
