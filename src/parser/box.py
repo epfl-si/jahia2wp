@@ -315,8 +315,9 @@ class Box:
             for combo in combo_list:
                 # We generate box content
                 box_content = Utils.get_tag_attribute(combo, "text", "jahia:value")
-                # linksList contain <link> tags exactly like linksBox, so we can just reuse
+                # filesList and linksList contain <link> tags exactly like linksBox, so we can just reuse
                 # the same code used to parse linksBox.
+                box_content += self._parse_files_to_list(combo)
                 box_content += self._parse_links_to_list(combo)
 
                 # if we have sort infos, we have to get field information in XML
