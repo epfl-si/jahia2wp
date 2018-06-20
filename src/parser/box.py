@@ -659,15 +659,17 @@ class Box:
         max = nb_items
         feed_title = "yes"
         summary = "yes"
+        meta = "yes"
 
         if hide_title == "true":
             feed_title = "no"
 
         if detail_items != "true":
             summary = "no"
+            meta = "no"
 
-        self.content = "[feedzy-rss feeds=\"{}\" max=\"{}\" feed_title=\"{}\" summary=\"{}\" refresh=\"12_hours\"]" \
-            .format(feeds, max, feed_title, summary)
+        self.content = '[feedzy-rss feeds="{}" max="{}" feed_title="{}" summary="{}" refresh="12_hours" meta="{}"]' \
+            .format(feeds, max, feed_title, summary, meta)
 
     def set_box_links(self, element):
         """set the attributes of a links box"""
