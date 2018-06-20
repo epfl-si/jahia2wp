@@ -703,7 +703,6 @@ class Box:
         else:
             self.content = ""
 
-
         for snippet in snippets:
             title = Utils.get_tag_attribute(snippet, "title", "jahia:value")
             subtitle = Utils.get_tag_attribute(snippet, "subtitle", "jahia:value")
