@@ -26,8 +26,8 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
 	// the web service we use to retrieve the data, can be "wsgetpeople" or "getProfiles"
   $ws = "wsgetpeople";
 	
-	switch($ws)
-	{
+  switch($ws)
+  {
     case "wsgetpeople":
       $url = "https://people.epfl.ch/cgi-bin/wsgetpeople?units=$unit&app=self&caller=104782";
       break;
@@ -36,10 +36,10 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
       break;
     default:
       throw new Exception("Unknown web service: $ws");	
-	}
+  }
 	
-	// retrieve the data in JSON
-	$items = PeopleUtils::get_items($url);
+  // retrieve the data in JSON
+  $items = PeopleUtils::get_items($url);
 	
 	// if supported delegate the rendering to the theme
   if (has_action("epfl_people_action"))

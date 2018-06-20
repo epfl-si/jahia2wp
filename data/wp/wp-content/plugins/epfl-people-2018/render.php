@@ -27,7 +27,7 @@ Class PeopleRender
   {
     $html = "";
 		
-		foreach ($items as $sciper => $data)
+    foreach ($items as $sciper => $data)
     {
       $html .= "<div><strong>$data->nom</strong> $data->prenom</div>";
     }
@@ -36,8 +36,8 @@ Class PeopleRender
   }
 	
   /**
-	 * The renderer used by the "getProfiles" web service.
-	 */
+   * The renderer used by the "getProfiles" web service.
+   */
   private static function build_html_template($items)
   {
     ob_start();
