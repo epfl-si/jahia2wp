@@ -17,7 +17,7 @@ File <?php echo $importer_plugin_file; ?> Not found
 
 Please install the wordpress-importer plugin, e.g.
 
-  wp plugin install wordpress-importer
+  wp --path=... plugin install --activate wordpress-importer
 
 <?php
     die();
