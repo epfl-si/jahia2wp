@@ -2,6 +2,9 @@
 
 require_once 'utils.php';
 
+/**
+ * Short cake configuration
+ */
 Class ShortCakePeople2018Config
 {   
     public static function config()

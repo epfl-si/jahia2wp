@@ -2,11 +2,13 @@
 
 Class PeopleRender
 {
-   /**
-     * Build HTML.
-     *
-     * @param $items: response of API.
-     */  
+  /**
+   * Build the HTML. Note: this is only used for debugging purposes, the real rendering is
+   * normally done by the theme.
+   *
+   * @param $items: response of API.
+   * @param $ws: the web service that was used to get the data.
+   */  
 	public static function build_html($items, $ws): string
 	{
 		switch($ws)
@@ -33,7 +35,7 @@ Class PeopleRender
 		return $html;	
 	}
 	
-   /**
+  /**
 	 * The renderer used by the "getProfiles" web service.
 	 */
 	private static function build_html_template($items)
