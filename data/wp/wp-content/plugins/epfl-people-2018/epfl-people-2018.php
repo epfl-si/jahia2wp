@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name: EPFL People shortcode
- * Description: display results from people. This shortcode is intentended to be used only with the new
+ * Description: display results from people. This shortcode is intended to be used only with the new
  * web2018 theme, so it's not activated by default
  * License: Copyright (c) 2018 Ecole Polytechnique Federale de Lausanne, Switzerland
  **/
@@ -22,7 +22,7 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
    // sanitize the parameters
   $unit = sanitize_text_field( $attributes['unit'] );
 	
-	// the web service we use to retrieve the data, can be "wsgetpeople" or "getProfiles"
+  // the web service we use to retrieve the data, can be "wsgetpeople" or "getProfiles"
   $ws = "wsgetpeople";
 	
   switch($ws)
@@ -40,7 +40,7 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
   // retrieve the data in JSON
   $items = PeopleUtils::get_items($url);
 	
-	// if supported delegate the rendering to the theme
+  // if supported delegate the rendering to the theme
   if (has_action("epfl_people_action"))
   {
     ob_start();
@@ -49,7 +49,7 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
     {
       do_action("epfl_people_action", $items);
    		
-   		return ob_get_contents();
+      return ob_get_contents();
     }
     finally
     {
@@ -69,7 +69,7 @@ function epfl_people_2018_load_plugin_textdomain()
   load_plugin_textdomain( 'epfl-people-2018', FALSE, basename( plugin_dir_path( __FILE__ )) . '/languages/');
 }
 
-//  plugins_loaded action
+// plugins_loaded action
 add_action( 'plugins_loaded', 'epfl_people_2018_load_plugin_textdomain' );
 
 // init action
