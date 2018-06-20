@@ -41,11 +41,11 @@ Usage : wp eval [...] <filename>
 // Must set WP_LOAD_IMPORTERS before loading the plugin:
 define('WP_LOAD_IMPORTERS', true);
 require("$importer_plugin_file");
-
-global $wp_import;
 wordpress_importer_init();
 
-$wp_import->fetch_attachments = false;
+do_import($filename);
+
+############################# FUNCTIONS ##################################
 
 function html2text ($html) {
     $html = preg_replace("|<br[ ]*[/]?>|", "\n", $html);
@@ -58,19 +58,22 @@ function html2text ($html) {
     return $html;
 }
 
-ob_start(function ($buf, $phase) {
+function accumulate_and_transform ($buf, $phase) {
     static $accumulator = "";
     $accumulator .= $buf;
     $accumulator = html2text($accumulator);
     [$out, $accumulator] = explode("<", $accumulator);
     return $out;
-}, 1);
-try {
-    $wp_import->import($filename);
-} finally {
-    ob_flush();
-    ob_end_clean();
 }
-?>
 
-****** IMPORT COMPLETE *******
+function do_import ($filename) {
+    global $wp_import;
+    $wp_import->fetch_attachments = false;
+    ob_start("accumulate_and_transform", 1);
+    try {
+        $wp_import->import($filename);
+    } finally {
+        ob_flush();
+        ob_end_clean();
+    }
+}
