@@ -2,9 +2,8 @@
 
 /**
  * Plugin Name: EPFL People shortcode
- * Plugin URI: https://github.com/epfl-idevelop/jahia2wp
- * Description: provides a shortcode to display results from People
- * Version: 1.1
+ * Description: display results from people. This shortcode is intentended to be used only with the new
+ * web2018 theme, so it's not activated by default
  * License: Copyright (c) 2018 Ecole Polytechnique Federale de Lausanne, Switzerland
  **/
 
