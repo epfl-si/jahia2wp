@@ -78,12 +78,13 @@ class Item:
         self._elt.getparent().remove(self._elt)
         self._elt = 'DELETED'
 
-    def __id_node(self):
-        nodes = self._elt.xpath("wp:post_id", namespaces=WP_NSMAP)
+    def __wp_node(self, element_name):
+        nodes = self._elt.xpath("wp:%s" % element_name, namespaces=WP_NSMAP)
         if len(nodes) == 1:
             return nodes[0]
         elif len(nodes) == 0:
-            new_post_id = lxml.etree.Element("{%s}post_id" % WP_NSMAP["wp"])
+            new_post_id = lxml.etree.Element("{%s}%s" %
+                                             (WP_NSMAP["wp"], element_name))
             self._elt.append(new_post_id)
             return new_post_id
         else:
@@ -91,12 +92,12 @@ class Item:
 
     @property
     def id(self):
-        id_text = self.__id_node().text
+        id_text = self.__wp_node('post_id').text
         return None if id_text is None else int(id_text)
 
     @id.setter
     def id(self, new_id):
-        self.__id_node().text = str(new_id)
+        self.__wp_node('post_id').text = str(new_id)
 
     def ensure_id(self, int_direction = 1):
         if self.id is None:
@@ -107,6 +108,15 @@ class Item:
             else:
                 self.id = min([0] + existing_ids) - 1
         return self  # Chainable
+
+    @property
+    def parent_id(self):
+        id_text = self.__wp_node('post_parent').text
+        return None if id_text is None else int(id_text)
+        
+    @parent_id.setter
+    def parent_id(self, new_id):
+        self.__wp_node('post_parent').text = str(new_id)
 
     def __repr__(self):
         return '[Item %s]' % to_string(self._elt)
@@ -121,6 +131,8 @@ def demo():
     print(repr(i.id))
     i.id = 5
     print(repr(i.id))
+    print(to_string(i))
+    i.parent_id = 4
     print(to_string(i))
 
 if __name__ == '__main__':
