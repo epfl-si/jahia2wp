@@ -44,6 +44,21 @@ Class InfoscienceMarcConverter
         }
         return $sorted_urls;
     }
+
+    /**
+    * Parse external ids and filter to get only DOIs
+    */
+    public static function parse_doi($record) {
+        $dois = [];
+        $extern_type  = InfoscienceMarcConverter::parse_text($record, '024', '7', '', ['2'])[0];
+
+        if (strtolower($extern_type) === 'doi') {
+            $id  = InfoscienceMarcConverter::parse_text($record, '024', '7', '', ['a'])[0];
+            $dois[] = $id;
+        }
+
+        return $dois;
+    }
     
     /**
     * Parse a specified entry. Provide multiple subfields with name to have a key value return
@@ -177,7 +192,7 @@ Class InfoscienceMarcConverter
         $record_array['isbn'] = InfoscienceMarcConverter::parse_text($record, '020', '', '', ['a']);
         
         # SPEC: don't get doi if patents, as 0247_a has the TTO id too
-        $record_array['doi'] = InfoscienceMarcConverter::parse_text($record, '024', '7', '', ['a']);
+        $record_array['doi'] = InfoscienceMarcConverter::parse_doi($record);
 
         $record_array['title'] = InfoscienceMarcConverter::parse_text($record, '245', '', '', ['a']);
         
