@@ -21,6 +21,29 @@ Class InfoscienceMarcConverter
 
         return $list_fields;
     }
+
+    /**
+    * Parse all urls and dispatch them into
+    * urls => icon, fulltext
+    */
+    public static function parse_files($record, $field) {
+        $file_urls  = InfoscienceMarcConverter::parse_text($record, '856', '4', '', ['u']);
+
+        $sorted_urls = [];
+
+        foreach($file_urls as $url){
+            if (preg_match('/\.pdf$/', strtolower($url))) {
+                $sorted_urls['fulltext'][] = $url;
+            } else {
+                $matches = [];
+                preg_match('/(\.png|\.jpg|\.jpeg|\.gif)$/', $url, $matches);
+                if ($matches) {
+                    $sorted_urls['icon'][] = $url;
+                }
+            }
+        }
+        return $sorted_urls;
+    }
     
     /**
     * Parse a specified entry. Provide multiple subfields with name to have a key value return
@@ -196,7 +219,8 @@ Class InfoscienceMarcConverter
 
         $record_array['report_url'] = InfoscienceMarcConverter::parse_text($record, '790', '', '', ['w']);
 
-        $record_array['url'] = InfoscienceMarcConverter::parse_text($record, '856', '4', '', ['u']);
+        # TODO: url has special rules, set url if fulltexts / icons to print
+        $record_array['url'] = InfoscienceMarcConverter::parse_files($record, '856', '4', '', ['u']);
 
         $record_array['approved'] = InfoscienceMarcConverter::parse_text($record, '909', 'C', '0', ['p']);
         $record_array['pending'] = InfoscienceMarcConverter::parse_text($record, '999', 'C', '0', ['p']);
