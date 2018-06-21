@@ -12,7 +12,7 @@ Class HtmlInfoscienceRender extends InfoscienceRender {
      * @param $publications: array of data converted from Infoscience
      * @return
      */
-    public static function render($publications, $format="short", $has_summary=false, $show_thumbnail=false) {
+    public static function render($publications, $format="short", $has_summary=false, $show_thumbnail=false, $debug=false) {
         $rendered = '';
         $template_base_path = plugin_dir_path(__FILE__). 'templates/';
         $links_path = $template_base_path . 'common/' . 'links-bar.php';
@@ -23,36 +23,28 @@ Class HtmlInfoscienceRender extends InfoscienceRender {
             $doctype =  strtolower(str_replace(' ', '_', $publication['doctype'][0]));
             $template_path = $template_base_path . $doctype . '_' . $format . '.php';
 
-            if ($doctype && file_exists($template_path)) {
-                ob_start();
-                echo '<div class="infoscience_record">';
-                echo '  <div class="infoscience_data">';
-                echo '      <div class="record-content">';
-                include($template_path);
-                #add summary
-                if ($has_summary) {
-                echo '          <p class="infoscience_abstract">' . $publication['summary'][0] . '</p>';
-                }
-                echo '      </div>';
-                include($links_path);
-                echo '  </div>';
-                echo '</div>';
-
-                # TODO: sanitize this ?
-                $templated_publication = ob_get_clean();
-                $rendered .= $templated_publication;
-            } else {
-                ob_start();
-                echo '<div class="infoscience_record">';
-                echo '  <div class="infoscience_data">';
-                echo '      <div class="record-content">';                
-                echo "          Untemplated doctype error - " . $template_path;
-                echo '      </div>';
-                echo '  </div>';
-                echo '</div>';                
-                $templated_publication = ob_get_clean();
-                $rendered .= $templated_publication;                
+            if (!$doctype || !file_exists($template_path)) {
+                 # show defautl template
+                $template_path = $template_base_path . 'default_' . $format . '.php';;
             }
+
+            ob_start();
+            echo '<div class="infoscience_record">';
+            echo '  <div class="infoscience_data">';
+            echo '      <div class="record-content">';
+            include($template_path);
+            #add summary
+            if ($has_summary) {
+            echo '          <p class="infoscience_abstract">' . $publication['summary'][0] . '</p>';
+            }
+            echo '      </div>';
+            include($links_path);
+            echo '  </div>';
+            echo '</div>';
+
+            # TODO: sanitize this ?
+            $templated_publication = ob_get_clean();
+            $rendered .= $templated_publication;
         }
         return $rendered;
     }
