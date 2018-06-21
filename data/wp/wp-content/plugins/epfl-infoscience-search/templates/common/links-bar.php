@@ -1,5 +1,7 @@
 <?php
-
+if ($show_thumbnail && $publication['url']['icon'][0]) {
+    echo '<img class="record-illustration" src="' . $publication['url']['icon'][0] . '" class="record-illustration" alt="n/a">';
+}
 ?>
 <ul class="record-metadata">
 	<p></p>

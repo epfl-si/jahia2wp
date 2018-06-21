@@ -147,7 +147,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     }
 
     $attributes['show_summary'] = $attributes['show_summary'] === 'true' ? true : false;
-    $attributes['show_thumbnail'] = $attributes['show_thumnail'] === 'false' ? false : true;
+    $attributes['show_thumbnail'] = $attributes['show_thumbnail'] === 'true' ? true : false;
     $attributes['format'] = in_array($attributes['format'], ['short', 'detailed']) ? $attributes['format'] : 'short';
 
     $attributes['debug'] = $attributes['debug'] === 'true' ? true : false;
@@ -200,7 +200,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
                 }
             } else {
                 # use the self renderer
-                $page = HtmlInfoscienceRender::render($publications, $format, $show_summary);
+                $page = HtmlInfoscienceRender::render($publications, $format, $show_summary, $show_thumbnail);
             }
 
             // wrap the page

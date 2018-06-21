@@ -12,7 +12,7 @@ Class HtmlInfoscienceRender extends InfoscienceRender {
      * @param $publications: array of data converted from Infoscience
      * @return
      */
-    public static function render($publications, $format="short", $has_summary=false) {
+    public static function render($publications, $format="short", $has_summary=false, $show_thumbnail=false) {
         $rendered = '';
         $template_base_path = plugin_dir_path(__FILE__). 'templates/';
         $links_path = $template_base_path . 'common/' . 'links-bar.php';
