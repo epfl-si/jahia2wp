@@ -212,7 +212,7 @@ Class InfoscienceSearchShortCakeConfig
                         ),
                         array(
                             'label'         => esc_html__('Sort', 'epfl-infoscience'),
-                            'attr'          => 'order',
+                            'attr'          => 'sort',
                             'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_sort_options(),
                         ),

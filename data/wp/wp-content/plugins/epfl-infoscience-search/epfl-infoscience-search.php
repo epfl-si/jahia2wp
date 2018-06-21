@@ -52,7 +52,12 @@ define("INFOSCIENCE_SEARCH_URL", "https://infoscience.epfl.ch/search?");
             }
             return $value; 
         }],
-        'order' => ['so', null],
+        'sort' => ['so', function($value) {
+            if ($value == 'asc'){
+               return 'asc';
+            }
+            return 'desc'; 
+        }],
         'collection' => ['c', sanitize_text_field],
         'pattern2' => ['p2', sanitize_text_field],
         'field2' => ['f2', $convert_fields],
@@ -117,7 +122,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         'pattern' => '',
         'field' => 'any',  # "any", "author", "title", "year", "unit", "collection", "journal", "summary", "keyword", "issn", "doi"
         'limit' => 1000,  # 10,25,50,100,250,500,1000
-        'order' => 'desc',  # "asc", "desc"
+        'sort' => 'desc',  # "asc", "desc"
         # Advanced content
         'collection' => '',
         'pattern2' => '',
