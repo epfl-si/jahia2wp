@@ -697,7 +697,11 @@ class Box:
 
         snippets = element.getElementsByTagName("snippetListList")[0].getElementsByTagName("snippetList")
 
-        self.content = ""
+        # If box have title, we have to display it
+        if self.title != "":
+            self.content = "<h3>{}</h3>".format(self.title)
+        else:
+            self.content = ""
 
         for snippet in snippets:
             title = Utils.get_tag_attribute(snippet, "title", "jahia:value")
