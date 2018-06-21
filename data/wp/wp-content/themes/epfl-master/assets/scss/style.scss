@@ -2816,6 +2816,17 @@ ul.bottin {
     }
   }
   
+  .textBox {
+    @include clearfix;
+    
+    .box {
+      
+      &:nth-child(2n+1) {
+        clear: left;
+      }
+    }
+  }
+  
   .entry-content .right {
     margin-left: 25px;
     float: right;
