@@ -889,12 +889,10 @@ class WPExporter:
                     if box.type in [Box.TYPE_TOGGLE, Box.TYPE_TEXT, Box.TYPE_CONTACT, Box.TYPE_LINKS, Box.TYPE_FILES,
                                     Box.TYPE_INCLUDE, Box.TYPE_MEMENTO, Box.TYPE_ACTU, Box.TYPE_SNIPPETS,
                                     Box.TYPE_RSS]:
-                        widget_type = 'custom_html'
                         title = prepare_html(box.title)
                         content = prepare_html(box.content)
 
                     elif box.type == Box.TYPE_COLORED_TEXT:
-                        widget_type = 'custom_html'
                         title = ""
                         content = "[colored-box]"
                         content += prepare_html("<h3>{}</h3>".format(box.title))
@@ -904,12 +902,10 @@ class WPExporter:
                     # Box type not supported for now,
                     else:
                         logging.warning("Box type currently not supported for sidebar (%s)", box.type)
-                        widget_type = 'custom_html'
                         title = prepare_html("TODO ({}): {}".format(box.type, box.title))
                         content = prepare_html(box.content)
 
-                    cmd = 'widget add {} page-widgets {} --content="{}" --title="{}"'.format(
-                        widget_type,
+                    cmd = 'widget add custom_html page-widgets {} --content="{}" --title="{}"'.format(
                         widget_pos,
                         WPUtils.clean_html_comments(content),
                         title

@@ -14,6 +14,7 @@ import xml.dom.minidom
 import re
 import requests
 
+
 from urllib.parse import urlsplit
 from bs4 import BeautifulSoup
 
@@ -413,12 +414,6 @@ class Utils(object):
         Clean HTML comments and images base64
         """
         content = re.sub("(<!--.*?-->)", "", content)
-        if "data:image/png;base64" in content:
-            content = re.sub('(\"data:image/png;base64.*?\")', "", content)
-            logging.warning("Delete png images in base64")
-        if "data:image/jpeg;base64" in content:
-            content = re.sub('(\"data:image/jpeg;base64.*?\")', "", content)
-            logging.warning("Delete jpeg images in base64")
         return content
 
     def is_html(content):
@@ -452,3 +447,13 @@ class Utils(object):
         except:
             # URL seems to be invalid but not our problem, so we return it as it is.
             return url
+
+    @staticmethod
+    def get_random_string(length):
+        """
+        Generate a random string of asked length
+
+        :param length:
+        :return:
+        """
+        return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(length))
