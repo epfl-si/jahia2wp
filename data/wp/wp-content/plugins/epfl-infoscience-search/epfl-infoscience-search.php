@@ -185,39 +185,45 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     
         if (epfl_infoscience_url_exists( $url ) ) {
             $response = wp_remote_get( $url );
-            $marc_xml = wp_remote_retrieve_body( $response );
 
-            $publications = InfoscienceMarcConverter::convert_marc_to_array($marc_xml);
+            if ( is_wp_error( $response ) ) {
+                $error_message = $response->get_error_message();
+                echo "Something went wrong: $error_message";
+             } else {
+                $marc_xml = wp_remote_retrieve_body( $response );
 
-            if ($debug) {
-                $page = RawInfoscienceRender::render($publications, $url);
+                $publications = InfoscienceMarcConverter::convert_marc_to_array($marc_xml);
+
+                if ($debug) {
+                    $page = RawInfoscienceRender::render($publications, $url);
+                    return $page;
+                }
+
+                # try to load render from theme if available
+                if (has_action("epfl_infoscience_search_action")) {
+                    ob_start();
+                    try {
+                        do_action("epfl_infoscience_search_action", $publications);
+                        $page = ob_get_contents();
+                    } finally {
+                        ob_end_clean();
+                    }
+                } else {
+                    # use the self renderer
+                    $page = HtmlInfoscienceRender::render($publications, $format, $show_summary, $show_thumbnail);
+                }
+
+                // wrap the page
+                $page = '<div class="infoscienceBox">'.
+                            $page.
+                        '</div>';
+
+                // cache the result
+                wp_cache_set( $url, $page, 'epfl_infoscience_search' );
+
+                // return the page
                 return $page;
             }
-
-            # try to load render from theme if available
-            if (has_action("epfl_infoscience_search_action")) {
-                ob_start();
-                try {
-                    do_action("epfl_infoscience_search_action", $publications);
-                    $page = ob_get_contents();
-                } finally {
-                    ob_end_clean();
-                }
-            } else {
-                # use the self renderer
-                $page = HtmlInfoscienceRender::render($publications, $format, $show_summary, $show_thumbnail);
-            }
-
-            // wrap the page
-            $page = '<div class="infoscienceBox">'.
-                        $page.
-                    '</div>';
-
-            // cache the result
-            wp_cache_set( $url, $page, 'epfl_infoscience_search' );
-
-            // return the page
-            return $page;
         } else {
             $error = new WP_Error( 'not found', 'The url passed is not found', $url );
             epfl_infoscience_log( $error );
