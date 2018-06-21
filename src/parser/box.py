@@ -601,7 +601,7 @@ class Box:
 
         self.shortcode_name = 'epfl_toggle'
 
-        if Utils.get_tag_attribute(element, "opened", "jahia:value"):
+        if Utils.get_tag_attribute(element, "opened", "jahia:value") == 'true':
             state = 'open'
         else:
             state = 'close'
