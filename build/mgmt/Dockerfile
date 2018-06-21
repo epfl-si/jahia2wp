@@ -16,6 +16,7 @@ RUN apt-get -y update && apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
     python3-virtualenv \
+    python3-setuptools \
     virtualenv \
     screen \
     software-properties-common \

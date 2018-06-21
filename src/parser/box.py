@@ -180,6 +180,8 @@ class Box:
         else:
             self.set_box_unknown(element)
 
+        self.fix_youtube_iframes()
+
     def _set_scheduler_box(self, element, content):
         """set the attributes of a scheduler box"""
 
@@ -315,8 +317,9 @@ class Box:
             for combo in combo_list:
                 # We generate box content
                 box_content = Utils.get_tag_attribute(combo, "text", "jahia:value")
-                # linksList contain <link> tags exactly like linksBox, so we can just reuse
+                # filesList and linksList contain <link> tags exactly like linksBox, so we can just reuse
                 # the same code used to parse linksBox.
+                box_content += self._parse_files_to_list(combo)
                 box_content += self._parse_links_to_list(combo)
 
                 # if we have sort infos, we have to get field information in XML
@@ -659,15 +662,17 @@ class Box:
         max = nb_items
         feed_title = "yes"
         summary = "yes"
+        meta = "yes"
 
         if hide_title == "true":
             feed_title = "no"
 
         if detail_items != "true":
             summary = "no"
+            meta = "no"
 
-        self.content = "[feedzy-rss feeds=\"{}\" max=\"{}\" feed_title=\"{}\" summary=\"{}\" refresh=\"12_hours\"]" \
-            .format(feeds, max, feed_title, summary)
+        self.content = '[feedzy-rss feeds="{}" max="{}" feed_title="{}" summary="{}" refresh="12_hours" meta="{}"]' \
+            .format(feeds, max, feed_title, summary, meta)
 
     def set_box_links(self, element):
         """set the attributes of a links box"""
@@ -695,7 +700,11 @@ class Box:
 
         snippets = element.getElementsByTagName("snippetListList")[0].getElementsByTagName("snippetList")
 
-        self.content = ""
+        # If box have title, we have to display it
+        if self.title != "":
+            self.content = "<h3>{}</h3>".format(self.title)
+        else:
+            self.content = ""
 
         for snippet in snippets:
             title = Utils.get_tag_attribute(snippet, "title", "jahia:value")
@@ -879,6 +888,37 @@ class Box:
                                                                                  height,
                                                                                  query,
                                                                                  lang)
+
+    def fix_youtube_iframes(self):
+        """
+        Look for <iframe src="https://www.youtube.com... and replace it with a shortcode
+        :return:
+        """
+        soup = BeautifulSoup(self.content, 'html5lib')
+        soup.body.hidden = True
+
+        iframes = soup.find_all('iframe')
+
+        for iframe in iframes:
+
+            src = iframe.get('src')
+
+            if 'youtube.com' in src or 'youtu.be' in src:
+                width = iframe.get('width')
+                height = iframe.get('height')
+
+                # Creating <p> element to store shortcode content
+                p = soup.new_tag('p', 'youtube')
+                p.append('[su_youtube url="{}" width="{}" height="{}"]'.format(src,
+                                                                               width if width else '600',
+                                                                               height if height else '400'))
+
+                # if iframe's parent is a <p> we will replace it to avoid to have 2 nested <p>
+                elem_to_replace = iframe if iframe.parent.name != 'p' else iframe.parent
+                # Replacing the iframe with paragraph
+                elem_to_replace.replaceWith(p)
+
+        self.content = str(soup.body)
 
     def is_shortcode(self):
         return self.shortcode_name != ""
