@@ -56,8 +56,9 @@ class Item:
     the all_pages class method).
     """
     def __init__(self, etree, etree_elt):
-        self._etree = etree
-        self._elt   = etree_elt
+        self._etree      = etree
+        self._elt        = etree_elt
+        self.parent_id   = 0
 
     @classmethod
     def all(cls, etree):
