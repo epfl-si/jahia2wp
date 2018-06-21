@@ -413,6 +413,10 @@ a.a2a_button_{
   @include colored-text-box;
   @include clearfix;
   margin: 1.5em 0;
+  
+  table {
+    border-collapse: inherit;
+  }
 }
 
 .local-color-text {
