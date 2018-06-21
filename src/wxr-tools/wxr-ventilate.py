@@ -55,12 +55,13 @@ class Item:
     Polylang translation tables and even weirder instances (but see
     the all_pages class method).
     """
-    def __init__(self, etree_elt):
-        self._elt = etree_elt
+    def __init__(self, etree, etree_elt):
+        self._etree = etree
+        self._elt   = etree_elt
 
     @classmethod
     def all(cls, etree):
-        return [cls(elt) for elt in etree.xpath("//item")]
+        return [cls(etree, elt) for elt in etree.xpath("//item")]
 
     @classmethod
     def insert(cls, etree):
@@ -71,7 +72,7 @@ class Item:
             existing_items[0].addprevious(new_elt)
         else:
             etree.xpath("/rss/channel").append(new_elt)
-        return cls(new_elt)
+        return cls(etree, new_elt)
 
     def delete(self):
         self._elt.getparent().remove(self._elt)
@@ -97,6 +98,16 @@ class Item:
     def id(self, new_id):
         self.__id_node().text = str(new_id)
 
+    def ensure_id(self, int_direction = 1):
+        if self.id is None:
+            existing_ids = [item.id for item in self.all(self._etree)
+                            if item.id is not None]
+            if int_direction > 0:
+                self.id = max([0] + existing_ids) + 1
+            else:
+                self.id = min([0] + existing_ids) - 1
+        return self  # Chainable
+
     def __repr__(self):
         return '[Item %s]' % to_string(self._elt)
 
@@ -106,7 +117,7 @@ def demo():
     global srcdir, v, i
     srcdir = (subprocess.run("git rev-parse --show-toplevel", stdout=subprocess.PIPE, shell=True).stdout)[:-1]
     v = Ventilator("%s/wxr/cri.xml" % srcdir.decode("utf-8"))
-    i = Item.insert(v.etree)
+    i = Item.insert(v.etree).ensure_id()
     print(repr(i.id))
     i.id = 5
     print(repr(i.id))
