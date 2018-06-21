@@ -48,6 +48,54 @@ WP_NSMAP = {
     'excerpt': 'http://wordpress.org/export/1.2/excerpt/'
 }
 
+class XmlElementProperty:
+    """A property for XML sub-element getters/setters."""
+    def __init__(self, ns_short, element_name, type=str):
+        """Returns: An object with __get__ and __set__ methods that does the
+        combined work of @property / @xx.setter for a datum of type
+        `type' materialized as an XML child element
+        `ns_short:element_name'
+        """
+        self._ns_short = ns_short
+        self._ns_long = WP_NSMAP[ns_short]
+        self._element_name = element_name
+        self._cast = type
+        self._uncast = str  # Good enough for type in (str, int)
+
+    def _get_node(self, that):
+        # So yeah, Demeter violations everywhere. Out of necessity,
+        # XmlElementProperty is a "friend" of all the classes it applies to.
+        nodes = that._elt.xpath("%s:%s" % (self._ns_short, self._element_name),
+                                namespaces=WP_NSMAP)
+        if len(nodes) == 1:
+            return nodes[0]
+        elif len(nodes) == 0:
+            return None
+        else:
+            raise WXMLError("%d %s:%s's found, expected zero or one! - %s" %
+                            (len(nodes), self._ns_short, self._element_name, repr(that)))
+
+    def _get_or_create_node(self, that):
+        node = self._get_node(that)
+        if node is not None:
+            return node
+        new_node = lxml.etree.Element("{%s}%s" %
+                                      (self._ns_long, self._element_name))
+        that._elt.append(new_node)
+        return new_node
+
+    def __get__(self, that, unused_type_of_that=None):
+        node = self._get_node(that)
+        if node is None:
+            return None
+        value_text = node.text
+        if not value_text:
+            return None
+        return self._cast(value_text)
+        
+    def __set__(self, that, newval):
+        self._get_or_create_node(that).text = self._uncast(newval)
+
 class Item:
     """An <item> in the XML document.
 
@@ -55,11 +103,6 @@ class Item:
     Polylang translation tables and even weirder instances (but see
     the all_pages class method).
     """
-    def __init__(self, etree, etree_elt):
-        self._etree      = etree
-        self._elt        = etree_elt
-        self.parent_id   = 0
-
     @classmethod
     def all(cls, etree):
         return [cls(etree, elt) for elt in etree.xpath("//item")]
@@ -75,30 +118,18 @@ class Item:
             etree.xpath("/rss/channel").append(new_elt)
         return cls(etree, new_elt)
 
+    def __init__(self, etree, etree_elt):
+        self._etree      = etree
+        self._elt        = etree_elt
+        self.parent_id   = 0
+
+    id        = XmlElementProperty('wp', 'post_id',     int)
+    parent_id = XmlElementProperty('wp', 'post_parent', int)
+    post_name = XmlElementProperty('wp', 'post_name',   str)
+
     def delete(self):
         self._elt.getparent().remove(self._elt)
         self._elt = 'DELETED'
-
-    def __wp_node(self, element_name):
-        nodes = self._elt.xpath("wp:%s" % element_name, namespaces=WP_NSMAP)
-        if len(nodes) == 1:
-            return nodes[0]
-        elif len(nodes) == 0:
-            new_post_id = lxml.etree.Element("{%s}%s" %
-                                             (WP_NSMAP["wp"], element_name))
-            self._elt.append(new_post_id)
-            return new_post_id
-        else:
-            raise WXMLError("%d wp:post_id's in item!" % len(nodes))
-
-    @property
-    def id(self):
-        id_text = self.__wp_node('post_id').text
-        return None if id_text is None else int(id_text)
-
-    @id.setter
-    def id(self, new_id):
-        self.__wp_node('post_id').text = str(new_id)
 
     def ensure_id(self, int_direction = 1):
         if self.id is None:
@@ -109,15 +140,6 @@ class Item:
             else:
                 self.id = min([0] + existing_ids) - 1
         return self  # Chainable
-
-    @property
-    def parent_id(self):
-        id_text = self.__wp_node('post_parent').text
-        return None if id_text is None else int(id_text)
-        
-    @parent_id.setter
-    def parent_id(self, new_id):
-        self.__wp_node('post_parent').text = str(new_id)
 
     def __repr__(self):
         return '[Item %s]' % to_string(self._elt)
@@ -131,9 +153,11 @@ def demo():
     i = Item.insert(v.etree).ensure_id()
     print(repr(i.id))
     i.id = 5
+    i.post_name = 'Just a test'
     print(repr(i.id))
     print(to_string(i))
     i.parent_id = 4
+    i.post_name = 'Just another test'
     print(to_string(i))
 
 if __name__ == '__main__':
