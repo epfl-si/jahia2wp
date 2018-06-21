@@ -887,7 +887,8 @@ class WPExporter:
                         continue
 
                     if box.type in [Box.TYPE_TOGGLE, Box.TYPE_TEXT, Box.TYPE_CONTACT, Box.TYPE_LINKS, Box.TYPE_FILES,
-                                    Box.TYPE_INCLUDE, Box.TYPE_MEMENTO, Box.TYPE_ACTU, Box.TYPE_SNIPPETS]:
+                                    Box.TYPE_INCLUDE, Box.TYPE_MEMENTO, Box.TYPE_ACTU, Box.TYPE_SNIPPETS,
+                                    Box.TYPE_RSS]:
                         widget_type = 'custom_html'
                         title = prepare_html(box.title)
                         content = prepare_html(box.content)
@@ -1040,8 +1041,8 @@ class WPExporter:
                         logging.error("Submenu creation: No page found for UUID %s", menu_item.points_to)
                         continue
 
-                    if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict and \
-                            child.contents[lang].wp_id:  # FIXME For unknown reason, wp_id is sometimes None
+                    # FIXME For unknown reason, wp_id is sometimes None
+                    if lang in child.contents and child.contents[lang].wp_id:
 
                         # If we have a menu entry title and it is different as the page title, we take the menu title
                         menu_txt = menu_item.txt if menu_item.txt != "" else child.contents[lang].menu_title
