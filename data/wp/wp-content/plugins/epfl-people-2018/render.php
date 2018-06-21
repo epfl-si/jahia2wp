@@ -44,7 +44,7 @@ Class PeopleRender
     var_dump($items);
     $debug = ob_get_clean();
 		
-    return $debug;	
+    return "<pre>$debug</pre>";	
   }
 }
 
