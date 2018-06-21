@@ -27,11 +27,12 @@ Class InfoscienceMarcConverter
     * urls => icon, fulltext
     */
     public static function parse_files($record, $field) {
-        $file_urls  = InfoscienceMarcConverter::parse_text($record, '856', '4', '', ['u']);
+        $file_urls  = InfoscienceMarcConverter::parse_all($record, '856', '4', '', ['u']);
 
         $sorted_urls = [];
 
         foreach($file_urls as $url){
+            $url = $url->getData();
             if (preg_match('/\.pdf$/', strtolower($url))) {
                 $sorted_urls['fulltext'][] = $url;
             } else {
