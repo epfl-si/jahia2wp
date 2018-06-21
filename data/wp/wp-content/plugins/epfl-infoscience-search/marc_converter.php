@@ -104,7 +104,7 @@ Class InfoscienceMarcConverter
     public static function parse_authors($record, $field, $ind1, $ind2, $subfields) {
         $compute_name = function ($full_name) {
             $names = explode(',', $full_name);
-            $family = count(names) > 0 ? trim($names[0]) : '';
+            $family = count($names) > 0 ? trim($names[0]) : '';
             $fnames = count($names) > 1 ? explode(' ', $names[1]) : '';
 
             $initname = "";
@@ -113,7 +113,6 @@ Class InfoscienceMarcConverter
                 if (!$fname || empty($fname)) {
                     continue;
                 }
-                
 
                 $fname = trim($fname);
                 
@@ -134,7 +133,8 @@ Class InfoscienceMarcConverter
                 }
                 else {
                     $fname = trim($fname);
-                    if (count($fname) > 0) {
+
+                    if (!empty($fname)) {
                         $initname .= trim($fname[0]) . ". ";
                     }
                 }
@@ -145,7 +145,6 @@ Class InfoscienceMarcConverter
             }
 
             return $initname;
-
         };
 
 
