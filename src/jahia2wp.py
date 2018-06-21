@@ -477,7 +477,8 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     # Deactivating plugins can improve import time by ~80%
     # WARNING: be careful with the list order. Plugins will be reactivated after import by using list order. So if
     # there are dependencies between plugins, arrange them in the right way.
-    deactivated_plugins = ['epfl-faq',
+    deactivated_plugins = ['mainwp-child',
+                           'epfl-faq',
                            'epfl-grid',
                            'epfl-infoscience',
                            'epfl-map',
