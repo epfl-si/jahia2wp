@@ -116,12 +116,20 @@ class Item:
             existing_items[0].addprevious(new_elt)
         else:
             etree.xpath("/rss/channel").append(new_elt)
-        return cls(etree, new_elt)
+        new_item = cls(etree, new_elt)
+        new_item.parent_id = 0
+        return new_item
+
+    @classmethod
+    def find_by_id(cls, etree, id):
+        for item in cls.all(etree):
+            if item.id == id:
+                return item
+        return None
 
     def __init__(self, etree, etree_elt):
         self._etree      = etree
         self._elt        = etree_elt
-        self.parent_id   = 0
 
     id        = XmlElementProperty('wp', 'post_id',     int)
     parent_id = XmlElementProperty('wp', 'post_parent', int)
@@ -129,6 +137,9 @@ class Item:
 
     def delete(self):
         self._elt.getparent().remove(self._elt)
+        for other in self.all(self._etree):
+            if other.parent_id == self.id:
+                other.parent_id = 0
         self._elt = 'DELETED'
 
     def ensure_id(self, int_direction = 1):
@@ -159,6 +170,10 @@ def demo():
     i.parent_id = 4
     i.post_name = 'Just another test'
     print(to_string(i))
+
+    print("Before: %s" % to_string(Item.find_by_id(v.etree, 39)))
+    Item.find_by_id(v.etree, 41).delete()  # 41 is parent of 39 in cri.xml
+    print(to_string(Item.find_by_id(v.etree, 39)))
 
 if __name__ == '__main__':
     args = docopt(__doc__)
