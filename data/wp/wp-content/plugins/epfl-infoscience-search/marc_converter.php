@@ -201,11 +201,11 @@ Class InfoscienceMarcConverter
         $record_array['publication_year'] = InfoscienceMarcConverter::parse_text($record, '269', '', '', ['a']);
         $record_array['publication_page'] = InfoscienceMarcConverter::parse_text($record, '300', '', '', ['a']);
 
-        /* if needed, uncomment this generic 
+        /* if needed, uncomment this generic datas
         $record_array['description'] = InfoscienceMarcConverter::parse_all($record, '300');
         */
         
-        /* if needed, uncomment
+        /* if needed, uncomment this generic datas
         $record_array['subjects'] = InfoscienceMarcConverter::parse_all($record, ['600', '610', '611', '630', '648', '650',
             '651', '653', '654', '655', '656', '657', '658', '662', '690',
             '691', '696', '697', '698', '699']);
