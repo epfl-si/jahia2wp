@@ -521,6 +521,27 @@ a.a2a_button_{
   }
 }
 
+.button {
+  background: transparent;
+  color: #454545;
+  font-size: 1rem;
+  height: auto;
+  line-height: 1;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 0;
+  text-transform: none;
+  
+  .label {
+    font-family: Georgia,'Times New Roman',Times,serif;
+    font-size: 12px;
+    letter-spacing: 1px;
+    font-style: italic;
+    display: inline-block;
+    cursor: pointer;
+  }
+}
+
 /* --- People boxes --- */
 
 .bottin * {
