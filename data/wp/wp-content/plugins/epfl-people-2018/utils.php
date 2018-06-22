@@ -14,12 +14,13 @@ Class PeopleUtils
   {
     $response = wp_remote_get($url);
     
-    if (is_array($response))
+    if (is_wp_error($response))
     {
-      $header = $response['headers'];
-      $data = $response['body'];
-      
-      return json_decode($data);     
+      return $response->get_error_message();
+    }
+    else
+    { 
+      return json_decode($response['body']);     
     }
   }
 }
