@@ -1,0 +1,5 @@
+msgid "Unit"
+msgstr "Unité"
+
+msgid "Add People shortcode"
+msgstr "Ajouter un shortcode people"
