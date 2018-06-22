@@ -13,17 +13,18 @@ make a number of independent WordPress instances appear to the public
 as one large site, such as www.epfl.ch and vpsi.epfl.ch.
 
 Usage:
-  wxr-ventilate.py [options] <input_xml_file>
+  wxr-ventilate.py [options] --new-site-url-base=<url> <input_xml_file>
 
 Options:
-   --filter
-   --add-parents <relativeuri>
+   --filter        <url>
+   --add-structure <relativeuri>
 
 """
 from docopt import docopt
 import lxml.etree
 import phpserialize
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlunparse
+import logging
 
 # https://stackoverflow.com/a/45488820/435004
 try:
@@ -35,13 +36,69 @@ except ModuleNotFoundError:
 class WXRError(Exception):
     pass
 
+
+def normalize_site_url(url_text):
+    url = urlparse(url_text)
+    # Believe it or not, _replace is public and documented API
+    url = url._replace(scheme='https')
+    if not url.path.endswith('/'):
+        url = url._replace(path=url.path + '/')
+    return urlunparse(url)
+
+
 class Ventilator:
     def __init__(self, file, flags):
         self.etree = lxml.etree.parse(file)
         self.flags = flags
 
+    @property
+    def new_root_url(self):
+        return normalize_site_url(self.flags['--new-site-url-base'])
+
     def ventilate(self):
+        if self.flags['--filter']:
+            raise Exception('UNIMPLEMENTED - Filter')
+        if self.flags['--add-structure']:
+            path_components = self.flags['--add-structure'].split('/')
+            if path_components[0] == '':
+                # Tolerate incorrect --add-parents=/foo/bar
+                path_components.pop(0)
+            homepage = self.homepageify()
+            self.add_structure(path_components, homepage)
+
         return self.etree
+
+    def homepageify(self):
+        """Rearrange all pages under a single home page (modulo Polylang)."""
+
+        homepage = Page.homepage(self.etree)
+        if homepage is None:
+            return
+
+        translations = homepage.translations or {}
+        do_not_reparent = set(t.id for t in homepage.translations_list)
+
+        for page in Page.all(self.etree):
+            if page.id not in do_not_reparent:
+                page.parent_id = translations.get(page.language, homepage).id
+
+        return homepage
+
+    def add_structure(self, path_components, above_this_page):
+        assert len(path_components) > 0
+
+        previous_id = 0
+        for path_component in path_components[:-1]:
+            structural_page = Page.insert_structural(
+                self.etree, path_component)
+            structural_page.post_title = '[%s]' % path_component
+            structural_page.parent_id = previous_id
+            previous_id = structural_page.id
+
+        for p in above_this_page.translations_list:
+            p.parent_id = previous_id
+        above_this_page.post_slug = path_components[-1]
+
 
 def to_string(what):
     if (isinstance(what, lxml.etree._Element) or
@@ -168,7 +225,8 @@ class Item(XMLElement):
     parent_id      = XmlElementProperty('wp:post_parent',    int)
     guid           = XmlElementProperty('guid',              str)
     link           = XmlElementProperty('link',              str)
-    post_name      = XmlElementProperty('wp:post_name',      str)
+    post_title     = XmlElementProperty('title',             str)
+    post_slug      = XmlElementProperty('wp:post_name',      str)
     post_type      = XmlElementProperty('wp:post_type',      str)
     post_status    = XmlElementProperty('wp:status',         str)
     comment_status = XmlElementProperty('wp:comment_status', str)
@@ -273,14 +331,14 @@ class Page(ElementSubset):
         return [cls(i) for i in Item.all(etree) if i.post_type == 'page']
 
     @classmethod
-    def insert_structural(cls, etree, guid):
+    def insert_structural(cls, etree, post_slug):
         new_item = Item.insert(etree)
         new_item.ensure_id(-1)
         new_item.post_type      = 'page'
         new_item.post_status    = 'publish'
         new_item.ping_status    = 'closed'
         new_item.comment_status = 'closed'
-        new_item.guid           = guid
+        new_item.post_slug      = post_slug
         return cls(new_item)
 
     @classmethod
@@ -330,8 +388,19 @@ class Page(ElementSubset):
         else:
             return TranslationSet.find_by_slug(self._etree, translation_slug).posts
 
+    @property
+    def translations_list(self):
+        translations = self.translations
+        if translations is None:
+            return [self]
+        retval = list(translations.values())
+        if self.id not in set(t.id for t in retval):
+            logging.warn('Incoherent Polylang data - %s missing in its own translation list!', t)
+            retval.append(self)
+        return retval
+
     def __repr__(self):
-        return '<Page post_id=%d post_name="%s">' % (self.id, self.post_name)
+        return '<Page post_id=%d post_slug="%s">' % (self.id, self.post_slug)
 
 class TranslationSet(ElementSubset):
     """Model for a term of Polylang's post_translations taxonomy."""
@@ -360,6 +429,13 @@ class TranslationSet(ElementSubset):
     def __repr__(self):
         return repr(self._payload)
 
+
+if __name__ == '__main__':
+    args = docopt(__doc__)
+    v = Ventilator(args["<input_xml_file>"], args)
+    print(to_string(v.ventilate()))
+
+
 def demo():
     """For running in ipython - Not used in production"""
     import subprocess
@@ -370,11 +446,11 @@ def demo():
     i = Item.insert(v.etree).ensure_id()
     print(repr(i.id))
     i.id = 5
-    i.post_name = 'Just a test'
+    i.post_slug = 'Just a test'
     print(repr(i.id))
     print(to_string(i))
     i.parent_id = 4
-    i.post_name = 'Just another test'
+    i.post_slug = 'Just another test'
     print(to_string(i))
 
     print("Before: %s" % to_string(Item.find_by_id(v.etree, 39)))
@@ -384,8 +460,3 @@ def demo():
     secure_it = lxml.etree.parse(wxrdir + 'secure-it-next.xml')
     pages = Page.all(secure_it)
     translations = pages[0].translations
-
-if __name__ == '__main__':
-    args = docopt(__doc__)
-    v = Ventilator(args["<input_xml_file>"], args)
-    print(to_string(v.ventilate()))
