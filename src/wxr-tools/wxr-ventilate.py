@@ -23,6 +23,7 @@ Options:
 from docopt import docopt
 import lxml.etree
 import phpserialize
+from urllib.parse import urlparse
 
 # https://stackoverflow.com/a/45488820/435004
 try:
@@ -288,6 +289,15 @@ class Page(ElementSubset):
                                  if i.id == id)
         assert this_item is None or this_item.post_type == 'page'
         return None if this_item is None else cls(this_item)
+
+    @classmethod
+    def homepage(cls, etree):
+        def url_sig(url):
+            return urlparse(url.rstrip('/')).path
+
+        homepage_path = url_sig(Channel.the(etree).base_url)
+        return sole(p for p in cls.all(etree)
+                    if homepage_path == url_sig(p.link))
 
     @property
     def language(self):
