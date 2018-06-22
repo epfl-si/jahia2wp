@@ -22,15 +22,24 @@ Options:
 """
 from docopt import docopt
 import lxml.etree
+import phpserialize
 
-class WXMLError(Exception):
+# https://stackoverflow.com/a/45488820/435004
+try:
+    from .basics import sole, sole_or_none, classproperty
+except ModuleNotFoundError:
+    from basics import sole, sole_or_none, classproperty
+
+
+class WXRError(Exception):
     pass
 
 class Ventilator:
-    def __init__(self, file):
+    def __init__(self, file, flags):
         self.etree = lxml.etree.parse(file)
+        self.flags = flags
 
-    def ventilate(self, flags):
+    def ventilate(self):
         return self.etree
 
 def to_string(what):
@@ -40,48 +49,82 @@ def to_string(what):
     else:
         return str(what)
 
-WP_NSMAP = {
-    'content': 'http://purl.org/rss/1.0/modules/content/',
-    'dc'     : 'http://purl.org/dc/elements/1.1/',
-    'wp'     : 'http://wordpress.org/export/1.2/',
-    'wfw'    : 'http://wellformedweb.org/CommentAPI/',
-    'excerpt': 'http://wordpress.org/export/1.2/excerpt/'
-}
+class QName:
+    """A Qualified Name for an XML element."""
+
+    @classproperty
+    def namespaces(cls):
+        return {
+            'content': 'http://purl.org/rss/1.0/modules/content/',
+            'dc'     : 'http://purl.org/dc/elements/1.1/',
+            'wp'     : 'http://wordpress.org/export/1.2/',
+            'wfw'    : 'http://wellformedweb.org/CommentAPI/',
+            'excerpt': 'http://wordpress.org/export/1.2/excerpt/'
+        }
+
+    @classmethod
+    def xpath(cls, xpathable, xpath):
+        return xpathable.xpath(xpath, namespaces=cls.namespaces)
+
+    def __init__(self, shortform):
+        self._shortform = shortform
+        pieces = shortform.split(':')
+        if len(pieces) == 1:
+            self._ns_short     = None
+            self._element_name = pieces[0]
+        else:
+            self._ns_short     = pieces[0]
+            self._element_name = pieces[1]
+
+    @classmethod
+    def cast(cls, that):
+        if isinstance(that, cls):
+            return that
+        else:
+            return cls(str(that))
+
+    @property
+    def short(self):
+        return self._shortform
+
+    @property
+    def long(self):
+        if self._ns_short is not None:
+            return "{%s}%s" % (self.namespaces[self._ns_short],
+                               self._element_name)
+        else:
+            return self._element_name
+
+    def __str__(self):
+        return self._shortform
+
 
 class XmlElementProperty:
     """A property for XML sub-element getters/setters."""
-    def __init__(self, ns_short, element_name, type=str):
+    def __init__(self, element_name, type=str):
         """Returns: An object with __get__ and __set__ methods that does the
         combined work of @property / @xx.setter for a datum of type
-        `type' materialized as an XML child element
-        `ns_short:element_name'
+        `type' materialized as an XML child element `element_name'
         """
-        self._ns_short = ns_short
-        self._ns_long = WP_NSMAP[ns_short]
-        self._element_name = element_name
+        self._qname = QName.cast(element_name)
         self._cast = type
         self._uncast = str  # Good enough for type in (str, int)
 
+    def _elt(self, that):
+        # Out of necessity, XmlElementProperty is a "friend" of all
+        # the classes it applies to. This method concentrates the
+        # required Demeter violations in a single place.
+        return that._elt
+
     def _get_node(self, that):
-        # So yeah, Demeter violations everywhere. Out of necessity,
-        # XmlElementProperty is a "friend" of all the classes it applies to.
-        nodes = that._elt.xpath("%s:%s" % (self._ns_short, self._element_name),
-                                namespaces=WP_NSMAP)
-        if len(nodes) == 1:
-            return nodes[0]
-        elif len(nodes) == 0:
-            return None
-        else:
-            raise WXMLError("%d %s:%s's found, expected zero or one! - %s" %
-                            (len(nodes), self._ns_short, self._element_name, repr(that)))
+        return sole_or_none(QName.xpath(self._elt(that),self._qname.short))
 
     def _get_or_create_node(self, that):
         node = self._get_node(that)
         if node is not None:
             return node
-        new_node = lxml.etree.Element("{%s}%s" %
-                                      (self._ns_long, self._element_name))
-        that._elt.append(new_node)
+        new_node = lxml.etree.Element(self._qname.long)
+        self._elt(that).append(new_node)
         return new_node
 
     def __get__(self, that, unused_type_of_that=None):
@@ -96,16 +139,39 @@ class XmlElementProperty:
     def __set__(self, that, newval):
         self._get_or_create_node(that).text = self._uncast(newval)
 
-class Item:
+
+class XMLElement:
+    """Abstract base class for Item and Channel."""
+    def __init__(self, etree, etree_elt):
+        """Private constructor, don't call directly."""
+        self._etree      = etree
+        self._elt        = etree_elt
+
+    @classmethod
+    def all(cls, etree):
+        return [cls(etree, elt)
+                for elt in QName.xpath(etree, '//' + cls.element_name)]
+
+
+class Item(XMLElement):
     """An <item> in the XML document.
 
     An item represents a WordPress post of any type, including attachments,
     Polylang translation tables and even weirder instances (but see
-    the all_pages class method).
+    Page class).
     """
-    @classmethod
-    def all(cls, etree):
-        return [cls(etree, elt) for elt in etree.xpath("//item")]
+
+    element_name = 'item'  # Used by superclass
+
+    id             = XmlElementProperty('wp:post_id',        int)
+    parent_id      = XmlElementProperty('wp:post_parent',    int)
+    guid           = XmlElementProperty('guid',              str)
+    link           = XmlElementProperty('link',              str)
+    post_name      = XmlElementProperty('wp:post_name',      str)
+    post_type      = XmlElementProperty('wp:post_type',      str)
+    post_status    = XmlElementProperty('wp:status',         str)
+    comment_status = XmlElementProperty('wp:comment_status', str)
+    ping_status    = XmlElementProperty('wp:ping_status',    str)
 
     @classmethod
     def insert(cls, etree):
@@ -122,18 +188,8 @@ class Item:
 
     @classmethod
     def find_by_id(cls, etree, id):
-        for item in cls.all(etree):
-            if item.id == id:
-                return item
-        return None
-
-    def __init__(self, etree, etree_elt):
-        self._etree      = etree
-        self._elt        = etree_elt
-
-    id        = XmlElementProperty('wp', 'post_id',     int)
-    parent_id = XmlElementProperty('wp', 'post_parent', int)
-    post_name = XmlElementProperty('wp', 'post_name',   str)
+        return sole_or_none(item for item in cls.all(etree)
+                            if item.id == id)
 
     def delete(self):
         self._elt.getparent().remove(self._elt)
@@ -155,12 +211,152 @@ class Item:
     def __repr__(self):
         return '[Item %s]' % to_string(self._elt)
 
+
+class Channel(XMLElement):
+    """A <channel> element in the XML document."""
+
+    element_name = 'channel'  # Used by superclass
+
+    base_url = XmlElementProperty('link', str)
+
+    @classmethod
+    def the(cls, etree):
+        return sole(cls.all(etree))
+
+class Term(XMLElement):
+    element_name = 'wp:term'
+
+    taxonomy    = XmlElementProperty('wp:term_taxonomy', str)
+    slug        = XmlElementProperty('wp:term_slug',     str)
+    name        = XmlElementProperty('wp:term_name',     str)
+    description = XmlElementProperty('wp:term_name',     str)
+
+    @classmethod
+    def find(cls, etree, taxonomy, slug):
+        return sole_or_none(
+            term for term in cls.all(etree)
+            if term.taxonomy == taxonomy and term.slug == slug)
+
+
+class ElementSubset:
+    """Abstract superclasses for model classes that deal with a subset
+       of instances of one of the XMLElement subclasses (e.g. Page for Item;
+       Translation for Term).
+    """
+    def __init__(self, delegate):
+        """Object constructor.
+
+        Arguments:
+            item: The XMLElement instance that represents this ElementSubset
+                  instance. We use delegation, not inheritance: e.g.,
+                  a Page object has-a Item.
+        """
+        self._delegate = delegate
+
+    def __getattr__(self, attr):
+        """Delegate whenever an unknown method is called."""
+        return getattr(self._delegate, attr)
+
+    def __setattr__(self, attr, newval):
+        """Delegate setter iff the attribute exists in delegate."""
+        if attr == '_delegate' or not hasattr(self._delegate, attr):
+            return object.__setattr__(self, attr, newval)
+        else:
+            return setattr(self._delegate, attr, newval)
+
+
+class Page(ElementSubset):
+    """Model for WordPress "actual" pages (with post_type='page')."""
+    @classmethod
+    def all(cls, etree):
+        return [cls(i) for i in Item.all(etree) if i.post_type == 'page']
+
+    @classmethod
+    def insert_structural(cls, etree, guid):
+        new_item = Item.insert(etree)
+        new_item.ensure_id(-1)
+        new_item.post_type      = 'page'
+        new_item.post_status    = 'publish'
+        new_item.ping_status    = 'closed'
+        new_item.comment_status = 'closed'
+        new_item.guid           = guid
+        return cls(new_item)
+
+    @classmethod
+    def by_id(cls, etree, id):
+        this_item = sole_or_none(i for i in Item.all(etree)
+                                 if i.id == id)
+        assert this_item is None or this_item.post_type == 'page'
+        return None if this_item is None else cls(this_item)
+
+    @property
+    def language(self):
+        """The Polylang language set for this page.
+
+        Returns: A string like "fr" or "en", or None."""
+        category_ptr = sole_or_none(
+            self._elt.xpath('category[@domain="language"]'))
+        if category_ptr is None:
+            return None
+        else:
+            return sole(category_ptr.xpath('@nicename'))
+
+    @property
+    def _translation_slug(self):
+        """Returns: A string that looks like pll_1234567abcdef."""
+        category_ptr = sole_or_none(
+            self._elt.xpath('category[@domain="post_translations"]'))
+        if category_ptr is None:
+            return None
+        else:
+            return sole(category_ptr.xpath('@nicename'))
+
+    @property
+    def translations(self):
+        """Returns: A dict mapping languages to Page instances."""
+        translation_slug = self._translation_slug
+        if translation_slug is None:
+            return None
+        else:
+            return TranslationSet.find_by_slug(self._etree, translation_slug).posts
+
+    def __repr__(self):
+        return '<Page post_id=%d post_name="%s">' % (self.id, self.post_name)
+
+class TranslationSet(ElementSubset):
+    """Model for a term of Polylang's post_translations taxonomy."""
+
+    @classmethod
+    def find_by_slug(cls, etree, slug):
+        term = Term.find(etree, 'post_translations', slug)
+        if term is None:
+            return None
+        else:
+            return cls(term)
+
+    @property
+    def _payload(self):
+        payload_text = sole(QName.xpath(self._elt, 'wp:term_description')).text.encode('utf-8')
+        return phpserialize.loads(payload_text, decode_strings=True)
+
+    @property
+    def posts(self):
+        translation_ids = self._payload
+        if translation_ids is None:
+            return None
+        return {lang: Page.by_id(self._etree, id)
+                 for (lang, id) in translation_ids.items() }
+
+    def __repr__(self):
+        return repr(self._payload)
+
 def demo():
     """For running in ipython - Not used in production"""
     import subprocess
-    global srcdir, v, i
+    global srcdir, v, i, wxrdir, secure_it
     srcdir = (subprocess.run("git rev-parse --show-toplevel", stdout=subprocess.PIPE, shell=True).stdout)[:-1]
-    v = Ventilator("%s/wxr/cri.xml" % srcdir.decode("utf-8"))
+    wxrdir = '%s/wxr/' % srcdir.decode('utf-8')
+    v = Ventilator(wxrdir + 'cri.xml', {})
     i = Item.insert(v.etree).ensure_id()
     print(repr(i.id))
     i.id = 5
@@ -175,7 +371,11 @@ def demo():
     Item.find_by_id(v.etree, 41).delete()  # 41 is parent of 39 in cri.xml
     print(to_string(Item.find_by_id(v.etree, 39)))
 
+    secure_it = lxml.etree.parse(wxrdir + 'secure-it-next.xml')
+    pages = Page.all(secure_it)
+    translations = pages[0].translations
+
 if __name__ == '__main__':
     args = docopt(__doc__)
-    v = Ventilator(args["<input_xml_file>"])
-    print(to_string(v.ventilate(args)))
+    v = Ventilator(args["<input_xml_file>"], args)
+    print(to_string(v.ventilate()))
