@@ -100,7 +100,11 @@ class Ventilator:
 
         for p in above_this_page.translations_list:
             p.parent_id = previous_id
-        above_this_page.post_slug = path_components[-1]
+            if p.id == above_this_page.id :
+                distinctive_suffix = ''
+            else:
+                distinctive_suffix = '-' + p.language
+            p.post_slug = path_components[-1] + distinctive_suffix
 
 
 def to_string(what):
