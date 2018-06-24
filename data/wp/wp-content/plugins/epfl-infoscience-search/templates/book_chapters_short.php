@@ -7,6 +7,7 @@
 
     if ($publication['title']) {
         echo "<span><strong>" . $publication['title'][0] . "</strong></span>";
+        echo "<span>";
         if ($publication['journal'][0]['publisher'] || 
             $publication['journal'][0]['publication_location'] || 
             $publication['journal'][0]['publication_institution'] ||
@@ -15,6 +16,7 @@
         } else {
             echo ". ";
         }
+        echo "</span>";
     }
         
     if ($publication['journal'][0]['publisher']) {
