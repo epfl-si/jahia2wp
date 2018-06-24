@@ -16,8 +16,8 @@ Usage:
   wxr-ventilate.py [options] --new-site-url-base=<url> <input_xml_file>
 
 Options:
-   --filter        <url>
-   --add-structure <relativeuri>
+   --filter=<url>
+   --add-structure=<relativeuri>
 
 """
 from docopt import docopt
@@ -57,7 +57,7 @@ class Ventilator:
 
     def ventilate(self):
         if self.flags['--filter']:
-            raise Exception('UNIMPLEMENTED - Filter')
+            logging.warn('UNIMPLEMENTED: --filter')
         if self.flags['--add-structure']:
             path_components = self.flags['--add-structure'].split('/')
             if path_components[0] == '':
@@ -448,7 +448,7 @@ def demo():
     import subprocess
     global srcdir, v, i, wxrdir, secure_it
     srcdir = (subprocess.run("git rev-parse --show-toplevel", stdout=subprocess.PIPE, shell=True).stdout)[:-1]
-    wxrdir = '%s/wxr/' % srcdir.decode('utf-8')
+    wxrdir = '%s/src/ventilation/wxr-src/' % srcdir.decode('utf-8')
     v = Ventilator(wxrdir + 'cri.xml', {})
     i = Item.insert(v.etree).ensure_id()
     print(repr(i.id))

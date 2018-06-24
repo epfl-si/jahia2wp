@@ -11,7 +11,7 @@ VENTILATION_CSV   = ventilation.csv
 SOURCES_INVENTORY = $(VENTILATION_DIR)/hosts/ventilation-source-wordpresses
 
 .PHONY: all
-all: wxr-src
+all: wxr-ventilated
 
 $(SOURCES_INVENTORY) hosts/group_vars/ventilation-source-wordpresses: $(VENTILATION_CSV)
 	@mkdir hosts 2>/dev/null || true
@@ -21,8 +21,11 @@ wxr-src: $(SOURCES_INVENTORY)
 	@mkdir "$@" 2>/dev/null || true
 	ansible-playbook $(JAHIA2WP_TOPDIR)/ansible/dump -i $(dir $(SOURCES_INVENTORY)) -l ventilation-source-wordpresses -e "to=$(VENTILATION_DIR)/wxr-src"
 
+wxr-ventilated: wxr-src $(VENTILATION_CSV)
+	python3 ./ventilate.py $(VENTILATION_CSV) wxr-src $@
+
 clean:
-	rm -rf hosts/ wxr-src/
+	rm -rf hosts/ wxr-src/ wxr-ventilated/
 
 .PHONY: _debug
 _debug:

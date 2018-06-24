@@ -15,7 +15,6 @@ Usage:
 from docopt import docopt
 from memoize import mproperty
 from urllib.parse import urlparse
-import subprocess
 
 import os, sys
 dirname = os.path.dirname

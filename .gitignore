@@ -22,3 +22,4 @@ ansible/*.json
 ansible/**/*.retry
 src/ventilation/*.csv
 src/ventilation/hosts/
+src/ventilation/wxr-*/
