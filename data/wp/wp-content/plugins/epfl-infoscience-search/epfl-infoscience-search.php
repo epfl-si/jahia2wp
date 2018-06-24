@@ -153,7 +153,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
 
     $attributes['show_summary'] = $attributes['show_summary'] === 'true' ? true : false;
     $attributes['show_thumbnail'] = $attributes['show_thumbnail'] === 'true' ? true : false;
-    $attributes['format'] = in_array($attributes['format'], ['short', 'detailed']) ? $attributes['format'] : 'short';
+    $attributes['format'] = in_array(strtolower($attributes['format']), ['short', 'detailed']) ? strtolower($attributes['format']) : 'short';
 
     $attributes['debug'] = $attributes['debug'] === 'true' ? true : false;
     
