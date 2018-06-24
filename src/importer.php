@@ -20,7 +20,7 @@ Please install the wordpress-importer plugin, e.g.
   wp --path=... plugin install --activate wordpress-importer
 
 <?php
-    die();
+    exit(1);
 }
 
 if (function_exists("wordpress_importer_init")) {
@@ -30,7 +30,7 @@ Please run with wp-importer plugin skipped (add
 --skip-plugins=wordpress-importer to your command line)
 
 <?php
-    die();
+    exit(1);
 }
 
 global $argv;
@@ -43,7 +43,7 @@ File not found: <?php echo $filename; ?>
 Usage : wp eval [...] <filename>
 
 <?php
-    die();
+    exit(1);
 }
 
 // WP_LOAD_IMPORTERS must be set before loading the plugin (hence why
