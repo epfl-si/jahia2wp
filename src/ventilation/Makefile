@@ -9,13 +9,16 @@ JAHIA2WP_TOPDIR := $(shell dirname $(shell dirname $(VENTILATION_DIR)))
 
 VENTILATION_CSV   = ventilation.csv
 SOURCES_INVENTORY = $(VENTILATION_DIR)/hosts/ventilation-source-wordpresses
+TARGETS_INVENTORY = $(VENTILATION_DIR)/hosts/ventilation-target-wordpresses
 
 .PHONY: all
 all: wxr-ventilated
 
-$(SOURCES_INVENTORY) hosts/group_vars/ventilation-source-wordpresses: $(VENTILATION_CSV)
+$(SOURCES_INVENTORY) hosts/group_vars/ventilation-source-wordpresses \
+$(TARGETS_INVENTORY) hosts/group_vars/ventilation-target-wordpresses: \
+  $(VENTILATION_CSV)
 	@mkdir hosts 2>/dev/null || true
-	python3 ./discover-wordpresses.py $< $(SOURCES_INVENTORY)
+	python3 ./wordpress-inventories.py --sources=$(SOURCES_INVENTORY) --targets=$(TARGETS_INVENTORY) $<
 
 wxr-src: $(SOURCES_INVENTORY)
 	@mkdir "$@" 2>/dev/null || true
