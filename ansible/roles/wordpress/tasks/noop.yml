@@ -4,7 +4,7 @@
 # See https://github.com/ansible/ansible/issues/34281#issuecomment-375157219
 # for the general idea.
 #
-# Note that contrary to our pal over there at ../../../noop.yml, this
+# Note that contrary to our pal over there at ../../../tasks/noop.yml, this
 # file is included with include_tasks and therefore cannot actually be
 # empty - That would be a warnin'
 

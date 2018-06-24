@@ -18,4 +18,4 @@
 
 - vars:
     play_create_or_restore: true
-  import_playbook: wordpress-playbook.yml
+  import_playbook: playbooks/wordpress-main.yml

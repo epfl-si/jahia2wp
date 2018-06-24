@@ -20,4 +20,4 @@
 - vars:
     play_dump: true
     dump_local_dir: "{{ to }}"  # Unless overridden as shown above
-  import_playbook: wordpress-playbook.yml
+  import_playbook: playbooks/wordpress-main.yml
