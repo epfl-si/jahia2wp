@@ -1801,6 +1801,7 @@ ul.bottin {
   
   img {
     display: block;
+    margin: 0;
     vertical-align: top;
   }
 }
@@ -1845,6 +1846,10 @@ ul.bottin {
   a {
     border: none;
     display: block;
+  }
+  
+  img {
+    margin: 0;
   }
 }
 
@@ -2452,6 +2457,10 @@ ul.bottin {
   
   .event-img {
     display: none;
+    
+    img {
+      margin: 0;
+    }
   }
 }
 
