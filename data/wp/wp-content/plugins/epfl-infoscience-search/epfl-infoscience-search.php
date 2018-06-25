@@ -138,7 +138,8 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         'group_by' => '', # "", "year", "doctype"
         'group_by2' => '', # "", "year", "doctype"
         # Dev
-        'debug' => 'false',
+        'debug_data' => 'false',
+        'debug_template' => 'false',
     );
 
     # TODO: use array_diff_key and compare unmanaged attributes
@@ -155,7 +156,8 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     $attributes['show_thumbnail'] = $attributes['show_thumbnail'] === 'true' ? true : false;
     $attributes['format'] = in_array(strtolower($attributes['format']), ['short', 'detailed']) ? strtolower($attributes['format']) : 'short';
 
-    $attributes['debug'] = $attributes['debug'] === 'true' ? true : false;
+    $attributes['debug_data'] = strtolower($attributes['debug_data']) === 'true' ? true : false;
+    $attributes['debug_template'] = strtolower($attributes['debug_template']) === 'true' ? true : false;
     
     # Unset element unused in url
     $format = $attributes['format'];
@@ -167,8 +169,12 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     $show_thumbnail = $attributes['show_thumbnail'];
     unset($attributes['show_thumbnail']);
 
-    $debug = $attributes['debug'];
-    unset($attributes['debug']);   
+    $debug_data = $attributes['debug_data'];
+    unset($attributes['debug_data']);
+
+    $debug_template = $attributes['debug_template'];
+    unset($attributes['debug_template']);
+
 
     unset($attributes['group_by']);
     unset($attributes['group_by2']);
@@ -180,7 +186,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     
     # not in cache ?
     # TODO: reactivate cache
-    # if ($page == false || $debug){
+    # if ($page == false || $debug_data || $debug_template){
     if (true){
     
         if (epfl_infoscience_url_exists( $url ) ) {
@@ -194,7 +200,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
 
                 $publications = InfoscienceMarcConverter::convert_marc_to_array($marc_xml);
 
-                if ($debug) {
+                if ($debug_data) {
                     $page = RawInfoscienceRender::render($publications, $url);
                     return $page;
                 }
@@ -210,7 +216,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
                     }
                 } else {
                     # use the self renderer
-                    $page = HtmlInfoscienceRender::render($publications, $format, $show_summary, $show_thumbnail);
+                    $page = HtmlInfoscienceRender::render($publications, $format, $show_summary, $show_thumbnail, $debug_template);
                 }
 
                 // wrap the page

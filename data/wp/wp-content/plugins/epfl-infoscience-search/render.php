@@ -29,9 +29,13 @@ Class HtmlInfoscienceRender extends InfoscienceRender {
             }
 
             ob_start();
-            # TODO: remove debug info
-            echo 'doctype : ' . $doctype . '<br>';
-            echo 'template path : ' . $template_path;
+            
+            if ($debug) {
+                echo 'doctype : ' . $doctype . '<br>';
+                echo 'template path : ' . $template_path;
+            }
+            
+            echo '<div class="infoscience_export">';
             echo '<div class="infoscience_record">';
             echo '  <div class="infoscience_data">';
             echo '      <div class="record-content">';
@@ -43,6 +47,7 @@ Class HtmlInfoscienceRender extends InfoscienceRender {
             echo '      </div>';
             include($links_path);
             echo '  </div>';
+            echo '</div>';
             echo '</div>';
 
             # TODO: sanitize this ?
