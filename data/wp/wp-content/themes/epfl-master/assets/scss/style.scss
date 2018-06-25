@@ -57,6 +57,12 @@ body.search {
   padding: 0 15px;
 }
 
+body,
+div {
+  font-size: 13px;
+  line-height: 1.3em;
+}
+
 /* --- Structure --- */
 
 body {
@@ -407,6 +413,10 @@ a.a2a_button_{
   @include colored-text-box;
   @include clearfix;
   margin: 1.5em 0;
+  
+  table {
+    border-collapse: inherit;
+  }
 }
 
 .local-color-text {
@@ -508,6 +518,27 @@ a.a2a_button_{
   
   .btn-icon > .label {
     border-color: #fff;
+  }
+}
+
+.button {
+  background: transparent;
+  color: #454545;
+  font-size: 1rem;
+  height: auto;
+  line-height: 1;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 0;
+  text-transform: none;
+  
+  .label {
+    font-family: Georgia,'Times New Roman',Times,serif;
+    font-size: 12px;
+    letter-spacing: 1px;
+    font-style: italic;
+    display: inline-block;
+    cursor: pointer;
   }
 }
 
@@ -2523,8 +2554,8 @@ ul.bottin {
 
 .snippetsBox {
   border-bottom: 1px dotted #000;
-  margin-bottom: 15px;
-  padding-bottom: 15px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
   
   .snippets-image {
     margin-bottom: 10px;
@@ -2782,6 +2813,17 @@ ul.bottin {
     &.last-col {
       padding-left: 2px;
       padding-right: 0;
+    }
+  }
+  
+  .textBox {
+    @include clearfix;
+    
+    .box {
+      
+      &:nth-child(2n+1) {
+        clear: left;
+      }
     }
   }
   
@@ -3537,12 +3579,18 @@ ul.bottin {
 
   .snippetsBox {
     @include clearfix;
+    margin-bottom: 5px;
+    padding-bottom: 5px;
     
     .snippets-image {
       float: left;
       margin-bottom: 0;
       padding-right: 20px;
       width: 30%;
+      
+      img {
+        margin: 0;
+      }
     }
     
     .snippets-content {
