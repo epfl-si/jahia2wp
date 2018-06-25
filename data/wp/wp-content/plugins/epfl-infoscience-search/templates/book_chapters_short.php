@@ -30,21 +30,21 @@
         }
     }
 
-    if ($publication['journal'][0]['publication_location']) {
-        echo "<span>" . $publication['journal'][0]['publication_location'] . "</span>";
+    if ($publication['publication_location']) {
+        echo "<span>" . $publication['publication_location'][0] . "</span>";
 
-        if ($publication['journal'][0]['publication_institution']) {
+        if ($publication['publication_institution']) {
             echo "<span>: </span>";
-        } elseif ($publication['journal'][0]['publication_year']) {
+        } elseif ($publication['publication_year']) {
             echo "<span>, </span>";
         } else {
             echo "<span>. </span>";
         }
     }
 
-    if ($publication['journal'][0]['publication_institution']) {
-        echo "<span>" . $publication['journal'][0]['publication_institution'] . "</span>";
-        if ($publication['journal'][0]['publication_year']) {
+    if ($publication['publication_institution']) {
+        echo "<span>" . $publication['publication_institution'][0] . "</span>";
+        if ($publication['publication_year']) {
             echo "<span>, </span>";
         } else {
             echo "<span>. </span>";
