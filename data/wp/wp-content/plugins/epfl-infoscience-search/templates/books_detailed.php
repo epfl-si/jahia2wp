@@ -34,14 +34,16 @@
     }
 
     if ($publication['publication_year']) {
-        echo "<span>" . $publication['publication_year'][0] . ". </span>";
+        echo "<span>" . $publication['publication_year'][0] . "</span>";
         if ($publication['isbn']) {
             echo '<span> - </span>';
+        } else {
+            echo '<span>. </span>';
         }
     }
 
     if ($publication['isbn']) {
-        echo "<span>" . $publication['isbn'][0] . ". </span>";
+        echo "<span>ISBN : " . $publication['isbn'][0] . ". </span>";
     }
 
     echo '</p>';

@@ -53,7 +53,7 @@
     }
 
     if ($publication['isbn']) {
-        echo "<span>" . $publication['isbn'][0] . ". </span>";
+        echo "<span>ISBN : " . $publication['isbn'][0] . ". </span>";
     }
 
     echo '</p>';
