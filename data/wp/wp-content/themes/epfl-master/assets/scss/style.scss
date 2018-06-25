@@ -3630,10 +3630,22 @@ ul.bottin {
     width: 980px;
   }
   
-  #primary.col,
-  #secondary.col {
-    padding-left: 10px;
-  	padding-right: 10px; 
+  #primary,
+  #secondary {
+    float: left;
+  }
+  
+  #primary {
+    margin-right: 4px;
+    width: 652px;
+    
+    &.page-fullwidth {
+      width: 100%;
+    }
+  }
+  #secondary {
+    margin-top: -1px;
+    width: 324px;
   }
   
   /*  ---------------------------------------
