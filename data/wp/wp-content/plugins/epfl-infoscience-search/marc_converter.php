@@ -125,23 +125,23 @@ Class InfoscienceMarcConverter
                 if (strpos($fname, '-') !== false) {
                     $sname = explode('-', $fname);
 
-                    if (count($sname[0]) > 1) {
-                        $initname .= $sname[0][0];
+                    if (mb_strlen($sname[0]) > 1) {
+                        $initname .= mb_substr($sname[0], 0, 1);
                     }
 
-                    if (count($sname[0]) > 1 || count($sname[1]) > 1) {
+                    if (mb_strlen($sname[0]) > 1 || mb_strlen($sname[1]) > 1) {
                         $initname .= "-";
                     } 
                     
-                    if (count($sname[1]) > 1) {
-                        $initname .= $sname[1][0] . ". ";
+                    if (mb_strlen($sname[1]) > 1) {
+                        $initname .= mb_substr($sname[1], 0, 1) . ". ";
                     }
                 }
                 else {
                     $fname = trim($fname);
 
                     if (!empty($fname)) {
-                        $initname .= trim($fname[0]) . ". ";
+                        $initname .= trim(mb_substr($fname, 0, 1)) . ". ";
                     }
                 }
             }
