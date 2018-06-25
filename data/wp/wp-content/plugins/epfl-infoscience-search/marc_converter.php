@@ -180,6 +180,7 @@ Class InfoscienceMarcConverter
 
     /**
      * Transform Marc record to a flat key value array
+     * @param $filter_empy: for debug purpose, if you want to see all the field, empty or not
      */
     public static function parse_record($record, $filter_empty=false) {
         $record_array = [];
