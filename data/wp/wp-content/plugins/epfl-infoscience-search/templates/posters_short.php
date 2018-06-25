@@ -43,5 +43,5 @@
     if ($publication['conference'][0]['date']) {
         echo "<span>" . $publication['conference'][0]['date'] . "</span>";
         echo "<span>.</span>";
-    }    
+    }
 ?>
