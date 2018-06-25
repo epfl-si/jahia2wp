@@ -1,4 +1,5 @@
 <?php
+
 Class ScienceQAUtils
 {
 	public static function debug( $var ) {

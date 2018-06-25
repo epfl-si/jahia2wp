@@ -43,6 +43,7 @@ function epfl_scienceqa_build_api_url( string $lang, string $qid ): string
  * @return True if the required parameters are right.
  */
 function epfl_scienceqa_required_parameters( string $lang ): bool {
+  
 	// check lang
 	if ( $lang !==  'fr' && $lang !== 'en' ) {
 		return FALSE;
@@ -57,6 +58,7 @@ function epfl_scienceqa_required_parameters( string $lang ): bool {
  * @return True if the required parameters are right.
  */
 function epfl_scienceqa_check_response_data( $scienceqa ): bool {
+  
 	if ( $scienceqa === NULL ) {
 		return FALSE;
 	}
@@ -87,6 +89,7 @@ function epfl_scienceqa_check_response_data( $scienceqa ): bool {
 }
 
 function epfl_scienceqa_process_shortcode( $atts = [], $content = '', $tag = '' ): string {
+  
 	// shortcode parameters
 	$atts = shortcode_atts( array(
 		'lang'     => 'en',
@@ -120,7 +123,7 @@ function epfl_scienceqa_process_shortcode( $atts = [], $content = '', $tag = '' 
 		}
 	// otherwise the plugin does the rendering
 	} else {
-		return Render::epfl_scienceqa_build_html( $scienceqa, $lang );
+		return ScienceQARender::epfl_scienceqa_build_html( $scienceqa, $lang );
 	}
 }
 
@@ -137,7 +140,7 @@ add_action( 'init', function() {
 
 	// shortcake configuration
 	if (function_exists( 'shortcode_ui_register_for_shortcode' ) ) {
-		ShortCakeConfig::config();
+		ScienceQAShortCakeConfig::config();
 	}
 });
 

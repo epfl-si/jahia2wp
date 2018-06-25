@@ -2,7 +2,7 @@
 
 require_once 'utils.php';
 
-Class ShortCakeConfig
+Class ScienceQAShortCakeConfig
 {
 	private static function get_lang_options()
 	{
@@ -26,7 +26,7 @@ Class ShortCakeConfig
 							'label'         => '<h3>' . esc_html__('Select a language', 'epfl-scienceqa') . '</h3>',
 							'attr'          => 'lang',
 							'type'          => 'radio',
-							'options'       => ShortCakeConfig::get_lang_options(),
+							'options'       => ScienceQAShortCakeConfig::get_lang_options(),
 							'description'   => esc_html__('The language used to render Science Q&A survey', 'epfl-scienceqa'),
 							'value'         => 'en',
 						),

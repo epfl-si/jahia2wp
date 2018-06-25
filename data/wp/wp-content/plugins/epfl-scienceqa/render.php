@@ -1,6 +1,6 @@
 <?php
 
-Class Render
+Class ScienceQARender
 {
 	/**
 	 * Build HTML.
