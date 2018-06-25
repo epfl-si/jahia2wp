@@ -13,6 +13,14 @@ jQuery(document).ready(function($){
     $(this).parents(".collapsible").toggleClass("close");
   });
   
+  $(".toggler-content").hide();
+  
+  $(".toggler").click( function(event) {
+    event.preventDefault();
+    $(this).toggleClass("toggled-active");
+    $(this).next(".toggler-content").slideToggle("fast");
+  } );
+  
   // Sitemap
   
   $(".simple-sitemap-page .page_item_has_children").prepend('<button class="children-toggle"><span class="visuallyhidden">Afficher / masquer les enfants</span></button>');

@@ -395,6 +395,32 @@ a.a2a_button_{
   padding-right: 50px;
 }
 
+.toggler {
+  cursor: pointer;
+  margin: 20px 0;
+  padding-left: 16px;
+  position: relative;
+  
+  &:before {
+    @include icon;
+    content: "\f0da";
+    color: #000;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 16px;
+    position: absolute;
+    top: auto; right: auto; bottom: auto; left: 0;
+  }
+  
+  .toggled-active &:before {
+    content: "\f0d7";
+  }
+  
+  & + .toggler-content {
+    margin-top: -10px;
+  }
+}
+
 /* Faq items */
 
 .faq-item {
