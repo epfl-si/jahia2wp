@@ -102,6 +102,12 @@ Class InfoscienceMarcConverter
     }
     
     public static function parse_authors($record, $field, $ind1, $ind2, $subfields) {
+        $build_search_url = function ($full_name) {
+            $full_name = str_replace(' ', '+', $full_name);
+            $full_name = str_replace(',', '+', $full_name);
+            return "https://infoscience.epfl.ch/search?p=" . $full_name;
+        };
+
         $compute_name = function ($full_name) {
             $names = explode(',', $full_name);
             $family = count($names) > 0 ? trim($names[0]) : '';
@@ -155,22 +161,37 @@ Class InfoscienceMarcConverter
         if ($people) {
             foreach ($people as $person) {
                 if (!$person->isEmpty()) {
+                    $person_data = [];
+                    $full_name = "";
+
                     # if we have an indicator, verify that the person in the right one
                     if ($ind1) {
                         $indicator = $person->getIndicator(1);
 
                         if ($indicator == $ind1) {
-                            $authors[] = $compute_name($person->getSubfield($subfield)->getData());
+                            $full_name = $person->getSubfield($subfield)->getData();
+                            $person_data['initial_name'] = $compute_name($full_name);
                         }
                     } elseif ($ind2) {
                         $indicator = $person->getIndicator(2);
 
                         if ($indicator == $ind2) {
-                            $authors[] = $compute_name($person->getSubfield($subfield)->getData());
+                            $full_name = $person->getSubfield($subfield)->getData();
+                            $person_data['initial_name'] = $compute_name($full_name);
                         }                        
                     } else {
-                        $authors[] = $compute_name($person->getSubfield($subfield)->getData());
+                        $full_name = $person->getSubfield($subfield)->getData();
+                        $person_data['initial_name'] = $compute_name($full_name);
                     }
+
+                    if (array_key_exists('initial_name', $person_data) && !empty($person_data['initial_name']))
+                    {
+                        # add the computed search_url data
+                        $person_data['search_url'] = $build_search_url($full_name);
+                    }
+
+
+                    $authors[] = $person_data;
                 }
             }
         }

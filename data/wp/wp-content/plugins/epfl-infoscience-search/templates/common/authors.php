@@ -20,7 +20,9 @@ foreach($authors as $index => $author) {
         }
         echo "</span>";
         echo "<span>";
-        echo $authors[$index];
+        echo '<a href="' . $authors[$index]['search_url'] . '" target="_blank">';
+        echo $authors[$index]['initial_name'];
+        echo '</a>';
         echo "</span>";
     }
 }
