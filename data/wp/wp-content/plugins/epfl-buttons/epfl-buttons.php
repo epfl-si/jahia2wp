@@ -26,13 +26,13 @@ function epfl_buttons_box_debug( $var ) {
  * @param $type: Box size : "small" or "big"
  * @param $url: the url pointed by the shortcode
  * @param $image_url: the id of the media (image) to show
- * @param $text: the label for the image (text for the link also)
+ * @param $alt_text: the label for the image (text for the link also)
  * @param $title: Text to display under image
  * @return string html of div containing the image and the text, both pointing to the URL
  */
-function epfl_buttons_box_build_html( string $type, string $url, string $image_url, string $text, string $title ): string
+function epfl_buttons_box_build_html( string $type, string $url, string $image_url, string $alt_text, string $title ): string
 {
-    $html  = '<div class="' . esc_attr($type) . 'ButtonsBox"><a href="'. esc_attr($url) . '" title="' . esc_attr($text) .'">';
+    $html  = '<div class="' . esc_attr($type) . 'ButtonsBox"><a href="'. esc_attr($url) . '" title="' . esc_attr($alt_text) .'">';
     $html .= '<img src="' . $image_url . '" />';
     $html .= $title . '</a></div>';
     return $html;
