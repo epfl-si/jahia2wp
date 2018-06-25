@@ -42,16 +42,19 @@ wp_unit_name: "{{ wp_unit_id }}"   # Default value
 #
 # - wp_destructive: A map from WordPress names (out of the inventory
 #                   files or scripts) to a keyword among "none" (the
-#                   default), "wipe", "data-and-code" or "data-only"
-#                   indicating the level of destructive access
-#                   requested for this WordPress instance. "wipe"
-#                   means to completely and unconditionally delete
-#                   everything; "data-and-code" and "data-only" allows
-#                   restores (depending on the setting of
+#                   default), "config", "wipe", "data-and-code" or
+#                   "data-only" indicating the level of destructive
+#                   access requested for this WordPress instance.
+#                   "wipe" means to completely and unconditionally
+#                   delete everything; "data-and-code" and "data-only"
+#                   allows restores (depending on the setting of
 #                   wp_restore_from, below) of the corresponding
-#                   assets. "none" means do no harm, yet doesn't
-#                   preclude always-harmless mutations such as
-#                   creating a WP site that did not yet exist.
+#                   assets. "config" means only enforce simple
+#                   configuration changes, such as setting up strict
+#                   permissions and disabling unused services. "none"
+#                   means do no harm, yet doesn't preclude
+#                   always-harmless mutations such as creating a WP
+#                   site that did not yet exist.
 #
 #                   💡 You probably want to use the JSON-accepting
 #                   form of -e for this. Be sure to use double quotes
