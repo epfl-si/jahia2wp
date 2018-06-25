@@ -21,13 +21,11 @@ Class ScienceQARender
 		foreach ( $scienceqa->answers as $answerId => $answer ) {
 			$html .= '  <div>';
 			$html .= '    <input type="radio" name="poll[choice]" value="' . esc_attr( $answerId ). '" id="choice' .esc_attr( $answerId ) . '">';
-			$html .= '    <label type="radio" for=""choice' .esc_attr( $answerId ) . '">' . sanitize_text_field( $answer ) . '</label>';
+			$html .= '    <label type="radio" for="choice' .esc_attr( $answerId ) . '">' . sanitize_text_field( $answer ) . '</label>';
 			$html .= '  </div>';
 		}
 		$html .= '    <button type="submit">' . esc_html__('Vote', 'epfl-scienceqa') . '</button>';
 		$html .= '  </form>';
-		$html .= '</div>';
-
 		$html .= '</div>';
 
 		return $html;
