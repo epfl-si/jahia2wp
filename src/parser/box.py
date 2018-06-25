@@ -907,16 +907,11 @@ class Box:
                 width = iframe.get('width')
                 height = iframe.get('height')
 
-                # Creating <p> element to store shortcode content
-                p = soup.new_tag('p', 'youtube')
-                p.append('[su_youtube url="{}" width="{}" height="{}"]'.format(src,
-                                                                               width if width else '600',
-                                                                               height if height else '400'))
-
-                # if iframe's parent is a <p> we will replace it to avoid to have 2 nested <p>
-                elem_to_replace = iframe if iframe.parent.name != 'p' else iframe.parent
-                # Replacing the iframe with paragraph
-                elem_to_replace.replaceWith(p)
+                shortcode = '[su_youtube url="{}" width="{}" height="{}"]'.format(src,
+                                                                                  width if width else '600',
+                                                                                  height if height else '400')
+                # Replacing the iframe with shortcode text
+                iframe.replaceWith(shortcode)
 
         self.content = str(soup.body)
 
