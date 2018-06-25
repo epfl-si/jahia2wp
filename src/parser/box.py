@@ -682,7 +682,7 @@ class Box:
         content = ""
         for button_list in elements:
             url = ""
-            title = ""
+            alt_text = ""
             text = ""
             big_button_image = ""
             small_button_key = ""
@@ -691,7 +691,7 @@ class Box:
                     continue
 
                 if child.tagName == "label":
-                    title = child.getAttribute("jahia:value")
+                    alt_text = child.getAttribute("jahia:value")
 
                 elif child.tagName == "url":
                     if box_type == 'small':
@@ -733,16 +733,16 @@ class Box:
                     small_button_key = 'key="{}"'.format(key)
 
             if box_type == 'small' and text == "":
-                text = title
+                text = alt_text
 
             # bigButton will have 'image' attribute and smallButton will have 'key' attribute.
-            content += '[{} type="{}" url="{}" {} title="{}" text="{}" {}]'.format(self.shortcode_name,
-                                                                                            box_type,
-                                                                                            url,
-                                                                                            big_button_image,
-                                                                                            title,
-                                                                                            text,
-                                                                                            small_button_key)
+            content += '[{} type="{}" url="{}" {} alt_text="{}" text="{}" {}]'.format(self.shortcode_name,
+                                                                                      box_type,
+                                                                                      url,
+                                                                                      big_button_image,
+                                                                                      alt_text,
+                                                                                      text,
+                                                                                      small_button_key)
         self.content = content
 
     # @classmethod
