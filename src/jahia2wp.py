@@ -49,7 +49,7 @@ Usage:
     [--force] [--plugin=<PLUGIN_NAME>]
   jahia2wp.py global-report <csv_file> [--output-dir=<OUTPUT_DIR>] [--use-cache] [--debug | --quiet]
   jahia2wp.py migrate-urls <csv_file> <wp_env>                    [--debug | --quiet]
-    --root_wp_dest=</srv/../epfl> [--greedy] [--htaccess] [--context=<intra|inter|full>]
+    --root_wp_dest=</srv/../epfl> [--greedy] [--htaccess] [--context=<intra|inter|full>] [--dry_run]
 
 Options:
   -h --help                 Show this screen.
@@ -471,12 +471,53 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     skip_media = False
     skip_pages = False
 
+    # List of plugins to let in 'deactivated' state during import. To earn more time, they are not activated during
+    # WordPress empty site generation. Because activating them takes time and we have to take the same amount of time
+    # to deactivate them before running Jahia site import.
+    # Deactivating plugins can improve import time by ~80%
+    # WARNING: be careful with the list order. Plugins will be reactivated after import by using list order. So if
+    # there are dependencies between plugins, arrange them in the right way.
+    deactivated_plugins = ['mainwp-child',
+                           'epfl-faq',
+                           'epfl-grid',
+                           'epfl-infoscience',
+                           'epfl-map',
+                           'epfl-memento',
+                           'epfl-news',
+                           'epfl-people',
+                           'epfl-scheduler',
+                           'EPFL-Content-Filter',
+                           'EPFL-Share',
+                           'epfl-snippet',
+                           'epfl-toggle',
+                           'epfl-xml',
+                           'feedzy-rss-feeds',
+                           'remote-content-shortcode',
+                           'shortcode-ui',
+                           'shortcode-ui-richtext',
+                           'shortcodes-ultimate',
+                           'simple-sitemap',
+                           'svg-support',
+                           'enlighter',
+                           'tinymce-advanced',
+                           'varnish-http-purge']
+
     # Generate a WordPress site
     wp_generator = WPGenerator(info, admin_password)
 
     # base installation
     if skip_base:
+
+        logging.info("Deactivating %s plugins...", len(deactivated_plugins))
+        for plugin_name in deactivated_plugins:
+            # We do a 'try' to handle missing plugins (if exists)
+            try:
+                wp_generator.run_wp_cli("plugin deactivate {}".format(plugin_name))
+            except:
+                logging.info("Plugin %s doesn't seem's to be installed", plugin_name)
+
         try:
+
             # even if we skip the base installation we need to reactivate
             # the basic auth plugin for the rest API
             wp_generator.run_wp_cli("plugin activate Basic-Auth")
@@ -484,7 +525,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
             # if activation fails it means the plugin is not installed
             wp_generator.install_basic_auth_plugin()
     else:
-        wp_generator.generate()
+        wp_generator.generate(deactivated_plugins)
 
         wp_generator.install_basic_auth_plugin()
 
@@ -510,12 +551,25 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     if to_wordpress:
         logging.info("Exporting %s to WordPress...", site.name)
         try:
+
             if wp_generator.get_number_of_pages() == 0:
+
                 wp_exporter.import_data_to_wordpress(skip_pages=skip_pages,
                                                      skip_media=skip_media,
                                                      features_flags=features_flags)
                 wp_exporter.write_redirections()
                 _fix_menu_location(wp_generator, languages, default_language)
+
+                logging.info("Reactivating %s plugins...", len(deactivated_plugins))
+
+                # Reactivating plugins
+                for plugin_name in deactivated_plugins:
+                    # We do a 'try' to handle missing plugins (if exists)
+                    try:
+                        wp_generator.run_wp_cli("plugin activate {}".format(plugin_name))
+                    except:
+                        logging.info("Plugin %s doesn't seem's to be installed", plugin_name)
+
                 logging.info("Site %s successfully exported to WordPress", site.name)
             else:
                 logging.info("Site %s already exported to WordPress", site.name)
@@ -926,13 +980,14 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
 
 
 @dispatch.on('migrate-urls')
-def url_mapping(csv_file, wp_env, greedy=False, root_wp_dest=None, htaccess=False, context='intra', **kwargs):
+def url_mapping(csv_file, wp_env, greedy=False, root_wp_dest=None, htaccess=False,
+                context='intra', dry_run=False, **kwargs):
     """
     :param csv_file: CSV containing the URL mapping rules for source and destination.
     :param context: intra, inter, full. Replace the occurrences at intra, inter or both.
     """
     logging.info('Starting ventilation process...')
-    vent = Ventilation(wp_env, csv_file, greedy, root_wp_dest, htaccess, context)
+    vent = Ventilation(wp_env, csv_file, greedy, root_wp_dest, htaccess, context, dry_run)
     vent.run_all()
 
 

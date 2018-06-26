@@ -41,7 +41,7 @@ function epfl_snippets_process_shortcode( $attributes, string $content = null ):
 
     $image_url = wp_get_attachment_url( $image );
 
-    $has_url = filter_var($url, FILTER_VALIDATE_URL);
+    $has_url = trim($url)!="";
 
     $html  = '<div class="snippetsBox">';
     $html .= '  <div class="snippets-image">';

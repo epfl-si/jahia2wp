@@ -2,27 +2,35 @@
 
 $primary-color-cdh: #daa521;
 $primary-color-sec-cdh: #b77504;
+$primary-color-ter-cdh: #b77504;
 
 $primary-color-cdm: #990165;
 $primary-color-sec-cdm: #740052;
+$primary-color-ter-cdm: #740052;
 
 $primary-color-enac: #ea5e00;
 $primary-color-sec-enac: #d53c00;
+$primary-color-ter-enac: #d53c00;
 
 $primary-color-ic: #1bb5b5;
 $primary-color-sec-ic: #007f87;
+$primary-color-ter-ic: #0e5c5c;
 
 $primary-color-sb: #007ba5;
 $primary-color-sec-sb: #015876;
+$primary-color-ter-sb: #015876;
 
 $primary-color-sti: #8972d5;
 $primary-color-sec-sti: #5d41a2;
+$primary-color-ter-sti: #5d41a2;
 
 $primary-color-sv: #6fba01;
 $primary-color-sec-sv: #439809;
+$primary-color-ter-sv: #439809;
 
 $primary-color-assoc: #aebd00;
 $primary-color-sec-assoc: #8d9c00;
+$primary-color-ter-assoc: #8d9c00;
 
 /*  Color mixins */
 
@@ -61,6 +69,82 @@ $primary-color-sec-assoc: #8d9c00;
   // ASSOC
   .assoc & {
     background-color: $primary-color-assoc;
+  }
+}
+
+// Background for regular elements (secondary colour)
+@mixin color-background-sec {
+  background-color: $primary-color-sec;
+  
+  // CDH
+  .cdh & {
+    background-color: $primary-color-sec-cdh;
+  }
+  // CDM
+  .cdm & {
+    background-color: $primary-color-sec-cdm;
+  }
+  // ENAC
+  .enac & {
+    background-color: $primary-color-sec-enac;
+  }
+  // IC
+  .ic & {
+    background-color: $primary-color-sec-ic;
+  }
+  // SB
+  .sb & {
+    background-color: $primary-color-sec-sb;
+  }
+  // STI
+  .sti & {
+    background-color: $primary-color-sec-sti;
+  }
+  // SV
+  .sv & {
+    background-color: $primary-color-sec-sv;
+  }
+  // ASSOC
+  .assoc & {
+    background-color: $primary-color-sec-assoc;
+  }
+}
+
+// Background for regular elements (tertiary colour)
+@mixin color-background-ter {
+  background-color: $primary-color-ter;
+  
+  // CDH
+  .cdh & {
+    background-color: $primary-color-ter-cdh;
+  }
+  // CDM
+  .cdm & {
+    background-color: $primary-color-ter-cdm;
+  }
+  // ENAC
+  .enac & {
+    background-color: $primary-color-ter-enac;
+  }
+  // IC
+  .ic & {
+    background-color: $primary-color-ter-ic;
+  }
+  // SB
+  .sb & {
+    background-color: $primary-color-ter-sb;
+  }
+  // STI
+  .sti & {
+    background-color: $primary-color-ter-sti;
+  }
+  // SV
+  .sv & {
+    background-color: $primary-color-ter-sv;
+  }
+  // ASSOC
+  .assoc & {
+    background-color: $primary-color-ter-assoc;
   }
 }
 

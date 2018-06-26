@@ -175,9 +175,11 @@ class WPGenerator:
 
         return plugin_list.list_plugins(self.wp_site.name, with_config, for_plugin)
 
-    def generate(self):
+    def generate(self, deactivated_plugins=None):
         """
         Generate a complete and fully working WordPress website
+
+        :param deactivated_plugins: List of plugins to let in 'deactivated' state after installation.
         """
         # check if we have a clean place first
         if self.wp_config.is_installed:
@@ -217,7 +219,9 @@ class WPGenerator:
 
         # install, activate and configure plugins
         logging.info("%s - Installing plugins...", repr(self))
-        self.generate_plugins()
+        if deactivated_plugins:
+            logging.info("%s - %s plugins have to stay deactivated...", repr(self), len(deactivated_plugins))
+        self.generate_plugins(deactivated_plugins=deactivated_plugins)
 
         # flag success
         return True
@@ -407,7 +411,7 @@ class WPGenerator:
         if self.wp_config.updates_automatic:
             WPMuPluginConfig(self.wp_site, "EPFL_enable_updates_automatic.php").install()
 
-    def generate_plugins(self, only_one=None, force=True, **kwargs):
+    def generate_plugins(self, only_one=None, force=True, deactivated_plugins=None, **kwargs):
         """
         Get plugin list for WP site and do appropriate actions on them
         - During WordPress site creation, 'only_plugin_name' and 'force' are not given. Plugins are installed/configured
@@ -418,14 +422,15 @@ class WPGenerator:
         deactivate AND delete)
 
         Arguments keywords
-        only_one -- Plugin name for which we do the action. If not given, all plugins are processed
-        force -- True|False
-           - if False
-              - Plugin(s) to be uninstalled will be only deactivated
-              - Only new options will be added to plugin(s)
-           - if True
-              - Plugin(s) to be uninstalled will be deactivated AND uninstalled (deleted)
-              - New plugin options will be added and existing ones will be overwritten
+        :param only_one: Plugin name for which we do the action. If not given, all plugins are processed
+        :param force:    True|False
+                           - if False
+                              - Plugin(s) to be uninstalled will be only deactivated
+                              - Only new options will be added to plugin(s)
+                           - if True
+                              - Plugin(s) to be uninstalled will be deactivated AND uninstalled (deleted)
+                              - New plugin options will be added and existing ones will be overwritten
+        :param deactivated_plugins: List of plugins to let in 'deactivated' state after installation.
         """
         logging.warning("%s - Add parameter for 'batch file' (YAML)", repr(self))
         # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"
@@ -470,13 +475,19 @@ class WPGenerator:
                     else:
                         logging.info("%s - Plugins - %s: Already installed!", repr(self), plugin_name)
 
-                logging.info("%s - Plugins - %s: Setting state...", repr(self), plugin_name)
-                plugin_config.set_state()
+                # By default, after installation, plugin is deactivated. So if it has to stay deactivated,
+                # we skip the "change state" process
+                if deactivated_plugins and plugin_name in deactivated_plugins:
+                    logging.info("%s - Plugins - %s: Deactivated state forced...", repr(self), plugin_name)
 
-                if plugin_config.is_activated:
-                    logging.info("%s - Plugins - %s: Activated!", repr(self), plugin_name)
                 else:
-                    logging.info("%s - Plugins - %s: Deactivated!", repr(self), plugin_name)
+                    logging.info("%s - Plugins - %s: Setting state...", repr(self), plugin_name)
+                    plugin_config.set_state()
+
+                    if plugin_config.is_activated:
+                        logging.info("%s - Plugins - %s: Activated!", repr(self), plugin_name)
+                    else:
+                        logging.info("%s - Plugins - %s: Deactivated!", repr(self), plugin_name)
 
                 # Configure plugin
                 plugin_config.configure(force=force)

@@ -217,6 +217,8 @@ Class Render
             $publish_date = new DateTime($item->publish_date);
             $publish_date = $publish_date->format('d.m.Y');
 
+            $category_label = "";
+
             if ($stickers == TRUE) {
                 if ($item->lang === "fr") {
                     $category_label = $item->category->fr_label;
@@ -238,7 +240,7 @@ Class Render
             $html .= '      <img src="' . esc_attr($item->visual_url) . '" title="' . esc_attr($item->title) . '">';
             $html .= '    </a>';
             $html .= '  </figure>';
-            if ($category_label) {
+            if ($category_label != "") {
                 $html .= '  <p class="category-label">' . $category_label . ' </p>';
             }
             $html .= '  <div class="entry-content">';
@@ -374,7 +376,7 @@ Class Render
      * @param $lang: lang of news (fr or en)
      * @return html of template
      */
-    function epfl_news_built_html_pagination_template(string $channel, string $lang): string {
+    public static function epfl_news_built_html_pagination_template(string $channel, string $lang): string {
 
         // call API to get the name of channel
         $url = NEWS_API_URL . $channel;
@@ -396,7 +398,7 @@ Class Render
      * @param $stickers: display stickers on images ?
      * @return html of template
      */
-    function epfl_news_build_html($news, string $template, bool $stickers): string
+    public static function epfl_news_build_html($news, string $template, bool $stickers): string
     {
         if ($template === "4") {
             $html = Render::epfl_news_template_labo_with_3_news($news, $stickers);

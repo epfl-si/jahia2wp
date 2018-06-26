@@ -14,6 +14,7 @@ import xml.dom.minidom
 import re
 import requests
 
+
 from urllib.parse import urlsplit
 from bs4 import BeautifulSoup
 
@@ -147,12 +148,12 @@ class Utils(object):
             raise err
 
     @classmethod
-    def csv_stream_do_dict(cls, stream, delimiter=','):
+    def csv_stream_to_dict(cls, stream, delimiter=','):
         """
-        Transform Stream (in CSV format) into a dictionnary
+        Transform Stream (in CSV format) into a dictionary.
 
         Arguments keywords:
-        stream -- stream containing infos to put in dictionnary
+        stream -- stream containing infos to put in dictionary
                   For stream information, have a look here: https://docs.python.org/3.5/library/io.html
         delimiter -- character to use to split infos coming from stream (CSV)
 
@@ -177,22 +178,22 @@ class Utils(object):
         Return: list of dictionnaries
         """
         with io.StringIO(text) as stream:
-            return cls.csv_stream_do_dict(stream, delimiter=delimiter)
+            return cls.csv_stream_to_dict(stream, delimiter=delimiter)
 
     @classmethod
     def csv_filepath_to_dict(cls, file_path, delimiter=',', encoding="utf-8"):
         """
-        Returns the rows of the given CSV file as a list of dicts
+        Returns the rows of the given CSV file as a list of dictionaries.
 
         Arguments keywords:
         file_path -- path to file containing infos (in CSV format)
         delimiter -- character to use to split infos coming from file (CSV)
         encoding -- encoding used in file 'file_path'
 
-        Retur: list of dictionnaries
+        Return: list of dictionaries
         """
         with open(file_path, 'r', encoding=encoding) as stream:
-            return cls.csv_stream_do_dict(stream, delimiter=delimiter)
+            return cls.csv_stream_to_dict(stream, delimiter=delimiter)
 
     @classmethod
     def get_optional_env(cls, key, default):
@@ -413,12 +414,6 @@ class Utils(object):
         Clean HTML comments and images base64
         """
         content = re.sub("(<!--.*?-->)", "", content)
-        if "data:image/png;base64" in content:
-            content = re.sub('(\"data:image/png;base64.*?\")', "", content)
-            logging.warning("Delete png images in base64")
-        if "data:image/jpeg;base64" in content:
-            content = re.sub('(\"data:image/jpeg;base64.*?\")', "", content)
-            logging.warning("Delete jpeg images in base64")
         return content
 
     def is_html(content):
@@ -438,13 +433,27 @@ class Utils(object):
         if url == "":
             return ""
 
-        response = requests.get(url)
+        # To catch invalid URLs
+        try:
+            response = requests.get(url)
 
-        # Check for 30x or 200 status code
-        if 300 <= response.status_code < 400 or response.status_code == 200:
-            # It's a redirect
-            return response.url
+            # Check for 30x or 200 status code. If condition satisfied, it means it's a redirect
+            if 300 <= response.status_code < 400 or response.status_code == 200:
+                return response.url
 
-        else:
-            # If we cannot get a correct answer, we assume there is no redirect
+            else:
+                # If we cannot get a correct answer, we assume there is no redirect
+                return url
+        except:
+            # URL seems to be invalid but not our problem, so we return it as it is.
             return url
+
+    @staticmethod
+    def get_random_string(length):
+        """
+        Generate a random string of asked length
+
+        :param length:
+        :return:
+        """
+        return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(length))

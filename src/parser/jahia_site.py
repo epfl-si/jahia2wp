@@ -5,6 +5,7 @@ import logging
 import collections
 import re
 import settings
+import base64
 
 from bs4 import BeautifulSoup
 from parser.box import Box
@@ -15,6 +16,7 @@ from parser.page_content import PageContent
 from parser.sitemap_node import SitemapNode
 from parser.menu_item import MenuItem
 from parser.banner import Banner
+from parser.box_sorted_group import BoxSortedGroup
 from utils import Utils
 from collections import OrderedDict
 
@@ -64,6 +66,9 @@ class Site:
 
         # the site languages
         self.languages = []
+
+        # List of sort groups used to sort groups of boxes
+        self.box_sort_groups = {}
 
         # the WordPress shortcodes used in the site. The key is the shortcode name,
         # and the value is the shortcode attributes containing URLs that must be
@@ -176,6 +181,25 @@ class Site:
             out_file.close()
             # Remove temp file
             os.remove(old_export_file)
+
+    def get_box_sort_group(self, uuid, sort_params):
+        """
+        Generate (if not exists) a Box sort group associated to given uuid.
+        Sort handlers are managed here
+        :param uuid: ID of sortHandler
+        :param sort_params: String containing sort parameters
+        :return: SortHandler object
+        """
+
+        if uuid not in self.box_sort_groups:
+
+            # Sort handler for uuid doesn't exists so we have to create it
+            # First, we extract params from sort_params: ex => "lastModified;desc;true;true"
+            params = sort_params.split(";")
+
+            self.box_sort_groups[uuid] = BoxSortedGroup(uuid, params[0], params[1])
+
+        return self.box_sort_groups[uuid]
 
     def full_path(self, path):
         """
@@ -570,7 +594,8 @@ class Site:
 
     def register_shortcode(self, name, attributes, box):
         """
-        Register the given shortcode.
+        Register the given shortcode with specified attributes. Content of those attributes (usually links) will be
+        fixed during export in WordPress.
 
         :param name: the shortcode name
         :param attributes: a list with the shortcode attributes that must be fixed by WPExporter
@@ -666,9 +691,13 @@ class Site:
             if not link:
                 continue
 
+            skip_link = False
             for link_type in self.link_type_to_ignore:
                 if link.startswith(link_type):
-                    return
+                    skip_link = True
+
+            if skip_link:
+                continue
 
             if self.is_file_link(link):
 
@@ -803,6 +832,7 @@ class Site:
                 self.external_links += 1
             # data links
             elif link.startswith("data:"):
+                self.process_base64_image(tag, attribute, link)
                 self.data_links += 1
             # mailto links
             elif link.startswith("mailto:"):
@@ -815,6 +845,38 @@ class Site:
                 self.unknown_links += 1
 
         box.content = str(soup.body)
+
+    def process_base64_image(self, tag, attribute, base64_string):
+        """
+        Create a image file with content of base64_string and update attribute value for given tag.
+
+        :param tag: Tag to update
+        :param attribute: attribute to update in tag
+        :param base64_string: String containing image info, looks like :
+         "data:image/png;base64,iVBORw0KGgoAAAANSUh....."
+        :return:
+        """
+        # We extract image extension and string containing image
+        ext = base64_string.split(";")[0].split("/")[1]
+        img_string = base64_string.split("base64,")[1]
+        # Generating random filename
+        filename = "{}.{}".format(Utils.get_random_string(20), ext)
+
+        image_data = base64.b64decode(img_string)
+
+        # We rebuild full path to create image at right place to be sure it will be uploaded with others medias
+        file_directory = '{}/content/sites/{}/files/{}'.format(self.base_path, self.name, filename)
+        file_path = "{}/{}".format(file_directory, filename)
+        # Image directory creation if not exists
+        if not os.path.exists(file_directory):
+            os.makedirs(file_directory)
+
+        with open(file_path, 'wb') as f:
+            f.write(image_data)
+
+        # Change base64 image data by link to created file. We have to take file directory instead of filename
+        # because this is how it works
+        tag[attribute] = file_directory[file_directory.rindex('/files/'):]
 
     def build_sitemaps(self):
         """Build the sitemaps"""

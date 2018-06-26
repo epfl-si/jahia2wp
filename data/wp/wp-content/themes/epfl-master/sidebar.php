@@ -9,7 +9,7 @@
 
 ?>
 
-<aside id="secondary" class="sidebar col col-l-4" role="complementary">
+<aside id="secondary" class="sidebar" role="complementary">
   
   <?php if ( is_front_page() ) : ?>
   
