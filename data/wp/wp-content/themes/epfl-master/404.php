@@ -15,8 +15,7 @@
 get_header(); ?>
 
 <div class="wrap">
-  <div class="grid">
-	<div id="primary" class="content-area col col-l-8">
+	<div id="primary" class="content-area">
 		<main id="main" class="site-main" role="main">
     	
     	<section class="error-404 not-found">
@@ -34,7 +33,6 @@ get_header(); ?>
 		</main><!-- #main -->
 	</div><!-- #primary -->
 	<?php get_sidebar(); ?>
-  </div><!-- .grid -->
 </div><!-- .wrap -->
 
 <?php get_footer();
