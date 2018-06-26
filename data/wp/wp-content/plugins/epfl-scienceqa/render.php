@@ -30,7 +30,6 @@ Class ScienceQARender
 
 		return $html;
 	}
-
 }
 
 ?>

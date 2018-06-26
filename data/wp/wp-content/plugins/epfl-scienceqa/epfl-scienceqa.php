@@ -106,9 +106,9 @@ function epfl_scienceqa_process_shortcode( $atts = [], $content = '', $tag = '' 
 
 	$url = epfl_scienceqa_build_api_url( $lang, $qid );
 
-	$scienceqa = ScienceQAUtils::get_items( $url );
+	$items = ScienceQAUtils::get_items( $url );
 
-	if (epfl_scienceqa_check_response_data( $scienceqa ) == FALSE) {
+	if (epfl_scienceqa_check_response_data( $items ) == FALSE) {
 		return '';
 	}
 
@@ -116,14 +116,14 @@ function epfl_scienceqa_process_shortcode( $atts = [], $content = '', $tag = '' 
 	if ( has_action( 'epfl_scienceqa_action' ) ) {
 		ob_start();
 		try {
-			do_action( 'epfl_scienceqa_action', $scienceqa );
+			do_action( 'epfl_scienceqa_action', $items );
 			return ob_get_contents();
 		} finally {
 			ob_end_clean();
 		}
 	// otherwise the plugin does the rendering
 	} else {
-		return ScienceQARender::epfl_scienceqa_build_html( $scienceqa, $lang );
+		return ScienceQARender::epfl_scienceqa_build_html( $items, $lang );
 	}
 }
 
