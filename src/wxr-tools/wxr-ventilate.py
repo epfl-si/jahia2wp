@@ -233,6 +233,13 @@ class XMLElement:
         return [cls(etree, elt)
                 for elt in QName.xpath(etree, '//' + cls.element_name)]
 
+    def delete(self):
+        self._elt.getparent().remove(self._elt)
+        self._elt = 'DELETED'
+
+    def __repr__(self):
+        return '[%s %s]' % (self.__class__.__name__, to_string(self._elt))
+
 
 class Item(XMLElement):
     """An <item> in the XML document.
@@ -274,11 +281,12 @@ class Item(XMLElement):
                             if item.id == id)
 
     def delete(self):
-        self._elt.getparent().remove(self._elt)
-        for other in self.all(self._etree):
-            if other.parent_id == self.id:
+        id = self.id
+        etree = self._etree
+        super().delete()
+        for other in self.all(etree):
+            if other.parent_id == id:
                 other.parent_id = 0
-        self._elt = 'DELETED'
 
     def ensure_id(self, int_direction = 1):
         if self.id is None:
@@ -290,8 +298,22 @@ class Item(XMLElement):
                 self.id = min([0] + existing_ids) - 1
         return self  # Chainable
 
-    def __repr__(self):
-        return '[Item %s]' % to_string(self._elt)
+    def get_nicename(self, category_domain):
+        category_ptr = sole_or_none(
+            self._elt.xpath('category[@domain="%s"]' % category_domain))
+        if category_ptr is None:
+            return None
+        else:
+            return sole(category_ptr.xpath('@nicename'))
+
+    @classmethod
+    def insert_structural(cls, etree):
+        new_item = cls.insert(etree)
+        new_item.ensure_id(-1)
+        new_item.post_status    = 'publish'
+        new_item.ping_status    = 'closed'
+        new_item.comment_status = 'closed'
+        return new_item
 
 
 class Channel(XMLElement):
@@ -317,10 +339,11 @@ class Term(XMLElement):
     description = XMLElementProperty('wp:term_name',     str)
 
     @classmethod
-    def find(cls, etree, taxonomy, slug):
-        return sole_or_none(
+    def find(cls, etree, taxonomy, slug=None):
+        return (
             term for term in cls.all(etree)
-            if term.taxonomy == taxonomy and term.slug == slug)
+            if term.taxonomy == taxonomy and
+            ((term.slug == slug) if slug is not None else True))
 
 
 class ElementSubset:
@@ -349,29 +372,55 @@ class ElementSubset:
         else:
             return setattr(self._delegate, attr, newval)
 
+    def __repr__(self):
+        return '[%s %s]' % (self.__class__.__name__, to_string(self._elt))
 
-class Page(ElementSubset):
-    """Model for WordPress "actual" pages (with post_type='page')."""
+
+class ItemSubset(ElementSubset):
+    """An ElementSubset of Item where the criterion is the <wp:post_type>."""
     @classmethod
     def all(cls, etree):
-        return [cls(i) for i in Item.all(etree) if i.post_type == 'page']
+        return (cls(i) for i in Item.all(etree) if i.post_type == cls.POST_TYPE)
+
+    @classmethod
+    def insert_structural(cls, etree):
+        new_item = Item.insert_structural(etree)
+        new_item.post_type = cls.POST_TYPE
+        return cls(new_item)
+
+
+class TaxonomySubset(ElementSubset):
+    """An ElementSubset of <wp:term>s of a particular taxonomy."""
+
+    @classmethod
+    def all(cls, etree):
+        return (cls(term) for term in Term.find(etree, cls.TAXONOMY_SLUG))
+
+    @classmethod
+    def find_by_slug(cls, etree, slug):
+        term = sole_or_none(Term.find(etree, cls.TAXONOMY_SLUG, slug))
+        if term is None:
+            return None
+        else:
+            return cls(term)
+
+
+class Page(ItemSubset):
+    """Model for WordPress "actual" pages (with post_type='page')."""
+
+    POST_TYPE = 'page'
 
     @classmethod
     def insert_structural(cls, etree, post_slug):
-        new_item = Item.insert(etree)
-        new_item.ensure_id(-1)
-        new_item.post_type      = 'page'
-        new_item.post_status    = 'publish'
-        new_item.ping_status    = 'closed'
-        new_item.comment_status = 'closed'
-        new_item.post_slug      = post_slug
-        return cls(new_item)
+        new_item = super().insert_structural(etree)
+        new_item.post_slug = post_slug
+        return new_item
 
     @classmethod
     def by_id(cls, etree, id):
         this_item = sole_or_none(i for i in Item.all(etree)
                                  if i.id == id)
-        assert this_item is None or this_item.post_type == 'page'
+        assert this_item is None or this_item.post_type == cls.POST_TYPE
         return None if this_item is None else cls(this_item)
 
     @classmethod
@@ -388,22 +437,12 @@ class Page(ElementSubset):
         """The Polylang language set for this page.
 
         Returns: A string like "fr" or "en", or None."""
-        category_ptr = sole_or_none(
-            self._elt.xpath('category[@domain="language"]'))
-        if category_ptr is None:
-            return None
-        else:
-            return sole(category_ptr.xpath('@nicename'))
+        return self.get_nicename(category_domain='language')
 
     @property
     def _translation_slug(self):
         """Returns: A string that looks like pll_1234567abcdef."""
-        category_ptr = sole_or_none(
-            self._elt.xpath('category[@domain="post_translations"]'))
-        if category_ptr is None:
-            return None
-        else:
-            return sole(category_ptr.xpath('@nicename'))
+        return self.get_nicename('post_translations')
 
     @property
     def translations(self):
@@ -429,16 +468,10 @@ class Page(ElementSubset):
         return '<Page post_id=%d post_slug="%s">' % (self.id, self.post_slug)
 
 
-class TranslationSet(ElementSubset):
+class TranslationSet(TaxonomySubset):
     """Model for a term of Polylang's post_translations taxonomy."""
 
-    @classmethod
-    def find_by_slug(cls, etree, slug):
-        term = Term.find(etree, 'post_translations', slug)
-        if term is None:
-            return None
-        else:
-            return cls(term)
+    TAXONOMY_SLUG = 'post_translations'
 
     @property
     def _payload(self):
@@ -486,4 +519,4 @@ def demo():
 
     secure_it = lxml.etree.parse(wxrdir + 'secure-it-next.xml')
     pages = Page.all(secure_it)
-    translations = pages[0].translations
+    translations = next(iter(pages)).translations
