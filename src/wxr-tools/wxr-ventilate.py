@@ -66,6 +66,8 @@ class Ventilator:
             homepage = self.homepageify()
             self.add_structure(path_components, homepage)
 
+            self.trim_and_reparent_menus()
+
         return self.etree
 
     def homepageify(self):
@@ -83,6 +85,35 @@ class Ventilator:
                 page.parent_id = translations.get(page.language, homepage).id
 
         return homepage
+
+    def trim_and_reparent_menus(self):
+        """Ensure that menus will import/merge sanely.
+
+        * Remove all menus except the "main" one (in all languages)
+
+        * Reparent everything in said menu, so that it becomes easier to
+          manipulate the imported menu in the stock wp-admin menu editor
+        """
+
+        will_reparent_under = {}
+        for menu in NavMenu.all(self.etree):
+            slug = menu.slug
+            if slug.startswith('main'):
+                new_nav = will_reparent_under[slug] = NavMenuItem.insert_structural(self.etree)
+                new_nav.menu_slug       = slug
+                new_nav.menu_item_type  = 'custom'
+                new_nav.url             = '#'
+                new_nav.title           = '["%s" menu of %s]' % (slug, Channel.the(self.etree).moniker)
+            else:
+                menu.delete()
+
+        for nav in NavMenuItem.all(self.etree):
+            if nav.menu_slug not in will_reparent_under:
+                nav.delete()  # We already tossed the menu it belongs to
+                continue
+            if nav.parent_id == 0:
+                nav.parent_id = will_reparent_under[nav.menu_slug].id
+
 
     def add_structure(self, path_components, above_this_page):
         assert len(path_components) > 0
@@ -416,6 +447,16 @@ class Item(XMLElement):
         else:
             return sole(category_ptr.xpath('@nicename'))
 
+    def set_nicename(self, new_value, category_domain):
+        category_ptr = sole_or_none(
+            self._elt.xpath('category[@domain="%s"]' % category_domain))
+        if category_ptr is None:
+            category_ptr = lxml.etree.Element('category')
+            self._elt.append(category_ptr)
+            category_ptr.attrib['domain'] = category_domain
+        category_ptr.attrib['nicename'] = new_value
+        category_ptr.text = new_value
+
     @classmethod
     def insert_structural(cls, etree):
         new_item = cls.insert(etree)
@@ -431,12 +472,19 @@ class Channel(XMLElement):
 
     element_name = 'channel'
 
-    base_url = XMLElementProperty('link', str)
+    base_url    = XMLElementProperty('link',        str)
+    description = XMLElementProperty('description', str)
 
     @classmethod
     def the(cls, etree):
         return sole(cls.all(etree))
 
+    @property
+    def moniker(self):
+        description = self.description and self.description.strip()
+        if description not in (None, '', 'EPFL'):
+            return description
+        return normalize_site_url(self.base_url).replace('https://', '')
 
 class Term(XMLElement):
     """A <wp:term> element in the XML document."""
