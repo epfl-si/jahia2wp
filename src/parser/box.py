@@ -472,6 +472,8 @@ class Box:
         if projects:
             html_content += 'projects="{}" '.format(",".join(projects))
 
+        html_content += 'title="{}" '.format(self.title)
+
         html_content += '/]'
 
         self.content = html_content
