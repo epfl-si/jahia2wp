@@ -138,6 +138,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         'group_by' => '', # "", "year", "doctype"
         'group_by2' => '', # "", "year", "doctype"
         # Dev
+        'debug' => 'false',
         'debug_data' => 'false',
         'debug_template' => 'false',
     );
@@ -155,7 +156,8 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     $attributes['summary'] = $attributes['summary'] === 'true' ? true : false;
     $attributes['thumbnail'] = $attributes['thumbnail'] === 'true' ? true : false;
     $attributes['format'] = in_array(strtolower($attributes['format']), ['short', 'detailed']) ? strtolower($attributes['format']) : 'short';
-
+    
+    $attributes['debug'] = strtolower($attributes['debug']) === 'true' ? true : false;
     $attributes['debug_data'] = strtolower($attributes['debug_data']) === 'true' ? true : false;
     $attributes['debug_template'] = strtolower($attributes['debug_template']) === 'true' ? true : false;
     
@@ -169,8 +171,13 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     $thumbnail = $attributes['thumbnail'];
     unset($attributes['thumbnail']);
 
-    $debug_data = $attributes['debug_data'];
-    unset($attributes['debug_data']);
+    if ( $attributes['debug']) {
+        $debug_data = $attributes['debug'];  # alias
+        unset($attributes['debug']);
+    } else {
+        $debug_data = $attributes['debug_data'];
+        unset($attributes['debug_data']);
+    }
 
     $debug_template = $attributes['debug_template'];
     unset($attributes['debug_template']);
