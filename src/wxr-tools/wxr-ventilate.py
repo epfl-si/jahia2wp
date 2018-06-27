@@ -209,6 +209,9 @@ class XMLElementProperty:
         return new_node
 
     def __get__(self, that, unused_type_of_that=None):
+        if that is None:
+            # Accessing the property on the class, rather than an instance
+            return self  # Allows for aliasing the property across classes
         node = self._get_node(that)
         if node is None:
             return None
@@ -220,6 +223,111 @@ class XMLElementProperty:
     def __set__(self, that, newval):
         self._get_or_create_node(that).text = self._uncast(newval)
 
+
+class XMLDictProperty:
+    def __init__(self, *args, **kwargs):
+        self.__instance_constructor_params = (args, kwargs)
+
+    def __get__(self, that, unused_type_of_that=None):
+        if that is None:
+            # Accessing the property on the class, rather than an instance
+            return self  # So that one can invoke .property on it
+
+        args, kwargs = self.__instance_constructor_params
+        # Out of necessity, XMLDictProperty is a "friend" of all
+        # the classes it applies to. We need but two Demeter violations
+        # just here.
+        xml_elt   = that._elt
+        xml_etree = that._etree
+        return self._XMLDictPropertyInstance(xml_elt, xml_etree, *args, *kwargs)
+
+    def __set__(self, that, what):
+        the_dict = self.__get__()
+        for(k, v) in what.items():
+            the_dict[k] = v
+
+    # Make a scalar property (that works like XMLElementProperty) out
+    # of one particular field of this XMLDictProperty.
+    def property(self, key_name, type=str):
+        return self._XMLDictItemProperty(self, key_name, type)
+
+    class _XMLDictPropertyInstance:
+        def __init__(self, _xml_elt, _xml_etree,
+                     pair_element_name, key_element_name, value_element_name):
+            self._elt   = _xml_elt
+            self._etree = _xml_etree
+            self._qname = QName.cast(pair_element_name)
+            self._kvclass = type(
+                'XMLDictPropertyInstance_KVPair',
+                (XMLElement, ),
+                { 'key':   XMLElementProperty(key_element_name,   str),
+                  'value': XMLElementProperty(value_element_name, str) })
+
+        def _all_kvpairs(self):
+            return (self._kvclass(self._etree, kvnode)
+                    for kvnode in QName.xpath(self._elt, self._qname.short))
+
+        def _find_kvpair(self, k):
+            try:
+                return next(kv for kv in self._all_kvpairs()
+                            if kv.key == k)
+            except StopIteration:
+                return None
+
+        def _find_or_create_kvpair(self, k):
+            kv = self._find_kvpair(k)
+            if kv:
+                return kv
+            new_node = lxml.etree.Element(self._qname.long)
+            self._elt.append(new_node)
+            new_kv = self._kvclass(self._etree, new_node)
+            new_kv.key = k
+            return new_kv
+
+        def __getitem__(self, k):
+            kv = self._find_kvpair(k)
+            if kv:
+                return kv.value
+            else:
+                raise KeyError(k)
+
+        def __setitem__(self, k, v):
+            self._find_or_create_kvpair(k).value = v
+
+        def __delitem__(self, k):
+            kv = self._find_kvpair(k)
+            if not kv:
+                return
+            kv.delete()
+
+        def keys(self):
+            return (kv.v for kv in self._all_kvpairs())
+
+        # Le sigh - https://stackoverflow.com/a/11165510/435004
+        def get(self, k, default_v):
+            try:
+                return self.__getitem__(k)
+            except KeyError:
+                return default_v
+        def __iter__(self):
+            for kv in self._all_kvpairs():
+                yield kv.key
+        def __len__(self):
+            return len(self._all_kvpairs())
+
+    class _XMLDictItemProperty:
+        def __init__(self, dict_property, key_name, type):
+            self._dprop = dict_property
+            self._key_name = key_name
+            self._cast   = type
+            self._uncast = str
+
+        def __get__(self, that, unused_type_of_that=None):
+            val_raw = self._dprop.__get__(that).get(self._key_name, None)
+            return None if val_raw is None else self._cast(val_raw)
+
+        def __set__(self, that, newval):
+            self._dprop.__get__(that)[self._key_name] = self._uncast(newval)
 
 class XMLElement:
     """Abstract base class for Item, Channel and more."""
@@ -261,6 +369,8 @@ class Item(XMLElement):
     post_status    = XMLElementProperty('wp:status',         str)
     comment_status = XMLElementProperty('wp:comment_status', str)
     ping_status    = XMLElementProperty('wp:ping_status',    str)
+
+    post_meta = XMLDictProperty('wp:postmeta', 'wp:meta_key', 'wp:meta_value')
 
     @classmethod
     def insert(cls, etree):
@@ -489,6 +599,37 @@ class TranslationSet(TaxonomySubset):
     def __repr__(self):
         return repr(self._payload)
 
+
+class NavMenu(TaxonomySubset):
+    """Model for the navigation menu terms (the containers, not the items)."""
+    TAXONOMY_SLUG = 'nav_menu'
+
+
+class NavMenuItem(ItemSubset):
+    """An <item> with <wp:post_type>nav_menu_item</wp:post_type>."""
+
+    POST_TYPE = 'nav_menu_item'
+
+    @property
+    def menu_slug(self):
+        """The short name ("slug") of the menu this item is part of."""
+        return self.get_nicename(category_domain='nav_menu')
+
+    @menu_slug.setter
+    def menu_slug(self, newval):
+        return self.set_nicename(newval, category_domain='nav_menu')
+
+    title          = Item.post_title
+    menu_item_type = Item.post_meta.property('_menu_item_type',            str)
+    url            = Item.post_meta.property('_menu_item_url',             str)
+    # post_id is the post this NavMenuItem refers to (if its
+    # .menu_item_type is 'post_type'); parent_id is the ID of
+    # the parent NavMenuItem, if any.
+    # Near as I can tell, the "true" post_id and parent_id fields (the
+    # ones we would delegate to Item absent the following) is unused by
+    # wordpress-importer.php
+    post_id       = Item.post_meta.property('_menu_item_object_id',        int)
+    parent_id     = Item.post_meta.property('_menu_item_menu_item_parent', int)
 
 if __name__ == '__main__':
     args = docopt(__doc__)
