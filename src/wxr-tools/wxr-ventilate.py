@@ -472,12 +472,15 @@ class ElementSubset:
         self._delegate = delegate
 
     def __getattr__(self, attr):
-        """Delegate whenever an unknown method is called."""
-        return getattr(self._delegate, attr)
+        """Delegate if appropriate."""
+        if attr == '_delegate' or attr in self.__dict__ or attr in self.__class__.__dict__:
+            return object.__getattr__(self, attr)
+        else:
+            return getattr(self._delegate, attr)
 
     def __setattr__(self, attr, newval):
-        """Delegate setter iff the attribute exists in delegate."""
-        if attr == '_delegate' or not hasattr(self._delegate, attr):
+        """Delegate if appropriate."""
+        if attr == '_delegate' or attr in self.__dict__ or attr in self.__class__.__dict__:
             return object.__setattr__(self, attr, newval)
         else:
             return setattr(self._delegate, attr, newval)
