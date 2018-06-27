@@ -164,25 +164,41 @@ class QName:
         return self._shortform
 
 
-class XmlElementProperty:
-    """A property for XML sub-element getters/setters."""
+class XMLElementProperty:
+    """Getter/setter for XML properties.
+
+    Instances of XMLElementProperty are to be affixed to a class
+    like this:
+
+        class Item:   # For instance
+
+            post_title = XMLElementProperty('title', str)
+
+    will make it possible to get / set Item().post_title as a string.
+    """
     def __init__(self, element_name, type=str):
-        """Returns: An object with __get__ and __set__ methods that does the
-        combined work of @property / @xx.setter for a datum of type
-        `type' materialized as an XML child element `element_name'
+        """Object constructor.
+
+        Arguments:
+           element_name: A QName instance or a namespaced element name as a
+                         string, e.g. "wp:post-parent"
+           type:         One of int or str
+
+        Returns: An object with appropriate API to make things work
+        magically behind the scenes.
         """
         self._qname = QName.cast(element_name)
         self._cast = type
         self._uncast = str  # Good enough for type in (str, int)
 
     def _elt(self, that):
-        # Out of necessity, XmlElementProperty is a "friend" of all
+        # Out of necessity, XMLElementProperty is a "friend" of all
         # the classes it applies to. This method concentrates the
         # required Demeter violations in a single place.
         return that._elt
 
     def _get_node(self, that):
-        return sole_or_none(QName.xpath(self._elt(that),self._qname.short))
+        return sole_or_none(QName.xpath(self._elt(that), self._qname.short))
 
     def _get_or_create_node(self, that):
         node = self._get_node(that)
@@ -206,7 +222,7 @@ class XmlElementProperty:
 
 
 class XMLElement:
-    """Abstract base class for Item and Channel."""
+    """Abstract base class for Item, Channel and more."""
     def __init__(self, etree, etree_elt):
         """Private constructor, don't call directly."""
         self._etree      = etree
@@ -228,16 +244,16 @@ class Item(XMLElement):
 
     element_name = 'item'  # Used by superclass
 
-    id             = XmlElementProperty('wp:post_id',        int)
-    parent_id      = XmlElementProperty('wp:post_parent',    int)
-    guid           = XmlElementProperty('guid',              str)
-    link           = XmlElementProperty('link',              str)
-    post_title     = XmlElementProperty('title',             str)
-    post_slug      = XmlElementProperty('wp:post_name',      str)
-    post_type      = XmlElementProperty('wp:post_type',      str)
-    post_status    = XmlElementProperty('wp:status',         str)
-    comment_status = XmlElementProperty('wp:comment_status', str)
-    ping_status    = XmlElementProperty('wp:ping_status',    str)
+    id             = XMLElementProperty('wp:post_id',        int)
+    parent_id      = XMLElementProperty('wp:post_parent',    int)
+    guid           = XMLElementProperty('guid',              str)
+    link           = XMLElementProperty('link',              str)
+    post_title     = XMLElementProperty('title',             str)
+    post_slug      = XMLElementProperty('wp:post_name',      str)
+    post_type      = XMLElementProperty('wp:post_type',      str)
+    post_status    = XMLElementProperty('wp:status',         str)
+    comment_status = XMLElementProperty('wp:comment_status', str)
+    ping_status    = XMLElementProperty('wp:ping_status',    str)
 
     @classmethod
     def insert(cls, etree):
@@ -281,21 +297,24 @@ class Item(XMLElement):
 class Channel(XMLElement):
     """A <channel> element in the XML document."""
 
-    element_name = 'channel'  # Used by superclass
+    element_name = 'channel'
 
-    base_url = XmlElementProperty('link', str)
+    base_url = XMLElementProperty('link', str)
 
     @classmethod
     def the(cls, etree):
         return sole(cls.all(etree))
 
+
 class Term(XMLElement):
+    """A <wp:term> element in the XML document."""
+
     element_name = 'wp:term'
 
-    taxonomy    = XmlElementProperty('wp:term_taxonomy', str)
-    slug        = XmlElementProperty('wp:term_slug',     str)
-    name        = XmlElementProperty('wp:term_name',     str)
-    description = XmlElementProperty('wp:term_name',     str)
+    taxonomy    = XMLElementProperty('wp:term_taxonomy', str)
+    slug        = XMLElementProperty('wp:term_slug',     str)
+    name        = XMLElementProperty('wp:term_name',     str)
+    description = XMLElementProperty('wp:term_name',     str)
 
     @classmethod
     def find(cls, etree, taxonomy, slug):
@@ -408,6 +427,7 @@ class Page(ElementSubset):
 
     def __repr__(self):
         return '<Page post_id=%d post_slug="%s">' % (self.id, self.post_slug)
+
 
 class TranslationSet(ElementSubset):
     """Model for a term of Polylang's post_translations taxonomy."""
