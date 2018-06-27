@@ -9,7 +9,7 @@
         echo '</p>';
     }
 
-    if ($publication['publication_year']) {
-        echo "<span>" . $publication['publication_year'][0] . ". </span>";
+    if ($publication['publication_date']) {
+        echo "<span>" . $publication['publication_date'][0] . ". </span>";
     }
 ?>

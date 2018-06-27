@@ -22,15 +22,15 @@
 
     if ($publication['company_name']) {
         echo "<span>" . $publication['company_name'][0] . "</span>";
-        if ($publication['publication_year']) {
+        if ($publication['publication_date']) {
             echo "<span>: </span>";
         } else {
             echo "<span>. </span>";
         }
     }
 
-    if ($publication['publication_year']) {
-        echo "<span>" . $publication['publication_year'][0] . ". </span>";
+    if ($publication['publication_date']) {
+        echo "<span>" . $publication['publication_date'][0] . ". </span>";
     }
 
     echo '</p>';

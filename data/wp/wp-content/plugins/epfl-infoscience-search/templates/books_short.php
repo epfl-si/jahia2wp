@@ -20,7 +20,7 @@
     if ($publication['journal'][0]['publication_location']) {
         echo "<span>" . $publication['journal'][0]['publication_location'] . "</span>";
 
-        if ($publication['journal'][0]['publication_institution'] || $publication['journal'][0]['publication_year']) {
+        if ($publication['journal'][0]['publication_institution'] || $publication['journal'][0]['publication_date']) {
             echo "<span>: </span>";
         } else {
             echo "<span>. </span>";
@@ -29,14 +29,14 @@
 
     if ($publication['journal'][0]['publication_institution']) {
         echo "<span>" . $publication['journal'][0]['publication_institution'] . "</span>";
-        if ($publication['journal'][0]['publication_year']) {
+        if ($publication['journal'][0]['publication_date']) {
             echo "<span>, </span>";
         } else {
             echo "<span>. </span>";
         }
     }
 
-    if ($publication['publication_year']) {
-        echo "<span>" . $publication['publication_year'][0] . ". </span>";
+    if ($publication['publication_date']) {
+        echo "<span>" . $publication['publication_date'][0] . ". </span>";
     }
 ?>

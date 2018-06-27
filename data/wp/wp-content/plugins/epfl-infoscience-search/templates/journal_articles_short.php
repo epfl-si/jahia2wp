@@ -22,8 +22,8 @@
         echo "<span>. </span>";
     }
 
-    if ($publication['publication_year']) {
-        echo "<span><i>" . $publication['publication_year'][0] . "</i></span>";
+    if ($publication['publication_date']) {
+        echo "<span><i>" . $publication['publication_date'][0] . "</i></span>";
         echo "<span>. </span>";
     }
 

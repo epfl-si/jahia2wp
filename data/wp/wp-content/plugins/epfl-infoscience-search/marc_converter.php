@@ -220,7 +220,7 @@ Class InfoscienceMarcConverter
         
         $record_array['publication_location'] = InfoscienceMarcConverter::parse_text($record, '260', '', '', ['a']);
         $record_array['publication_institution'] = InfoscienceMarcConverter::parse_text($record, '260', '', '', ['b']);
-        $record_array['publication_year'] = InfoscienceMarcConverter::parse_text($record, '269', '', '', ['a']);
+        $record_array['publication_date'] = InfoscienceMarcConverter::parse_text($record, '269', '', '', ['a']);
         $record_array['publication_page'] = InfoscienceMarcConverter::parse_text($record, '300', '', '', ['a']);
 
         /* if needed, uncomment this generic datas
