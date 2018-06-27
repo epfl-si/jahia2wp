@@ -18,3 +18,22 @@ def sole(iterator):
 
 def sole_or_none(iterator):
     return more_itertools.first(iterator, None)
+
+class Delegator:
+    """Abstract superclass to implement delegation-based composition."""
+    def __init__(self, delegate):
+        self._delegate = delegate
+
+    def __getattr__(self, attr):
+        """Delegate if appropriate."""
+        if attr == '_delegate' or attr in self.__dict__ or attr in self.__class__.__dict__:
+            return object.__getattr__(self, attr)
+        else:
+            return getattr(self._delegate, attr)
+
+    def __setattr__(self, attr, newval):
+        """Delegate if appropriate."""
+        if attr == '_delegate' or attr in self.__dict__ or attr in self.__class__.__dict__:
+            return object.__setattr__(self, attr, newval)
+        else:
+            return setattr(self._delegate, attr, newval)
