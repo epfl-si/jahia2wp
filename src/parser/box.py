@@ -449,9 +449,12 @@ class Box:
     def set_box_actu(self, element):
         """set the attributes of an actu box"""
 
+        # We specifically get 'actuListList' node before getting 'url' node in case of several 'url' nodes
+        # under 'element'. This happen for lspm website which has a 'snippetBox' inside 'actuBox'...
+        actu_list_list = element.getElementsByTagName("actuListList")
         # extract parameters from the old url of webservice
         channel_id, lang, template, category, themes, stickers, projects = self._extract_epfl_news_parameters(
-            Utils.get_tag_attribute(element, "url", "jahia:value")
+            Utils.get_tag_attribute(actu_list_list[0], "url", "jahia:value")
         )
         self.shortcode_name = "epfl_news"
         html_content = '[{} channel="{}" lang="{}" template="{}" '.format(
