@@ -133,8 +133,8 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         'operator3' => 'and',  # "and", "or", "and_not"
         # Presentation
         'format' => 'short',  # "short", "detailed"
-        'show_summary' => 'false', 
-        'show_thumbnail' => "false",  # "true", "false"
+        'summary' => 'false', 
+        'thumbnail' => "false",  # "true", "false"
         'group_by' => '', # "", "year", "doctype"
         'group_by2' => '', # "", "year", "doctype"
         # Dev
@@ -152,8 +152,8 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         $unmanaged_attributes[$key] = sanitize_text_field($value);
     }
 
-    $attributes['show_summary'] = $attributes['show_summary'] === 'true' ? true : false;
-    $attributes['show_thumbnail'] = $attributes['show_thumbnail'] === 'true' ? true : false;
+    $attributes['summary'] = $attributes['summary'] === 'true' ? true : false;
+    $attributes['thumbnail'] = $attributes['thumbnail'] === 'true' ? true : false;
     $attributes['format'] = in_array(strtolower($attributes['format']), ['short', 'detailed']) ? strtolower($attributes['format']) : 'short';
 
     $attributes['debug_data'] = strtolower($attributes['debug_data']) === 'true' ? true : false;
@@ -163,11 +163,11 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     $format = $attributes['format'];
     unset($attributes['format']);    
 
-    $show_summary = $attributes['show_summary'];
-    unset($attributes['show_summary']);
+    $summary = $attributes['summary'];
+    unset($attributes['summary']);
 
-    $show_thumbnail = $attributes['show_thumbnail'];
-    unset($attributes['show_thumbnail']);
+    $thumbnail = $attributes['thumbnail'];
+    unset($attributes['thumbnail']);
 
     $debug_data = $attributes['debug_data'];
     unset($attributes['debug_data']);
@@ -216,7 +216,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
                     }
                 } else {
                     # use the self renderer
-                    $page = HtmlInfoscienceRender::render($publications, $format, $show_summary, $show_thumbnail, $debug_template);
+                    $page = HtmlInfoscienceRender::render($publications, $format, $summary, $thumbnail, $debug_template);
                 }
 
                 // wrap the page

@@ -268,14 +268,14 @@ Class InfoscienceSearchShortCakeConfig
                         ),
                         array(
                             'label'         => esc_html__('Summary', 'epfl-infoscience-search'),
-                            'attr'          => 'show_summary',
+                            'attr'          => 'summary',
                             'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_summary_options(),
                             'value' => 'false',
                         ),                        
                         array(
                             'label'         => esc_html__('Thumbnail', 'epfl-infoscience-search'),
-                            'attr'          => 'show_thumbnail',
+                            'attr'          => 'thumbnail',
                             'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_thumbnail_options(),
                             'value' => 'true',
