@@ -26,33 +26,27 @@ function epfl_buttons_box_debug( $var ) {
  * @param $type: Box size : "small" or "big"
  * @param $url: the url pointed by the shortcode
  * @param $image_url: the id of the media (image) to show
- * @param $alt_text: the label for the image (text for the link also)
+ * @param $alt_text: the label for the image
+ * @param $text: link text
  * @param $title: Text to display under image
+ * @param $key: Key to identify small button class
  * @return string html of div containing the image and the text, both pointing to the URL
  */
-function epfl_buttons_box_build_html( string $type, string $url, string $image_url, string $alt_text, string $title ): string
+function epfl_buttons_box_build_html( string $type, string $url, string $image_url, string $alt_text, string $text, string $key ): string
 {
     $html  = '<div class="' . esc_attr($type) . 'ButtonsBox"><a href="'. esc_attr($url) . '" title="' . esc_attr($alt_text) .'">';
-    $html .= '<img src="' . $image_url . '" />';
-    $html .= $title . '</a></div>';
+    if($type == 'big')
+    {
+        $html .= '<img src="' . $image_url . '" />';
+    }
+    else
+    {
+        $html .= '<img class="' . esc_attr($key) . '" />';
+    }
+    $html .= $text . '</a></div>';
     return $html;
 }
-/**
- * Check the parameters
- *
- * Return True if all parameters are populated
- *
- * @param $type: Box size : "small" or "big"
- * @param $url: the url pointed by the shortcode
- * @param $image_url: the id of the media (image) to show
- * @param $alt_text: the label for the image (text for the link also)
- * @param $title: Text to display under image
- * @return True if all parameters are populated
- */
-function epfl_buttons_box_check_parameters( string $type, string $url, string $image_url, string $alt_text, string $title ): bool
-{
-    return $image_url !== '' && $url !== "" && $alt_text !== "" && $title !== "" &&  ($type == "small" || $type == "big");
-}
+
 /**
  * Execute the shortcode
  *
@@ -68,26 +62,27 @@ function epfl_buttons_process_shortcode( $attributes, string $content = null ): 
         'image'     => '',
         'url'       => '',
         'alt_text'  => '',
-        'title'     => '',
+        'text'      => '',
+        'key'       => '',
     ), $attributes);
 
     // sanitize parameters
     $type       = sanitize_text_field($atts['type']);
-    $image      = sanitize_text_field($atts['image']);
+    $image      = sanitize_text_field($atts['image']); // only for big buttons
     $url        = sanitize_text_field($atts['url']);
     $alt_text   = sanitize_text_field($atts['alt_text']);
-    $title      = sanitize_text_field($atts['title']);
+    $text       = sanitize_text_field($atts['text']);
+    $key        = sanitize_text_field($atts['key']); // only for small buttons
 
-    $image_url = wp_get_attachment_url( $image );
-    if (false == $image_url) {
-        $image_url = "BAD MEDIA ID";
+    if($type == 'big')
+    {
+        $image_url = wp_get_attachment_url( $image );
+        if (false == $image_url) {
+            $image_url = "BAD MEDIA ID";
+        }
     }
 
-    // check parameters
-    if ( false == epfl_buttons_box_check_parameters($type, $url, $image_url, $alt_text, $title) ) {
-        return "";
-    }
-    return epfl_buttons_box_build_html( $type, $url, $image_url, $alt_text, $title );
+    return epfl_buttons_box_build_html( $type, $url, $image_url, $alt_text, $text, $key );
 }
 
 // load .mo file for translation
