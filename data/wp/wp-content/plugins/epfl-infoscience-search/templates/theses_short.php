@@ -8,7 +8,7 @@
     if ($publication['director']) {
         $template_authors = $publication['director'];
         include $template_base_path . 'common/authors.php';
-        echo "<span> (" . __('Dir.', 'epfl_infoscience') . ") </span>";
+        echo "<span> (" . __('Dir.', 'epfl-infoscience-search') . ") </span>";
         echo "<span> : </span>";
     }
 
@@ -41,7 +41,7 @@
     }
 
     if ($publication['publication_page']) {
-        echo '<span>' . __('p.', 'epfl_infoscience') . ' ' . $publication['publication_page'][0] .'.</span> ';
+        echo '<span>' . __('p.', 'epfl-infoscience-search') . ' ' . $publication['publication_page'][0] .'.</span> ';
     }
 
     if ($publication['doi']) {

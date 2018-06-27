@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl-infoscience\n"
-"POT-Creation-Date: 2018-05-20 08:36+0200\n"
-"PO-Revision-Date: 2018-05-20 08:37+0200\n"
-"Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
+"POT-Creation-Date: 2018-06-27 09:34+0200\n"
+"PO-Revision-Date: 2018-06-27 09:48+0200\n"
+"Last-Translator: Delasoie Julien <julien.delasoie@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
@@ -13,22 +13,198 @@ msgstr ""
 "X-Poedit-Basepath: ..\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Poedit-KeywordsList: __;esc_html__\n"
-"X-Poedit-SearchPath-0: epfl-infoscience.php;esc_html__\n"
-"X-Poedit-SearchPath-0: epfl-infoscience.php\n"
+"X-Poedit-SearchPath-0: .\n"
 
-#: epfl-infoscience.php:80
+#: shortcake-config.php:10
+msgid "Any field"
+msgstr "Tous les champs"
+
+#: shortcake-config.php:11
+msgid "Author"
+msgstr "Auteur"
+
+#: shortcake-config.php:12
+msgid "Title"
+msgstr "Titre"
+
+#: shortcake-config.php:13
+msgid "Year"
+msgstr "Année"
+
+#: shortcake-config.php:14
+msgid "Unit"
+msgstr "Unité"
+
+#: shortcake-config.php:15
+msgid "Collection"
+msgstr "Collection"
+
+#: shortcake-config.php:16
+msgid "Journal"
+msgstr "Journal"
+
+#: shortcake-config.php:17 shortcake-config.php:275
+msgid "Summary"
+msgstr "Summary"
+
+#: shortcake-config.php:18
+msgid "Keyword"
+msgstr "Mot-clé"
+
+#: shortcake-config.php:19
+msgid "ISSN"
+msgstr "ISSN"
+
+#: shortcake-config.php:20
+msgid "DOI"
+msgstr "DOI"
+
+#: shortcake-config.php:40
+msgid "Descending"
+msgstr "Décroissant"
+
+#: shortcake-config.php:41
+msgid "Ascending"
+msgstr "Croissant"
+
+#: shortcake-config.php:47
+msgid "AND"
+msgstr "ET"
+
+#: shortcake-config.php:48
+msgid "OR"
+msgstr "OU"
+
+#: shortcake-config.php:49
+msgid "AND NOT"
+msgstr "ET NON PAS"
+
+#: shortcake-config.php:56
+msgid "Short"
+msgstr "Court"
+
+#: shortcake-config.php:57
+msgid "Detailed"
+msgstr "Détaillé"
+
+#: shortcake-config.php:64
+msgid "No summary"
+msgstr "Sans résumé"
+
+#: shortcake-config.php:65
+msgid "Show summary"
+msgstr "Afficher le résumé"
+
+#: shortcake-config.php:72
+msgid "No thumbnail"
+msgstr "Sans vignette"
+
+#: shortcake-config.php:73 shortcake-config.php:189
+msgid "Show illustration"
+msgstr "Avec vignette"
+
+#: shortcake-config.php:81
+msgid "year as title"
+msgstr "année comme titre"
+
+#: shortcake-config.php:82
+msgid "document type as title"
+msgstr "type de document comme titre"
+
+#: shortcake-config.php:180
 #, php-format
-msgid ""
-"How to get an infoscience URL to insert publications? %sRead this "
-"documentation%s"
+msgid "Add the url from a infoscience search result. %sRead this documentation%s"
 msgstr ""
-"Comment obtenir une URL d'infoscience permettant d'insérer une "
-"liste de publications ? %sVoir la documentation%s"
 
-#: epfl-infoscience.php:89
-msgid "Add Infoscience shortcode"
-msgstr "Ajouter un shortcode infoscience"
+#: shortcake-config.php:185
+#, php-format
+msgid "%sSearch tips%s"
+msgstr "%sConseils de recherche%s"
 
-#: epfl-infoscience.php:93
-msgid "Enter infoscience URL"
-msgstr "Saisir l'URL d'infoscience"
+#: shortcake-config.php:194
+msgid "Add Infoscience search result shortcode"
+msgstr "Ajouter un shortcode infoscience avec recherche"
+
+#: shortcake-config.php:199
+msgid "Create an Infoscience listing"
+msgstr "Création d'un listing de publications Infoscience"
+
+#: shortcake-config.php:204
+msgid "Search records for:"
+msgstr "Recherche des publications sur :"
+
+#: shortcake-config.php:208
+msgid "Field restriction"
+msgstr "Restriction de recherche"
+
+#: shortcake-config.php:214
+msgid "Sort"
+msgstr "Tri"
+
+#: shortcake-config.php:230
+msgid "Additional search keys"
+msgstr "Recherche additionnel"
+
+#: shortcake-config.php:231
+msgid "Second search text"
+msgstr "Deuxième recherche"
+
+#: shortcake-config.php:250
+msgid "Third search text"
+msgstr "Troisième recherche"
+
+#: shortcake-config.php:267
+msgid "Presentation"
+msgstr "Présentation"
+
+#: shortcake-config.php:268
+msgid "Format"
+msgstr "Format"
+
+#: shortcake-config.php:272
+msgid "Detail level for a publication"
+msgstr "Niveau de détail à l'affichage d'une publication"
+
+#: shortcake-config.php:282
+msgid "Thumbnail"
+msgstr "Vignette"
+
+#: shortcake-config.php:289 shortcake-config.php:295
+msgid "Group by"
+msgstr "Groupement"
+
+#: templates/book_chapters_detailed.php:49 templates/book_chapters_short.php:59
+#: templates/conference_papers_detailed.php:47
+#: templates/conference_papers_short.php:44
+#: templates/journal_articles_detailed.php:45 templates/reports_detailed.php:19
+#: templates/theses_detailed.php:54 templates/theses_short.php:44
+msgid "p."
+msgstr "p."
+
+#: templates/common/links-bar.php:10
+msgid "Detailed record"
+msgstr "Notice détaillée"
+
+#: templates/common/links-bar.php:14
+msgid "Full text"
+msgstr "Texte intégral"
+
+#: templates/common/links-bar.php:19
+msgid "View at publisher"
+msgstr "Consulter chez l'éditeur"
+
+#: templates/journal_articles_detailed.php:27
+msgid "Vol."
+msgstr "Vol."
+
+#: templates/journal_articles_detailed.php:36
+msgid "num."
+msgstr "num."
+
+#: templates/patents_detailed.php:42
+msgid "Patent number(s)"
+msgstr "Numéro de brevet"
+
+#: templates/theses_detailed.php:19 templates/theses_short.php:11
+msgid "Dir."
+msgstr "Dir."

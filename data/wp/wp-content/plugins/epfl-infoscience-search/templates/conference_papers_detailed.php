@@ -44,7 +44,7 @@
     }
 
     if ($publication['journal'][0]['page']) {
-        echo '<span>' . __('p.', 'epfl_infoscience') . ' ' . $publication['journal'][0]['page'] .'. </span> ';
+        echo '<span>' . __('p.', 'epfl-infoscience-search') . ' ' . $publication['journal'][0]['page'] .'. </span> ';
     }
 
     echo '</p>';

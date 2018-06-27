@@ -16,7 +16,7 @@
     }
 
     if ($publication['publication_page']) {
-        echo '<span>' . __('p.', 'epfl_infoscience') . ' ' . $publication['publication_page'][0] .'. </span> ';
+        echo '<span>' . __('p.', 'epfl-infoscience-search') . ' ' . $publication['publication_page'][0] .'. </span> ';
     }
 
     echo '</p>';

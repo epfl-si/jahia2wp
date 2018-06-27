@@ -39,7 +39,7 @@
         echo '<p>';
         echo '<div>';
         echo '<div class="patent-patents-list-left">';
-        echo '<span>'.  __('Patent number(s)', 'epfl_infoscience') . ' :</span>';
+        echo '<span>'.  __('Patent number(s)', 'epfl-infoscience-search') . ' :</span>';
         echo '</div>';
 
         echo '<div class="patent-patents-list-right">';

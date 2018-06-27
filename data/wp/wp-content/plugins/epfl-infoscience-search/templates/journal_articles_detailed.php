@@ -24,7 +24,7 @@
     }
 
     if ($publication['journal'][0]['volume']) {
-        echo '<span>' . __('Vol.', 'epfl_infoscience') . ' ' . $publication['journal'][0]['volume'] .'</span> ';
+        echo '<span>' . __('Vol.', 'epfl-infoscience-search') . ' ' . $publication['journal'][0]['volume'] .'</span> ';
         if ($publication['journal'][0]['number'] || $publication['journal'][0]['page']) {
             echo '<span>, </span>';
         } else {
@@ -33,7 +33,7 @@
     }
 
     if ($publication['journal'][0]['number']) {
-        echo '<span>' . __('num.', 'epfl_infoscience') . ' ' . $publication['journal'][0]['number'] .'</span> ';
+        echo '<span>' . __('num.', 'epfl-infoscience-search') . ' ' . $publication['journal'][0]['number'] .'</span> ';
         if ($publication['journal'][0]['page']) {
             echo '<span>, </span>';
         } else {
@@ -42,6 +42,6 @@
     }
 
     if ($publication['journal'][0]['page']) {
-        echo '<span>' . __('p.', 'epfl_infoscience') . ' ' . $publication['journal'][0]['page'] .'.</span> ';
+        echo '<span>' . __('p.', 'epfl-infoscience-search') . ' ' . $publication['journal'][0]['page'] .'.</span> ';
     }
 ?>

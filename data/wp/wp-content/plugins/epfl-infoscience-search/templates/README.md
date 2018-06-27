@@ -3,3 +3,4 @@
 ## not advanced show
 - short format show only direct info
 - detail show all (like volume, number, page)
+- no bullets
