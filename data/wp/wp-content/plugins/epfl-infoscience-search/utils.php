@@ -81,7 +81,8 @@ Class InfoscienceSearchUtils
         foreach ($array as $value) {
             $key = null;
 
-            if (isset($value[$_key])) {
+            if (isset($value[$_key]) && count($value[$_key]) > 0) {
+                $group_data = [];
                 $label = $compute_key($value[$_key][0]);
     
                 # no label ? skip this
@@ -89,13 +90,17 @@ Class InfoscienceSearchUtils
                     continue;
                 }
 
-                $grouped['label']= $label;
+                # find if the group exist already
+                $index_of_current = array_search($label, array_column($grouped, 'label'));
 
-                if (!isset($grouped['values'])) {
-                    $grouped['values'] = [];
+                if ($index_of_current !== false) {
+                    $grouped[$index_of_current]['label']= $label;
+                    $grouped[$index_of_current]['values'][] =  $value;
+                } else {
+                    $group_data['label']= $label;
+                    $group_data['values'][] = $value;
+                    $grouped[] = $group_data;
                 }
-
-                $grouped['values'][] = $value;
             }
         }
 

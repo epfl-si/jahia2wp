@@ -17,7 +17,7 @@ Class HtmlInfoscienceRender extends InfoscienceRender {
         $template_base_path = plugin_dir_path(__FILE__). 'templates/';
         $links_path = $template_base_path . 'common/' . 'links-bar.php';
 
-        foreach ($publications as $group_by) {
+        foreach ($publications['group_by'] as $group_by) {
             $group_by_starter = "";
             if ($group_by['label']) {
                 ob_start();
