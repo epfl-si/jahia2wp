@@ -279,15 +279,14 @@ Class InfoscienceSearchShortCakeConfig
                             'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_thumbnail_options(),
                             'value' => 'true',
-                        ),        
-                        /* Coming soon                    
+                        ),                           
                         array(
                             'label'         => esc_html__('Group by', 'epfl-infoscience-search') . ' (1)',
                             'attr'          => 'group_by',
                             'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_group_by_options(),
                         ),
-                        array(
+                        /*array(
                             'label'         => esc_html__('Group by', 'epfl-infoscience-search') . ' (2)',
                             'attr'          => 'group_by2',
                             'type'          => 'epfl-select',

@@ -111,6 +111,39 @@ function epfl_infoscience_search_generate_url_from_attrs($attrs) {
     return INFOSCIENCE_SEARCH_URL . http_build_query($parameters);
 }
 
+/*
+ Group by operations
+*/
+
+function sanitize_group_by($group_by_value) {
+    if ($group_by_value) {
+        $group_by_value = in_array(strtolower($group_by_value), ['year', 'doctype']) ? strtolower($group_by_value) : null;
+        return $group_by_value;
+    } else {
+        return;
+    }
+}
+
+function do_group_by($publications, $group_by=null, $group_by2=null) {
+    $grouped_publications = [];
+    if ($group_by === 'year') {
+        $grouped_publications['group_by'] = InfoscienceSearchUtils::array_group_by($publications, 'publication_date');
+    } elseif (($group_by === 'doctype')) {
+        $grouped_publications['group_by'] = InfoscienceSearchUtils::array_group_by($publications, 'doctype');
+    }
+    else {
+        # no group, set the same array level if so, without any label
+        $grouped_publications['group_by'] = [
+            'title' => null,
+            'values' => $publications,
+        ];
+    }
+
+    #TODO: second level group_by
+    
+    return $grouped_publications;
+}
+
 
 function epfl_infoscience_search_process_shortcode($provided_attributes = [], $content = null, $tag = '')
 {
@@ -156,7 +189,10 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     $attributes['summary'] = $attributes['summary'] === 'true' ? true : false;
     $attributes['thumbnail'] = $attributes['thumbnail'] === 'true' ? true : false;
     $attributes['format'] = in_array(strtolower($attributes['format']), ['short', 'detailed']) ? strtolower($attributes['format']) : 'short';
-    
+
+    $attributes['group_by'] = sanitize_group_by($attributes['group_by']);
+    $attributes['group_by2'] = sanitize_group_by($attributes['group_by2']);
+        
     $attributes['debug'] = strtolower($attributes['debug']) === 'true' ? true : false;
     $attributes['debug_data'] = strtolower($attributes['debug_data']) === 'true' ? true : false;
     $attributes['debug_template'] = strtolower($attributes['debug_template']) === 'true' ? true : false;
@@ -171,6 +207,11 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     $thumbnail = $attributes['thumbnail'];
     unset($attributes['thumbnail']);
 
+    $group_by = $attributes['group_by'];
+    unset($attributes['group_by']);
+    $group_by2 = $attributes['group_by2'];
+    unset($attributes['group_by2']);
+
     if ( $attributes['debug']) {
         $debug_data = $attributes['debug'];  # alias
         unset($attributes['debug']);
@@ -182,10 +223,6 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     $debug_template = $attributes['debug_template'];
     unset($attributes['debug_template']);
 
-
-    unset($attributes['group_by']);
-    unset($attributes['group_by2']);
-    
     $url = epfl_infoscience_search_generate_url_from_attrs($attributes+$unmanaged_attributes);
 
     // Check if the result is already in cache
@@ -206,6 +243,8 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
                 $marc_xml = wp_remote_retrieve_body( $response );
 
                 $publications = InfoscienceMarcConverter::convert_marc_to_array($marc_xml);
+                
+                $publications = do_group_by($publications, $group_by, $group_by2);
 
                 if ($debug_data) {
                     $page = RawInfoscienceRender::render($publications, $url);
