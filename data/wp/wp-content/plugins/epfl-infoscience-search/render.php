@@ -19,6 +19,7 @@ Class HtmlInfoscienceRender extends InfoscienceRender {
 
         foreach ($publications['group_by'] as $group_by) {
             $group_by_starter = "";
+
             if ($group_by['label']) {
                 ob_start();
                 echo '<h1 class="infoscience_header1">'. $group_by['label'] . '</h1>';
@@ -33,7 +34,7 @@ Class HtmlInfoscienceRender extends InfoscienceRender {
                 $template_path = $template_base_path . $doctype . '_' . $format . '.php';
 
                 if (!$doctype || !file_exists($template_path)) {
-                    # show defautl template
+                    # show default template
                     $template_path = $template_base_path . 'default_' . $format . '.php';;
                 }
 
@@ -63,6 +64,7 @@ Class HtmlInfoscienceRender extends InfoscienceRender {
                 $rendered .= $templated_publication;
             }
         }
+
         $rendered .= '</div>';
         return $rendered;
     }
