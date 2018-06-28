@@ -195,8 +195,8 @@ Class InfoscienceGroupBy {
 
         } else {
             # no group, set the same array level if so, without any label
-            $grouped_publications['group_by'] = [
-                'title' => null,
+            $grouped_publications['group_by'][] = [
+                'label' => null,
                 'values' => $publications,
             ];
         }
