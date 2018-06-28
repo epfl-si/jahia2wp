@@ -34,7 +34,7 @@ function epfl_buttons_box_debug( $var ) {
  */
 function epfl_buttons_box_build_html( string $type, string $url, string $image_url, string $alt_text, string $text, string $key ): string
 {
-    $html  = '<div class="' . esc_attr($type) . 'ButtonsBox"><a href="'. esc_attr($url) . '" title="' . esc_attr($alt_text) .'">';
+    $html  = '<div class="' . esc_attr($type) . 'ButtonsBox"><a class="button-link" href="'. esc_attr($url) . '" title="' . esc_attr($alt_text) .'">';
     if($type == 'big')
     {
         $html .= '<img src="' . $image_url . '" />';
@@ -43,7 +43,7 @@ function epfl_buttons_box_build_html( string $type, string $url, string $image_u
     {
         $html .= '<img class="' . esc_attr($key) . '" />';
     }
-    $html .= $text . '</a></div>';
+    $html .= '<span class="label">' . $text . '</span></a></div>';
     return $html;
 }
 
