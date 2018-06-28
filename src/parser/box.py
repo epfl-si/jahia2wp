@@ -717,6 +717,8 @@ class Box:
             # Fix path if necessary
             if "/files" in image:
                 image = image[image.rfind("/files"):]
+            if "/files" in big_image:
+                big_image = big_image[big_image.rfind("/files"):]
 
             # escape
             title = title.replace('"', '\\"')
