@@ -1,4 +1,4 @@
-#!/usr/bin/env ansible-playbook -i ansible/hosts
+#!/usr/bin/env ansible-playbook -i ansible/hosts-dev
 # -*- mode: yaml; -*-
 ---
 # This is an Ansible playbook to dump sites in the WXR format, and
