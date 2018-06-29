@@ -623,7 +623,7 @@ class Data:
                                                  'language': 'fr',
                                                  'last_update': datetime.datetime(2015, 3, 26, 15, 0, 41),
                                                  'path': '/outils-applications-web/cms-jahia',
-                                                 'sidebar__boxes': [{'content__start': '<ul><li><a href="41450">Obtenir un site web '
+                                                 'sidebar__boxes': [{'content__start': '<ul><li><a href="/page-41450-fr.html">Obtenir un site web '
                                                                                        'EPFL</a></li><li><a href="http://jahia.epfl.ch">En savoir '
                                                                                        'plus sur Jahia</a></li></ul>',
                                                                      'title': 'Liens utiles',
@@ -644,7 +644,7 @@ class Data:
                                                  'language': 'fr',
                                                  'last_update': datetime.datetime(2015, 3, 26, 15, 1, 50),
                                                  'path': '/outils-applications-web/hebergement-lamp',
-                                                 'sidebar__boxes': [{'content__start': '<ul><li><a href="97525">Obtenir un hébergement '
+                                                 'sidebar__boxes': [{'content__start': '<ul><li><a href="/page-97525-fr.html">Obtenir un hébergement '
                                                                                        'web</a></li><li><a '
                                                                                        'href="http://wiki.epfl.ch/lamp-help-fr">Consulter l\'aide '
                                                                                        "sur l'hébergement LAMP</a><",
@@ -4228,7 +4228,7 @@ class Data:
                                                 'last_update': datetime.datetime(2016, 8, 3, 13, 20, 15),
                                                 'path': '/obtenir-site-web/hebergement',
                                                 'sidebar__boxes': [{'content__start': '<ul><li><a href="http://jahia.epfl.ch">Demander un site Jahia '
-                                                                                      '(recommandé)</a></li><li><a href="130305">Demander un '
+                                                                                      '(recommandé)</a></li><li><a href="/page-130305-fr.html">Demander un '
                                                                                       'hébergement LAMP (expert)</a></li>',
                                                                     'title': 'Demandes',
                                                                     'type': 'links'},
@@ -4704,11 +4704,11 @@ class Data:
                            'data_links': 0,
                            'external_links': 384,
                            'file_links': 389,
-                           'internal_links': 113,
+                           'internal_links': 115,
                            'mailto_links': 162,
                            'num_files': 434,
                            'num_pages': 146,
-                           'unknown_links': 12},
+                           'unknown_links': 10},
                 'server_name': 'atelierweb.epfl.ch',
                 'theme': {'en': 'epfl', 'fr': 'epfl'},
                 'title': {'en': 'WEB at EPFL', 'fr': 'ATELIER WEB'}}}

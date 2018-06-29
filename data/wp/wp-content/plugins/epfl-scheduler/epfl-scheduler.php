@@ -105,7 +105,7 @@ function epfl_scheduler_shortcode( $atts, $content = '', $tag )
 
     // check if we can display content
     if ( $now >= $start_date && $now <= $end_date ) {
-        return $content;
+        return do_shortcode($content);
     }
 }
 

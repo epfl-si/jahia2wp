@@ -68,6 +68,7 @@ class Box:
         self.set_type(element)
         self.title = Utils.get_tag_attribute(element, "boxTitle", "jahia:value")
         self.content = ""
+        self.sort_group = None
 
         # the shortcode attributes with URLs that must be fixed by the wp_exporter
         self.shortcode_attributes_to_fix = []
@@ -75,6 +76,32 @@ class Box:
         # parse the content
         if self.type:
             self.set_content(element, multibox)
+
+    def set_sort_infos(self, element):
+        """
+        Tells if element needs to be sort or not. We check if it has a parant of type "mainList" with a
+        "jahia:sortHandler" attribute which is not empty
+
+        :param element: Element to check.
+        :return:
+        """
+        if element.parentNode.nodeName == 'mainList':
+
+            sort_params = element.parentNode.getAttribute("jahia:sortHandler")
+
+            # If we have parameters for sorting
+            if sort_params != "":
+                # We get sortHandler uuid to identify it so it will be unique
+                uuid = element.parentNode.getAttribute("jcr:uuid")
+                # Getting (or creating) sortHandler. It may already exists if another box use it.
+                self.sort_group = self.site.get_box_sort_group(uuid, sort_params)
+
+                # Generate name of field in which we have to look for sort value
+                sort_field = "jcr:{}".format(self.sort_group.sort_field)
+
+                sort_value = element.getAttribute(sort_field)
+                # Add box to sort handler
+                self.sort_group.add_box_to_sort(self, sort_value)
 
     def set_type(self, element):
         """
@@ -91,6 +118,9 @@ class Box:
 
     def set_content(self, element, multibox=False):
         """set the box attributes"""
+
+        # Init sort handler if needed
+        self.set_sort_infos(element)
 
         # text
         if self.TYPE_TEXT == self.type or self.TYPE_COLORED_TEXT == self.type:
@@ -149,6 +179,8 @@ class Box:
         # unknown
         else:
             self.set_box_unknown(element)
+
+        self.fix_youtube_iframes()
 
     def _set_scheduler_box(self, element, content):
         """set the attributes of a scheduler box"""
@@ -248,12 +280,16 @@ class Box:
             or it contains a <comboListList> which contains <comboList> tags which
             contain <text>, <filesList>, <linksList> tags. The last two tags may miss from time
             to time because the jahia export is not perfect.
-            FIXME: For now <filesList> are ignored because we did not find a site where
-            it is used yet.
+            FIXME: filesList and linksList are processed in a given order. It may correspond to export but they also
+            may be switched. So maybe we will have to correct it in the future.
         """
-
         if not multibox:
             content = Utils.get_tag_attribute(element, "text", "jahia:value")
+
+            files_list = element.getElementsByTagName("filesList")
+            if files_list:
+                content += self._parse_files_to_list(files_list[0])
+
             links_list = element.getElementsByTagName("linksList")
             if links_list:
                 content += self._parse_links_to_list(links_list[0])
@@ -281,8 +317,9 @@ class Box:
             for combo in combo_list:
                 # We generate box content
                 box_content = Utils.get_tag_attribute(combo, "text", "jahia:value")
-                # linksList contain <link> tags exactly like linksBox, so we can just reuse
+                # filesList and linksList contain <link> tags exactly like linksBox, so we can just reuse
                 # the same code used to parse linksBox.
+                box_content += self._parse_files_to_list(combo)
                 box_content += self._parse_links_to_list(combo)
 
                 # if we have sort infos, we have to get field information in XML
@@ -412,9 +449,12 @@ class Box:
     def set_box_actu(self, element):
         """set the attributes of an actu box"""
 
+        # We specifically get 'actuListList' node before getting 'url' node in case of several 'url' nodes
+        # under 'element'. This happen for lspm website which has a 'snippetBox' inside 'actuBox'...
+        actu_list_list = element.getElementsByTagName("actuListList")
         # extract parameters from the old url of webservice
         channel_id, lang, template, category, themes, stickers, projects = self._extract_epfl_news_parameters(
-            Utils.get_tag_attribute(element, "url", "jahia:value")
+            Utils.get_tag_attribute(actu_list_list[0], "url", "jahia:value")
         )
         self.shortcode_name = "epfl_news"
         html_content = '[{} channel="{}" lang="{}" template="{}" '.format(
@@ -431,6 +471,8 @@ class Box:
             html_content += 'stickers="{}" '.format(stickers)
         if projects:
             html_content += 'projects="{}" '.format(",".join(projects))
+
+        html_content += 'title="{}" '.format(self.title)
 
         html_content += '/]'
 
@@ -523,7 +565,7 @@ class Box:
 
         url = Utils.get_tag_attribute(element, "url", "jahia:value")
 
-        self.content = "[{} url={}]".format(self.shortcode_name, url)
+        self.content = '[{} url="{}"]'.format(self.shortcode_name, url)
 
     def set_box_faq(self, element):
         """set the attributes of a faq box
@@ -564,7 +606,7 @@ class Box:
 
         self.shortcode_name = 'epfl_toggle'
 
-        if Utils.get_tag_attribute(element, "opened", "jahia:value"):
+        if Utils.get_tag_attribute(element, "opened", "jahia:value") == 'true':
             state = 'open'
         else:
             state = 'close'
@@ -625,15 +667,17 @@ class Box:
         max = nb_items
         feed_title = "yes"
         summary = "yes"
+        meta = "yes"
 
         if hide_title == "true":
             feed_title = "no"
 
         if detail_items != "true":
             summary = "no"
+            meta = "no"
 
-        self.content = "[feedzy-rss feeds=\"{}\" max=\"{}\" feed_title=\"{}\" summary=\"{}\" refresh=\"12_hours\"]" \
-            .format(feeds, max, feed_title, summary)
+        self.content = '[feedzy-rss feeds="{}" max="{}" feed_title="{}" summary="{}" refresh="12_hours" meta="{}"]' \
+            .format(feeds, max, feed_title, summary, meta)
 
     def set_box_links(self, element):
         """set the attributes of a links box"""
@@ -645,20 +689,7 @@ class Box:
 
     def set_box_files(self, element):
         """set the attributes of a files box"""
-        elements = element.getElementsByTagName("file")
-        content = "<ul>"
-        for e in elements:
-            if e.ELEMENT_NODE != e.nodeType:
-                continue
-            # URL is like /content/sites/<site_name>/files/file
-            # splitted gives ['', content, sites, <site_name>, files, file]
-            # result of join is files/file and we add the missing '/' in front.
-            file_url = '/'.join(e.getAttribute("jahia:value").split("/")[4:])
-            file_url = '/' + file_url
-            file_name = file_url.split("/")[-1]
-            content += '<li><a href="{}">{}</a></li>'.format(file_url, file_name)
-        content += "</ul>"
-        self.content = content
+        self.content = self._parse_files_to_list(element)
 
     def set_box_snippets(self, element):
         """set the attributes of a snippets box"""
@@ -674,7 +705,11 @@ class Box:
 
         snippets = element.getElementsByTagName("snippetListList")[0].getElementsByTagName("snippetList")
 
-        self.content = ""
+        # If box have title, we have to display it
+        if self.title != "":
+            self.content = "<h3>{}</h3>".format(self.title)
+        else:
+            self.content = ""
 
         for snippet in snippets:
             title = Utils.get_tag_attribute(snippet, "title", "jahia:value")
@@ -789,7 +824,8 @@ class Box:
                                 page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
                             except KeyError as e:
                                 continue
-                            link_html = '<a href="{}">{}</a>'.format(page.pid, jahia_tag.getAttribute("jahia:title"))
+                            url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
+                            link_html = '<a href="{}">{}</a>'.format(url, jahia_tag.getAttribute("jahia:title"))
 
                         elif jahia_tag.tagName == "jahia:url":
                             link_html = '<a href="{}">{}</a>'.format(jahia_tag.getAttribute("jahia:value"),
@@ -800,7 +836,41 @@ class Box:
         content += "</ul>"
 
         if content == "<ul></ul>":
-            return ""
+            content = ""
+
+        return content
+
+    def _parse_files_to_list(self, element):
+        """Handles files tags that can be found in linksBox and textBox
+
+        Structure is the following:
+        <filesList>
+            <files>
+                <fileDisplayDetails></fileDisplayDetails>  <-- Boolean to tell if we have to display file details
+                <fileDesc></fileDesc>  <-- may not be present (seems to be file details mentioned before)
+                <file></file>  <-- path to file, no file title to display, we take filename.
+            </files>
+        </filesList>
+
+        FIXME: property fileDisplayDetails is not handled for now because never find with 'true' value until now
+        Maybe if value is set to 'true', we have to display content of 'fileDesc' property somewhere
+        """
+        elements = element.getElementsByTagName("file")
+        content = "<ul>"
+        for e in elements:
+            if e.ELEMENT_NODE != e.nodeType:
+                continue
+            # URL is like /content/sites/<site_name>/files/file
+            # splitted gives ['', content, sites, <site_name>, files, file]
+            # result of join is files/file and we add the missing '/' in front.
+            file_url = '/'.join(e.getAttribute("jahia:value").split("/")[4:])
+            file_url = '/' + file_url
+            file_name = file_url.split("/")[-1]
+            content += '<li><a href="{}">{}</a></li>'.format(file_url, file_name)
+        content += "</ul>"
+
+        if content == "<ul></ul>":
+            content = ""
 
         return content
 
@@ -823,6 +893,32 @@ class Box:
                                                                                  height,
                                                                                  query,
                                                                                  lang)
+
+    def fix_youtube_iframes(self):
+        """
+        Look for <iframe src="https://www.youtube.com... and replace it with a shortcode
+        :return:
+        """
+        soup = BeautifulSoup(self.content, 'html5lib')
+        soup.body.hidden = True
+
+        iframes = soup.find_all('iframe')
+
+        for iframe in iframes:
+
+            src = iframe.get('src')
+
+            if 'youtube.com' in src or 'youtu.be' in src:
+                width = iframe.get('width')
+                height = iframe.get('height')
+
+                shortcode = '[su_youtube url="{}" width="{}" height="{}"]'.format(src,
+                                                                                  width if width else '600',
+                                                                                  height if height else '400')
+                # Replacing the iframe with shortcode text
+                iframe.replaceWith(shortcode)
+
+        self.content = str(soup.body)
 
     def is_shortcode(self):
         return self.shortcode_name != ""
