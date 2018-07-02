@@ -34,17 +34,35 @@ function epfl_buttons_box_debug( $var ) {
  */
 function epfl_buttons_box_build_html( string $type, string $url, string $image_url, string $alt_text, string $text, string $key ): string
 {
-    $html  = '<div class="' . esc_attr($type) . 'ButtonsBox"><a class="button-link" href="'. esc_attr($url) . '" title="' . esc_attr($alt_text) .'">';
+    $html  = '<div class="' . esc_attr($type) . 'ButtonsBox"><a class="button-link ';
+
+    if($type == 'small')
+    {
+        $html .= esc_attr($key);
+    }
+
+    $html .= '" href="'. esc_attr($url) . '" title="' . esc_attr($alt_text) .'">';
     if($type == 'big')
     {
         $html .= '<img src="' . $image_url . '" />';
     }
-    else
-    {
-        $html .= '<img class="' . esc_attr($key) . '" />';
-    }
+
     $html .= '<span class="label">' . $text . '</span></a></div>';
     return $html;
+}
+
+/**
+ * Execute the shortcode container
+ *
+ * @attributes: array of all input parameters
+ * @content: the content of the shortcode. In our case the content is empty
+ * @return html of shortcode
+ */
+function epfl_buttons_container_process_shortcode( $attributes, string $content = null ): string
+{
+    return '<section class="buttonsContainer">'.
+           do_shortcode($content).
+           '</section>';
 }
 
 /**
@@ -76,10 +94,14 @@ function epfl_buttons_process_shortcode( $attributes, string $content = null ): 
 
     if($type == 'big')
     {
-        $image_url = wp_get_attachment_url( $image );
+        $image_url = wp_get_attachmen   t_url( $image );
         if (false == $image_url) {
             $image_url = "BAD MEDIA ID";
         }
+    }
+    else
+    {
+        $image_url = "";
     }
 
     return epfl_buttons_box_build_html( $type, $url, $image_url, $alt_text, $text, $key );
@@ -92,6 +114,7 @@ function epfl_buttons_load_plugin_textdomain() {
 add_action( 'plugins_loaded', 'epfl_buttons_load_plugin_textdomain' );
 add_action( 'init', function() {
     // define the shortcode
+    add_shortcode( 'epfl_buttons_container', 'epfl_buttons_container_process_shortcode' );
     add_shortcode( 'epfl_buttons', 'epfl_buttons_process_shortcode' );
     // shortcake configuration
     if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :

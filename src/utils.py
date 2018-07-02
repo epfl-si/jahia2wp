@@ -31,7 +31,7 @@ def deprecated(message):
             return x + y
 
         class SomeClass:
-            @deprecat
+            @deprecatgf
             def some_old_method(self, x,y):
                 return x + y
     """
@@ -457,3 +457,10 @@ class Utils(object):
         :return:
         """
         return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(length))
+
+    @staticmethod
+    def html_encode(html):
+        """Returns the given HTML with ampersands, quotes and carets encoded."""
+        html = html.replace('&', '&amp;').replace('<', '&lt;').replace(' > ', ' & gt;')
+        html = html.replace('"', '&quot;').replace("'", ' &  # 39;')
+        return html

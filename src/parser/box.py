@@ -695,6 +695,7 @@ class Box:
     def set_buttons_box(self, element):
 
         self.shortcode_name = 'epfl_buttons'
+        big_buttons_shortcode_name = 'epfl_buttons_container'
 
         self.site.register_shortcode(self.shortcode_name, ["image", "url"], self)
 
@@ -761,6 +762,13 @@ class Box:
             if box_type == 'small' and text == "":
                 text = alt_text
 
+            if box_type == 'big':
+                content += "[{}]".format(big_buttons_shortcode_name)
+
+            # Escape if necessary
+            text = Utils.html_encode(text)
+            alt_text = Utils.html_encode(alt_text)
+
             # bigButton will have 'image' attribute and smallButton will have 'key' attribute.
             content += '[{} type="{}" url="{}" {} alt_text="{}" text="{}" {}]'.format(self.shortcode_name,
                                                                                       box_type,
@@ -769,6 +777,9 @@ class Box:
                                                                                       alt_text,
                                                                                       text,
                                                                                       small_button_key)
+            if box_type == 'big':
+                content += "[/{}]".format(big_buttons_shortcode_name)
+
         self.content = content
 
     # @classmethod
@@ -995,7 +1006,7 @@ class Box:
 
             src = iframe.get('src')
 
-            if 'youtube.com' in src or 'youtu.be' in src:
+            if src and ('youtube.com' in src or 'youtu.be' in src):
                 width = iframe.get('width')
                 height = iframe.get('height')
 
