@@ -10,6 +10,8 @@ declare( strict_types = 1 );
 
 require_once 'shortcake-config.php';
 
+$total_big_buttons = 0;
+
 /**
  * Helper to debug the code
  * @param $var: variable to display
@@ -42,7 +44,8 @@ function epfl_buttons_box_build_html( string $type, string $url, string $image_u
     }
 
     $html .= '" href="'. esc_attr($url) . '" title="' . esc_attr($alt_text) .'">';
-    if($type == 'big')
+    /* We only add this if image is given (can be empty) */
+    if($type == 'big' && $image_url != "")
     {
         $html .= '<img src="' . $image_url . '" />';
     }
@@ -60,9 +63,19 @@ function epfl_buttons_box_build_html( string $type, string $url, string $image_u
  */
 function epfl_buttons_container_process_shortcode( $attributes, string $content = null ): string
 {
-    return '<section class="buttonsContainer">'.
-           do_shortcode($content).
-           '</section>';
+    global $total_big_buttons;
+    $content = '<section class="buttonsContainer">'.
+           do_shortcode($content);
+
+    /* Adding empty "missing" buttons to complete line until it ends */
+    for($i=$total_big_buttons%4; $i<4; $i++)
+    {
+        $content .= epfl_buttons_box_build_html('big', "", "", "", "", "" );
+    }
+
+    $content .= '</section>';
+
+    return $content;
 }
 
 /**
@@ -74,6 +87,8 @@ function epfl_buttons_container_process_shortcode( $attributes, string $content 
  */
 function epfl_buttons_process_shortcode( $attributes, string $content = null ): string
 {
+    global $total_big_buttons;
+
     // get parameters
     $atts = shortcode_atts( array(
         'type'      => 'big',
@@ -92,12 +107,24 @@ function epfl_buttons_process_shortcode( $attributes, string $content = null ): 
     $text       = sanitize_text_field($atts['text']);
     $key        = sanitize_text_field($atts['key']); // only for small buttons
 
+
     if($type == 'big')
     {
-        $image_url = wp_get_attachmen   t_url( $image );
-        if (false == $image_url) {
-            $image_url = "BAD MEDIA ID";
+        /* If image given */
+        if($image != "" && $image != "/")
+        {
+            $image_url = wp_get_attachment_url( $image );
+            if (false == $image_url)
+            {
+                $image_url = "BAD MEDIA ID";
+            }
         }
+        else /* No image given */
+        {
+            $image_url = "";
+        }
+
+        $total_big_buttons++;
     }
     else
     {
