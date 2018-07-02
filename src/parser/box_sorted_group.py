@@ -22,7 +22,7 @@ class BoxSortedGroup:
     def add_box_to_sort(self, box, sort_field_value):
         """
         Add a box to the sort group.
-        :param box: Instance of Box class
+        :param box: Instance of Box class or shortcode representing a Box
         :param sort_field_value: value to use to sort the group
         :return:
         """
