@@ -1,6 +1,5 @@
-#!/usr/bin/env ansible-playbook -i ansible/hosts-dev
-# -*- mode: yaml; -*-
----
+#!/bin/sh
+#
 # This is an Ansible playbook to do or redo all the things.
 #
 #
@@ -16,6 +15,5 @@
 # - https://www.ansible.com/overview/how-ansible-works
 # - https://github.com/jdauphant/awesome-ansible
 
-- vars:
-    play_create_or_restore: true
-  import_playbook: playbooks/wordpress-main.yml
+
+ansible-playbook -e "play_create_or_restore=true" -i ansible/hosts-dev "$@" ansible/playbooks/wordpress-main.yml
