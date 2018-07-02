@@ -31,7 +31,7 @@ def deprecated(message):
             return x + y
 
         class SomeClass:
-            @deprecatgf
+            @deprecat
             def some_old_method(self, x,y):
                 return x + y
     """
