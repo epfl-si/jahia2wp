@@ -517,6 +517,9 @@ class WPExporter:
 
             content = str(soup.body)
 
+            # Transforming quotes to right html entities
+            content = WPUtils.manage_quotes(content, False)
+
             # for url_mapping in self.urls_mapping:
             #
             #     # 'jahia_urls' contains a list of all URLs pointing on page. We arbitrary take the first of the list
