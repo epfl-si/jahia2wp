@@ -1,72 +1,52 @@
 <?php
 
+require_once 'renderers/publications.php';
+
+/*
+ * Generic
+ */
 Class InfoscienceRender {
-    public static function render($publications){
+    protected static function pre_render() {
+       return '<div class="infoscience_export">';
+    }
+
+    public static function render($publications, $url='', $format="short", $summary=false, $thumbnail=false, $debug=false) {
+        $html_rendered = self::pre_render();
+        
+        $html_rendered .= "";
+
+        $html_rendered .= self::post_render();
+
+        return $html_rendered;
+    }
+
+    protected static function post_render() {
+        return '</div>';
     }
 }
 
-Class HtmlInfoscienceRender extends InfoscienceRender {
-    /**
-     * Build HTML
-     *
-     * @param $publications: array of data converted from Infoscience
-     * @return
-     */
-    public static function render($publications, $format="short", $summary=false, $thumbnail=false, $debug=false) {
-        $rendered = '<div class="infoscience_export">';
-        $template_base_path = plugin_dir_path(__FILE__). 'templates/';
-        $links_path = $template_base_path . 'common/' . 'links-bar.php';
+Class ClassesInfoscienceRender extends InfoscienceRender {
+    public static function render($publications, $url='', $format="short", $summary=false, $thumbnail=false, $debug=false) {
+        $html_rendered = self::pre_render();
 
-        foreach ($publications['group_by'] as $group_by) {
-            $group_by_starter = "";
-
-            if ($group_by['label']) {
+        foreach($publications['group_by'] as $grouped_by_publications) {
+            if ($grouped_by_publications['label']) {
                 ob_start();
-                echo '<h1 class="infoscience_header1">'. $group_by['label'] . '</h1>';
+                echo '<h1 class="infoscience_header1">'. $grouped_by_publications['label'] . '</h1>';
                 $group_by_starter = ob_get_clean();
-                $rendered .= $group_by_starter;
+                $html_rendered .= $group_by_starter;
             }
 
-            foreach ($group_by['values'] as $publication) {
-                $templated_publication = "";
-                # doctype and render type determine template
-                $doctype =  strtolower(str_replace(' ', '_', $publication['doctype'][0]));
-                $template_path = $template_base_path . $doctype . '_' . $format . '.php';
+            foreach($grouped_by_publications['values'] as $publication) {
+                $record_renderer_class = get_render_class_for_publication($publication, $format);
 
-                if (!$doctype || !file_exists($template_path)) {
-                    # show default template
-                    $template_path = $template_base_path . 'default_' . $format . '.php';;
-                }
-
-                ob_start();
-                
-                if ($debug) {
-                    echo 'doctype : ' . $doctype . '<br>';
-                    echo 'template path : ' . $template_path;
-                }
-                
-                echo '<div class="infoscience_record">';
-                echo '  <div class="infoscience_data">';
-                echo '      <div class="record-content">';
-                include($template_path);
-                #add summary
-                if ($summary) {
-                echo '          <p class="infoscience_abstract">' . $publication['summary'][0] . '</p>';
-                }
-                echo '      </div>';
-                include($links_path);
-                echo '  </div>';
-                echo '</div>';
-
-
-                # TODO: sanitize this ?
-                $templated_publication = ob_get_clean();
-                $rendered .= $templated_publication;
+                $html_rendered .= $record_renderer_class::render($publication, $summary, $thumbnail);
             }
         }
 
-        $rendered .= '</div>';
-        return $rendered;
+        $html_rendered .= self::post_render();
+
+        return $html_rendered;
     }
 }
 
@@ -92,7 +72,7 @@ Class RawInfoscienceRender extends InfoscienceRender {
      * @param $publications: array of data converted from Infoscience
      * @return
      */
-    public static function render($publications, $url='') {
+    public static function render($publications, $url='', $format="short", $summary=false, $thumbnail=false, $debug=false) {
         return '<div style="border:2px solid black;padding:8px;">' . $url . '</div>' . RawInfoscienceRender::pretty_print($publications);
     }    
 }

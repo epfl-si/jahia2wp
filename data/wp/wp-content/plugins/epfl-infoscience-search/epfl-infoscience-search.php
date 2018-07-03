@@ -13,7 +13,7 @@
 declare(strict_types=1);
 
  set_include_path(get_include_path() . PATH_SEPARATOR . dirname( __FILE__) . '/lib');
-
+ 
 require_once 'utils.php';
 require_once 'shortcake-config.php';
 require_once 'render.php';
@@ -44,8 +44,12 @@ define("INFOSCIENCE_SEARCH_URL", "https://infoscience.epfl.ch/search?");
         return $value; 
     };
 
+    $sanitize_text_field = function($value) {
+        return sanitize_text_field($value);
+    };
+
     $map = array(
-        'pattern' => ['p1', sanitize_text_field],
+        'pattern' => ['p1', $sanitize_text_field],
         'field' => ['f1', $convert_fields],
         'limit' => ['rg', function($value) {
             if ($value == ''){
@@ -59,11 +63,11 @@ define("INFOSCIENCE_SEARCH_URL", "https://infoscience.epfl.ch/search?");
             }
             return 'desc'; 
         }],
-        'collection' => ['c', sanitize_text_field],
-        'pattern2' => ['p2', sanitize_text_field],
+        'collection' => ['c', $sanitize_text_field],
+        'pattern2' => ['p2', $sanitize_text_field],
         'field2' => ['f2', $convert_fields],
         'operator2' => ['op1', $convert_operators],
-        'pattern3' => ['p3', sanitize_text_field],
+        'pattern3' => ['p3', $sanitize_text_field],
         'field3' => ['f3', $convert_fields],
         'operator3' => ['op2', $convert_operators],
     );
@@ -213,7 +217,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
 
                 $publications = InfoscienceMarcConverter::convert_marc_to_array($marc_xml);
                 
-                $publications = InfoscienceGroupBy::do_group_by($publications, $group_by, $group_by2, $attributes['sort']);
+                $grouped_by_publications = InfoscienceGroupBy::do_group_by($publications, $group_by, $group_by2, $attributes['sort']);
 
                 if ($debug_data) {
                     $page = RawInfoscienceRender::render($publications, $url);
@@ -231,7 +235,12 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
                     }
                 } else {
                     # use the self renderer
-                    $page = HtmlInfoscienceRender::render($publications, $format, $summary, $thumbnail, $debug_template);
+                    $page = ClassesInfoscienceRender::render($grouped_by_publications,
+                                                             $url,
+                                                             $format,
+                                                             $summary,
+                                                             $thumbnail,
+                                                             $debug_template);
                 }
 
                 // wrap the page

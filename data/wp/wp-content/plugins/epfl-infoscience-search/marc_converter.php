@@ -51,9 +51,13 @@ Class InfoscienceMarcConverter
     */
     public static function parse_doi($record) {
         $dois = [];
-        $extern_type  = InfoscienceMarcConverter::parse_text($record, '024', '7', '', ['2'])[0];
+        $extern_type = '';
+        $extern_type_field  = InfoscienceMarcConverter::parse_text($record, '024', '7', '', ['2']);
+        if ($extern_type_field && is_array($extern_type_field)) {
+            $extern_type = $extern_type_field[0];
+        }
 
-        if (strtolower($extern_type) === 'doi') {
+        if (!empty($extern_type) & strtolower($extern_type) === 'doi') {
             $id  = InfoscienceMarcConverter::parse_text($record, '024', '7', '', ['a'])[0];
             $dois[] = $id;
         }
@@ -115,33 +119,35 @@ Class InfoscienceMarcConverter
 
             $initname = "";
 
-            foreach($fnames as $fname) {
-                if (!$fname || empty($fname)) {
-                    continue;
-                }
-
-                $fname = trim($fname);
-                
-                if (strpos($fname, '-') !== false) {
-                    $sname = explode('-', $fname);
-
-                    if (mb_strlen($sname[0]) > 1) {
-                        $initname .= mb_substr($sname[0], 0, 1);
+            if (is_array($fnames)) {
+                foreach($fnames as $fname) {
+                    if (!$fname || empty($fname)) {
+                        continue;
                     }
 
-                    if (mb_strlen($sname[0]) > 1 || mb_strlen($sname[1]) > 1) {
-                        $initname .= "-";
-                    } 
-                    
-                    if (mb_strlen($sname[1]) > 1) {
-                        $initname .= mb_substr($sname[1], 0, 1) . ". ";
-                    }
-                }
-                else {
                     $fname = trim($fname);
+                    
+                    if (strpos($fname, '-') !== false) {
+                        $sname = explode('-', $fname);
 
-                    if (!empty($fname)) {
-                        $initname .= trim(mb_substr($fname, 0, 1)) . ". ";
+                        if (mb_strlen($sname[0]) > 1) {
+                            $initname .= mb_substr($sname[0], 0, 1);
+                        }
+
+                        if (mb_strlen($sname[0]) > 1 || mb_strlen($sname[1]) > 1) {
+                            $initname .= "-";
+                        } 
+                        
+                        if (mb_strlen($sname[1]) > 1) {
+                            $initname .= mb_substr($sname[1], 0, 1) . ". ";
+                        }
+                    }
+                    else {
+                        $fname = trim($fname);
+
+                        if (!empty($fname)) {
+                            $initname .= trim(mb_substr($fname, 0, 1)) . ". ";
+                        }
                     }
                 }
             }
