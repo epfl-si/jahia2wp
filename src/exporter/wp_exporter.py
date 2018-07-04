@@ -338,7 +338,7 @@ class WPExporter:
                 continue
 
             # first fix in shortcodes
-            self.fix_file_links_in_shortcode_attributes(box, old_url, new_url, wp_media)
+            self.fix_file_links_in_shortcode_attributes(box, old_url, wp_media)
 
             soup = BeautifulSoup(box.content, 'html5lib')
             soup.body.hidden = True
@@ -515,7 +515,7 @@ class WPExporter:
 
             self.update_page_content(page_id=wp_id, content=content)
 
-    def fix_file_links_in_shortcode_attributes(self, box, old_url, new_url, wp_media):
+    def fix_file_links_in_shortcode_attributes(self, box, old_url, wp_media):
         """
         Fix the link in a box shortcode for all registered attributes.
 
@@ -527,6 +527,8 @@ class WPExporter:
 
         image="/wp-content/uploads/2018/04/vignette_bois.png"
         """
+        new_url = wp_media['source_url']
+
         for attribute in box.shortcode_attributes_to_fix:
             old_attribute = '{}="{}"'.format(attribute, old_url)
             new_attribute = '{}="{}"'.format(attribute, new_url)
