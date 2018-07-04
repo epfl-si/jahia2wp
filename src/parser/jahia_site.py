@@ -854,10 +854,20 @@ class Site:
         :param attribute: attribute to update in tag
         :param base64_string: String containing image info, looks like :
          "data:image/png;base64,iVBORw0KGgoAAAANSUh....."
+         "data:%3C;base64,iVBORw0KG....."
         :return:
         """
         # We extract image extension and string containing image
-        ext = base64_string.split(";")[0].split("/")[1]
+        ext_infos = base64_string.split(";")[0].split("/")
+
+        # If image string is like "data:%3C;base64,iVBORw0KG" so we don't have extension information
+        if len(ext_infos) == 1:
+            # We assume it is PNG (because it is what has been seen during tests)
+            ext = 'png'
+        else:
+            # We have a correct info about image extension
+            ext = ext_infos[1]
+
         img_string = base64_string.split("base64,")[1]
         # Generating random filename
         filename = "{}.{}".format(Utils.get_random_string(20), ext)
