@@ -536,7 +536,18 @@ class WPExporter:
 
             # To use shortcake for snippet plugin we must define url="23" with 23 is the media id.
             if box.type == Box.TYPE_SNIPPETS:
-                medias = self.wp.get_media()
+                delay_between_tries_sec = 5
+                nb_tries = 3
+
+                for try_no in range(nb_tries):
+                    try:
+                        medias = self.wp.get_media()
+                    except Exception as e:
+                        if try_no < nb_tries - 1:
+                            logging.error("get_media() error. Retry %s in %s sec", try_no + 1, delay_between_tries_sec)
+                            time.sleep(delay_between_tries_sec)
+                            pass
+
                 for media in medias:
                     if 'guid' in media and 'rendered' in media['guid'] and media['guid']['rendered'] == new_url:
                         new_attribute = '{}="{}"'.format(attribute, media['id'])
@@ -629,7 +640,17 @@ class WPExporter:
         if slug:
             wp_page_info['slug'] = slug
 
-        return self.wp.post_pages(page_id=page_id, data=wp_page_info)
+        delay_between_tries_sec = 5
+        nb_tries = 3
+
+        for try_no in range(nb_tries):
+            try:
+                return self.wp.post_pages(page_id=page_id, data=wp_page_info)
+            except Exception as e:
+                if try_no < nb_tries-1:
+                    logging.error("post_pages() error. Retry %s in %s sec", try_no + 1, delay_between_tries_sec)
+                    time.sleep(delay_between_tries_sec)
+                    pass
 
     def update_page_content(self, page_id, content):
         """Update the page content"""
@@ -831,7 +852,18 @@ class WPExporter:
                     wp_page_info = {
                         'parent': page.parent.contents[lang].wp_id
                     }
-                    self.wp.post_pages(page_id=page.contents[lang].wp_id, data=wp_page_info)
+                    delay_between_tries_sec = 5
+                    nb_tries = 3
+
+                    for try_no in range(nb_tries):
+                        try:
+                            self.wp.post_pages(page_id=page.contents[lang].wp_id, data=wp_page_info)
+                        except Exception as e:
+                            if try_no < nb_tries - 1:
+                                logging.error("Run WPCLI error. Retry %s in %s sec", try_no + 1,
+                                              delay_between_tries_sec)
+                                time.sleep(delay_between_tries_sec)
+                                pass
 
     def create_sitemaps(self):
 
