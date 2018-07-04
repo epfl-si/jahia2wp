@@ -282,6 +282,11 @@ class WPExporter:
                 return wp_media
             except Exception as e:
                 if try_no < nb_tries-1:
+                    logging.error("%s - WP export - media failed (%s). Retry %s in %s sec",
+                                  self.site.name,
+                                  media.name,
+                                  try_no+1,
+                                  delay_between_tries_sec)
                     sleep(delay_between_tries_sec)
                     pass
                 else:

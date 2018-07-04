@@ -132,6 +132,7 @@ class WPConfig:
                 return Utils.run_command(cmd, encoding=encoding)
             except Exception as e:
                 if try_no < nb_tries-1:
+                    logging.error("Run WPCLI error. Retry %s in %s sec", try_no + 1, delay_between_tries_sec)
                     sleep(delay_between_tries_sec)
                     pass
 
