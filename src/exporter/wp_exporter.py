@@ -279,7 +279,7 @@ class WPExporter:
                 return wp_media
             except Exception as e:
                 if try_no < settings.WP_CLI_AND_API_NB_TRIES-1:
-                    logging.error("%s - WP export - media failed (%s). Retry %s in %s sec",
+                    logging.error("%s - WP export - media failed (%s). Retry %s in %s sec...",
                                   self.site.name,
                                   media.name,
                                   try_no+1,
@@ -338,7 +338,7 @@ class WPExporter:
                 continue
 
             # first fix in shortcodes
-            self.fix_file_links_in_shortcode_attributes(box, old_url, new_url)
+            self.fix_file_links_in_shortcode_attributes(box, old_url, new_url, wp_media)
 
             soup = BeautifulSoup(box.content, 'html5lib')
             soup.body.hidden = True
@@ -515,7 +515,7 @@ class WPExporter:
 
             self.update_page_content(page_id=wp_id, content=content)
 
-    def fix_file_links_in_shortcode_attributes(self, box, old_url, new_url):
+    def fix_file_links_in_shortcode_attributes(self, box, old_url, new_url, wp_media):
         """
         Fix the link in a box shortcode for all registered attributes.
 
@@ -534,21 +534,8 @@ class WPExporter:
             # To use shortcake for snippet plugin we must define url="23" with 23 is the media id.
             if box.type == Box.TYPE_SNIPPETS:
 
-                for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
-                    try:
-                        medias = self.wp.get_media()
-                    except Exception as e:
-                        if try_no < settings.WP_CLI_AND_API_NB_TRIES - 1:
-                            logging.error("get_media() error. Retry %s in %s sec",
-                                          try_no+1,
-                                          settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
-                            time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
-                            pass
-
-                for media in medias:
-                    if 'guid' in media and 'rendered' in media['guid'] and media['guid']['rendered'] == new_url:
-                        new_attribute = '{}="{}"'.format(attribute, media['id'])
-                        break
+                if 'guid' in wp_media and 'rendered' in wp_media['guid'] and wp_media['guid']['rendered'] == new_url:
+                    new_attribute = '{}="{}"'.format(attribute, wp_media['id'])
 
             box.content = box.content.replace(old_attribute, new_attribute)
 
@@ -642,7 +629,7 @@ class WPExporter:
                 return self.wp.post_pages(page_id=page_id, data=wp_page_info)
             except Exception as e:
                 if try_no < settings.WP_CLI_AND_API_NB_TRIES-1:
-                    logging.error("post_pages() error. Retry %s in %s sec",
+                    logging.error("post_pages() error. Retry %s in %s sec...",
                                   try_no+1,
                                   settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
                     time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
@@ -854,7 +841,7 @@ class WPExporter:
                             self.wp.post_pages(page_id=page.contents[lang].wp_id, data=wp_page_info)
                         except Exception as e:
                             if try_no < settings.WP_CLI_AND_API_NB_TRIES - 1:
-                                logging.error("Run WPCLI error. Retry %s in %s sec",
+                                logging.error("Run WPCLI error. Retry %s in %s sec...",
                                               try_no+1,
                                               settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
                                 time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
