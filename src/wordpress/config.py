@@ -5,7 +5,6 @@ import sys
 
 import settings
 
-from time import sleep
 from utils import Utils
 from veritas.validators import validate_yes_or_no
 from veritas.casters import cast_yes_or_no
@@ -133,7 +132,7 @@ class WPConfig:
             except Exception as e:
                 if try_no < nb_tries-1:
                     logging.error("Run WPCLI error. Retry %s in %s sec", try_no + 1, delay_between_tries_sec)
-                    sleep(delay_between_tries_sec)
+                    time.sleep(delay_between_tries_sec)
                     pass
 
     @property

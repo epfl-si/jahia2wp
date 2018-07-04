@@ -3,9 +3,9 @@ import logging
 import os
 import sys
 import re
-from time import sleep
 from parser.box import Box
 import timeit
+import time
 from collections import OrderedDict
 from datetime import timedelta, datetime
 import json
@@ -287,7 +287,7 @@ class WPExporter:
                                   media.name,
                                   try_no+1,
                                   delay_between_tries_sec)
-                    sleep(delay_between_tries_sec)
+                    time.sleep(delay_between_tries_sec)
                     pass
                 else:
                     logging.error("%s - WP export - media failed, it may be corrupted (%s/%s): %s",
