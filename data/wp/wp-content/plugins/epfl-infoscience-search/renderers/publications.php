@@ -262,6 +262,8 @@ Class ConferenceProceedingsDetailedInfosciencePublicationRender extends Detailed
         } elseif (InfoscienceFieldRender::field_exists($publication['author_3'])) {
             $html_rendered .= AuthorInfoscienceFieldRender::render($publication['author_3'], self::$format);
         }
+
+        $html_rendered .= '<p>' . PublicationDateInfoscienceFieldRender::render($publication, self::$format) . '</p>';
         
         $html_rendered .= '<p class="infoscience_host">';
         $html_rendered .= ConferenceDataInfoscienceFieldRender::render($publication, self::$format);
@@ -285,9 +287,9 @@ Class ConferenceProceedingsShortInfosciencePublicationRender extends ShortInfosc
 
         $html_rendered .= TitleInfoscienceFieldRender::render($publication, self::$format);
 
-        $html_rendered .= PublicationDateInfoscienceFieldRender::render($publication, self::$format);        
+        $html_rendered .= PublicationDateInfoscienceFieldRender::render($publication, 'detailed');
 
-        $html_rendered .= ConferenceDataInfoscienceFieldRender::render($publication, self::$format);
+        $html_rendered .= ConferenceProceedingsDataInfoscienceFieldRender::render($publication, self::$format);
 
         $html_rendered .= self::post_render($publication, $summary, $thumbnail);
 
@@ -432,7 +434,7 @@ Class ReportsShortInfosciencePublicationRender extends ShortInfosciencePublicati
 
         $html_rendered .= AuthorInfoscienceFieldRender::render($publication['author'], self::$format);
         $html_rendered .= TitleInfoscienceFieldRender::render($publication, self::$format);
-        $html_rendered .= PublicationDateInfoscienceFieldRender::render($publication, self::$format);
+        $html_rendered .= PublicationDateInfoscienceFieldRender::render($publication, 'detailed');
         $html_rendered .= ReportUrlInfoscienceFieldRender::render($publication, self::$format);
 
         $html_rendered .= self::post_render($publication, $summary, $thumbnail);
@@ -441,7 +443,7 @@ Class ReportsShortInfosciencePublicationRender extends ShortInfosciencePublicati
     }
 }
 
-Class StudentsProjectsInfosciencePublicationRender extends DetailedInfosciencePublicationRender {
+Class StudentProjectsDetailedInfosciencePublicationRender extends DetailedInfosciencePublicationRender {
     public static function render($publication, $summary, $thumbnail) {
         $html_rendered = self::pre_render();
         $html_rendered .= TitleInfoscienceFieldRender::render($publication, self::$format);
@@ -457,7 +459,7 @@ Class StudentsProjectsInfosciencePublicationRender extends DetailedInfosciencePu
     }
 }
 
-Class StudentsProjectsShortInfosciencePublicationRender extends ShortInfosciencePublicationRender {
+Class StudentProjectsShortInfosciencePublicationRender extends ShortInfosciencePublicationRender {
     public static function render($publication, $summary, $thumbnail) {
         $html_rendered = self::pre_render();
 
