@@ -517,15 +517,19 @@ class WPExporter:
 
     def fix_file_links_in_shortcode_attributes(self, box, old_url, wp_media):
         """
-        Fix the link in a box shortcode for all registered attributes.
+        Fix the link in a box shortcode for all registered attributes in given box
 
         This will replace for example:
-
         image="/files/51_recyclage/vignette_bois.png"
-
         to:
-
         image="/wp-content/uploads/2018/04/vignette_bois.png"
+        or to:
+        image="<imageId>"
+
+        :param box: instance of Box class in which we need to fix attributes
+        :param old_url: old URL (Jahia) that may be used in attributes
+        :param wp_media: Object with WordPress media information containing everything we need to set new URL
+        or imageId
         """
         new_url = wp_media['source_url']
 
@@ -533,7 +537,7 @@ class WPExporter:
             old_attribute = '{}="{}"'.format(attribute, old_url)
             new_attribute = '{}="{}"'.format(attribute, new_url)
 
-            # To use shortcake for snippet plugin we must define url="23" with 23 is the media id.
+            # To use shortcake for snippet plugin we must define url="23" with 23 as media id.
             if box.type == Box.TYPE_SNIPPETS:
 
                 if 'guid' in wp_media and 'rendered' in wp_media['guid'] and wp_media['guid']['rendered'] == new_url:
