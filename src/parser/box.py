@@ -626,6 +626,12 @@ class Box:
             self.shortcode_name = "epfl_people"
 
             self.content = '[{} url="{}" /]'.format(self.shortcode_name, url)
+        elif '://infoscience.epfl.ch/' in url:
+
+            self.shortcode_name = "epfl_infoscience"
+
+            self.content = '[{} url="{}"]'.format(self.shortcode_name, url)
+
         else:
 
             self.content = '[remote_content url="{}"]'.format(Utils.get_redirected_url(url))
@@ -722,6 +728,8 @@ class Box:
             # Fix path if necessary
             if "/files" in image:
                 image = image[image.rfind("/files"):]
+            if "/files" in big_image:
+                big_image = big_image[big_image.rfind("/files"):]
 
             # escape
             title = title.replace('"', '\\"')
