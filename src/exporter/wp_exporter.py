@@ -577,7 +577,7 @@ class WPExporter:
             # point the link to the new url of the page.
             if link.encode('ascii', 'replace').decode('ascii').replace('?', '') == old_url.replace('?', '') \
                     or (pid and link == pid):
-                logging.debug("Changing link from %s to %s", (old_url, new_url))
+                logging.debug("Changing link from %s to %s", old_url, new_url)
                 tag[tag_attribute] = new_url
 
     def fix_key_visual_boxes(self):
