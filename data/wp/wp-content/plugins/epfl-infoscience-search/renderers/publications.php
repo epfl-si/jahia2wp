@@ -51,8 +51,7 @@ Class InfosciencePublicationRender {
         $html_rendered .= '<div class="infoscience_record">';
         $html_rendered .= '  <div class="infoscience_data">';
         $html_rendered .= '    <div class="record-content">';
-        #$html_rendered .= '<h3>'. static::class .'</h3>';
-        
+
         return $html_rendered;
     }
 

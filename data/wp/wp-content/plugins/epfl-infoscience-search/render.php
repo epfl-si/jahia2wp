@@ -48,7 +48,11 @@ Class ClassesInfoscienceRender extends InfoscienceRender {
 
             foreach($grouped_by_publications['values'] as $publication) {
                 $record_renderer_class = get_render_class_for_publication($publication, $format);
-
+                
+                if ($debug) {
+                    $html_rendered .= '<h3>'. $record_renderer_class .'</h3>';
+                }
+                
                 $html_rendered .= $record_renderer_class::render($publication, $summary, $thumbnail);
             }
         }
