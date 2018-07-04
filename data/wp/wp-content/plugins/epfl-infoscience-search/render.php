@@ -6,6 +6,10 @@ require_once 'renderers/publications.php';
  * Generic
  */
 Class InfoscienceRender {
+    protected static function render_url($url) {
+        return '<div style="border:2px solid black;padding:8px;">' . $url . '</div>' ;
+     }
+    
     protected static function pre_render() {
        return '<div class="infoscience_export">';
     }
@@ -27,7 +31,12 @@ Class InfoscienceRender {
 
 Class ClassesInfoscienceRender extends InfoscienceRender {
     public static function render($publications, $url='', $format="short", $summary=false, $thumbnail=false, $debug=false) {
-        $html_rendered = self::pre_render();
+        $html_rendered = "";
+        if ($debug) {
+            $html_rendered .= self::render_url($url);
+        }
+
+        $html_rendered .= self::pre_render();
 
         foreach($publications['group_by'] as $grouped_by_publications) {
             if ($grouped_by_publications['label']) {

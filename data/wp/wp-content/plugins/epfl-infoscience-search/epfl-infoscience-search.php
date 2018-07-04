@@ -58,10 +58,10 @@ define("INFOSCIENCE_SEARCH_URL", "https://infoscience.epfl.ch/search?");
             return $value; 
         }],
         'sort' => ['so', function($value) {
-            if ($value == 'asc'){
-               return 'asc';
+            if ($value == 'asc') {
+               return 'a';
             }
-            return 'desc'; 
+            return 'd';
         }],
         'collection' => ['c', $sanitize_text_field],
         'pattern2' => ['p2', $sanitize_text_field],
@@ -105,6 +105,7 @@ function epfl_infoscience_search_generate_url_from_attrs($attrs) {
         'as' => '1',  # advanced search 
         'ln' => 'en',  #TODO: dynamic langage
         'of' => 'xm',  # template format
+        'sf' => 'year', # year sorting
     );
     $parameters = convert_keys_values($attrs);
     $parameters = $default_parameters + $parameters;
