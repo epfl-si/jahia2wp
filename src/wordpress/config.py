@@ -123,16 +123,15 @@ class WPConfig:
         if pipe_input:
             cmd += "'"
 
-        delay_between_tries_sec = 5
-        nb_tries = 3
-
-        for try_no in range(nb_tries):
+        for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
             try:
                 return Utils.run_command(cmd, encoding=encoding)
             except Exception as e:
-                if try_no < nb_tries-1:
-                    logging.error("Run WPCLI error. Retry %s in %s sec", try_no + 1, delay_between_tries_sec)
-                    time.sleep(delay_between_tries_sec)
+                if try_no < settings.WP_CLI_AND_API_NB_TRIES-1:
+                    logging.error("Run WPCLI error. Retry %s in %s sec",
+                                  try_no+1,
+                                  settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                    time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
                     pass
 
     @property

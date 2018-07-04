@@ -271,23 +271,20 @@ class WPExporter:
         }
         files = files
 
-        delay_between_tries_sec = 5
-        nb_tries = 3
-
-        for try_no in range(nb_tries):
+        for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
 
             try:
                 logging.debug("WP media information %s", wp_media_info)
                 wp_media = self.wp.post_media(data=wp_media_info, files=files)
                 return wp_media
             except Exception as e:
-                if try_no < nb_tries-1:
+                if try_no < settings.WP_CLI_AND_API_NB_TRIES-1:
                     logging.error("%s - WP export - media failed (%s). Retry %s in %s sec",
                                   self.site.name,
                                   media.name,
                                   try_no+1,
-                                  delay_between_tries_sec)
-                    time.sleep(delay_between_tries_sec)
+                                  settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                    time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
                     pass
                 else:
                     logging.error("%s - WP export - media failed, it may be corrupted (%s/%s): %s",
@@ -536,16 +533,16 @@ class WPExporter:
 
             # To use shortcake for snippet plugin we must define url="23" with 23 is the media id.
             if box.type == Box.TYPE_SNIPPETS:
-                delay_between_tries_sec = 5
-                nb_tries = 3
 
-                for try_no in range(nb_tries):
+                for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
                     try:
                         medias = self.wp.get_media()
                     except Exception as e:
-                        if try_no < nb_tries - 1:
-                            logging.error("get_media() error. Retry %s in %s sec", try_no + 1, delay_between_tries_sec)
-                            time.sleep(delay_between_tries_sec)
+                        if try_no < settings.WP_CLI_AND_API_NB_TRIES - 1:
+                            logging.error("get_media() error. Retry %s in %s sec",
+                                          try_no+1,
+                                          settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                            time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
                             pass
 
                 for media in medias:
@@ -640,16 +637,15 @@ class WPExporter:
         if slug:
             wp_page_info['slug'] = slug
 
-        delay_between_tries_sec = 5
-        nb_tries = 3
-
-        for try_no in range(nb_tries):
+        for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
             try:
                 return self.wp.post_pages(page_id=page_id, data=wp_page_info)
             except Exception as e:
-                if try_no < nb_tries-1:
-                    logging.error("post_pages() error. Retry %s in %s sec", try_no + 1, delay_between_tries_sec)
-                    time.sleep(delay_between_tries_sec)
+                if try_no < settings.WP_CLI_AND_API_NB_TRIES-1:
+                    logging.error("post_pages() error. Retry %s in %s sec",
+                                  try_no+1,
+                                  settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                    time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
                     pass
 
     def update_page_content(self, page_id, content):
@@ -852,17 +848,16 @@ class WPExporter:
                     wp_page_info = {
                         'parent': page.parent.contents[lang].wp_id
                     }
-                    delay_between_tries_sec = 5
-                    nb_tries = 3
 
-                    for try_no in range(nb_tries):
+                    for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
                         try:
                             self.wp.post_pages(page_id=page.contents[lang].wp_id, data=wp_page_info)
                         except Exception as e:
-                            if try_no < nb_tries - 1:
-                                logging.error("Run WPCLI error. Retry %s in %s sec", try_no + 1,
-                                              delay_between_tries_sec)
-                                time.sleep(delay_between_tries_sec)
+                            if try_no < settings.WP_CLI_AND_API_NB_TRIES - 1:
+                                logging.error("Run WPCLI error. Retry %s in %s sec",
+                                              try_no+1,
+                                              settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                                time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
                                 pass
 
     def create_sitemaps(self):
