@@ -5,10 +5,12 @@ import sys
 
 import settings
 
+from time import sleep
 from utils import Utils
 from veritas.validators import validate_yes_or_no
 from veritas.casters import cast_yes_or_no
 from .models import WPException, WPUser, WPSite
+import time
 
 
 class WPConfig:
@@ -122,7 +124,16 @@ class WPConfig:
         if pipe_input:
             cmd += "'"
 
-        return Utils.run_command(cmd, encoding=encoding)
+        delay_between_tries_sec = 5
+        nb_tries = 3
+
+        for try_no in range(nb_tries):
+            try:
+                return Utils.run_command(cmd, encoding=encoding)
+            except Exception as e:
+                if try_no < nb_tries-1:
+                    sleep(delay_between_tries_sec)
+                    pass
 
     @property
     def is_installed(self):

@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 import re
+from time import sleep
 from parser.box import Box
 import timeit
 from collections import OrderedDict
@@ -269,17 +270,27 @@ class WPExporter:
             # post
         }
         files = files
-        try:
-            logging.debug("WP media information %s", wp_media_info)
-            wp_media = self.wp.post_media(data=wp_media_info, files=files)
-            return wp_media
-        except Exception as e:
-            logging.error("%s - WP export - media failed, it may be corrupted (%s/%s): %s",
-                          self.site.name,
-                          media.path,
-                          media.name,
-                          e)
-            self.report['failed_files'] += 1
+
+        delay_between_tries_sec = 5
+        nb_tries = 3
+
+        for try_no in range(nb_tries):
+
+            try:
+                logging.debug("WP media information %s", wp_media_info)
+                wp_media = self.wp.post_media(data=wp_media_info, files=files)
+                return wp_media
+            except Exception as e:
+                if try_no < nb_tries-1:
+                    sleep(delay_between_tries_sec)
+                    pass
+                else:
+                    logging.error("%s - WP export - media failed, it may be corrupted (%s/%s): %s",
+                                  self.site.name,
+                                  media.path,
+                                  media.name,
+                                  e)
+                    self.report['failed_files'] += 1
 
     def import_breadcrumb(self):
         """
