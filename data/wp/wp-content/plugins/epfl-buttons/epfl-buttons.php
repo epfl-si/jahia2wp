@@ -1,14 +1,12 @@
 <?php
 /**
- * Plugin Name: Small and Big Buttons Box 
+ * Plugin Name: Small and Big Buttons Box
  * Description: provides a shortcode to display an equivalent of the smallButtonsBox and the bigButtonsBox in Jahia.
  * @version: 1.0
  * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
 declare( strict_types = 1 );
-
-require_once 'shortcake-config.php';
 
 $total_big_buttons = 0;
 
@@ -134,19 +132,8 @@ function epfl_buttons_process_shortcode( $attributes, string $content = null ): 
     return epfl_buttons_box_build_html( $type, $url, $image_url, $alt_text, $text, $key );
 }
 
-// load .mo file for translation
-function epfl_buttons_load_plugin_textdomain() {
-    load_plugin_textdomain( 'epfl-buttons', FALSE, basename( plugin_dir_path( __FILE__ ) ) . '/languages/' );
-}
-add_action( 'plugins_loaded', 'epfl_buttons_load_plugin_textdomain' );
-add_action( 'init', function() {
-    // define the shortcode
-    add_shortcode( 'epfl_buttons_container', 'epfl_buttons_container_process_shortcode' );
-    add_shortcode( 'epfl_buttons', 'epfl_buttons_process_shortcode' );
-    // shortcake configuration
-    if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
-        ShortCakeButtonsConfig::config();
-    endif;
-} );
+// define the shortcode
+add_shortcode( 'epfl_buttons_container', 'epfl_buttons_container_process_shortcode' );
+add_shortcode( 'epfl_buttons', 'epfl_buttons_process_shortcode' );
 
 ?>
