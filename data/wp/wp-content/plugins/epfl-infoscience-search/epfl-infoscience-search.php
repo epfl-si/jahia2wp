@@ -107,8 +107,24 @@ function epfl_infoscience_search_generate_url_from_attrs($attrs) {
         'of' => 'xm',  # template format
         'sf' => 'year', # year sorting
     );
+
     $parameters = convert_keys_values($attrs);
     $parameters = $default_parameters + $parameters;
+
+    $additional_parameters_array = [
+        # remove pendings by setting collection to accepted
+        'c' => 'Infoscience/Published',
+    ];
+
+    foreach($additional_parameters_array as $key => $add_params) {
+        if (array_key_exists($key, $parameters)) {
+            $parameters[$key] = [
+                $parameters[$key],
+                $add_params,
+            ];
+        }
+    }
+
     $parameters = array_filter($parameters);
 
     # sort before build, for the caching system
@@ -217,7 +233,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
                 $marc_xml = wp_remote_retrieve_body( $response );
 
                 $publications = InfoscienceMarcConverter::convert_marc_to_array($marc_xml);
-                
+
                 $grouped_by_publications = InfoscienceGroupBy::do_group_by($publications, $group_by, $group_by2, $attributes['sort']);
 
                 if ($debug_data) {
