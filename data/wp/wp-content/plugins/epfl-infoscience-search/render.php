@@ -7,7 +7,7 @@ require_once 'renderers/publications.php';
  */
 Class InfoscienceRender {
     protected static function render_url($url) {
-        return '<div style="border:2px solid black;padding:8px;">' . $url . '</div>' ;
+        return '<div style="border:2px solid black;padding:8px;word-wrap: break-word;">' . $url . '</div>' ;
      }
     
     protected static function pre_render() {
