@@ -321,22 +321,6 @@ class WPExporter:
         # 1. Looping through boxes
         for box in self.site.get_all_boxes():
 
-            # if box.type == box.TYPE_BUTTONS:
-            #     # The content of the box is a succession of [epfl_buttons] shortcodes. We want to fix them all,
-            #     # but separatly, so we go through each occurence via a regular expression and replace the full
-            #     # full shortcode when an update of link is needed. This allows us to override only the correct part
-            #     # of the content of the box.
-            #     regex = r'\[epfl_buttons type="(small|big)" url="(.*?)" image_url="(.*?)" text="(.*?)"\]'
-            #     if re.search(regex, box.content):
-            #         for box_type, url, image_url, text in re.findall(regex, box.content):
-            #             original = Box.build_buttons_box_content(box_type, url, image_url, text)
-            #             if image_url.encode('ascii', 'replace').decode('ascii').replace('?', '') == \
-            #                     old_url.replace('?', ''):
-            #                 new_content = Box.build_buttons_box_content(box_type, url, new_url, text)
-            #                 box.content = box.content.replace(original, new_content)
-            #     else:
-            #         continue
-
             # We skip empty boxes because nothing to update in
             if box.is_empty():
                 continue
@@ -519,30 +503,6 @@ class WPExporter:
 
             # Transforming quotes to right html entities
             content = WPUtils.manage_quotes(content, False)
-
-            # for url_mapping in self.urls_mapping:
-            #
-            #     # 'jahia_urls' contains a list of all URLs pointing on page. We arbitrary take the first of the list
-            #     old_url = url_mapping["jahia_urls"][0]
-            #     new_url = url_mapping["wp_slug"]
-            #     regex = r'\[epfl_buttons type="(small|big)" url="(.*?)" image_url="(.*?)" text="(.*?)"\]'
-            #     if re.search(regex, content):
-            #         for box_type, url, image_url, text in re.findall(regex, content):
-            #             original = Box.build_buttons_box_content(box_type, url, image_url, text)
-            #             pid = None
-            #             if '/page-' in old_url:
-            #                 # Try to get the PID of the page from the URL (usually jahia URLs are of the form
-            #                 # /page-{PID}-{lang}.html
-            #                 try:
-            #                     pid = old_url.split("-")[1]
-            #                 except IndexError:
-            #                     pass
-            #             if url.encode('ascii', 'replace').decode('ascii').replace('?', '') == \
-            #                     old_url.replace('?', '') or (pid and pid == url):
-            #                 new_content = Box.build_buttons_box_content(box_type, new_url, image_url, text)
-            #                 content = content.replace(original, new_content)
-            #     else:
-            #         continue
 
             self.update_page_content(page_id=wp_id, content=content)
 
