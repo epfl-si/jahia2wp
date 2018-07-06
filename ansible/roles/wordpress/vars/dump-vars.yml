@@ -1,5 +1,9 @@
 # file: roles/wordpress/vars/dump-vars.yml
 #
-# What ../tasks/dump.yml & friends need to know in order to function
+# What ../tasks/dump.yml, ../tasks/undump.yml & friends need to know
+# in order to function
 
 dump_wxr_file: "{{ dump_local_dir }}/{{ inventory_hostname }}.xml"
+undump_wxr_files: "{{ undump_local_dir }}/*.xml"
+undump_remote_tmpdir: "{{ ansible_remote_tmp }}/undump/{{ inventory_hostname }}/"
+undump_php_script: "{{ jahia2wp_dir }}/src/importer.php"

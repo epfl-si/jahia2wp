@@ -1,0 +1,34 @@
+# Undump the contents from local WXR (XML) files
+#
+# Expected directory layout in {{ undump_local_dir }}:
+#
+#    foo1.xml
+#    foo2.xml
+#
+# All .xml files uder {{ undump_local_dir }} will be undumped into
+# this Wordpress, in no particular order.
+
+- include_vars: jahia2wp-vars.yml  # For jahia2wp_dir, used by dump-vars below
+- include_vars: dump-vars.yml
+
+- name: List plugins
+  command: "{{ wp_cli_command }} plugin list"
+  register: wp_plugin_list
+  changed_when: false
+
+- name: Install wordpress-importer
+  command: "{{ wp_cli_command }} plugin install --activate wordpress-importer"
+  when: "'wp-importer' not in wp_plugin_list.stdout"
+
+- copy:
+    src: "{{ item }}"
+    dest: "{{ undump_remote_tmpdir }}"
+  with_fileglob:
+    - "{{ undump_local_dir }}/*.xml"
+
+- name: "Undump from {{ undump_remote_tmpdir }}/*.xml"
+  shell: "set -e -x ; cd '{{ undump_remote_tmpdir }}'; for file in *.xml; do {{ wp_cli_command }} --skip-plugins=wordpress-importer eval-file {{ undump_php_script }} -fetch-attachments $file; done"
+  register: undump_php_results
+
+- debug:
+    var: undump_php_results

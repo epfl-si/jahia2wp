@@ -1,0 +1,21 @@
+# This is an Ansible playbook to upload the ventilated WXR files into
+# their new sites.
+#
+# ../src/ventilation/Makefile automatically creates the Ansible inventory
+# and runs this script; you therefore don't want to run this script
+# by hand.
+#
+# Expected directory layout in {{ from }}:
+#
+#  vpsi/
+#    foo1.xml
+#    foo2.xml
+#
+# All .xml files under vpsi/ will be undumped into the Wordpress called "vpsi"
+# in the inventory, in no particular order.
+
+- vars:
+    play_create_or_restore: true
+    play_undump: true
+    undump_local_dir: "{{ from }}/{{ inventory_hostname }}"
+  import_playbook: wordpress-main.yml

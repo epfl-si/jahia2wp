@@ -17,6 +17,9 @@
 - name: "Dump (if requested)"
   include: '{{ "dump.yml" if (play_dump is defined) and (dump_local_dir is defined) else "noop.yml" }}'
 
+- name: "Undump WXR (if requested)"
+  include: '{{ "undump.yml" if (play_undump is defined) and (undump_local_dir is defined) else "noop.yml" }}'
+
 ## Debug scaffolding #########################################
 # - name: Save facts (for debug)
 #   local_action:
