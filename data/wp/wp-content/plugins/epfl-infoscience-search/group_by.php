@@ -91,9 +91,14 @@ Class InfoscienceGroupBy {
                     $d = DateTime::createFromFormat("Y", $value);
                     if ($d) {
                         return date_format($d, "Y");
-                    # no idea what it is, make it key valid and return
                     } else {
-                        return;
+                        # try a regex match on a full year
+                        if (preg_match('/\b\d{4}\b/', $value, $matches)) {
+                            return $matches[0];
+                        } else {
+                            # no idea what it is, make it key valid and return
+                            return;
+                        }
                     }
                 }
             };
