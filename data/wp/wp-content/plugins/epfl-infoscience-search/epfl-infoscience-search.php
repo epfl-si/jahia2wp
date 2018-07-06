@@ -221,7 +221,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
                 $grouped_by_publications = InfoscienceGroupBy::do_group_by($publications, $group_by, $group_by2, $attributes['sort']);
 
                 if ($debug_data) {
-                    $page = RawInfoscienceRender::render($publications, $url);
+                    $page = RawInfoscienceRender::render($grouped_by_publications, $url);
                     return $page;
                 }
 

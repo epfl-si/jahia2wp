@@ -3,7 +3,16 @@
 require_once 'renderers/publications.php';
 
 /*
- * Generic
+ * Generic Render
+ * $params : $publications is a two level array, in a fixed format. If label is empty, don't show any header
+ *                      format :
+                            $publications['group_by'] = [
+                                        ['label' => null, # or string
+                                        'values' => [
+                                            'label' => null, # or string
+                                            'values' => $array_of_publications,
+                                        ],
+                                        ];
  */
 Class InfoscienceRender {
     protected static function render_url($url) {
@@ -30,6 +39,14 @@ Class InfoscienceRender {
 }
 
 Class ClassesInfoscienceRender extends InfoscienceRender {
+    protected static function render_header_1($value) {
+        return '<h1 class="infoscience_header1">'. $value . '</h1>';
+    }
+
+    protected static function render_header_2($value) {
+        return '<h2 class="infoscience_header2">'. $value . '</h2>';
+    }
+
     public static function render($publications, $url='', $format="short", $summary=false, $thumbnail=false, $debug=false) {
         $html_rendered = "";
         if ($debug) {
@@ -40,20 +57,25 @@ Class ClassesInfoscienceRender extends InfoscienceRender {
 
         foreach($publications['group_by'] as $grouped_by_publications) {
             if ($grouped_by_publications['label']) {
-                ob_start();
-                echo '<h1 class="infoscience_header1">'. $grouped_by_publications['label'] . '</h1>';
-                $group_by_starter = ob_get_clean();
-                $html_rendered .= $group_by_starter;
+                $html_rendered .= self::render_header_1($grouped_by_publications['label']);
             }
 
-            foreach($grouped_by_publications['values'] as $publication) {
-                $record_renderer_class = get_render_class_for_publication($publication, $format);
-                
-                if ($debug) {
-                    $html_rendered .= '<h3>'. $record_renderer_class .'</h3>';
+            foreach($grouped_by_publications['values'] as $grouped_by2_publications) {
+                if ($grouped_by2_publications['label'] && !$grouped_by_publications['label']) {
+                    $html_rendered .= self::render_header_1($grouped_by2_publications['label']);
+                } else {
+                    $html_rendered .= self::render_header_2($grouped_by2_publications['label']);
                 }
                 
-                $html_rendered .= $record_renderer_class::render($publication, $summary, $thumbnail);
+                foreach($grouped_by2_publications['values'] as $index3 => $publication) {
+                    $record_renderer_class = get_render_class_for_publication($publication, $format);
+
+                    if ($debug) {
+                        $html_rendered .= '<h3>'. $record_renderer_class .'</h3>';
+                    }
+
+                    $html_rendered .= $record_renderer_class::render($publication, $summary, $thumbnail);
+                }
             }
         }
 
@@ -86,7 +108,7 @@ Class RawInfoscienceRender extends InfoscienceRender {
      * @return
      */
     public static function render($publications, $url='', $format="short", $summary=false, $thumbnail=false, $debug=false) {
-        return '<div style="border:2px solid black;padding:8px;">' . $url . '</div>' . RawInfoscienceRender::pretty_print($publications);
+        return self::render_url($url) . RawInfoscienceRender::pretty_print($publications);
     }    
 }
 ?>  
