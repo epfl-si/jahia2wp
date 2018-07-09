@@ -66,7 +66,7 @@ Class InfosciencePublicationRender {
     protected static function post_render($publication, $summary, $thumbnail) {
         $html_rendered = "";
         if ($summary) {
-            $html_rendered .= SummaryInfoscienceFieldRender::render($publication);
+            $html_rendered .= SummaryInfoscienceFieldRender::render($publication, false);
         }
         $html_rendered .= '      </div>';
         $html_rendered .= '      ' . self::render_links($publication, $thumbnail);
