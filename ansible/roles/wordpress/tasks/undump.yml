@@ -27,7 +27,7 @@
     - "{{ undump_local_dir }}/*.xml"
 
 - name: "Undump from {{ undump_remote_tmpdir }}/*.xml"
-  shell: "set -e -x ; cd '{{ undump_remote_tmpdir }}'; for file in *.xml; do {{ wp_cli_command }} --skip-plugins=wordpress-importer eval-file {{ undump_php_script }} -fetch-attachments $file; done"
+  shell: "set -e -x ; cd '{{ undump_remote_tmpdir }}'; for file in *.xml; do {{ wp_cli_command }} --require={{ undump_php_script }} jahia2wp import -fetch-attachments $file; done"
   register: undump_php_results
 
 - debug:
