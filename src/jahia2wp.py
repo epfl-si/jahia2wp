@@ -978,7 +978,6 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
                 logging.error("Site %s - Error %s", report['name'], e)
 
 
-
 if __name__ == '__main__':
 
     # docopt return a dictionary with all arguments

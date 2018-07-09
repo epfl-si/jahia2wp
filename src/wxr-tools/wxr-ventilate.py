@@ -25,13 +25,8 @@ import lxml.etree
 from urllib.parse import urlparse, urlunparse
 import logging
 
-# https://stackoverflow.com/a/45488820/435004
-try:
-    from .wxr_model import *
-    from .xml import xml_to_string
-except ModuleNotFoundError:
-    from wxr_model import *
-    from xml import xml_to_string
+from wxr_model import Channel, Page, NavMenu, NavMenuItem, Item
+from xml import xml_to_string
 
 
 def normalize_site_url(url_text):
@@ -97,10 +92,11 @@ class Ventilator:
             slug = menu.slug
             if slug.startswith('main'):
                 new_nav = will_reparent_under[slug] = NavMenuItem.insert_structural(self.etree)
-                new_nav.menu_slug       = slug
-                new_nav.menu_item_type  = 'custom'
-                new_nav.url             = '#'
-                new_nav.title           = '["%s" menu of %s]' % (slug, Channel.the(self.etree).moniker)
+                new_nav.menu_slug = slug
+                new_nav.menu_item_type = 'custom'
+                new_nav.url = '#'
+                new_nav.title = '["%s" menu of %s]' % (
+                    slug, Channel.the(self.etree).moniker)
             else:
                 menu.delete()
 
@@ -110,7 +106,6 @@ class Ventilator:
                 continue
             if nav.parent_id == 0:
                 nav.parent_id = will_reparent_under[nav.menu_slug].id
-
 
     def add_structure(self, path_components, above_this_page):
         assert len(path_components) > 0
@@ -128,7 +123,7 @@ class Ventilator:
 
         for p in above_this_page.translations_list:
             p.parent_id = previous_id
-            if p.id == above_this_page.id :
+            if p.id == above_this_page.id:
                 distinctive_suffix = ''
             else:
                 distinctive_suffix = '-' + p.language
@@ -165,3 +160,4 @@ def demo():
     secure_it = lxml.etree.parse(wxrdir + 'secure-it-next.xml')
     pages = Page.all(secure_it)
     translations = next(iter(pages)).translations
+    return translations

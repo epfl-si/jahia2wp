@@ -4,20 +4,21 @@
 
 """Model what test and prod look like on OpenShift"""
 
-from docopt import docopt
 from memoize import mproperty
 from urllib.parse import urlparse
 import subprocess
 
-import os, sys
+import os
+import sys
 dirname = os.path.dirname
 sys.path.append(dirname(dirname(__file__)))
 
+
 class SshRemoteHost:
     def __init__(self, moniker, host, port):
-        self.moniker      = moniker
-        self.host         = host
-        self.port         = port
+        self.moniker = moniker
+        self.host = host
+        self.port = port
 
     def run_ssh(self, args, **kwargs):
         ssh_boilerplate = [
@@ -62,7 +63,7 @@ class SshRemoteHost:
         else:
             raise Exception('Unknown base_htdocs_dir for %s', url)
 
-    def find_wordpress_path(self, url): 
+    def find_wordpress_path(self, url):
         remote_subdir = urlparse(url).path.lstrip('/')
         remote_dir = os.path.join(self.base_htdocs_dir(url), remote_subdir)
         remote_dir_initial = remote_dir
@@ -78,10 +79,10 @@ class SshRemoteHost:
             return '/'
         else:
             return remote_dir.rstrip('/')
-       
 
     def __repr__(self):
         return '<%s %s>' % (self.__class__, self.moniker)
+
 
 SshRemoteHost.test = SshRemoteHost('test', host='test-ssh-wwp.epfl.ch', port=32222)
 SshRemoteHost.prod = SshRemoteHost('prod', host='ssh-wwp.epfl.ch',      port=32222)

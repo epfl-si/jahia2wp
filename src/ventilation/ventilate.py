@@ -24,7 +24,8 @@ import logging
 dirname = os.path.dirname
 sys.path.append(dirname(dirname(os.path.realpath(__file__))))
 
-from utils import Utils
+from utils import Utils  # noqa: E402
+
 
 class SourceWXR:
     """Model for one of the files in <wxr_sourcedir>"""
@@ -64,7 +65,7 @@ class DestinationWXR:
     def __init__(self, dest_file, source_wxr):
         self.source_file = source_wxr.path
         self.path = dest_file
-        
+
     def create(self, filter, add_structure, new_url):
         os.makedirs(dirname(self.path), exist_ok=True)
         wxr_ventilate_path = os.path.join(
@@ -80,8 +81,8 @@ class DestinationWXR:
         ]
         logging.debug(' '.join(cmdline))
         return subprocess.run(cmdline,
-            stdout=open(self.path, 'w'),
-            check=True)
+                              stdout=open(self.path, 'w'),
+                              check=True)
 
 
 if __name__ == '__main__':

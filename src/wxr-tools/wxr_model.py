@@ -15,14 +15,14 @@ __all__ = ('Channel', 'NavMenu', 'NavMenuItem', 'Page')
 
 wp_namespaces = xml.XMLNamespaces(
     content='http://purl.org/rss/1.0/modules/content/',
-    dc=     'http://purl.org/dc/elements/1.1/',
-    wp=     'http://wordpress.org/export/1.2/',
-    wfw=    'http://wellformedweb.org/CommentAPI/',
+    dc='http://purl.org/dc/elements/1.1/',
+    wp='http://wordpress.org/export/1.2/',
+    wfw='http://wellformedweb.org/CommentAPI/',
     excerpt='http://wordpress.org/export/1.2/excerpt/')
 
-XMLElement         = wp_namespaces.XMLElement
+XMLElement = wp_namespaces.XMLElement
 XMLElementProperty = wp_namespaces.XMLElementProperty
-XMLDictProperty    = wp_namespaces.XMLDictProperty
+XMLDictProperty = wp_namespaces.XMLDictProperty
 
 
 class Item(XMLElement):
@@ -35,16 +35,16 @@ class Item(XMLElement):
 
     element_name = 'item'  # Used by superclass
 
-    id             = XMLElementProperty('wp:post_id',        int)
-    parent_id      = XMLElementProperty('wp:post_parent',    int)
-    guid           = XMLElementProperty('guid',              str)
-    link           = XMLElementProperty('link',              str)
-    post_title     = XMLElementProperty('title',             str)
-    post_slug      = XMLElementProperty('wp:post_name',      str)
-    post_type      = XMLElementProperty('wp:post_type',      str)
-    post_status    = XMLElementProperty('wp:status',         str)
-    comment_status = XMLElementProperty('wp:comment_status', str)
-    ping_status    = XMLElementProperty('wp:ping_status',    str)
+    id             = XMLElementProperty('wp:post_id',        int)  # noqa: E221
+    parent_id      = XMLElementProperty('wp:post_parent',    int)  # noqa: E221
+    guid           = XMLElementProperty('guid',              str)  # noqa: E221
+    link           = XMLElementProperty('link',              str)  # noqa: E221
+    post_title     = XMLElementProperty('title',             str)  # noqa: E221
+    post_slug      = XMLElementProperty('wp:post_name',      str)  # noqa: E221
+    post_type      = XMLElementProperty('wp:post_type',      str)  # noqa: E221
+    post_status    = XMLElementProperty('wp:status',         str)  # noqa: E221
+    comment_status = XMLElementProperty('wp:comment_status', str)  # noqa: E221
+    ping_status    = XMLElementProperty('wp:ping_status',    str)  # noqa: E221
 
     post_meta = XMLDictProperty('wp:postmeta', 'wp:meta_key', 'wp:meta_value')
 
@@ -74,7 +74,7 @@ class Item(XMLElement):
             if other.parent_id == id:
                 other.parent_id = 0
 
-    def ensure_id(self, int_direction = 1):
+    def ensure_id(self, int_direction=1):
         if self.id is None:
             existing_ids = [item.id for item in self.all(self._etree)
                             if item.id is not None]
@@ -107,8 +107,8 @@ class Item(XMLElement):
         """Insert and return a structural (fake) Item with negative ID."""
         new_item = cls.insert(etree)
         new_item.ensure_id(-1)
-        new_item.post_status    = 'publish'
-        new_item.ping_status    = 'closed'
+        new_item.post_status = 'publish'
+        new_item.ping_status = 'closed'
         new_item.comment_status = 'closed'
         return new_item
 
@@ -118,8 +118,8 @@ class Channel(XMLElement):
 
     element_name = 'channel'
 
-    base_url    = XMLElementProperty('link',        str)
-    description = XMLElementProperty('description', str)
+    base_url    = XMLElementProperty('link',        str)  # noqa: E221
+    description = XMLElementProperty('description', str)  # noqa: E221
 
     @classmethod
     def the(cls, etree):
@@ -132,15 +132,16 @@ class Channel(XMLElement):
             return description
         return self.base_url.replace('https://', '')
 
+
 class Term(XMLElement):
     """A <wp:term> element in the XML document."""
 
     element_name = 'wp:term'
 
-    taxonomy    = XMLElementProperty('wp:term_taxonomy', str)
-    slug        = XMLElementProperty('wp:term_slug',     str)
-    name        = XMLElementProperty('wp:term_name',     str)
-    description = XMLElementProperty('wp:term_name',     str)
+    taxonomy    = XMLElementProperty('wp:term_taxonomy', str)  # noqa: E221
+    slug        = XMLElementProperty('wp:term_slug',     str)  # noqa: E221
+    name        = XMLElementProperty('wp:term_name',     str)  # noqa: E221
+    description = XMLElementProperty('wp:term_name',     str)  # noqa: E221
 
     @classmethod
     def find(cls, etree, taxonomy, slug=None):
@@ -244,7 +245,9 @@ class Page(ItemSubset):
             return [self]
         retval = list(translations.values())
         if self.id not in set(t.id for t in retval):
-            logging.warn('Incoherent Polylang data - %s missing in its own translation list!', t)
+            logging.warn('Incoherent Polylang data - ' +
+                         '%s missing in its own translation list!',
+                         self.id)
             retval.append(self)
         return retval
 
@@ -268,7 +271,7 @@ class TranslationSet(TaxonomySubset):
         if translation_ids is None:
             return None
         return {lang: Page.by_id(self._etree, id)
-                 for (lang, id) in translation_ids.items() }
+                for (lang, id) in translation_ids.items()}
 
     def __repr__(self):
         return repr(self._payload)
@@ -284,17 +287,17 @@ class NavMenuItem(ItemSubset):
 
     POST_TYPE = 'nav_menu_item'
 
-    title          = Item.post_title
-    menu_item_type = Item.post_meta.property('_menu_item_type',            str)
-    url            = Item.post_meta.property('_menu_item_url',             str)
+    title          = Item.post_title                                             # noqa: E221
+    menu_item_type = Item.post_meta.property('_menu_item_type',            str)  # noqa: E221
+    url            = Item.post_meta.property('_menu_item_url',             str)  # noqa: E221
     # post_id is the post this NavMenuItem refers to (if its
     # .menu_item_type is 'post_type'); parent_id is the ID of
     # the parent NavMenuItem, if any.
     # Near as I can tell, the "true" post_id and parent_id fields (the
     # ones we would delegate to Item absent the following) are unused by
     # wordpress-importer.php
-    post_id       = Item.post_meta.property('_menu_item_object_id',        int)
-    parent_id     = Item.post_meta.property('_menu_item_menu_item_parent', int)
+    post_id       = Item.post_meta.property('_menu_item_object_id',        int)  # noqa: E221
+    parent_id     = Item.post_meta.property('_menu_item_menu_item_parent', int)  # noqa: E221
 
     @property
     def menu_slug(self):

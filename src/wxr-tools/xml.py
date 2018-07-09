@@ -3,6 +3,7 @@
 import inspect
 import lxml.etree
 
+
 class XMLElement:
     """Abstract base class for an XML-backed model class.
 
@@ -13,8 +14,8 @@ class XMLElement:
     """
     def __init__(self, etree, etree_elt):
         """Private constructor, don't call directly."""
-        self._etree      = etree
-        self._elt        = etree_elt
+        self._etree = etree
+        self._elt = etree_elt
 
     @classmethod
     def all(cls, etree, namespaces=None):
@@ -56,9 +57,9 @@ class XMLElementProperty:
         magically behind the scenes.
         """
         self._element_name = element_name
-        self._namespaces   = namespaces or XMLNamespaces.none()
-        self._cast         = type
-        self._uncast       = str  # Good enough for type in (str, int)
+        self._namespaces = namespaces or XMLNamespaces.none()
+        self._cast = type
+        self._uncast = str  # Good enough for type in (str, int)
 
     def _elt(self, that):
         # Out of necessity, XMLElementProperty is a "friend" of all
@@ -93,7 +94,7 @@ class XMLElementProperty:
         if not value_text:
             return None
         return self._cast(value_text)
-        
+
     def __set__(self, that, newval):
         self._get_or_create_node(that).text = self._uncast(newval)
 
@@ -132,9 +133,10 @@ class XMLDictProperty:
         # Out of necessity, XMLDictProperty is a "friend" of all
         # the classes it applies to. We need but two Demeter violations
         # just here.
-        xml_elt   = that._elt
+        xml_elt = that._elt
         xml_etree = that._etree
-        return self._XMLDictPropertyInstance(xml_elt, xml_etree, *args, **kwargs)
+        return self._XMLDictPropertyInstance(
+            xml_elt, xml_etree, *args, **kwargs)
 
     def __set__(self, that, what):
         the_dict = self.__get__()
@@ -145,20 +147,23 @@ class XMLDictProperty:
         return self._XMLDictItemProperty(self, key_name, type)
 
     class _XMLDictPropertyInstance:
-        """What an XMLDictProperty "turns into" upon instantiating the class."""
+        """What an XMLDictProperty "becomes" upon instantiating the class."""
         def __init__(self, _xml_elt, _xml_etree,
                      pair_element_name, key_element_name, value_element_name,
                      namespaces):
             assert isinstance(namespaces, XMLNamespaces)
-            self._elt               = _xml_elt
-            self._etree             = _xml_etree
-            self._namespaces        = namespaces
+            self._elt = _xml_elt
+            self._etree = _xml_etree
+            self._namespaces = namespaces
             self._pair_element_name = pair_element_name
-            self._kvclass           = type(
+            self._kvclass = type(
                 '_XMLDictPropertyInstance_KVPair',
                 (XMLElement, ),
-                { 'key':      XMLElementProperty(key_element_name,   str, namespaces=namespaces),
-                  'value':    XMLElementProperty(value_element_name, str, namespaces=namespaces) })
+                {'key': XMLElementProperty(
+                    key_element_name,   str, namespaces=namespaces),
+                 'value': XMLElementProperty(
+                     value_element_name, str, namespaces=namespaces)
+                 })
 
         def _all_kvpairs(self):
             lxml_nodes = self._namespaces.xpath(
@@ -207,9 +212,11 @@ class XMLDictProperty:
                 return self.__getitem__(k)
             except KeyError:
                 return default_v
+
         def __iter__(self):
             for kv in self._all_kvpairs():
                 yield kv.key
+
         def __len__(self):
             return len(self._all_kvpairs())
 
@@ -218,8 +225,8 @@ class XMLDictProperty:
         def __init__(self, dict_property, key_name, type):
             self._dprop = dict_property
             self._key_name = key_name
-            self._cast   = type
-            self._uncast = str
+            self._cast = type
+            self._uncast = str  # Good enough for type in (str, int)
 
         def __get__(self, that, unused_type_of_that=None):
             val_raw = self._dprop.__get__(that).get(self._key_name, None)
@@ -255,11 +262,11 @@ class XMLNamespaces:
 
     def __init__(self, **ns_map):
         self._ns_map = ns_map
-        self.XMLElement         = self._wrap_class(XMLElement, ['all'])
+        self.XMLElement = self._wrap_class(XMLElement, ['all'])
         self.XMLElementProperty = self._wrap_class(XMLElementProperty,
                                                    ['__init__'])
-        self.XMLDictProperty    = self._wrap_class(XMLDictProperty,
-                                                   ['__init__'])
+        self.XMLDictProperty = self._wrap_class(XMLDictProperty,
+                                                ['__init__'])
 
     def _wrap_class(self, klass, methods):
         """Wrap `klass` so that it can stop worrying about namespaces.
@@ -297,8 +304,8 @@ class XMLNamespaces:
         return type(
             klass.__name__,    # Mimic the name
             (klass, ),         # Inherit from it
-            { method_name : wrap_method(klass, method_name)
-              for method_name in methods })
+            {method_name: wrap_method(klass, method_name)
+             for method_name in methods})
 
     @classmethod
     def none(cls):
@@ -322,6 +329,7 @@ class XMLNamespaces:
             (ns_short, element_name) = pieces
             return "{%s}%s" % (self._ns_map[ns_short],
                                element_name)
+
 
 def xml_to_string(what):
     return lxml.etree.tostring(what, encoding='utf-8').decode('utf-8')

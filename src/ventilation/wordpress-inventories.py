@@ -13,16 +13,15 @@ Usage:
 """
 
 from docopt import docopt
-from memoize import mproperty
-from urllib.parse import urlparse
 
-import os, sys
+import os
+import sys
 dirname = os.path.dirname
 basename = os.path.basename
 sys.path.append(dirname(dirname(os.path.realpath(__file__))))
 
-from utils import Utils
-from ops import SshRemoteHost
+from utils import Utils        # noqa: E402
+from ops import SshRemoteHost  # noqa: E402
 
 
 class AnsibleGroup:
@@ -69,7 +68,7 @@ def register_wordpress(to_ansible_group, path_or_url):
     dirname = basename(path_or_url.rstrip('/'))
     if not to_ansible_group.has_wordpress(dirname):
         to_ansible_group.add_wordpress(dirname, {'wp_path': dirname})
-        
+
 
 if __name__ == '__main__':
     args = docopt(__doc__)
