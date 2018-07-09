@@ -1028,9 +1028,15 @@ class WPExporter:
 
         # If the sub-entries are sorted
         if parent_menu_item.children_sort_way is not None:
-            # Sorting information in the other structure storing the menu information
-            parent_page.children.sort(key=lambda x: x.contents[lang].title,
-                                      reverse=(parent_menu_item.children_sort_way == 'desc'))
+            try:
+
+                # Sorting information in the other structure storing the menu information
+                parent_page.children.sort(key=lambda x: x.contents[lang].title,
+                                          reverse=(parent_menu_item.children_sort_way == 'desc'))
+            except KeyError:
+                logging.error("Sorting menu failed! A page is probably missing in asked language (%s), ignoring it.",
+                              lang)
+                pass
 
         for sub_entry_index, menu_item in enumerate(parent_menu_item.children):
 
