@@ -61,8 +61,8 @@ Class AuthorInfoscienceFieldRender extends InfoscienceFieldRender {
                 }
                 $html_rendered .= "</span>";
                 $html_rendered .= "<span>";
-                $html_rendered .= '<a href="' . $authors[$index]['search_url'] . '" target="_blank">';
-                $html_rendered .= $authors[$index]['initial_name'];
+                $html_rendered .= '<a href="' . $author['search_url'] . '" target="_blank">';
+                $html_rendered .= $author['initial_name'];
                 $html_rendered .= '</a>';
                 $html_rendered .= "</span>";
             }

@@ -164,29 +164,34 @@ Class InfoscienceMarcConverter
         $people = $record->getFields($field);
         $subfield = $subfields[0];
 
-        if ($people) {
+        if ($people && $subfield) {
             foreach ($people as $person) {
                 if (!$person->isEmpty()) {
                     $person_data = [];
                     $full_name = "";
+                    $person_subfield = $person->getSubfield($subfield);
+
+                    if (!$person_subfield) {
+                        continue;
+                    }
 
                     # if we have an indicator, verify that the person in the right one
                     if ($ind1) {
                         $indicator = $person->getIndicator(1);
 
                         if ($indicator == $ind1) {
-                            $full_name = $person->getSubfield($subfield)->getData();
+                            $full_name = $person_subfield->getData();
                             $person_data['initial_name'] = $compute_name($full_name);
                         }
                     } elseif ($ind2) {
                         $indicator = $person->getIndicator(2);
 
                         if ($indicator == $ind2) {
-                            $full_name = $person->getSubfield($subfield)->getData();
+                            $full_name = $person_subfield->getData();
                             $person_data['initial_name'] = $compute_name($full_name);
-                        }                        
+                        }
                     } else {
-                        $full_name = $person->getSubfield($subfield)->getData();
+                        $full_name = $person_subfield->getData();
                         $person_data['initial_name'] = $compute_name($full_name);
                     }
 
