@@ -1000,9 +1000,6 @@ class WPExporter:
         else:
             footer_name = "{}-{}".format(settings.FOOTER_MENU, lang)
 
-        # Defining lang to use for EPFL links
-        link_lang = lang if lang in ['en', 'fr'] else 'en'
-
         # Add sitemap entry
         self.run_wp_cli('menu item add-post {} {} --porcelain'.format(footer_name, sitemap_wp_id))
 
@@ -1014,7 +1011,6 @@ class WPExporter:
 
             cmd = clean_menu_html(cmd)
             self.run_wp_cli(cmd)
-
 
         # Report
         self.report['menus'] += 2
