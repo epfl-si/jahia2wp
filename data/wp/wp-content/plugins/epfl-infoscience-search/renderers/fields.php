@@ -118,9 +118,9 @@ Class TitleInfoscienceFieldRender extends InfoscienceFieldRender {
         $html_rendered = "";
 
         if ($format === 'detailed') {
-            $html_rendered .= '<h3 class="infoscience_title">' . $publication['title'][0] .'</h3>';
+            $html_rendered .= '<h3 class="infoscience_title tex2jax_process">' . $publication['title'][0] .'</h3>';
         } else {
-            $html_rendered .= "<span><strong>" . $publication['title'][0] . "</strong></span>";
+            $html_rendered .= "<span class='tex2jax_process'><strong>" . $publication['title'][0] . "</strong></span>";
             if ($has_next) {
                 $html_rendered .= "<span> ; </span>";
             } else {
@@ -297,7 +297,7 @@ Class ISBNInfoscienceFieldRender extends InfoscienceFieldRender {
 Class SummaryInfoscienceFieldRender extends InfoscienceFieldRender {
     public static function render($publication, $format, $has_next=false) {
         if (self::field_exists($publication['summary'])) {
-            return '<p class="infoscience_abstract">' . $publication['summary'][0] . '</p>';
+            return '<p class="infoscience_abstract tex2jax_process">' . $publication['summary'][0] . '</p>';
         } else {
             return "";
         }

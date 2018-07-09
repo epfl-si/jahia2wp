@@ -19,6 +19,7 @@ require_once 'shortcake-config.php';
 require_once 'render.php';
 require_once 'marc_converter.php';
 require_once 'group_by.php';
+require_once 'mathjax-config.php';
 
 define("INFOSCIENCE_SEARCH_URL", "https://infoscience.epfl.ch/search?");
 
@@ -137,7 +138,12 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
 {
     # deliver the css
     wp_enqueue_style('epfl-infoscience-search-shortcode-style.css');
-    // normalize attribute keys, lowercase
+
+    # add the MathJS for nice render
+    # try [epfl_infoscience_search pattern="001:'255565'" summary="true" /] for a nice example
+    wp_enqueue_script('epfl-infoscience-search-shortcode-math-main.js', $in_footer=true);
+
+    // // normalize attribute keys, lowercase
     $atts = array_change_key_case((array)$provided_attributes, CASE_LOWER);
 
     $infoscience_search_managed_attributes = array(
@@ -267,9 +273,9 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
                 }
 
                 // wrap the page
-                $page = '<div class="infoscienceBox">'.
-                            $page.
-                        '</div>';
+                $page = '<div class="infoscienceBox no-tex2jax_process">' . $page . '</div>';
+
+                $page .= get_mathjax_config();
 
                 // cache the result
                 wp_cache_set( $cache_key, $page, 'epfl_infoscience_search' );
@@ -295,9 +301,11 @@ function epfl_infoscience_search_load_plugin_textdomain() {
 add_action( 'plugins_loaded', 'epfl_infoscience_search_load_plugin_textdomain' );
 
 add_action( 'init', function() {
-
     add_shortcode( 'epfl_infoscience_search', 'epfl_infoscience_search_process_shortcode' );
     wp_register_style('epfl-infoscience-search-shortcode-style.css', plugins_url('css/epfl-infoscience-search-shortcode-style.css', __FILE__));
+
+    # MathJax for nice render
+    wp_register_script('epfl-infoscience-search-shortcode-math-main.js', 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=default');
 
     // shortcake configuration
     if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
