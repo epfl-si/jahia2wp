@@ -1,0 +1,19 @@
+backup_prod_ssh_location: www-data@ssh-wwp.epfl.ch
+backup_prod_ssh_port: 32222
+
+# For now, there are no backups except the production ones
+backup_ssh_cmdprefix: ssh -o PasswordAuthentication=no -n -x -T -p {{ backup_prod_ssh_port }} {{ backup_prod_ssh_location }}
+
+# Regarding -i, see https://superuser.com/a/941552/48763
+backup_prod_shell_untar: "{{ backup_ssh_cmdprefix }} cat {{ _backup_prod_tar_files.stdout_lines | join(' ') }} | tar --xform 's|.*/htdocs/||' -ix"
+
+backup_ssh_tar_file_glob: /backups/{{ backup_short_name }}/{{ backup_short_name }}_'*'.tar
+
+backup_ssh_sql_file_glob: /backups/{{ backup_short_name }}/{{ backup_short_name }}_'*'.sql
+
+# These two are more than a wee bit fuzzy, and there are probably a
+# number of cases to distinguish depending on where exactly the backup
+# and restore instances live.
+backup_short_name: "{{ wp_path }}"
+backup_base_url: "https://{{ backup_short_name }}.epfl.ch"
+

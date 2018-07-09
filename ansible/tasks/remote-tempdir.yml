@@ -1,0 +1,13 @@
+# Set up Ansible to use a homemade temporary directory on
+# WordPress Dockers (test and production)
+#
+# Should be skipped for read-only plays e.g. when: play_dump is defined
+- name: Create temporary directory
+  tempfile:
+    state: directory
+    prefix: ansible-jahia2wp-
+  register: tempfile
+  changed_when: false
+- name: Use temporary directory
+  set_fact:
+    ansible_remote_tmp: "{{ tempfile.path }}"
