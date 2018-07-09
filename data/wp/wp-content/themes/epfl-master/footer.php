@@ -39,18 +39,18 @@
 
 
         			if( $epfl_cur_lang == "fr" ) {
-          			$linkLegal = "https://mediacom.epfl.ch/disclaimer-fr";
-                $linkAccess = "https://www.epfl.ch/accessibility.fr.shtml";
+          			    $legal_link  = "https://mediacom.epfl.ch/disclaimer-fr";
+          			    $access_link = "https://www.epfl.ch/accessibility.fr.shtml";
         			} else {
-          			$linkLegal = "https://mediacom.epfl.ch/disclaimer-en";
-                $linkAccess = "https://www.epfl.ch/accessibility.en.shtml";
+          			    $legal_link  = "https://mediacom.epfl.ch/disclaimer-en";
+                        $access_link = "https://www.epfl.ch/accessibility.en.shtml";
         			}
         			
         		?>
       			
       			<ul class="nav footer-nav">
-        			<li class="legal-notice"><a href="<?php echo $linkLegal; ?>"><?php _e("Legal notice", "epfl"); ?></a></li>
-        			<li class="access"><a href="<?php echo $linkAccess; ?>"><?php _e("Accessibility", "epfl"); ?></a></li>
+        			<li class="legal-notice"><a href="<?php echo $legal_link; ?>"><?php _e("Legal notice", "epfl"); ?></a></li>
+        			<li class="access"><a href="<?php echo $access_link; ?>"><?php _e("Accessibility", "epfl"); ?></a></li>
       			</ul>
       			<?php if ( has_nav_menu( 'footer_nav' ) ) :
   							wp_nav_menu( array(
