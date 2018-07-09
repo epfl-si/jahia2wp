@@ -28,6 +28,7 @@ function sort_group_by_doctype_desc($a, $b) {
 Class InfoscienceGroupBy {
     private static $doctypes = null;
     
+    /* define order and translation */
     public static function doctypes() {
         if (self::$doctypes == null) {
             self::$doctypes = [
@@ -90,9 +91,14 @@ Class InfoscienceGroupBy {
                     $d = DateTime::createFromFormat("Y", $value);
                     if ($d) {
                         return date_format($d, "Y");
-                    # no idea what it is, make it key valid and return
                     } else {
-                        return;
+                        # try a regex match on a full year
+                        if (preg_match('/\b\d{4}\b/', $value, $matches)) {
+                            return $matches[0];
+                        } else {
+                            # no idea what it is, make it key valid and return
+                            return;
+                        }
                     }
                 }
             };
@@ -149,17 +155,6 @@ Class InfoscienceGroupBy {
             }
         }
 
-        // Recursively build a nested grouping if more parameters are supplied
-        // Each grouped array value is grouped according to the next sequential key
-        if (func_num_args() > 2) {
-            $args = func_get_args();
-
-            foreach ($grouped as $key => $value) {
-                $params = array_merge([ $value ], array_slice($args, 2, func_num_args()));
-                $grouped[$key] = call_user_func_array('array_group_by', $params);
-            }
-        }
-
         return $grouped;
     }    
     
@@ -174,19 +169,67 @@ Class InfoscienceGroupBy {
 
     public static function do_group_by($publications, $group_by=null, $group_by2=null, $sort_order='desc') {
         $grouped_publications = [];
-        if ($group_by === 'year') {
-            $grouped_publications['group_by'] = InfoscienceGroupBy::array_group_by($publications, 'publication_date');
-            #var_dump($grouped_publications);
-            #TODO: second level group_by
+
+        if ($group_by === 'year' && $group_by2 === 'doctype') {
+            $grouped_by_year = InfoscienceGroupBy::array_group_by($publications, 'publication_date');
+
+            if ($sort_order === 'asc') {
+                usort($grouped_by_year, 'sort_group_by_year_asc');
+            } else {
+                usort($grouped_by_year, 'sort_group_by_year_desc');
+            }
+
+            foreach($grouped_by_year as $index => $by_year) {
+                $doctype_grouped = InfoscienceGroupBy::array_group_by($by_year['values'], 'doctype');
+                # order is fixed for second group by
+                usort($doctype_grouped, 'sort_group_by_doctype_desc');
+
+                $grouped_publications['group_by'][] = [
+                    'label' => $by_year['label'],
+                    'values' => $doctype_grouped,
+                ];
+            }
+
+        } elseif ($group_by === 'doctype' && $group_by2 === 'year') {
+            $grouped_by_doctype = InfoscienceGroupBy::array_group_by($publications, 'doctype');
+
+            if ($sort_order === 'asc') {
+                usort($grouped_by_doctype, 'sort_group_by_doctype_asc');
+            } else {
+                usort($grouped_by_doctype , 'sort_group_by_doctype_desc');
+            }
+
+            foreach($grouped_by_doctype as $index => $by_doctype) {
+                $year_grouped = InfoscienceGroupBy::array_group_by($by_doctype['values'], 'publication_date');
+                # order is fixed for second group by
+                usort($year_grouped, 'sort_group_by_year_desc');
+
+                $grouped_publications['group_by'][] = [
+                    'label' => $by_doctype['label'],
+                    'values' => $year_grouped,
+                ];
+            }
+
+        } elseif ($group_by === 'year') {
+            $grouped_publications['group_by'] = [
+                ['label' => null,
+                'values' => InfoscienceGroupBy::array_group_by($publications, 'publication_date'),
+                ],
+            ];
 
             if ($sort_order === 'asc') {
                 usort($grouped_publications['group_by'], 'sort_group_by_year_asc');
             } else {
                 usort($grouped_publications['group_by'], 'sort_group_by_year_desc');
             }
-        } elseif (($group_by === 'doctype')) {
-            $grouped_publications['group_by'] = InfoscienceGroupBy::array_group_by($publications, 'doctype');
-            #var_dump($grouped_publications);
+
+        } elseif ($group_by === 'doctype') {
+            $grouped_publications['group_by'] = [
+                ['label' => null,
+                'values' => InfoscienceGroupBy::array_group_by($publications, 'doctype'),
+                ],
+            ];
+
             if ($sort_order === 'asc') {
                 usort($grouped_publications['group_by'], 'sort_group_by_doctype_asc');
             } else {
@@ -195,12 +238,16 @@ Class InfoscienceGroupBy {
 
         } else {
             # no group, set the same array level if so, without any label
-            $grouped_publications['group_by'][] = [
-                'label' => null,
-                'values' => $publications,
+            $grouped_publications['group_by'] = [
+                ['label' => null,
+                'values' => [
+                                ['label' => null,
+                                'values' => $publications],
+                            ],
+                        ],
             ];
         }
-        
+        #var_dump($grouped_publications);
         return $grouped_publications;
     }
 }

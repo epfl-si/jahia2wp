@@ -286,12 +286,12 @@ Class InfoscienceSearchShortCakeConfig
                             'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_group_by_options(),
                         ),
-                        /*array(
+                        array(
                             'label'         => esc_html__('Group by', 'epfl-infoscience-search') . ' (2)',
                             'attr'          => 'group_by2',
                             'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_group_by_options(),
-                        ),*/
+                        ),
                     ),
     
                     'post_type'     => array( 'post', 'page' ),

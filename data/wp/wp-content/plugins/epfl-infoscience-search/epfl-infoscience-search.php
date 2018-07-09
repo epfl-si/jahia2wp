@@ -215,14 +215,20 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
 
     $url = epfl_infoscience_search_generate_url_from_attrs($attributes+$unmanaged_attributes);
 
-    // Check if the result is already in cache
-    $page = wp_cache_get( $url, 'epfl_infoscience_search' );
+    $cache_key = md5(serialize([
+        'url' => $url,
+        'format' => $format,
+        'summary' => $summary,
+        'thumbnail' => $thumbnail,
+        'group_by' => $group_by,
+        'group_by2' => $group_by2,
+        'sort' => $attributes['sort'],
+    ]));
+
+    $page = wp_cache_get( $cache_key, 'epfl_infoscience_search');
     
     # not in cache ?
-    # TODO: reactivate cache
-    # if ($page == false || $debug_data || $debug_template){
-    if (true){
-    
+    if ($page === false || $debug_data || $debug_template){
         if (epfl_infoscience_url_exists( $url ) ) {
             $response = wp_remote_get( $url );
 
@@ -237,7 +243,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
                 $grouped_by_publications = InfoscienceGroupBy::do_group_by($publications, $group_by, $group_by2, $attributes['sort']);
 
                 if ($debug_data) {
-                    $page = RawInfoscienceRender::render($publications, $url);
+                    $page = RawInfoscienceRender::render($grouped_by_publications, $url);
                     return $page;
                 }
 
@@ -266,7 +272,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
                         '</div>';
 
                 // cache the result
-                wp_cache_set( $url, $page, 'epfl_infoscience_search' );
+                wp_cache_set( $cache_key, $page, 'epfl_infoscience_search' );
 
                 // return the page
                 return $page;

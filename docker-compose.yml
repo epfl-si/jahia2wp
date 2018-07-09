@@ -26,7 +26,6 @@ services:
     image: epflidevelop/os-wp-httpd
     volumes:
       - ./volumes/srv:/srv
-      - ./data/wp/wp-content/plugins/epfl-infoscience-search:/srv/${WP_ENV}/jahia2wp-httpd/htdocs/dcsl/wp-content/plugins/epfl-infoscience-search
     links:
       - db:db
     environment:
