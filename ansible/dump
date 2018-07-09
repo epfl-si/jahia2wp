@@ -1,0 +1,18 @@
+#!/bin/sh
+# This is an Ansible playbook to dump sites in the WXR format, and
+# recover the spoils to localhost.
+#
+# Usage: this script expects to be invoked from the top
+#        of the source tree.
+#
+#     ./ansible/dump -e "to=/some/where"
+#
+# or equivalently
+#
+#     ./ansible/dump -e "dump_local_dir=/some/where"
+#
+# If you are unfamiliar with Ansible, read up on it at
+# - https://www.ansible.com/overview/how-ansible-works
+# - https://github.com/jdauphant/awesome-ansible
+
+ansible-playbook -e "play_dump=true" -e "dump_local_dir={{ to }}" -i ansible/hosts-dev "$@" ansible/playbooks/wordpress-main.yml

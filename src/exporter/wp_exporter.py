@@ -5,6 +5,7 @@ import sys
 import re
 from parser.box import Box
 import timeit
+import time
 from collections import OrderedDict
 from datetime import timedelta, datetime
 import json
@@ -209,21 +210,21 @@ class WPExporter:
             start = "{}/content/sites/{}/files".format(self.site.base_path, self.site.name)
             self.site.files = self._asciify_path(start)
 
-            count = 0
             for file in self.site.files:
                 wp_media = self.import_media(file)
                 if wp_media:
                     self.fix_file_links(file, wp_media)
                     self.report['files'] += 1
-                    count += 1
 
-                    if count % 10 == 0:
+                    if self.report['files'] % 10 == 0:
                         logging.info("[%s/%s] WP medias imported", self.report['files'], len(self.site.files))
 
             self.fix_key_visual_boxes()
         # Remove the capability "unfiltered_upload" to the administrator group.
         self.run_wp_cli('cap remove administrator unfiltered_upload')
         logging.info("%s WP medias imported", self.report['files'])
+        if self.report['failed_files'] > 0:
+            logging.info("%s WP medias import failed", self.report['failed_files'])
 
     def import_media(self, media):
         """
@@ -269,14 +270,29 @@ class WPExporter:
             # post
         }
         files = files
-        try:
-            logging.debug("WP media information %s", wp_media_info)
-            wp_media = self.wp.post_media(data=wp_media_info, files=files)
-            return wp_media
-        except Exception as e:
-            logging.error("%s - WP export - media failed: %s", self.site.name, e)
-            self.report['failed_files'] += 1
-            raise e
+
+        for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
+
+            try:
+                logging.debug("WP media information %s", wp_media_info)
+                wp_media = self.wp.post_media(data=wp_media_info, files=files)
+                return wp_media
+            except Exception as e:
+                if try_no < settings.WP_CLI_AND_API_NB_TRIES-1:
+                    logging.error("%s - WP export - media failed (%s). Retry %s in %s sec...",
+                                  self.site.name,
+                                  media.name,
+                                  try_no+1,
+                                  settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                    time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                    pass
+                else:
+                    logging.error("%s - WP export - media failed, it may be corrupted (%s/%s): %s",
+                                  self.site.name,
+                                  media.path,
+                                  media.name,
+                                  e)
+                    self.report['failed_files'] += 1
 
     def import_breadcrumb(self):
         """
@@ -322,7 +338,7 @@ class WPExporter:
                 continue
 
             # first fix in shortcodes
-            self.fix_file_links_in_shortcode_attributes(box, old_url, new_url)
+            self.fix_file_links_in_shortcode_attributes(box, old_url, wp_media)
 
             soup = BeautifulSoup(box.content, 'html5lib')
             soup.body.hidden = True
@@ -408,7 +424,7 @@ class WPExporter:
 
     def fix_page_links_in_pages(self, wp_pages, site_folder):
         """
-        Fix all the links once we know all the WordPress pages urls
+        Fix all the links once we know all the WordPress pages urls and then update page in WordPress
         :param wp_pages: list of pages to fix
         :param site_folder: path to folder containing website files
         :return:
@@ -499,29 +515,33 @@ class WPExporter:
 
             self.update_page_content(page_id=wp_id, content=content)
 
-    def fix_file_links_in_shortcode_attributes(self, box, old_url, new_url):
+    def fix_file_links_in_shortcode_attributes(self, box, old_url, wp_media):
         """
-        Fix the link in a box shortcode for all registered attributes.
+        Fix the link in a box shortcode for all registered attributes in given box
 
         This will replace for example:
-
         image="/files/51_recyclage/vignette_bois.png"
-
         to:
-
         image="/wp-content/uploads/2018/04/vignette_bois.png"
+        or to:
+        image="<imageId>"
+
+        :param box: instance of Box class in which we need to fix attributes
+        :param old_url: old URL (Jahia) that may be used in attributes
+        :param wp_media: Object with WordPress media information containing everything we need to set new URL
+        or imageId
         """
+        new_url = wp_media['source_url']
+
         for attribute in box.shortcode_attributes_to_fix:
             old_attribute = '{}="{}"'.format(attribute, old_url)
             new_attribute = '{}="{}"'.format(attribute, new_url)
 
-            # To use shortcake for snippet plugin we must define url="23" with 23 is the media id.
+            # To use shortcake for snippet plugin we must define url="23" with 23 as media id.
             if box.type == Box.TYPE_SNIPPETS:
-                medias = self.wp.get_media()
-                for media in medias:
-                    if 'guid' in media and 'rendered' in media['guid'] and media['guid']['rendered'] == new_url:
-                        new_attribute = '{}="{}"'.format(attribute, media['id'])
-                        break
+
+                if 'guid' in wp_media and 'rendered' in wp_media['guid'] and wp_media['guid']['rendered'] == new_url:
+                    new_attribute = '{}="{}"'.format(attribute, wp_media['id'])
 
             box.content = box.content.replace(old_attribute, new_attribute)
 
@@ -558,7 +578,7 @@ class WPExporter:
             # point the link to the new url of the page.
             if link.encode('ascii', 'replace').decode('ascii').replace('?', '') == old_url.replace('?', '') \
                     or (pid and link == pid):
-                logging.debug("Changing link from %s to %s", (old_url, new_url))
+                logging.debug("Changing link from %s to %s", old_url, new_url)
                 tag[tag_attribute] = new_url
 
     def fix_key_visual_boxes(self):
@@ -610,7 +630,16 @@ class WPExporter:
         if slug:
             wp_page_info['slug'] = slug
 
-        return self.wp.post_pages(page_id=page_id, data=wp_page_info)
+        for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
+            try:
+                return self.wp.post_pages(page_id=page_id, data=wp_page_info)
+            except Exception as e:
+                if try_no < settings.WP_CLI_AND_API_NB_TRIES-1:
+                    logging.error("post_pages() error. Retry %s in %s sec...",
+                                  try_no+1,
+                                  settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                    time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                    pass
 
     def update_page_content(self, page_id, content):
         """Update the page content"""
@@ -658,40 +687,58 @@ class WPExporter:
             contents = OrderedDict()
             info_page = OrderedDict()
 
+            # To save processed boxes. When we find a box that needs to be sort with other boxes, we directly will
+            # process all boxes to sort and we will add them to this list. This will avoid to process sorted boxes twice
+            done_boxes = []
+
             for lang in page.contents.keys():
                 contents[lang] = ""
 
                 # create the page content
                 for box in page.contents[lang].boxes:
 
-                    # We skip empty boxes
-                    if box.is_empty():
+                    # We skip empty boxes and the ones already processed
+                    if box.is_empty() or box in done_boxes:
                         continue
 
-                    if not box.is_shortcode():
-                        contents[lang] += '<div class="{}">'.format(box.type + "Box")
+                    # If box have to be sort
+                    if box.sort_group:
+                        # We recover all boxes belonging to the "sort group".
+                        sorted_boxes = box.sort_group.get_sorted_boxes()
+                    else:
+                        # There's only one box to "sort"
+                        sorted_boxes = [box]
 
-                        if box.title:
-                            if WPUtils.is_html(box.title):
-                                contents[lang] += '<h3>{}</h3>'.format(box.title)
-                            else:
-                                slug = slugify(box.title)
-                                contents[lang] += '<h3 id="{}">{}</h3>'.format(slug, box.title)
+                    # Looping through boxes to sort (in correct order)
+                    for box_to_sort in sorted_boxes:
 
-                        # If cleaning required
-                        if features_flags:
-                            box.content = self.apply_features_flags(box.content)
+                        if not box_to_sort.is_shortcode():
+                            contents[lang] += '<div class="{}">'.format(box_to_sort.type + "Box")
 
-                    # in the parser we can't know the current language.
-                    # we assign a string that we replace with the current language
-                    if box.type in (Box.TYPE_PEOPLE_LIST, Box.TYPE_MAP):
-                        if Box.UPDATE_LANG in box.content:
-                            box.content = box.content.replace(Box.UPDATE_LANG, lang)
+                            if box_to_sort.title:
+                                if WPUtils.is_html(box_to_sort.title):
+                                    contents[lang] += '<h3>{}</h3>'.format(box_to_sort.title)
+                                else:
+                                    slug = slugify(box_to_sort.title)
+                                    contents[lang] += '<h3 id="{}">{}</h3>'.format(slug, box_to_sort.title)
 
-                    contents[lang] += box.content
+                            # If cleaning required
+                            if features_flags:
+                                box_to_sort.content = self.apply_features_flags(box_to_sort.content)
 
-                    if not box.is_shortcode():
-                        contents[lang] += "</div>"
+                        # in the parser we can't know the current language.
+                        # we assign a string that we replace with the current language
+                        if box_to_sort.type in (Box.TYPE_PEOPLE_LIST, Box.TYPE_MAP):
+                            if Box.UPDATE_LANG in box_to_sort.content:
+                                box_to_sort.content = box_to_sort.content.replace(Box.UPDATE_LANG, lang)
+
+                        contents[lang] += box_to_sort.content
+
+                        if not box_to_sort.is_shortcode():
+                            contents[lang] += "</div>"
+
+                        # To remember that box was processed
+                        done_boxes.append(box_to_sort)
 
                 info_page[lang] = {
                     'post_name': page.contents[lang].path,
@@ -794,7 +841,17 @@ class WPExporter:
                     wp_page_info = {
                         'parent': page.parent.contents[lang].wp_id
                     }
-                    self.wp.post_pages(page_id=page.contents[lang].wp_id, data=wp_page_info)
+
+                    for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
+                        try:
+                            self.wp.post_pages(page_id=page.contents[lang].wp_id, data=wp_page_info)
+                        except Exception as e:
+                            if try_no < settings.WP_CLI_AND_API_NB_TRIES - 1:
+                                logging.error("Run WPCLI error. Retry %s in %s sec...",
+                                              try_no+1,
+                                              settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                                time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                                pass
 
     def create_sitemaps(self):
 
@@ -866,13 +923,12 @@ class WPExporter:
                         continue
 
                     if box.type in [Box.TYPE_TOGGLE, Box.TYPE_TEXT, Box.TYPE_CONTACT, Box.TYPE_LINKS, Box.TYPE_FILES,
-                                    Box.TYPE_INCLUDE, Box.TYPE_MEMENTO, Box.TYPE_ACTU, Box.TYPE_SNIPPETS]:
-                        widget_type = 'custom_html'
+                                    Box.TYPE_INCLUDE, Box.TYPE_MEMENTO, Box.TYPE_ACTU, Box.TYPE_SNIPPETS,
+                                    Box.TYPE_RSS]:
                         title = prepare_html(box.title)
                         content = prepare_html(box.content)
 
                     elif box.type == Box.TYPE_COLORED_TEXT:
-                        widget_type = 'custom_html'
                         title = ""
                         content = "[colored-box]"
                         content += prepare_html("<h3>{}</h3>".format(box.title))
@@ -882,12 +938,10 @@ class WPExporter:
                     # Box type not supported for now,
                     else:
                         logging.warning("Box type currently not supported for sidebar (%s)", box.type)
-                        widget_type = 'custom_html'
                         title = prepare_html("TODO ({}): {}".format(box.type, box.title))
                         content = prepare_html(box.content)
 
-                    cmd = 'widget add {} page-widgets {} --content="{}" --title="{}"'.format(
-                        widget_type,
+                    cmd = 'widget add custom_html page-widgets {} --content="{}" --title="{}"'.format(
                         widget_pos,
                         WPUtils.clean_html_comments(content),
                         title
@@ -1019,8 +1073,8 @@ class WPExporter:
                         logging.error("Submenu creation: No page found for UUID %s", menu_item.points_to)
                         continue
 
-                    if lang in child.contents and child.parent.contents[lang].wp_id in self.menu_id_dict and \
-                            child.contents[lang].wp_id:  # FIXME For unknown reason, wp_id is sometimes None
+                    # FIXME For unknown reason, wp_id is sometimes None
+                    if lang in child.contents and child.contents[lang].wp_id:
 
                         # If we have a menu entry title and it is different as the page title, we take the menu title
                         menu_txt = menu_item.txt if menu_item.txt != "" else child.contents[lang].menu_title
@@ -1271,15 +1325,34 @@ class WPExporter:
 
     def write_redirections(self):
         """
-        Update .htaccess file with redirections
+        Update .htaccess file with redirections.
+        The added redirections are for :
+        - Jahia pages to WordPress pages
+        - Jahia media (files) to WordPress media. For media, we will redirect to the upload directory corresponding
+        to year/month of Jahia to WordPress site migration.
         """
-        redirect_list = []
 
+        # Step 1 - Medias
+        if self.site.files:
+            current_month = datetime.now().strftime('%m')
+            current_year = datetime.now().strftime('%Y')
+
+            redirect_list = ["RewriteRule ^files/content/(.*/)*(.*)$ wp-content/uploads/{}/{}/$2 "
+                             "[R=301,NC,L]".format(current_year, current_month)]
+
+            # Updating .htaccess file
+            WPUtils.insert_in_htaccess(self.wp_generator.wp_site.path,
+                                       "Jahia-Files-Redirect",
+                                       redirect_list,
+                                       at_beginning=True)
+
+        # Step 2 - Pages
         # Init WP install folder path for source URLs
         if self.wp_generator.wp_site.folder == "":
             folder = ""
         else:
             folder = "/{}".format(self.wp_generator.wp_site.folder)
+        redirect_list = []
 
         # Add all rewrite jahia URI to WordPress URI
         for element in self.urls_mapping:

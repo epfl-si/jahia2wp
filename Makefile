@@ -90,7 +90,7 @@ down: check-env
 	 WP_PORT_HTTPS=${WP_PORT_HTTPS} \
 	 docker-compose down
 
-bootstrap-local:
+bootstrap-local: pull
 	[ -f .env ] || cp .env.sample .env
 	[ -f etc/.bash_history ] || cp etc/.bash_history.sample etc/.bash_history
 	sudo chown -R `whoami`:33 .
@@ -110,3 +110,15 @@ endif
 
 clean: down
 	@bin/clean.sh $(WP_ENV) ${WP_TRAVIS_TEST_ENV}
+
+connect-OS:
+	@oc login --token="$$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" --insecure-skip-tls-verify=true https://pub-os-exopge.epfl.ch:443
+
+disconnect-OS:
+	@oc logout
+
+new-route: connect-OS
+	@bin/new-route.sh -s httpd-$(WP_ENV) -h $(site) | oc -n wwp create -f - 
+
+delete-route: connect-OS
+	@oc delete route httpd-$${site%%.*}

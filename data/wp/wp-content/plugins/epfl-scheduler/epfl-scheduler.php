@@ -105,7 +105,7 @@ function epfl_scheduler_shortcode( $atts, $content = '', $tag )
 
     // check if we can display content
     if ( $now >= $start_date && $now <= $end_date ) {
-        return $content;
+        return do_shortcode($content);
     }
 }
 
@@ -119,7 +119,7 @@ add_action( 'plugins_loaded', 'epfl_scheduler_load_plugin_textdomain' );
 add_action( 'init', function() {
 
     // Define shortcode
-    add_shortcode('epfl_scheduler', epfl_scheduler_shortcode);
+    add_shortcode('epfl_scheduler', 'epfl_scheduler_shortcode');
 
     if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
 

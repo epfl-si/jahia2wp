@@ -471,12 +471,54 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     skip_media = False
     skip_pages = False
 
+    # List of plugins to let in 'deactivated' state during import. To earn more time, they are not activated during
+    # WordPress empty site generation. Because activating them takes time and we have to take the same amount of time
+    # to deactivate them before running Jahia site import.
+    # Deactivating plugins can improve import time by ~80%
+    # WARNING: be careful with the list order. Plugins will be reactivated after import by using list order. So if
+    # there are dependencies between plugins, arrange them in the right way.
+    deactivated_plugins = ['mainwp-child',
+                           'epfl-faq',
+                           'epfl-grid',
+                           'epfl-infoscience',
+                           'epfl-map',
+                           'epfl-memento',
+                           'epfl-news',
+                           'epfl-people',
+                           'epfl-scheduler',
+                           'EPFL-Content-Filter',
+                           'EPFL-Share',
+                           'epfl-snippet',
+                           'epfl-toggle',
+                           'epfl-xml',
+                           'epfl-scienceqa'
+                           'feedzy-rss-feeds',
+                           'remote-content-shortcode',
+                           'shortcode-ui',
+                           'shortcode-ui-richtext',   # This one needs to come after the previous one
+                           'shortcodes-ultimate',
+                           'simple-sitemap',
+                           'svg-support',
+                           'enlighter',
+                           'tinymce-advanced',
+                           'varnish-http-purge']
+
     # Generate a WordPress site
     wp_generator = WPGenerator(info, admin_password)
 
     # base installation
     if skip_base:
+
+        logging.info("Deactivating %s plugins...", len(deactivated_plugins))
+        for plugin_name in deactivated_plugins:
+            # We do a 'try' to handle missing plugins (if exists)
+            try:
+                wp_generator.run_wp_cli("plugin deactivate {}".format(plugin_name))
+            except:
+                logging.info("Plugin %s doesn't seem's to be installed", plugin_name)
+
         try:
+
             # even if we skip the base installation we need to reactivate
             # the basic auth plugin for the rest API
             wp_generator.run_wp_cli("plugin activate Basic-Auth")
@@ -484,7 +526,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
             # if activation fails it means the plugin is not installed
             wp_generator.install_basic_auth_plugin()
     else:
-        wp_generator.generate()
+        wp_generator.generate(deactivated_plugins)
 
         wp_generator.install_basic_auth_plugin()
 
@@ -510,12 +552,25 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     if to_wordpress:
         logging.info("Exporting %s to WordPress...", site.name)
         try:
+
             if wp_generator.get_number_of_pages() == 0:
+
                 wp_exporter.import_data_to_wordpress(skip_pages=skip_pages,
                                                      skip_media=skip_media,
                                                      features_flags=features_flags)
                 wp_exporter.write_redirections()
                 _fix_menu_location(wp_generator, languages, default_language)
+
+                logging.info("Reactivating %s plugins...", len(deactivated_plugins))
+
+                # Reactivating plugins
+                for plugin_name in deactivated_plugins:
+                    # We do a 'try' to handle missing plugins (if exists)
+                    try:
+                        wp_generator.run_wp_cli("plugin activate {}".format(plugin_name))
+                    except:
+                        logging.info("Plugin %s doesn't seem's to be installed", plugin_name)
+
                 logging.info("Site %s successfully exported to WordPress", site.name)
             else:
                 logging.info("Site %s already exported to WordPress", site.name)

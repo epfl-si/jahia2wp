@@ -45,8 +45,7 @@ Class NewsUtils
                 $header = $response['headers']; // array of http header lines
                 $data = $response['body']; // use the content
                 if ( $header["content-type"] === "application/json" ) {
-                        $items = json_decode($data);
-                        return $items;
+                        return json_decode($data);
                 }
         }
     }

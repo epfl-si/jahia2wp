@@ -18,3 +18,6 @@ src/*.csv
 src/*.csv.*
 src/*tmp*.json
 src/*.zip
+ansible/*.json
+ansible/**/*.retry
+deploy.retry

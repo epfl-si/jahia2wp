@@ -57,6 +57,12 @@ body.search {
   padding: 0 15px;
 }
 
+body,
+div {
+  font-size: 13px;
+  line-height: 1.3em;
+}
+
 /* --- Structure --- */
 
 body {
@@ -148,6 +154,7 @@ body {
   & > .label {
     @include minor-text;
     border-bottom: 1px dotted #000;
+    margin-right: 1em;
     transition: all .2s ease-in-out;
     vertical-align: middle;
   }
@@ -219,6 +226,9 @@ body {
 }
 .fa-icon.time:before {
   content: "\f017";
+}
+.fa-icon.calendar:before {
+  content: "\f073";
 }
 .fa-icon.url:before {
   content: "\f0c1";
@@ -385,6 +395,32 @@ a.a2a_button_{
   padding-right: 50px;
 }
 
+.toggler {
+  cursor: pointer;
+  margin: 20px 0;
+  padding-left: 16px;
+  position: relative;
+  
+  &:before {
+    @include icon;
+    content: "\f0da";
+    color: #000;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 16px;
+    position: absolute;
+    top: auto; right: auto; bottom: auto; left: 0;
+  }
+  
+  .toggled-active &:before {
+    content: "\f0d7";
+  }
+  
+  & + .toggler-content {
+    margin-top: -10px;
+  }
+}
+
 /* Faq items */
 
 .faq-item {
@@ -393,7 +429,7 @@ a.a2a_button_{
 
 .faq-title {
   font-family: Arial, Helvetica, sans-serif;
-  font-size: .9375em;
+  font-size: 15px;
   font-weight: bold;
 }
 
@@ -403,6 +439,10 @@ a.a2a_button_{
   @include colored-text-box;
   @include clearfix;
   margin: 1.5em 0;
+  
+  table {
+    border-collapse: inherit;
+  }
 }
 
 .local-color-text {
@@ -437,12 +477,12 @@ a.a2a_button_{
 ----------------------------------------- */
 
 .entry-content .box {
-  font-size: .8125em;
+  font-size: 13px;
   line-height: 1.3em;
   margin-bottom: 20px;
   
   p {
-    font-size: 1em;
+    font-size: 13px;
     margin: 7px 0;
     
     &:last-child {
@@ -476,12 +516,11 @@ a.a2a_button_{
 
 .local-color,
 .local-color-down {
-  font-size: .8125em;
-  font-size: .8125rem;
+  font-size: 14px;
   
   p {
     font-size: 1em;
-    font-size: .8125rem;
+    font-size: 13px;
   }
 }
 
@@ -493,6 +532,39 @@ a.a2a_button_{
 .news-list li,
 .list-layout li {
   @include no-bullet;
+}
+
+.colored-box,
+[class*="local-bg-color"] {
+
+  ul li:before {
+    background: #fff;
+  }
+  
+  .btn-icon > .label {
+    border-color: #fff;
+  }
+}
+
+.button {
+  background: transparent;
+  color: #454545;
+  font-size: 13px;
+  height: auto;
+  line-height: 1;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 0;
+  text-transform: none;
+  
+  .label {
+    font-family: Georgia,'Times New Roman',Times,serif;
+    font-size: 12px;
+    letter-spacing: 1px;
+    font-style: italic;
+    display: inline-block;
+    cursor: pointer;
+  }
 }
 
 /* --- People boxes --- */
@@ -1162,7 +1234,6 @@ ul.bottin {
 .site-title {
 	clear: none;
 	font-size: 24px;
-	font-size: 1.5rem;
 	//font-weight: 800;
 	line-height: 1.25;
 	letter-spacing: 0.08em;
@@ -1206,7 +1277,7 @@ ul.bottin {
 }
 .site-title {
   @include txt-narrow;
-  font-size: 1.625em /* 26px */;
+  font-size: 26px;
   letter-spacing: 1px;
   text-transform: uppercase;
 }
@@ -1419,7 +1490,7 @@ ul.bottin {
   }
   
   p {
-    font-size: .6875em;
+    font-size: 11px;
   }
   
   a {
@@ -1435,7 +1506,7 @@ ul.bottin {
   
   li {
     float: left;
-    font-size: .6875em;
+    font-size: 11px;
     margin-right: .5em;
     position: relative;
     
@@ -1626,7 +1697,7 @@ ul.bottin {
   border-bottom: 1px solid #000;
   color: #000;
   font-style: normal;
-  font-size: 1.375em;
+  font-size: 22px;
   line-height: 1.2em;
   margin-bottom: .5em;
   text-transform: uppercase;
@@ -1727,7 +1798,7 @@ ul.bottin {
 .site-main .entry-header .entry-title,
 .site-main .entry-header h1.entry-title {
   font-family: "Arial black", Arial, Helvetica, sans-serif;
-  font-size: 1.6875em;
+  font-size: 22px;
   line-height: 1.4em;
   text-transform: none;
 }
@@ -1754,6 +1825,7 @@ ul.bottin {
   
   img {
     display: block;
+    margin: 0;
     vertical-align: top;
   }
 }
@@ -1781,7 +1853,7 @@ ul.bottin {
   
   .entry-title {
     font-family: Arial,Helvetica,Verdana,sans-serif;
-    font-size: .875rem;
+    font-size: 14px;
     font-weight: bold;
     padding: 0;
     margin: 0 0 6px 0;
@@ -1798,6 +1870,10 @@ ul.bottin {
   a {
     border: none;
     display: block;
+  }
+  
+  img {
+    margin: 0;
   }
 }
 
@@ -1836,7 +1912,7 @@ ul.bottin {
   }
   
   .teaser {
-    font-size: .8125rem;
+    font-size: 13px;
     height: 3.9em;
     overflow: hidden;
     position: relative;
@@ -1902,11 +1978,11 @@ ul.bottin {
   @include minor-text;
   
   .comment-author {
-    font-size: .875rem;
+    font-size: 14px;
   }
   
   .comment-metadata {
-    font-size: .6875rem;
+    font-size: 11px;
     letter-spacing: 0;
     text-transform: none;
   }
@@ -1926,7 +2002,7 @@ ul.bottin {
 
 .nav-links {
   @include clearfix;
-  font-size: .8125em;
+  font-size: 13px;
   line-height: 1.4em;
   margin: 20px 0;
   
@@ -2085,7 +2161,7 @@ ul.bottin {
       
       p {
         display: inline;
-        font-size: .75rem;
+        font-size: 12px;
         line-height: 1.3em;
         padding: 0;
       }
@@ -2143,7 +2219,7 @@ ul.bottin {
   }
   
   .teaser p {
-    font-size: .75rem;
+    font-size: 12px;
   }
   
   .links {
@@ -2219,7 +2295,7 @@ ul.bottin {
     width: 100%;
     
     .entry-title {
-      font-size: .75em;
+      font-size: 12px;
       line-height: 1.4em;
       margin-bottom: 5px;
     }
@@ -2234,7 +2310,7 @@ ul.bottin {
     }
     
     .teaser p {
-      font-size: .75rem;
+      font-size: 12px;
     }
     
   }
@@ -2243,7 +2319,7 @@ ul.bottin {
 .sidebar .list-articles.list-news-textonly {
   
   .entry-title {
-    font-size: .8125em;
+    font-size: 13px;
     line-height: 1.4em;
     margin-bottom: 5px;
   }
@@ -2273,7 +2349,7 @@ ul.bottin {
       
       p {
         display: inline;
-        font-size: .75rem;
+        font-size: 12px;
         line-height: 1.3em;
       }
     }
@@ -2292,7 +2368,7 @@ ul.bottin {
   }
   
   .event-title {
-    font-size: .875em;
+    font-size: 13px;
     margin-bottom: .3em;
     margin-top: 0;
     padding: 0;
@@ -2302,7 +2378,7 @@ ul.bottin {
     @include txt-narrow;
     background: #000;
     color: #fff;
-    font-size: .875em;
+    font-size: 12px;
     margin-bottom: 6px;
     padding: 0 6px;
     
@@ -2324,7 +2400,7 @@ ul.bottin {
   
   p {
     display: inline;
-    font-size: .75rem;
+    font-size: 12px;
     padding: 0;
     
     &:empty {
@@ -2405,6 +2481,10 @@ ul.bottin {
   
   .event-img {
     display: none;
+    
+    img {
+      margin: 0;
+    }
   }
 }
 
@@ -2414,8 +2494,7 @@ ul.bottin {
   margin-top: 1em;
   
   .speakers {
-    font-size: .6875em;
-    font-size: .6875rem;
+    font-size: 11px;
   }
 }
 
@@ -2477,7 +2556,7 @@ ul.bottin {
 .sidebar .list-events {
   
   .event-title {
-    font-size: .8125em;
+    font-size: 12px;
   }
 }
 
@@ -2507,8 +2586,8 @@ ul.bottin {
 
 .snippetsBox {
   border-bottom: 1px dotted #000;
-  margin-bottom: 15px;
-  padding-bottom: 15px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
   
   .snippets-image {
     margin-bottom: 10px;
@@ -2521,7 +2600,7 @@ ul.bottin {
   
   .snippets-title h2 {
     font-family: Arial,Helvetica,Verdana,sans-serif;
-    font-size: .875rem;
+    font-size: 13px;
     font-weight: bold;
     padding: 0;
     margin: 0 0 6px 0;
@@ -2539,13 +2618,13 @@ ul.bottin {
 .feedzy-rss {
   
   .rss_header h2 {
-    font-size: 1em;
+    font-size: 13px;
     margin-bottom: 1.5em;
     
     .rss_description {
       display: block;
       font-family: Arial,Helvetica,Verdana,sans-serif;
-      font-size: .875rem;
+      font-size: 13px;
       font-weight: bold;
       line-height: 1.3em;
       margin-top: .375em;
@@ -2603,6 +2682,116 @@ ul.bottin {
 }
 
 
+/*  ---------------------------------------
+    09 STATIC HOMEPAGES
+----------------------------------------- */
+
+.local-bg-color1,
+.local-bg-color2,
+.local-bg-color3,
+.local-bg-color4 {
+  border-color: #fff;
+  color: #fff;
+}
+.local-bg-color1 {
+  @include color-background;
+}
+.local-bg-color2 {
+  @include color-background-sec;
+}
+.local-bg-color3 {
+  @include color-background-ter;
+}
+
+.homepage-fullwidth .page .page-header {
+  border: 0;
+  font-size: 12px;
+  margin-left: -0.3075em;
+  margin-bottom: 30px;
+  padding: 0;
+  
+  img {
+    margin: 0;
+  }
+  
+  p {
+    font-size: 12px;
+  }
+  
+  h3 {
+    border: 0;
+    color: #fff;
+    font-family: Arial,Helvetica,Verdana,sans-serif;
+    font-size: 15px;
+    letter-spacing: 0;
+    margin-top: 1.5em;
+    text-transform: none;
+  }
+  
+  .media-ribbon {
+    
+    p {
+      font-size: 13px;
+    }
+  }
+  
+  .box {
+    margin-bottom: 0;
+  }
+}
+
+.homepage-fullwidth .page .page-content {
+  margin-left: -0.3075em;
+  padding: 0;
+}
+
+/* Faculty slider */
+
+.layout-faculty .su-slider {
+  height: 100%;
+  
+  .su-slider-slides,
+  .su-slider-slide,
+  .su-slider-slide > a,
+  .su-slider-slide img {
+    height: 100% !important;
+  }
+}
+
+/* Resets */
+
+.panel-header {
+  a {
+    @include color-link;
+    border: 0;
+  }
+}
+
+.panel-content .media-footer {
+  margin-top: 10px;
+}
+
+.media-list.fac .media-ribbon {
+  height: auto;
+  
+  span > br {
+    display: none;
+  }
+}
+
+.layout-faculty .panel {
+  margin-bottom: 10px;
+}
+
+.layout-faculty .page-header::before {
+  display: none;
+}
+
+.layout-faculty .page-header .panel-cell .media,
+.layout-faculty .page-header .panel.themed .media {
+  width: 100%;
+}
+
 /*  -----------------------------------------------------------
 
 	Media Queries - Mobile phones (> 480px)
@@ -2644,6 +2833,10 @@ ul.bottin {
     margin-bottom: 40px;
     padding-right: 2px;
     width: 50%;
+  
+    &.panel {
+      width: 100%;
+    }
     
     .box-flat-panel {
       width: 100%;
@@ -2652,6 +2845,17 @@ ul.bottin {
     &.last-col {
       padding-left: 2px;
       padding-right: 0;
+    }
+  }
+  
+  .textBox {
+    @include clearfix;
+    
+    .box {
+      
+      &:nth-child(2n+1) {
+        clear: left;
+      }
     }
   }
   
@@ -2685,7 +2889,7 @@ ul.bottin {
   }
   
   #secondary {
-    font-size: 1rem;
+    font-size: 13px;
   }
   
   /*  ---------------------------------------
@@ -2744,7 +2948,7 @@ ul.bottin {
   
   .site-header .navigation-top {
     background: #fff;
-    font-size: 1em;
+    font-size: 13px;
     position: static;
     
     nav {
@@ -2923,7 +3127,7 @@ ul.bottin {
     padding: 0;
     
     li {
-      font-size: .75em;
+      font-size: 11px;
       margin-bottom: 0;
       
       &.separator {
@@ -2962,7 +3166,7 @@ ul.bottin {
   ----------------------------------------- */
   
   .site-footer {
-    font-size: 1rem;
+    font-size: 13px;
     
     .footer-content {
       //border: 0;
@@ -3086,7 +3290,7 @@ ul.bottin {
       }
       
       .entry-header .entry-title {
-        font-size: .75em;
+        font-size: 11px;
       }
       
       .entry-content {
@@ -3117,7 +3321,7 @@ ul.bottin {
           width: 100%;
           
           .entry-title {
-            font-size: .875rem;
+            font-size: 13px;
           }
         }
         
@@ -3155,7 +3359,7 @@ ul.bottin {
     }
         
     .entry-header .entry-title {
-      font-size: .8125rem;
+      font-size: 12px;
     }
     
     .links {
@@ -3188,14 +3392,14 @@ ul.bottin {
     background: transparent;
     color: #666;
     float: left;
-    font-size: 1.125em;
+    font-size: 18px;
     margin: 0 5px 0 0;
     padding: 0;
     width: 40px;
     
     p {
       display: block;
-      font-size: .75em;
+      font-size: 13px;
       letter-spacing: .05em;
       padding: 0;
       text-align: center;
@@ -3343,7 +3547,7 @@ ul.bottin {
       
       .event-title {
         float: left;
-        font-size: 1em;
+        font-size: 13px;
         vertical-align: bottom;
         width: 320px;
       }
@@ -3407,18 +3611,32 @@ ul.bottin {
 
   .snippetsBox {
     @include clearfix;
+    margin-bottom: 5px;
+    padding-bottom: 5px;
     
     .snippets-image {
       float: left;
       margin-bottom: 0;
       padding-right: 20px;
       width: 30%;
+      
+      img {
+        margin: 0;
+      }
     }
     
     .snippets-content {
       float: right;
       width: 70%;
     }
+  }
+  
+  /*  ---------------------------------------
+      09 STATIC HOMEPAGES
+  ----------------------------------------- */
+  
+  .layout-faculty .panel-cell:empty {
+    display: block;
   }
   
 }
@@ -3440,13 +3658,26 @@ ul.bottin {
     margin-right: auto;
     padding-left: 0;
     padding-right: 0;
-    width: 976px;
+    //width: 976px;
+    width: 980px;
   }
   
-  #primary.col,
-  #secondary.col {
-    padding-left: 10px;
-  	padding-right: 10px; 
+  #primary,
+  #secondary {
+    float: left;
+  }
+  
+  #primary {
+    margin-right: 4px;
+    width: 652px;
+    
+    &.page-fullwidth {
+      width: 100%;
+    }
+  }
+  #secondary {
+    margin-top: -1px;
+    width: 324px;
   }
   
   /*  ---------------------------------------
@@ -3490,5 +3721,6 @@ ul.bottin {
     }
     
   }
+  
   
 }

@@ -9,6 +9,7 @@ from utils import Utils
 from veritas.validators import validate_yes_or_no
 from veritas.casters import cast_yes_or_no
 from .models import WPException, WPUser, WPSite
+import time
 
 
 class WPConfig:
@@ -122,7 +123,16 @@ class WPConfig:
         if pipe_input:
             cmd += "'"
 
-        return Utils.run_command(cmd, encoding=encoding)
+        for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
+            try:
+                return Utils.run_command(cmd, encoding=encoding)
+            except Exception as e:
+                if try_no < settings.WP_CLI_AND_API_NB_TRIES-1:
+                    logging.error("Run WPCLI error. Retry %s in %s sec...",
+                                  try_no+1,
+                                  settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                    time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                    pass
 
     @property
     def is_installed(self):
