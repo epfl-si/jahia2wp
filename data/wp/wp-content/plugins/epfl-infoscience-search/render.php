@@ -40,11 +40,13 @@ Class InfoscienceRender {
 
 Class ClassesInfoscienceRender extends InfoscienceRender {
     protected static function render_header_1($value) {
-        return '<h1 class="infoscience_header1">'. $value . '</h1>';
+        $translated_value = esc_html__($value, 'epfl-infoscience-search');
+        return '<h1 class="infoscience_header1">'. $translated_value . '</h1>';
     }
 
     protected static function render_header_2($value) {
-        return '<h2 class="infoscience_header2">'. $value . '</h2>';
+        $translated_value = esc_html__($value, 'epfl-infoscience-search');
+        return '<h2 class="infoscience_header2">'. $translated_value . '</h2>';
     }
 
     public static function render($publications, $url='', $format="short", $summary=false, $thumbnail=false, $debug=false) {
