@@ -819,7 +819,7 @@ class WPExporter:
         # Update page links in sidebar boxes
         self.fix_page_links_in_sidebar(site_folder)
 
-        self.create_sitemaps()
+        self.create_sitemaps_and_footer()
 
         self.update_parent_ids()
 
@@ -853,7 +853,7 @@ class WPExporter:
                                 time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
                                 pass
 
-    def create_sitemaps(self):
+    def create_sitemaps_and_footer(self):
 
         logging.info("Creating sitemap...")
 
@@ -863,7 +863,7 @@ class WPExporter:
             # create sitemap page
 
             info_page[lang] = {
-                'post_name': 'sitemap',
+                'post_name': 'Sitemap',
                 'post_status': 'publish',
             }
 
@@ -875,10 +875,10 @@ class WPExporter:
         for sitemap_wp_id, lang in zip(sitemap_ids, info_page.keys()):
             wp_page = self.update_page(
                 page_id=sitemap_wp_id,
-                title='sitemap',
+                title='Sitemap',
                 content='[simple-sitemap show_label="false" types="page" orderby="menu_order"]'
             )
-            self.create_footer_menu_for_sitemap(sitemap_wp_id=wp_page['id'], lang=lang)
+            self.create_footer_menu(sitemap_wp_id=wp_page['id'], lang=lang)
 
     def import_sidebars(self):
         """
@@ -985,9 +985,9 @@ class WPExporter:
             self.report['failed_widgets'] += 1
             raise e
 
-    def create_footer_menu_for_sitemap(self, sitemap_wp_id, lang):
+    def create_footer_menu(self, sitemap_wp_id, lang):
         """
-        Create footer menu for sitemap page
+        Create footer menu
         """
 
         def clean_menu_html(cmd):
@@ -1000,17 +1000,17 @@ class WPExporter:
         else:
             footer_name = "{}-{}".format(settings.FOOTER_MENU, lang)
 
+        # Add sitemap entry
         self.run_wp_cli('menu item add-post {} {} --porcelain'.format(footer_name, sitemap_wp_id))
 
-        # Create footer menu
-        cmd = "menu item add-custom {} Accessibility http://www.epfl.ch/accessibility.en.shtml​".format(footer_name)
-        cmd = clean_menu_html(cmd)
-        self.run_wp_cli(cmd)
+        # Adding footer entries, if any, for lang
+        for footer_link in self.site.footer[lang]:
+            cmd = "menu item add-custom {} '{}' '{}'".format(footer_name,
+                                                             footer_link.title.replace("'", "\\'"),
+                                                             footer_link.url)
 
-        # legal notice
-        cmd = "menu item add-custom {} 'Legal Notice' http://mediacom.epfl.ch/disclaimer-en".format(footer_name)
-        cmd = clean_menu_html(cmd)
-        self.run_wp_cli(cmd)
+            cmd = clean_menu_html(cmd)
+            self.run_wp_cli(cmd)
 
         # Report
         self.report['menus'] += 2
