@@ -479,7 +479,7 @@ Class PatentsInfoscienceFieldRender extends InfoscienceFieldRender {
                 foreach ($publication['patent'] as $patent) {
                     $html_rendered .= "<span>" . $patent['number'] . " ";
         
-                    if ($patent['state']) {
+                    if (array_key_exists('state', $patent) && $patent['state']) {
                         $html_rendered .= "(" . $patent['state'] . ")";
                     }
         
