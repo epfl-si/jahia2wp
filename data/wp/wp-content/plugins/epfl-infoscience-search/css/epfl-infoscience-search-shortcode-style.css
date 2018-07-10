@@ -90,9 +90,13 @@
 
 .infoscience_record .patent-patents-list-left {
     float: left;
+    font-size: 13px;
+    margin-top: 2px;
 }
 
 .infoscience_record .patent-patents-list-right {
     display: inline-block;
-    margin-left: 20px;
+    margin-left: 6px;
+    font-size: 13px;
+    margin-top: 3px;
 }
