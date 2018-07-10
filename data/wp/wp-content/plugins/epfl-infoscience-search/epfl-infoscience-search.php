@@ -221,7 +221,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
 
     $url = epfl_infoscience_search_generate_url_from_attrs($attributes+$unmanaged_attributes);
 
-    $cache_key = md5(serialize([
+    $cache_define_by = [
         'url' => $url,
         'format' => $format,
         'summary' => $summary,
@@ -229,7 +229,14 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         'group_by' => $group_by,
         'group_by2' => $group_by2,
         'sort' => $attributes['sort'],
-    ]));
+    ];
+
+    # add langage if a group_by doctype is used
+    if ($group_by === 'doctype' || ($group_by === 'year' && $group_by2 === 'doctype')) {
+        $cache_define_by['langage'] = get_locale();
+    }
+
+    $cache_key = md5(serialize(cache_define_by));
 
     $page = wp_cache_get( $cache_key, 'epfl_infoscience_search');
     
