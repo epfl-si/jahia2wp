@@ -135,7 +135,7 @@ msgstr "Tri"
 
 #: shortcake-config.php:230
 msgid "Additional search keys"
-msgstr "Recherche additionnel"
+msgstr "Recherche additionnelle"
 
 #: shortcake-config.php:231
 msgid "Second search text"
