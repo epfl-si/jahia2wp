@@ -88,20 +88,12 @@ msgid "Detailed"
 msgstr "Détaillé"
 
 #: shortcake-config.php:64
-msgid "No summary"
-msgstr "Sans résumé"
+msgid "Hide"
+msgstr "Cacher"
 
 #: shortcake-config.php:65
-msgid "Show summary"
-msgstr "Afficher le résumé"
-
-#: shortcake-config.php:72
-msgid "No thumbnail"
-msgstr "Sans vignette"
-
-#: shortcake-config.php:73 shortcake-config.php:189
-msgid "Show illustration"
-msgstr "Avec vignette"
+msgid "Show"
+msgstr "Afficher"
 
 #: shortcake-config.php:81
 msgid "year as title"

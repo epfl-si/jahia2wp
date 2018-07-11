@@ -61,16 +61,16 @@ Class InfoscienceSearchShortCakeConfig
     private static function get_summary_options() 
     {
         return array (
-            array('value' => 'false', 'label' => esc_html__('No summary', 'epfl-infoscience-search')),
-            array('value' => 'true', 'label' => esc_html__('Show summary', 'epfl-infoscience-search')),
+            array('value' => 'false', 'label' => esc_html__('Hide', 'epfl-infoscience-search')),
+            array('value' => 'true', 'label' => esc_html__('Show', 'epfl-infoscience-search')),
        );
     }    
 
     private static function get_thumbnail_options() 
     {
         return array (
-            array('value' => 'false', 'label' => esc_html__('No thumbnail', 'epfl-infoscience-search')),
-            array('value' => 'true', 'label' => esc_html__('Show illustration', 'epfl-infoscience-search')),
+            array('value' => 'false', 'label' => esc_html__('Hide', 'epfl-infoscience-search')),
+            array('value' => 'true', 'label' => esc_html__('Show', 'epfl-infoscience-search')),
        );
     }    
 
@@ -93,6 +93,9 @@ Class InfoscienceSearchShortCakeConfig
         );
         $fields['epfl-select'] = array(
             'template' => 'epfl-shortcode-ui-field-select',
+        );
+        $fields['epfl-radio'] = array(
+            'template' => 'epfl-shortcode-ui-field-radio',
         );        
         return $fields;
     }
@@ -151,7 +154,25 @@ Class InfoscienceSearchShortCakeConfig
 			<p class="description">{{{ data.description }}}</p>
 		<# } #>
 	</div>
-</script>  
+    </script>  
+
+    <script type="text/html" id="tmpl-epfl-shortcode-ui-field-radio">
+        <# if (data.title) { #>
+            <h2<# if ( 'true' == data.is_toggle ){ print(' class="infoscience_search_toggle_header"'); } #>>{{ data.title }}</h2>
+        <# } #>  
+        <div class="field-block epfl-shortcode-ui-field-radio shortcode-ui-attribute-{{ data.attr }}">
+            <label>{{{ data.label }}}</label>
+            <# _.each( data.options, function( option ) { #>
+                <label>
+                    <input type="radio" name="{{ data.attr }}" value="{{ option.value }}" <# if ( option.value == data.value ) { print('checked'); } #> />
+                    {{ option.label }}
+                </label>
+            <# }); #>
+            <# if ( typeof data.description == 'string' && data.description.length ) { #>
+                <p class="description">{{{ data.description }}}</p>
+            <# } #>
+        </div>
+    </script>
         <?php
         //@formatter:on
     }
@@ -208,8 +229,9 @@ Class InfoscienceSearchShortCakeConfig
                         array(
                             'label'         => esc_html__('Sort', 'epfl-infoscience-search'),
                             'attr'          => 'sort',
-                            'type'          => 'epfl-select',
+                            'type'          => 'epfl-radio',
                             'options'       => InfoscienceSearchShortCakeConfig::get_sort_options(),
+                            'value'         => 'desc',
                         ),
                         /* TODO?:
                         array(
@@ -262,21 +284,22 @@ Class InfoscienceSearchShortCakeConfig
                             'title'         => esc_html__('Presentation', 'epfl-infoscience-search'),
                             'label'         => esc_html__('Format', 'epfl-infoscience-search'),
                             'attr'          => 'format',
-                            'type'          => 'epfl-select',
+                            'type'          => 'epfl-radio',
                             'options'       => InfoscienceSearchShortCakeConfig::get_format_options(),
                             'description'   => __('Detail level for a publication', 'epfl-infoscience-search'),
+                            'value'         => 'short',
                         ),
                         array(
                             'label'         => esc_html__('Summary', 'epfl-infoscience-search'),
                             'attr'          => 'summary',
-                            'type'          => 'epfl-select',
+                            'type'          => 'epfl-radio',
                             'options'       => InfoscienceSearchShortCakeConfig::get_summary_options(),
                             'value' => 'false',
                         ),                        
                         array(
                             'label'         => esc_html__('Thumbnail', 'epfl-infoscience-search'),
                             'attr'          => 'thumbnail',
-                            'type'          => 'epfl-select',
+                            'type'          => 'epfl-radio',
                             'options'       => InfoscienceSearchShortCakeConfig::get_thumbnail_options(),
                             'value' => 'true',
                         ),                           
