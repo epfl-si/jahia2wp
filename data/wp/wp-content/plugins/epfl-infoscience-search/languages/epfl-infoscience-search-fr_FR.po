@@ -114,12 +114,12 @@ msgid "%sSearch tips%s"
 msgstr "%sConseils de recherche%s"
 
 #: shortcake-config.php:194
-msgid "Add Infoscience search result shortcode"
-msgstr "Ajouter un shortcode infoscience avec recherche"
+msgid "Add Infoscience search shortcode –"
+msgstr "Ajouter un shortcode recherche d'Infoscience –"
 
 #: shortcake-config.php:199
-msgid "Create an Infoscience listing"
-msgstr "Création d'un listing de publications Infoscience"
+msgid "Search for"
+msgstr "Recherche"
 
 #: shortcake-config.php:204
 msgid "Search records for:"
@@ -127,7 +127,7 @@ msgstr "Recherche des publications sur :"
 
 #: shortcake-config.php:208
 msgid "Field restriction"
-msgstr "Restriction de recherche"
+msgstr "Restriction sur un champ"
 
 #: shortcake-config.php:214
 msgid "Sort"
@@ -146,8 +146,8 @@ msgid "Third search text"
 msgstr "Troisième recherche"
 
 #: shortcake-config.php:267
-msgid "Presentation"
-msgstr "Présentation"
+msgid "Style"
+msgstr "Style"
 
 #: shortcake-config.php:268
 msgid "Format"

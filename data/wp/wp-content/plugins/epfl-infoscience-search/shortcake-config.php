@@ -223,12 +223,12 @@ Class InfoscienceSearchShortCakeConfig
             shortcode_ui_register_for_shortcode(
                 'epfl_infoscience_search',
                 array(
-                    'label' => __('Add Infoscience search result shortcode', 'epfl-infoscience-search'),
+                    'label' => __('Add Infoscience search shortcode –', 'epfl-infoscience-search'),
                     'listItemImage' => '<img src="' . plugins_url( 'img/infoscience.svg', __FILE__ ) . '" >',
                     'attrs'         => array(
                         # Content
                         array(
-                            'title'         => __('Create an Infoscience listing', 'epfl-infoscience-search'),
+                            'title'         => __('Search for', 'epfl-infoscience-search'),
                             'attr'          => 'pattern',
                             'type'          => 'epfl-text',
                             'description'   => $pattern_description,
@@ -293,7 +293,7 @@ Class InfoscienceSearchShortCakeConfig
 
                         # Presentation
                         array(
-                            'title'         => esc_html__('Presentation', 'epfl-infoscience-search'),
+                            'title'         => esc_html__('Style', 'epfl-infoscience-search'),
                             'label'         => esc_html__('Format', 'epfl-infoscience-search'),
                             'attr'          => 'format',
                             'type'          => 'epfl-radio',
