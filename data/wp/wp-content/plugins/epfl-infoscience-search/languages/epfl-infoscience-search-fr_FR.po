@@ -45,7 +45,7 @@ msgstr "Journal"
 
 #: shortcake-config.php:17 shortcake-config.php:275
 msgid "Summary"
-msgstr "Summary"
+msgstr "Résumé"
 
 #: shortcake-config.php:18
 msgid "Keyword"
@@ -163,7 +163,7 @@ msgstr "Format"
 
 #: shortcake-config.php:272
 msgid "Detail level for a publication"
-msgstr "Niveau de détail à l'affichage d'une publication"
+msgstr "Niveau de détail d'une publication"
 
 #: shortcake-config.php:282
 msgid "Thumbnail"

@@ -191,7 +191,7 @@ Class InfoscienceSearchShortCakeConfig
                     'attrs'         => array(
                         # Content
                         array(
-                            'title'         => esc_html__('Create an Infoscience listing', 'epfl-infoscience-search'),
+                            'title'         => __('Create an Infoscience listing', 'epfl-infoscience-search'),
                             'attr'          => 'pattern',
                             'type'          => 'epfl-text',
                             'description'   => $pattern_description,
