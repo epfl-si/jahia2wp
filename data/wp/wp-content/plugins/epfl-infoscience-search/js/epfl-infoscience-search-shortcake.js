@@ -44,8 +44,43 @@ jQuery( document ).ready( function( $ ) {
 		}
     }
 
+    function get_additional_search_elements() {
+        var additional_search_elements_start = $('.infoscience_search_toggle_header').parent('div');
+        var additional_search_elements_end = $('.shortcode-ui-attribute-format').parent('div');
+        var additional_search_elements = $(additional_search_elements_start).nextUntil($(additional_search_elements_end));
+        
+        // add the operator field
+        additional_search_elements = additional_search_elements.add($(additional_search_elements_start).find('.shortcode-ui-attribute-operator2'));
+        return additional_search_elements;
+    }
+
+    function toggle_title_content() {
+        var title_to_toggle = $('.infoscience_search_toggle_header');
+
+        $(get_additional_search_elements()).toggle();
+
+        if ($(get_additional_search_elements()).first().is(":visible"))
+        {
+            $(title_to_toggle).find('a').text($(title_to_toggle).find('a').text().replace('[+]', '[-]'));
+        } else {
+            $(title_to_toggle).find('a').text($(title_to_toggle).find('a').text().replace('[-]', '[+]'));
+            
+        }
+    }
+
+    function set_toggle_title() {
+        var title_to_toggle = $('.infoscience_search_toggle_header');
+        $(title_to_toggle).click(function(){ toggle_title_content(); return false; });
+        // set hidden or show, if pattern2 or pattern3 is set
+        if (!($('input[name="pattern2"]').val() || $('input[name="pattern3"]').val())) {
+            toggle_title_content();
+        }
+    }
+
     if ( 'undefined' !== typeof( wp.shortcake ) ) {
         wp.shortcake.hooks.addAction( 'shortcode-ui.render_edit', function(shortcodeModel) {
+
+            // Set group by
             set_group_by_dynamic();
 
             var group_by = $("select[name='group_by']");
@@ -53,6 +88,9 @@ jQuery( document ).ready( function( $ ) {
             group_by.on('change', function (e) {
                 set_group_by_dynamic();
             });
+            
+            set_toggle_title();
+
         } );
         wp.shortcake.hooks.addAction( 'shortcode-ui.render_new', function() {
             set_group_by_dynamic();
@@ -64,6 +102,7 @@ jQuery( document ).ready( function( $ ) {
                 set_group_by_dynamic();
             });
 
+            set_toggle_title();
         } );
         /*
         wp.shortcake.hooks.addAction( 'shortcode-ui.render_destroy', function() {

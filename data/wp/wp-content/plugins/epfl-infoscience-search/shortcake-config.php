@@ -106,7 +106,11 @@ Class InfoscienceSearchShortCakeConfig
         ?>
     <script type="text/html" id="tmpl-epfl-shortcode-ui-field">
         <# if (data.title) { #>
-        <h2<# if ( 'true' == data.is_toggle ){ print(' class="infoscience_search_toggle_header"'); } #>>{{ data.title }}</h2>
+            <# if ( 'true' == data.is_toggle ){ #> 
+                <h3 class="infoscience_search_toggle_header"><a href="#">[-] {{ data.title }}</a></h3>
+            <# } else { #>
+                <h2>{{ data.title }}</h2>
+            <# } #>
         <# } #>
         <div class="field-block epfl-shortcode-ui-field shortcode-ui-attribute-{{ data.attr }}">
             <label for="{{ data.attr }}">{{{ data.label }}}</label>
@@ -119,7 +123,11 @@ Class InfoscienceSearchShortCakeConfig
 
     <script type="text/html" id="tmpl-epfl-shortcode-ui-field-checkbox">
         <# if (data.title) { #>
-        <h2<# if ( 'true' == data.is_toggle ){ print(' class="infoscience_search_toggle_header"'); } #>>{{ data.title }}</h2>
+            <# if ( 'true' == data.is_toggle ){ #> 
+                <h3 class="infoscience_search_toggle_header"><a href="#">[-] {{ data.title }}</a></h3>
+            <# } else { #>
+                <h2>{{ data.title }}</h2>
+            <# } #>
         <# } #>
         <div class="field-block epfl-shortcode-ui-field-checkbox shortcode-ui-attribute-{{ data.attr }}">
                 <label>{{{ data.label }}}<br><input type="checkbox" name="{{ data.attr }}" id="{{ data.id }}" value="{{ data.value }}" <# if ( 'true' == data.value ){ print('checked'); } #>></label>
@@ -130,9 +138,13 @@ Class InfoscienceSearchShortCakeConfig
     </script>
 
     <script type="text/html" id="tmpl-epfl-shortcode-ui-field-select">
-    <# if (data.title) { #>
-        <h2<# if ( 'true' == data.is_toggle ){ print(' class="infoscience_search_toggle_header"'); } #>>{{ data.title }}</h2>
-    <# } #>    
+        <# if (data.title) { #>
+            <# if ( 'true' == data.is_toggle ){ #> 
+                <h3 class="infoscience_search_toggle_header"><a href="#">[-] {{ data.title }}</a></h3>
+            <# } else { #>
+                <h2>{{ data.title }}</h2>
+            <# } #>
+        <# } #>
 	<div class="field-block epfl-shortcode-ui-field-select shortcode-ui-attribute-{{ data.attr }}">
 		<label for="{{ data.id }}">{{{ data.label }}}</label>
 		<select name="{{ data.attr }}" id="{{ data.id }}" {{{ data.meta }}}>
@@ -158,8 +170,12 @@ Class InfoscienceSearchShortCakeConfig
 
     <script type="text/html" id="tmpl-epfl-shortcode-ui-field-radio">
         <# if (data.title) { #>
-            <h2<# if ( 'true' == data.is_toggle ){ print(' class="infoscience_search_toggle_header"'); } #>>{{ data.title }}</h2>
-        <# } #>  
+            <# if ( 'true' == data.is_toggle ){ #> 
+                <h3 class="infoscience_search_toggle_header"><a href="#">[-] {{ data.title }}</a></h3>
+            <# } else { #>
+                <h2>{{ data.title }}</h2>
+            <# } #>
+        <# } #>
         <div class="field-block epfl-shortcode-ui-field-radio shortcode-ui-attribute-{{ data.attr }}">
             <label>{{{ data.label }}}</label>
             <# _.each( data.options, function( option ) { #>
@@ -226,13 +242,6 @@ Class InfoscienceSearchShortCakeConfig
                             'type'          => 'epfl-select',
                             'options'       => InfoscienceSearchShortCakeConfig::get_field_options(),
                         ),
-                        array(
-                            'label'         => esc_html__('Sort', 'epfl-infoscience-search'),
-                            'attr'          => 'sort',
-                            'type'          => 'epfl-radio',
-                            'options'       => InfoscienceSearchShortCakeConfig::get_sort_options(),
-                            'value'         => 'desc',
-                        ),
                         /* TODO?:
                         array(
                             'label'         => esc_html__('Collection', 'epfl-infoscience-search'),
@@ -242,7 +251,7 @@ Class InfoscienceSearchShortCakeConfig
                                 'placeholder' => 'Infoscience/Research',
                             ),                            
                         ),*/
-                        # Advanced content
+                        # Advanced content, dynamically hidden with javascript
                         array(
                             'title'         => esc_html__('Additional search keys', 'epfl-infoscience-search'),
                             'label'         => esc_html__('Second search text'),
@@ -277,6 +286,9 @@ Class InfoscienceSearchShortCakeConfig
                         array(
                             'attr'          => 'pattern3',
                             'type'          => 'epfl-text',
+                            'meta'        => array(
+                                'placeholder' => 'Search key',
+                            ),
                         ),
 
                         # Presentation
@@ -302,7 +314,14 @@ Class InfoscienceSearchShortCakeConfig
                             'type'          => 'epfl-radio',
                             'options'       => InfoscienceSearchShortCakeConfig::get_thumbnail_options(),
                             'value' => 'true',
-                        ),                           
+                        ),
+                        array(
+                            'label'         => esc_html__('Sort', 'epfl-infoscience-search'),
+                            'attr'          => 'sort',
+                            'type'          => 'epfl-radio',
+                            'options'       => InfoscienceSearchShortCakeConfig::get_sort_options(),
+                            'value'         => 'desc',
+                        ),                        
                         array(
                             'label'         => esc_html__('Group by', 'epfl-infoscience-search') . ' (1)',
                             'attr'          => 'group_by',
