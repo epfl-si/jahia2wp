@@ -33,6 +33,9 @@ Class InfoscienceMarcConverter
 
         foreach($file_urls as $url){
             $url = $url->getData();
+
+            $url = preg_replace("(^https?://)", "//", $url);
+
             if (preg_match('/\.pdf$/', strtolower($url))) {
                 $sorted_urls['fulltext'][] = $url;
             } else {
@@ -45,7 +48,7 @@ Class InfoscienceMarcConverter
         }
         return $sorted_urls;
     }
-
+    
     /**
     * Parse external ids and filter to get only DOIs
     */
@@ -63,6 +66,19 @@ Class InfoscienceMarcConverter
         }
 
         return $dois;
+    }
+
+    /**
+     * Parse a text and sanitize the url
+     */
+    public static function parse_url($record, $field, $ind1='', $ind2='', $subfields=[''], $subfields_name = []) {
+        $url = InfoscienceMarcConverter::parse_text($record, '790', '', '', ['w']);
+
+        if ($url && !empty($url)) {
+            $url = preg_replace("(^https?://)", "//", $url);
+        }
+
+        return $url;
     }
     
     /**
@@ -265,7 +281,7 @@ Class InfoscienceMarcConverter
 
         $record_array['journal'] = InfoscienceMarcConverter::parse_text($record, '773', '', '5', ['j', 'k', 'q', 't'], ['volume', 'number', 'page', 'publisher']);
 
-        $record_array['report_url'] = InfoscienceMarcConverter::parse_text($record, '790', '', '', ['w']);
+        $record_array['report_url'] = InfoscienceMarcConverter::parse_url($record, '790', '', '', ['w']);
 
         # TODO: url has special rules, set url if fulltexts / icons to print
         $record_array['url'] = InfoscienceMarcConverter::parse_files($record, '856', '4', '', ['u']);
