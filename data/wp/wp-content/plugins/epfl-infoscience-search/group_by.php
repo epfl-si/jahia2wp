@@ -21,7 +21,7 @@ function sort_group_by_doctype_asc($a, $b) {
 function sort_group_by_doctype_desc($a, $b) {
     $pos_a = array_search($a['label'], array_keys(InfoscienceGroupBy::doctypes()));
     $pos_b = array_search($b['label'], array_keys(InfoscienceGroupBy::doctypes()));
-
+    
     return ($pos_b < $pos_a) ? 1 : -1;
 }
 
@@ -224,18 +224,19 @@ Class InfoscienceGroupBy {
             }
 
         } elseif ($group_by === 'doctype') {
-            $grouped_publications['group_by'] = [
-                ['label' => null,
-                'values' => InfoscienceGroupBy::array_group_by($publications, 'doctype'),
-                ],
-            ];
+            $doctype_grouped = InfoscienceGroupBy::array_group_by($publications, 'doctype');
 
             if ($sort_order === 'asc') {
-                usort($grouped_publications['group_by'], 'sort_group_by_doctype_asc');
+                usort($doctype_grouped, 'sort_group_by_doctype_asc');
             } else {
-                usort($grouped_publications['group_by'], 'sort_group_by_doctype_desc');
+                usort($doctype_grouped, 'sort_group_by_doctype_desc');
             }
 
+            $grouped_publications['group_by'] = [
+                ['label' => null,
+                'values' => $doctype_grouped,
+                ],
+            ];
         } else {
             # no group, set the same array level if so, without any label
             $grouped_publications['group_by'] = [
@@ -247,7 +248,7 @@ Class InfoscienceGroupBy {
                         ],
             ];
         }
-        #var_dump($grouped_publications);
+
         return $grouped_publications;
     }
 }
