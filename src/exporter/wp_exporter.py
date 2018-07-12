@@ -1269,8 +1269,10 @@ class WPExporter:
         cmd = "post list --post_type='page' --post_status=draft --format=csv --field=ID"
         pages_id_list = self.run_wp_cli(cmd)
 
-        if not pages_id_list:
-            for page_id in pages_id_list.split("\n")[1:]:
+        # If no page in draft status then pages_id_list is True
+        if pages_id_list is not True:
+            # If many pages in draft status then pages_id_list is 17\n14 (for example with 2 pages in DRAFT status)
+            for page_id in pages_id_list.split("\n")[0:]:
                 cmd = "post delete {} --force".format(page_id)
                 self.run_wp_cli(cmd)
             logging.info("All pages in DRAFT status deleted")
