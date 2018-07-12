@@ -1,22 +1,23 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
+import json
 import logging
-import os
 import sys
-import re
-from parser.box import Box
 import timeit
 import time
 from collections import OrderedDict
 from datetime import timedelta, datetime
-import json
+
+import os
+import re
 from bs4 import BeautifulSoup
+from django.utils.text import slugify
 from wordpress_json import WordpressJsonWrapper, WordpressError
 
 import settings
 from exporter.utils import Utils
-from utils import Utils as WPUtils
+from parser.box import Box
 from parser.file import File
-from django.utils.text import slugify
+from utils import Utils as WPUtils
 
 
 class WPExporter:
@@ -513,6 +514,9 @@ class WPExporter:
 
             content = str(soup.body)
 
+            # Transforming quotes to right html entities
+            content = WPUtils.manage_quotes(content, False)
+
             self.update_page_content(page_id=wp_id, content=content)
 
     def fix_file_links_in_shortcode_attributes(self, box, old_url, wp_media):
@@ -538,7 +542,7 @@ class WPExporter:
             new_attribute = '{}="{}"'.format(attribute, new_url)
 
             # To use shortcake for snippet plugin we must define url="23" with 23 as media id.
-            if box.type == Box.TYPE_SNIPPETS:
+            if box.type == Box.TYPE_SNIPPETS or box.type == Box.TYPE_BUTTONS:
 
                 if 'guid' in wp_media and 'rendered' in wp_media['guid'] and wp_media['guid']['rendered'] == new_url:
                     new_attribute = '{}="{}"'.format(attribute, wp_media['id'])
@@ -1269,8 +1273,10 @@ class WPExporter:
         cmd = "post list --post_type='page' --post_status=draft --format=csv --field=ID"
         pages_id_list = self.run_wp_cli(cmd)
 
-        if not pages_id_list:
-            for page_id in pages_id_list.split("\n")[1:]:
+        # If no page in draft status then pages_id_list is True
+        if pages_id_list is not True:
+            # If many pages in draft status then pages_id_list is 17\n14 (for example with 2 pages in DRAFT status)
+            for page_id in pages_id_list.split("\n")[0:]:
                 cmd = "post delete {} --force".format(page_id)
                 self.run_wp_cli(cmd)
             logging.info("All pages in DRAFT status deleted")

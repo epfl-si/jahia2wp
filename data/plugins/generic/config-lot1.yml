@@ -49,6 +49,8 @@ plugins:
     config: !include epfl-faq/v1/config-plugin.yml
   - name: epfl-map
     config: !include epfl-map/v1/config-plugin.yml
+  - name: epfl-buttons
+    config: !include epfl-buttons/v1/config-plugin.yml
   - name: epfl-snippet
     config: !include epfl-snippet/v1/config-plugin.yml
   - name: epfl-toggle
