@@ -21,7 +21,7 @@ fi
 
 
 
-python ${SRC_DIR}jahia2wp.py clean ${WP_ENV} https://jahia2wp-httpd/$1
+python ${SRC_DIR}jahia2wp.py clean ${WP_ENV} ${SITE_ROOT}$1
 
 echo -n "Removing extracted files... "
 rm -rf "${EXPORT_DIR}/$1"

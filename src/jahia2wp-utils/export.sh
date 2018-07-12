@@ -23,5 +23,5 @@ fi
 loc=`pwd`
 
 cd ${SRC_DIR}
-python jahia2wp.py export $1 https://jahia2wp-httpd/${1} idevelop --to-wordpress --installs-locked=yes ${2}
+python jahia2wp.py export $1 ${SITE_ROOT}${1} idevelop --to-wordpress --installs-locked=yes ${2}
 cd ${loc}
