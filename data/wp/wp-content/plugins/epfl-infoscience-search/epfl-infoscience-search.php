@@ -236,7 +236,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         $cache_define_by['langage'] = get_locale();
     }
 
-    $cache_key = md5(serialize(cache_define_by));
+    $cache_key = md5(serialize($cache_define_by));
 
     $page = wp_cache_get( $cache_key, 'epfl_infoscience_search');
     
