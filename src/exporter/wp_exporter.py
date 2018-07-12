@@ -3,6 +3,7 @@ import json
 import logging
 import sys
 import timeit
+import time
 from collections import OrderedDict
 from datetime import timedelta, datetime
 
@@ -270,17 +271,29 @@ class WPExporter:
             # post
         }
         files = files
-        try:
-            logging.debug("WP media information %s", wp_media_info)
-            wp_media = self.wp.post_media(data=wp_media_info, files=files)
-            return wp_media
-        except Exception as e:
-            logging.error("%s - WP export - media failed, it may be corrupted (%s/%s): %s",
-                          self.site.name,
-                          media.path,
-                          media.name,
-                          e)
-            self.report['failed_files'] += 1
+
+        for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
+
+            try:
+                logging.debug("WP media information %s", wp_media_info)
+                wp_media = self.wp.post_media(data=wp_media_info, files=files)
+                return wp_media
+            except Exception as e:
+                if try_no < settings.WP_CLI_AND_API_NB_TRIES-1:
+                    logging.error("%s - WP export - media failed (%s). Retry %s in %s sec...",
+                                  self.site.name,
+                                  media.name,
+                                  try_no+1,
+                                  settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                    time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                    pass
+                else:
+                    logging.error("%s - WP export - media failed, it may be corrupted (%s/%s): %s",
+                                  self.site.name,
+                                  media.path,
+                                  media.name,
+                                  e)
+                    self.report['failed_files'] += 1
 
     def import_breadcrumb(self):
         """
@@ -326,7 +339,7 @@ class WPExporter:
                 continue
 
             # first fix in shortcodes
-            self.fix_file_links_in_shortcode_attributes(box, old_url, new_url)
+            self.fix_file_links_in_shortcode_attributes(box, old_url, wp_media)
 
             soup = BeautifulSoup(box.content, 'html5lib')
             soup.body.hidden = True
@@ -506,29 +519,33 @@ class WPExporter:
 
             self.update_page_content(page_id=wp_id, content=content)
 
-    def fix_file_links_in_shortcode_attributes(self, box, old_url, new_url):
+    def fix_file_links_in_shortcode_attributes(self, box, old_url, wp_media):
         """
-        Fix the link in a box shortcode for all registered attributes.
+        Fix the link in a box shortcode for all registered attributes in given box
 
         This will replace for example:
-
         image="/files/51_recyclage/vignette_bois.png"
-
         to:
-
         image="/wp-content/uploads/2018/04/vignette_bois.png"
+        or to:
+        image="<imageId>"
+
+        :param box: instance of Box class in which we need to fix attributes
+        :param old_url: old URL (Jahia) that may be used in attributes
+        :param wp_media: Object with WordPress media information containing everything we need to set new URL
+        or imageId
         """
+        new_url = wp_media['source_url']
+
         for attribute in box.shortcode_attributes_to_fix:
             old_attribute = '{}="{}"'.format(attribute, old_url)
             new_attribute = '{}="{}"'.format(attribute, new_url)
 
-            # To use shortcake for snippet plugin we must define url="23" with 23 is the media id.
-            if box.type == Box.TYPE_SNIPPETS or box.type == Box.TYPE_BUTTONS:
-                medias = self.wp.get_media()
-                for media in medias:
-                    if 'guid' in media and 'rendered' in media['guid'] and media['guid']['rendered'] == new_url:
-                        new_attribute = '{}="{}"'.format(attribute, media['id'])
-                        break
+            # To use shortcake for snippet plugin we must define url="23" with 23 as media id.
+            if box.type == Box.TYPE_SNIPPETS:
+
+                if 'guid' in wp_media and 'rendered' in wp_media['guid'] and wp_media['guid']['rendered'] == new_url:
+                    new_attribute = '{}="{}"'.format(attribute, wp_media['id'])
 
             box.content = box.content.replace(old_attribute, new_attribute)
 
@@ -565,7 +582,7 @@ class WPExporter:
             # point the link to the new url of the page.
             if link.encode('ascii', 'replace').decode('ascii').replace('?', '') == old_url.replace('?', '') \
                     or (pid and link == pid):
-                logging.debug("Changing link from %s to %s", (old_url, new_url))
+                logging.debug("Changing link from %s to %s", old_url, new_url)
                 tag[tag_attribute] = new_url
 
     def fix_key_visual_boxes(self):
@@ -617,7 +634,16 @@ class WPExporter:
         if slug:
             wp_page_info['slug'] = slug
 
-        return self.wp.post_pages(page_id=page_id, data=wp_page_info)
+        for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
+            try:
+                return self.wp.post_pages(page_id=page_id, data=wp_page_info)
+            except Exception as e:
+                if try_no < settings.WP_CLI_AND_API_NB_TRIES-1:
+                    logging.error("post_pages() error. Retry %s in %s sec...",
+                                  try_no+1,
+                                  settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                    time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                    pass
 
     def update_page_content(self, page_id, content):
         """Update the page content"""
@@ -797,7 +823,7 @@ class WPExporter:
         # Update page links in sidebar boxes
         self.fix_page_links_in_sidebar(site_folder)
 
-        self.create_sitemaps()
+        self.create_sitemaps_and_footer()
 
         self.update_parent_ids()
 
@@ -819,9 +845,19 @@ class WPExporter:
                     wp_page_info = {
                         'parent': page.parent.contents[lang].wp_id
                     }
-                    self.wp.post_pages(page_id=page.contents[lang].wp_id, data=wp_page_info)
 
-    def create_sitemaps(self):
+                    for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
+                        try:
+                            self.wp.post_pages(page_id=page.contents[lang].wp_id, data=wp_page_info)
+                        except Exception as e:
+                            if try_no < settings.WP_CLI_AND_API_NB_TRIES - 1:
+                                logging.error("Run WPCLI error. Retry %s in %s sec...",
+                                              try_no+1,
+                                              settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                                time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                                pass
+
+    def create_sitemaps_and_footer(self):
 
         logging.info("Creating sitemap...")
 
@@ -831,7 +867,7 @@ class WPExporter:
             # create sitemap page
 
             info_page[lang] = {
-                'post_name': 'sitemap',
+                'post_name': 'Sitemap',
                 'post_status': 'publish',
             }
 
@@ -843,10 +879,10 @@ class WPExporter:
         for sitemap_wp_id, lang in zip(sitemap_ids, info_page.keys()):
             wp_page = self.update_page(
                 page_id=sitemap_wp_id,
-                title='sitemap',
+                title='Sitemap',
                 content='[simple-sitemap show_label="false" types="page" orderby="menu_order"]'
             )
-            self.create_footer_menu_for_sitemap(sitemap_wp_id=wp_page['id'], lang=lang)
+            self.create_footer_menu(sitemap_wp_id=wp_page['id'], lang=lang)
 
     def import_sidebars(self):
         """
@@ -953,9 +989,9 @@ class WPExporter:
             self.report['failed_widgets'] += 1
             raise e
 
-    def create_footer_menu_for_sitemap(self, sitemap_wp_id, lang):
+    def create_footer_menu(self, sitemap_wp_id, lang):
         """
-        Create footer menu for sitemap page
+        Create footer menu
         """
 
         def clean_menu_html(cmd):
@@ -968,17 +1004,17 @@ class WPExporter:
         else:
             footer_name = "{}-{}".format(settings.FOOTER_MENU, lang)
 
+        # Add sitemap entry
         self.run_wp_cli('menu item add-post {} {} --porcelain'.format(footer_name, sitemap_wp_id))
 
-        # Create footer menu
-        cmd = "menu item add-custom {} Accessibility http://www.epfl.ch/accessibility.en.shtml​".format(footer_name)
-        cmd = clean_menu_html(cmd)
-        self.run_wp_cli(cmd)
+        # Adding footer entries, if any, for lang
+        for footer_link in self.site.footer[lang]:
+            cmd = "menu item add-custom {} '{}' '{}'".format(footer_name,
+                                                             footer_link.title.replace("'", "\\'"),
+                                                             footer_link.url)
 
-        # legal notice
-        cmd = "menu item add-custom {} 'Legal Notice' http://mediacom.epfl.ch/disclaimer-en".format(footer_name)
-        cmd = clean_menu_html(cmd)
-        self.run_wp_cli(cmd)
+            cmd = clean_menu_html(cmd)
+            self.run_wp_cli(cmd)
 
         # Report
         self.report['menus'] += 2
@@ -996,9 +1032,15 @@ class WPExporter:
 
         # If the sub-entries are sorted
         if parent_menu_item.children_sort_way is not None:
-            # Sorting information in the other structure storing the menu information
-            parent_page.children.sort(key=lambda x: x.contents[lang].title,
-                                      reverse=(parent_menu_item.children_sort_way == 'desc'))
+            try:
+
+                # Sorting information in the other structure storing the menu information
+                parent_page.children.sort(key=lambda x: x.contents[lang].title,
+                                          reverse=(parent_menu_item.children_sort_way == 'desc'))
+            except KeyError:
+                logging.error("Sorting menu failed! A page is probably missing in asked language (%s), ignoring it.",
+                              lang)
+                pass
 
         for sub_entry_index, menu_item in enumerate(parent_menu_item.children):
 
@@ -1231,8 +1273,10 @@ class WPExporter:
         cmd = "post list --post_type='page' --post_status=draft --format=csv --field=ID"
         pages_id_list = self.run_wp_cli(cmd)
 
-        if not pages_id_list:
-            for page_id in pages_id_list.split("\n")[1:]:
+        # If no page in draft status then pages_id_list is True
+        if pages_id_list is not True:
+            # If many pages in draft status then pages_id_list is 17\n14 (for example with 2 pages in DRAFT status)
+            for page_id in pages_id_list.split("\n")[0:]:
                 cmd = "post delete {} --force".format(page_id)
                 self.run_wp_cli(cmd)
             logging.info("All pages in DRAFT status deleted")

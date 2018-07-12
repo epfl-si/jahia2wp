@@ -1,0 +1,17 @@
+# Dump the database (*not* the attachments — yet -) for this WordPress instance
+
+- include_vars: dump-vars.yml
+
+- assert:
+    that:
+      - dump_local_dir is defined
+      - dump_local_dir is search("^/")
+
+- name: "wp export --stdout"
+  command: "{{ wp_cli_command }} export --stdout"
+  register: _wp_wxr
+  no_log: true
+  changed_when: false
+
+- name: "Dump WXR output to {{ dump_local_path }}"
+  local_action: copy content="{{ _wp_wxr.stdout }}" dest="{{ dump_wxr_file }}"

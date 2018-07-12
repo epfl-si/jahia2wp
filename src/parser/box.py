@@ -456,9 +456,12 @@ class Box:
     def set_box_actu(self, element):
         """set the attributes of an actu box"""
 
+        # We specifically get 'actuListList' node before getting 'url' node in case of several 'url' nodes
+        # under 'element'. This happen for lspm website which has a 'snippetBox' inside 'actuBox'...
+        actu_list_list = element.getElementsByTagName("actuListList")
         # extract parameters from the old url of webservice
         channel_id, lang, template, category, themes, stickers, projects = self._extract_epfl_news_parameters(
-            Utils.get_tag_attribute(element, "url", "jahia:value")
+            Utils.get_tag_attribute(actu_list_list[0], "url", "jahia:value")
         )
         self.shortcode_name = "epfl_news"
         html_content = '[{} channel="{}" lang="{}" template="{}" '.format(
@@ -475,6 +478,8 @@ class Box:
             html_content += 'stickers="{}" '.format(stickers)
         if projects:
             html_content += 'projects="{}" '.format(",".join(projects))
+
+        html_content += 'title="{}" '.format(self.title)
 
         html_content += '/]'
 
@@ -609,7 +614,7 @@ class Box:
 
         self.shortcode_name = 'epfl_toggle'
 
-        if Utils.get_tag_attribute(element, "opened", "jahia:value"):
+        if Utils.get_tag_attribute(element, "opened", "jahia:value") == 'true':
             state = 'open'
         else:
             state = 'close'
@@ -629,6 +634,12 @@ class Box:
             self.shortcode_name = "epfl_people"
 
             self.content = '[{} url="{}" /]'.format(self.shortcode_name, url)
+        elif '://infoscience.epfl.ch/' in url:
+
+            self.shortcode_name = "epfl_infoscience"
+
+            self.content = '[{} url="{}"]'.format(self.shortcode_name, url)
+
         else:
 
             self.content = '[remote_content url="{}"]'.format(Utils.get_redirected_url(url))
@@ -868,6 +879,8 @@ class Box:
             # Fix path if necessary
             if "/files" in image:
                 image = image[image.rfind("/files"):]
+            if "/files" in big_image:
+                big_image = big_image[big_image.rfind("/files"):]
 
             # escape
             title = Utils.manage_quotes(title)

@@ -1,0 +1,180 @@
+#!/usr/bin/env perl -w
+#
+
+use utf8;
+
+=head1 NAME
+
+wordpresses-prod - Dynamic (executable) Ansible inventory of production Wordpresses
+
+=head1 DESCRIPTION
+
+Produces an Ansible-compatible JSON dump of all production WordPress
+instances to standard output.
+
+Just run this script manually to find out what it does (assuming you
+have production access) - It won't do any harm by itself.
+
+=cut
+
+use strict;
+use warnings;
+
+our @targets = (
+  {
+      ssh_port => 32222,
+      ssh_user => 'www-data',
+      ssh_host => 'ssh-wwp.epfl.ch',
+      remote_paths  => qw(/srv/*/*/htdocs)
+  },
+  # Feel free to add more (in case we spin up more production OpenShifts)
+);
+
+# Determines which Ansible group a given Wordpress goes into:
+sub categorize {
+  my $opts = {@_};
+  my $wp_env = $opts->{wp_env};
+  my $cat_nickname =
+    $wp_env eq "form"       ? "formation" :
+    $wp_env =~ m/^unm-/     ? "unmanaged" :
+                              $wp_env;
+  return "prod-$cat_nickname";
+}
+
+=for Perl wizards only beyond this point =====================================
+
+=cut
+
+my $wordpresses = {};
+
+# Practical Extraction...
+foreach my $target (@targets) {
+  foreach my $wordpress_instance
+    (collect_wordpress_installs_over_ssh(%$target)) {
+      my $wordpress_details = {%$target, %$wordpress_instance};
+      my $category = categorize(%$wordpress_details);
+      push @{$wordpresses->{$category}}, $wordpress_details;
+  }
+}
+
+# ... and Report Language
+print poor_mans_json(as_ansible_struct($wordpresses)) . "\n";
+
+exit(0);  ###################################################################
+
+sub collect_wordpress_installs_over_ssh {
+  my $opts = {@_};
+  $opts->{ssh_user} ||= 'www-data';
+  my $ssh_mantra = "$opts->{ssh_user}\@$opts->{ssh_host}";
+  if ($opts->{ssh_port}) {
+    $ssh_mantra = "-p $opts->{ssh_port} $ssh_mantra";
+  }
+  open(my $ssh_fd, '-|',
+       join(' ',
+            qw(ssh -xT), $ssh_mantra,
+            'find', $opts->{remote_paths},
+            # Need to shell-escape everything *twice* - once for the
+            # local bash that will parse this open('-|'), and a second
+            # time for the remote shell.
+            qw<'\(' -type d
+               '\(' -name wp-\'*\' -o -name .git -o -name \'*\'packages '\)'
+               '\)' -prune -false -o -name wp-config.php>))
+    or die "Cannot ssh $ssh_mantra: $!";
+
+  my @retval;
+  while(<$ssh_fd>) {
+    chomp;
+    do { warn "Bizarre line in $ssh_mantra: $_"; next } unless
+      my ($wp_env, $hostname, $path) = m|/srv/(.*)/(.*)/htdocs/(.*)wp-config.php$|;
+
+    push @retval,
+      { wp_env => $wp_env, wp_hostname => $hostname, wp_path => $path };
+  }
+  return @retval;
+}
+
+sub as_ansible_struct {
+  my ($wordpresses) = @_;
+
+  foreach my $wp (flatten_wordpresses($wordpresses)) {
+    $wp->{nickname} = nickname($wp);
+  }
+
+  # https://docs.ansible.com/ansible/latest/dev_guide/developing_inventory.html
+  return {
+    "all-wordpresses" => { "children" => [ "prod-wordpresses" ] },
+    "prod-wordpresses" => {
+      "children" => [ keys %$wordpresses ]
+    },
+
+    (map {
+      my $k = $_;
+      my @wordpresses = @{$wordpresses->{$k}};
+      $k => {
+        "hosts" => [ map { $_->{nickname} } @wordpresses ]
+      }
+    } (keys %$wordpresses)),
+
+    _meta => {  # SRSLY?
+      hostvars => {
+        map {
+          my $wp = $_;
+          $wp->{nickname} => as_ansible_hostvars(%$wp)
+        } (flatten_wordpresses($wordpresses))
+      }
+    }
+  };
+}
+
+sub flatten_wordpresses {
+  my ($wordpresses) = @_;
+  return map { @$_ } (values %$wordpresses);
+}
+
+sub as_ansible_hostvars {
+  my $wp = {@_};
+  $wp->{ansible_python_interpreter} = "/srv/" . $wp->{wp_env} .
+    "/venv/bin/python";
+  my $retval = {};
+  while(my ($k, $v) = each %$wp) {
+    next unless $k =~ m/^(ssh|wp|ansible)_/;
+    next if ! $v;  # e.g. wp_path
+    $k =~ s/^ssh_/ansible_/;
+    $retval->{$k} = $v;
+  }
+  return $retval;
+}
+
+use vars qw(%nicknames_already_taken);
+sub nickname {
+  my ($wordpress) = @_;
+  my $hostname = $wordpress->{wp_hostname};
+  $hostname =~ s|\Wepfl\.ch$||;
+  $hostname =~ s|\W|-|g;
+  my ($nickname, $uniq);
+  for($nickname = $hostname, $uniq = 0;
+      $nicknames_already_taken{$nickname};
+      $nickname = $hostname . ++$uniq)
+    { }
+  $nicknames_already_taken{$nickname} = 1;
+  return $nickname;
+}
+
+sub poor_mans_json {
+  my ($struct, $indent_lvl) = @_;
+  if (! ref($struct)) {
+    (my $retval = $struct) =~ s/([\"])/\$1/g;
+    return qq("$retval");
+  }
+  $indent_lvl ||= 0;
+  my @recursive_snippets = (ref($struct) eq "ARRAY")     ?
+    map { poor_mans_json($_, $indent_lvl + 1) } @$struct :
+    map {
+      my ($k, $v) = ($_, $struct->{$_});
+      poor_mans_json($k) . ": " . poor_mans_json($v, $indent_lvl + 1);
+    } (keys %$struct);
+  my ($nl, $innernl) = map { "\n" . "  " x $_ } ($indent_lvl, $indent_lvl + 1);
+  return sprintf(
+    (ref($struct) eq "HASH" ? "{%s}" : "[%s]"),
+    ($innernl . join(",$innernl", @recursive_snippets) . $nl));
+}

@@ -1,0 +1,23 @@
+;; Ne pas commiter ce fichier — Infos vaguement confidentielles
+
+[ventilation-test-wordpresses]
+;; La cible : a besoin d'un wp_unit_id afin d'être vidée/recréée sur demande
+vpsi                       wp_unit_id=VPSI
+
+;; Les sources (selon e-mail du 18 juin, 11:05)
+cri
+macline
+poseidon
+help-actu
+help-gaspar
+help-memento
+help-my
+help-people
+help-plan
+inform-doc
+linux
+myprint
+secure-it-next
+# Not sure what is up with that one, ask @venries
+# https://migration-wp.epfl.ch/uc.epfl.ch/*,https://migration-wp.epfl.ch/vpsi/it-services/uc
+datacenter-hosting

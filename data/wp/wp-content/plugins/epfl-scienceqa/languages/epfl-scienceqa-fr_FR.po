@@ -1,0 +1,47 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2018-06-21 15:31+0200\n"
+"PO-Revision-Date: 2018-06-21 15:31+0200\n"
+"Last-Translator: Loïc Cattani <loic@cattani.co>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.0.8\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-KeywordsList: __;esc_html__\n"
+"X-Poedit-SearchPath-0: utils.php\n"
+"X-Poedit-SearchPath-1: shortcake-config.php\n"
+"X-Poedit-SearchPath-2: render.php\n"
+"X-Poedit-SearchPath-3: epfl-scienceqa.php\n"
+
+#: render.php:15
+msgid "Science Q&A"
+msgstr "Question de Science"
+
+#: render.php:27
+msgid "Vote"
+msgstr "Voter"
+
+#: shortcake-config.php:10
+msgid "English"
+msgstr "Anglais"
+
+#: shortcake-config.php:11
+msgid "French"
+msgstr "Français"
+
+#: shortcake-config.php:22
+msgid "Add Science Q&A shortcode"
+msgstr "Ajouter un shortcode Question de Science"
+
+#: shortcake-config.php:26
+msgid "Select a language"
+msgstr "Choisissez une langue"
+
+#: shortcake-config.php:30
+msgid "The language used to render Science Q&A survey"
+msgstr "La langue utilisée pour Question de Science"

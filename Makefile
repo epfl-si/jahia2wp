@@ -90,7 +90,7 @@ down: check-env
 	 WP_PORT_HTTPS=${WP_PORT_HTTPS} \
 	 docker-compose down
 
-bootstrap-local:
+bootstrap-local: pull
 	[ -f .env ] || cp .env.sample .env
 	[ -f etc/.bash_history ] || cp etc/.bash_history.sample etc/.bash_history
 	sudo chown -R `whoami`:33 .
