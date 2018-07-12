@@ -37,7 +37,7 @@ echo "${CSVSiteLine}" >> ${tmpCSVFile}
 loc=`pwd`
 
 cd ${SRC_DIR}
-echo "python ${SRC_DIR}jahia2wp.py export-many ${tmpCSVFile} $2"
+python jahia2wp.py export-many ${tmpCSVFile} $2
 cd ${loc}
 
 rm ${tmpCSVFile}

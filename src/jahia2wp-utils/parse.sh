@@ -10,7 +10,12 @@ then
     exit 1
 fi
 
-python ${SRC_DIR}jahia2wp.py parse $1
+loc=`pwd`
+
+cd ${SRC_DIR}
+python jahia2wp.py parse $1
+cd ${locl}
+
 
 echo "done"
 
