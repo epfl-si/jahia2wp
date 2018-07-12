@@ -57,7 +57,7 @@ function epfl_infoscience_process_shortcode( $attributes, $content = null )
             return $page;
         } else {
             $error = new WP_Error( 'not found', 'The url passed is not part of Infoscience or is not found', $url );
-            epfl_infoscience_log( $error );
+
         }
     } else {
         // Use cache

@@ -4,7 +4,7 @@ from datetime import datetime
 from urllib import parse
 from urllib.parse import urlencode
 from xml.dom import minidom
-
+from parser.box_sorted_group import BoxSortedGroup
 from bs4 import BeautifulSoup
 
 from utils import Utils
@@ -28,6 +28,7 @@ class Box:
     TYPE_LINKS = "links"
     TYPE_RSS = "rss"
     TYPE_FILES = "files"
+    TYPE_BUTTONS = "buttons_box"
     TYPE_SNIPPETS = "snippets"
     TYPE_SYNTAX_HIGHLIGHT = "syntaxHighlight"
     TYPE_KEY_VISUAL = "keyVisual"
@@ -50,6 +51,8 @@ class Box:
         "epfl:linksBox": TYPE_LINKS,
         "epfl:rssBox": TYPE_RSS,
         "epfl:filesBox": TYPE_FILES,
+        "epfl:bigButtonsBox": TYPE_BUTTONS,
+        "epfl:smallButtonsBox": TYPE_BUTTONS,
         "epfl:snippetsBox": TYPE_SNIPPETS,
         "epfl:syntaxHighlightBox": TYPE_SYNTAX_HIGHLIGHT,
         "epfl:keyVisualBox": TYPE_KEY_VISUAL,
@@ -100,6 +103,7 @@ class Box:
                 sort_field = "jcr:{}".format(self.sort_group.sort_field)
 
                 sort_value = element.getAttribute(sort_field)
+
                 # Add box to sort handler
                 self.sort_group.add_box_to_sort(self, sort_value)
 
@@ -161,6 +165,9 @@ class Box:
         # files
         elif self.TYPE_FILES == self.type:
             self.set_box_files(element)
+        # small/bigButtonsBox
+        elif self.TYPE_BUTTONS == self.type:
+            self.set_box_buttons(element)
         # snippets
         elif self.TYPE_SNIPPETS == self.type:
             self.set_box_snippets(element)
@@ -267,7 +274,7 @@ class Box:
             title = Utils.get_tag_attribute(e, "jahia:url", "jahia:title")
 
             # Escape if necessary
-            title = title.replace('"', '\\"')
+            title = Utils.manage_quotes(title)
 
             self.content += '[{} layout="{}" link="{}" title="{}" image="{}"][/{}]\n'.format(
                 shortcode_inner_name, layout, link, title, image, shortcode_inner_name)
@@ -591,7 +598,8 @@ class Box:
         for entry in faq_entries:
 
             # Get question and escape if necessary
-            question = Utils.get_tag_attribute(entry, "question", "jahia:value").replace('"', '\\"')
+            question = Utils.get_tag_attribute(entry, "question", "jahia:value")
+            question = Utils.manage_quotes(question)
 
             # Get answer
             answer = Utils.get_tag_attribute(entry, "answer", "jahia:value")
@@ -697,6 +705,149 @@ class Box:
         """set the attributes of a files box"""
         self.content = self._parse_files_to_list(element)
 
+    def set_box_buttons(self, element):
+
+        self.shortcode_name = 'epfl_buttons'
+        big_buttons_shortcode_name = 'epfl_buttons_container'
+
+        self.site.register_shortcode(self.shortcode_name, ["image", "url"], self)
+
+        box_type = element.getAttribute("jcr:primaryType")
+        content = ""
+
+        if 'small' in box_type:
+            elements = element.getElementsByTagName("smallButtonList")
+            box_type = 'small'
+
+        else:
+            button_container = element.getElementsByTagName("bigButtonListList")
+
+            sort_params = button_container[0].getAttribute("jahia:sortHandler")
+
+            # Default values that may be overrided later
+            sort_way = 'asc'
+            sort_tag_name = None
+
+            # If we have parameters for sorting, they will look like :
+            # epfl_simple_main_bigButtonList_url;desc;false;false
+            # Sorting is used on https://dhlab.epfl.ch/page-116974-en.html
+            if sort_params != "":
+                # Extracting tag name where to find sort info
+                # epfl_simple_main_bigButtonList_url;desc;false;false ==> url
+                sort_tag_name = sort_params.split(';')[0].split('_')[-1]
+                sort_tag_name = "jahia:{}".format(sort_tag_name)
+
+                sort_way = sort_params.split(';')[1]
+
+            big_boxes = BoxSortedGroup('', '', sort_way)
+
+            elements = element.getElementsByTagName("bigButtonList")
+            box_type = 'big'
+
+        for button_list in elements:
+            url = ""
+            alt_text = ""
+            text = ""
+            big_button_image = ""
+            small_button_key = ""
+
+            if box_type == 'big':
+                # Sorting needed
+                if sort_tag_name:
+                    sort_tags = button_list.getElementsByTagName(sort_tag_name)
+                    if sort_tags:
+                        # It seems that, by default, it is the "jahia:title" value that is used for sorting
+                        sort_value = sort_tags[0].getAttribute("jahia:title")
+
+                    # We don't have enough information to continue
+                    if not sort_tags or not sort_value:
+                        raise Exception("No sort tag (%s) found (or empty sort value found) for bigButtonList",
+                                        sort_tag_name)
+                else:
+                    # No sorting needed, we generate an ID for the box
+                    sort_value = len(big_boxes.boxes)
+
+            for child in button_list.childNodes:
+                if child.ELEMENT_NODE != child.nodeType:
+                    continue
+
+                if child.tagName == "label":
+                    alt_text = child.getAttribute("jahia:value")
+
+                elif child.tagName == "url":
+                    if box_type == 'small':
+                        url = child.getAttribute("jahia:value")
+
+                    elif box_type == 'big':
+                        for jahia_tag in child.childNodes:
+                            if jahia_tag.ELEMENT_NODE != jahia_tag.nodeType:
+                                continue
+
+                            text = jahia_tag.getAttribute("jahia:title")
+
+                            if jahia_tag.tagName == "jahia:link":
+                                # It happens that a link references a page that does not exist anymore
+                                # observed on site dii
+                                try:
+                                    page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
+                                except KeyError as e:
+                                    continue
+
+                                # We generate "Jahia like" URL so exporter will be able to fix it with WordPress URL
+                                url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
+
+                            elif jahia_tag.tagName == "jahia:url":
+                                url = jahia_tag.getAttribute("jahia:value")
+
+                # 'image' tag is only used for BigButton
+                elif child.tagName == "image":
+                    # URL is like /content/sites/<site_name>/files/file
+                    # splitted gives ['', content, sites, <site_name>, files, file]
+                    # result of join is files/file and we add the missing '/' in front.
+                    image_url = '/'.join(child.getAttribute("jahia:value").split("/")[4:])
+                    image_url = '/' + image_url
+                    big_button_image = 'image="{}"'.format(image_url)
+
+                # 'type' tag is only used for SmallButton and is storing reference to image to display
+                elif child.tagName == "type":
+                    jahia_resource_ref = child.getAttribute("jahia:value")
+                    soup = BeautifulSoup(jahia_resource_ref, "lxml")
+                    key = soup.find("jahia-resource").get('default-value')
+                    small_button_key = 'key="{}"'.format(key)
+
+            if box_type == 'small' and text == "":
+                text = alt_text
+
+            # Escape if necessary
+            text = Utils.manage_quotes(text)
+            alt_text = Utils.manage_quotes(alt_text)
+
+            # bigButton will have 'image' attribute and smallButton will have 'key' attribute.
+            box_content = '[{} type="{}" url="{}" {} alt_text="{}" text="{}" {}]'.format(self.shortcode_name,
+                                                                                         box_type,
+                                                                                         url,
+                                                                                         big_button_image,
+                                                                                         alt_text,
+                                                                                         text,
+                                                                                         small_button_key)
+            if box_type == 'big':
+                # Because big boxes can be sortable, we use a BoxSortedGroup to handle this
+                big_boxes.add_box_to_sort(box_content, sort_value)
+            else:
+                content += box_content
+
+        if box_type == 'big':
+            # Generating sorted content
+            content = "[{}]".format(big_buttons_shortcode_name)
+            content += ''.join(big_boxes.get_sorted_boxes())
+            content += "[/{}]".format(big_buttons_shortcode_name)
+
+        self.content = content
+
+    # @classmethod
+    # def build_buttons_box_content(cls, box_type, url, image_url, text):
+    #     return '[epfl_buttons type="{}" url="{}" image_url="{}" text="{}"]\n'.format(box_type, url, image_url, text)
+
     def set_box_snippets(self, element):
         """set the attributes of a snippets box"""
 
@@ -732,8 +883,8 @@ class Box:
                 big_image = big_image[big_image.rfind("/files"):]
 
             # escape
-            title = title.replace('"', '\\"')
-            subtitle = subtitle.replace('"', '\\"')
+            title = Utils.manage_quotes(title)
+            subtitle = Utils.manage_quotes(subtitle)
 
             url = ""
 
@@ -749,6 +900,7 @@ class Box:
                     if uuid in self.site.pages_by_uuid:
                         page = self.site.pages_by_uuid[uuid]
 
+                        # We generate "Jahia like" URL so exporter will be able to fix it with WordPress URL
                         url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
 
             self.content += '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
@@ -832,6 +984,8 @@ class Box:
                                 page = self.site.pages_by_uuid[jahia_tag.getAttribute("jahia:reference")]
                             except KeyError as e:
                                 continue
+
+                            # We generate "Jahia like" URL so exporter will be able to fix it with WordPress URL
                             url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
                             link_html = '<a href="{}">{}</a>'.format(url, jahia_tag.getAttribute("jahia:title"))
 
@@ -916,7 +1070,7 @@ class Box:
 
             src = iframe.get('src')
 
-            if 'youtube.com' in src or 'youtu.be' in src:
+            if src and ('youtube.com' in src or 'youtu.be' in src):
                 width = iframe.get('width')
                 height = iframe.get('height')
 

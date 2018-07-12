@@ -116,7 +116,9 @@ body {
 .fa-icon,
 .icon {
   border: 0;
+  margin: 0;
   position: relative;
+  width: auto;
   
   &:before {
     @include icon;
@@ -191,7 +193,8 @@ body {
 .fa-icon.group:before {
   content: "\f0c0";
 }
-.fa-icon.check:before {
+.fa-icon.check:before,
+.fa-icon.checkmark:before {
   content: "\f00c";
 }
 .fa-icon.cross:before {
@@ -212,7 +215,8 @@ body {
 .fa-icon.file:before {
   content: "\f15b";
 }
-.fa-icon.file-pdf:before {
+.fa-icon.file-pdf:before,
+.fa-icon.pdffile:before {
   content: "\f1c1";
 }
 .fa-icon.files:before {
@@ -245,23 +249,41 @@ body {
 .fa-icon.data:before {
   content: "\f233";
 }
-.fa-icon.up:before {
+.fa-icon.up:before,
+.fa-icon.gototop:before {
   content: "\f077";
+  line-height: 23px;
 }
 .fa-icon.down:before {
   content: "\f078";
 }
-.fa-icon.previous:before {
+.fa-icon.previous:before,
+.fa-icon.gotostart:before {
   content: "\f053";
+  line-height: 25px;
+  padding-right: 2px;
 }
-.fa-icon.next:before {
+.fa-icon.next:before,
+.fa-icon.forward:before {
   content: "\f054";
+  line-height: 25px;
+  padding-left: 2px;
 }
 .fa-icon.go-to-start:before {
   content: "\f100";
 }
 .fa-icon.go-to-end:before {
   content: "\f101";
+}
+.fa-icon.search:before {
+  content: "\f002";
+}
+.fa-icon.attention:before {
+  content: "\f12a";
+  line-height: 25px;
+}
+.fa-icon.vcard:before {
+  content: "\f2bb";
 }
 
 // Social icons
@@ -2681,6 +2703,68 @@ ul.bottin {
   }
 }
 
+/* --- Big / small buttons --- */
+
+.buttonsContainer {
+  @include clearfix;
+}
+
+.bigButtonsBox {
+  @include color-background;
+  @include transition-colors;
+  color: #fff;
+  float: left;
+  height: 130px;
+  list-style: none;
+  margin: 0 4px 4px 0;
+  position: relative;
+  width: 160px;
+  
+  &:nth-child(2n) {
+    @include color-background-sec;
+  }
+  
+  &:hover {
+    background: #000;
+  }
+  
+  .button-link {
+    display: block;
+    height: inherit;
+    padding: 1px;
+    
+    &:hover {
+      background: black;
+    }
+  }
+  
+  img {
+    height: auto;
+    margin: 0 0 2px;
+    width: 100%;
+  }
+  
+  .label {
+    @include minor-text;
+    border-bottom: 1px dotted #fff;
+    color: #fff;
+    display: inline-block;
+    margin: 0 5px;
+  }
+}
+
+.smallButtonsBox {
+  
+  .button-link {
+    @extend .fa-icon;
+    @extend .btn-icon;
+    
+    &:before {
+      //content: "\f054";
+    }
+  }
+}
+
 
 /*  ---------------------------------------
     09 STATIC HOMEPAGES
@@ -3720,6 +3804,34 @@ ul.bottin {
       }
     }
     
+  }
+  
+  /*  ---------------------------------------
+      08 SHORTCODES
+  ----------------------------------------- */
+  
+  /* --- Big / small buttons --- */
+
+  .bigButtonsBox {
+    
+    .site &:empty {
+      display: block;
+    }
+    
+    &:nth-child(4n) {
+      @include color-background-quat;
+      margin-right: 0;
+    }
+    
+    &:nth-child(2)
+    &:nth-child(4n+2) {
+      @include color-background-sec;
+    }
+    
+    &:nth-child(3),
+    &:nth-child(4n+3) {
+      @include color-background-ter;
+    }
   }
   
   

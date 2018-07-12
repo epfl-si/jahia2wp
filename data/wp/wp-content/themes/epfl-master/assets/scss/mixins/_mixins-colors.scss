@@ -2,35 +2,43 @@
 
 $primary-color-cdh: #daa521;
 $primary-color-sec-cdh: #b77504;
-$primary-color-ter-cdh: #b77504;
+$primary-color-ter-cdh: #a25700;
+$primary-color-quat-cdh: #723c07;
 
 $primary-color-cdm: #990165;
 $primary-color-sec-cdm: #740052;
-$primary-color-ter-cdm: #740052;
+$primary-color-ter-cdm: #5d0048;
+$primary-color-quat-cdm: #3f073f;
 
 $primary-color-enac: #ea5e00;
 $primary-color-sec-enac: #d53c00;
 $primary-color-ter-enac: #d53c00;
+$primary-color-quat-enac: #952000;
 
 $primary-color-ic: #1bb5b5;
 $primary-color-sec-ic: #007f87;
-$primary-color-ter-ic: #0e5c5c;
+$primary-color-ter-ic: #004d59;
+$primary-color-quat-ic: #04353a;
 
 $primary-color-sb: #007ba5;
 $primary-color-sec-sb: #015876;
-$primary-color-ter-sb: #015876;
+$primary-color-ter-sb: #003047;
+$primary-color-quat-sb: #08222d;
 
 $primary-color-sti: #8972d5;
 $primary-color-sec-sti: #5d41a2;
-$primary-color-ter-sti: #5d41a2;
+$primary-color-ter-sti: #431f7f;
+$primary-color-quat-sti: #2b1260;
 
 $primary-color-sv: #6fba01;
 $primary-color-sec-sv: #439809;
-$primary-color-ter-sv: #439809;
+$primary-color-ter-sv: #0b7101;
+$primary-color-quat-sv: #0b4905;
 
 $primary-color-assoc: #aebd00;
 $primary-color-sec-assoc: #8d9c00;
-$primary-color-ter-assoc: #8d9c00;
+$primary-color-ter-assoc: #707f00;
+$primary-color-quat-assoc: #560;
 
 /*  Color mixins */
 
@@ -107,6 +115,44 @@ $primary-color-ter-assoc: #8d9c00;
   // ASSOC
   .assoc & {
     background-color: $primary-color-sec-assoc;
+  }
+}
+
+// Background for regular elements (fourth colour)
+@mixin color-background-quat {
+  background-color: $primary-color-quat;
+  
+  // CDH
+  .cdh & {
+    background-color: $primary-color-quat-cdh;
+  }
+  // CDM
+  .cdm & {
+    background-color: $primary-color-quat-cdm;
+  }
+  // ENAC
+  .enac & {
+    background-color: $primary-color-quat-enac;
+  }
+  // IC
+  .ic & {
+    background-color: $primary-color-quat-ic;
+  }
+  // SB
+  .sb & {
+    background-color: $primary-color-quat-sb;
+  }
+  // STI
+  .sti & {
+    background-color: $primary-color-quat-sti;
+  }
+  // SV
+  .sv & {
+    background-color: $primary-color-quat-sv;
+  }
+  // ASSOC
+  .assoc & {
+    background-color: $primary-color-quat-assoc;
   }
 }
 
