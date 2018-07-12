@@ -105,6 +105,8 @@ jQuery( document ).ready( function( $ ) {
             set_toggle_title();
         } );
         /*
+        Other lifecycle, uncomment if needed
+        
         wp.shortcake.hooks.addAction( 'shortcode-ui.render_destroy', function() {
         } );
 
