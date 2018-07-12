@@ -2,9 +2,6 @@
 
 source "/srv/${WP_ENV}/jahia2wp/src/jahia2wp-utils/config.sh"
 
-# Edit value if needed
-SITE_ROOT="https://migration-wp.epfl.ch/"
-
 if [ "$1" == "" ]
 then
     echo "Site name missing"
