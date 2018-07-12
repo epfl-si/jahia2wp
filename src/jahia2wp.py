@@ -491,7 +491,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
                            'epfl-snippet',
                            'epfl-toggle',
                            'epfl-xml',
-                           'epfl-scienceqa'
+                           'epfl-scienceqa',
                            'feedzy-rss-feeds',
                            'remote-content-shortcode',
                            'shortcode-ui',
