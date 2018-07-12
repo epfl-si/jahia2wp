@@ -223,7 +223,7 @@ Class InfoscienceSearchShortCakeConfig
             shortcode_ui_register_for_shortcode(
                 'epfl_infoscience_search',
                 array(
-                    'label' => __('Add Infoscience search shortcode –', 'epfl-infoscience-search'),
+                    'label' => __('Add Infoscience search shortcode', 'epfl-infoscience-search'),
                     'listItemImage' => '<img src="' . plugins_url( 'img/infoscience.svg', __FILE__ ) . '" >',
                     'attrs'         => array(
                         # Content
