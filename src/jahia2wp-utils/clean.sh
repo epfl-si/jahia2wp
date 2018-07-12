@@ -1,7 +1,16 @@
 #!/bin/bash
 
+# Import configuration
+CONFIG_FILE="/srv/${WP_ENV}/jahia2wp/src/jahia2wp-utils/config.sh"
 
-source "/srv/${WP_ENV}/jahia2wp/src/jahia2wp-utils/config.sh"
+if [ ! -e ${CONFIG_FILE} ]
+then
+    echo "Config file (${CONFIG_FILE}) not found!"
+    exit 1
+fi
+source ${CONFIG_FILE}
+
+# Check parameters
 
 
 if [ "$1" == "" ]
