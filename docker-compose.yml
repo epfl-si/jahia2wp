@@ -55,5 +55,6 @@ services:
       - ./functional_tests:/srv/${WP_ENV}/jahia2wp/functional_tests
       - ./Makefile.mgmt:/srv/${WP_ENV}/jahia2wp/Makefile
       - .env:/srv/${WP_ENV}/jahia2wp/.env
+      - ./bin:/srv/${WP_ENV}/jahia2wp/bin
     ports:
       - "${WP_PORT_SSHD}:22"
