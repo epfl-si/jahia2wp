@@ -1092,7 +1092,7 @@ class WPExporter:
                         command = 'menu item add-post {} {} --title="{}" --parent-id={} --porcelain' \
                             .format(menu_name,
                                     child.contents[lang].wp_id,
-                                    menu_txt.replace('"', '\\"'),
+                                    menu_txt.replace('"', '\\"').replace("`", '\\`'),
                                     parent_menu_id)
 
                         menu_id = self.run_wp_cli(command)
