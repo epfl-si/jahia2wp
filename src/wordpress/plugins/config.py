@@ -45,12 +45,13 @@ class WPPluginConfig(WPConfig):
         command_output = self.run_wp_cli(command)
         return False if command_output is True else self.name in command_output
 
-    def install(self):
+    def install(self, force_reinstall=False):
         if self.config.zip_path is not None:
             param = self.config.zip_path
         else:
             param = self.name
-        command = "plugin install {0} ".format(param)
+        force_option = "--force" if force_reinstall else ""
+        command = "plugin install {} {} ".format(force_option, param)
         self.run_wp_cli(command)
 
     def uninstall(self):

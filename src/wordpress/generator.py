@@ -411,7 +411,13 @@ class WPGenerator:
         if self.wp_config.updates_automatic:
             WPMuPluginConfig(self.wp_site, "EPFL_enable_updates_automatic.php").install()
 
-    def generate_plugins(self, only_one=None, force=True, deactivated_plugins=None, **kwargs):
+    def generate_plugins(self,
+                         only_one=None,
+                         force_plugin=True,
+                         force_options=True,
+                         strict_plugin_list=True,
+                         deactivated_plugins=None,
+                         **kwargs):
         """
         Get plugin list for WP site and do appropriate actions on them
         - During WordPress site creation, 'only_plugin_name' and 'force' are not given. Plugins are installed/configured
@@ -423,13 +429,18 @@ class WPGenerator:
 
         Arguments keywords
         :param only_one: Plugin name for which we do the action. If not given, all plugins are processed
-        :param force:    True|False
+        :param force_plugin:    True|False
                            - if False
                               - Plugin(s) to be uninstalled will be only deactivated
-                              - Only new options will be added to plugin(s)
                            - if True
                               - Plugin(s) to be uninstalled will be deactivated AND uninstalled (deleted)
+        :param force_options:    True|False
+                           - if False
+                              - Only new options will be added to plugin(s)
+                           - if True
                               - New plugin options will be added and existing ones will be overwritten
+        :param strict_plugin_list: True|False
+                            - if True, all plugin not present in YAML file will be uninstalled
         :param deactivated_plugins: List of plugins to let in 'deactivated' state after installation.
         """
         logging.warning("%s - Add parameter for 'batch file' (YAML)", repr(self))
@@ -454,7 +465,7 @@ class WPGenerator:
 
                 logging.info("%s - Plugins - %s: Uninstalling...", repr(self), plugin_name)
                 if plugin_config.is_installed:
-                    if force:
+                    if force_plugin:
                         plugin_config.uninstall()
                         logging.info("%s - Plugins - %s: Uninstalled!", repr(self), plugin_name)
                     else:
@@ -469,8 +480,10 @@ class WPGenerator:
                 # We may have to install or do nothing (if we only want to deactivate plugin)
                 if config_dict.action == settings.PLUGIN_ACTION_INSTALL:
                     logging.info("%s - Plugins - %s: Installing...", repr(self), plugin_name)
-                    if not plugin_config.is_installed:
-                        plugin_config.install()
+
+                    # If not installed or if we have to force update,
+                    if not plugin_config.is_installed or force_plugin:
+                        plugin_config.install(force_plugin)
                         logging.info("%s - Plugins - %s: Installed!", repr(self), plugin_name)
                     else:
                         logging.info("%s - Plugins - %s: Already installed!", repr(self), plugin_name)
@@ -490,33 +503,59 @@ class WPGenerator:
                         logging.info("%s - Plugins - %s: Deactivated!", repr(self), plugin_name)
 
                 # Configure plugin
-                plugin_config.configure(force=force)
+                plugin_config.configure(force=force_options)
 
-    def update_plugins(self, only_one=None, force=False):
+        if strict_plugin_list:
+            installed_plugins = []
+
+            # Getting installed plugins (not including MU) to check if all have their place here
+            active_plugins = self.run_wp_cli("plugin list --format=csv --field=name --status=active")
+            if isinstance(active_plugins, str):
+                installed_plugins += active_plugins.split("\n")
+
+            inactive_plugins = self.run_wp_cli("plugin list --format=csv --field=name --status=inactive")
+            if isinstance(inactive_plugins, str):
+                installed_plugins += inactive_plugins.split("\n")
+
+            # List coming from YAML file
+            define_plugin_name_list = list(plugin_list.plugins(self.wp_site.name).keys())
+
+            for plugin_name in installed_plugins:
+
+                if plugin_name not in define_plugin_name_list:
+                    logging.info("%s - Plugins - %s: Don't have to be here, uninstalling!", repr(self), plugin_name)
+                    self.run_wp_cli("plugin uninstall --deactivate {}".format(plugin_name))
+
+    def update_plugins(self, only_one=None, force_plugin=False, force_options=False, strict_plugin_list=False):
         """
         Update plugin list:
         - Install missing plugins
         - Update plugin state (active/inactive)
-        - For plugins that are not required anymore
-          + if force -> Deactivate & uninstall
-          + if not force -> Deactivate only
-        - For plugin options
-          + if force -> Overwrite existing options
-          + not force -> only add new options
 
         Note: This function exists to be overriden if necessary in a child class.
 
         Arguments keywords
-        only_one -- (optional) given plugin to update.
-        force -- True|False tells if we have to really uninstall a plugin marked as "uninstall".
-                           If not given, plugin is only deactivated
+        :param only_one: -- (optional) given plugin to update.
+        :param force_plugin:    True|False
+                           - if False
+                              - Plugin(s) to be uninstalled will be only deactivated
+                           - if True
+                              - Plugin(s) to be uninstalled will be deactivated AND uninstalled (deleted)
+        :param force_options:    True|False
+                           - if False
+                              - Only new options will be added to plugin(s)
+                           - if True
+                              - New plugin options will be added and existing ones will be overwritten
         """
         # check we have a clean place first
         if not self.wp_config.is_installed:
             logging.error("{} - Wordpress site doesn't exists".format(repr(self)))
             return False
 
-        self.generate_plugins(only_one=only_one, force=force)
+        self.generate_plugins(only_one=only_one,
+                              force_plugin=force_plugin,
+                              force_options=force_options,
+                              strict_plugin_list=strict_plugin_list)
         return True
 
     def clean(self):
