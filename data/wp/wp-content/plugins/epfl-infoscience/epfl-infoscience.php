@@ -30,6 +30,9 @@ function epfl_infoscience_url_exists( $url )
 
 function epfl_infoscience_process_shortcode( $attributes, $content = null )
 {
+    # deliver the css
+    wp_enqueue_style('epfl-infoscience-shortcode-style.css');
+
     $attributes = shortcode_atts( array(
         'url' => ''
     ), $attributes);
@@ -74,6 +77,7 @@ add_action( 'plugins_loaded', 'epfl_infoscience_load_plugin_textdomain' );
 add_action( 'init', function() {
 
     add_shortcode( 'epfl_infoscience', 'epfl_infoscience_process_shortcode' );
+    wp_register_style('epfl-infoscience-shortcode-style.css', plugins_url('css/epfl-infoscience-shortcode-style.css', __FILE__));
 
     if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
 
