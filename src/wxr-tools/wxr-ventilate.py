@@ -73,7 +73,7 @@ class Ventilator:
         do_not_reparent = set(t.id for t in homepage.translations_list)
 
         for page in Page.all(self.etree):
-            if page.id not in do_not_reparent:
+            if (page.id not in do_not_reparent) and (not page.parent_id):
                 page.parent_id = translations.get(page.language, homepage).id
 
         return homepage
