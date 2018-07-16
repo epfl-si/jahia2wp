@@ -44,9 +44,10 @@ Usage:
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
     [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
   jahia2wp.py update-plugins        <wp_env> <wp_url>               [--debug | --quiet]
-    [--force] [--plugin=<PLUGIN_NAME>]
+    [--force-plugin] [--force-options] [--plugin=<PLUGIN_NAME>|--strict-list]
+    [--extra-config=<YAML_FILE>]
   jahia2wp.py update-plugins-many   <csv_file>                      [--debug | --quiet]
-    [--force] [--plugin=<PLUGIN_NAME>]
+    [--force-plugin] [--force-options] [--plugin=<PLUGIN_NAME>|--strict-list]
   jahia2wp.py global-report <csv_file> [--output-dir=<OUTPUT_DIR>] [--use-cache] [--debug | --quiet]
   jahia2wp.py migrate-urls <csv_file> <wp_env>                    [--debug | --quiet]
     --root_wp_dest=</srv/../epfl> [--greedy] [--htaccess] [--context=<intra|inter|full>] [--dry_run]
@@ -892,20 +893,36 @@ def list_plugins(wp_env, wp_url, config=False, plugin=None, extra_config=None, *
 
 
 @dispatch.on('update-plugins')
-def update_plugins(wp_env, wp_url, plugin=None, force=False, **kwargs):
+def update_plugins(wp_env,
+                   wp_url,
+                   plugin=None,
+                   force_plugin=False,
+                   force_options=False,
+                   strict_list=False,
+                   extra_config=None,
+                   **kwargs):
 
     _check_site(wp_env, wp_url, **kwargs)
 
-    wp_generator = WPGenerator({'openshift_env': wp_env,
-                                'wp_site_url': wp_url})
+    all_params = {'openshift_env': wp_env,
+                  'wp_site_url': wp_url}
 
-    wp_generator.update_plugins(only_one=plugin, force=force)
+    # if we have extra configuration to load,
+    if extra_config is not None:
+        all_params = _add_extra_config(extra_config, all_params)
+
+    wp_generator = WPGenerator(all_params)
+
+    wp_generator.update_plugins(only_one=plugin,
+                                force_plugin=force_plugin,
+                                force_options=force_options,
+                                strict_plugin_list=strict_list)
 
     print("Successfully updated WordPress plugin list at {}".format(wp_generator.wp_site.url))
 
 
 @dispatch.on('update-plugins-many')
-def update_plugins_many(csv_file, plugin=None, force=False, **kwargs):
+def update_plugins_many(csv_file, plugin=None, force_plugin=False, force_options=False, strict_list=False, **kwargs):
 
     # CSV file validation
     validator = _check_csv(csv_file)
@@ -915,7 +932,10 @@ def update_plugins_many(csv_file, plugin=None, force=False, **kwargs):
     for index, row in enumerate(validator.rows):
         print("\nIndex #{}:\n---".format(index))
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
-        WPGenerator(row).update_plugins(only_one=plugin, force=force)
+        WPGenerator(row).update_plugins(only_one=plugin,
+                                        force_plugin=force_plugin,
+                                        force_options=force_options,
+                                        strict_plugin_list=strict_list)
 
 
 @dispatch.on('global-report')
