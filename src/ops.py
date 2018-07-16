@@ -9,9 +9,7 @@ from urllib.parse import urlparse
 import subprocess
 
 import os
-import sys
-dirname = os.path.dirname
-sys.path.append(dirname(dirname(__file__)))
+import re
 
 
 class SshRemoteHost:
@@ -33,52 +31,58 @@ class SshRemoteHost:
         return subprocess.run(args, stdout=subprocess.PIPE, **kwargs)
 
     @mproperty
-    def ping(self, args):
+    def ping(self):
         self.run_ssh(['true'])
         return self  # Chainable
 
     @classmethod
-    def extract_hostname(cls, url):
+    def _extract_hostname(cls, url):
         parsed = urlparse(url)
         return parsed.netloc
 
     @classmethod
     def for_url(cls, url):
-        if cls.extract_hostname(url) in set(
-                'migration-wp.epfl.ch'
-        ):
+        if cls._extract_hostname(url) in set((
+                'migration-wp.epfl.ch',
+        )):
             return cls.test.ping
         else:
-            raise Exception('No prod access implemented for now.')
+            return cls.prod.ping
 
-    def wp_env(self, url):
-        if self.extract_hostname(url) == 'migration-wp.epfl.ch':
-            return 'int'
+    def as_ansible_params(self, url):
+        hostname = self._extract_hostname(url)
+        if hostname == 'migration-wp.epfl.ch':
+            assert self is SshRemoteHost.test
+            wp_env = 'int'
+            wp_hostname = 'migration-wp.epfl.ch'
         else:
-            raise Exception('Unknown wp_env for URL %s' % url)
+            # TODO: there certainly is more to it than this.
+            assert self is SshRemoteHost.prod
+            wp_env = 'subdomains'
+            wp_hostname = hostname
 
-    def base_htdocs_dir(self, url):
-        if self.extract_hostname(url) == 'migration-wp.epfl.ch':
-            return '/srv/int/migration-wp.epfl.ch/htdocs'
-        else:
-            raise Exception('Unknown base_htdocs_dir for %s', url)
+        retval = {
+            'ansible_host': self.host,
+            'ansible_port': self.port,
+            'wp_hostname': wp_hostname,
+            'wp_env': wp_env
+        }
 
-    def find_wordpress_path(self, url):
+        remote_base = os.path.join('/srv', wp_env, wp_hostname, 'htdocs')
         remote_subdir = urlparse(url).path.lstrip('/')
-        remote_dir = os.path.join(self.base_htdocs_dir(url), remote_subdir)
-        remote_dir_initial = remote_dir
-        while not (self.run_ssh('test -f %s/wp-content' % remote_dir,
-                                check=False)):
-            if remote_dir == '/':
+        remote_subdir_initial = remote_subdir
+        while not (self.run_ssh(
+                'test -f ' + os.path.join(remote_base, remote_subdir),
+                check=False)):
+            if remote_subdir == '':
                 raise Exception(
-                    'Unable to find Wordpress for %s (started at %s)',
-                    remote_dir_initial)
-            remote_dir = os.path.dirname(remote_dir)
-        if remote_dir == '/':
-            # Unlikely, but eh
-            return '/'
-        else:
-            return remote_dir.rstrip('/')
+                    'Unable to find Wordpress for %s (started at %s/%s)',
+                    remote_base, remote_subdir_initial)
+            remote_subdir = os.path.dirname(remote_subdir)
+
+        retval['wp_path'] = remote_subdir
+
+        return retval
 
     def __repr__(self):
         return '<%s %s>' % (self.__class__, self.moniker)
