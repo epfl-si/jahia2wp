@@ -46,7 +46,6 @@ class AnsibleGroup:
         ssh = SshRemoteHost.for_url(url)
         moniker = self._moniker(url)
         ansible_params = copy.copy(ssh.as_ansible_params(url))
-        ansible_params['wp_hostname'] 
         self.hosts[moniker] = ansible_params
 
     def save(self, target):

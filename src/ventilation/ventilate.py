@@ -5,7 +5,7 @@
 """🎶♪♩ Come on baby, do the ventilation ♩🎶♪
 
 Usage:
-  ventilation.py [options] <ventilation_csv_file> <wxr_sourcedir> <wxr_destdir>
+  ventilate.py [options] <ventilation_csv_file> <wxr_sourcedir> <wxr_destdir>
 
 Options:
      --quiet
@@ -13,6 +13,7 @@ Options:
 """
 
 import os
+import re
 import sys
 import subprocess
 import lxml.etree
@@ -56,8 +57,14 @@ class SourceWXR:
         return '<%s "%s">' % (self.__class__.__name__, self.path)
 
 
+# This is quite unfortunately coupled with the _moniker method
+# in wordpress-inventories.py
 def site_moniker(url):
-    return os.path.basename(url.rstrip('/'))
+    parsed = urlparse(url)
+    hostname = parsed.netloc.split('.')[0]
+    if hostname != 'migration-wp':
+        return hostname
+    return re.search('^/([^/]*)/', parsed.path).group(1)
 
 
 class DestinationWXR:
