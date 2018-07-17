@@ -61,7 +61,7 @@ Usage : wp eval [...] <filename>
     }
 
     add_filter("wp_import_existing_post", "identify_structural_pages_by_guid", 10, 2);
-    add_action("wp_import_insert_post", "record_guid_of_structural_pages", 10, 4);
+    add_action("wp_import_insert_post", "record_guid", 10, 4);
 
     global $wp_import;
     $wp_import->fetch_attachments = (FALSE !== array_search("-fetch-attachments", $argv));
@@ -117,7 +117,7 @@ function identify_structural_pages_by_guid ($post_exists_orig, $post)
     }
 }
 
-function record_guid_of_structural_pages ($post_id, $original_post_ID, $postdata, $post)
+function record_guid ($post_id, $original_post_ID, $postdata, $post)
 {
     update_post_meta($post_id, $EPFL_IMPORT_GUID_META, $postdata['guid']);
 }
