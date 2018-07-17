@@ -482,6 +482,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
                            'epfl-faq',
                            'epfl-grid',
                            'epfl-infoscience',
+                           'epfl-infoscience-search',
                            'epfl-map',
                            'epfl-memento',
                            'epfl-news',
