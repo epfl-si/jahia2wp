@@ -635,10 +635,19 @@ class Box:
 
             self.content = '[{} url="{}" /]'.format(self.shortcode_name, url)
         elif '://infoscience.epfl.ch/' in url:
+            self.set_box_infoscience(element)
 
-            self.shortcode_name = "epfl_infoscience"
+        elif '://actu.epfl.ch/' in url:
 
-            self.content = '[{} url="{}"]'.format(self.shortcode_name, url)
+            self.shortcode_name = "epfl_news"
+
+            # URL looks like https://actu.epfl.ch/webservice/school?channel=8&lang=en&template=3
+            parameters = self._extract_epfl_news_parameters(url)
+
+            self.content = '[{} channel="{}" lang="{}" template="{}" ]'.format(self.shortcode_name,
+                                                                               parameters[0],
+                                                                               parameters[1],
+                                                                               parameters[2])
 
         else:
 
