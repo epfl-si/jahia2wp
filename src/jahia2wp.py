@@ -444,7 +444,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     else:
         wp_tagline = site.title
 
-    #fetch unit id from ldap
+    # fetch unit id from ldap
     try:
         logging.info("Fetching LDAP for the id of %s...", unit_name)
         fetched_unit_id = get_unit_id(unit_name)
