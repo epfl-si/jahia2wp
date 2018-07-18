@@ -576,6 +576,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
             else:
                 logging.info("Site %s already exported to WordPress", site.name)
         except (Exception, subprocess.CalledProcessError) as e:
+            logging.error(str(e))
             Tracer.write_row(site=site.name, step=e, status="KO")
             if not settings.DEBUG:
                 wp_generator.clean()
