@@ -81,7 +81,7 @@ https://migration-wp.epfl.ch/clse,#parser,#parser,wordpress,int,GeneralPublic,ep
 https://migration-wp.epfl.ch/nutritioncenter,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,cnu,nutritioncenter,migrable
 https://migration-wp.epfl.ch/cms,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,cms,cms,
 https://migration-wp.epfl.ch/cnbi,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,cnbi,cnbi,migrable
-https://migration-wp.epfl.ch/iscb,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,co-iscb,iscb,
+https://migration-wp.epfl.ch/iscb,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,codev-ge,iscb,
 https://migration-wp.epfl.ch/cnpa,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,cnpa,cnpa,
 https://migration-wp.epfl.ch/cns,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,ip,cns,migrable
 https://migration-wp.epfl.ch/cole-lab,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,upkin,colelab,
@@ -262,7 +262,7 @@ https://migration-wp.epfl.ch/irrotationnels,#parser,#parser,wordpress,int,Genera
 https://migration-wp.epfl.ch/irsa,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,lfmi,irsa,
 https://migration-wp.epfl.ch/is-academia,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,sac,isacademia,
 https://migration-wp.epfl.ch/skyrmions,#parser,#parser,wordpress,int,GeneralPublic,epfl-blank,#parser,yes,yes,yes,#parser,lmgn,skyrmions,migrable
-https://migration-wp.epfl.ch/ishigo,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser, ishi-go,ishigo,migrable
+https://migration-wp.epfl.ch/ishigo,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,ishi-go,ishigo,migrable
 https://migration-wp.epfl.ch/isic,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,isic-ge,isic,
 https://migration-wp.epfl.ch/issw,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,lamd,issw,migrable
 https://migration-wp.epfl.ch/ivrl,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,ivrl,ivrg,
@@ -438,7 +438,7 @@ https://migration-wp.epfl.ch/mcs,#parser,#parser,wordpress,int,GeneralPublic,epf
 https://migration-wp.epfl.ch/mcss,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,sb-do,mcss,
 https://migration-wp.epfl.ch/mechanical-spectroscopy,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,lpmc,mechanicalspectroscopy,migrable
 https://migration-wp.epfl.ch/mediacom,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,mec,mediacom,
-https://migration-wp.epfl.ch/messaa,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,messa,messaa,
+https://migration-wp.epfl.ch/messaa,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,messa   a,messaa,
 https://migration-wp.epfl.ch/metamedia,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,cmm-ge,metamedia,
 https://migration-wp.epfl.ch/meylan-lab,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,uphan,meylan-lab,
 https://migration-wp.epfl.ch/mhmc,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,lp,mhmc,
