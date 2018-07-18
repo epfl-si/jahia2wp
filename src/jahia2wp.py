@@ -76,6 +76,7 @@ import yaml
 from docopt import docopt
 from docopt_dispatch import dispatch
 from epflldap.ldap_search import get_unit_id
+from ldap3.core.exceptions import LDAPSocketOpenError
 from rotate_backups import RotateBackups
 
 import settings
@@ -443,6 +444,15 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     else:
         wp_tagline = site.title
 
+    # fetch unit id from ldap
+    try:
+        logging.info("Fetching LDAP for the id of %s...", unit_name)
+        fetched_unit_id = get_unit_id(unit_name)
+        logging.info("LDAP Id found = %s...", fetched_unit_id)
+    except LDAPSocketOpenError:
+        logging.error("LDAP is not responding, aborting here...")
+        raise
+
     info = {
         # information from parser
         'langs': ",".join(languages),
@@ -459,7 +469,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         'installs_locked': installs_locked,
 
         # determined information
-        'unit_id': get_unit_id(unit_name),
+        'unit_id': fetched_unit_id,
         'from_export': True
     }
 
