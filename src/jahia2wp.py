@@ -664,6 +664,7 @@ def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None,
                 features_flags=features_flags
             )
         except (Exception, subprocess.CalledProcessError) as e:
+            logging.error(str(e))
             Tracer.write_row(site=row['Jahia_zip'], step=e, status="KO")
 
 
