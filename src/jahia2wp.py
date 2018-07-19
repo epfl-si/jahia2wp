@@ -65,7 +65,7 @@ import logging
 import pickle
 import subprocess
 from collections import OrderedDict
-from datetime import datetime
+from datetime import datetime, date
 from pprint import pprint
 
 import os
@@ -76,6 +76,7 @@ import yaml
 from docopt import docopt
 from docopt_dispatch import dispatch
 from epflldap.ldap_search import get_unit_id
+from ldap3.core.exceptions import LDAPSocketOpenError
 from rotate_backups import RotateBackups
 
 import settings
@@ -263,7 +264,7 @@ def _generate_csv_line(wp_generator):
     csv_columns['updates_automatic'] = wp_generator._site_params['updates_automatic']  # from csv (bool)
     csv_columns['langs'] = wp_generator._site_params['langs']  # from parser
     csv_columns['unit_name'] = wp_generator._site_params['unit_name']  # from csv
-    csv_columns['comment'] = 'Migrated from Jahia to WP'
+    csv_columns['comment'] = 'Migrated from Jahia to WP {}'.format(date.today())
 
     # Formatting values depending on their type/content
     for col in csv_columns:
@@ -443,6 +444,15 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     else:
         wp_tagline = site.title
 
+    # fetch unit id from ldap
+    try:
+        logging.info("Fetching LDAP for the id of %s...", unit_name)
+        fetched_unit_id = get_unit_id(unit_name)
+        logging.info("LDAP Id found = %s...", fetched_unit_id)
+    except LDAPSocketOpenError:
+        logging.error("LDAP is not responding, aborting here...")
+        raise
+
     info = {
         # information from parser
         'langs': ",".join(languages),
@@ -459,7 +469,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         'installs_locked': installs_locked,
 
         # determined information
-        'unit_id': get_unit_id(unit_name),
+        'unit_id': fetched_unit_id,
         'from_export': True
     }
 
@@ -482,6 +492,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
                            'epfl-faq',
                            'epfl-grid',
                            'epfl-infoscience',
+                           'epfl-infoscience-search',
                            'epfl-map',
                            'epfl-memento',
                            'epfl-news',
@@ -501,6 +512,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
                            'simple-sitemap',
                            'svg-support',
                            'enlighter',
+                           'twitter',
                            'tinymce-advanced',
                            'varnish-http-purge']
 
@@ -576,6 +588,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
             else:
                 logging.info("Site %s already exported to WordPress", site.name)
         except (Exception, subprocess.CalledProcessError) as e:
+            logging.error(str(e))
             Tracer.write_row(site=site.name, step=e, status="KO")
             if not settings.DEBUG:
                 wp_generator.clean()
@@ -664,6 +677,7 @@ def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None,
                 features_flags=features_flags
             )
         except (Exception, subprocess.CalledProcessError) as e:
+            logging.error(str(e))
             Tracer.write_row(site=row['Jahia_zip'], step=e, status="KO")
 
 
