@@ -85,6 +85,9 @@ add_action( 'init', function() {
 
     add_shortcode('epfl_people', 'epfl_people_process_shortcode');
 
+});
+
+add_action( 'admin_init', function() {
     if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
 
         if (get_locale() == 'fr_FR') {
