@@ -222,7 +222,9 @@ add_action( 'plugins_loaded', 'epfl_memento_load_plugin_textdomain' );
 add_action( 'init', function() {
     // define the shortcode
     add_shortcode('epfl_memento', 'epfl_memento_process_shortcode');
+});
 
+add_action( 'admin_init', function() {
     // configure shortcake
     if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
         ShortCakeMementoConfig::config();
