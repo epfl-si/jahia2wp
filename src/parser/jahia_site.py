@@ -10,6 +10,7 @@ import base64
 from bs4 import BeautifulSoup
 from parser.box import Box
 from parser.file import File
+from parser.jahia_permissions import JahiaPermissions
 from parser.link import Link
 from parser.page import Page
 from parser.page_content import PageContent
@@ -148,7 +149,6 @@ class Site:
         self.file_uuid_to_url = {}
 
         # parse the data
-        self.check_files_permissions()
         self.parse_data()
 
         # build the sitemaps
@@ -364,87 +364,6 @@ class Site:
         else:
             return 0
 
-    def _build_jahia_url(self, element, language):
-
-        pid_page = element.getAttribute("jahia:pid")
-        path = self.pages_by_pid[pid_page].contents[language].path
-        if path == "/index.html":
-            path = ""
-        return "https://" + self.server_name + path
-
-    def parse_box_permissions(self):
-        """ Find all jahia boxes on which permissions are applied """
-        logging.info("Box JAHIA with applied permissions")
-
-        for language, dom_path in self.export_files.items():
-
-            dom = Utils.get_dom(dom_path)
-            elements = dom.getElementsByTagName("main")
-
-            # For each jahia box check ACL
-            for element in elements:
-                if element.hasAttribute("jahia:acl"):
-                    if element.getAttribute("jahia:acl") == 'none':
-                        continue
-                    else:
-                        # Récupérer le nom de la box jahia
-                        box_name = "toto"
-                        logging.debug(box_name)
-
-                        # If ACL found, search jahia page parent
-                        while element.parentNode:
-                            element = element.parentNode
-                            if element.nodeName == "jahia:page":
-                                jahia_url = self._build_jahia_url(element, language)
-                                logging.debug(jahia_url)
-
-    def parse_page_permissions(self):
-        """ Find all jahia boxes on which permissions are applied """
-        logging.info("Jahia pages with applied permissions")
-        for language, dom_path in self.export_files.items():
-
-            dom = Utils.get_dom(dom_path)
-            elements = dom.getElementsByTagName("jahia:page")
-
-            # For each jahia pages check ACL
-            for element in elements:
-
-                if element.getAttribute("jahia:acl") == 'none':
-                    continue
-                else:
-                    # If ACL found, build jahia page URL
-                    jahia_url = self._build_jahia_url(element, language)
-                    logging.debug(jahia_url)
-
-    def is_leaf(self, node):
-
-        for child in node.childNodes:
-            if child.nodeName == "jcr:content":
-                return True
-        return False
-
-    def find_leaf(self, node):
-
-        if self.is_leaf(node):
-            logging.debug(node.getAttribute("j:fullpath"))
-        else:
-            for child in node.childNodes:
-                if child.ELEMENT_NODE != child.nodeType:
-                    continue
-                else:
-                    self.find_leaf(child)
-
-    def check_files_permissions(self):
-        """Parse the files and check if access is public"""
-
-        # parser le fichier repository.xml
-        path = self.base_path + "/repository.xml"
-        dom = Utils.get_dom(path)
-        elements = dom.getElementsByTagName("files")
-        node = elements[0]
-        self.find_leaf(node)
-
-
     def parse_data(self):
         """Parse the Site data"""
 
@@ -458,8 +377,12 @@ class Site:
         self.parse_pages_content()
         self.parse_files()
         self.fix_links()
-        self.parse_page_permissions()
-        self.parse_box_permissions()
+
+        jahia_permission = JahiaPermissions(site=self)
+        jahia_permission.parse_files_permissions(site=self)
+        jahia_permission.parse_page_permissions(site=self)
+        jahia_permission.parse_box_permissions(site=self)
+
 
     def parse_site_params(self,):
         """Parse the site params"""

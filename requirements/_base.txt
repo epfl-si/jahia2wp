@@ -9,3 +9,4 @@ git+https://github.com/epfl-idevelop/python-rotate-backups.git
 simplejson==3.11.1
 git+https://github.com/epfl-idevelop/python-wordpress-json.git
 html5lib==1.0.1
+requests==2.18.4

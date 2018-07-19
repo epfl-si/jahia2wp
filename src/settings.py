@@ -9,8 +9,8 @@ LINE_LENGTH_ON_PPRINT = 150
 LINE_LENGTH_ON_EXPORT = LINE_LENGTH_ON_PPRINT + 100
 UPLOAD_MAX_FILESIZE = 300000000
 
-DEBUG = False
-ACTIVE_DUAL_AUTH = False
+DEBUG = True
+ACTIVE_DUAL_AUTH = True
 OPENSHIFT_ENV = Utils.get_mandatory_env("WP_ENV")
 ENV_DIRS = ['logs', 'venv', 'jahia2wp']
 
@@ -148,6 +148,7 @@ JAHIA_HOST = Utils.get_optional_env("JAHIA_HOST", "localhost")
 JAHIA_PROTOCOL = "https"
 JAHIA_ZIP_PATH = Utils.get_optional_env("JAHIA_ZIP_PATH", ".")
 JAHIA_DATA_PATH = Utils.get_optional_env("JAHIA_DATA_PATH", os.path.join(DATA_PATH, 'jahia-data'))
+JAHIA_PERMISSIONS_PATH = Utils.get_optional_env("JAHIA_DATA_PATH", os.path.join(DATA_PATH, 'jahia-permissions'))
 JAHIA_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
 JAHIA2WP_VENT_TMP = Utils.get_optional_env("JAHIA2WP_VENT_TMP", "/tmp")
 
