@@ -83,7 +83,9 @@ add_action( 'plugins_loaded', 'epfl_xml_load_plugin_textdomain' );
 
 add_action( 'init', function() {
     add_shortcode( 'epfl_xml', 'epfl_xml_process_shortcode' );
+});
 
+add_action( 'admin_init', function() {
     if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
 
         shortcode_ui_register_for_shortcode(
