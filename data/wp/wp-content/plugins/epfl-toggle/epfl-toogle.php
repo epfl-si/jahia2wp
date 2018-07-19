@@ -40,11 +40,14 @@ add_action( 'init', function() {
   // define the shortcode
   add_shortcode('epfl_toggle', 'epfl_toggle_process_shortcode');
 
+});
+
+add_action( 'admin_init', function() {
   // shortcake configuration
   if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
 
     ToggleShortCakeConfig::config();
   endif;
-} );
+});
 
 ?>
