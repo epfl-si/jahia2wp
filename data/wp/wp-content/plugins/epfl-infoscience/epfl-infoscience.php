@@ -75,6 +75,10 @@ add_action( 'init', function() {
 
     add_shortcode( 'epfl_infoscience', 'epfl_infoscience_process_shortcode' );
 
+});
+
+add_action( 'admin_init', function() {
+
     if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
 
         $documentation_url = "https://support.epfl.ch/kb_view.do?sysparm_article=KB0014227";
