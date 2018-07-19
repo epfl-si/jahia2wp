@@ -264,7 +264,7 @@ def _generate_csv_line(wp_generator):
     csv_columns['updates_automatic'] = wp_generator._site_params['updates_automatic']  # from csv (bool)
     csv_columns['langs'] = wp_generator._site_params['langs']  # from parser
     csv_columns['unit_name'] = wp_generator._site_params['unit_name']  # from csv
-    csv_columns['comment'] = 'Migrated from Jahia to WP'
+    csv_columns['comment'] = 'Migrated from Jahia to WP {}'.format(datetime.date.today())
 
     # Formatting values depending on their type/content
     for col in csv_columns:
