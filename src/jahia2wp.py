@@ -65,7 +65,7 @@ import logging
 import pickle
 import subprocess
 from collections import OrderedDict
-from datetime import datetime
+from datetime import datetime, date
 from pprint import pprint
 
 import os
