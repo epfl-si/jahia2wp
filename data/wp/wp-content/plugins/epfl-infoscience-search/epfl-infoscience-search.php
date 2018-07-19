@@ -308,15 +308,21 @@ function epfl_infoscience_search_load_plugin_textdomain() {
 add_action( 'plugins_loaded', 'epfl_infoscience_search_load_plugin_textdomain' );
 
 add_action( 'init', function() {
+
     add_shortcode( 'epfl_infoscience_search', 'epfl_infoscience_search_process_shortcode' );
     wp_register_style('epfl-infoscience-search-shortcode-style.css', plugins_url('css/epfl-infoscience-search-shortcode-style.css', __FILE__));
 
     # MathJax for nice render
     wp_register_script('epfl-infoscience-search-shortcode-math-main.js', 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=default');
 
+});
+
+add_action( 'admin_init', function() {
+
     // shortcake configuration
     if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
         InfoscienceSearchShortCakeConfig::config();
     endif;
+
 });
 ?>
