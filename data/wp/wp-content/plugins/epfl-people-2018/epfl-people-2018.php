@@ -78,7 +78,9 @@ add_action( 'init', function()
 {
   // define the shortcode
   add_shortcode('epfl_people_2018', 'epfl_people_2018_process_shortcode');
+});
 
+add_action( 'admin_init', function() {
   // shortcake configuration
   if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
     ShortCakePeople2018Config::config();
