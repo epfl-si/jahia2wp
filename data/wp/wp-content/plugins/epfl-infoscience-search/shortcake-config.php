@@ -203,143 +203,139 @@ Class InfoscienceSearchShortCakeConfig
 
     public static function config() 
     {
-        if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
+        # add custom epfl style
+        add_action( 'enqueue_shortcode_ui', array('InfoscienceSearchShortCakeConfig', 'load_epfl_infoscience_search_wp_admin_js'));
+        add_action( 'admin_enqueue_scripts', ['InfoscienceSearchShortCakeConfig', 'load_epfl_infoscience_search_wp_admin_style'], 99);
+        add_action( 'print_shortcode_ui_templates', array('InfoscienceSearchShortCakeConfig', 'shortcode_ui_epfl_field_template'));      
 
-            # add custom epfl style
-            add_filter( 'shortcode_ui_fields', array('InfoscienceSearchShortCakeConfig', 'shortcode_ui_fields'));
-            add_action( 'admin_enqueue_scripts', ['InfoscienceSearchShortCakeConfig', 'load_epfl_infoscience_search_wp_admin_style'], 99);
-            add_action( 'enqueue_shortcode_ui', array('InfoscienceSearchShortCakeConfig', 'load_epfl_infoscience_search_wp_admin_js'));
-            add_action( 'print_shortcode_ui_templates', array('InfoscienceSearchShortCakeConfig', 'shortcode_ui_epfl_field_template'));
-            
-            $documentation_url = "https://infoscience.epfl.ch/help/search-tips?ln=en";
-    
-            $pattern_description = sprintf(
-                esc_html__('%sSearch tips%s', 'epfl-infoscience-search'),
-                '<a target="_blank" href="' . $documentation_url . '">', '</a>'
-            );
+        $documentation_url = "https://infoscience.epfl.ch/help/search-tips?ln=en";
 
-            $thumbnails_description = esc_html__('Show illustration', 'epfl-infoscience-search');
+        $pattern_description = sprintf(
+            esc_html__('%sSearch tips%s', 'epfl-infoscience-search'),
+            '<a target="_blank" href="' . $documentation_url . '">', '</a>'
+        );
 
-            shortcode_ui_register_for_shortcode(
-                'epfl_infoscience_search',
-                array(
-                    'label' => __('Add Infoscience search shortcode', 'epfl-infoscience-search'),
-                    'listItemImage' => '<img src="' . plugins_url( 'img/infoscience-loupe.svg', __FILE__ ) . '" >',
-                    'attrs'         => array(
-                        # Content
-                        array(
-                            'title'         => __('Search for', 'epfl-infoscience-search'),
-                            'attr'          => 'pattern',
-                            'type'          => 'epfl-text',
-                            'description'   => $pattern_description,
-                            'meta'        => array(
-                                'placeholder' => esc_html__('Search records for:'),
-                            ),
-                        ),
-                        array(
-                            'label'         => esc_html__('Field restriction', 'epfl-infoscience-search'),
-                            'attr'          => 'field',
-                            'type'          => 'epfl-select',
-                            'options'       => InfoscienceSearchShortCakeConfig::get_field_options(),
-                        ),
-                        /* TODO?:
-                        array(
-                            'label'         => esc_html__('Collection', 'epfl-infoscience-search'),
-                            'attr'          => 'collection',
-                            'type'          => 'epfl-text',
-                            'meta'        => array(
-                                'placeholder' => 'Infoscience/Research',
-                            ),                            
-                        ),*/
-                        # Advanced content, dynamically hidden with javascript
-                        array(
-                            'title'         => esc_html__('Additional search keys', 'epfl-infoscience-search'),
-                            'label'         => esc_html__('Second search text'),
-                            'attr'          => 'operator2',
-                            'type'          => 'epfl-select',
-                            'options'       => InfoscienceSearchShortCakeConfig::get_operator_options(),
-                            'is_toggle'     => 'true',
-                        ),
-                        array(
-                            'attr'          => 'field2',
-                            'type'          => 'epfl-select',
-                            'options'       => InfoscienceSearchShortCakeConfig::get_field_options(),
-                        ),
-                        array(
-                            'attr'          => 'pattern2',
-                            'type'          => 'epfl-text',
-                            'meta'        => array(
-                                'placeholder' => 'Search key',
-                            ),  
-                        ),
-                        array(
-                            'label'         => esc_html__('Third search text'),
-                            'attr'          => 'operator3',
-                            'type'          => 'epfl-select',
-                            'options'       => InfoscienceSearchShortCakeConfig::get_operator_options(),
-                        ),
-                        array(
-                            'attr'          => 'field3',
-                            'type'          => 'epfl-select',
-                            'options'       => InfoscienceSearchShortCakeConfig::get_field_options(),
-                        ),                        
-                        array(
-                            'attr'          => 'pattern3',
-                            'type'          => 'epfl-text',
-                            'meta'        => array(
-                                'placeholder' => 'Search key',
-                            ),
-                        ),
+        $thumbnails_description = esc_html__('Show illustration', 'epfl-infoscience-search');
 
-                        # Presentation
-                        array(
-                            'title'         => esc_html__('Style', 'epfl-infoscience-search'),
-                            'label'         => esc_html__('Format', 'epfl-infoscience-search'),
-                            'attr'          => 'format',
-                            'type'          => 'epfl-radio',
-                            'options'       => InfoscienceSearchShortCakeConfig::get_format_options(),
-                            'description'   => __('Detail level for a publication', 'epfl-infoscience-search'),
-                            'value'         => 'short',
-                        ),
-                        array(
-                            'label'         => esc_html__('Summary', 'epfl-infoscience-search'),
-                            'attr'          => 'summary',
-                            'type'          => 'epfl-radio',
-                            'options'       => InfoscienceSearchShortCakeConfig::get_summary_options(),
-                            'value' => 'false',
-                        ),                        
-                        array(
-                            'label'         => esc_html__('Thumbnail', 'epfl-infoscience-search'),
-                            'attr'          => 'thumbnail',
-                            'type'          => 'epfl-radio',
-                            'options'       => InfoscienceSearchShortCakeConfig::get_thumbnail_options(),
-                            'value' => 'true',
-                        ),
-                        array(
-                            'label'         => esc_html__('Sort', 'epfl-infoscience-search'),
-                            'attr'          => 'sort',
-                            'type'          => 'epfl-radio',
-                            'options'       => InfoscienceSearchShortCakeConfig::get_sort_options(),
-                            'value'         => 'desc',
-                        ),                        
-                        array(
-                            'label'         => esc_html__('Group by', 'epfl-infoscience-search') . ' (1)',
-                            'attr'          => 'group_by',
-                            'type'          => 'epfl-select',
-                            'options'       => InfoscienceSearchShortCakeConfig::get_group_by_options(),
-                        ),
-                        array(
-                            'label'         => esc_html__('Group by', 'epfl-infoscience-search') . ' (2)',
-                            'attr'          => 'group_by2',
-                            'type'          => 'epfl-select',
-                            'options'       => InfoscienceSearchShortCakeConfig::get_group_by_options(),
+        shortcode_ui_register_for_shortcode(
+            'epfl_infoscience_search',
+            array(
+                'label' => __('Add Infoscience search shortcode', 'epfl-infoscience-search'),
+                'listItemImage' => '<img src="' . plugins_url( 'img/infoscience-loupe.svg', __FILE__ ) . '" >',
+                'attrs'         => array(
+                    # Content
+                    array(
+                        'title'         => __('Search for', 'epfl-infoscience-search'),
+                        'attr'          => 'pattern',
+                        'type'          => 'epfl-text',
+                        'description'   => $pattern_description,
+                        'meta'        => array(
+                            'placeholder' => esc_html__('Search records for:'),
                         ),
                     ),
-    
-                    'post_type'     => array( 'post', 'page' ),
-                )
-            );
-        endif;
+                    array(
+                        'label'         => esc_html__('Field restriction', 'epfl-infoscience-search'),
+                        'attr'          => 'field',
+                        'type'          => 'epfl-select',
+                        'options'       => InfoscienceSearchShortCakeConfig::get_field_options(),
+                    ),
+                    /* TODO?:
+                    array(
+                        'label'         => esc_html__('Collection', 'epfl-infoscience-search'),
+                        'attr'          => 'collection',
+                        'type'          => 'epfl-text',
+                        'meta'        => array(
+                            'placeholder' => 'Infoscience/Research',
+                        ),                            
+                    ),*/
+                    # Advanced content, dynamically hidden with javascript
+                    array(
+                        'title'         => esc_html__('Additional search keys', 'epfl-infoscience-search'),
+                        'label'         => esc_html__('Second search text'),
+                        'attr'          => 'operator2',
+                        'type'          => 'epfl-select',
+                        'options'       => InfoscienceSearchShortCakeConfig::get_operator_options(),
+                        'is_toggle'     => 'true',
+                    ),
+                    array(
+                        'attr'          => 'field2',
+                        'type'          => 'epfl-select',
+                        'options'       => InfoscienceSearchShortCakeConfig::get_field_options(),
+                    ),
+                    array(
+                        'attr'          => 'pattern2',
+                        'type'          => 'epfl-text',
+                        'meta'        => array(
+                            'placeholder' => 'Search key',
+                        ),  
+                    ),
+                    array(
+                        'label'         => esc_html__('Third search text'),
+                        'attr'          => 'operator3',
+                        'type'          => 'epfl-select',
+                        'options'       => InfoscienceSearchShortCakeConfig::get_operator_options(),
+                    ),
+                    array(
+                        'attr'          => 'field3',
+                        'type'          => 'epfl-select',
+                        'options'       => InfoscienceSearchShortCakeConfig::get_field_options(),
+                    ),                        
+                    array(
+                        'attr'          => 'pattern3',
+                        'type'          => 'epfl-text',
+                        'meta'        => array(
+                            'placeholder' => 'Search key',
+                        ),
+                    ),
+
+                    # Presentation
+                    array(
+                        'title'         => esc_html__('Style', 'epfl-infoscience-search'),
+                        'label'         => esc_html__('Format', 'epfl-infoscience-search'),
+                        'attr'          => 'format',
+                        'type'          => 'epfl-radio',
+                        'options'       => InfoscienceSearchShortCakeConfig::get_format_options(),
+                        'description'   => __('Detail level for a publication', 'epfl-infoscience-search'),
+                        'value'         => 'short',
+                    ),
+                    array(
+                        'label'         => esc_html__('Summary', 'epfl-infoscience-search'),
+                        'attr'          => 'summary',
+                        'type'          => 'epfl-radio',
+                        'options'       => InfoscienceSearchShortCakeConfig::get_summary_options(),
+                        'value' => 'false',
+                    ),                        
+                    array(
+                        'label'         => esc_html__('Thumbnail', 'epfl-infoscience-search'),
+                        'attr'          => 'thumbnail',
+                        'type'          => 'epfl-radio',
+                        'options'       => InfoscienceSearchShortCakeConfig::get_thumbnail_options(),
+                        'value' => 'true',
+                    ),
+                    array(
+                        'label'         => esc_html__('Sort', 'epfl-infoscience-search'),
+                        'attr'          => 'sort',
+                        'type'          => 'epfl-radio',
+                        'options'       => InfoscienceSearchShortCakeConfig::get_sort_options(),
+                        'value'         => 'desc',
+                    ),                        
+                    array(
+                        'label'         => esc_html__('Group by', 'epfl-infoscience-search') . ' (1)',
+                        'attr'          => 'group_by',
+                        'type'          => 'epfl-select',
+                        'options'       => InfoscienceSearchShortCakeConfig::get_group_by_options(),
+                    ),
+                    array(
+                        'label'         => esc_html__('Group by', 'epfl-infoscience-search') . ' (2)',
+                        'attr'          => 'group_by2',
+                        'type'          => 'epfl-select',
+                        'options'       => InfoscienceSearchShortCakeConfig::get_group_by_options(),
+                    ),
+                ),
+
+                'post_type'     => array( 'post', 'page' ),
+            )
+        );
     }
 }
 ?>

@@ -12,7 +12,7 @@
 */
 declare(strict_types=1);
 
- set_include_path(get_include_path() . PATH_SEPARATOR . dirname( __FILE__) . '/lib');
+set_include_path(get_include_path() . PATH_SEPARATOR . dirname( __FILE__) . '/lib');
  
 require_once 'utils.php';
 require_once 'shortcake-config.php';
@@ -307,16 +307,17 @@ function epfl_infoscience_search_load_plugin_textdomain() {
 
 add_action( 'plugins_loaded', 'epfl_infoscience_search_load_plugin_textdomain' );
 
+add_action( 'register_shortcode_ui', ['InfoscienceSearchShortCakeConfig', 'config'] );
+
 add_action( 'init', function() {
+
     add_shortcode( 'epfl_infoscience_search', 'epfl_infoscience_search_process_shortcode' );
     wp_register_style('epfl-infoscience-search-shortcode-style.css', plugins_url('css/epfl-infoscience-search-shortcode-style.css', __FILE__));
 
     # MathJax for nice render
     wp_register_script('epfl-infoscience-search-shortcode-math-main.js', 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=default');
 
-    // shortcake configuration
-    if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
-        InfoscienceSearchShortCakeConfig::config();
-    endif;
+    # for an strange reason, this has to live here
+    add_filter( 'shortcode_ui_fields', ['InfoscienceSearchShortCakeConfig', 'shortcode_ui_fields']);
 });
 ?>

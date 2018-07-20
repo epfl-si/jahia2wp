@@ -93,10 +93,7 @@ add_action( 'init', function() {
     // define the shortcode
     add_shortcode( 'epfl_snippets', 'epfl_snippets_process_shortcode' );
 
-    // shortcake configuration
-    if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
-        ShortCakeSnippetConfig::config();
-    endif;
-} );
+});
 
+add_action( 'register_shortcode_ui', ['ShortCakeSnippetConfig', 'config'] );
 ?>

@@ -75,34 +75,32 @@ add_action( 'init', function() {
 
     add_shortcode( 'epfl_infoscience', 'epfl_infoscience_process_shortcode' );
 
-    if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
+});
 
-        $documentation_url = "https://support.epfl.ch/kb_view.do?sysparm_article=KB0014227";
+add_action( 'register_shortcode_ui',  function() {
+    $documentation_url = "https://support.epfl.ch/kb_view.do?sysparm_article=KB0014227";
 
-        $url_description = sprintf(
-            esc_html__('How to get an infoscience URL to insert publications? %sRead this documentation%s', 'epfl-infoscience'),
-            '<a target="_blank" href="' . $documentation_url . '">', '</a>'
-        );
+    $url_description = sprintf(
+        esc_html__('How to get an infoscience URL to insert publications? %sRead this documentation%s', 'epfl-infoscience'),
+        '<a target="_blank" href="' . $documentation_url . '">', '</a>'
+    );
 
-        shortcode_ui_register_for_shortcode(
-
-            'epfl_infoscience',
-
-            array(
-                'label' => __('Add Infoscience shortcode', 'epfl-infoscience'),
-                'listItemImage' => '<img src="' . plugins_url( 'img/infoscience.svg', __FILE__ ) . '" >',
-                'attrs'         => array(
-                    array(
-                        'label'         => '<h3>' . esc_html__('Enter infoscience URL', 'epfl-infoscience') . '</h3>',
-                        'attr'          => 'url',
-                        'type'          => 'text',
-                        'description'   => $url_description,
-                    ),
+    shortcode_ui_register_for_shortcode(
+        'epfl_infoscience',
+        array(
+            'label' => __('Add Infoscience shortcode', 'epfl-infoscience'),
+            'listItemImage' => '<img src="' . plugins_url( 'img/infoscience.svg', __FILE__ ) . '" >',
+            'attrs'         => array(
+                array(
+                    'label'         => '<h3>' . esc_html__('Enter infoscience URL', 'epfl-infoscience') . '</h3>',
+                    'attr'          => 'url',
+                    'type'          => 'text',
+                    'description'   => $url_description,
                 ),
+            ),
 
-                'post_type'     => array( 'post', 'page' ),
-            )
-        );
-    endif;
+            'post_type'     => array( 'post', 'page' ),
+        )
+    );
 });
 ?>

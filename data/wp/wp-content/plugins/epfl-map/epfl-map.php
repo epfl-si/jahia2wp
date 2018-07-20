@@ -92,57 +92,55 @@ add_action( 'plugins_loaded', 'epfl_map_load_plugin_textdomain' );
 
 add_action( 'init', function() {
     add_shortcode( 'epfl_map', 'epfl_map_process_shortcode' );
+});
 
-    if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
+add_action( 'register_shortcode_ui',  function() {
+    $lang_options = array(
+        array('value' => 'en', 'label' => esc_html__('English', 'epfl-map')),
+        array('value' => 'fr', 'label' => esc_html__('French', 'epfl-map')),
+    );
 
-        $lang_options = array(
-            array('value' => 'en', 'label' => esc_html__('English', 'epfl-map')),
-            array('value' => 'fr', 'label' => esc_html__('French', 'epfl-map')),
-        );
+    shortcode_ui_register_for_shortcode(
 
-        shortcode_ui_register_for_shortcode(
+        'epfl_map',
 
-            'epfl_map',
-
-            array(
-                'label' => __('Add Map shortcode', 'epfl-map'),
-                'listItemImage' => '<img src="' . plugins_url( 'img/map.svg', __FILE__ ) . '" >', 
-                'attrs'         => array(
-                    array(
-                        'label'         => '<h3>' . esc_html__('What information do you want to display?', 'epfl-map') . '</h3>',
-                        'attr'          => 'query',
-                        'type'          => 'text',
-			            'value'         => 'INN011',
-                        'description'   => esc_html__('For example a room', 'epfl-map'),
-                    ),
-                    array(
-                        'label'         => '<h3>' . esc_html__('Language', 'epfl-map') . '</h3>',
-                        'attr'          => 'lang',
-                        'type'          => 'select',
-                        'options'       => $lang_options,
-                        'description'   => esc_html__('The language used to render map result', 'epfl-map'),
-                    ),
-                    array(
-                        'label'         => '<h3>' . esc_html__('Width of the map', 'epfl-map') . '</h3>',
-                        'attr'          => 'width',
-                        'type'          => 'text',
-                        'value'         => '600',
-                        'description'   => esc_html__('Width of the map. Recommended value: 600', 'epfl-map'),
-                    ),
-                    array(
-                        'label'         => '<h3>' . esc_html__('Height of the map', 'epfl-map') . '</h3>',
-                        'attr'          => 'height',
-                        'type'          => 'text',
-                        'value'         => '400',
-                        'description'   => esc_html__('Height of the map. Recommended value: 400', 'epfl-map'),
-                    ),
+        array(
+            'label' => __('Add Map shortcode', 'epfl-map'),
+            'listItemImage' => '<img src="' . plugins_url( 'img/map.svg', __FILE__ ) . '" >', 
+            'attrs'         => array(
+                array(
+                    'label'         => '<h3>' . esc_html__('What information do you want to display?', 'epfl-map') . '</h3>',
+                    'attr'          => 'query',
+                    'type'          => 'text',
+                    'value'         => 'INN011',
+                    'description'   => esc_html__('For example a room', 'epfl-map'),
                 ),
+                array(
+                    'label'         => '<h3>' . esc_html__('Language', 'epfl-map') . '</h3>',
+                    'attr'          => 'lang',
+                    'type'          => 'select',
+                    'options'       => $lang_options,
+                    'description'   => esc_html__('The language used to render map result', 'epfl-map'),
+                ),
+                array(
+                    'label'         => '<h3>' . esc_html__('Width of the map', 'epfl-map') . '</h3>',
+                    'attr'          => 'width',
+                    'type'          => 'text',
+                    'value'         => '600',
+                    'description'   => esc_html__('Width of the map. Recommended value: 600', 'epfl-map'),
+                ),
+                array(
+                    'label'         => '<h3>' . esc_html__('Height of the map', 'epfl-map') . '</h3>',
+                    'attr'          => 'height',
+                    'type'          => 'text',
+                    'value'         => '400',
+                    'description'   => esc_html__('Height of the map. Recommended value: 400', 'epfl-map'),
+                ),
+            ),
 
-                'post_type'     => array( 'post', 'page' ),
-            )
-        );
-
-    endif;
+            'post_type'     => array( 'post', 'page' ),
+        )
+    );
 });
 
 ?>

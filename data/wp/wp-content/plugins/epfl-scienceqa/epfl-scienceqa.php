@@ -137,11 +137,7 @@ add_action( 'plugins_loaded', 'epfl_scienceqa_load_plugin_textdomain' );
 add_action( 'init', function() {
 	// define the shortcode
 	add_shortcode( 'epfl_scienceqa', 'epfl_scienceqa_process_shortcode' );
-
-	// shortcake configuration
-	if (function_exists( 'shortcode_ui_register_for_shortcode' ) ) {
-		ScienceQAShortCakeConfig::config();
-	}
 });
 
+add_action( 'register_shortcode_ui', ['ScienceQAShortCakeConfig', 'config'] );
 ?>

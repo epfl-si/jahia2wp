@@ -40,11 +40,7 @@ add_action( 'init', function() {
   // define the shortcode
   add_shortcode('epfl_toggle', 'epfl_toggle_process_shortcode');
 
-  // shortcake configuration
-  if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
+});
 
-    ToggleShortCakeConfig::config();
-  endif;
-} );
-
+add_action( 'register_shortcode_ui', ['ToggleShortCakeConfig', 'config'] );
 ?>
