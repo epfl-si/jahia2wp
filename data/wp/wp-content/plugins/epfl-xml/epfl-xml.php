@@ -85,34 +85,30 @@ add_action( 'init', function() {
     add_shortcode( 'epfl_xml', 'epfl_xml_process_shortcode' );
 });
 
-add_action( 'admin_init', function() {
-    if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
+add_action( 'register_shortcode_ui', function() {
+    shortcode_ui_register_for_shortcode(
 
-        shortcode_ui_register_for_shortcode(
+        'epfl_xml',
 
-            'epfl_xml',
-
-            array(
-                'label' => __('Add XML/XSLT shortcode', 'epfl-xml'),
-                'listItemImage' => '<img src="' . plugins_url( 'img/xml.svg', __FILE__ ) . '" >',
-                'attrs'         => array(
-                    array(
-                        'label'         => '<h3>' . esc_html__('URL of xml', 'epfl-xml') . '</h3>',
-                        'attr'          => 'xml',
-                        'type'          => 'text',
-                    ),
-                    array(
-                        'label'         => '<h3>' . esc_html__('URL of xslt', 'epfl-xml') . '</h3>',
-                        'attr'          => 'xslt',
-                        'type'          => 'text',
-                    ),
+        array(
+            'label' => __('Add XML/XSLT shortcode', 'epfl-xml'),
+            'listItemImage' => '<img src="' . plugins_url( 'img/xml.svg', __FILE__ ) . '" >',
+            'attrs'         => array(
+                array(
+                    'label'         => '<h3>' . esc_html__('URL of xml', 'epfl-xml') . '</h3>',
+                    'attr'          => 'xml',
+                    'type'          => 'text',
                 ),
+                array(
+                    'label'         => '<h3>' . esc_html__('URL of xslt', 'epfl-xml') . '</h3>',
+                    'attr'          => 'xslt',
+                    'type'          => 'text',
+                ),
+            ),
 
-                'post_type'     => array( 'post', 'page' ),
-            )
-        );
-
-    endif;
+            'post_type'     => array( 'post', 'page' ),
+        )
+    );
 });
 
 ?>
