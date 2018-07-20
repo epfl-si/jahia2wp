@@ -6,7 +6,6 @@ import pymysql
 import warnings
 
 from settings import WP_PLUGIN_TABLES_RELATIONS, WP_PLUGIN_CONFIG_TABLES
-from wordpress import WPSite
 
 
 class WPPluginConfigManager:
