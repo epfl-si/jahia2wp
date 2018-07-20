@@ -523,11 +523,11 @@ class WPGenerator:
                 installed_plugins += inactive_plugins.split("\n")
 
             # List coming from YAML file
-            define_plugin_name_list = list(plugin_list.plugins(self.wp_site.name).keys())
+            defined_plugin_name_list = list(plugin_list.plugins(self.wp_site.name).keys())
 
             for plugin_name in installed_plugins:
 
-                if plugin_name != "" and plugin_name in define_plugin_name_list:
+                if plugin_name != "" and plugin_name not in defined_plugin_name_list:
                     logging.info("%s - Plugins - %s: Don't have to be here, uninstalling!", repr(self), plugin_name)
                     self.run_wp_cli("plugin uninstall --deactivate {}".format(plugin_name))
 
@@ -551,6 +551,8 @@ class WPGenerator:
                               - Only new options will be added to plugin(s)
                            - if True
                               - New plugin options will be added and existing ones will be overwritten
+        :param strict_plugin_list: True|False
+                            - if True, all plugin not present in YAML file will be uninstalled
         """
         # check we have a clean place first
         if not self.wp_config.is_installed:
