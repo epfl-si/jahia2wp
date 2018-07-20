@@ -16,12 +16,12 @@
 }
 
 .site {
-  a:empty,
   abbr:empty,
   acronym:empty,
   address:empty,
   b:empty,
   blockquote:empty,
+  button:empty,
   cite:empty,
   code:empty,
   dd:empty,
@@ -44,9 +44,7 @@
   strike:empty,
   strong:empty,
   sub:empty,
-  sup:empty,
-  td:empty,
-  th:empty {
+  sup:empty {
     display: none;
     
     &[aria-hidden="false"] {
