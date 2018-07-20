@@ -208,20 +208,11 @@ function epfl_news_load_plugin_textdomain() {
 }
 add_action( 'plugins_loaded', 'epfl_news_load_plugin_textdomain' );
 
-add_action( 'init', function() {
+add_action( 'register_shortcode_ui', ['ShortCakeConfig', 'config'] );
 
+add_action( 'init', function() {
     // define the shortcode
     add_shortcode('epfl_news', 'epfl_news_process_shortcode');
-
 });
-
-add_action( 'admin_init', function() {
-
-    // shortcake configuration
-    if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
-        ShortCakeConfig::config();
-    endif;
-
-} );
 
 ?>
