@@ -5,6 +5,10 @@ This set of Bash files are used to give "shortcuts" to use `jahia2wp.py` command
 ## Scripts configuration
 Copy file `config.sample.sh` to `config.sh` and edit it to set correct values for your environment.
 
+## exec-wpcli-on-all-sites.sh
+Takes a root path where to find existing WordPress website and then execute given WPCLI command by automatically adding `--path=` parameter.
+> ./exec-wpcli-on-all-sites.sh <sitesRootPath> <wpCliToExec>
+
 ## clean.sh
 This script is used to clean a site by its name. 
 > ./clean.sh \<siteName>
