@@ -382,7 +382,7 @@ class Site:
         for language, dom_path in self.export_files.items():
             dom = Utils.get_dom(dom_path)
 
-            self.title[language] = Utils.get_tag_attribute(dom, "siteName", "jahia:value")
+            self.title[language] = Utils.get_tag_attribute(dom, "siteName", "jahia:value").strip()
             self.theme[language] = Utils.get_tag_attribute(dom, "theme", "jahia:value")
             if self.theme[language] == 'associations':
                 self.theme[language] = 'assoc'
