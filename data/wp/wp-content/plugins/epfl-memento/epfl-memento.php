@@ -224,10 +224,6 @@ add_action( 'init', function() {
     add_shortcode('epfl_memento', 'epfl_memento_process_shortcode');
 });
 
-add_action( 'admin_init', function() {
-    // configure shortcake
-    if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
-        ShortCakeMementoConfig::config();
-    endif;
-});
+add_action( 'register_shortcode_ui', ['ShortCakeMementoConfig', 'config'] );
+
 ?>
