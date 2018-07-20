@@ -883,7 +883,8 @@ def veritas(csv_file, **kwargs):
 @dispatch.on('extract-plugin-config')
 def extract_plugin_config(wp_env, wp_url, output_file, **kwargs):
 
-    ext = WPPluginConfigExtractor(wp_env, wp_url)
+    wp_site = WPSite(wp_env, wp_url)
+    ext = WPPluginConfigExtractor(wp_site)
 
     ext.extract_config(output_file)
 
