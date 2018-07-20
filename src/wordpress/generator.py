@@ -331,6 +331,11 @@ class WPGenerator:
         command = 'cap remove administrator unfiltered_upload'
         self.run_wp_cli(command)
 
+        # Disable avatars for security reason. Because a call to gravatar.com is done when user is logged and
+        # hash with email address associated to account is given
+        command = "option update show_avatars ''"
+        self.run_wp_cli(command)
+
         # flag success by returning True
         return True
 
@@ -522,7 +527,7 @@ class WPGenerator:
 
             for plugin_name in installed_plugins:
 
-                if plugin_name not in define_plugin_name_list:
+                if plugin_name != "" and plugin_name in define_plugin_name_list:
                     logging.info("%s - Plugins - %s: Don't have to be here, uninstalling!", repr(self), plugin_name)
                     self.run_wp_cli("plugin uninstall --deactivate {}".format(plugin_name))
 
