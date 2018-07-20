@@ -95,13 +95,5 @@ add_action( 'init', function() {
 
 });
 
-add_action( 'admin_init', function() {
-
-    // shortcake configuration
-    if ( function_exists( 'shortcode_ui_register_for_shortcode' ) ) :
-        ShortCakeSnippetConfig::config();
-    endif;
-
-});
-
+add_action( 'register_shortcode_ui', ['ShortCakeSnippetConfig', 'config'] );
 ?>
