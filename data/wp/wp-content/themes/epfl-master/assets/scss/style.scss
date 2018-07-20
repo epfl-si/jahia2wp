@@ -475,6 +475,20 @@ a.a2a_button_{
   @include color-text;
 }
 
+.sidebar .colored-box {
+  
+  h2,
+  h3,
+  h4,
+  h5 {
+    font-weight: 400;
+    
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+}
+
 /* Search form */
 
 .search-form .search-submit {
