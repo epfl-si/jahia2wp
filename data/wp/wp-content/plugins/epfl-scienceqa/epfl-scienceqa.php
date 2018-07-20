@@ -139,11 +139,5 @@ add_action( 'init', function() {
 	add_shortcode( 'epfl_scienceqa', 'epfl_scienceqa_process_shortcode' );
 });
 
-add_action( 'admin_init', function() {
-	// shortcake configuration
-	if (function_exists( 'shortcode_ui_register_for_shortcode' ) ) {
-		ScienceQAShortCakeConfig::config();
-	}
-});
-
+add_action( 'register_shortcode_ui', ['ScienceQAShortCakeConfig', 'config'] );
 ?>
