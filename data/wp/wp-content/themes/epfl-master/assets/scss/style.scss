@@ -40,6 +40,7 @@
 @import "partials/_jahia";
 @import "partials/_base";
 @import "partials/_webservices";
+@import "partials/_faculties";
 
 
 /*  ---------------------------------------
@@ -129,6 +130,18 @@ body {
     text-decoration: none;
   }
 }
+
+p.fa-icon,
+p.icon {
+  @extend p;
+  
+  padding-left: 28px;
+  
+  &:before {
+    margin-left: -28px;
+  }
+}
+
 
 /*
 .fa-icon.btn-icon,
@@ -462,6 +475,10 @@ a.a2a_button_{
   @include clearfix;
   margin: 1.5em 0;
   
+  &:first-child {
+    margin-top: 0;
+  }
+  
   table {
     border-collapse: inherit;
   }
@@ -469,6 +486,20 @@ a.a2a_button_{
 
 .local-color-text {
   @include color-text;
+}
+
+.sidebar .colored-box {
+  
+  h2,
+  h3,
+  h4,
+  h5 {
+    font-weight: 400;
+    
+    &:first-child {
+      margin-top: 0;
+    }
+  }
 }
 
 /* Search form */
@@ -586,6 +617,147 @@ a.a2a_button_{
     font-style: italic;
     display: inline-block;
     cursor: pointer;
+  }
+}
+
+div.button {
+  @extend .btn-icon;
+  padding-left: 28px;
+  
+  &:before {
+    margin-left: -28px;
+  }
+  
+  button:empty {
+    display: none;
+  }
+  
+  &.mail:before {
+    content: "\f0e0";
+  }
+  
+  &.contact:before {
+    content: "\f007";
+  }
+  
+  &.print:before {
+    content: "\f02f";
+  }
+  &.feed:before {
+    content: "\f09e";
+  }
+  &.share:before {
+    content: "\f1e0";
+  }
+  &.information:before {
+    content: "\f129";
+  }
+  &.question:before {
+    content: "\f128";
+  }
+  &.mail:before {
+    content: "\f0e0";
+  }
+  &.podcast:before {
+    content: "\f2ce";
+  }
+  &.contact:before {
+    content: "\f007";
+  }
+  &.group:before {
+    content: "\f0c0";
+  }
+  &.check:before,
+  &.checkmark:before {
+    content: "\f00c";
+  }
+  &.cross:before {
+    content: "\f00d";
+  }
+  &.plus:before {
+    content: "\f067";
+  }
+  &.comment:before {
+    content: "\f075";
+  }
+  &.edit:before {
+    content: "\f040";
+  }
+  &.download:before {
+    content: "\f019";
+  }
+  &.file:before {
+    content: "\f15b";
+  }
+  &.file-pdf:before,
+  &.pdffile:before {
+    content: "\f1c1";
+  }
+  &.files:before {
+    content: "\f0c5";
+  }
+  &.stats:before {
+    content: "\f080";
+  }
+  &.showall:before {
+    content: "\f06e";
+  }
+  &.time:before {
+    content: "\f017";
+  }
+  &.calendar:before {
+    content: "\f073";
+  }
+  &.url:before {
+    content: "\f0c1";
+  }
+  &.hierarchy:before {
+    content: "\f0e8";
+  }
+  &.bullseye:before {
+    content: "\f05b";
+  }
+  &.accred:before {
+    content: "\f084";
+  }
+  &.data:before {
+    content: "\f233";
+  }
+  &.up:before,
+  &.gototop:before {
+    content: "\f077";
+    line-height: 23px;
+  }
+  &.down:before {
+    content: "\f078";
+  }
+  &.previous:before,
+  &.gotostart:before {
+    content: "\f053";
+    line-height: 25px;
+    padding-right: 2px;
+  }
+  &.next:before,
+  &.forward:before {
+    content: "\f054";
+    line-height: 25px;
+    padding-left: 2px;
+  }
+  &.go-to-start:before {
+    content: "\f100";
+  }
+  &.go-to-end:before {
+    content: "\f101";
+  }
+  &.search:before {
+    content: "\f002";
+  }
+  &.attention:before {
+    content: "\f12a";
+    line-height: 25px;
+  }
+  &.vcard:before {
+    content: "\f2bb";
   }
 }
 
@@ -2909,7 +3081,7 @@ ul.bottin {
   ----------------------------------------- */
   
   .box-flat-panel {
-    width: 50%;
+    width: 324px;
   }
   
   .entry-content .box {
@@ -3781,13 +3953,15 @@ ul.bottin {
   /* Page title & content */
   
   .entry-content {
-    & > p,
-    & > h1,
-    & > h2,
-    & > h3,
-    & > h4,
-    & > h5,
-    & > h6 {
+    p,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    ul,
+    ol {
       padding-right: 30px;
     }
     
