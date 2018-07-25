@@ -512,7 +512,6 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
                            'simple-sitemap',
                            'svg-support',
                            'enlighter',
-                           'twitter',
                            'tinymce-advanced',
                            'varnish-http-purge']
 
