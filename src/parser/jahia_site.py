@@ -742,6 +742,13 @@ class Site:
         """
 
         def add_lang_to_link(link, link_lang):
+            """
+            Add lang to given link if not part of it
+
+            :param link: Link to check
+            :param link_lang: Lang to add to link if not exists
+            :return: link corrected
+            """
             # If link doesn't contains lang => /page-92507.html
             # We transform it to => /page-92507-<defaultLang>.html
             reg = re.compile("/page-[0-9]+\.html")
