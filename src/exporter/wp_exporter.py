@@ -1077,7 +1077,7 @@ class WPExporter:
                 # menu entry is page
                 else:
                     # Trying to get corresponding page corresponding to current page UUID
-                    child = self.site.homepage.get_child_with_uuid(menu_item.points_to, 4)
+                    child = self.site.homepage.get_page_with_uuid(menu_item.points_to, 4)
 
                     if child is None:
                         logging.error("Submenu creation: No page found for UUID %s", menu_item.points_to)
@@ -1190,35 +1190,35 @@ class WPExporter:
                         # root menu entry is pointing to a page
                         else:
                             # Trying to get corresponding page corresponding to current page UUID
-                            homepage_child = self.site.homepage.get_child_with_uuid(menu_item.points_to, 3)
+                            target_page = self.site.homepage.get_page_with_uuid(menu_item.points_to, 3)
 
-                            if homepage_child is None:
+                            if target_page is None:
                                 logging.error("Menu creation: No page found for UUID %s", menu_item.points_to)
                                 continue
 
-                            if lang not in homepage_child.contents:
-                                logging.warning("Page not translated %s", homepage_child.pid)
+                            if lang not in target_page.contents:
+                                logging.warning("Page not translated %s", target_page.pid)
                                 continue
 
-                            if homepage_child.contents[lang].wp_id:
+                            if target_page.contents[lang].wp_id:
 
                                 cmd = 'menu item add-post {} {} --title="{}" --porcelain' \
                                       .format(menu_name,
-                                              homepage_child.contents[lang].wp_id,
-                                              homepage_child.contents[lang].menu_title.replace('"', '\\"'))
+                                              target_page.contents[lang].wp_id,
+                                              target_page.contents[lang].menu_title.replace('"', '\\"'))
                                 menu_id = self.run_wp_cli(cmd)
                                 if not menu_id:
-                                    logging.warning("Root menu item not created %s for page ", homepage_child.pid)
+                                    logging.warning("Root menu item not created %s for page ", target_page.pid)
                                 else:
-                                    self.menu_id_dict[homepage_child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
+                                    self.menu_id_dict[target_page.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
                                     self.report['menus'] += 1
 
                                 # create recursively submenus
-                                self.create_submenu(homepage_child,
+                                self.create_submenu(target_page,
                                                     menu_item,
                                                     lang,
                                                     menu_name,
-                                                    self.menu_id_dict[homepage_child.contents[lang].wp_id])
+                                                    self.menu_id_dict[target_page.contents[lang].wp_id])
 
                 logging.info("WP menus populated for '%s' language", lang)
 
