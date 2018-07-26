@@ -368,7 +368,7 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
             site = pickle_site
         else:
             logging.info("Cache not used, parsing the Site")
-            site = Site(site_dir, site, fix_etx_chars=True)
+            site = Site(site_dir, site, fix_problematic_chars=True)
 
         print(site.report)
 
@@ -408,7 +408,6 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     :param updates_automatic: boolean
     :param openshift_env: openshift_env environment (prod, int, gcharmier ...)
     :param keep_extracted_files: command to keep files extracted from jahia zip
-    :param fix_etx_chars: Tell to remove ETX chars from XML files containing site pages.
     :param features_flags: Tell to clean page content or not
     """
 
