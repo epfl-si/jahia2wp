@@ -45,8 +45,8 @@ Class ShortCakeMementoConfig
     private static function get_template_options()
     {
         return array (
-            array('value' => '1', 'label' => esc_html__('template with the 1st highlighted event', 'epfl-memento')),
-            array('value' => '2', 'label' => esc_html__('Template without the 1st highlighted event', 'epfl-memento')),
+            array('value' => '1', 'label' => esc_html__('Template with the first highlighted event', 'epfl-memento')),
+            array('value' => '2', 'label' => esc_html__('Template without the first highlighted event', 'epfl-memento')),
         );
     }
 

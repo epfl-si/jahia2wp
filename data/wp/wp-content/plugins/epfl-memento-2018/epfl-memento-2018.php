@@ -188,7 +188,7 @@ function epfl_memento_2018_process_shortcode(
 
         try {
 
-           do_action("epfl_event_action", $events, $template);
+           do_action("epfl_event_action", $events, $template, $memento);
 
            return ob_get_contents();
 
