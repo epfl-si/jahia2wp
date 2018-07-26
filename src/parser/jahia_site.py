@@ -740,6 +740,25 @@ class Site:
         :param tag_name: name of tag to look for
         :param attribute: name of tag attribute to update
         """
+
+        def add_lang_to_link(link, link_lang):
+            """
+            Add lang to given link if not part of it
+
+            :param link: Link to check
+            :param link_lang: Lang to add to link if not exists
+            :return: link corrected
+            """
+            # If link doesn't contains lang => /page-92507.html
+            # We transform it to => /page-92507-<defaultLang>.html
+            reg = re.compile("/page-[0-9]+\.html")
+            if reg.match(link):
+                link_parts = link.split(".")
+                # Adding default language to link
+                link = "{}-{}.{}".format(link_parts[0], link_lang, link_parts[1])
+
+            return link
+
         tags = soup.find_all(tag_name)
 
         for tag in tags:
@@ -792,17 +811,16 @@ class Site:
                     # Site has probably only one language so we take it to build new URL
                     link_lang = self.languages[0]
 
-                # If link doesn't contains lang => /page-92507.html
-                # We transform it to => /page-92507-<defaultLang>.html
-                reg = re.compile("/page-[0-9]+\.html")
-                if reg.match(new_link):
-                    link_parts = new_link.split(".")
-                    # Adding default language to link
-                    new_link = "{}-{}.{}".format(link_parts[0], link_lang, link_parts[1])
-
-                tag[attribute] = new_link
+                tag[attribute] = add_lang_to_link(new_link, link_lang)
 
                 self.internal_links += 1
+
+            # Internal links like
+            # /site/SITE_NAME/page-14009.html
+            elif link.startswith("/site/{}".format(self.name)):
+                new_link = link.replace("/site/{}".format(self.name), "")
+
+                tag[attribute] = add_lang_to_link(new_link, self.languages[0])
 
             # internal links written by hand, e.g.
             # /team
