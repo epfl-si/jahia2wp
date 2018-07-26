@@ -567,12 +567,16 @@ class Box:
 
     def set_box_infoscience(self, element):
         """set the attributes of a infoscience box"""
+        html_content = ""
 
         self.shortcode_name = "epfl_infoscience"
 
-        url = Utils.get_tag_attribute(element, "url", "jahia:value")
+        urls = Utils.get_tag_attributes(element, "url", "jahia:value")
 
-        self.content = '[{} url="{}"]'.format(self.shortcode_name, url)
+        for url in urls:
+            html_content += '[{} url="{}"]'.format(self.shortcode_name, url)
+
+        self.content = html_content
 
     def set_box_faq(self, element):
         """set the attributes of a faq box
