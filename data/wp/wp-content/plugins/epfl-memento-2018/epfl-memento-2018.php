@@ -14,7 +14,6 @@ define("MEMENTO_API_URL", "https://memento.epfl.ch/api/v1/mementos/");
 define("MEMENTO_API_URL_IFRAME", "https://memento.epfl.ch/webservice/?frame=1");
 
 require_once('utils.php');
-require_once('render.php');
 require_once('shortcake-config.php');
 
 /**
@@ -28,21 +27,10 @@ function epfl_memento_get_limit(string $template): int
     switch ($template):
         case "1":
         case "2":
-        case "6":
-            $limit = 3;
-            break;
-        case "8":
-        case "5":
-            $limit = 2;
-            break;
-        case "3":
-            $limit = 5;
-            break;
-        case "7":
-            $limit = 1;
+            $limit = 8;
             break;
         default:
-            $limit = 3;
+            $limit = 8;
     endswitch;
     return $limit;
 }
@@ -144,7 +132,7 @@ function epfl_memento_check_required_parameters(string $memento, string $lang): 
 /**
  * Main function of shortcode
  */
-function epfl_memento_process_shortcode(
+function epfl_memento_2018_process_shortcode(
     $atts = [],
     $content = '',
     $tag = ''): string
@@ -169,6 +157,9 @@ function epfl_memento_process_shortcode(
     $keyword  = sanitize_text_field( $atts['keyword'] );
     $period   = sanitize_text_field( $atts['period'] );
     $color    = sanitize_text_field( $atts['color'] );
+
+    // With the new theme we display only upcoming events
+    $period   = 'upcoming';
 
     if (epfl_memento_check_required_parameters($memento, $lang) == FALSE) {
         return "";
@@ -209,7 +200,7 @@ function epfl_memento_process_shortcode(
     // otherwise the plugin does the rendering
     } else {
 
-        return MementoRender::epfl_memento_build_html($events, $template);
+        return "THEME 2018 DEACTIVATED";
     }
 }
 
@@ -221,7 +212,7 @@ add_action( 'plugins_loaded', 'epfl_memento_load_plugin_textdomain' );
 
 add_action( 'init', function() {
     // define the shortcode
-    add_shortcode('epfl_memento', 'epfl_memento_process_shortcode');
+    add_shortcode('epfl_memento_2018', 'epfl_memento_2018_process_shortcode');
 });
 
 add_action( 'register_shortcode_ui', ['ShortCakeMementoConfig', 'config'] );
