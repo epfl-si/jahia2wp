@@ -655,9 +655,15 @@ class Box:
 
     def set_box_contact(self, element):
         """set the attributes of a contact box"""
-        text = Utils.get_tag_attribute(element, "text", "jahia:value")
 
-        self.content = text
+        contact_list = element.getElementsByTagName("contactList")
+
+        content = ""
+        # Looping through elements and adding content
+        for contact in contact_list:
+            content += Utils.get_tag_attribute(contact, "text", "jahia:value")
+
+        self.content = content
 
     def set_box_xml(self, element):
         """set the attributes of a xml box"""
