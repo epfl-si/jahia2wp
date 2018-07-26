@@ -76,7 +76,7 @@ class Utils(object):
 
         if not elements:
             return []
-        
+
         read_elements = []
         for element in elements:
             read_elements.append(element.getAttribute(attribute))
