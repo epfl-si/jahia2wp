@@ -27,10 +27,10 @@ function epfl_memento_get_limit(string $template): int
     switch ($template):
         case "1":
         case "2":
-            $limit = 8;
+            $limit = 10;
             break;
         default:
-            $limit = 8;
+            $limit = 10;
     endswitch;
     return $limit;
 }
