@@ -552,7 +552,7 @@ https://migration-wp.epfl.ch/sfp,#parser,#parser,wordpress,int,GeneralPublic,epf
 https://migration-wp.epfl.ch/shine,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,lapd,shine,
 https://migration-wp.epfl.ch/si,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,lsi1,si,migrable
 https://migration-wp.epfl.ch/si-erp,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,exdesk,uniteccsap,
-https://migration-wp.epfl.ch/signatures,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,crm,signatures,
+https://migration-wp.epfl.ch/signatures,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,cigr,signatures,
 https://migration-wp.epfl.ch/simanis-lab,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,upsim,simanislab,
 https://migration-wp.epfl.ch/simsen,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,sgm-ge,simsen,migrable
 https://migration-wp.epfl.ch/ska,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,lastro,ska,
