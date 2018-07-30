@@ -912,8 +912,13 @@ class Box:
                 # first check if we have a <jahia:url> (external url)
                 url = Utils.get_tag_attribute(snippet, "jahia:url", "jahia:value")
 
+                # if we have an url, set the subtitle with the url title if empty subtitle
+                if url != "":
+                    if not subtitle or subtitle == "":
+                        subtitle = Utils.get_tag_attribute(snippet, "jahia:url", "jahia:title")
+                        subtitle = Utils.manage_quotes(subtitle)
                 # if not we might have a <jahia:link> (internal url)
-                if url == "":
+                else:
                     uuid = Utils.get_tag_attribute(snippet, "jahia:link", "jahia:reference")
 
                     if uuid in self.site.pages_by_uuid:
@@ -921,6 +926,11 @@ class Box:
 
                         # We generate "Jahia like" URL so exporter will be able to fix it with WordPress URL
                         url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
+
+                        # if link has a title, add it to content as ref
+                        url_title = Utils.get_tag_attribute(snippet, "jahia:link", "jahia:title")
+                        if url_title and not url_title == "":
+                            description += Utils.manage_quotes('<a href="' + url + '">' + Utils.manage_quotes(url_title) + '</a>')
 
             self.content += '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
                             ' big_image="{}" enable_zoom="{}"]{}[/{}]'.format(self.shortcode_name,
