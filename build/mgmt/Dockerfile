@@ -38,9 +38,10 @@ RUN apt-get -y install nodejs \
     php7.1-gd \
     php7.1-cli \
     php7.1-curl \
+    php7.1-ldap \
     php7.1-mysql \
-    php7.1-zip \
     php7.1-xml \
+    php7.1-zip \
   && \
     apt-get -y autoremove && \
     apt-get clean
