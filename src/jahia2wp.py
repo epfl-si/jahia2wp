@@ -696,6 +696,10 @@ def clean(wp_env, wp_url, stop_on_errors=False, **kwargs):
     # config found: proceed with cleaning
     # FIXME: Il faut faire un clean qui n'a pas besoin de unit_name
     wp_generator = WPGenerator({'openshift_env': wp_env, 'wp_site_url': wp_url})
+    
+    # backup before the clean, in case we need to get it back
+    backup(wp-env, wp_url)
+
     if wp_generator.clean():
         print("Successfully cleaned WordPress site {}".format(wp_generator.wp_site.url))
 
