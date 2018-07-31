@@ -930,8 +930,8 @@ class Box:
                         # if link has a title, add it to content as ref
                         url_title = Utils.get_tag_attribute(snippet, "jahia:link", "jahia:title")
                         if url_title and not url_title == "":
-                            description += Utils.manage_quotes('<a href="' + url + '">' + \
-                            Utils.manage_quotes(url_title) + '</a>')
+                            description += Utils.manage_quotes('<a href="' + url + '">' +
+                                                               Utils.manage_quotes(url_title) + '</a>')
 
             self.content += '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
                             ' big_image="{}" enable_zoom="{}"]{}[/{}]'.format(self.shortcode_name,
