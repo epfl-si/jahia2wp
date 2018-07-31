@@ -21,6 +21,7 @@ Usage:
     [--keep-extracted-files]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--stop-on-errors]
+    [--no-backup]
   jahia2wp.py clean-many            <csv_file>                      [--debug | --quiet]
   jahia2wp.py check                 <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate              <wp_env> <wp_url>               [--debug | --quiet]
@@ -689,13 +690,18 @@ def check(wp_env, wp_url, **kwargs):
 
 
 @dispatch.on('clean')
-def clean(wp_env, wp_url, stop_on_errors=False, **kwargs):
+def clean(wp_env, wp_url, stop_on_errors=False, no_backup=False, **kwargs):
     # when forced, do not check the status of the config -> just remove everything possible
     if stop_on_errors:
         _check_site(wp_env, wp_url, **kwargs)
     # config found: proceed with cleaning
     # FIXME: Il faut faire un clean qui n'a pas besoin de unit_name
     wp_generator = WPGenerator({'openshift_env': wp_env, 'wp_site_url': wp_url})
+
+    # backup before the clean, in case we need to get it back
+    if not no_backup:
+        backup(wp_env, wp_url)
+
     if wp_generator.clean():
         print("Successfully cleaned WordPress site {}".format(wp_generator.wp_site.url))
 
