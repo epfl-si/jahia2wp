@@ -502,6 +502,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
                            'EPFL-Share',
                            'epfl-snippet',
                            'epfl-toggle',
+                           'epfl-twitter',
                            'epfl-xml',
                            'feedzy-rss-feeds',
                            'remote-content-shortcode',
