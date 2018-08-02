@@ -67,3 +67,5 @@ plugins:
     config: !include epfl-people/v1/config-plugin.yml
   - name: epfl-scienceqa
     config: !include epfl-scienceqa/v1/config-plugin.yml
+  - name: epfl-twitter
+    config: !include epfl-twitter/v1/config-plugin.yml
