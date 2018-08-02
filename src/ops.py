@@ -9,7 +9,6 @@ from urllib.parse import urlparse
 import subprocess
 
 import os
-import re
 
 
 class SshRemoteHost:
