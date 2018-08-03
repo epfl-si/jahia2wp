@@ -1,6 +1,5 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
 import logging
-import re
 from datetime import datetime
 from urllib import parse
 from urllib.parse import urlencode
@@ -296,7 +295,7 @@ class Box:
             # for Twitter
             if 'twitter-timeline' in box_content:
                 soup = BeautifulSoup(box_content, 'html5lib')
-                links = soup.findAll("a", {"class":"twitter-timeline"})
+                links = soup.findAll("a", {"class": "twitter-timeline"})
 
                 twitter_accounts = []
 
