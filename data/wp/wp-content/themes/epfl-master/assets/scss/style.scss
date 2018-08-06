@@ -2937,6 +2937,17 @@ ul.bottin {
   }
 }
 
+/* --- Infoscience --- */
+
+.infoscience_bullet {
+  position: relative;
+  top: -2px;
+  
+  & + .infoscience_data * {
+    clear: none;
+  }
+}
+
 
 /*  ---------------------------------------
     09 STATIC HOMEPAGES
