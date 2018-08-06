@@ -546,10 +546,8 @@ a.a2a_button_{
 
 .box h3,
 .fullbox h3 {
-  font-family: Impact,"Arial Black","DejaVu Sans",Arial,Helvetica,sans-serif;
-  font-weight: 400;
+  @include txt-narrow;
   font-size: 22px;
-  letter-spacing: .1em;
   line-height: 26px;
   color: #000;
   text-transform: uppercase;
