@@ -2882,10 +2882,6 @@ ul.bottin {
 
 .buttonsContainer {
   @include clearfix;
-  
-  .entry-content & {
-    margin-right: -35px;
-  }
 }
 
 .bigButtonsBox {
@@ -3972,6 +3968,14 @@ ul.bottin {
   
   .type-page > .entry-content {
     padding-right: 35px;
+    
+    & > .newsBox,
+    & > .peopleListBox,
+    & > .eventsBox,
+    & > .gridBox,
+    & > .buttonsContainer {
+      margin-right: -35px;
+    }
   }
   
   /*
