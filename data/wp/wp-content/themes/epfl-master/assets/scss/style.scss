@@ -3951,6 +3951,11 @@ ul.bottin {
   
   /* Page title & content */
   
+  .type-page > .entry-content {
+    padding-right: 35px;
+  }
+  
+  /*
   .entry-content {
     p,
     h1,
@@ -3975,9 +3980,9 @@ ul.bottin {
       h6 {
         padding-right: 0;
       }
-    }
-    
+    } 
   }
+  */
   
   /*  ---------------------------------------
       08 SHORTCODES
