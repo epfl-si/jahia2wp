@@ -2882,6 +2882,10 @@ ul.bottin {
 
 .buttonsContainer {
   @include clearfix;
+  
+  .entry-content & {
+    margin-right: -35px;
+  }
 }
 
 .bigButtonsBox {
@@ -2914,7 +2918,7 @@ ul.bottin {
   }
   
   img {
-    height: auto;
+    height: 90px;
     margin: 0 0 2px;
     width: 100%;
   }
