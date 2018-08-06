@@ -391,7 +391,7 @@ a.a2a_button_{
 /* Collapsible panels */
 
 .collapsible {
-  margin: 1.5em 0;
+  margin: 2em 0;
 }
 
 .collapsible-header {
@@ -403,6 +403,7 @@ a.a2a_button_{
   display: inline-block;
   font-weight: 500;
   margin-left: 16px;
+  margin-top: 0;
   padding-right: 0;
   
   &:hover {
