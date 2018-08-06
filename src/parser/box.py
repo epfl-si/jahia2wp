@@ -591,7 +591,11 @@ class Box:
 
     def set_box_infoscience(self, element):
         """set the attributes of a infoscience box"""
-        html_content = ""
+        # If box have title, we have to display it
+        if self.title != "":
+            html_content = "<h3>{}</h3>".format(self.title)
+        else:
+            html_content = ""
 
         self.shortcode_name = "epfl_infoscience"
 
