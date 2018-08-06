@@ -2853,7 +2853,8 @@ ul.bottin {
   margin: 0 0 4px;
   
   .bg {
-    background-size: cover;
+    background-size: 100% auto;
+    background-repeat: no-repeat;
     display: block;
     
     img {
