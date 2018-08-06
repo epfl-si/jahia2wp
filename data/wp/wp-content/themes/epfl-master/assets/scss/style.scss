@@ -814,10 +814,13 @@ ul.bottin {
 }
 .bottin div.button,
 .icon.icon-mail_button {
-  margin-bottom: 2px;
-  margin-right: 5px;
+  margin: 0 5px 2px auto;
   padding: 0;
   width: 24px;
+  
+  &:before {
+    margin: 0;
+  }
   
   + div.name {
     min-height: 24px;
