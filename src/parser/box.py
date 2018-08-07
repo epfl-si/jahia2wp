@@ -756,7 +756,12 @@ class Box:
         self.site.register_shortcode(self.shortcode_name, ["image", "url"], self)
 
         box_type = element.getAttribute("jcr:primaryType")
-        content = ""
+
+        # If box have title, we have to display it
+        if self.title != "":
+            content = "<h3>{}</h3>".format(self.title)
+        else:
+            content = ""
 
         if 'small' in box_type:
             elements = element.getElementsByTagName("smallButtonList")
