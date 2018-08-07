@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Small and Big Buttons Box
  * Description: provides a shortcode to display an equivalent of the smallButtonsBox and the bigButtonsBox in Jahia.
- * @version: 1.0
+ * @version: 1.1
  * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
