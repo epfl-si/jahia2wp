@@ -290,8 +290,32 @@ class Box:
             FIXME: filesList and linksList are processed in a given order. It may correspond to export but they also
             may be switched. So maybe we will have to correct it in the future.
         """
+        def filter_and_transform(box_content):
+            """ Sometimes we don't want to crawl the data as it is given"""
+            # for Twitter
+            if 'twitter-timeline' in box_content:
+                soup = BeautifulSoup(box_content, 'html5lib')
+                links = soup.findAll("a", {"class": "twitter-timeline"})
+
+                twitter_accounts = []
+
+                for link in links:
+                    if link.get('href') and link['href']:
+                        twitter_accounts.append(link['href'])
+
+                if twitter_accounts:
+                    # remove everything, we only need the twitter timelines here
+                    new_content = ''
+                    for account in twitter_accounts:
+                        new_content += '[epfl_twitter url="{}"]\n'.format(account)
+
+                    return new_content
+
+            return box_content
+
         if not multibox:
             content = Utils.get_tag_attribute(element, "text", "jahia:value")
+            content = filter_and_transform(content)
 
             files_list = element.getElementsByTagName("filesList")
             if files_list:
@@ -346,7 +370,7 @@ class Box:
             content = ""
 
             for box_key, box_content in box_list:
-                content += box_content
+                content += filter_and_transform(box_content)
 
             # scheduler shortcode
             if Utils.get_tag_attribute(element, "comboList", "jahia:ruleType") == "START_AND_END_DATE":
@@ -732,7 +756,12 @@ class Box:
         self.site.register_shortcode(self.shortcode_name, ["image", "url"], self)
 
         box_type = element.getAttribute("jcr:primaryType")
-        content = ""
+
+        # If box have title, we have to display it
+        if self.title != "":
+            content = "<h3>{}</h3>".format(self.title)
+        else:
+            content = ""
 
         if 'small' in box_type:
             elements = element.getElementsByTagName("smallButtonList")
