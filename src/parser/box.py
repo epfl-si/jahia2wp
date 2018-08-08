@@ -290,32 +290,8 @@ class Box:
             FIXME: filesList and linksList are processed in a given order. It may correspond to export but they also
             may be switched. So maybe we will have to correct it in the future.
         """
-        def filter_and_transform(box_content):
-            """ Sometimes we don't want to crawl the data as it is given"""
-            # for Twitter
-            if 'twitter-timeline' in box_content:
-                soup = BeautifulSoup(box_content, 'html5lib')
-                links = soup.findAll("a", {"class": "twitter-timeline"})
-
-                twitter_accounts = []
-
-                for link in links:
-                    if link.get('href') and link['href']:
-                        twitter_accounts.append(link['href'])
-
-                if twitter_accounts:
-                    # remove everything, we only need the twitter timelines here
-                    new_content = ''
-                    for account in twitter_accounts:
-                        new_content += '[epfl_twitter url="{}"]\n'.format(account)
-
-                    return new_content
-
-            return box_content
-
         if not multibox:
             content = Utils.get_tag_attribute(element, "text", "jahia:value")
-            content = filter_and_transform(content)
 
             files_list = element.getElementsByTagName("filesList")
             if files_list:
@@ -370,7 +346,7 @@ class Box:
             content = ""
 
             for box_key, box_content in box_list:
-                content += filter_and_transform(box_content)
+                content += box_content
 
             # scheduler shortcode
             if Utils.get_tag_attribute(element, "comboList", "jahia:ruleType") == "START_AND_END_DATE":
