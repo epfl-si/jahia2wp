@@ -13,24 +13,18 @@
  */
 
 function google_analytics_connector_render() {
+?>
 
-    # TODO: get a right value / strategy for the fallback
-    if (!defined('GA_TRACKING_ID')) {
-        define('GA_TRACKING_ID', 'UA-20398423-1');
-    }
+<!-- Global Site Tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-20398423-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag("js", new Date());
+    gtag("config", "UA-20398423-1", { "anonymize_ip": true });
+</script>
 
-    $GA_hook = '<!-- Global Site Tag (gtag.js) - Google Analytics -->';
-    $GA_hook .= '<script async src="https://www.googletagmanager.com/gtag/js?id=' . GA_TRACKING_ID . '"></script>';
-    $GA_hook .= '<script>';
-    $GA_hook .= '    window.dataLayer = window.dataLayer || [];';
-    $GA_hook .= '    function gtag(){dataLayer.push(arguments);}';
-    $GA_hook .= '    gtag("js", new Date());';
-    $GA_hook .= '    gtag("config", "' . GA_TRACKING_ID . '", { "anonymize_ip": true });';
-
-    $GA_hook .= '</script>';
-
-    return $GA_hook;
+<?php
 }
-
 add_action('wp_head', 'google_analytics_connector_render', 10);
 ?>
