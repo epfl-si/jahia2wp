@@ -573,7 +573,7 @@ Class MementoRender
      * @return html of iframe template
      */
     public static function epfl_memento_built_html_pagination_template(string $memento, string $lang, string $color, string $period): string {
-        if ($period === 'upcoming') {
+        if (empty($period) || $period === 'upcoming') {
             $period = 2;
         } else {
             $period = 1;
