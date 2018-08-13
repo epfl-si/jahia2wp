@@ -1112,7 +1112,7 @@ class Box:
                 width = iframe.get('width')
                 height = iframe.get('height')
 
-                shortcode = '[su_youtube url="{}" width="{}" height="{}"]'.format(src,
+                shortcode = '[epfl_video url="{}" width="{}" height="{}"]'.format(src,
                                                                                   width if width else '600',
                                                                                   height if height else '400')
                 # Replacing the iframe with shortcode text
