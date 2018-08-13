@@ -32,7 +32,7 @@ function epfl_video_process_shortcode( $atts, $content = null ) {
     $url = "https://www.youtube.com/embed/".$video_id;
   }
   // if Switch video
-  else if(preg_match('/tube\.switch\.ch/', $url)===1)
+  else if(preg_match('/tube\.switch\.ch/', $url)===1 && preg_match('/\/embed\//', $url)===0)
   {
     /* Extracting video ID from URL which is like :
     https://tube.switch.ch/videos/2527ae24
