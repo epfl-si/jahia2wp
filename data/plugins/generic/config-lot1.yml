@@ -67,3 +67,5 @@ plugins:
     config: !include epfl-people/v1/config-plugin.yml
   - name: epfl-twitter
     config: !include epfl-twitter/v1/config-plugin.yml
+  - name: epfl-video
+    config: !include epfl-video/v1/config-plugin.yml
