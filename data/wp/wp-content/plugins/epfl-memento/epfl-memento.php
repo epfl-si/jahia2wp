@@ -116,7 +116,7 @@ function epfl_memento_build_api_url(
     # default to upcoming
     if (empty($period)){
         $url .= '&period=' . 'upcoming';
-    } else if ($period === 'past' or $period === 'upcoming') {
+    } else if ($period === 'past' || $period === 'upcoming') {
         $url .= '&period=' . $period;
     }
 
