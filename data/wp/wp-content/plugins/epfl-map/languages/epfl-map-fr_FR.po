@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl-map\n"
-"POT-Creation-Date: 2018-05-06 17:41+0200\n"
-"PO-Revision-Date: 2018-05-06 17:43+0200\n"
+"POT-Creation-Date: 2018-08-14 14:46+0200\n"
+"PO-Revision-Date: 2018-08-14 14:46+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -25,8 +25,8 @@ msgid "French"
 msgstr "Français"
 
 #: epfl-map.php:108
-msgid "Add Map shortcode"
-msgstr "Ajouter un shortcode plan EPFL"
+msgid "EPFL Map"
+msgstr "Plan EPFL"
 
 #: epfl-map.php:112
 msgid "What information do you want to display?"
@@ -59,6 +59,9 @@ msgstr "Hauteur du plan"
 #: epfl-map.php:137
 msgid "Height of the map. Recommended value: 400"
 msgstr "Hauteur du plan. Valeur recommandée: 400"
+
+#~ msgid "Add Map shortcode"
+#~ msgstr "Ajouter un shortcode plan EPFL"
 
 #~ msgid "Width"
 #~ msgstr "Largeur"

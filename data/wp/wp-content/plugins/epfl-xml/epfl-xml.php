@@ -3,7 +3,7 @@
 /**
  * Plugin Name: EPFL xml
  * Description: process an XML file with an associated XSLT file
- * @version: 1.0
+ * @version: 1.1
  * @copyright: Copyright (c) 2018 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
@@ -91,7 +91,7 @@ add_action( 'register_shortcode_ui', function() {
         'epfl_xml',
 
         array(
-            'label' => __('Add XML/XSLT shortcode', 'epfl-xml'),
+            'label' => 'XML/XSLT',
             'listItemImage' => '<img src="' . plugins_url( 'img/xml.svg', __FILE__ ) . '" >',
             'attrs'         => array(
                 array(
