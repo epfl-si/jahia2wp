@@ -6,7 +6,7 @@ from urllib.parse import urlencode
 from xml.dom import minidom
 from parser.box_sorted_group import BoxSortedGroup
 from bs4 import BeautifulSoup
-
+import re
 from utils import Utils
 
 
@@ -297,20 +297,15 @@ class Box:
                 soup = BeautifulSoup(box_content, 'html5lib')
                 links = soup.findAll("a", {"class": "twitter-timeline"})
 
-                twitter_accounts = []
-
-                for link in links:
-                    if link.get('href') and link['href']:
-                        twitter_accounts.append(link['href'])
-
-                if twitter_accounts:
-                    # remove everything, we only need the twitter timelines here
-                    new_content = ''
-                    for account in twitter_accounts:
-                        new_content += '[epfl_twitter url="{}"]\n'.format(account)
-
-                    return new_content
-
+                if links:
+                    for link in links:
+                        if link.get('href') and link['href']:
+                            next_script_tag = link.find_next("script")
+                            link.replace_with('[epfl_twitter url="{}"]\n'.format(link['href']))
+                            # remove next script tag if it is twitter related
+                            if 'twitter-wjs' in next_script_tag.text:
+                                next_script_tag.extract()
+                    box_content = ''.join(['%s' % x for x in soup.body.contents]).strip()
             return box_content
 
         if not multibox:
