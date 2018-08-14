@@ -6,7 +6,7 @@ from urllib.parse import urlencode
 from xml.dom import minidom
 from parser.box_sorted_group import BoxSortedGroup
 from bs4 import BeautifulSoup
-import re
+
 from utils import Utils
 
 
