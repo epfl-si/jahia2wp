@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl-infoscience\n"
-"POT-Creation-Date: 2018-05-20 08:36+0200\n"
-"PO-Revision-Date: 2018-05-20 08:37+0200\n"
+"POT-Creation-Date: 2018-08-14 14:44+0200\n"
+"PO-Revision-Date: 2018-08-14 14:45+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -13,22 +13,24 @@ msgstr ""
 "X-Poedit-Basepath: ..\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Poedit-KeywordsList: __;esc_html__\n"
-"X-Poedit-SearchPath-0: epfl-infoscience.php;esc_html__\n"
 "X-Poedit-SearchPath-0: epfl-infoscience.php\n"
 
-#: epfl-infoscience.php:80
+#: epfl-infoscience.php:84
 #, php-format
 msgid ""
 "How to get an infoscience URL to insert publications? %sRead this "
 "documentation%s"
 msgstr ""
-"Comment obtenir une URL d'infoscience permettant d'insérer une "
-"liste de publications ? %sVoir la documentation%s"
+"Comment obtenir une URL d'infoscience permettant d'insérer une liste de "
+"publications ? %sVoir la documentation%s"
 
-#: epfl-infoscience.php:89
-msgid "Add Infoscience shortcode"
-msgstr "Ajouter un shortcode infoscience"
-
-#: epfl-infoscience.php:93
+#: epfl-infoscience.php:95
 msgid "Enter infoscience URL"
 msgstr "Saisir l'URL d'infoscience"
+
+#, fuzzy
+#~ msgid "Infoscience"
+#~ msgstr "Infoscience"
+
+#~ msgid "Add Infoscience shortcode"
+#~ msgstr "Ajouter un shortcode infoscience"
