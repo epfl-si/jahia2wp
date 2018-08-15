@@ -58,7 +58,7 @@ function epfl_video_load_plugin_textdomain() {
     load_plugin_textdomain( 'epfl-video', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
 }
 
-add_action( 'plugins_loaded', 'epfl_news_load_plugin_textdomain' );
+add_action( 'plugins_loaded', 'epfl_video_load_plugin_textdomain' );
 
 add_action( 'register_shortcode_ui', ['ShortCakeVideoConfig', 'config'] );
 
