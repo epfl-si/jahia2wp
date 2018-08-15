@@ -113,4 +113,4 @@ Class RawInfoscienceRender extends InfoscienceRender {
         return self::render_url($url) . RawInfoscienceRender::pretty_print($publications);
     }    
 }
-?>  
+?>
