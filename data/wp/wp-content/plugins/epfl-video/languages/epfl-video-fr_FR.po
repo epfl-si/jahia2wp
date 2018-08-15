@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl-video\n"
-"POT-Creation-Date: 2018-08-15 15:29+0200\n"
-"PO-Revision-Date: 2018-08-15 15:30+0200\n"
+"POT-Creation-Date: 2018-08-15 16:26+0200\n"
+"PO-Revision-Date: 2018-08-15 16:27+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -29,7 +29,7 @@ msgstr "Largeur de la vidéo"
 
 #: shortcake-config.php:26
 msgid "Width of the video. Recommended value: 600"
-msgstr "Largeeur de la vidéo. Valeur recommandée: 600"
+msgstr "Largeur de la vidéo. Valeur recommandée: 600"
 
 #: shortcake-config.php:29
 msgid "Height of the video"
