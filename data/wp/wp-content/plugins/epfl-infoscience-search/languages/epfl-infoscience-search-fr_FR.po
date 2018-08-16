@@ -114,8 +114,8 @@ msgid "%sSearch tips%s"
 msgstr "%sConseils de recherche%s"
 
 #: shortcake-config.php:194
-msgid "Add Infoscience search shortcode"
-msgstr "Ajouter un shortcode recherche Infoscience"
+msgid "Infoscience search"
+msgstr "Recherche Infoscience"
 
 #: shortcake-config.php:199
 msgid "Search for"

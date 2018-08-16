@@ -492,8 +492,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
                            'epfl-faq',
                            'epfl-grid',
                            'epfl-infoscience',
-                           # waiting for a validation
-                           # 'epfl-infoscience-search',
+                           'epfl-infoscience-search',
                            'epfl-map',
                            'epfl-memento',
                            'epfl-news',
@@ -505,6 +504,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
                            'epfl-toggle',
                            'epfl-twitter',
                            'epfl-xml',
+                           'epfl-video',
                            'feedzy-rss-feeds',
                            'remote-content-shortcode',
                            'shortcode-ui',

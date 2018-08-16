@@ -78,7 +78,7 @@ body {
 }
 
 .site-content {
-  margin-top: 10px;
+  margin-top: 5px;
   padding: 0;
 }
 #content.site-content,
@@ -391,7 +391,7 @@ a.a2a_button_{
 /* Collapsible panels */
 
 .collapsible {
-  margin: 1.5em 0;
+  margin: 2em 0;
 }
 
 .collapsible-header {
@@ -403,6 +403,7 @@ a.a2a_button_{
   display: inline-block;
   font-weight: 500;
   margin-left: 16px;
+  margin-top: 0;
   padding-right: 0;
   
   &:hover {
@@ -546,10 +547,8 @@ a.a2a_button_{
 
 .box h3,
 .fullbox h3 {
-  font-family: Impact,"Arial Black","DejaVu Sans",Arial,Helvetica,sans-serif;
-  font-weight: 400;
+  @include txt-narrow;
   font-size: 22px;
-  letter-spacing: .1em;
   line-height: 26px;
   color: #000;
   text-transform: uppercase;
@@ -815,10 +814,13 @@ ul.bottin {
 }
 .bottin div.button,
 .icon.icon-mail_button {
-  margin-bottom: 2px;
-  margin-right: 5px;
+  margin: 0 5px 2px auto;
   padding: 0;
   width: 24px;
+  
+  &:before {
+    margin: 0;
+  }
   
   + div.name {
     min-height: 24px;
@@ -1937,7 +1939,7 @@ ul.bottin {
   background: transparent;
   border: 0;
   height: 28px;
-  margin-bottom: 8px;
+  margin-bottom: 5px;
 }
 
 .social-share {
@@ -1964,6 +1966,7 @@ ul.bottin {
   .EPFLShare {
     @include transition-colors;
     background: darken( $light-grey, 6%);
+    margin-top: 0;
     
     &.EPFLShareFacebookBackground:hover {
        background-color: #3C589A
@@ -2788,7 +2791,7 @@ ul.bottin {
     
     img {
       display: block;
-      width: auto;
+      width: 100%;
     }
   }
   
@@ -2850,7 +2853,8 @@ ul.bottin {
   margin: 0 0 4px;
   
   .bg {
-    background-size: cover;
+    background-size: 100% auto;
+    background-repeat: no-repeat;
     display: block;
     
     img {
@@ -2911,7 +2915,7 @@ ul.bottin {
   }
   
   img {
-    height: auto;
+    height: 90px;
     margin: 0 0 2px;
     width: 100%;
   }
@@ -2934,6 +2938,17 @@ ul.bottin {
     &:before {
       //content: "\f054";
     }
+  }
+}
+
+/* --- Infoscience --- */
+
+.infoscience_bullet {
+  position: relative;
+  top: -2px;
+  
+  & + .infoscience_data * {
+    clear: none;
   }
 }
 
@@ -3952,6 +3967,19 @@ ul.bottin {
   
   /* Page title & content */
   
+  .type-page > .entry-content {
+    padding-right: 35px;
+    
+    & > .newsBox,
+    & > .peopleListBox,
+    & > .eventsBox,
+    & > .gridBox,
+    & > .buttonsContainer {
+      margin-right: -35px;
+    }
+  }
+  
+  /*
   .entry-content {
     p,
     h1,
@@ -3976,9 +4004,9 @@ ul.bottin {
       h6 {
         padding-right: 0;
       }
-    }
-    
+    } 
   }
+  */
   
   /*  ---------------------------------------
       08 SHORTCODES

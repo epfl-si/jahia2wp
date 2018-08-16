@@ -4,7 +4,7 @@
  * Plugin Name: EPFL Infoscience search shortcode
  * Plugin URI: https://github.com/epfl-idevelop/jahia2wp
  * Description: provides a shortcode to search and dispay results from Infoscience
- * Version: 0.1
+ * Version: 1.0
  * Author: Julien Delasoie
  * Author URI: https://people.epfl.ch/julien.delasoie?lang=en
  * Contributors: 
@@ -193,7 +193,9 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     $attributes['debug_data'] = strtolower($attributes['debug_data']) === 'true' ? true : false;
     $attributes['debug_template'] = strtolower($attributes['debug_template']) === 'true' ? true : false;
     
-    # Unset element unused in url
+    # Unset element unused in url, with backup first
+    $before_unset_attributes = $attributes;
+
     $format = $attributes['format'];
     unset($attributes['format']);    
 
@@ -279,8 +281,11 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
                                                              $debug_template);
                 }
 
-                // wrap the page
-                $page = '<div class="infoscienceBox no-tex2jax_process">' . $page . '</div>';
+                // wrap the page, and add config as html comment
+                $html_verbose_comments = '<!-- epfl_infoscience_search params : ' . var_export($before_unset_attributes, true) .  ' //-->';
+                $html_verbose_comments .= '<!-- epfl_infoscience_search built url :'. var_export($url, true) . ' //-->';
+
+                $page = '<div class="infoscienceBox no-tex2jax_process">' . $html_verbose_comments . $page . '</div>';
 
                 $page .= get_mathjax_config();
 

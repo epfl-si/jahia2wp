@@ -2,7 +2,7 @@
 /**
  * Plugin Name: EPFL scheduler shortcode
  * Description: provides a shortcode to display content according dates
- * @version: 1.0
+ * @version: 1.1
  * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
@@ -127,7 +127,7 @@ add_action( 'register_shortcode_ui', function() {
     shortcode_ui_register_for_shortcode(
         'epfl_scheduler',
         array(
-            'label' => __('Add Scheduler shortcode', 'epfl-scheduler'),
+            'label' => 'Scheduler',
             'listItemImage' => '<img src="' . plugins_url( 'img/scheduler.svg', __FILE__ ) . '" >',
             'attrs'         => array(
                 array(

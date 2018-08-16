@@ -64,18 +64,18 @@
 .entry-content {
   @include clearfix;
   
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6,
-  ul,
-  ol
-  dl,
-  table,
-  blockquote,
-  form {
+  & > h1,
+  & > h2,
+  & > h3,
+  & > h4,
+  & > h5,
+  & > h6,
+  & > ul,
+  & > ol
+  & > dl,
+  & > table,
+  & > blockquote,
+  & > form {
     clear: both;
   }
 }
@@ -385,6 +385,11 @@ th {
 td {
   padding: 0.2em;
   //padding-right: 20px !important;
+  
+  img {
+    max-width: none;
+    max-height: none;
+  }
 }
 
 td[class*="col"] {

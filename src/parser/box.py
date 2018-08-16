@@ -290,8 +290,27 @@ class Box:
             FIXME: filesList and linksList are processed in a given order. It may correspond to export but they also
             may be switched. So maybe we will have to correct it in the future.
         """
+        def filter_and_transform(box_content):
+            """ Sometimes we don't want to crawl the data as it is given"""
+            # for Twitter
+            if 'twitter-timeline' in box_content:
+                soup = BeautifulSoup(box_content, 'html5lib')
+                links = soup.findAll("a", {"class": "twitter-timeline"})
+
+                if links:
+                    for link in links:
+                        if link.get('href') and link['href']:
+                            next_script_tag = link.find_next("script")
+                            link.replace_with('[epfl_twitter url="{}"]\n'.format(link['href']))
+                            # remove next script tag if it is twitter related
+                            if 'twitter-wjs' in next_script_tag.text:
+                                next_script_tag.extract()
+                    box_content = ''.join(['%s' % x for x in soup.body.contents]).strip()
+            return box_content
+
         if not multibox:
             content = Utils.get_tag_attribute(element, "text", "jahia:value")
+            content = filter_and_transform(content)
 
             files_list = element.getElementsByTagName("filesList")
             if files_list:
@@ -346,7 +365,7 @@ class Box:
             content = ""
 
             for box_key, box_content in box_list:
-                content += box_content
+                content += filter_and_transform(box_content)
 
             # scheduler shortcode
             if Utils.get_tag_attribute(element, "comboList", "jahia:ruleType") == "START_AND_END_DATE":
@@ -567,7 +586,11 @@ class Box:
 
     def set_box_infoscience(self, element):
         """set the attributes of a infoscience box"""
-        html_content = ""
+        # If box have title, we have to display it
+        if self.title != "":
+            html_content = "<h3>{}</h3>".format(self.title)
+        else:
+            html_content = ""
 
         self.shortcode_name = "epfl_infoscience"
 
@@ -732,7 +755,11 @@ class Box:
         self.site.register_shortcode(self.shortcode_name, ["image", "url"], self)
 
         box_type = element.getAttribute("jcr:primaryType")
-        content = ""
+
+        if self.title != "":
+            content = "<h3>{}</h3>".format(self.title)
+        else:
+            content = ""
 
         if 'small' in box_type:
             elements = element.getElementsByTagName("smallButtonList")
@@ -1104,7 +1131,7 @@ class Box:
                 width = iframe.get('width')
                 height = iframe.get('height')
 
-                shortcode = '[su_youtube url="{}" width="{}" height="{}"]'.format(src,
+                shortcode = '[epfl_video url="{}" width="{}" height="{}"]'.format(src,
                                                                                   width if width else '600',
                                                                                   height if height else '400')
                 # Replacing the iframe with shortcode text

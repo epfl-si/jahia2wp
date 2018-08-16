@@ -59,12 +59,13 @@ plugins:
     config: !include epfl-grid/v1/config-plugin.yml
   - name: epfl-infoscience
     config: !include epfl-infoscience/v1/config-plugin.yml
-# Waiting for a validation
-#  - name: epfl-infoscience-search
-#    config: !include epfl-infoscience-search/v1/config-plugin.yml
+  - name: epfl-infoscience-search
+    config: !include epfl-infoscience-search/v1/config-plugin.yml
   - name: epfl-xml
     config: !include epfl-xml/v1/config-plugin.yml
   - name: epfl-people
     config: !include epfl-people/v1/config-plugin.yml
   - name: epfl-twitter
     config: !include epfl-twitter/v1/config-plugin.yml
+  - name: epfl-video
+    config: !include epfl-video/v1/config-plugin.yml

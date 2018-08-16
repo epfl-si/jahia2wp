@@ -14,7 +14,7 @@ Class ShortCakePeople2018Config
       'epfl_people_2018',
       array
       (
-        'label' => __('Add People shortcode', 'epfl-people-2018'),
+        'label' => 'People',
         'listItemImage' => '<img src="' . plugins_url( 'img/people.svg', __FILE__ ) . '" >',
         'attrs' => array
         (

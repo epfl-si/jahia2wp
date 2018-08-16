@@ -3,7 +3,7 @@
 /**
  * Plugin Name: EPFL snippets
  * Description: display snippets, an image with a title, subtitle, description and image.
- * @version: 1.0
+ * @version: 1.1
  * @copyright: Copyright (c) 2018 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 

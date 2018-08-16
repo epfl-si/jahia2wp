@@ -120,7 +120,7 @@ Class ShortCakeConfig
             'epfl_news',
 
             array(
-                'label' => __('Add News shortcode', 'epfl-news'),
+                'label' => __('News', 'epfl-news'),
                 'listItemImage' => '<img src="' . plugins_url( 'img/news.svg', __FILE__ ) . '" >',
                 'attrs'         => array(
                         array(
