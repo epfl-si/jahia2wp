@@ -4,7 +4,7 @@
  * Plugin Name: EPFL People shortcode
  * Plugin URI: https://github.com/epfl-idevelop/EPFL-WP-SC-People
  * Description: provides a shortcode to display results from People
- * Version: 1.1
+ * Version: 1.2
  * Author: Emmanuel JAEP
  * Author URI: https://people.epfl.ch/emmanuel.jaep?lang=en
  * Contributors: LuluTchab, GregLeBarbar
@@ -103,7 +103,7 @@ add_action( 'register_shortcode_ui', function() {
         'epfl_people',
 
         array(
-            'label' => __('Add People shortcode', 'epfl-people'),
+            'label' => 'People',
             'listItemImage' => '<img src="' . plugins_url( 'img/people.svg', __FILE__ ) . '" >',
             'attrs'         => array(
                 array(

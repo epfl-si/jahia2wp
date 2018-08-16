@@ -557,7 +557,15 @@ Class MementoRender
         }
 
         if ($html === '<div class="list-events clearfix"></div>') {
-          return '<div class="eventsBox">' . esc_html__("No events scheduled") . $html . '</div>';
+          $result = '<div class="eventsBox">';
+          if  (get_locale() == 'fr_FR') {
+            $result .= "Pas d'événements programmés";
+          } else {
+            $result .= "No events scheduled";
+          }
+          $result .= $html;
+          $result .= '</div>';
+          return $result;
         } else {
           return '<div class="eventsBox">' . $html . '</div>';
         }

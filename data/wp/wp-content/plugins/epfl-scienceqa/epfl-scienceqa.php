@@ -5,7 +5,7 @@
  * Author:          Loïc Cattani
  * Text Domain:     epfl-scienceqa
  * Domain Path:     /languages
- * Version:         0.1.0
+ * Version:         1.1
  * Copyright:      Copyright (c) 2018 Loïc Cattani
  */
 
