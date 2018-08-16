@@ -3,9 +3,11 @@
 /**
  * Plugin Name: EPFL Video
  * Description: provides a shortcode to display video from YouTube and SwitchTube
- * @version: 1.0
+ * @version: 1.1
  * @copyright: Copyright (c) 2018 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
+
+require_once 'shortcake-config.php';
 
 function epfl_video_process_shortcode( $atts, $content = null ) {
 
@@ -51,6 +53,14 @@ function epfl_video_process_shortcode( $atts, $content = null ) {
 }
 
 
+// load .mo file for translation
+function epfl_video_load_plugin_textdomain() {
+    load_plugin_textdomain( 'epfl-video', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
+}
+
+add_action( 'plugins_loaded', 'epfl_video_load_plugin_textdomain' );
+
+add_action( 'register_shortcode_ui', ['ShortCakeVideoConfig', 'config'] );
 
 add_action( 'init', function() {
 
