@@ -43,8 +43,8 @@ plugins:
     config: !include shortcode-ui-richtext/v1/config-plugin.yml
   - name: epfl-news
     config: !include epfl-news/v1/config-plugin.yml
-  - name: epfl-memento
-    config: !include epfl-memento/v1/config-plugin.yml
+#  - name: epfl-memento
+#    config: !include epfl-memento/v1/config-plugin.yml
   - name: epfl-faq
     config: !include epfl-faq/v1/config-plugin.yml
   - name: epfl-map
@@ -65,7 +65,9 @@ plugins:
     config: !include epfl-xml/v1/config-plugin.yml
   - name: epfl-people
     config: !include epfl-people/v1/config-plugin.yml
-  - name: epfl-scienceqa
-    config: !include epfl-scienceqa/v1/config-plugin.yml
   - name: epfl-memento-2018
     config: !include epfl-memento-2018/v1/config-plugin.yml
+  - name: epfl-twitter
+    config: !include epfl-twitter/v1/config-plugin.yml
+  - name: epfl-video
+    config: !include epfl-video/v1/config-plugin.yml

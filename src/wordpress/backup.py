@@ -47,7 +47,8 @@ class WPBackup:
         """
         # validate input
         validate_openshift_env(openshift_env)
-        URLValidator()(wp_site_url)
+        if not wp_site_url.startswith('https://jahia2wp-httpd/'):
+            URLValidator()(wp_site_url)
 
         # setup site and config
         self.wp_site = WPSite(openshift_env, wp_site_url)

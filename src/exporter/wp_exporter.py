@@ -1019,6 +1019,15 @@ class WPExporter:
         # Report
         self.report['menus'] += 2
 
+    def escape_menu_entry_txt(self, menu_txt):
+        """
+        Escape special characters in menu entry text
+
+        :param menu_txt: text to escape
+        :return:
+        """
+        return menu_txt.replace('"', '\\"').replace("`", '\\`')
+
     def create_submenu(self, parent_page, parent_menu_item, lang, menu_name, parent_menu_id):
         """
         Create recursively submenus for one main menu entry
@@ -1066,7 +1075,7 @@ class WPExporter:
                     target = "--target={}".format(menu_item.target) if menu_item.target else ""
 
                     cmd = 'menu item add-custom {} "{}" "{}" {} --parent-id={} --porcelain' \
-                        .format(menu_name, menu_item.txt.replace('"', '\\"'), url, target, parent_menu_id)
+                        .format(menu_name, self.escape_menu_entry_txt(menu_item.txt), url, target, parent_menu_id)
 
                     menu_id = self.run_wp_cli(cmd)
                     if not menu_id:
@@ -1077,36 +1086,36 @@ class WPExporter:
                 # menu entry is page
                 else:
                     # Trying to get corresponding page corresponding to current page UUID
-                    child = self.site.homepage.get_child_with_uuid(menu_item.points_to, 4)
+                    target_page = self.site.homepage.get_page_with_uuid(menu_item.points_to, 4)
 
-                    if child is None:
+                    if target_page is None:
                         logging.error("Submenu creation: No page found for UUID %s", menu_item.points_to)
                         continue
 
                     # FIXME For unknown reason, wp_id is sometimes None
-                    if lang in child.contents and child.contents[lang].wp_id:
+                    if lang in target_page.contents and target_page.contents[lang].wp_id:
 
                         # If we have a menu entry title and it is different as the page title, we take the menu title
-                        menu_txt = menu_item.txt if menu_item.txt != "" else child.contents[lang].menu_title
+                        menu_txt = menu_item.txt if menu_item.txt != "" else target_page.contents[lang].menu_title
 
                         command = 'menu item add-post {} {} --title="{}" --parent-id={} --porcelain' \
                             .format(menu_name,
-                                    child.contents[lang].wp_id,
-                                    menu_txt.replace('"', '\\"').replace("`", '\\`'),
+                                    target_page.contents[lang].wp_id,
+                                    self.escape_menu_entry_txt(menu_txt),
                                     parent_menu_id)
 
                         menu_id = self.run_wp_cli(command)
                         if not menu_id:
-                            logging.warning("Menu not created for page %s", child.pid)
+                            logging.warning("Menu not created for page %s", target_page.pid)
                         else:
-                            self.menu_id_dict[child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
+                            self.menu_id_dict[target_page.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
                             self.report['menus'] += 1
 
-                        self.create_submenu(child,
+                        self.create_submenu(target_page,
                                             menu_item,
                                             lang,
                                             menu_name,
-                                            self.menu_id_dict[child.contents[lang].wp_id])
+                                            self.menu_id_dict[target_page.contents[lang].wp_id])
 
     def populate_menu(self):
         """
@@ -1178,8 +1187,8 @@ class WPExporter:
                             # Generate target information if exists
                             target = "--target={}".format(menu_item.target) if menu_item.target else ""
 
-                            cmd = 'menu item add-custom {} "{}" "{}" {} --porcelain' \
-                                .format(menu_name, menu_item.txt.replace('"', '\\"'), url, target)
+                            cmd = 'menu item add-custom {} "{}" "{}" {} --porcelain'.format(
+                                menu_name, self.escape_menu_entry_txt(menu_item.txt), url, target)
 
                             menu_id = self.run_wp_cli(cmd)
                             if not menu_id:
@@ -1190,35 +1199,40 @@ class WPExporter:
                         # root menu entry is pointing to a page
                         else:
                             # Trying to get corresponding page corresponding to current page UUID
-                            homepage_child = self.site.homepage.get_child_with_uuid(menu_item.points_to, 3)
+                            target_page = self.site.homepage.get_page_with_uuid(menu_item.points_to, 3)
 
-                            if homepage_child is None:
+                            if target_page is None:
                                 logging.error("Menu creation: No page found for UUID %s", menu_item.points_to)
                                 continue
 
-                            if lang not in homepage_child.contents:
-                                logging.warning("Page not translated %s", homepage_child.pid)
+                            if lang not in target_page.contents:
+                                logging.warning("Page not translated %s", target_page.pid)
                                 continue
 
-                            if homepage_child.contents[lang].wp_id:
+                            if target_page.contents[lang].wp_id:
+
+                                # If we have a menu entry title and it is different as the page title,
+                                # we take the menu title
+                                menu_txt = menu_item.txt if menu_item.txt != "" else \
+                                    target_page.contents[lang].menu_title
 
                                 cmd = 'menu item add-post {} {} --title="{}" --porcelain' \
                                       .format(menu_name,
-                                              homepage_child.contents[lang].wp_id,
-                                              homepage_child.contents[lang].menu_title.replace('"', '\\"'))
+                                              target_page.contents[lang].wp_id,
+                                              self.escape_menu_entry_txt(menu_txt))
                                 menu_id = self.run_wp_cli(cmd)
                                 if not menu_id:
-                                    logging.warning("Root menu item not created %s for page ", homepage_child.pid)
+                                    logging.warning("Root menu item not created %s for page ", target_page.pid)
                                 else:
-                                    self.menu_id_dict[homepage_child.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
+                                    self.menu_id_dict[target_page.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
                                     self.report['menus'] += 1
 
                                 # create recursively submenus
-                                self.create_submenu(homepage_child,
+                                self.create_submenu(target_page,
                                                     menu_item,
                                                     lang,
                                                     menu_name,
-                                                    self.menu_id_dict[homepage_child.contents[lang].wp_id])
+                                                    self.menu_id_dict[target_page.contents[lang].wp_id])
 
                 logging.info("WP menus populated for '%s' language", lang)
 

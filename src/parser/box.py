@@ -290,8 +290,27 @@ class Box:
             FIXME: filesList and linksList are processed in a given order. It may correspond to export but they also
             may be switched. So maybe we will have to correct it in the future.
         """
+        def filter_and_transform(box_content):
+            """ Sometimes we don't want to crawl the data as it is given"""
+            # for Twitter
+            if 'twitter-timeline' in box_content:
+                soup = BeautifulSoup(box_content, 'html5lib')
+                links = soup.findAll("a", {"class": "twitter-timeline"})
+
+                if links:
+                    for link in links:
+                        if link.get('href') and link['href']:
+                            next_script_tag = link.find_next("script")
+                            link.replace_with('[epfl_twitter url="{}"]\n'.format(link['href']))
+                            # remove next script tag if it is twitter related
+                            if 'twitter-wjs' in next_script_tag.text:
+                                next_script_tag.extract()
+                    box_content = ''.join(['%s' % x for x in soup.body.contents]).strip()
+            return box_content
+
         if not multibox:
             content = Utils.get_tag_attribute(element, "text", "jahia:value")
+            content = filter_and_transform(content)
 
             files_list = element.getElementsByTagName("filesList")
             if files_list:
@@ -346,7 +365,7 @@ class Box:
             content = ""
 
             for box_key, box_content in box_list:
-                content += box_content
+                content += filter_and_transform(box_content)
 
             # scheduler shortcode
             if Utils.get_tag_attribute(element, "comboList", "jahia:ruleType") == "START_AND_END_DATE":
@@ -567,12 +586,20 @@ class Box:
 
     def set_box_infoscience(self, element):
         """set the attributes of a infoscience box"""
+        # If box have title, we have to display it
+        if self.title != "":
+            html_content = "<h3>{}</h3>".format(self.title)
+        else:
+            html_content = ""
 
         self.shortcode_name = "epfl_infoscience"
 
-        url = Utils.get_tag_attribute(element, "url", "jahia:value")
+        urls = Utils.get_tag_attributes(element, "url", "jahia:value")
 
-        self.content = '[{} url="{}"]'.format(self.shortcode_name, url)
+        for url in urls:
+            html_content += '[{} url="{}"]'.format(self.shortcode_name, url)
+
+        self.content = html_content
 
     def set_box_faq(self, element):
         """set the attributes of a faq box
@@ -655,9 +682,15 @@ class Box:
 
     def set_box_contact(self, element):
         """set the attributes of a contact box"""
-        text = Utils.get_tag_attribute(element, "text", "jahia:value")
 
-        self.content = text
+        contact_list = element.getElementsByTagName("contactList")
+
+        content = ""
+        # Looping through elements and adding content
+        for contact in contact_list:
+            content += Utils.get_tag_attribute(contact, "text", "jahia:value")
+
+        self.content = content
 
     def set_box_xml(self, element):
         """set the attributes of a xml box"""
@@ -722,7 +755,11 @@ class Box:
         self.site.register_shortcode(self.shortcode_name, ["image", "url"], self)
 
         box_type = element.getAttribute("jcr:primaryType")
-        content = ""
+
+        if self.title != "":
+            content = "<h3>{}</h3>".format(self.title)
+        else:
+            content = ""
 
         if 'small' in box_type:
             elements = element.getElementsByTagName("smallButtonList")
@@ -902,8 +939,13 @@ class Box:
                 # first check if we have a <jahia:url> (external url)
                 url = Utils.get_tag_attribute(snippet, "jahia:url", "jahia:value")
 
+                # if we have an url, set the subtitle with the url title if empty subtitle
+                if url != "":
+                    if not subtitle or subtitle == "":
+                        subtitle = Utils.get_tag_attribute(snippet, "jahia:url", "jahia:title")
+                        subtitle = Utils.manage_quotes(subtitle)
                 # if not we might have a <jahia:link> (internal url)
-                if url == "":
+                else:
                     uuid = Utils.get_tag_attribute(snippet, "jahia:link", "jahia:reference")
 
                     if uuid in self.site.pages_by_uuid:
@@ -911,6 +953,12 @@ class Box:
 
                         # We generate "Jahia like" URL so exporter will be able to fix it with WordPress URL
                         url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
+
+                        # if link has a title, add it to content as ref
+                        url_title = Utils.get_tag_attribute(snippet, "jahia:link", "jahia:title")
+                        if url_title and not url_title == "":
+                            description += Utils.manage_quotes('<a href="' + url + '">' +
+                                                               Utils.manage_quotes(url_title) + '</a>')
 
             self.content += '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
                             ' big_image="{}" enable_zoom="{}"]{}[/{}]'.format(self.shortcode_name,
@@ -1083,7 +1131,7 @@ class Box:
                 width = iframe.get('width')
                 height = iframe.get('height')
 
-                shortcode = '[su_youtube url="{}" width="{}" height="{}"]'.format(src,
+                shortcode = '[epfl_video url="{}" width="{}" height="{}"]'.format(src,
                                                                                   width if width else '600',
                                                                                   height if height else '400')
                 # Replacing the iframe with shortcode text

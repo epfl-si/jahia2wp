@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Small and Big Buttons Box
  * Description: provides a shortcode to display an equivalent of the smallButtonsBox and the bigButtonsBox in Jahia.
- * @version: 1.0
+ * @version: 1.1
  * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
@@ -66,9 +66,11 @@ function epfl_buttons_container_process_shortcode( $attributes, string $content 
            do_shortcode($content);
 
     /* Adding empty "missing" buttons to complete line until it ends */
-    for($i=$total_big_buttons%4; $i<4; $i++)
-    {
-        $content .= epfl_buttons_box_build_html('big', "", "", "", "", "" );
+    if ($total_big_buttons%4 > 0) {
+        for($i=$total_big_buttons%4; $i<4; $i++)
+        {
+            $content .= epfl_buttons_box_build_html('big', "", "", "", "", "" );
+        }
     }
 
     $content .= '</section>';

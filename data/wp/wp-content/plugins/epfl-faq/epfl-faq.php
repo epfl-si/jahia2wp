@@ -3,7 +3,7 @@
 Plugin Name: EPFL FAQ shortcode
 Plugin URI: -
 Description: provides 2 shortcodes to dispay a faq with boxes
-Version: 1.0
+Version: 1.1
 Author: Lucien Chaboudez
 Author URI: https://people.epfl.ch/lucien.chaboudez?lang=en
 License: Copyright (c) 2018 Ecole Polytechnique Federale de Lausanne, Switzerland
@@ -51,7 +51,7 @@ function epfl_faqboxitem_process_shortcode($attributes, $content = null)
 
     return '<div class="faq-item" id="'.esc_attr($anchor).'">'.
            '<h4>'.$question.'</h4>'.
-           $content.
+           do_shortcode($content).
            '</div>';
 }
 

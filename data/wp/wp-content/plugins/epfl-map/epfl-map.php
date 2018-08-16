@@ -3,7 +3,7 @@
 /**
  * Plugin Name: EPFL Map shortcode
  * Description: provides a shortcode to display a map from map.epfl.ch
- * @version: 1.0
+ * @version: 1.1
  * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
@@ -105,7 +105,7 @@ add_action( 'register_shortcode_ui',  function() {
         'epfl_map',
 
         array(
-            'label' => __('Add Map shortcode', 'epfl-map'),
+            'label' => __('EPFL Map', 'epfl-map'),
             'listItemImage' => '<img src="' . plugins_url( 'img/map.svg', __FILE__ ) . '" >', 
             'attrs'         => array(
                 array(

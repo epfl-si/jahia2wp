@@ -4,6 +4,7 @@
  * Plugin Name: EPFL People shortcode
  * Description: display results from people. This shortcode is intended to be used only with the new
  * web2018 theme, so it's not activated by default
+ * Version: 1.0
  * License: Copyright (c) 2018 Ecole Polytechnique Federale de Lausanne, Switzerland
  **/
 

@@ -69,6 +69,20 @@ class Utils(object):
 
         return elements[0].getAttribute(attribute)
 
+    @staticmethod
+    def get_tag_attributes(dom, tag, attribute):
+        """Returns the given attributes of the given tag, in an array"""
+        elements = dom.getElementsByTagName(tag)
+
+        if not elements:
+            return []
+
+        read_elements = []
+        for element in elements:
+            read_elements.append(element.getAttribute(attribute))
+
+        return read_elements
+
     @classmethod
     def get_dom(cls, path):
         """Returns the dom of the given XML file path"""

@@ -19,7 +19,7 @@ Class ScienceQAShortCakeConfig
 			'epfl_scienceqa',
 
 			array(
-				'label' => __('Add Science Q&A shortcode', 'epfl-scienceqa'),
+				'label' => __('Science Q&A', 'epfl-scienceqa'),
 				'listItemImage' => '<img src="' . plugins_url( 'img/scienceqa.svg', __FILE__ ) . '" >',
 				'attrs'         => array(
 						array(
