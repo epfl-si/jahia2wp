@@ -112,7 +112,7 @@ Class ShortCakeConfig
     {
         shortcode_ui_register_for_shortcode(
 
-            'epfl_news',
+            'epfl_news_2018',
 
             array(
                 'label' => __('News', 'epfl-news'),
