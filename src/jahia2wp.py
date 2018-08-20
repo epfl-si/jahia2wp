@@ -509,7 +509,6 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
                            'remote-content-shortcode',
                            'shortcode-ui',
                            'shortcode-ui-richtext',   # This one needs to come after the previous one
-                           'shortcodes-ultimate',
                            'simple-sitemap',
                            'svg-support',
                            'enlighter',
