@@ -63,7 +63,7 @@ Class ShortCakeConfig
     {
         return array (
             array('value' => '1', 'label' => esc_html__('Template for laboratory website with 4 news', 'epfl-news')),
-            array('value' => '2', 'label' => esc_html__('Template for homepage with 3 news', 'epfl-news')),
+            array('value' => '2', 'label' => __('Template for homepage with 3 news', 'epfl-news')),
 
         );
     }
@@ -131,7 +131,7 @@ Class ShortCakeConfig
                             'type'          => 'radio',
                             'options'       => ShortCakeConfig::get_template_options(),
                             'description'   => ShortCakeConfig::get_template_description(),
-                            'value'         => '4',
+                            'value'         => '1',
                         ),
                         array(
                             'label'         => '<h3>' . esc_html__('Select a language', 'epfl-news') . '</h3>',
