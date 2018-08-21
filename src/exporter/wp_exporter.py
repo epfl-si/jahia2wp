@@ -586,10 +586,6 @@ class WPExporter:
                 logging.debug("Changing link from %s to %s", old_url, new_url)
                 tag[tag_attribute] = new_url
 
-            # We decode URL to recover encoded characters like '%20', '%2B' ...
-            # We have to do this because WordPress API simply remove those encoded characters
-            tag[tag_attribute] = urllib.parse.unquote(tag[tag_attribute])
-
     def fix_key_visual_boxes(self):
         """[su_slider source="media: 1650,1648,1649" title="no" arrows="yes"]"""
         for box in self.site.get_all_boxes():
