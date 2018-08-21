@@ -7,7 +7,6 @@ import time
 from collections import OrderedDict
 from datetime import timedelta, datetime
 
-import urllib.parse
 import os
 import re
 from bs4 import BeautifulSoup
