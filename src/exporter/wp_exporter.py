@@ -7,6 +7,7 @@ import time
 from collections import OrderedDict
 from datetime import timedelta, datetime
 
+import urllib.parse
 import os
 import re
 from bs4 import BeautifulSoup
@@ -783,6 +784,10 @@ class WPExporter:
                 # we skip the update (because there is nothing to update and we don't have needed information...
                 if lang not in page.contents:
                     continue
+
+                # We decode URLs to recover encoded characters like '%20', '%2B' ...
+                # We have to do this because WordPress API simply remove those encoded characters
+                content = urllib.parse.unquote(content)
 
                 # Updating page in WordPress
                 wp_page = self.update_page(page_id=wp_id, title=page.contents[lang].title, content=content)
