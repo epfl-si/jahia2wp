@@ -1,8 +1,6 @@
 <?php
 
-require_once plugin_dir_path( dirname( dirname( __FILE__ ))) . 'lib/utils.php';
-
-Class ShortCakeConfig
+Class ShortCakeNewsConfig
 {   
     private static function get_channel_options() 
     {
@@ -122,22 +120,22 @@ Class ShortCakeConfig
                             'label'         => '<h3>' . esc_html__('Select your news channel', 'epfl') . '</h3>',
                             'attr'          => 'channel',
                             'type'          => 'select',
-                            'options'       => ShortCakeConfig::get_channel_options(),
-                            'description'   => ShortCakeConfig::get_channel_description(),
+                            'options'       => ShortCakeNewsConfig::get_channel_options(),
+                            'description'   => ShortCakeNewsConfig::get_channel_description(),
                         ),
                         array(
                             'label'         => '<h3>' . esc_html__('Select a template', 'epfl') . '</h3>',
                             'attr'          => 'template',
                             'type'          => 'radio',
-                            'options'       => ShortCakeConfig::get_template_options(),
-                            'description'   => ShortCakeConfig::get_template_description(),
+                            'options'       => ShortCakeNewsConfig::get_template_options(),
+                            'description'   => ShortCakeNewsConfig::get_template_description(),
                             'value'         => '1',
                         ),
                         array(
                             'label'         => '<h3>' . esc_html__('Select a language', 'epfl') . '</h3>',
                             'attr'          => 'lang',
                             'type'          => 'radio',
-                            'options'       => ShortCakeConfig::get_lang_options(),
+                            'options'       => ShortCakeNewsConfig::get_lang_options(),
                             'description'   => esc_html__('The language used to render news results', 'epfl'),
                             'value'         => 'en',
                         ),
@@ -145,7 +143,7 @@ Class ShortCakeConfig
                             'label'         => '<h3>' . esc_html__('Display the news category ?', 'epfl') . '</h3>',
                             'attr'          => 'stickers',
                             'type'          => 'radio',
-                            'options'       => ShortCakeConfig::get_stickers_options(),
+                            'options'       => ShortCakeNewsConfig::get_stickers_options(),
                             'description'   => esc_html__('Do you want display the news category at the top right of the news image?', 'epfl'),
                             'value'         => 'no',
                         ),
@@ -153,14 +151,14 @@ Class ShortCakeConfig
                             'label'         => '<h3>' . esc_html__('Filter news by category', 'epfl') . '</h3>',
                             'attr'          => 'category',
                             'type'          => 'radio',
-                            'options'       => ShortCakeConfig::get_category_options(),
+                            'options'       => ShortCakeNewsConfig::get_category_options(),
                             'description'   => esc_html__('Do you want filter news by category? Please select a category.', 'epfl'),
                         ),
                         array(
                             'label'         => '<h3>' . esc_html__('Filter news by themes', 'epfl') . '</h3>',
                             'attr'          => 'themes',
                             'type'          => 'select',
-                            'options'       => ShortCakeConfig::get_themes_options(),
+                            'options'       => ShortCakeNewsConfig::get_themes_options(),
                             'description'   => esc_html__('Do you want filter news by themes?. Please select themes.', 'epfl'),
                             'meta'          => array( 'multiple' => true ),
                             'width'         => '400',

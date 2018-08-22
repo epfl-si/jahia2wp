@@ -10,7 +10,6 @@
 define("NEWS_API_URL", "https://actu.epfl.ch/api/v1/channels/");
 define("NEWS_API_URL_IFRAME", "https://actu.epfl.ch/webservice_iframe/");
 
-require_once plugin_dir_path( dirname( dirname( __FILE__ ))) . 'lib/utils.php';
 require_once 'shortcake-config.php';
 
 /**
@@ -190,7 +189,7 @@ function epfl_news_2018_process_shortcode($atts = [], $content = '', $tag = '') 
 
 
 
-add_action( 'register_shortcode_ui', ['ShortCakeConfig', 'config'] );
+add_action( 'register_shortcode_ui', ['ShortCakeNewsConfig', 'config'] );
 
 add_action( 'init', function() {
     // define the shortcode

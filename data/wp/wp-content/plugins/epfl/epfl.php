@@ -5,6 +5,8 @@
  * @version: 1.0
  * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
+
+require_once 'lib/utils.php';
 require_once 'shortcodes/epfl-news/epfl-news.php';
 
 // load .mo file for translation
