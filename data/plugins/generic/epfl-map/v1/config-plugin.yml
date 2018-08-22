@@ -1,2 +1,2 @@
-src: generic/epfl-map/v1/epfl-map.zip
+src: ../wp/wp-content/plugins/epfl-map
 activate: yes
