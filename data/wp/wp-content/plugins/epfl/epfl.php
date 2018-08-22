@@ -7,11 +7,10 @@
  */
 require_once 'shortcodes/epfl-news/epfl-news.php';
 
-
 // load .mo file for translation
-function epfl_news_load_plugin_textdomain() {
+function epfl_load_plugin_textdomain() {
     load_plugin_textdomain( 'epfl', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
 }
-add_action( 'plugins_loaded', 'epfl_news_load_plugin_textdomain' );
+add_action( 'plugins_loaded', 'epfl_load_plugin_textdomain' );
 
 ?>
