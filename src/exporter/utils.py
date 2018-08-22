@@ -4,10 +4,6 @@
 class Utils:
 
     @staticmethod
-    def escape_quotes(str):
-        return str.replace('"', '\\"')
-
-    @staticmethod
     def get_menu_id(str):
         return str.replace('\n', '')
 
