@@ -1,10 +1,11 @@
 from collections import OrderedDict
 
 import os
+import zipfile
 import logging
 import copy
 import yaml
-
+from utils import Utils
 import settings
 
 from wordpress import WPException
@@ -238,6 +239,7 @@ class WPPluginConfigInfos:
         """
 
         self.plugin_name = plugin_name
+        self.zipped_on_the_fly = False
 
         # Getting value if exists, otherwise set with default
         self.action = plugin_config['action'] if 'action' in plugin_config else settings.PLUGIN_ACTION_INSTALL
@@ -259,11 +261,10 @@ class WPPluginConfigInfos:
                 if plugin_config['src'].lower() == settings.PLUGIN_SOURCE_WP_STORE:
                     self.zip_path = None
                 else:
-                    # Generate full path to plugin ZIP file
-                    zip_full_path = os.path.join(settings.PLUGINS_CONFIG_BASE_FOLDER, plugin_config['src'])
-                    if not os.path.exists(zip_full_path):
-                        logging.error("%s - ZIP file not exists: %s", repr(self), zip_full_path)
-                    self.zip_path = zip_full_path
+                    # Generate full path
+                    full_path = os.path.join(settings.PLUGINS_CONFIG_BASE_FOLDER, plugin_config['src'])
+                    # Do some checks and create ZIP file with plugin files if necessary
+                    self.handle_plugin_local_src(full_path)
 
             else:  # Plugin has to be deactivated
                 # So, action is set to nothing
@@ -305,11 +306,10 @@ class WPPluginConfigInfos:
             if specific_plugin_config['src'].lower() == settings.PLUGIN_SOURCE_WP_STORE:
                 self.zip_path = None
             else:
-                # Generate full path to plugin ZIP file
-                zip_full_path = os.path.join(settings.PLUGINS_CONFIG_BASE_FOLDER, specific_plugin_config['src'])
-                if not os.path.exists(zip_full_path):
-                    logging.error("%s - ZIP file not exists: %s", repr(self), zip_full_path)
-                self.zip_path = zip_full_path
+                # Generate full path
+                full_path = os.path.join(settings.PLUGINS_CONFIG_BASE_FOLDER, specific_plugin_config['src'])
+                # Do some checks and create ZIP file with plugin files if necessary
+                self.handle_plugin_local_src(full_path)
 
         # If activation has been overrided
         if 'activate' in specific_plugin_config:
@@ -360,3 +360,61 @@ class WPPluginConfigInfos:
         - dict with rows (options). Empty if no option
         """
         return {} if table_name not in self.tables else self.tables[table_name]
+
+    def create_plugin_zip(self, path_to_plugin):
+        """
+        Create an archive from a plugin directory and save it into settings.PLUGIN_ZIP_PATH
+        :param path_to_plugin: path to plugin files, including plugin directory name.
+        :return: Path to created ZIP file
+        """
+
+        # Directory creation if not exists
+        if not os.path.exists(settings.PLUGIN_ZIP_PATH):
+            os.makedirs(settings.PLUGIN_ZIP_PATH)
+
+        # Get current working directory to come back here after compress operation.
+        initial_working_dir = os.getcwd()
+
+        path = path_to_plugin.rstrip('/')
+        # Extracting plugin dir name (we don't use self.plugin_name in case of directory name is different)
+        plugin_dir_name = os.path.basename(path)
+        path_to_dir = path.replace(plugin_dir_name, '')
+
+        # Going into plugin parent directory to have only plugin folder in ZIP file (otherwise, we have full path
+        # to plugin directory...)
+        os.chdir(path_to_dir)
+
+        # Generating ZIP file name
+        zip_name = "{}_{}.zip".format(self.plugin_name, Utils.generate_name(10))
+        zip_full_path = os.path.join(settings.PLUGIN_ZIP_PATH, zip_name)
+        plugin_zip = zipfile.ZipFile(zip_full_path, 'w', zipfile.ZIP_DEFLATED)
+
+        for root, dirs, files in os.walk(plugin_dir_name):
+            for file in files:
+                plugin_zip.write(os.path.join(root, file))
+
+        os.chdir(initial_working_dir)
+
+        plugin_zip.close()
+
+        return zip_full_path
+
+    def handle_plugin_local_src(self, plugin_path):
+        """
+        Do some check to local src given for plugin and create a ZIP with plugin files if necessary
+
+        :param plugin_path: Path to plugin give in YAML file
+        :return:
+        """
+
+        if not os.path.exists(plugin_path):
+            logging.error("%s - Given path not exists: %s", repr(self), plugin_path)
+        else:
+            # if path is directory, it means we have to compress it to have a ZIP file
+            if os.path.isdir(plugin_path):
+                logging.debug("%s - Creating ZIP file from path (%s)", repr(self), plugin_path)
+                # On the fly creation of plugin ZIP file
+                self.zip_path = self.create_plugin_zip(plugin_path)
+                self.zipped_on_the_fly = True
+            else:
+                self.zip_path = plugin_path

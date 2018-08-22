@@ -293,7 +293,7 @@ class WPGenerator:
             # Command is in simple quotes and tagline between double quotes to avoid problems in case of simple quote
             # in tagline text. We initialize blogdescription with default language
             if not self.run_wp_cli('option update blogdescription "{}"'.format(
-                    self._site_params['wp_tagline'][self.default_lang()]),
+                    Utils.escape_quotes(self._site_params['wp_tagline'][self.default_lang()])),
                     encoding="utf-8"):
                 logging.error("%s - could not configure blog description", repr(self))
                 return False

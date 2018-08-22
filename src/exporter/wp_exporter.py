@@ -399,7 +399,7 @@ class WPExporter:
         :param site_folder: path to folder containing website files
         :return:
         """
-        logging.info("Fixing sidebar content links")
+        logging.info("Fixing sidebar content links...")
         for lang in self.site.homepage.contents.keys():
 
             for box in self.site.homepage.contents[lang].sidebar.boxes:
@@ -430,7 +430,7 @@ class WPExporter:
         :param site_folder: path to folder containing website files
         :return:
         """
-        logging.info("Fixing page content links")
+        logging.info("Fixing pages content links...")
 
         for wp_page in wp_pages:
 
@@ -894,7 +894,7 @@ class WPExporter:
         and doing everything in one place is more simple.
         """
         def prepare_html(html):
-            return Utils.escape_quotes(html.replace(u'\xa0', u' '))
+            return WPUtils.escape_quotes(html.replace(u'\xa0', u' '))
 
         widget_pos = 1
         widget_pos_to_lang = {}
@@ -1234,7 +1234,7 @@ class WPExporter:
                                                     menu_name,
                                                     self.menu_id_dict[target_page.contents[lang].wp_id])
 
-                logging.info("WP menus populated for '%s' language", lang)
+                logging.info("WP menu populated for '%s' language", lang)
 
         except Exception as e:
             logging.error("%s - WP export - menu failed: %s", self.site.name, e)

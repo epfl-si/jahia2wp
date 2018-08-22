@@ -1,2 +1,2 @@
-src: generic/epfl-buttons/v1/epfl-buttons.zip
+src: ../wp/wp-content/plugins/epfl-buttons
 activate: yes

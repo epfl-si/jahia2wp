@@ -491,3 +491,7 @@ class Utils(object):
             return html.replace('"', double_quote).replace("'", simple_quote)
         else:
             return html.replace(double_quote, '&quot;').replace(simple_quote, '&apos;')
+
+    @staticmethod
+    def escape_quotes(str):
+        return str.replace('"', '\\"')

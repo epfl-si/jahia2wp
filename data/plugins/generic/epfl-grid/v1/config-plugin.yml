@@ -1,2 +1,2 @@
-src: generic/epfl-grid/v1/epfl-grid.zip
+src: ../wp/wp-content/plugins/epfl-grid
 activate: yes

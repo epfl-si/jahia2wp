@@ -1,4 +1,4 @@
-src: generic/EPFL-settings/v1/EPFL-settings.zip
+src: ../wp/wp-content/plugins/EPFL-settings
 activate: yes
 tables:
   options:
