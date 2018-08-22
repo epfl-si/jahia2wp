@@ -102,7 +102,7 @@ function epfl_buttons_process_shortcode( $attributes, string $content = null ): 
     // sanitize parameters
     $type       = sanitize_text_field($atts['type']);
     $image      = sanitize_text_field($atts['image']); // only for big buttons
-    $url        = sanitize_text_field($atts['url']);
+    $url        = $atts['url'];
     $alt_text   = sanitize_text_field($atts['alt_text']);
     $text       = sanitize_text_field($atts['text']);
     $key        = sanitize_text_field($atts['key']); // only for small buttons

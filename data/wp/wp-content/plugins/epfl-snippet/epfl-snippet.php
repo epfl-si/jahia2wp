@@ -32,7 +32,7 @@ function epfl_snippets_process_shortcode( $attributes, string $content = null ):
         ), $attributes);
 
     // sanitize parameters
-    $url         = sanitize_text_field($atts['url']);
+    $url         = $atts['url'];
     $title       = sanitize_text_field($atts['title']);
     $subtitle    = sanitize_text_field($atts['subtitle']);
     $image       = sanitize_text_field($atts['image']);
