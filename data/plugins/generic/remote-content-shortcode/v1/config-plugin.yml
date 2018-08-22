@@ -1,2 +1,2 @@
-src: generic/remote-content-shortcode/v1/remote-content-shortcode.zip
+src: ../wp/wp-content/plugins/remote-content-shortcode
 activate: yes

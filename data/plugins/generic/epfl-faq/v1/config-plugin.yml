@@ -1,4 +1,4 @@
-src: generic/epfl-faq/v1/epfl-faq.zip
+src: ../wp/wp-content/plugins/epfl-faq
 activate: yes
 
 

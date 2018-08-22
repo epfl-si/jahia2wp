@@ -1,2 +1,2 @@
-src: generic/epfl-xml/v1/epfl-xml.zip
+src: ../wp/wp-content/plugins/epfl-xml
 activate: yes

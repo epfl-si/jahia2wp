@@ -1,2 +1,2 @@
-src: generic/epfl-news/v1/epfl-news.zip
+src: ../wp/wp-content/plugins/epfl-news
 activate: yes

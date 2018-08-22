@@ -1,2 +1,2 @@
-src: generic/epfl-people/v1/epfl-people.zip
+src: ../wp/wp-content/plugins/epfl-people
 activate: yes

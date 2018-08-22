@@ -1,2 +1,2 @@
-src: generic/epfl-snippet/v1/epfl-snippet.zip
+src: ../wp/wp-content/plugins/epfl-snippet
 activate: yes
