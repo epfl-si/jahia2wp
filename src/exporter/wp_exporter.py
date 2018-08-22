@@ -894,7 +894,7 @@ class WPExporter:
         and doing everything in one place is more simple.
         """
         def prepare_html(html):
-            return Utils.escape_quotes(html.replace(u'\xa0', u' '))
+            return WPUtils.escape_quotes(html.replace(u'\xa0', u' '))
 
         widget_pos = 1
         widget_pos_to_lang = {}
