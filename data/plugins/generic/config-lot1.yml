@@ -43,8 +43,8 @@ plugins:
     config: !include shortcode-ui-richtext/v1/config-plugin.yml
   #- name: epfl-news
   #  config: !include epfl-news/v1/config-plugin.yml
-  - name: epfl-news-2018
-    config: !include epfl-news-2018/v1/config-plugin.yml
+  - name: epfl
+    config: !include epfl/v1/config-plugin.yml
   - name: epfl-memento
     config: !include epfl-memento/v1/config-plugin.yml
   - name: epfl-faq
