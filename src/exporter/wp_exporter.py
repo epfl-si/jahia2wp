@@ -787,23 +787,32 @@ class WPExporter:
                 # Updating page in WordPress
                 wp_page = self.update_page(page_id=wp_id, title=page.contents[lang].title, content=content)
 
-                # If generated slug is a reserved terms and page is right under homepage, we have to change it
-                # We only change slug if it will be imported at root level because it's the only place where it
-                # causes problem
-                if wp_page['slug'] in settings.WORDPRESS_RESERVED_TERMS and page.parent and page.parent.is_homepage():
-                    # A new slug is generated, trying to be unique
-                    new_slug = "{}-{}".format(wp_page['slug'], len(content))
-                    wp_page = self.update_page_slug(page_id=wp_id, slug=new_slug)
+                # If page update is successful
+                if wp_page:
+                    # If generated slug is a reserved terms and page is right under homepage, we have to change it
+                    # We only change slug if it will be imported at root level because it's the only place where it
+                    # causes problem
+                    if wp_page['slug'] in settings.WORDPRESS_RESERVED_TERMS and page.parent and page.parent.is_homepage():
+                        # A new slug is generated, trying to be unique
+                        new_slug = "{}-{}".format(wp_page['slug'], len(content))
+                        wp_page = self.update_page_slug(page_id=wp_id, slug=new_slug)
 
-                # prepare mapping for htaccess redirection rules
-                mapping = {
-                    'jahia_urls': page.contents[lang].vanity_urls,
-                    'wp_slug': wp_page['slug']
-                }
+                    # prepare mapping for htaccess redirection rules
+                    mapping = {
+                        'jahia_urls': page.contents[lang].vanity_urls,
+                        'wp_slug': wp_page['slug']
+                    }
 
-                self.urls_mapping.append(mapping)
+                    self.urls_mapping.append(mapping)
 
-                logging.info("WP page '%s' created", wp_page['slug'])
+                    logging.info("WP page '%s' created", wp_page['slug'])
+
+                else:  # Error during page update
+
+                    logging.error("WP page '%s' import failed (lang: %s)", page.contents[lang].title, lang)
+                    # Setting error message on page
+                    content = '<h2><font color="red">Error importing page, maybe too many characters</font></h2>'
+                    wp_page = self.update_page(page_id=wp_id, title=page.contents[lang].title, content=content)
 
                 # keep WordPress ID for further usages
                 page.contents[lang].wp_id = wp_page['id']
