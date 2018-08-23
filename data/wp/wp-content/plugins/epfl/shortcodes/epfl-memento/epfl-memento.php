@@ -60,11 +60,11 @@ function epfl_memento_build_api_url(
     $limit = epfl_memento_get_limit($template);
 
     // call REST API to get the number of mementos
-    $memento_response = EventUtils::get_items(MEMENTO_API_URL);
+    $memento_response = Utils::get_items(MEMENTO_API_URL);
 
     // build URL with all mementos
     $url = MEMENTO_API_URL . '?limit=' . $memento_response->count;
-    $mementos = EventUtils::get_items($url);
+    $mementos = Utils::get_items($url);
 
     // FIXME: we must improve REST API MEMENTO to be able to filter by memento_slug
     $memento_id = "";
@@ -178,7 +178,7 @@ function epfl_memento_2018_process_shortcode(
         $period,
         $color
     );
-    $events = EventUtils::get_items($url);
+    $events = Utils::get_items($url);
 
      // if supported delegate the rendering to the theme
     if (has_action("epfl_event_action")) {
