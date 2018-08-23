@@ -750,7 +750,8 @@ class Box:
     def set_box_buttons(self, element):
 
         self.shortcode_name = 'epfl_buttons'
-        big_buttons_shortcode_name = 'epfl_buttons_container'
+
+        container_name = 'epfl_buttons_container'
 
         self.site.register_shortcode(self.shortcode_name, ["image", "url"], self)
 
@@ -762,33 +763,37 @@ class Box:
             content = ""
 
         if 'small' in box_type:
-            elements = element.getElementsByTagName("smallButtonList")
             box_type = 'small'
 
+            button_container = element.getElementsByTagName("smallButtonListList")
+            element_name = "smallButtonList"
+
         else:
+            box_type = 'big'
             button_container = element.getElementsByTagName("bigButtonListList")
 
-            sort_params = button_container[0].getAttribute("jahia:sortHandler")
+            element_name = "bigButtonList"
 
-            # Default values that may be overrided later
-            sort_way = 'asc'
-            sort_tag_name = None
+        sort_params = button_container[0].getAttribute("jahia:sortHandler")
 
-            # If we have parameters for sorting, they will look like :
-            # epfl_simple_main_bigButtonList_url;desc;false;false
-            # Sorting is used on https://dhlab.epfl.ch/page-116974-en.html
-            if sort_params != "":
-                # Extracting tag name where to find sort info
-                # epfl_simple_main_bigButtonList_url;desc;false;false ==> url
-                sort_tag_name = sort_params.split(';')[0].split('_')[-1]
-                sort_tag_name = "jahia:{}".format(sort_tag_name)
+        # Default values that may be overrided later
+        sort_way = 'asc'
+        sort_tag_name = None
 
-                sort_way = sort_params.split(';')[1]
+        # If we have parameters for sorting, they will look like :
+        # epfl_simple_main_bigButtonList_url;desc;false;false
+        # Sorting is used on https://dhlab.epfl.ch/page-116974-en.html
+        if sort_params != "":
+            # Extracting tag name where to find sort info
+            # epfl_simple_main_bigButtonList_url;desc;false;false ==> url
+            sort_tag_name = sort_params.split(';')[0].split('_')[-1]
+            sort_tag_name = "jahia:{}".format(sort_tag_name)
 
-            big_boxes = BoxSortedGroup('', '', sort_way)
+            sort_way = sort_params.split(';')[1]
 
-            elements = element.getElementsByTagName("bigButtonList")
-            box_type = 'big'
+        button_boxes = BoxSortedGroup('', '', sort_way)
+
+        elements = element.getElementsByTagName(element_name)
 
         for button_list in elements:
             url = ""
@@ -797,21 +802,20 @@ class Box:
             big_button_image = ""
             small_button_key = ""
 
-            if box_type == 'big':
-                # Sorting needed
-                if sort_tag_name:
-                    sort_tags = button_list.getElementsByTagName(sort_tag_name)
-                    if sort_tags:
-                        # It seems that, by default, it is the "jahia:title" value that is used for sorting
-                        sort_value = sort_tags[0].getAttribute("jahia:title")
+            # Sorting needed
+            if sort_tag_name:
+                sort_tags = button_list.getElementsByTagName(sort_tag_name)
+                if sort_tags:
+                    # It seems that, by default, it is the "jahia:title" value that is used for sorting
+                    sort_value = sort_tags[0].getAttribute("jahia:title")
 
-                    # We don't have enough information to continue
-                    if not sort_tags or not sort_value:
-                        raise Exception("No sort tag (%s) found (or empty sort value found) for bigButtonList",
-                                        sort_tag_name)
-                else:
-                    # No sorting needed, we generate an ID for the box
-                    sort_value = len(big_boxes.boxes)
+                # We don't have enough information to continue
+                if not sort_tags or not sort_value:
+                    raise Exception("No sort tag (%s) found (or empty sort value found) for %s",
+                                    sort_tag_name, element_name)
+            else:
+                # No sorting needed, we generate an ID for the box
+                sort_value = len(button_boxes.boxes)
 
             for child in button_list.childNodes:
                 if child.ELEMENT_NODE != child.nodeType:
@@ -876,17 +880,12 @@ class Box:
                                                                                          alt_text,
                                                                                          text,
                                                                                          small_button_key)
-            if box_type == 'big':
-                # Because big boxes can be sortable, we use a BoxSortedGroup to handle this
-                big_boxes.add_box_to_sort(box_content, sort_value)
-            else:
-                content += box_content
+            # Because boxes can be sortable, we use a BoxSortedGroup to handle this
+            button_boxes.add_box_to_sort(box_content, sort_value)
 
-        if box_type == 'big':
-            # Generating sorted content
-            content = "[{}]".format(big_buttons_shortcode_name)
-            content += ''.join(big_boxes.get_sorted_boxes())
-            content += "[/{}]".format(big_buttons_shortcode_name)
+        content = "[{}]".format(container_name)
+        content += ''.join(button_boxes.get_sorted_boxes())
+        content += "[/{}]".format(container_name)
 
         self.content = content
 
