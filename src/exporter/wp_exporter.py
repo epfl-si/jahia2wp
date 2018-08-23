@@ -792,7 +792,8 @@ class WPExporter:
                     # If generated slug is a reserved terms and page is right under homepage, we have to change it
                     # We only change slug if it will be imported at root level because it's the only place where it
                     # causes problem
-                    if wp_page['slug'] in settings.WORDPRESS_RESERVED_TERMS and page.parent and page.parent.is_homepage():
+                    if wp_page['slug'] in settings.WORDPRESS_RESERVED_TERMS \
+                            and page.parent and page.parent.is_homepage():
                         # A new slug is generated, trying to be unique
                         new_slug = "{}-{}".format(wp_page['slug'], len(content))
                         wp_page = self.update_page_slug(page_id=wp_id, slug=new_slug)
