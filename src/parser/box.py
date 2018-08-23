@@ -475,6 +475,8 @@ class Box:
     def set_box_actu(self, element):
         """set the attributes of an actu box"""
 
+        self.shortcode_name = "epfl_news"
+
         # We specifically get 'actuListList' node before getting 'url' node in case of several 'url' nodes
         # under 'element'. This happen for lspm website which has a 'snippetBox' inside 'actuBox'...
         actu_list_list = element.getElementsByTagName("actuListList")
@@ -482,27 +484,36 @@ class Box:
         channel_id, lang, template, category, themes, stickers, projects = self._extract_epfl_news_parameters(
             Utils.get_tag_attribute(actu_list_list[0], "url", "jahia:value")
         )
-        self.shortcode_name = "epfl_news"
-        html_content = '[{} channel="{}" lang="{}" template="{}" '.format(
+
+        # We look for <moreUrl> information
+        more_url = Utils.get_tag_attribute(actu_list_list[0], "jahia:url", "jahia:value")
+        more_title = Utils.get_tag_attribute(actu_list_list[0], "jahia:url", "jahia:title")
+
+        content = '[{} channel="{}" lang="{}" template="{}" '.format(
             self.shortcode_name,
             channel_id,
             lang,
             template
         )
         if category:
-            html_content += 'category="{}" '.format(category)
+            content += 'category="{}" '.format(category)
         if themes:
-            html_content += 'themes="{}" '.format(",".join(themes))
+            content += 'themes="{}" '.format(",".join(themes))
         if stickers:
-            html_content += 'stickers="{}" '.format(stickers)
+            content += 'stickers="{}" '.format(stickers)
         if projects:
-            html_content += 'projects="{}" '.format(",".join(projects))
+            content += 'projects="{}" '.format(",".join(projects))
 
-        html_content += 'title="{}" '.format(self.title)
+        content += 'title="{}" '.format(self.title)
+        content += '/]'
 
-        html_content += '/]'
+        # If we have a <moreUrl> element
+        if more_url and more_title:
+            content += '[epfl_buttons_container]'
+            content += self._get_button_shortcode('small', more_url, more_title, more_title, small_button_key='forward')
+            content += '[/epfl_buttons_container]'
 
-        self.content = html_content
+        self.content = content
 
     @staticmethod
     def _extract_epfl_memento_parameters(url):
@@ -747,6 +758,32 @@ class Box:
         """set the attributes of a files box"""
         self.content = self._parse_files_to_list(element)
 
+    def _get_button_shortcode(self, box_type, url, alt_text, text, big_button_image_url="", small_button_key=""):
+        """
+        Return shortcode text for EPFL button
+
+        :param box_type: 'small' or 'big'
+        :param url: URL
+        :param alt_text: Text while hovering
+        :param text: Link text
+        :param big_button_image_url: if box_type=='big', URL to big image
+        :param small_button_key: if box_type=='small', key of icon to display
+        :return:
+        """
+
+        if big_button_image_url:
+            big_button_image_url = 'image="{}"'.format(big_button_image_url)
+
+        if small_button_key:
+            small_button_key = 'key="{}"'.format(small_button_key)
+
+        return '[epfl_buttons type="{}" url="{}" {} alt_text="{}" text="{}" {}]'.format(box_type,
+                                                                                        url,
+                                                                                        big_button_image_url,
+                                                                                        alt_text,
+                                                                                        text,
+                                                                                        small_button_key)
+
     def set_box_buttons(self, element):
 
         self.shortcode_name = 'epfl_buttons'
@@ -799,7 +836,7 @@ class Box:
             url = ""
             alt_text = ""
             text = ""
-            big_button_image = ""
+            big_button_image_url = ""
             small_button_key = ""
 
             # Sorting needed
@@ -854,16 +891,14 @@ class Box:
                     # URL is like /content/sites/<site_name>/files/file
                     # splitted gives ['', content, sites, <site_name>, files, file]
                     # result of join is files/file and we add the missing '/' in front.
-                    image_url = '/'.join(child.getAttribute("jahia:value").split("/")[4:])
-                    image_url = '/' + image_url
-                    big_button_image = 'image="{}"'.format(image_url)
+                    big_button_image_url = '/'.join(child.getAttribute("jahia:value").split("/")[4:])
+                    big_button_image_url = '/' + big_button_image_url
 
                 # 'type' tag is only used for SmallButton and is storing reference to image to display
                 elif child.tagName == "type":
                     jahia_resource_ref = child.getAttribute("jahia:value")
                     soup = BeautifulSoup(jahia_resource_ref, "lxml")
-                    key = soup.find("jahia-resource").get('default-value')
-                    small_button_key = 'key="{}"'.format(key)
+                    small_button_key = soup.find("jahia-resource").get('default-value')
 
             if box_type == 'small' and text == "":
                 text = alt_text
@@ -873,13 +908,13 @@ class Box:
             alt_text = Utils.manage_quotes(alt_text)
 
             # bigButton will have 'image' attribute and smallButton will have 'key' attribute.
-            box_content = '[{} type="{}" url="{}" {} alt_text="{}" text="{}" {}]'.format(self.shortcode_name,
-                                                                                         box_type,
-                                                                                         url,
-                                                                                         big_button_image,
-                                                                                         alt_text,
-                                                                                         text,
-                                                                                         small_button_key)
+            box_content = self._get_button_shortcode(box_type,
+                                                     url,
+                                                     alt_text,
+                                                     text,
+                                                     big_button_image_url=big_button_image_url,
+                                                     small_button_key=small_button_key)
+
             # Because boxes can be sortable, we use a BoxSortedGroup to handle this
             button_boxes.add_box_to_sort(box_content, sort_value)
 
