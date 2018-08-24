@@ -18,7 +18,7 @@ function epfl_video_process_shortcode( $atts, $content = null ) {
   ), $atts );
 
   // sanitize parameters
-  $url  = sanitize_text_field( $atts['url'] );
+  $url  = $atts['url'];
   $width  = sanitize_text_field( $atts['width'] );
   $height  = sanitize_text_field( $atts['height'] );
 

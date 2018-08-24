@@ -187,7 +187,7 @@ class Box:
         else:
             self.set_box_unknown(element)
 
-        self.fix_youtube_iframes()
+        self.fix_video_iframes()
 
     def _set_scheduler_box(self, element, content):
         """set the attributes of a scheduler box"""
@@ -1112,9 +1112,13 @@ class Box:
                                                                                  query,
                                                                                  lang)
 
-    def fix_youtube_iframes(self):
+    def fix_video_iframes(self):
         """
-        Look for <iframe src="https://www.youtube.com... and replace it with a shortcode
+        Look for :
+            <iframe src="https://www.youtube.com...
+            <iframe src="https://player.vimeo.com/video/...
+
+        and replace with a shortcode
         :return:
         """
         soup = BeautifulSoup(self.content, 'html5lib')
@@ -1126,7 +1130,7 @@ class Box:
 
             src = iframe.get('src')
 
-            if src and ('youtube.com' in src or 'youtu.be' in src):
+            if src and ('youtube.com' in src or 'youtu.be' in src or 'player.vimeo.com' in src):
                 width = iframe.get('width')
                 height = iframe.get('height')
 
