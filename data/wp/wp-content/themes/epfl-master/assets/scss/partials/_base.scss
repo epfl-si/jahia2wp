@@ -115,8 +115,16 @@ p {
   }
   
   &:last-child {
-    margin-bottom: 0;
+    //margin-bottom: 0;
   }
+  
+  table & {
+    margin-bottom: .75em;
+  }
+}
+
+table p {
+  
 }
 
 p,
@@ -204,6 +212,11 @@ h5 {
   text-transform: none;
 }
 
+sub,
+sup {
+  font-size: 11px;
+}
+
 /* Links */
 
 a {
@@ -219,10 +232,6 @@ a {
   
   &:hover {
     border-bottom-style: solid;
-  }
-  
-  &:empty {
-    display: none;
   }
 }
 
