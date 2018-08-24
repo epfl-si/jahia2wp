@@ -42,13 +42,14 @@ time, mark, audio, video {
 
 /* Remove bottom margin on last-child elements, and top margin on first-child elements */
 
+/*
 *:not(a) > * {
   
   &:last-child {
     margin-bottom: 0;
   }
 }
-/*
+
 *:first-child {
   margin-top: 0;
 }

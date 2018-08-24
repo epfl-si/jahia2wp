@@ -115,8 +115,16 @@ p {
   }
   
   &:last-child {
-    margin-bottom: 0;
+    //margin-bottom: 0;
   }
+  
+  table & {
+    margin-bottom: .75em;
+  }
+}
+
+table p {
+  
 }
 
 p,
