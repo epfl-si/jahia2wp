@@ -21,7 +21,7 @@ require_once('shortcake-config.php');
  * @param $template: id of template
  * @return the number of events
  */
-function epfl_memento_get_limit(string $template): int
+function epfl_memento_get_limit($template)
 {
     switch ($template):
         case "1":
@@ -46,15 +46,7 @@ function epfl_memento_get_limit(string $template): int
  * @param $color: to choose a faculty color
  * @return the API URL of the memento
  */
-function epfl_memento_build_api_url(
-    string $memento,
-    string $lang,
-    string $template,
-    string $category,
-    string $keyword,
-    string $period,
-    string $color
-    ): string
+function epfl_memento_build_api_url($memento, $lang, $template, $category, $keyword, $period, $color)
 {
     // returns the number of events according to the template
     $limit = epfl_memento_get_limit($template);
@@ -113,7 +105,8 @@ function epfl_memento_build_api_url(
  * @param $memento: slug of memento
  * @param $lang: lang of event
  */
-function epfl_memento_check_required_parameters(string $memento, string $lang): bool {
+function epfl_memento_check_required_parameters($memento, $lang)
+{
 
     // check lang
     if ($lang !==  "fr" && $lang !== "en" ) {
@@ -131,11 +124,7 @@ function epfl_memento_check_required_parameters(string $memento, string $lang): 
 /**
  * Main function of shortcode
  */
-function epfl_memento_2018_process_shortcode(
-    $atts = [],
-    $content = '',
-    $tag = ''): string
-{
+function epfl_memento_2018_process_shortcode($atts = [], $content = '', $tag = '') {
 
     // extract shortcode parameters
     $atts = shortcode_atts(array(
@@ -161,7 +150,7 @@ function epfl_memento_2018_process_shortcode(
     $period   = 'upcoming';
 
     if (epfl_memento_check_required_parameters($memento, $lang) == FALSE) {
-        return "";
+        return Utils::render_user_msg("Please check required parameters");
     }
 
     // iframe template

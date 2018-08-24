@@ -9,6 +9,13 @@ Class Utils
     }
 
     /**
+     * Return a user message
+     */
+    public static function render_user_msg($msg) {
+        return $msg;
+    }
+
+    /**
      * This allow to insert anchor before the element
      *   i.e. '<a name="' . $ws->get_anchor($item->title) . '"></a>';
      * and also to get the item link in case it's not provided by the API.

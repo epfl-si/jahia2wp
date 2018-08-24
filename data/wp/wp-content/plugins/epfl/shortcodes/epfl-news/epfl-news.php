@@ -17,7 +17,7 @@ require_once 'shortcake-config.php';
  * @param $template: id of template
  * @return the number of news to display
  */
-function epfl_news_get_limit(string $template): int
+function epfl_news_get_limit($template)
 {
     switch ($template):
         case "1":
@@ -42,14 +42,7 @@ function epfl_news_get_limit(string $template): int
  * @param $themes: The list of news themes id. For example: 1,2,5
  * @return the api URL of news
  */
-function epfl_news_build_api_url(
-    string $channel,
-    string $template,
-    string $lang,
-    string $category,
-    string $themes,
-    string $projects
-    ): string
+function epfl_news_build_api_url($channel, $template, $lang, $category, $themes, $projects)
 {
     // returns the number of news according to the template
     $limit = epfl_news_get_limit($template);
@@ -87,7 +80,7 @@ function epfl_news_build_api_url(
  * @param $lang: lang of news (fr or en)
  * @return True if the required parameters are right.
  */
-function epfl_news_check_required_parameters(string $channel, string $lang): bool {
+function epfl_news_check_required_parameters($channel, $lang) {
 
     // check lang
     if ($lang !==  "fr" && $lang !== "en" ) {
