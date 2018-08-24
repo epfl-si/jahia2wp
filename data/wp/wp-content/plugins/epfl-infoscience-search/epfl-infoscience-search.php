@@ -21,9 +21,6 @@ require_once 'marc_converter.php';
 require_once 'group_by.php';
 require_once 'mathjax-config.php';
 
-require_once 'to_theme/publications/controller.php';
-
-
 define("INFOSCIENCE_SEARCH_URL", "https://infoscience.epfl.ch/search?");
 
  /**
@@ -265,19 +262,14 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
                     return $page;
                 }
 
-                # try to load render from theme if available
-                if (has_action("epfl_infoscience_search_action")) {
-                    ob_start();
-                    try {
-                        do_action("epfl_infoscience_search_action", $grouped_by_publications,
-                                                                    $url,
-                                                                    $format,
-                                                                    $summary,
-                                                                    $thumbnail);
-                        $page = ob_get_contents();
-                    } finally {
-                        ob_end_clean();
-                    }
+                # try to load render from 2018 theme if available
+                if (has_filter("epfl_infoscience_search_action")) {
+                    $page = apply_filters("epfl_infoscience_search_action", $grouped_by_publications,
+                                                                $url,
+                                                                $format,
+                                                                $summary,
+                                                                $thumbnail,
+                                                                $debug_template);
                 } else {
                     # use the self renderer
                     $page = ClassesInfoscienceRender::render($grouped_by_publications,
