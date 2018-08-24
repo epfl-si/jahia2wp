@@ -150,7 +150,7 @@ function epfl_memento_2018_process_shortcode($atts = [], $content = '', $tag = '
     $period   = 'upcoming';
 
     if (epfl_memento_check_required_parameters($memento, $lang) == FALSE) {
-        return Utils::render_user_msg("Please check required parameters");
+        return Utils::render_user_msg("Memento shortcode: Please check required parameters");
     }
 
     // iframe template

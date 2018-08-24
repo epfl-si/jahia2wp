@@ -134,7 +134,7 @@ function epfl_news_2018_process_shortcode($atts = [], $content = '', $tag = '') 
         $title    = sanitize_text_field( $atts['title'] );
 
         if (epfl_news_check_required_parameters($channel, $lang) == FALSE) {
-            return Utils::render_user_msg("Please check required parameters");
+            return Utils::render_user_msg("News shortcode: Please check required parameters");
         }
 
         // display stickers on images ?
