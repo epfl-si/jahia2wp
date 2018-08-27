@@ -504,7 +504,9 @@ class Box:
         if projects:
             content += 'projects="{}" '.format(",".join(projects))
 
-        content += 'title="{}" '.format(self.title)
+        # Title is only for boxes in pages
+        if not self.is_in_sidebar():
+            content += 'title="{}" '.format(self.title)
         content += '/]'
 
         # If we have a <moreUrl> element
@@ -514,6 +516,13 @@ class Box:
             content += '[/epfl_buttons_container]'
 
         self.content = content
+
+    def is_in_sidebar(self):
+        """
+        Tells if the box belongs to the sidebar
+        :return:
+        """
+        return self.page_content.page.is_homepage()
 
     @staticmethod
     def _extract_epfl_memento_parameters(url):
