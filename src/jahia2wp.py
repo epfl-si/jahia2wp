@@ -495,7 +495,6 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
                            'epfl-infoscience-search',
                            'epfl-map',
                            'epfl-memento',
-                           'epfl-jahia-redirect',
                            'epfl-news',
                            # 'epfl',
                            'epfl-people',
