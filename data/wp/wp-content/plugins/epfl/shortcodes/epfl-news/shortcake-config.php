@@ -137,7 +137,7 @@ Class ShortCakeNewsConfig
                             'type'          => 'checkbox',
                         ),
                         array(
-                            'label'         => '<h3>' . esc_html__('Select the number of news', 'epfl') . '</h3>',
+                            'label'         => '<h3>' . esc_html__('Number of news', 'epfl') . '</h3>',
                             'attr'          => 'nb_news',
                             'type'          => 'text',
                             'description'   => __("The number of news can only be defined for the Template: 'Template for laboratory website'"),
