@@ -331,11 +331,12 @@ class Box:
                 sort_field = sort_infos.split(";")[0]
                 sort_way = sort_infos.split(";")[1]
             else:
-                # If we don't have information about sorting, we still have to keep boxes order. So index will
-                # be used to add each encountered boxes at an index.
-                box_index = 0
                 # To sort by index to keep the correct order.
                 sort_way = "asc"
+
+            # If we don't have information about sorting, we still have to keep boxes order. So index will
+            # be used to add each encountered boxes at an index.
+            box_index = 0
 
             box_list = {}
 
@@ -348,9 +349,21 @@ class Box:
                 box_content += self._parse_files_to_list(combo)
                 box_content += self._parse_links_to_list(combo)
 
+                if box_content == '':
+                    continue
+
                 # if we have sort infos, we have to get field information in XML
                 if sort_infos != "":
                     box_key = combo.getAttribute('jcr:{}'.format(sort_field))
+
+                    # If key is empty, we switch back to "sortless" mode. Otherwise, if all boxes have empty keys
+                    # (which is probably the case), every box we add to the list will erase the previous one because
+                    # they all have the same key...
+                    if box_key == '':
+                        sort_infos = ""
+                        sort_way = "asc"
+                        box_key = box_index
+                        box_index += 1
                 else:
                     box_key = box_index
                     box_index += 1
