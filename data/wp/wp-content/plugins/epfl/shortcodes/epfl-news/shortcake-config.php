@@ -60,9 +60,9 @@ Class ShortCakeNewsConfig
     private static function get_template_options() 
     {
         return array (
-            array('value' => '1', 'label' => esc_html__('Template for laboratory website with 4 news', 'epfl')),
+            array('value' => '1', 'label' => esc_html__('Template for laboratory website', 'epfl')),
             array('value' => '2', 'label' => __('Template for homepage with 3 news', 'epfl')),
-
+            array('value' => '3', 'label' => __('Template for homepage with 1 news', 'epfl')),
         );
     }
 
@@ -130,6 +130,18 @@ Class ShortCakeNewsConfig
                             'options'       => ShortCakeNewsConfig::get_template_options(),
                             'description'   => ShortCakeNewsConfig::get_template_description(),
                             'value'         => '1',
+                        ),
+                        array(
+                            'label'         => '<strong>' . esc_html__('Display the link "all news" ?', 'epfl') . '</strong>',
+                            'attr'          => 'all_news_link',
+                            'type'          => 'checkbox',
+                        ),
+                        array(
+                            'label'         => '<h3>' . esc_html__('Select the number of news', 'epfl') . '</h3>',
+                            'attr'          => 'nb_news',
+                            'type'          => 'text',
+                            'description'   => __("The number of news can only be defined for the Template: 'Template for laboratory website'"),
+                            'value'         => '5',
                         ),
                         array(
                             'label'         => '<h3>' . esc_html__('Select a language', 'epfl') . '</h3>',

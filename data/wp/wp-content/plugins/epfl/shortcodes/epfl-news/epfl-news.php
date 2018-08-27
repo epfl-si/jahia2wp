@@ -21,10 +21,13 @@ function epfl_news_get_limit($template)
 {
     switch ($template):
         case "1":
-            $limit = 4;
+            $limit = 5;
             break;
         case "2":
             $limit = 3;
+            break;
+        case "3":
+            $limit = 1;
             break;
         default:
             $limit = 4;
@@ -42,10 +45,13 @@ function epfl_news_get_limit($template)
  * @param $themes: The list of news themes id. For example: 1,2,5
  * @return the api URL of news
  */
-function epfl_news_build_api_url($channel, $template, $lang, $category, $themes, $projects)
+function epfl_news_build_api_url($channel, $template, $nb_news, $lang, $category, $themes, $projects)
 {
     // returns the number of news according to the template
     $limit = epfl_news_get_limit($template);
+    if ("1" == $template) {
+        $limit = $nb_news;
+    }
 
     // define API URL
     $url = NEWS_API_URL . $channel . '/news/?format=json&lang=' . $lang . '&limit=' . $limit;
@@ -113,25 +119,29 @@ function epfl_news_2018_process_shortcode($atts = [], $content = '', $tag = '') 
 
         // shortcode parameters
         $atts = shortcode_atts(array(
-                'channel'  => '',
-                'lang'     => '',
-                'template' => '',
-                'stickers' => '',
-                'category' => '',
-                'themes'   => '',
-                'projects' => '',
-                'title'    => '',
+                'channel'       => '',
+                'lang'          => '',
+                'template'      => '',
+                'nb_news'       => '',
+                'all_news_link' => '',
+                'stickers'      => '',
+                'category'      => '',
+                'themes'        => '',
+                'projects'      => '',
+                'title'         => '',
         ), $atts, $tag);
 
         // sanitize parameters
-        $channel  = sanitize_text_field( $atts['channel'] );
-        $lang     = sanitize_text_field( $atts['lang'] );
-        $template = sanitize_text_field( $atts['template'] );
-        $stickers = sanitize_text_field( $atts['stickers'] );
-        $category = sanitize_text_field( $atts['category'] );
-        $themes   = sanitize_text_field( $atts['themes'] );
-        $projects = sanitize_text_field( $atts['projects'] );
-        $title    = sanitize_text_field( $atts['title'] );
+        $channel       = sanitize_text_field( $atts['channel'] );
+        $lang          = sanitize_text_field( $atts['lang'] );
+        $template      = sanitize_text_field( $atts['template'] );
+        $all_news_link = sanitize_text_field( $atts['all_news_link'] );
+        $nb_news       = sanitize_text_field( $atts['nb_news'] );
+        $stickers      = sanitize_text_field( $atts['stickers'] );
+        $category      = sanitize_text_field( $atts['category'] );
+        $themes        = sanitize_text_field( $atts['themes'] );
+        $projects      = sanitize_text_field( $atts['projects'] );
+        $title         = sanitize_text_field( $atts['title'] );
 
         if (epfl_news_check_required_parameters($channel, $lang) == FALSE) {
             return Utils::render_user_msg("News shortcode: Please check required parameters");
@@ -148,6 +158,7 @@ function epfl_news_2018_process_shortcode($atts = [], $content = '', $tag = '') 
         $url = epfl_news_build_api_url(
             $channel,
             $template,
+            $nb_news,
             $lang,
             $category,
             $themes,
@@ -163,7 +174,7 @@ function epfl_news_2018_process_shortcode($atts = [], $content = '', $tag = '') 
 
             try {
 
-               do_action("epfl_news_action", $title, $actus, $template, $stickers);
+               do_action("epfl_news_action", $title, $actus, $template, $stickers, $all_news_link);
 
                return ob_get_contents();
 
