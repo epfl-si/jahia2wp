@@ -918,7 +918,7 @@ class WPExporter:
                     logging.warning("Banner is empty")
                     continue
 
-                cmd = 'widget add text header-widgets --text="{}"'.format(
+                cmd = 'widget add custom_html header-widgets --content="{}"'.format(
                     banner.content.replace('"', '\\"'))
 
                 self.run_wp_cli(cmd)
