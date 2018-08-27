@@ -23,14 +23,14 @@ require_once('shortcake-config.php');
  */
 function epfl_memento_get_limit($template)
 {
-    switch ($template):
+    switch ($template){
         case "1":
         case "2":
             $limit = 10;
             break;
         default:
             $limit = 10;
-    endswitch;
+    }
     return $limit;
 }
 
