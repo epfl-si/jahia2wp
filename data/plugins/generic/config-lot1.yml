@@ -71,5 +71,3 @@ plugins:
     config: !include epfl-twitter/v1/config-plugin.yml
   - name: epfl-video
     config: !include epfl-video/v1/config-plugin.yml
-  - name: epfl-jahia-redirect
-    config: !include epfl-jahia-redirect/v1/config-plugin.yml
