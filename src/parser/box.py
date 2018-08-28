@@ -625,6 +625,9 @@ class Box:
             self._extract_epfl_memento_parameters(
                 Utils.get_tag_attribute(element, "url", "jahia:value")
             )
+        # Look for a title if any
+        title = Utils.get_tag_attributes(element, "boxTitle", "jahia:value")
+
         self.shortcode_name = "epfl_memento"
         html_content = '[{} memento="{}" lang="{}" template="{}" '.format(
             self.shortcode_name,
@@ -642,6 +645,8 @@ class Box:
             html_content += 'category="{}" '.format(category)
         if reorder:
             html_content += 'reorder="{}" '.format(reorder)
+        if title:
+            html_content += 'title="{}" '.format(Utils.manage_quotes(title[0]))
 
         html_content += '/]'
 

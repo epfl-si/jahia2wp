@@ -161,6 +161,7 @@ function epfl_memento_process_shortcode(
             'category' => '',
             'keyword'  => '',
             'period'   => '',
+            'title'    => '',
             'color'    => 'EPFL',
     ), $atts, $tag);
 
@@ -171,6 +172,7 @@ function epfl_memento_process_shortcode(
     $category = sanitize_text_field( $atts['category'] );
     $keyword  = sanitize_text_field( $atts['keyword'] );
     $period   = sanitize_text_field( $atts['period'] );
+    $title    = sanitize_text_field( $atts['title'] );
     $color    = sanitize_text_field( $atts['color'] );
 
     if (epfl_memento_check_required_parameters($memento, $lang) == FALSE) {
@@ -179,7 +181,7 @@ function epfl_memento_process_shortcode(
 
     // iframe template
     if ($template === "4") {
-        return MementoRender::epfl_memento_built_html_pagination_template($memento, $lang, $color, $period);
+        return MementoRender::epfl_memento_built_html_pagination_template($memento, $lang, $color, $period, $title);
     }
 
     $url = epfl_memento_build_api_url(
@@ -200,7 +202,7 @@ function epfl_memento_process_shortcode(
 
         try {
 
-           do_action("epfl_event_action", $events, $template);
+           do_action("epfl_event_action", $events, $template, $title);
 
            return ob_get_contents();
 
@@ -212,7 +214,7 @@ function epfl_memento_process_shortcode(
     // otherwise the plugin does the rendering
     } else {
 
-        return MementoRender::epfl_memento_build_html($events, $template);
+        return MementoRender::epfl_memento_build_html($events, $template, $title);
     }
 }
 
