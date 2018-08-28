@@ -5,20 +5,25 @@ import re
 class MenuItem:
     """ To store menu item information """
 
-    def __init__(self, txt, points_to, hidden):
+    def __init__(self, txt, points_to, hidden, nav_page_uuid):
         """ Constructor
 
         txt - Menu link text
         points_to - On what link is pointing to. Can be several things
-            -- Reference to another jahia page,using its uuid (like c058dc4f-247d-4b23-90d7-25e1206f7de3)
+            -- Reference to another <jahia:page>, using its uuid (like c058dc4f-247d-4b23-90d7-25e1206f7de3)
+                OR
+               Reference to another menu tree (<navigationPage> in another language).
             -- hardcoded URL (absolute URL)
             -- link to sitemap (so equals 'sitemap')
             -- hardcoded URL to file (includes '/files/' in string)
             -- None if normal menu entry for page
+        hidden - True|False - To tell if the menu entry is hidden or not
+        nav_page_uuid - uuid of parent <navigationPage> element.
         """
         self.txt = txt
         self.target = None
         self.points_to = points_to
+        self.nav_page_uuid = nav_page_uuid
 
         if self.points_to:
             self.points_to = self.points_to.strip()
@@ -62,3 +67,20 @@ class MenuItem:
     def sort_children(self, sort_way):
         self.children_sort_way = sort_way
         self.children.sort(key=lambda x: x.txt, reverse=(sort_way == 'desc'))
+
+    def find_nav_page_uuid(self, nav_page_uuid):
+        """
+        Search the menu entry with given navigationPage uuid. The search is done for current entry and also for
+        all children
+        :param nav_page_uuid: UUID to search
+        :return: matching menu entry or None if not found.
+        """
+        if self.nav_page_uuid == nav_page_uuid:
+            return self
+
+        for child in self.children:
+            result = child.find_nav_page_uuid(nav_page_uuid)
+            if result:
+                return result
+
+        return None

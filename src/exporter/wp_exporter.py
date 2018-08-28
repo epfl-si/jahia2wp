@@ -1063,6 +1063,15 @@ class WPExporter:
 
         for sub_entry_index, menu_item in enumerate(parent_menu_item.children):
 
+            # Reference to a navigation page in another language menu
+            if menu_item.nav_page_uuid is None:
+                # We update value with the desired menu item
+                lang, menu_item = self.site.get_menu_entry_for_nav_page_uuid(menu_item.points_to)
+                # If not found we skip
+                if not menu_item:
+                    logging.warning("Menu not found for reference uuid %s ", menu_item.points_to)
+                    continue
+
             # If entry is visible
             if not menu_item.hidden:
 
@@ -1173,6 +1182,15 @@ class WPExporter:
 
                 # Looping through root menu entries
                 for root_entry_index, menu_item in enumerate(self.site.menus[lang]):
+
+                    # Reference to a navigation page in another language menu
+                    if menu_item.nav_page_uuid is None:
+                        # We update value with the desired menu item
+                        lang, menu_item = self.site.get_menu_entry_for_nav_page_uuid(menu_item.points_to)
+                        # If not found we skip
+                        if not menu_item:
+                            logging.warning("Menu not found for reference uuid %s ", menu_item.points_to)
+                            continue
 
                     # If root entry is visible
                     if not menu_item.hidden:
