@@ -486,8 +486,24 @@ class Box:
         )
 
         # We look for <moreUrl> information
-        more_url = Utils.get_tag_attribute(actu_list_list[0], "jahia:url", "jahia:value")
-        more_title = Utils.get_tag_attribute(actu_list_list[0], "jahia:url", "jahia:title")
+        more_url_list = actu_list_list[0].getElementsByTagName("moreUrl")
+
+        if more_url_list:
+            more_url = Utils.get_tag_attribute(more_url_list[0], "jahia:url", "jahia:value")
+            more_title = Utils.get_tag_attribute(more_url_list[0], "jahia:url", "jahia:title")
+        else:
+            more_url = ""
+            more_title = ""
+
+        # We look for <rssUrl> information
+        rss_url_list = actu_list_list[0].getElementsByTagName("rssUrl")
+
+        if rss_url_list:
+            rss_url = Utils.get_tag_attribute(rss_url_list[0], "jahia:url", "jahia:value")
+            rss_title = Utils.get_tag_attribute(rss_url_list[0], "jahia:url", "jahia:title")
+        else:
+            rss_url = ""
+            rss_title = ""
 
         content = '[{} channel="{}" lang="{}" template="{}" '.format(
             self.shortcode_name,
@@ -509,10 +525,24 @@ class Box:
             content += 'title="{}" '.format(self.title)
         content += '/]'
 
-        # If we have a <moreUrl> element
-        if more_url and more_title:
+        # If we have a <moreUrl> or <rssUrl> element
+        if (more_url and more_title) or (rss_url and rss_title):
             content += '[epfl_buttons_container]'
-            content += self._get_button_shortcode('small', more_url, more_title, more_title, small_button_key='forward')
+
+            if more_url and more_title:
+                content += self._get_button_shortcode('small',
+                                                      more_url,
+                                                      more_title,
+                                                      more_title,
+                                                      small_button_key='forward')
+
+            if rss_url and rss_title:
+                content += self._get_button_shortcode('small',
+                                                      rss_url,
+                                                      rss_title,
+                                                      rss_title,
+                                                      small_button_key='forward')
+
             content += '[/epfl_buttons_container]'
 
         self.content = content
