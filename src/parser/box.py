@@ -545,7 +545,6 @@ class Box:
 
             content += '[/epfl_buttons_container]'
 
-
         self.content = content
 
     def is_in_sidebar(self):
