@@ -415,7 +415,7 @@ class Data:
                                                  'sidebar__boxes': [{'content__start': '<p>Ce site vous donne des informations générales pour le '
                                                                                        "métier de webmaster à l'EPFL.</p> <p>Vous trouverez ici de "
                                                                                        'nombreuses indications pour réussi',
-                                                                     'title': "Le web à l'EPFL",
+                                                                     'title': "Le web à l'EPFL", 
                                                                      'type': 'coloredText'},
                                                                     {'content__start': '<p>Le Service Desk SI répond à toutes vos questions et vous '
                                                                                        'oriente selon vos besoins :</p> <p>  <ecrire '
