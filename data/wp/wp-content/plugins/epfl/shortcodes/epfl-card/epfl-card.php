@@ -31,7 +31,7 @@ function epfl_card_process_shortcode($atts = [], $content = '', $tag = '') {
     $title = sanitize_text_field( $atts['title'] );
     $text  = sanitize_text_field( $atts['text'] );
     $image = sanitize_text_field( $atts['image'] );
-    $image = wp_get_attachment_url( $image );
+    $image_url = wp_get_attachment_url( $image );
 
     // if supported delegate the rendering to the theme
     if (has_action("epfl_card_action")) {
@@ -40,7 +40,7 @@ function epfl_card_process_shortcode($atts = [], $content = '', $tag = '') {
 
         try {
 
-           do_action("epfl_card_action", $title, $text, $link, $image);
+           do_action("epfl_card_action", $title, $text, $link, $image_url);
 
            return ob_get_contents();
 

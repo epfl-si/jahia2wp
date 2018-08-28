@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-08-27 12:45+0200\n"
-"PO-Revision-Date: 2018-08-27 12:48+0200\n"
+"POT-Creation-Date: 2018-08-28 15:58+0200\n"
+"PO-Revision-Date: 2018-08-28 15:59+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -14,6 +14,26 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Poedit-KeywordsList: __;esc_html__\n"
 "X-Poedit-SearchPath-0: .\n"
+
+#: epfl-card/shortcake-config.php:12
+msgid "Card"
+msgstr "Carte"
+
+#: epfl-card/shortcake-config.php:16
+msgid "Card text"
+msgstr "Texte de la carte"
+
+#: epfl-card/shortcake-config.php:21
+msgid "Card title"
+msgstr "Titre de la carte"
+
+#: epfl-card/shortcake-config.php:26
+msgid "Card link"
+msgstr "Lien de la carte"
+
+#: epfl-card/shortcake-config.php:31
+msgid "Card image"
+msgstr "Image de la carte"
 
 #: epfl-memento/shortcake-config.php:46
 msgid "Template with the first highlighted event"
