@@ -45,7 +45,7 @@ function epfl_video_process_shortcode( $atts, $content = null ) {
     $url = "https://tube.switch.ch/embed/".$video_id;
   }
 
-  return '<div class="container>'.
+  return '<div class="container">'.
          '<div class="epfl-video epfl-video-responsive embed-responsive embed-responsive-16by9">'.
          '<iframe src="'.$url.'" width="'.$width.'" height="'.$height.'" webkitallowfullscreen mozallowfullscreen allowfullscreen allow="autoplay; encrypted-media" frameborder="0" class="embed-responsive-item"></iframe>'.
          '</div>'.
