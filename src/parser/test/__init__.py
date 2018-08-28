@@ -398,7 +398,7 @@ class Data:
                              'pid': '118574',
                              'template': 'simple',
                              'uuid': '137a07ba-7bef-4cfa-a831-0635c145a68e'},
-                  '118575': {'children__len': 0,
+                  '118575': {'children__len': 0, 
                              'contents': {'fr': {'boxes': [{'content__start': '<p><img alt="" border="0" height="111" '
                                                                               'src="/files/images/web_writing2.jpg" style="margin: 0px 5px; float: '
                                                                               'left;" width="180"/>Transmettre un message,',
