@@ -1257,7 +1257,8 @@ class WPExporter:
                                 if not menu_id:
                                     logging.warning("Root menu item not created %s for page ", target_page.pid)
                                 else:
-                                    self.menu_id_dict[target_page.contents[menu_lang].wp_id] = Utils.get_menu_id(menu_id)
+                                    self.menu_id_dict[target_page.contents[menu_lang].wp_id] = \
+                                        Utils.get_menu_id(menu_id)
                                     self.report['menus'] += 1
 
                                 # create recursively submenus
