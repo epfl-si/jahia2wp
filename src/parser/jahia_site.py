@@ -794,7 +794,7 @@ class Site:
 
         tags = soup.find_all(tag_name)
 
-        # Regex to parse internal Jahia links. Here are type of links that can exists: 
+        # Regex to parse internal Jahia links. Here are type of links that can exists
         # /cms/op/edit/lang/fr/ref/6a37c1e5-b935-409b-8c51-b0fe8834aef1
         # http://jahia-prod.epfl.ch/cms/op/edit/lang/fr/ref/6a37c1e5-b935-409b-8c51-b0fe8834aef1
         # ###page:/lang/fr/ref/be42d070-0578-4278-89f3-f3f48e261814
