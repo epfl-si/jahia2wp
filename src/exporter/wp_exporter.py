@@ -1185,12 +1185,15 @@ class WPExporter:
 
                     # Reference to a navigation page in another language menu
                     if menu_item.nav_page_uuid is None:
-                        # We update value with the desired menu item
-                        lang, menu_item = self.site.get_menu_entry_for_nav_page_uuid(menu_item.points_to)
+                        # We look for target menu item and its language
+                        tmp_lang, tmp_menu_item = self.site.get_menu_entry_for_nav_page_uuid(menu_item.points_to)
                         # If not found we skip
-                        if not menu_item:
+                        if not tmp_menu_item:
                             logging.warning("Menu not found for reference uuid %s ", menu_item.points_to)
                             continue
+                        # Updating values with what we have found
+                        menu_item = tmp_menu_item
+                        lang = tmp_lang
 
                     # If root entry is visible
                     if not menu_item.hidden:
