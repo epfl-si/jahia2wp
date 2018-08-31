@@ -287,7 +287,7 @@ class Data:
                                                                                        'href="mailto:webmaster@epfl.ch">Par email :\xa0<',
                                                                      'title': 'Support web',
                                                                      'type': 'text'},
-                                                                    {'content__start': '[epfl_memento memento="web" lang="fr" template="6" period="upcoming" color="EPFL" title="Prochains cours" /]',
+                                                                    {'content__start': '[epfl_memento memento="web" lang="fr" template="6" period="upcoming" color="EPFL" /]',
                                                                      'title': 'Prochains cours',
                                                                      'type': 'memento'}],
                                                  'menu_title': 'Pour les webmasters',
@@ -326,7 +326,7 @@ class Data:
                                                                                        'href="mailto:webmaster@epfl.ch">Par email :\xa0<',
                                                                      'title': 'Support web',
                                                                      'type': 'text'},
-                                                                    {'content__start': '[epfl_memento memento="web" lang="fr" template="6" period="upcoming" color="EPFL" title="Prochains cours" /]',
+                                                                    {'content__start': '[epfl_memento memento="web" lang="fr" template="6" period="upcoming" color="EPFL" /]',
                                                                      'title': 'Prochains cours',
                                                                      'type': 'memento'}],
                                                  'menu_title': 'Support et communication',
@@ -355,7 +355,7 @@ class Data:
                                                                                        'href="mailto:webmaster@epfl.ch">Par email :\xa0<',
                                                                      'title': 'Support web',
                                                                      'type': 'text'},
-                                                                    {'content__start': '[epfl_memento memento="web" lang="fr" template="6" period="upcoming" color="EPFL" title="Prochains cours" /]',
+                                                                    {'content__start': '[epfl_memento memento="web" lang="fr" template="6" period="upcoming" color="EPFL" /]',
                                                                      'title': 'Prochains cours',
                                                                      'type': 'memento'}],
                                                  'menu_title': '"Coffee, tea, cookies, internet and me"',
@@ -398,7 +398,7 @@ class Data:
                              'pid': '118574',
                              'template': 'simple',
                              'uuid': '137a07ba-7bef-4cfa-a831-0635c145a68e'},
-                  '118575': {'children__len': 0, 
+                  '118575': {'children__len': 0,
                              'contents': {'fr': {'boxes': [{'content__start': '<p><img alt="" border="0" height="111" '
                                                                               'src="/files/images/web_writing2.jpg" style="margin: 0px 5px; float: '
                                                                               'left;" width="180"/>Transmettre un message,',
@@ -415,14 +415,14 @@ class Data:
                                                  'sidebar__boxes': [{'content__start': '<p>Ce site vous donne des informations générales pour le '
                                                                                        "métier de webmaster à l'EPFL.</p> <p>Vous trouverez ici de "
                                                                                        'nombreuses indications pour réussi',
-                                                                     'title': "Le web à l'EPFL", 
+                                                                     'title': "Le web à l'EPFL",
                                                                      'type': 'coloredText'},
                                                                     {'content__start': '<p>Le Service Desk SI répond à toutes vos questions et vous '
                                                                                        'oriente selon vos besoins :</p> <p>  <ecrire '
                                                                                        'href="mailto:webmaster@epfl.ch">Par email :\xa0<',
                                                                      'title': 'Support web',
                                                                      'type': 'text'},
-                                                                    {'content__start': '[epfl_memento memento="web" lang="fr" template="6" period="upcoming" color="EPFL" title="Prochains cours" /]',
+                                                                    {'content__start': '[epfl_memento memento="web" lang="fr" template="6" period="upcoming" color="EPFL" /]',
                                                                      'title': 'Prochains cours',
                                                                      'type': 'memento'}],
                                                  'menu_title': 'Cours et formations',
@@ -1833,7 +1833,7 @@ class Data:
                                                                     'title': 'Support web',
                                                                     'type': 'text'},
                                                                    {'content__start': '[epfl_memento '
-                                                                                      'memento="web" lang="fr" template="6" period="upcoming" color="EPFL" title="Prochains cours" /]',
+                                                                                      'memento="web" lang="fr" template="6" period="upcoming" color="EPFL" /]',
                                                                     'title': 'Prochains cours',
                                                                     'type': 'memento'}],
                                                 'menu_title': 'Atelier web EPFL',
