@@ -2,6 +2,15 @@
 
 Class ShortCakeToggleConfig
 {
+
+    private static function get_state_options()
+    {
+        return array (
+            array('value' => 'open', 'label' => esc_html__('Open', 'epfl')),
+            array('value' => 'close', 'label' => esc_html__('Close', 'epfl')),
+        );
+    }
+
     public static function get_fields()
     {
         $fields = [];
@@ -19,6 +28,20 @@ Class ShortCakeToggleConfig
                 'attr'        => 'desc' . $i,
                 'description' => esc_html__('Content shown when collapsable is opened', 'epfl'),
                 'type'        => 'textarea',
+                'encode'      => true,
+                'meta'        => array(
+                    'class' => 'shortcake-richtext',
+                ),
+            ]);
+
+            array_push($fields, [
+                'label'       => '<h3>' . esc_html__('Define the state of toggle', 'epfl') . '</h3>',
+                'attr'        => 'state' . $i,
+                'type'        => 'radio',
+                'options'     => ShortCakeToggleConfig::get_state_options(),
+                'description' => esc_html__('Do you want display the toggle open or close by default ?', 'epfl'),
+                'value'       => 'close',
+
             ]);
 
         }
@@ -31,12 +54,15 @@ Class ShortCakeToggleConfig
         global $iconDirectory;
 
         shortcode_ui_register_for_shortcode(
+
             'epfl_toggle_2018',
+
             array(
                 'label'         => esc_html__( 'Toggle', 'epfl'),
-                'attrs'         => ShortCakeToggleConfig::get_fields(),
                 'listItemImage' => '<img src="' . $iconDirectory . 'toggle.png'.'">',
+                'attrs'         => ShortCakeToggleConfig::get_fields(),
             )
+
         );
 
     }
