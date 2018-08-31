@@ -532,10 +532,9 @@ Class MementoRender
      *
      * @param $events: response of memento API
      * @param $template: id of template
-     * @param $title: Title to display before memento (can be empty)
      * @return
      */
-    public static function epfl_memento_build_html($events, $template, $title): string
+    public static function epfl_memento_build_html($events, $template): string
     {
 
         if ($template === "1") {
@@ -558,10 +557,8 @@ Class MementoRender
             $html = MementoRender::epfl_memento_template_with_3_events($events);
         }
 
-        $title = ($title != "")?'<h3>'.$title.'</h3>': "";
-
         if ($html === '<div class="list-events clearfix"></div>') {
-          $result = $title.'<div class="eventsBox">';
+          $result = '<div class="eventsBox">';
           if  (get_locale() == 'fr_FR') {
             $result .= "Pas d'événements programmés";
           } else {
@@ -571,7 +568,7 @@ Class MementoRender
           $result .= '</div>';
           return $result;
         } else {
-          return $title. '<div class="eventsBox">' . $html . '</div>';
+          return '<div class="eventsBox">' . $html . '</div>';
         }
     }
 
@@ -582,22 +579,17 @@ Class MementoRender
      * @param $lang: lang of event (fr or en)
      * @param $color: color of the faculty
      * @param $period: period of events (past or upcoming)
-     * @param $title: Title to display before memento (can be empty)
      * @return html of iframe template
      */
-    public static function epfl_memento_built_html_pagination_template(string $memento, string $lang, string $color, string $period, string $title): string {
+    public static function epfl_memento_built_html_pagination_template(string $memento, string $lang, string $color, string $period): string {
         if (empty($period) || $period === 'upcoming') {
             $period = 2;
         } else {
             $period = 1;
         }
         $url = MEMENTO_API_URL_IFRAME. '&memento=' . $memento . '&lang=' . $lang . '&template=4&period=' . $period . '&color=' . strtoupper($color);
-        $result = '';
-        if($title != "")
-        {
-            $result .= '<h3>'.$title.'</h3>';
-        }
-        $result .= '<IFRAME ';
+
+        $result = '<IFRAME ';
         $result .= 'src="' . esc_attr($url) . '" ';
         $result .= 'width="660" height="1255" scrolling="no" frameborder="0"></IFRAME>';
         return $result;
