@@ -632,10 +632,10 @@ class Box:
         title = Utils.get_tag_attributes(element, "boxTitle", "jahia:value")
 
         if title:
-            html_content += '<h3>{}</3> '.format(title[0])
+            html_content += '<h3>{}</h3> '.format(title[0])
 
         self.shortcode_name = "epfl_memento"
-        html_content += '{} memento="{}" lang="{}" template="{}" '.format(
+        html_content += '[{} memento="{}" lang="{}" template="{}" '.format(
             self.shortcode_name,
             memento_name,
             lang,
