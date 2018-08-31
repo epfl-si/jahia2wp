@@ -15,5 +15,6 @@
 # - https://www.ansible.com/overview/how-ansible-works
 # - https://github.com/jdauphant/awesome-ansible
 
+thisdir="$(dirname "$(realpath "$0")")"
 
-ansible-playbook -e "play_create_or_restore=true" -i ansible/hosts-dev "$@" ansible/playbooks/wordpress-main.yml
+ansible-playbook -e "play_create_or_restore=true" -i ansible/hosts-dev "$@" "$thisdir"/playbooks/wordpress-main.yml
