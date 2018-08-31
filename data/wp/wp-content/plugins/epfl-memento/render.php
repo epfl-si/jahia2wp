@@ -536,7 +536,6 @@ Class MementoRender
      */
     public static function epfl_memento_build_html($events, $template): string
     {
-
         if ($template === "1") {
             $html = MementoRender::epfl_memento_template_short_text($events);
         } elseif ($template === "5") {
@@ -588,7 +587,6 @@ Class MementoRender
             $period = 1;
         }
         $url = MEMENTO_API_URL_IFRAME. '&memento=' . $memento . '&lang=' . $lang . '&template=4&period=' . $period . '&color=' . strtoupper($color);
-
         $result = '<IFRAME ';
         $result .= 'src="' . esc_attr($url) . '" ';
         $result .= 'width="660" height="1255" scrolling="no" frameborder="0"></IFRAME>';

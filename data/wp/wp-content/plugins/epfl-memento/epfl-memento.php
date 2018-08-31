@@ -171,7 +171,6 @@ function epfl_memento_process_shortcode(
     $category = sanitize_text_field( $atts['category'] );
     $keyword  = sanitize_text_field( $atts['keyword'] );
     $period   = sanitize_text_field( $atts['period'] );
-    $title    = sanitize_text_field( $atts['title'] );
     $color    = sanitize_text_field( $atts['color'] );
 
     if (epfl_memento_check_required_parameters($memento, $lang) == FALSE) {
@@ -180,7 +179,7 @@ function epfl_memento_process_shortcode(
 
     // iframe template
     if ($template === "4") {
-        return MementoRender::epfl_memento_built_html_pagination_template($memento, $lang, $color);
+        return MementoRender::epfl_memento_built_html_pagination_template($memento, $lang, $color, $period);
     }
 
     $url = epfl_memento_build_api_url(
