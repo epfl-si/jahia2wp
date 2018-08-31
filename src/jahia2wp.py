@@ -29,7 +29,7 @@ Usage:
     [--theme=<THEME> --theme-faculty=<THEME-FACULTY>]
     [--installs-locked=<BOOLEAN> --automatic-updates=<BOOLEAN>]
     [--extra-config=<YAML_FILE>]
-  jahia2wp.py backup                <wp_env> <wp_url>               [--debug | --quiet]
+  jahia2wp.py backup                <wp_env> <wp_url>      [--full] [--debug | --quiet]
   jahia2wp.py version               <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py admins                <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate-many         <csv_file>                      [--debug | --quiet]
@@ -701,7 +701,7 @@ def clean(wp_env, wp_url, stop_on_errors=False, no_backup=False, **kwargs):
 
     # backup before the clean, in case we need to get it back
     if not no_backup:
-        backup(wp_env, wp_url)
+        backup(wp_env, wp_url, full=True)
 
     if wp_generator.clean():
         print("Successfully cleaned WordPress site {}".format(wp_generator.wp_site.url))
@@ -777,8 +777,8 @@ def generate(wp_env, wp_url,
 
 
 @dispatch.on('backup')
-def backup(wp_env, wp_url, **kwargs):
-    wp_backup = WPBackup(wp_env, wp_url)
+def backup(wp_env, wp_url, full=False, **kwargs):
+    wp_backup = WPBackup(wp_env, wp_url, full)
     if not wp_backup.backup():
         raise SystemExit("Backup failed. More info above")
 
