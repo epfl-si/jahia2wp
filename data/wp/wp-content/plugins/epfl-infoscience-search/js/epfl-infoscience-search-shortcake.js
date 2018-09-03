@@ -79,30 +79,32 @@ jQuery( document ).ready( function( $ ) {
 
     if ( 'undefined' !== typeof( wp.shortcake ) ) {
         wp.shortcake.hooks.addAction( 'shortcode-ui.render_edit', function(shortcodeModel) {
-
-            // Set group by
-            set_group_by_dynamic();
-
-            var group_by = $("select[name='group_by']");
-
-            group_by.on('change', function (e) {
+            // are we in an infoscience shortcake ?
+            if ($(".shortcode-ui-edit-epfl_infoscience_search")[0]){
+                // Set group by
                 set_group_by_dynamic();
-            });
-            
-            set_toggle_title();
 
+                var group_by = $("select[name='group_by']");
+
+                group_by.on('change', function (e) {
+                    set_group_by_dynamic();
+                });
+
+                set_toggle_title();
+            }
         } );
         wp.shortcake.hooks.addAction( 'shortcode-ui.render_new', function() {
-            set_group_by_dynamic();
-            set_group_by_dynamic();
-
-            var group_by = $("select[name='group_by']");
-
-            group_by.on('change', function (e) {
+            if ($(".shortcode-ui-edit-epfl_infoscience_search")[0]){
                 set_group_by_dynamic();
-            });
 
-            set_toggle_title();
+                var group_by = $("select[name='group_by']");
+
+                group_by.on('change', function (e) {
+                    set_group_by_dynamic();
+                });
+
+                set_toggle_title();
+            }
         } );
         /*
         Other lifecycle, uncomment if needed
