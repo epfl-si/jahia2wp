@@ -19,14 +19,14 @@ Class ShortCakeToggleConfig
             array_push($fields, [
                 'label'       => '<hr><hr><h3>' . esc_html__('Title', 'epfl') . '</h3>',
                 'attr'        => 'label' . $i,
-                'description' => esc_html__('The title of the collapsable', 'epfl'),
+                'description' => esc_html__('The title of the toggle', 'epfl'),
                 'type'        => 'text',
             ]);
 
             array_push($fields, [
                 'label'       => '<h2>' .esc_html__('Description', 'epfl') . '</h2>' ,
                 'attr'        => 'desc' . $i,
-                'description' => esc_html__('Content shown when collapsable is opened', 'epfl'),
+                'description' => esc_html__('Content shown when toggle is opened', 'epfl'),
                 'type'        => 'textarea',
                 'encode'      => true,
                 'meta'        => array(
