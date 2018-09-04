@@ -19,8 +19,8 @@ Class ShortCakeCardConfig
                         ),
                         array(
                             'label' => '<h3>' . esc_html__('Card text', 'epfl') . '</h3>',
-                            'attr'  => 'textarea',
-                            'type'  => 'text',
+                            'attr'  => 'text',
+                            'type'  => 'textarea',
                         ),
                         array(
                             'label' => '<h3>' . esc_html__('Card link', 'epfl') . '</h3>',
