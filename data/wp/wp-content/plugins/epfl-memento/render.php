@@ -572,7 +572,7 @@ Class MementoRender
     }
 
     /**
-     * Build HTML. This template contains all events inside ifram tag
+     * Build HTML. This template contains all events inside iframe tag
      *
      * @param $memento: slug of memento
      * @param $lang: lang of event (fr or en)

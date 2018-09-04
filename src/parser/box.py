@@ -331,11 +331,12 @@ class Box:
                 sort_field = sort_infos.split(";")[0]
                 sort_way = sort_infos.split(";")[1]
             else:
-                # If we don't have information about sorting, we still have to keep boxes order. So index will
-                # be used to add each encountered boxes at an index.
-                box_index = 0
                 # To sort by index to keep the correct order.
                 sort_way = "asc"
+
+            # If we don't have information about sorting, we still have to keep boxes order. So index will
+            # be used to add each encountered boxes at an index.
+            box_index = 0
 
             box_list = {}
 
@@ -348,9 +349,21 @@ class Box:
                 box_content += self._parse_files_to_list(combo)
                 box_content += self._parse_links_to_list(combo)
 
+                if box_content == '':
+                    continue
+
                 # if we have sort infos, we have to get field information in XML
                 if sort_infos != "":
                     box_key = combo.getAttribute('jcr:{}'.format(sort_field))
+
+                    # If key is empty, we switch back to "sortless" mode. Otherwise, if all boxes have empty keys
+                    # (which is probably the case), every box we add to the list will erase the previous one because
+                    # they all have the same key...
+                    if box_key == '':
+                        sort_infos = ""
+                        sort_way = "asc"
+                        box_key = box_index
+                        box_index += 1
                 else:
                     box_key = box_index
                     box_index += 1
@@ -486,8 +499,24 @@ class Box:
         )
 
         # We look for <moreUrl> information
-        more_url = Utils.get_tag_attribute(actu_list_list[0], "jahia:url", "jahia:value")
-        more_title = Utils.get_tag_attribute(actu_list_list[0], "jahia:url", "jahia:title")
+        more_url_list = actu_list_list[0].getElementsByTagName("moreUrl")
+
+        if more_url_list:
+            more_url = Utils.get_tag_attribute(more_url_list[0], "jahia:url", "jahia:value")
+            more_title = Utils.get_tag_attribute(more_url_list[0], "jahia:url", "jahia:title")
+        else:
+            more_url = ""
+            more_title = ""
+
+        # We look for <rssUrl> information
+        rss_url_list = actu_list_list[0].getElementsByTagName("rssUrl")
+
+        if rss_url_list:
+            rss_url = Utils.get_tag_attribute(rss_url_list[0], "jahia:url", "jahia:value")
+            rss_title = Utils.get_tag_attribute(rss_url_list[0], "jahia:url", "jahia:title")
+        else:
+            rss_url = ""
+            rss_title = ""
 
         content = '[{} channel="{}" lang="{}" template="{}" '.format(
             self.shortcode_name,
@@ -509,10 +538,24 @@ class Box:
             content += 'title="{}" '.format(self.title)
         content += '/]'
 
-        # If we have a <moreUrl> element
-        if more_url and more_title:
+        # If we have a <moreUrl> or <rssUrl> element
+        if (more_url and more_title) or (rss_url and rss_title):
             content += '[epfl_buttons_container]'
-            content += self._get_button_shortcode('small', more_url, more_title, more_title, small_button_key='forward')
+
+            if more_url and more_title:
+                content += self._get_button_shortcode('small',
+                                                      more_url,
+                                                      more_title,
+                                                      more_title,
+                                                      small_button_key='forward')
+
+            if rss_url and rss_title:
+                content += self._get_button_shortcode('small',
+                                                      rss_url,
+                                                      rss_title,
+                                                      rss_title,
+                                                      small_button_key='forward')
+
             content += '[/epfl_buttons_container]'
 
         self.content = content
@@ -582,8 +625,17 @@ class Box:
             self._extract_epfl_memento_parameters(
                 Utils.get_tag_attribute(element, "url", "jahia:value")
             )
+
+        html_content = ''
+
+        # Look for a title if any
+        title = Utils.get_tag_attributes(element, "boxTitle", "jahia:value")
+
+        if title:
+            html_content += '<h3>{}</h3> '.format(title[0])
+
         self.shortcode_name = "epfl_memento"
-        html_content = '[{} memento="{}" lang="{}" template="{}" '.format(
+        html_content += '[{} memento="{}" lang="{}" template="{}" '.format(
             self.shortcode_name,
             memento_name,
             lang,

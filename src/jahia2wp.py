@@ -29,7 +29,7 @@ Usage:
     [--theme=<THEME> --theme-faculty=<THEME-FACULTY>]
     [--installs-locked=<BOOLEAN> --automatic-updates=<BOOLEAN>]
     [--extra-config=<YAML_FILE>]
-  jahia2wp.py backup                <wp_env> <wp_url>               [--debug | --quiet]
+  jahia2wp.py backup                <wp_env> <wp_url>      [--full] [--debug | --quiet]
   jahia2wp.py version               <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py admins                <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate-many         <csv_file>                      [--debug | --quiet]
@@ -50,7 +50,6 @@ Usage:
   jahia2wp.py update-plugins-many   <csv_file>                      [--debug | --quiet]
     [--force-plugin] [--force-options] [--plugin=<PLUGIN_NAME>|--strict-list]
   jahia2wp.py global-report <csv_file> [--output-dir=<OUTPUT_DIR>] [--use-cache] [--debug | --quiet]
-  jahia2wp.py migrate-urls <csv_file> <wp_env>                    [--debug | --quiet]
     --root_wp_dest=</srv/../epfl> [--greedy] [--htaccess] [--context=<intra|inter|full>] [--dry_run]
 
 Options:
@@ -93,7 +92,6 @@ from utils import Utils
 from veritas.casters import cast_boolean
 from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
-from ventilation import Ventilation
 from fan.fan_global_sitemap import FanGlobalSitemap
 
 
@@ -703,7 +701,7 @@ def clean(wp_env, wp_url, stop_on_errors=False, no_backup=False, **kwargs):
 
     # backup before the clean, in case we need to get it back
     if not no_backup:
-        backup(wp_env, wp_url)
+        backup(wp_env, wp_url, full=True)
 
     if wp_generator.clean():
         print("Successfully cleaned WordPress site {}".format(wp_generator.wp_site.url))
@@ -779,8 +777,8 @@ def generate(wp_env, wp_url,
 
 
 @dispatch.on('backup')
-def backup(wp_env, wp_url, **kwargs):
-    wp_backup = WPBackup(wp_env, wp_url)
+def backup(wp_env, wp_url, full=False, **kwargs):
+    wp_backup = WPBackup(wp_env, wp_url, full)
     if not wp_backup.backup():
         raise SystemExit("Backup failed. More info above")
 
@@ -1019,18 +1017,6 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
 
             except Exception as e:
                 logging.error("Site %s - Error %s", report['name'], e)
-
-
-@dispatch.on('migrate-urls')
-def url_mapping(csv_file, wp_env, greedy=False, root_wp_dest=None, htaccess=False,
-                context='intra', dry_run=False, **kwargs):
-    """
-    :param csv_file: CSV containing the URL mapping rules for source and destination.
-    :param context: intra, inter, full. Replace the occurrences at intra, inter or both.
-    """
-    logging.info('Starting ventilation process...')
-    vent = Ventilation(wp_env, csv_file, greedy, root_wp_dest, htaccess, context, dry_run)
-    vent.run_all()
 
 
 if __name__ == '__main__':

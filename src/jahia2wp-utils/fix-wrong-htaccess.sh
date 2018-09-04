@@ -16,7 +16,7 @@ TMP_FILE_PAGE_LIST="/tmp/pageList"
 TMP_FILE_PAGE_REDIRECT="/tmp/redirectList"
 
 echo -n "Extracting site list... "
-find ${SITES_ROOT_PATH} -name "wp-config.php" -printf '%h\n' > ${TMP_FILE_INVENTORY}
+find ${SITES_ROOT_PATH} -maxdepth 3 -name "wp-config.php" -printf '%h\n' > ${TMP_FILE_INVENTORY}
 echo "done"
 
 echo "Looping through sites"
