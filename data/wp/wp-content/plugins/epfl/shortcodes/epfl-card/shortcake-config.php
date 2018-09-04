@@ -13,13 +13,13 @@ Class ShortCakeCardConfig
                 'listItemImage' => '<img src="' . plugins_url( 'img/card.svg', __FILE__ ) . '" >',
                 'attrs'         => array(
                         array(
-                            'label' => '<h3>' . esc_html__('Card text', 'epfl') . '</h3>',
-                            'attr'  => 'text',
+                            'label' => '<h3>' . esc_html__('Card title', 'epfl') . '</h3>',
+                            'attr'  => 'title',
                             'type'  => 'text',
                         ),
                         array(
-                            'label' => '<h3>' . esc_html__('Card title', 'epfl') . '</h3>',
-                            'attr'  => 'title',
+                            'label' => '<h3>' . esc_html__('Card text', 'epfl') . '</h3>',
+                            'attr'  => 'textarea',
                             'type'  => 'text',
                         ),
                         array(
