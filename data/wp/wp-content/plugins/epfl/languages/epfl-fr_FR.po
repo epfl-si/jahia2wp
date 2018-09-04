@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-08-27 12:45+0200\n"
-"PO-Revision-Date: 2018-08-27 12:48+0200\n"
+"POT-Creation-Date: 2018-09-04 07:47+0200\n"
+"PO-Revision-Date: 2018-09-04 07:47+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -273,6 +273,46 @@ msgid "Do you want filter news by themes?. Please select themes."
 msgstr ""
 "Voulez vous filtrer les actualités par thèmes? Veuillez sélectionner un ou "
 "plusieurs thèmes."
+
+#: epfl-toggle/shortcake-config.php:9
+msgid "Open"
+msgstr "Ouvert"
+
+#: epfl-toggle/shortcake-config.php:10
+msgid "Close"
+msgstr "Fermé"
+
+#: epfl-toggle/shortcake-config.php:20
+msgid "Title"
+msgstr "Titre"
+
+#: epfl-toggle/shortcake-config.php:22
+msgid "Toggle title"
+msgstr "Titre de l'accordéon"
+
+#: epfl-toggle/shortcake-config.php:27
+msgid "Description"
+msgstr "Description"
+
+#: epfl-toggle/shortcake-config.php:29
+msgid "Content shown when toggle is opened"
+msgstr "Contenu affiché lorsque l'accordéon est ouvert"
+
+#: epfl-toggle/shortcake-config.php:38
+msgid "Define toggle state"
+msgstr "Définir l'état de l'accordéon"
+
+#: epfl-toggle/shortcake-config.php:42
+msgid "Do you want display the toggle opened or closed by default ?"
+msgstr ""
+"Est ce que vous voulez que l'accordéon, par défaut, soit ouvert ou fermé ?"
+
+#: epfl-toggle/shortcake-config.php:61
+msgid "Toggle"
+msgstr "Accordéon"
+
+#~ msgid "The title of the toggle"
+#~ msgstr "Le titre de l'accordéon"
 
 #~ msgid "Template for laboratory website with 5 news"
 #~ msgstr "Template pour les sites de laboratoires (avec 5 actualités)"
