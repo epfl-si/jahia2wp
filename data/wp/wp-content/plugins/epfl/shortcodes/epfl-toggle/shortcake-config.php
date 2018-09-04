@@ -19,7 +19,7 @@ Class ShortCakeToggleConfig
             array_push($fields, [
                 'label'       => '<hr><hr><h3>' . esc_html__('Title', 'epfl') . '</h3>',
                 'attr'        => 'label' . $i,
-                'description' => esc_html__('The title of the toggle', 'epfl'),
+                'description' => esc_html__('Toggle title', 'epfl'),
                 'type'        => 'text',
             ]);
 
@@ -35,11 +35,11 @@ Class ShortCakeToggleConfig
             ]);
 
             array_push($fields, [
-                'label'       => '<h3>' . esc_html__('Define the state of toggle', 'epfl') . '</h3>',
+                'label'       => '<h3>' . esc_html__('Define toggle state', 'epfl') . '</h3>',
                 'attr'        => 'state' . $i,
                 'type'        => 'radio',
                 'options'     => ShortCakeToggleConfig::get_state_options(),
-                'description' => esc_html__('Do you want display the toggle open or close by default ?', 'epfl'),
+                'description' => esc_html__('Do you want display the toggle opened or closed by default ?', 'epfl'),
                 'value'       => 'close',
 
             ]);

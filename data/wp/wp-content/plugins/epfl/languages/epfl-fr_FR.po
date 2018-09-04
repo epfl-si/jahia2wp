@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-09-03 15:02+0200\n"
-"PO-Revision-Date: 2018-09-03 15:03+0200\n"
+"POT-Creation-Date: 2018-09-04 07:47+0200\n"
+"PO-Revision-Date: 2018-09-04 07:47+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -287,8 +287,8 @@ msgid "Title"
 msgstr "Titre"
 
 #: epfl-toggle/shortcake-config.php:22
-msgid "The title of the toggle"
-msgstr "Le titre de l'accordéon"
+msgid "Toggle title"
+msgstr "Titre de l'accordéon"
 
 #: epfl-toggle/shortcake-config.php:27
 msgid "Description"
@@ -299,17 +299,20 @@ msgid "Content shown when toggle is opened"
 msgstr "Contenu affiché lorsque l'accordéon est ouvert"
 
 #: epfl-toggle/shortcake-config.php:38
-msgid "Define the state of toggle"
+msgid "Define toggle state"
 msgstr "Définir l'état de l'accordéon"
 
 #: epfl-toggle/shortcake-config.php:42
-msgid "Do you want display the toggle open or close by default ?"
+msgid "Do you want display the toggle opened or closed by default ?"
 msgstr ""
 "Est ce que vous voulez que l'accordéon, par défaut, soit ouvert ou fermé ?"
 
 #: epfl-toggle/shortcake-config.php:61
 msgid "Toggle"
 msgstr "Accordéon"
+
+#~ msgid "The title of the toggle"
+#~ msgstr "Le titre de l'accordéon"
 
 #~ msgid "Template for laboratory website with 5 news"
 #~ msgstr "Template pour les sites de laboratoires (avec 5 actualités)"
