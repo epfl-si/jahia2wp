@@ -230,6 +230,24 @@ class Site:
 
         self.server_name = properties["siteservername"]
 
+    def get_menu_entry_for_nav_page_uuid(self, nav_page_uuid):
+        """
+        Looks for menu entry which have the given nav_page_uuid
+        :param nav_page_uuid: uuid to look for
+        :return: List with :
+                if found -> lang, MenuItem instance
+                if not found -> None, None
+        """
+        for lang, menu_entries in self.menus.items():
+
+            for menu_entry in menu_entries:
+                result = menu_entry.find_nav_page_uuid(nav_page_uuid)
+
+                if result:
+                    return [lang, result]
+
+        return [None, None]
+
     def parse_menu_entries(self, language, nav_list_list_node, parent_menu):
         """
         Parse menu entries, root and recursively sub entries of root.
@@ -265,6 +283,8 @@ class Site:
 
             for nav_page in nav_page_nodes:
 
+                nav_page_uuid = nav_page.getAttribute("jcr:uuid")
+
                 for jahia_type in nav_page.childNodes:
 
                     hidden = False
@@ -292,7 +312,7 @@ class Site:
                     else:
                         continue
 
-                    menu_item = MenuItem(txt, points_to, hidden)
+                    menu_item = MenuItem(txt, points_to, hidden, nav_page_uuid)
 
                     # If we are parsing root menu entries
                     if parent_menu is None:
@@ -306,6 +326,17 @@ class Site:
                     if nav_list_list_nodes:
                         # Parsing sub menu entries
                         self.parse_menu_entries(language, nav_list_list_nodes[0], menu_item)
+
+                # If no childNode, it means <navigationPage> can be a "reference" to a menu entry of another language
+                if not nav_page.childNodes:
+                    menu_item = MenuItem(None, nav_page_uuid, False, None)
+
+                    # If we are parsing root menu entries
+                    if parent_menu is None:
+                        self.menus[language].append(menu_item)
+
+                    else:  # We are parsing sub-menu entries
+                        parent_menu.children.append(menu_item)
 
         # Looking for sort information. If exists, the format is the following:
         # epfl_simple_navigationList_navigationPage;asc;false;false
@@ -763,6 +794,12 @@ class Site:
 
         tags = soup.find_all(tag_name)
 
+        # Regex to parse internal Jahia links. Here are type of links that can exists
+        # /cms/op/edit/lang/fr/ref/6a37c1e5-b935-409b-8c51-b0fe8834aef1
+        # http://jahia-prod.epfl.ch/cms/op/edit/lang/fr/ref/6a37c1e5-b935-409b-8c51-b0fe8834aef1
+        # ###page:/lang/fr/ref/be42d070-0578-4278-89f3-f3f48e261814
+        internal_link_reg = re.compile("(^###page|[\w:/.-]+/op/edit/(\w+/)+ref/[\w-]+)")
+
         for tag in tags:
             link = tag.get(attribute)
 
@@ -774,7 +811,7 @@ class Site:
                     return
 
             # internal Jahia links
-            if link.startswith("###page"):
+            if internal_link_reg.match(link):
                 uuid = link[link.rfind('/') + 1:]
 
                 # check if we have a Page with this uuid

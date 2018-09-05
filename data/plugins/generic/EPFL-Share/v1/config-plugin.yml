@@ -1,2 +1,2 @@
-src: generic/EPFL-Share/v1/EPFL-Share.zip
+src: ../wp/wp-content/plugins/EPFL-Share
 activate: yes

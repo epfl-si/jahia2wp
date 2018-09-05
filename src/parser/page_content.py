@@ -100,7 +100,13 @@ class PageContent:
                 for extra in child.childNodes:
                     if extra.ELEMENT_NODE != extra.nodeType:
                         continue
+
+                    # If we have to skip this box,
+                    if extra.getAttribute("jahia:acl") == "break":
+                        continue
+
                     multibox = extra.getElementsByTagName("text").length > 1
+
                     box = Box(site=self.site, page_content=self, element=extra, multibox=multibox)
                     self.sidebar.boxes.append(box)
 

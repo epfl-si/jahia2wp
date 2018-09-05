@@ -356,6 +356,8 @@ class Utils(object):
         """
         Add/update content in .htaccess file. Content is added between BEGIN and END markers (defined with 'marker')
 
+        Inspired by: https://developer.wordpress.org/reference/functions/insert_with_markers/
+
         Arguments keywords:
         site_root_path -- Path to website root (where .htaccess file is located)
         marker -- String to use to encapsulate content to add
@@ -491,3 +493,7 @@ class Utils(object):
             return html.replace('"', double_quote).replace("'", simple_quote)
         else:
             return html.replace(double_quote, '&quot;').replace(simple_quote, '&apos;')
+
+    @staticmethod
+    def escape_quotes(str):
+        return str.replace('"', '\\"')

@@ -293,7 +293,7 @@ class WPGenerator:
             # Command is in simple quotes and tagline between double quotes to avoid problems in case of simple quote
             # in tagline text. We initialize blogdescription with default language
             if not self.run_wp_cli('option update blogdescription "{}"'.format(
-                    self._site_params['wp_tagline'][self.default_lang()]),
+                    Utils.escape_quotes(self._site_params['wp_tagline'][self.default_lang()])),
                     encoding="utf-8"):
                 logging.error("%s - could not configure blog description", repr(self))
                 return False
@@ -401,6 +401,7 @@ class WPGenerator:
         # TODO: add those plugins into the general list of plugins (with the class WPMuPluginConfig)
         WPMuPluginConfig(self.wp_site, "epfl-functions.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL_custom_editor_menu.php").install()
+        WPMuPluginConfig(self.wp_site, "EPFL_jahia_redirect.php").install()
 
         if self.wp_config.installs_locked:
             WPMuPluginConfig(self.wp_site, "EPFL_installs_locked.php").install()

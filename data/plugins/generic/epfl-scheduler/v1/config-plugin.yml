@@ -1,2 +1,2 @@
-src: generic/epfl-scheduler/v1/epfl-scheduler.zip
+src: ../wp/wp-content/plugins/epfl-scheduler
 activate: yes

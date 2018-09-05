@@ -399,7 +399,7 @@ class WPExporter:
         :param site_folder: path to folder containing website files
         :return:
         """
-        logging.info("Fixing sidebar content links")
+        logging.info("Fixing sidebar content links...")
         for lang in self.site.homepage.contents.keys():
 
             for box in self.site.homepage.contents[lang].sidebar.boxes:
@@ -410,6 +410,7 @@ class WPExporter:
                 soup = BeautifulSoup(box.content, 'html5lib')
                 soup.body.hidden = True
 
+                # Step 1 - Fix in HTML tags
                 for url_mapping in self.urls_mapping:
                     new_url = "{}/{}/".format(site_folder, url_mapping["wp_slug"])
                     for old_url in url_mapping["jahia_urls"]:
@@ -421,7 +422,32 @@ class WPExporter:
                             tag_attribute="href"
                         )
 
+                # Step 2 - Fix internal absolute link
+                soup = self.fix_absolute_internal_links(soup)
+
                 box.content = str(soup.body)
+
+    def fix_absolute_internal_links(self, soup):
+        """
+
+        :param soup:
+        :return:
+        """
+        tags = soup.find_all('a')
+
+        for tag in tags:
+            link = tag.get('href')
+
+            if not link:
+                continue
+            # If it's a local absolute link, we have to rebuild it.
+            if link.startswith("http://" + self.site.server_name) or \
+                    link.startswith("https://" + self.site.server_name):
+                relative_link = link[link.index(self.site.server_name) + len(self.site.server_name):]
+
+                tag['href'] = "{}{}".format(self.wp_generator.wp_site.url, relative_link)
+
+        return soup
 
     def fix_page_links_in_pages(self, wp_pages, site_folder):
         """
@@ -430,7 +456,7 @@ class WPExporter:
         :param site_folder: path to folder containing website files
         :return:
         """
-        logging.info("Fixing page content links")
+        logging.info("Fixing pages content links...")
 
         for wp_page in wp_pages:
 
@@ -493,21 +519,7 @@ class WPExporter:
                     )
 
             # Step 3 - Fix internal absolute link
-            tags = soup.find_all('a')
-
-            for tag in tags:
-                link = tag.get('href')
-
-                if not link:
-                    continue
-                # If it's a local absolute link, we have to rebuild it.
-                # FIXME: we may have to do the same for sidebar content
-                if link.startswith("http://" + self.site.server_name) or \
-                        link.startswith("https://" + self.site.server_name):
-
-                    relative_link = link[link.index(self.site.server_name) + len(self.site.server_name):]
-
-                    tag['href'] = "{}{}".format(self.wp_generator.wp_site.url, relative_link)
+            soup = self.fix_absolute_internal_links(soup)
 
             # update the page
             wp_id = wp_page["id"]
@@ -542,7 +554,7 @@ class WPExporter:
             new_attribute = '{}="{}"'.format(attribute, new_url)
 
             # To use shortcake for snippet plugin we must define url="23" with 23 as media id.
-            if box.type == Box.TYPE_SNIPPETS or box.type == Box.TYPE_BUTTONS:
+            if box.type == Box.TYPE_SNIPPETS:
 
                 if 'guid' in wp_media and 'rendered' in wp_media['guid'] and wp_media['guid']['rendered'] == new_url:
                     new_attribute = '{}="{}"'.format(attribute, wp_media['id'])
@@ -787,23 +799,33 @@ class WPExporter:
                 # Updating page in WordPress
                 wp_page = self.update_page(page_id=wp_id, title=page.contents[lang].title, content=content)
 
-                # If generated slug is a reserved terms and page is right under homepage, we have to change it
-                # We only change slug if it will be imported at root level because it's the only place where it
-                # causes problem
-                if wp_page['slug'] in settings.WORDPRESS_RESERVED_TERMS and page.parent and page.parent.is_homepage():
-                    # A new slug is generated, trying to be unique
-                    new_slug = "{}-{}".format(wp_page['slug'], len(content))
-                    wp_page = self.update_page_slug(page_id=wp_id, slug=new_slug)
+                # If page update is successful
+                if wp_page:
+                    # If generated slug is a reserved terms and page is right under homepage, we have to change it
+                    # We only change slug if it will be imported at root level because it's the only place where it
+                    # causes problem
+                    if wp_page['slug'] in settings.WORDPRESS_RESERVED_TERMS \
+                            and page.parent and page.parent.is_homepage():
+                        # A new slug is generated, trying to be unique
+                        new_slug = "{}-{}".format(wp_page['slug'], len(content))
+                        wp_page = self.update_page_slug(page_id=wp_id, slug=new_slug)
 
-                # prepare mapping for htaccess redirection rules
-                mapping = {
-                    'jahia_urls': page.contents[lang].vanity_urls,
-                    'wp_slug': wp_page['slug']
-                }
+                    # prepare mapping for htaccess redirection rules
+                    mapping = {
+                        'jahia_urls': page.contents[lang].vanity_urls,
+                        'wp_slug': wp_page['slug']
+                    }
 
-                self.urls_mapping.append(mapping)
+                    self.urls_mapping.append(mapping)
 
-                logging.info("WP page '%s' created", wp_page['slug'])
+                    logging.info("WP page '%s' created", wp_page['slug'])
+
+                else:  # Error during page update
+
+                    logging.error("WP page '%s' import failed (lang: %s)", page.contents[lang].title, lang)
+                    # Setting error message on page
+                    content = '<h2><font color="red">Error importing page, maybe too many characters</font></h2>'
+                    wp_page = self.update_page(page_id=wp_id, title=page.contents[lang].title, content=content)
 
                 # keep WordPress ID for further usages
                 page.contents[lang].wp_id = wp_page['id']
@@ -894,7 +916,7 @@ class WPExporter:
         and doing everything in one place is more simple.
         """
         def prepare_html(html):
-            return Utils.escape_quotes(html.replace(u'\xa0', u' '))
+            return WPUtils.escape_quotes(html.replace(u'\xa0', u' '))
 
         widget_pos = 1
         widget_pos_to_lang = {}
@@ -908,7 +930,7 @@ class WPExporter:
                     logging.warning("Banner is empty")
                     continue
 
-                cmd = 'widget add text header-widgets --text="{}"'.format(
+                cmd = 'widget add custom_html header-widgets --content="{}"'.format(
                     banner.content.replace('"', '\\"'))
 
                 self.run_wp_cli(cmd)
@@ -1053,6 +1075,18 @@ class WPExporter:
 
         for sub_entry_index, menu_item in enumerate(parent_menu_item.children):
 
+            # Reference to a navigation page in another language menu
+            if menu_item.nav_page_uuid is None:
+                # We update value with the desired menu item
+                tmp_lang, tmp_menu_item = self.site.get_menu_entry_for_nav_page_uuid(menu_item.points_to)
+                # If not found we skip
+                if not tmp_menu_item:
+                    logging.warning("Menu not found for reference uuid %s ", menu_item.points_to)
+                    continue
+
+                menu_item = tmp_menu_item
+                lang = tmp_lang
+
             # If entry is visible
             if not menu_item.hidden:
 
@@ -1164,6 +1198,20 @@ class WPExporter:
                 # Looping through root menu entries
                 for root_entry_index, menu_item in enumerate(self.site.menus[lang]):
 
+                    menu_lang = lang
+
+                    # Reference to a navigation page in another language menu
+                    if menu_item.nav_page_uuid is None:
+                        # We look for target menu item and its language
+                        tmp_lang, tmp_menu_item = self.site.get_menu_entry_for_nav_page_uuid(menu_item.points_to)
+                        # If not found we skip
+                        if not tmp_menu_item:
+                            logging.warning("Menu not found for reference uuid %s ", menu_item.points_to)
+                            continue
+                        # Updating values with what we have found
+                        menu_item = tmp_menu_item
+                        menu_lang = tmp_lang
+
                     # If root entry is visible
                     if not menu_item.hidden:
 
@@ -1205,36 +1253,37 @@ class WPExporter:
                                 logging.error("Menu creation: No page found for UUID %s", menu_item.points_to)
                                 continue
 
-                            if lang not in target_page.contents:
+                            if menu_lang not in target_page.contents:
                                 logging.warning("Page not translated %s", target_page.pid)
                                 continue
 
-                            if target_page.contents[lang].wp_id:
+                            if target_page.contents[menu_lang].wp_id:
 
                                 # If we have a menu entry title and it is different as the page title,
                                 # we take the menu title
                                 menu_txt = menu_item.txt if menu_item.txt != "" else \
-                                    target_page.contents[lang].menu_title
+                                    target_page.contents[menu_lang].menu_title
 
                                 cmd = 'menu item add-post {} {} --title="{}" --porcelain' \
                                       .format(menu_name,
-                                              target_page.contents[lang].wp_id,
+                                              target_page.contents[menu_lang].wp_id,
                                               self.escape_menu_entry_txt(menu_txt))
                                 menu_id = self.run_wp_cli(cmd)
                                 if not menu_id:
                                     logging.warning("Root menu item not created %s for page ", target_page.pid)
                                 else:
-                                    self.menu_id_dict[target_page.contents[lang].wp_id] = Utils.get_menu_id(menu_id)
+                                    self.menu_id_dict[target_page.contents[menu_lang].wp_id] = \
+                                        Utils.get_menu_id(menu_id)
                                     self.report['menus'] += 1
 
                                 # create recursively submenus
                                 self.create_submenu(target_page,
                                                     menu_item,
-                                                    lang,
+                                                    menu_lang,
                                                     menu_name,
-                                                    self.menu_id_dict[target_page.contents[lang].wp_id])
+                                                    self.menu_id_dict[target_page.contents[menu_lang].wp_id])
 
-                logging.info("WP menus populated for '%s' language", lang)
+                logging.info("WP menu populated for '%s' language", lang)
 
         except Exception as e:
             logging.error("%s - WP export - menu failed: %s", self.site.name, e)

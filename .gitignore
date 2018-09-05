@@ -20,4 +20,6 @@ src/*tmp*.json
 src/*.zip
 ansible/*.json
 ansible/**/*.retry
-deploy.retry
+src/ventilation/*.csv
+src/ventilation/hosts/
+src/ventilation/wxr-*/
