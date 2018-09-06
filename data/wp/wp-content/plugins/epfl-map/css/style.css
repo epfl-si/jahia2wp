@@ -1,0 +1,25 @@
+/*** EPFL Map ***/
+
+/* Container for responsive media elements */
+
+.epfl-map-responsive {
+	position: relative;
+	padding-bottom: 56.25%;
+	height: 0;
+	overflow: hidden;
+}
+.epfl-map-responsive iframe,
+.epfl-map-responsive object,
+.epfl-map-responsive embed {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+/*		Map
+---------------------------------------------------------------*/
+
+.epfl-map { margin: 0 0 1.5em 0 }
+.epfl-map iframe { border: none !important }

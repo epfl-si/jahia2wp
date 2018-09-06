@@ -1,6 +1,5 @@
 import os
 import shutil
-
 import settings
 
 from .config import WPConfig
@@ -79,3 +78,11 @@ class WPThemeConfig(WPConfig):
             return result
         else:
             return self.run_wp_cli('option add epfl:theme_faculty {}'.format(self.faculty))
+
+    def install_and_activate(self, force_reinstall=False):
+        """
+        Install and activate 2018 theme
+        """
+        zip_url = "https://github.com/epfl-idevelop/wp-theme-2018/archive/master.zip"
+        force_option = "--force" if force_reinstall else ""
+        self.run_wp_cli('theme install --activate {} {}'.format(force_option, zip_url))
