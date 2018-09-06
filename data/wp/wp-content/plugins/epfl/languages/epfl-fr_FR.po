@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-09-06 10:55+0200\n"
-"PO-Revision-Date: 2018-09-06 10:55+0200\n"
+"POT-Creation-Date: 2018-09-06 11:17+0200\n"
+"PO-Revision-Date: 2018-09-06 11:17+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -34,6 +34,10 @@ msgstr "Lien de la carte"
 #: epfl-card/shortcake-config.php:31
 msgid "Card image"
 msgstr "Image de la carte"
+
+#: epfl-links-group/shortcake-config.php:11
+msgid "Links"
+msgstr "Liens"
 
 #: epfl-links-group/shortcake-config.php:14
 msgid "Label"

@@ -8,7 +8,7 @@ Class ShortCakeLinksGroupConfig
         $label = "";
 
         if ($i == 0) {
-            $label .= "<h2>Links</h2>";
+            $label .= '<h2>' . esc_html__('Links', 'epfl') . '</h2>';
         }
 
         $label .= '<hr><hr><strong>' . esc_html__('Label', 'epfl') . '</strong>';
