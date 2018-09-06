@@ -1,2 +1,2 @@
-src: generic/epfl-scienceqa/v1/epfl-scienceqa.zip
+src: ../wp/wp-content/plugins/epfl-scienceqa
 activate: yes

@@ -37,7 +37,7 @@ class WPBackup:
     # allow to override BACKUP_PATH in var env for travis (which uses a read-only system)
     BACKUP_PATH = Utils.get_optional_env("BACKUP_PATH", os.path.join(settings.DATA_PATH, 'backups'))
 
-    def __init__(self, openshift_env, wp_site_url):
+    def __init__(self, openshift_env, wp_site_url, full=False):
         """
         Class constructor
 
@@ -61,7 +61,7 @@ class WPBackup:
 
         # set backup type, and name for list file
         listfile = self.get_daily_list()
-        if listfile is None:
+        if listfile is None or full:
             self.backup_pattern = self.FULL_PATTERN
             self.listfile = os.path.join(
                 self.path,
