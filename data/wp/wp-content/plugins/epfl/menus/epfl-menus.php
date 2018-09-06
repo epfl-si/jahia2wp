@@ -43,7 +43,8 @@ class MenuError extends \Exception {};
  *
  * @url /epfl/v1/menus
  */
-class MenuRESTController {
+class MenuRESTController
+{
     static function hook () {
         REST_API::GET_JSON(
             '/menus',
@@ -85,7 +86,6 @@ class MenuRESTController {
             "items"  => wp_get_nav_menu_items($menu->term_id)
         );
     }
-
 }
 
 MenuRESTController::hook();
@@ -112,9 +112,16 @@ class MenuItemController
     const SLUG = "epfl-external-menu";
 
     static function hook () {
-        add_action('init', array(get_called_class(), 'register_post_type'));
-        add_action('admin_head', array(get_called_class(), 'render_css'));
-        add_action('admin_head-edit.php',array(get_called_class(), 'add_refresh_button'));
+        $thisclass = get_called_class();
+        add_action('init', array($thisclass, 'register_post_type'));
+        add_action('admin_head', array($thisclass, 'render_css'));
+        add_action('admin_head-edit.php',array($thisclass, 'add_refresh_button'));
+        add_action('admin_init', function() use ($thisclass) {
+            require_once(__DIR__ . '/../lib/ajax.php');
+            $endpoint = new \EPFL\AJAX\Endpoint('EPFLMenus');
+            $endpoint->register_handlers($thisclass);
+            $endpoint->admin_enqueue('edit.php');
+        });
     }
 
     /**
@@ -151,6 +158,9 @@ class MenuItemController
         ));
     }
 
+    static function ajax_refresh () {
+        error_log("Refresh button");
+    }
 
     /**
      * Make the "edit" screen for menu objects show the custom main-matter
@@ -182,15 +192,38 @@ class MenuItemController
  <?php
     }
 
+    public static function render_css () {
+        ?>
+<style>
+#edit-external-menu {
+        background-color: yellow;
+}
+</style>
+<?php
+    }
+
     public static function add_refresh_button () {
-        // https://stackoverflow.com/a/29813737/435004
+        // https://stackoverflow.com/a/29813737/435004 says,
+        // there's no doing this but with jQuery. So let's throw
+        // in some AJAX on top, shall we?
         global $current_screen;
 
         if (static::SLUG != $current_screen->post_type) return;
         ?><script>
 jQuery(function($) {
     $('a.page-title-action').remove();
-    $('h1.wp-heading-inline').after('<a class="page-title-action"><?php _e("Refresh"); ?></a>');
+    $('h1.wp-heading-inline').after('<button class="page-title-action"><?php _e("Refresh"); ?></button>');
+    var $button = $('h1.wp-heading-inline').next();
+    $button.click(function() {
+        window.EPFLMenus.post("refresh")
+              .done(function() {
+                  console.log("Refresh done");
+                  window.location.reload(true);
+              })
+              .fail(function() {
+                  alert("<?php __e('Refresh failed'); ?>");
+              });
+    });
 });
 </script><?php
     }
@@ -221,7 +254,8 @@ MenuItemController::hook();
  * This is a "pure static" class, i.e. no instances are ever
  * constructed.
  */
-class MenuEditorController {
+class MenuEditorController
+{
     function hook () {
         add_action('admin_init', array(get_called_class(), 'add_meta_box'));
 
