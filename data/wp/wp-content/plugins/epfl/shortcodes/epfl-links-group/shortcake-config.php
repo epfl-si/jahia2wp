@@ -24,6 +24,7 @@ Class ShortCakeLinksGroupConfig
             'label'       => '<h3>' . esc_html__('Title', 'epfl') . '</h3>',
             'attr'        => 'title',
             'type'        => 'text',
+            'description' => '<a target="_blank" href="https://epfl-idevelop.github.io/elements/#/molecules/links-group">Documentation</a>'
         ]);
 
         array_push($fields, [
@@ -53,21 +54,17 @@ Class ShortCakeLinksGroupConfig
 
     public static function config()
     {
-
-        global $iconDirectory;
-
         shortcode_ui_register_for_shortcode(
 
             'epfl_links_group',
 
             array(
                 'label'         => esc_html__( 'Links group', 'epfl'),
-                'listItemImage' => '<img src="' . $iconDirectory . 'links-group.png'.'">',
+                'listItemImage' => '<img src="' . plugins_url( 'img/links-group.svg', __FILE__ ) . '" >',
                 'attrs'         => ShortCakeLinksGroupConfig::get_fields(),
             )
 
         );
-
     }
 }
 ?>
