@@ -1,8 +1,6 @@
 import os
 import shutil
-
 import settings
-from utils import Utils
 
 from .config import WPConfig
 
@@ -83,22 +81,8 @@ class WPThemeConfig(WPConfig):
 
     def install_and_activate(self, force_reinstall=False):
         """
-        Install 2018 theme
-
-        1. Download 2018 theme zip directly on github (master branch)
-        2. Install and activate 2018 theme
-        3. Delete zip
+        Install and activate 2018 theme
         """
-
-        # Download zip
-        theme_zip_path = os.path.sep.join([self.wp_site.path, self.THEMES_PATH, "wp-theme-2018.zip"])
-        cmd = "curl -L -o {} https://github.com/epfl-idevelop/wp-theme-2018/archive/master.zip".format(theme_zip_path)
-        Utils.run_command(cmd)
-
-        # Install and activate
+        zip_url = "https://github.com/epfl-idevelop/wp-theme-2018/archive/master.zip"
         force_option = "--force" if force_reinstall else ""
-        self.run_wp_cli('theme install --activate {} {}'.format(force_option, theme_zip_path))
-
-        # Delete zip
-        cmd = "rm {}".format(theme_zip_path)
-        Utils.run_command(cmd)
+        self.run_wp_cli('theme install --activate {} {}'.format(force_option, zip_url))
