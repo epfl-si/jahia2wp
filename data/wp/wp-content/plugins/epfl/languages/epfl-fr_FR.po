@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-09-04 08:01+0200\n"
-"PO-Revision-Date: 2018-09-04 08:01+0200\n"
+"POT-Creation-Date: 2018-09-06 11:17+0200\n"
+"PO-Revision-Date: 2018-09-06 11:17+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -20,12 +20,12 @@ msgid "Card"
 msgstr "Carte"
 
 #: epfl-card/shortcake-config.php:16
-msgid "Card text"
-msgstr "Texte de la carte"
-
-#: epfl-card/shortcake-config.php:21
 msgid "Card title"
 msgstr "Titre de la carte"
+
+#: epfl-card/shortcake-config.php:21
+msgid "Card text"
+msgstr "Texte de la carte"
 
 #: epfl-card/shortcake-config.php:26
 msgid "Card link"
@@ -34,6 +34,35 @@ msgstr "Lien de la carte"
 #: epfl-card/shortcake-config.php:31
 msgid "Card image"
 msgstr "Image de la carte"
+
+#: epfl-links-group/shortcake-config.php:11
+msgid "Links"
+msgstr "Liens"
+
+#: epfl-links-group/shortcake-config.php:14
+msgid "Label"
+msgstr "Libellé"
+
+#: epfl-links-group/shortcake-config.php:24 epfl-toggle/shortcake-config.php:20
+msgid "Title"
+msgstr "Titre"
+
+#: epfl-links-group/shortcake-config.php:30
+#: epfl-links-group/shortcake-config.php:45
+msgid "URL"
+msgstr "URL"
+
+#: epfl-links-group/shortcake-config.php:40
+msgid "Link label"
+msgstr "Libellé du lien"
+
+#: epfl-links-group/shortcake-config.php:47
+msgid "Link URL"
+msgstr "L'URL du lien"
+
+#: epfl-links-group/shortcake-config.php:64
+msgid "Links group"
+msgstr "Groupe de liens"
 
 #: epfl-memento/shortcake-config.php:46
 msgid "Template with the first highlighted event"
@@ -301,10 +330,6 @@ msgstr "Ouvert"
 #: epfl-toggle/shortcake-config.php:10
 msgid "Close"
 msgstr "Fermé"
-
-#: epfl-toggle/shortcake-config.php:20
-msgid "Title"
-msgstr "Titre"
 
 #: epfl-toggle/shortcake-config.php:22
 msgid "Toggle title"
