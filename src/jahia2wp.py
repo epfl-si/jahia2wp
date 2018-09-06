@@ -41,6 +41,7 @@ Usage:
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
   jahia2wp.py fan-global-sitemap    <csv_file> <wp_path>            [--debug | --quiet]
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
+  jahia2wp.py shortcode-list        <path>                          [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
     [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
@@ -67,7 +68,6 @@ import subprocess
 from collections import OrderedDict
 from datetime import datetime, date
 from pprint import pprint
-
 import os
 import shutil
 
@@ -93,6 +93,7 @@ from veritas.casters import cast_boolean
 from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
 from fan.fan_global_sitemap import FanGlobalSitemap
+from migration2018.shortcodes import Shortcodes
 
 
 def _check_site(wp_env, wp_url, **kwargs):
@@ -477,7 +478,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     # skip_media: if True don't import the media
     # skip_pages: if True don't import the pages
     skip_base = False
-    skip_media = False
+    skip_media = True
     skip_pages = False
 
     # List of plugins to let in 'deactivated' state during import. To earn more time, they are not activated during
@@ -856,6 +857,19 @@ def rotate_backup(csv_file, dry_run=False, **kwargs):
                 include_list=[pattern]
             ).rotate_backups(path)
 
+@dispatch.on('shortcode-list')
+def shortcode_list(path, **kwargs):
+    logging.info("Listing used shortcodes...")
+
+    shortcodes = Shortcodes()
+
+    shortcodes.locate_existing(path)
+
+    print("# shortcodes found: {}".format(len(shortcodes.shortcode_list.keys())))
+
+    print(shortcodes.shortcode_list)
+
+    logging.info("Shortcodes listed for %s", path)
 
 @dispatch.on('inventory')
 def inventory(path, **kwargs):

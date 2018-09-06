@@ -247,3 +247,7 @@ FEATURES_FLAGS_ATTRIBUTES_TO_CLEAN = ['style']
 # Retries settings for WPCLI and WordPress API calls
 WP_CLI_AND_API_NB_TRIES = 3
 WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES = 5
+
+# Status for WordPress site installs
+WP_SITE_INSTALL_OK = 'OK'
+WP_SITE_INSTALL_KO = 'KO'
