@@ -350,11 +350,17 @@ class WPGenerator:
         cmd = "widget list {} --fields=id --format=csv".format(sidebar)
         # Result is sliced to remove 1st element which is name of field (id).
         # Because WPCLI command can take several fields, the name is displayed in the result.
-        widgets_id_list = self.run_wp_cli(cmd).split("\n")[1:]
-        for widget_id in widgets_id_list:
-            cmd = "widget delete " + widget_id
-            self.run_wp_cli(cmd)
-        logging.info("%s - All widgets deleted", repr(self))
+        widgets_id_list = self.run_wp_cli(cmd)
+
+        if widgets_id_list:
+            widgets_id_list = widgets_id_list.split("\n")[1:]
+
+            for widget_id in widgets_id_list:
+                cmd = "widget delete " + widget_id
+                self.run_wp_cli(cmd)
+            logging.info("%s - All widgets deleted", repr(self))
+        else:
+            logging.info("%s - No widget to delete", repr(self))
 
     def validate_mockable_args(self, wp_site_url):
         """ Call validators in an independant function to allow mocking them """

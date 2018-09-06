@@ -1,64 +1,54 @@
 <?php
 /**
- * The main template file
- *
- * This is the most generic template file in a WordPress theme
- * and one of the two required files for a theme (the other being style.css).
- * It is used to display a page when nothing more specific matches a query.
- * E.g., it puts together the home page when no home.php file exists.
- *
- * @link https://developer.wordpress.org/themes/basics/template-hierarchy/
- *
  * @package epfl
  */
+init_globals();
+get_header();
 
-get_header(); ?>
+global $containerClasses;
 
-<div class="wrap">
-	<div id="primary" class="content-area">
-		<main id="main" class="site-main" role="main">
-  		
-  		<?php if ( is_home() && ! is_front_page() ) : ?>
-    		<header class="page-header">
-    			<h1 class="page-title"><?php single_post_title(); ?></h1>
-    		</header>
-    	<?php else : ?>
-    	<header class="page-header">
-    		<h2 class="page-title"><?php _e( 'Posts', 'epfl' ); ?></h2>
-    	</header>
-    	<?php endif; ?>
-    	
-      <section class="list-articles clearfix">
+if (!is_front_page()) {
+	get_template_part( 'template-parts/breadcrumb');
+}
+?>
 
-			<?php
-			if ( have_posts() ) :
-
-				/* Start the Loop */
-				while ( have_posts() ) : the_post();
-
-					/*
-					 * Include the Post-Format-specific template for the content.
-					 * If you want to override this in a child theme, then include a file
-					 * called content-___.php (where ___ is the Post Format name) and that will be used instead.
-					 */
-					get_template_part( 'template-parts/post/content', get_post_format() );
-
-				endwhile;
-
-				the_posts_pagination();
-
-			else :
-
-				get_template_part( 'template-parts/post/content', 'none' );
-
-			endif;
-			?>
-			
-      </section>
-
-		</main><!-- #main -->
-	</div><!-- #primary -->
+<div class="<?php echo $containerClasses ?>">
 	<?php get_sidebar(); ?>
-</div><!-- .wrap -->
+	<div class="container">
+		<div class="row">
 
-<?php get_footer();
+			<div class="col-12">
+				<h1>
+					<?php echo(apply_filters( 'the_title', get_the_title( get_option( 'page_for_posts' )))); ?>
+				</h1>
+			</div>
+
+			<aside class="col-md-3 mt-5">
+				<?php get_template_part( 'template-parts/categories', 'list' ) ?>
+				<?php get_template_part( 'template-parts/archives', 'list' ) ?>
+			</aside>
+
+			<main id="content" role="main" class="content col-md-9 mt-5">
+				<div class="list-group">
+					<?php
+				if (have_posts()) :
+					while ( have_posts() ) : the_post();
+						get_template_part( 'template-parts/content', 'post-teaser' );
+					endwhile; // End of the loop.
+				else : ?>
+						<h2>
+							<?php esc_html_e( 'No article found', 'epfl' ) ?>
+						</h2>
+				<?php endif; ?>
+				</div>
+				<?php get_template_part( 'template-parts/pagination'); ?>
+			</main>
+		</div>
+		<!-- container -->
+	</div>
+	<!-- row -->
+</div>
+<!-- nav-toggle -->
+
+	<?php
+get_footer();

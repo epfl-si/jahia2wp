@@ -4,60 +4,52 @@
  *
  * @link https://developer.wordpress.org/themes/basics/template-hierarchy/#search-result
  *
- * @package WordPress
- * @subpackage Twenty_Seventeen
- * @since 1.0
- * @version 1.0
+ * @package epfl
  */
 
-get_header(); ?>
+get_header();
+?>
 
-<div class="wrap">
-  	<div id="primary" class="content-area">
-  		<main id="main" class="site-main" role="main">
-    		
-    		<header class="page-header">
-      		<?php if ( have_posts() ) : ?>
-      			<h1 class="page-title"><?php printf( __( 'Search Results for: %s', 'epfl' ), '<span>' . get_search_query() . '</span>' ); ?></h1>
-      		<?php else : ?>
-      			<h1 class="page-title"><?php _e( 'Nothing Found', 'epfl' ); ?></h1>
-      		<?php endif; ?>
-      	</header><!-- .page-header -->
-      	
-      	<section class="list-articles clearfix">
+	<section id="primary" class="content-area">
+		<main id="main" class="site-main">
 
-		<?php
-		if ( have_posts() ) :
+		<?php if ( have_posts() ) : ?>
+
+			<header class="page-header">
+				<h1 class="page-title">
+					<?php
+					/* translators: %s: search query. */
+					printf( esc_html__( 'Search Results for: %s', 'epfl' ), '<span>' . get_search_query() . '</span>' );
+					?>
+				</h1>
+			</header><!-- .page-header -->
+
+			<?php
 			/* Start the Loop */
-			while ( have_posts() ) : the_post();
+			while ( have_posts() ) :
+				the_post();
 
 				/**
 				 * Run the loop for the search to output the results.
 				 * If you want to overload this in a child theme then include a file
 				 * called content-search.php and that will be used instead.
 				 */
-				get_template_part( 'template-parts/page/content', 'search' );
+				get_template_part( 'template-parts/content', 'search' );
 
-			endwhile; // End of the loop.
+			endwhile;
 
-			the_posts_pagination(); ?>
-			
-      	</section>
+			the_posts_navigation();
 
-		<?php else : ?>
+		else :
 
-			<p><?php _e( 'Sorry, but nothing matched your search terms. Please try again with some different keywords.', 'epfl' ); ?></p>
-			<?php
-				get_search_form();
+			get_template_part( 'template-parts/content', 'none' );
 
 		endif;
 		?>
-  
-  		</main><!-- #main -->
-  	</div><!-- #primary -->
-    
-    <?php get_sidebar(); ?>
 
-</div><!-- .wrap -->
+		</main><!-- #main -->
+	</section><!-- #primary -->
 
-<?php get_footer();
+<?php
+get_sidebar();
+get_footer();

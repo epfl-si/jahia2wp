@@ -7,31 +7,34 @@
  * @package epfl
  */
 
-get_header(); ?>
+init_globals();
+get_header();
 
-<div class="wrap">
-	<div id="primary" class="content-area">
-		<main id="main" class="site-main" role="main">
+global $containerClasses;
 
-			<?php
-			/* Start the Loop */
-			while ( have_posts() ) : the_post();
+if (!is_front_page()) {
+	get_template_part( 'template-parts/breadcrumb');
+}
+?>
 
-				get_template_part( 'template-parts/post/content', get_post_format() );
+	<div class="<?php echo $containerClasses ?>">
+		<div class="w-100">
+			<main id="content" role="main" class="content pt-5">
+				<?php
+			while ( have_posts() ) :
+				the_post();
 
-				// If comments are open or we have at least one comment, load up the comment template.
-				if ( comments_open() || get_comments_number() ) :
-					comments_template();
-				endif;
-
-				the_post_navigation();
+				get_template_part( 'template-parts/content', get_post_type() );
 
 			endwhile; // End of the loop.
 			?>
+			</main>
+		</div> <!-- w-100 -->
 
-		</main><!-- #main -->
-	</div><!-- #primary -->
-	<?php get_sidebar(); ?>
-</div><!-- .wrap -->
+		<?php get_sidebar(); ?>
+	</div> <!-- nav-toggle-layout -->
 
-<?php get_footer();
+	</div> <!-- main-container -->
+
+<?php
+get_footer();
