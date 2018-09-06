@@ -62,7 +62,7 @@ Class ShortCakeLinksGroupConfig
 
             array(
                 'label'         => esc_html__( 'Links group', 'epfl'),
-                'listItemImage' => '<img src="' . $iconDirectory . 'links_group.png'.'">',
+                'listItemImage' => '<img src="' . $iconDirectory . 'links-group.png'.'">',
                 'attrs'         => ShortCakeLinksGroupConfig::get_fields(),
             )
 
