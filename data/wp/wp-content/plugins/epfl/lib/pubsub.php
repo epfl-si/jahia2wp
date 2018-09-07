@@ -85,11 +85,18 @@ class PubsubController
     public function subscribe ($remote_url) {
         $slug = $this->slug;
         $nonce = "SOMENONCE";  // TODO: pick a real one, remember the last two
-        RESTClient::POST_JSON(
-            $remote_url,
-            array(
-                "instance_id"   => $this->instance_id(),
-                "callback_url"  => $this->my_urls->webhook(array("nonce" => $nonce))));
+        $testing = new _TestingFlow();
+        $testing->expect_test_webhook($nonce);
+        try {
+            RESTClient::POST_JSON(
+                $remote_url,
+                array(
+                    "instance_id"   => $this->instance_id(),
+                    "callback_url"  => $this->my_urls->webhook(array("nonce" => $nonce))));
+            $testing->expect_test_webhook_done();
+        } finally {
+            $testing->cleanup();
+        }
     }
 
     /**
@@ -111,12 +118,14 @@ class PubsubController
     function on_REST_subscribe ($req) {
         $params = $req->get_params();
         $remote_instance_id = $params["instance_id"];
-        _Subscriber::overwrite($this->slug, $remote_instance_id, $callback_url);
+        $subscriber = _Subscriber::overwrite($this->slug, $remote_instance_id, $callback_url);
+        $subscriber->test_webhook();
     }
 
     public /* not really */
     function on_REST_webhook ($req) {
-        // TODO: validate the nonce
+        $nonce = $req->params["nonce"];
+        // TODO: validate $nonce
         $event = Event::unmarshall($req->get_params());
         foreach ($this->listeners as $callable) {
             call_user_func($callable, $event);
@@ -194,11 +203,13 @@ class PubsubURLs {
  * automated cleanup of failing subscribers
  *
  * An instance represents one subscriber, and it knows how
- * to send an @link Event to it through its webhook.
+ * to send an @link Event to it through its webhook and how
+ * to exercise the @_TestingFlow.
  */
 class _Subscriber
 {
-    const DEAD_SUBSCRIBER_TIMEOUT_SECS = 86400 * 30;
+    private const DEAD_SUBSCRIBER_TIMEOUT_SECS = 86400 * 30;
+    private const TABLE_NAME = "epfl_pubsub_subscribers";
 
     static function hook () {
         \EPFL\ThisPlugin\on_activate(
@@ -207,7 +218,8 @@ class _Subscriber
 
     static function create_table () {
         global $wpdb;
-        $wpdb->query("CREATE TABLE IF NOT EXISTS subscriber (
+        $table_name = self::TABLE_NAME;
+        $wpdb->query("CREATE TABLE IF NOT EXISTS $table_name (
   slug VARCHAR(100) NOT NULL,
   instance_id VARCHAR(1024),
   callback_url VARCHAR(1024),
@@ -225,8 +237,9 @@ class _Subscriber
 
         $that->_delete();
         global $wpdb;
+        $table_name = self$TABLE_NAME;
         $wpdb->query($wpdb->prepare(
-            "INSERT INTO subscriber (instance_id, slug, callback_url)
+            "INSERT INTO epfl_$table_name (instance_id, slug, callback_url)
              VALUES (%s, %s, %s)",
             $this->instance_id, $this->slug, $this->callback_url));
 
@@ -237,8 +250,9 @@ class _Subscriber
 
     private function _delete () {
         global $wpdb;
+        $table_name = self::TABLE_NAME;
         $wpdb->query($wpdb->prepare(
-            "DELETE FROM subscriber
+            "DELETE FROM $table_name
                  WHERE instance_id = %s AND slug = %s",
             $this->instance_id, $this->slug));
     }
@@ -246,9 +260,10 @@ class _Subscriber
     static function by_slug ($slug) {
         $thisclass = get_called_class();
         $objects = array();
+        $table_name = self::TABLE_NAME;
         for ($wpdb->get_results($wpdb->prepare(
             "SELECT slug, instance_id, callback_url, UNIX_TIMESTAMP(last_failure)
-             FROM subscriber
+             FROM $table_name
              WHERE slug = %s", $slug)) as $line) {
             $that = new $thisclass();
             $that->instance_id  = $db_line->instance_id;
@@ -274,13 +289,25 @@ class _Subscriber
         }
     }
 
+    public function test_webhook () {
+        $test_url = preg_replace('|/webhook([&?]|$)', '/webhook-test$1',
+                                 $this->callback_url);
+        try {
+            RESTClient::POST_JSON($test_url, array());
+            $this->mark_success();
+        } catch (RESTClientError $e) {
+            error_log($e);
+            $this->mark_error();
+        }
+    }
+
     public function mark_error () {
-        global $wpdb;
         if (! $this->last_failure) {
             $this->last_failure = time();
             global $wpdb;
+            $table_name = self::TABLE_NAME;
             $wpdb->query($wpdb->prepare(
-                "UPDATE subscriber SET last_failure = FROM_UNIXTIME(%d)
+                "UPDATE $table_name SET last_failure = FROM_UNIXTIME(%d)
                  WHERE instance_id = %s AND slug = %s",
                 $this->last_failure, $this->instance_id, $this->slug));
         } else if (time() - $this->last_failure
@@ -292,12 +319,17 @@ class _Subscriber
     public function mark_success () {
         if (! $this->last_failure) return;
         
+        global $wpdb;
+        $table_name = self::TABLE_NAME;
         $wpdb->query($wpdb->prepare(
-            "UPDATE subscriber SET last_failure = NULL
+            "UPDATE epfl_pubsub_subscriber SET last_failure = NULL
                  WHERE instance_id = %s AND slug = %s",
             $this->instance_id, $this->slug));
+        $this->last_failure = NULL;
     }
 }
+
+_Subscriber::hook();
 
 /**
  * A data structure used to prevent loops in pubsub propagation.
@@ -347,5 +379,95 @@ class Event
         $that->path      = $this->path;
         $that->path[]    = $via_instance_id;
         return $that;
+    }
+}
+
+class TestingFlowFailedException extends \Exception {}
+
+/**
+ * Handle the synchronous callback at @link PubsubController::subscribe
+ * time
+ */
+class _TestingFlow
+{
+    private const TABLE_NAME = "epfl_pubsub_test_pingbacks";
+
+    function hook() {
+        REST_API::POST_JSON(
+            "/pubsub/(?P<slug>.*)/webhook-test", $this, 'on_REST_test_webhook');
+        \EPFL\ThisPlugin\on_activate(
+            array(get_called_class(), "create_table"));
+        \EPFL\ThisPlugin\on_deactivate(
+            array(get_called_class(), "drop_table"));
+    }
+
+    static function create_table () {
+        global $wpdb;
+        $table_name = self::TABLE_NAME;
+        $wpdb->query("CREATE TABLE IF NOT EXISTS $table_name (
+  slug VARCHAR(100) NOT NULL,
+  nonce VARCHAR(100)
+);");
+    }
+
+    static function drop_table () {
+        global $wpdb;
+        $table_name = self::TABLE_NAME;
+        $wpdb->query("DROP TABLE $table_name;");
+    }
+
+
+    function __construct ($slug) {
+        $this->slug = $slug;
+    }
+
+    function expect_test_webhook ($nonce) {
+        global $wpdb;
+        $table_name = self::TABLE_NAME;
+        $wpdb->query($wpdb->prepare(
+            "INSERT INTO $table_name (slug, nonce)
+             VALUES (%s, %s)",
+            $this->slug, $nonce));
+        $this->nonce = $nonce;  # For cleanup
+    }
+
+    /**
+     * Must be preceded by a call to @$link expect_test_webhook
+     * *from the same request cycle*
+     */
+    function expect_test_webhook_done () {
+        global $wpdb;
+        $table_name = self::TABLE_NAME;
+        $actual_count = $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM $table_name
+             WHERE slug = %s AND nonce = %s",
+            $this->slug, $this->nonce));
+        
+        if ($actual_count != 0) {
+            throw new TestingFlowFailedException(sprintf(
+                "Pingback testing flow failed: %d tests in progress found (expected 0)",
+                $actual_count));
+        }
+        unset($this->nonce);
+    }
+
+    function cleanup () {
+        if ($this->nonce) {
+            static::_delete($this->slug, $this->nonce);
+            unset($this->nonce);
+        }
+    }
+
+    static function on_REST_test_webhook ($req) {
+        static::_delete($req['slug'], $req->params['nonce']);
+        return array("status" => "OK");
+    }
+
+    static function _delete ($slug, $nonce) {
+        global $wpdb;
+        $table_name = self::TABLE_NAME;
+        return $wpdb->query($wpdb->prepare(
+            "DELETE FROM $table_name WHERE slug = %s AND nonce = %s",
+            $slug, $nonce));
     }
 }
