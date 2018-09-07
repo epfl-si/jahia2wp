@@ -341,16 +341,24 @@ class WPGenerator:
 
     def delete_widgets(self, sidebar="homepage-widgets"):
         """
-        Delete all widgets from the given sidebar.
+        Delete all widgets from the given sidebar if it exists
 
         There are 2 sidebars :
         - One sidebar for the homepage. In this case sidebar parameter is "homepage-widgets".
         - Another sidebar for all anothers pages. In this case sidebar parameter is "page-widgets".
         """
+        cmd = "sidebar list --fields=name --format=csv"
+        sidebar_list = self.run_wp_cli(cmd)
+
+        if sidebar not in sidebar_list:
+            logging.info("%s - Sidebar %s doesn't exists", repr(self), sidebar)
+            return
+
         cmd = "widget list {} --fields=id --format=csv".format(sidebar)
         # Result is sliced to remove 1st element which is name of field (id).
         # Because WPCLI command can take several fields, the name is displayed in the result.
         widgets_id_list = self.run_wp_cli(cmd).split("\n")[1:]
+
         for widget_id in widgets_id_list:
             cmd = "widget delete " + widget_id
             self.run_wp_cli(cmd)
