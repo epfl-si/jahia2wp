@@ -1447,6 +1447,7 @@ class WPExporter:
                         redirect_list.append("Redirect 301 {} {}".format(source_url,  target_url))
 
         if redirect_list:
+            redirect_list.reverse()
             # Updating .htaccess file
             WPUtils.insert_in_htaccess(self.wp_generator.wp_site.path,
                                        "Jahia-Page-Redirect",
