@@ -1427,6 +1427,9 @@ class WPExporter:
             folder = ""
         else:
             folder = "/{}".format(self.wp_generator.wp_site.folder)
+
+        # We use an ordered dict to store redirections so we will later be able to sort (descending) by source
+        # so we will avoid to have "short" rules matching before "long" rules.
         redirect_dict = OrderedDict()
 
         # Add all rewrite jahia URI to WordPress URI
@@ -1446,14 +1449,14 @@ class WPExporter:
                     if source_url != target_url[:-1]:
                         redirect_dict[source_url] = target_url
 
-
+        # If we have redirections
         if redirect_dict:
 
             # Sorting DESC to be sure longer source URL will be taken before shorter ones
-            redirect_dict = OrderedDict(sorted(redirect_dict.items(), key=lambda kv: kv, reverse=True))
+            desc_redirect_dict = OrderedDict(sorted(redirect_dict.items(), key=lambda kv: kv, reverse=True))
 
             redirect_list = []
-            for source_url, target_url in redirect_dict:
+            for source_url, target_url in desc_redirect_dict.items():
                 redirect_list.append("Redirect 301 {} {}".format(source_url, target_url))
 
             # Updating .htaccess file
