@@ -16,7 +16,7 @@ Class ShortCakeCoverConfig
                             'label'       => '<h3>' . esc_html__('Cover description', 'epfl') . '</h3>',
                             'attr'        => 'description',
                             'type'        => 'textarea',
-                            'description' => '<a href="https://epfl-idevelop.github.io/elements/#/molecules/cover">Documentation</a>'
+                            'description' => '<a target="_blank" href="https://epfl-idevelop.github.io/elements/#/molecules/cover">Documentation</a>'
                         ),
                         array(
                             'label'       => '<h3>' . esc_html__('Cover image', 'epfl') . '</h3>',
