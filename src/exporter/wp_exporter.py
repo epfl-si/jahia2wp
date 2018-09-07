@@ -1427,7 +1427,7 @@ class WPExporter:
             folder = ""
         else:
             folder = "/{}".format(self.wp_generator.wp_site.folder)
-        redirect_list = []
+        redirect_dict = OrderedDict()
 
         # Add all rewrite jahia URI to WordPress URI
         for element in self.urls_mapping:
@@ -1444,9 +1444,18 @@ class WPExporter:
                     target_url = "{}{}".format(folder, wp_url)
                     # To avoid Infinite loop
                     if source_url != target_url[:-1]:
-                        redirect_list.append("Redirect 301 {} {}".format(source_url,  target_url))
+                        redirect_dict[source_url] = target_url
 
-        if redirect_list:
+
+        if redirect_dict:
+
+            # Sorting DESC to be sure longer source URL will be taken before shorter ones
+            redirect_dict = OrderedDict(sorted(redirect_dict.items(), key=lambda kv: kv, reverse=True))
+
+            redirect_list = []
+            for source_url, target_url in redirect_dict:
+                redirect_list.append("Redirect 301 {} {}".format(source_url, target_url))
+
             # Updating .htaccess file
             WPUtils.insert_in_htaccess(self.wp_generator.wp_site.path,
                                        "Jahia-Page-Redirect",
