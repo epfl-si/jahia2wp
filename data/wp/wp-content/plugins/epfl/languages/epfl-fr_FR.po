@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-09-07 07:59+0200\n"
-"PO-Revision-Date: 2018-09-07 07:59+0200\n"
+"POT-Creation-Date: 2018-09-07 11:36+0200\n"
+"PO-Revision-Date: 2018-09-07 11:36+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -43,7 +43,7 @@ msgstr ""
 msgid "Cover description"
 msgstr "Description de cover"
 
-#: epfl-cover/shortcake-config.php:21
+#: epfl-cover/shortcake-config.php:22
 msgid "Cover image"
 msgstr "Image de Cover"
 
@@ -367,6 +367,30 @@ msgstr ""
 #: epfl-toggle/shortcake-config.php:61
 msgid "Toggle"
 msgstr "Accordéon"
+
+#: epfl-video/shortcake-config.php:16
+msgid "URL of the video"
+msgstr "URL de la vidéo"
+
+#: epfl-video/shortcake-config.php:19
+msgid "You can copy/paste a YouTube or SWITCHTube URL"
+msgstr "Vous pouvez copier/coller des URLs provenant de YouTube ou SWITCHTube"
+
+#: epfl-video/shortcake-config.php:22
+msgid "Video width"
+msgstr "Largeur de la vidéo"
+
+#: epfl-video/shortcake-config.php:26
+msgid "Recommended value: 600"
+msgstr "Valeur recommandée: 600"
+
+#: epfl-video/shortcake-config.php:29
+msgid "Video height"
+msgstr "Hauteur de la vidéo"
+
+#: epfl-video/shortcake-config.php:33
+msgid "Recommended value: 400"
+msgstr "Valeur recommandée: 400"
 
 #~ msgid "The title of the toggle"
 #~ msgstr "Le titre de l'accordéon"

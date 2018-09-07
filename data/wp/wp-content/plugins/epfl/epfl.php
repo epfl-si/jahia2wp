@@ -13,6 +13,7 @@ require_once 'shortcodes/epfl-toggle/epfl-toggle.php';
 require_once 'shortcodes/epfl-cover/epfl-cover.php';
 require_once 'shortcodes/epfl-links-group/epfl-links-group.php';
 require_once 'shortcodes/epfl-card/epfl-card.php';
+require_once 'shortcodes/epfl-video/epfl-video.php';
 
 // load .mo file for translation
 function epfl_load_plugin_textdomain() {
