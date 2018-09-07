@@ -916,6 +916,18 @@ class WPExporter:
             )
             self.create_footer_menu(sitemap_wp_id=wp_page['id'], lang=lang)
 
+    def sidebar_exists(self, sidebar_name):
+        """
+        To tell if a sidebar exists. This is useful because sidebar cannot exists in 2018 EPFL theme
+
+        :param sidebar_name: Name of the sidebar we want to know if it exists.
+        :return:
+        """
+        cmd = "sidebar list --fields=name --format=csv"
+        sidebar_list = self.run_wp_cli(cmd)
+
+        return sidebar_name in sidebar_list
+
     def import_sidebars(self):
         """
         Import sidebars via wpcli
@@ -934,63 +946,74 @@ class WPExporter:
         try:
             # First, we import banners if exists
             # Banner is only one text widget per lang in a dedicated sidebar
-            for lang, banner in self.site.banner.items():
+            current_sidebar = 'header-widgets'
+            if self.sidebar_exists(current_sidebar):
+                for lang, banner in self.site.banner.items():
 
-                if not banner.content:
-                    logging.warning("Banner is empty")
-                    continue
-
-                cmd = 'widget add custom_html header-widgets --content="{}"'.format(
-                    banner.content.replace('"', '\\"'))
-
-                self.run_wp_cli(cmd)
-                widget_pos_to_lang[str(widget_pos)] = lang
-                widget_pos += 1
-
-                logging.info("Banner imported for '%s' language", lang)
-
-            # Then we import sidebar widgets
-            for lang in self.site.homepage.contents.keys():
-
-                for box in self.site.homepage.contents[lang].sidebar.boxes:
-
-                    # If box is empty, we don't handle it
-                    if box.is_empty():
+                    if not banner.content:
+                        logging.warning("Banner is empty")
                         continue
 
-                    if box.type in [Box.TYPE_TOGGLE, Box.TYPE_TEXT, Box.TYPE_CONTACT, Box.TYPE_LINKS, Box.TYPE_FILES,
-                                    Box.TYPE_INCLUDE, Box.TYPE_MEMENTO, Box.TYPE_ACTU, Box.TYPE_SNIPPETS,
-                                    Box.TYPE_RSS]:
-                        title = prepare_html(box.title)
-                        content = prepare_html(box.content)
-
-                    elif box.type == Box.TYPE_COLORED_TEXT:
-                        title = ""
-                        content = "[colored-box]"
-                        content += prepare_html("<h3>{}</h3>".format(box.title))
-                        content += prepare_html(box.content)
-                        content += "[/colored-box]"
-
-                    # Box type not supported for now,
-                    else:
-                        logging.warning("Box type currently not supported for sidebar (%s)", box.type)
-                        title = prepare_html("TODO ({}): {}".format(box.type, box.title))
-                        content = prepare_html(box.content)
-
-                    cmd = 'widget add custom_html page-widgets {} --content="{}" --title="{}"'.format(
-                        widget_pos,
-                        WPUtils.clean_html_comments(content),
-                        title
-                    )
+                    cmd = 'widget add custom_html {} --content="{}"'.format(current_sidebar,
+                                                                            banner.content.replace('"', '\\"'))
 
                     self.run_wp_cli(cmd)
-
-                    # Saving widget position for current widget (as string because this is a string that is
-                    # used to index information in DB)
                     widget_pos_to_lang[str(widget_pos)] = lang
                     widget_pos += 1
 
-                logging.info("WP sidebar imported for '%s' language", lang)
+                    logging.info("Banner imported for '%s' language", lang)
+
+            else:  # Sidebar doesn't exists (if 2018 theme)
+                logging.info("Banner sidebar (%s) doesn't exists", current_sidebar)
+
+            # Then we import sidebar widgets
+            current_sidebar = 'page-widgets'
+            if self.sidebar_exists(current_sidebar):
+                for lang in self.site.homepage.contents.keys():
+
+                    for box in self.site.homepage.contents[lang].sidebar.boxes:
+
+                        # If box is empty, we don't handle it
+                        if box.is_empty():
+                            continue
+
+                        if box.type in [Box.TYPE_TOGGLE, Box.TYPE_TEXT, Box.TYPE_CONTACT, Box.TYPE_LINKS, Box.TYPE_FILES,
+                                        Box.TYPE_INCLUDE, Box.TYPE_MEMENTO, Box.TYPE_ACTU, Box.TYPE_SNIPPETS,
+                                        Box.TYPE_RSS]:
+                            title = prepare_html(box.title)
+                            content = prepare_html(box.content)
+
+                        elif box.type == Box.TYPE_COLORED_TEXT:
+                            title = ""
+                            content = "[colored-box]"
+                            content += prepare_html("<h3>{}</h3>".format(box.title))
+                            content += prepare_html(box.content)
+                            content += "[/colored-box]"
+
+                        # Box type not supported for now,
+                        else:
+                            logging.warning("Box type currently not supported for sidebar (%s)", box.type)
+                            title = prepare_html("TODO ({}): {}".format(box.type, box.title))
+                            content = prepare_html(box.content)
+
+                        cmd = 'widget add custom_html {} {} --content="{}" --title="{}"'.format(
+                            current_sidebar,
+                            widget_pos,
+                            WPUtils.clean_html_comments(content),
+                            title
+                        )
+
+                        self.run_wp_cli(cmd)
+
+                        # Saving widget position for current widget (as string because this is a string that is
+                        # used to index information in DB)
+                        widget_pos_to_lang[str(widget_pos)] = lang
+                        widget_pos += 1
+
+                    logging.info("WP sidebar imported for '%s' language", lang)
+
+            else:  # Sidebar doesn't exists (if 2018 theme)
+                logging.info("Page sidebar (%s) doesn't exists", current_sidebar)
 
             # If widgets were added
             if widget_pos_to_lang:
