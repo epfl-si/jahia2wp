@@ -781,6 +781,14 @@ def generate(wp_env, wp_url,
     if not wp_generator.generate():
         raise Exception("Generation failed. More info above")
 
+    # install and activate 2018 theme
+    theme = WPThemeConfig(
+        wp_generator.wp_site,
+        theme_name="wp-theme-2018-master",
+        theme_faculty=wp_generator._site_params['theme_faculty']
+    )
+    theme.install_and_activate(force_reinstall=True)
+
     print("Successfully created new WordPress site at {}".format(wp_generator.wp_site.url))
 
 
@@ -822,7 +830,17 @@ def generate_many(csv_file, **kwargs):
         # CSV file is utf-8 so we encode correctly the string to avoid errors during logging.debug display
         row_bytes = repr(row).encode('utf-8')
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row_bytes)
-        WPGenerator(row).generate()
+
+        wp_generator = WPGenerator(row)
+        wp_generator.generate()
+
+        # install and activate 2018 theme
+        theme = WPThemeConfig(
+            wp_generator.wp_site,
+            theme_name="wp-theme-2018-master",
+            theme_faculty=wp_generator._site_params['theme_faculty']
+        )
+        theme.install_and_activate(force_reinstall=True)
 
 
 @dispatch.on('backup-many')
