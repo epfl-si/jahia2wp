@@ -11,57 +11,109 @@
 
 ?>
 <!doctype html>
-<html <?php language_attributes(); ?>>
+<html <?php language_attributes(); ?> class="no-js no-svg">
 <head>
-	<meta charset="<?php bloginfo( 'charset' ); ?>">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="profile" href="http://gmpg.org/xfn/11">
-	<script type="text/javascript">window.svgPath = "<?php bloginfo('template_url'); ?>/assets/icons/icons.svg"</script>
-	<?php wp_head(); ?>
+<meta charset="<?php bloginfo( 'charset' ); ?>">
+<meta name="viewport" content="width=device-width, initial-scale=1" data-header-version="0.26.0">
+<link rel="profile" href="http://gmpg.org/xfn/11">
+
+<link rel="shortcut icon" href="//www.epfl.ch/favicon.ico" type="image/x-icon" />
+<link rel="stylesheet" href="//www.epfl.ch/css/print.css" type="text/css" media="print" />
+
+<link rel="stylesheet" href="https://static.epfl.ch/v0.26.0/styles/epfl-built.css">
+
+<?php wp_head(); ?>
 </head>
 
-<body <?php body_class(); ?>>
+<body <?php body_class(get_option('epfl:theme_faculty', '')); ?>>
 <div id="page" class="site">
-	<a class="sr-only" href="#content"><?php esc_html_e( 'Skip to content', 'epfl' ); ?></a>
+	<a class="skip-link screen-reader-text" href="#content"><?php _e( 'Skip to content', 'epfl' ); ?></a>
+	
+	<div class="header-top wrap">
+		<?php
+		/* Configuration */
+		$epfl_allowed_langs = array('en', 'fr');
+		$epfl_default_lang = 'en';
+		/* If Polylang installed */
+		if(function_exists('pll_current_language'))
+		{
+			/* Get current lang */
+			 $epfl_cur_lang = pll_current_language('slug');
+			 /* Check if current lang is supported. If not, use default lang*/
+			 if(!in_array($epfl_cur_lang, $epfl_allowed_langs)) $epfl_cur_lang=$epfl_default_lang;
 
-	<header role="banner" class="header">
-  	<a class="logo" href="<?php bloginfo('url') ?>">
-			<img src="<?php bloginfo('template_url'); ?>/assets/svg/epfl-logo.svg" alt="Logo EPFL, École polytechnique fédérale de Lausanne" class="img-fluid">
-		</a>
+		}
+		else /* Polylang not installed */
+		{
+			$epfl_cur_lang = $epfl_default_lang;
+		}
 
-			<?php
-			    global $EPFL_MENU_LOCATION;
-				wp_nav_menu( array(
-				    'theme_location' => $EPFL_MENU_LOCATION,
-        		    'menu_id'        => $EPFL_MENU_LOCATION.'-menu',
-					'menu_class'=> 'nav-header d-none d-xl-flex',
-					'container' => 'ul',
-					'depth' => 1
-				) );
-			?>
+		?>
+  	<header id="epfl-header" class="site-header epfl" data-ajax-header="https://static.epfl.ch/latest/includes/epfl-header.<?php echo $epfl_cur_lang; ?>.html"></header>
+	</div><!-- .header-top -->
 
-		<form action="https://preview.liip.ch/epfl-search/api/" class="d-xl-none">
-			<div class="input-group search w-100">
-				<div class="input-group-prepend">
-					<span class="input-group-text">
-						<svg class="icon"><use xlink:href="#icon-search"></use></svg>
-					</span>
-				</div>
-				<input type="text" class="form-control" placeholder="Rechercher">
-			</div>
-		</form>
+	<header id="masthead" class="site-header" role="banner">
+  	
+  	<section class="page-tools">
+    	<div class="wrap">
+  		
 
-	<?php get_template_part( 'template-parts/language-switcher' ) ?>
+    		<div class="breadcrumb"><?php get_breadcrumb(); ?></div>
 
-  <div class="btn btn-secondary nav-toggle-mobile d-xl-none">
-		Menu
-		<div class="hamburger">
-			<span></span>
-			<span></span>
-			<span></span>
-		</div>
-	</div>
+    		
+    		<div class="lang">
+      		<ul class="language-switcher">
+      		  <?php if(function_exists('pll_the_languages'))pll_the_languages(array('hide_if_no_translation'=>1)); ?>
+      		</ul>
+    		</div>
+    		
+    	</div><!-- .wrap -->
+		</section><!-- .page-tools -->
+  	
+		<div class="site-branding">
+  		<div class="wrap">
+  			<?php
+    			$title_tag = is_front_page()?"h1":"p";
+    		?>
+  				<<?php echo $title_tag; ?> class="site-title">
+    				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">
+      				<?php $description = get_bloginfo( 'description', 'display' );
+                if ( $description || is_customize_preview() ) : ?>
+        				  <span class="site-description"><?php echo $description; /* WPCS: xss ok. */ ?></span>
+                <?php endif; ?>
+      				<span class="title"><?php bloginfo( 'name' ); ?></span>
+    				</a>
+    		</<?php echo $title_tag; ?>>
+  			
+  		</div><!-- .wrap -->
+		</div><!-- .site-branding -->
+		
+		<div class="navigation-top">
+  		<div class="wrap">
+  			<nav id="site-navigation" class="main-navigation" role="navigation">
+  				<button class="menu-toggle" aria-controls="top-menu" aria-expanded="false"><?php esc_html_e( 'Menu', 'epfl' ); ?></button>
+  				<?php wp_nav_menu( array(
+        		'theme_location' => 'top',
+        		'menu_id'        => 'top-menu',
+        	) ); ?>
+  			</nav>
+  		</div><!-- .wrap -->
+		</div><!-- .navigation-top -->
+			
+	</header><!-- #masthead -->
 
-</header>
-
-<div class="main-container">
+	<div class="site-content-container">
+		<div id="content" class="site-content">
+  		
+  		<?php if ( is_single() || is_page() || is_home() ) : ?>
+  		
+  		<section class="toolbar wrap">
+    		<?php if ( function_exists( 'EPFLShareButtonDisplay' ) ) : ?>
+    		<div class="social-share">
+      		<p class="label"><?php _e( 'Share', 'epfl' ); ?>:</p>
+    		  <?php EPFLShareButtonDisplay (); ?>
+    		</div><!-- .social-share -->
+    		<?php endif; ?>
+  		</section><!-- .toolbox -->
+	  
+      <?php endif; ?>
