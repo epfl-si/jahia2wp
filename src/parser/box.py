@@ -401,6 +401,13 @@ class Box:
 
         if 'lang' in parameters:
             lang = parameters['lang'][0]
+
+            # With Jahia, it is possible to also use "french" language denomination, we change it back to english
+            if lang == 'ang':
+                lang = 'en'
+            if lang == 'fra':
+                lang = 'fr'
+
         else:
             lang = ""
             logging.warning("News Shortcode - lang is missing")

@@ -213,7 +213,7 @@ class WPGenerator:
         self.generate_mu_plugins()
 
         # delete all widgets, inactive themes and demo posts
-        self.delete_widgets()
+        # self.delete_widgets() #  there is no sidebar widget in the 2018 theme
         self.delete_inactive_themes()
         self.delete_demo_posts()
 

@@ -91,7 +91,7 @@ from unzipper.unzip import unzip_one
 from utils import Utils
 from veritas.casters import cast_boolean
 from veritas.veritas import VeritasValidor
-from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
+from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor, WPThemeConfig
 from fan.fan_global_sitemap import FanGlobalSitemap
 
 
@@ -487,33 +487,33 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     # WARNING: be careful with the list order. Plugins will be reactivated after import by using list order. So if
     # there are dependencies between plugins, arrange them in the right way.
     deactivated_plugins = ['mainwp-child',
-                           'epfl-faq',
-                           'epfl-grid',
-                           'epfl-infoscience',
-                           'epfl-infoscience-search',
-                           'epfl-map',
-                           'epfl-memento',
-                           'epfl-news',
-                           # 'epfl',
-                           'epfl-people',
-                           'epfl-scheduler',
                            'EPFL-Content-Filter',
                            'EPFL-Share',
-                           'epfl-snippet',
-                           'epfl-toggle',
-                           'epfl-twitter',
-                           'epfl-xml',
-                           'epfl-video',
                            'feedzy-rss-feeds',
                            'remote-content-shortcode',
                            'shortcode-ui',
-                           'shortcode-ui-richtext',   # This one needs to come after the previous one
-                           'shortcodes-ultimate',
+                           'shortcode-ui-richtext',  # This one needs to come after the previous one
                            'simple-sitemap',
                            'svg-support',
                            'enlighter',
                            'tinymce-advanced',
-                           'varnish-http-purge']
+                           'varnish-http-purge',
+                           'epfl',
+                           # 'epfl-faq',
+                           # 'epfl-grid',
+                           # 'epfl-infoscience',
+                           # 'epfl-infoscience-search',
+                           # 'epfl-map',
+                           # 'epfl-memento',
+                           # 'epfl-news',
+                           # 'epfl-people',
+                           # 'epfl-scheduler',
+                           # 'epfl-snippet',
+                           # 'epfl-toggle',
+                           # 'epfl-twitter',
+                           # 'epfl-xml',
+                           # 'epfl-video'
+                           ]
 
     # Generate a WordPress site
     wp_generator = WPGenerator(info, admin_password)
@@ -594,6 +594,14 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
             raise e
 
         Tracer.write_row(site=site.name, step="export", status="OK")
+
+    # install and activate 2018 theme
+    theme = WPThemeConfig(
+        wp_generator.wp_site,
+        theme_name="wp-theme-2018-master",
+        theme_faculty=wp_generator._site_params['theme_faculty']
+    )
+    theme.install_and_activate(force_reinstall=True)
 
     wp_generator.uninstall_basic_auth_plugin()
     wp_generator.enable_updates_automatic_if_allowed()

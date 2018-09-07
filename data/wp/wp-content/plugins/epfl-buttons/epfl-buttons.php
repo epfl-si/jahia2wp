@@ -134,10 +134,18 @@ function epfl_buttons_process_shortcode( $attributes, string $content = null ): 
         /* If image given */
         if($image != "" && $image != "/")
         {
-            $image_url = wp_get_attachment_url( $image );
-            if (false == $image_url)
+            /* We have an image ID given*/
+            if(is_numeric($image))
             {
-                $image_url = "BAD MEDIA ID";
+                $image_url = wp_get_attachment_url( $image );
+                if (false == $image_url)
+                {
+                    $image_url = "BAD MEDIA ID";
+                }
+            }
+            else /* We may have an URL for the image */
+            {
+                $image_url = $image;
             }
         }
         else /* No image given */
