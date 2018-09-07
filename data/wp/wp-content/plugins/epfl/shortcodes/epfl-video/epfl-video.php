@@ -45,21 +45,28 @@ function epfl_video_process_shortcode( $atts, $content = null ) {
     $url = "https://tube.switch.ch/embed/".$video_id;
   }
 
-  return '<div class="container">'.
-         '<div class="epfl-video epfl-video-responsive embed-responsive embed-responsive-16by9">'.
-         '<iframe src="'.$url.'" width="'.$width.'" height="'.$height.'" webkitallowfullscreen mozallowfullscreen allowfullscreen allow="autoplay; encrypted-media" frameborder="0" class="embed-responsive-item"></iframe>'.
-         '</div>'.
-         '</div>';
+  // if supported delegate the rendering to the theme
+  if (has_action("epfl_video_action")) {
 
+    ob_start();
+
+    try {
+
+       do_action("epfl_video_action", $url, $width, $height);
+
+       return ob_get_contents();
+
+    } finally {
+
+        ob_end_clean();
+    }
+
+  // otherwise the plugin does the rendering
+  } else {
+
+      return 'You must activate the epfl theme';
+  }
 }
-
-
-// load .mo file for translation
-function epfl_video_load_plugin_textdomain() {
-    load_plugin_textdomain( 'epfl-video', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
-}
-
-add_action( 'plugins_loaded', 'epfl_video_load_plugin_textdomain' );
 
 add_action( 'register_shortcode_ui', ['ShortCakeVideoConfig', 'config'] );
 
@@ -67,13 +74,6 @@ add_action( 'init', function() {
 
   // define the shortcode
   add_shortcode('epfl_video', 'epfl_video_process_shortcode');
-
-});
-
-add_action( 'wp_enqueue_scripts', function() {
-
-  // enqueue style
-   wp_enqueue_style( 'epfl_video_style', plugin_dir_url(__FILE__).'css/style.css' );
 
 });
 
