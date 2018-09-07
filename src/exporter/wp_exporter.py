@@ -759,6 +759,10 @@ class WPExporter:
                 info_page[lang] = {
                     'post_name': page.contents[lang].path,
                     'post_status': 'publish',
+                    # This has been added for 2018 theme because WE HAVE TO give 'title', content' and 'excerpt'
+                    'post_excerpt': '-',
+                    'post_title': '-',
+                    'post_content': '-',
                 }
 
             # If the page doesn't exist for all languages on the site we create a blank page in draft status
@@ -767,8 +771,12 @@ class WPExporter:
                 if lang not in info_page:
                     contents[lang] = ""
                     info_page[lang] = {
-                        'post_name': '',
-                        'post_status': 'draft'
+                        'post_name': '-',
+                        'post_status': 'draft',
+                        # This has been added for 2018 theme because WE HAVE TO give 'title', content' and 'excerpt'
+                        'post_excerpt': '-',
+                        'post_title': '-',
+                        'post_content': '-'
                     }
 
             cmd = "pll post create --post_type=page --stdin --porcelain"
@@ -890,6 +898,8 @@ class WPExporter:
 
             info_page[lang] = {
                 'post_name': 'Sitemap',
+                'post_title': 'Sitemap',
+                'post_excerpt': 'Sitemap',
                 'post_status': 'publish',
             }
 
