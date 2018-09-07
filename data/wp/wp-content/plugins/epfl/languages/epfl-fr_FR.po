@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-09-06 11:17+0200\n"
-"PO-Revision-Date: 2018-09-06 11:17+0200\n"
+"POT-Creation-Date: 2018-09-07 07:59+0200\n"
+"PO-Revision-Date: 2018-09-07 07:59+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -35,6 +35,18 @@ msgstr "Lien de la carte"
 msgid "Card image"
 msgstr "Image de la carte"
 
+#: epfl-cover/shortcake-config.php:12
+msgid "Cover"
+msgstr ""
+
+#: epfl-cover/shortcake-config.php:16
+msgid "Cover description"
+msgstr "Description de cover"
+
+#: epfl-cover/shortcake-config.php:21
+msgid "Cover image"
+msgstr "Image de Cover"
+
 #: epfl-links-group/shortcake-config.php:11
 msgid "Links"
 msgstr "Liens"
@@ -47,20 +59,20 @@ msgstr "Libellé"
 msgid "Title"
 msgstr "Titre"
 
-#: epfl-links-group/shortcake-config.php:30
-#: epfl-links-group/shortcake-config.php:45
+#: epfl-links-group/shortcake-config.php:31
+#: epfl-links-group/shortcake-config.php:46
 msgid "URL"
 msgstr "URL"
 
-#: epfl-links-group/shortcake-config.php:40
+#: epfl-links-group/shortcake-config.php:41
 msgid "Link label"
 msgstr "Libellé du lien"
 
-#: epfl-links-group/shortcake-config.php:47
+#: epfl-links-group/shortcake-config.php:48
 msgid "Link URL"
 msgstr "L'URL du lien"
 
-#: epfl-links-group/shortcake-config.php:64
+#: epfl-links-group/shortcake-config.php:62
 msgid "Links group"
 msgstr "Groupe de liens"
 
