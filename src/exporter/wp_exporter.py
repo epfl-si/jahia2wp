@@ -977,9 +977,9 @@ class WPExporter:
                         if box.is_empty():
                             continue
 
-                        if box.type in [Box.TYPE_TOGGLE, Box.TYPE_TEXT, Box.TYPE_CONTACT, Box.TYPE_LINKS, Box.TYPE_FILES,
-                                        Box.TYPE_INCLUDE, Box.TYPE_MEMENTO, Box.TYPE_ACTU, Box.TYPE_SNIPPETS,
-                                        Box.TYPE_RSS]:
+                        if box.type in [Box.TYPE_TOGGLE, Box.TYPE_TEXT, Box.TYPE_CONTACT, Box.TYPE_LINKS,
+                                        Box.TYPE_FILES, Box.TYPE_INCLUDE, Box.TYPE_MEMENTO, Box.TYPE_ACTU,
+                                        Box.TYPE_SNIPPETS, Box.TYPE_RSS]:
                             title = prepare_html(box.title)
                             content = prepare_html(box.content)
 
