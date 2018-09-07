@@ -300,6 +300,7 @@ class Site:
                     # If URL
                     elif jahia_type.nodeName == "jahia:url":
                         txt = jahia_type.getAttribute("jahia:title")
+                        hidden = jahia_type.getAttribute("jahia:hideFromNavigationMenu") != ""
                         points_to = jahia_type.getAttribute("jahia:value")
 
                         self.num_url_menu += 1
