@@ -13,9 +13,10 @@ Class ShortCakeCoverConfig
                 'listItemImage' => '<img src="' . plugins_url( 'img/cover.svg', __FILE__ ) . '" >',
                 'attrs'         => array(
                         array(
-                            'label' => '<h3>' . esc_html__('Cover description', 'epfl') . '</h3>',
-                            'attr'  => 'description',
-                            'type'  => 'textarea',
+                            'label'       => '<h3>' . esc_html__('Cover description', 'epfl') . '</h3>',
+                            'attr'        => 'description',
+                            'type'        => 'textarea',
+                            'description' => '<a href="https://epfl-idevelop.github.io/elements/#/molecules/cover">Documentation</a>'
                         ),
                         array(
                             'label'       => '<h3>' . esc_html__('Cover image', 'epfl') . '</h3>',
