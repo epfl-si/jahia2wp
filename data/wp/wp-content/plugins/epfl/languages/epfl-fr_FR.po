@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-09-07 11:36+0200\n"
-"PO-Revision-Date: 2018-09-07 11:36+0200\n"
+"POT-Creation-Date: 2018-09-10 11:07+0200\n"
+"PO-Revision-Date: 2018-09-10 11:07+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -391,50 +391,3 @@ msgstr "Hauteur de la vidéo"
 #: epfl-video/shortcake-config.php:33
 msgid "Recommended value: 400"
 msgstr "Valeur recommandée: 400"
-
-#~ msgid "The title of the toggle"
-#~ msgstr "Le titre de l'accordéon"
-
-#~ msgid "Template for laboratory website with 5 news"
-#~ msgstr "Template pour les sites de laboratoires (avec 5 actualités)"
-
-#~ msgid "Template for faculty website with 3 news"
-#~ msgstr "Template pour les sites de facultés (avec 3 actualités)"
-
-#~ msgid "Template for faculty website with 4 news"
-#~ msgstr "Template pour les sites de facultés (avec 4 actualités)"
-
-#~ msgid "Template text only"
-#~ msgstr "Template avec seulement du texte"
-
-#~ msgid "Template with all news"
-#~ msgstr "Template avec toutes les actualités"
-
-#~ msgid "Template for portal website with image at the top"
-#~ msgstr "Template pour un portail (avec image en haut)"
-
-#~ msgid "Template for portal website image on the left"
-#~ msgstr "Template pour un portail (avec image sur la gauche)"
-
-#~ msgid "Add News shortcode"
-#~ msgstr "Ajouter un shortcode actualités"
-
-#~ msgid "Language"
-#~ msgstr "Langue"
-
-#~ msgid "test%stest"
-#~ msgstr "testfr%stestfr"
-
-#~ msgid ""
-#~ "Please select your news channel.<br/>\n"
-#~ "                                               The news come from the "
-#~ "application <a href=\"https://actu.epfl.ch\">actu.epfl.ch</a>.<br/>\n"
-#~ "                                               If you don't have a news "
-#~ "channel, please send a request to <a href=\"mailto:1234@epfl.ch"
-#~ "\">1234@epfl.ch</a>"
-#~ msgstr ""
-#~ "Veuillez sélectionner votre canal d'actualités<br/>\n"
-#~ "Les actualités proviennent de l'application <a href=\"https://actu.epfl.ch"
-#~ "\">actu.epfl.ch</a>.<br/>\n"
-#~ "Si vous n'avez pas de canal d'actualités, merci d'envoyer une demande à "
-#~ "<a href=\"mailto:1234@epfl.ch\">1234@epfl.ch</a>"
