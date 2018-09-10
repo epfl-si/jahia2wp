@@ -203,7 +203,7 @@ class WPGenerator:
 
         # install and activate 2018 theme
         theme = WPThemeConfig(self.wp_site, settings.DEFAULT_THEME_NAME, self._site_params['theme_faculty'])
-        theme.install_and_activate(force_reinstall=True)
+        theme.install_and_activate()
 
         logging.info("%s - Activating theme '%s'...", repr(self), self._site_params['theme'])
 
