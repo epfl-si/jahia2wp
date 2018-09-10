@@ -8,7 +8,6 @@
  * License: Copyright (c) 2018 Ecole Polytechnique Federale de Lausanne, Switzerland
  **/
 
-require_once 'render.php';
 require_once 'shortcake-config.php';
 
 /**
@@ -40,7 +39,7 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
   }
 	
   // retrieve the data in JSON
-  $items = PeopleUtils::get_items($url);
+  $items = Utils::get_items($url);
 	
   // if supported delegate the rendering to the theme
   if (has_action("epfl_people_action"))
@@ -61,18 +60,9 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
   // otherwise the plugin does the rendering
   else 
   {
-    return PeopleRender::build_html($items, $ws);
+    return 'You must activate the epfl theme';
   }
 }
-
-// load the .mo file for the translation
-function epfl_people_2018_load_plugin_textdomain()
-{
-  load_plugin_textdomain( 'epfl-people-2018', FALSE, basename( plugin_dir_path( __FILE__ )) . '/languages/');
-}
-
-// plugins_loaded action
-add_action( 'plugins_loaded', 'epfl_people_2018_load_plugin_textdomain' );
 
 // init action
 add_action( 'init', function()
@@ -81,5 +71,6 @@ add_action( 'init', function()
   add_shortcode('epfl_people_2018', 'epfl_people_2018_process_shortcode');
 });
 
-add_action( 'register_shortcode_ui', ['ShortCakePeople2018Config', 'config'] );
+add_action( 'register_shortcode_ui', ['ShortCakePeopleConfig', 'config'] );
+
 ?>

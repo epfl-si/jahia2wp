@@ -5,7 +5,7 @@ require_once 'utils.php';
 /**
  * Short cake configuration
  */
-Class ShortCakePeople2018Config
+Class ShortCakePeopleConfig
 {   
   public static function config()
   {
@@ -20,7 +20,7 @@ Class ShortCakePeople2018Config
         (
           array
           (
-            'label'         => '<h3>' . esc_html__('Unit', 'epfl-people-2018') . '</h3>',
+            'label'         => '<h3>' . esc_html__('Unit', 'epfl') . '</h3>',
             'attr'          => 'unit',
             'type'          => 'text',
             'description'   => '',
