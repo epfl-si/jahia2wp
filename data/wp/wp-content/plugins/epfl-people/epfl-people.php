@@ -43,8 +43,7 @@ function epfl_people_process_shortcode( $attributes, $content = null )
         'url' => ''
     ), $attributes );
 
-    // Sanitize parameter
-    $url = sanitize_text_field( $attributes['url'] );
+    $url = $attributes['url'];
 
     // Check if the result is already in cache
     $result = wp_cache_get( $url, 'epfl_people' );
