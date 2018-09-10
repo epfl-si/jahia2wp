@@ -91,7 +91,7 @@ from unzipper.unzip import unzip_one
 from utils import Utils
 from veritas.casters import cast_boolean
 from veritas.veritas import VeritasValidor
-from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor, WPThemeConfig
+from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
 from fan.fan_global_sitemap import FanGlobalSitemap
 
 
