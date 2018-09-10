@@ -53,3 +53,11 @@ class Asset {
             filemtime($this->abspath()));
     }
 }
+
+function on_activate ($callable) {
+    register_activation_hook(entry_point(), $callable);
+}
+
+function on_deactivate ($callable) {
+    register_deactivation_hook(entry_point(), $callable);
+}

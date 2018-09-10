@@ -21,8 +21,16 @@ if (! defined( 'ABSPATH' )) {
 
 require_once(ABSPATH . 'wp-admin/includes/class-walker-nav-menu-edit.php');
 
+require_once(__DIR__ . '/../lib/model.php');
+use \EPFL\Model\TypedPost;
+
 require_once(__DIR__ . '/../lib/rest.php');
 use \EPFL\REST\REST_API;
+use \EPFL\REST\RESTClient;
+use \EPFL\REST\RESTRemoteError;
+
+require_once(__DIR__ . '/../lib/pubsub.php');
+use \EPFL\PubsubController;
 
 require_once(__DIR__ . '/../lib/i18n.php');
 use function EPFL\I18N\___;
@@ -33,6 +41,135 @@ require_once(__DIR__ . '/../lib/this-plugin.php');
 use EPFL\ThisPlugin\Asset;
 
 class MenuError extends \Exception {};
+
+
+/**
+ * Object model for "normal" WordPress menus, augmented with support
+ * for EPFL-style menu stitching.
+ */
+class Menu {
+    static $all;
+    private function __construct () {
+    }
+
+    static function all () {
+        $thisclass = get_called_class();
+        $locations = get_nav_menu_locations();
+        $all = array();
+        foreach (get_registered_nav_menus() as $slug => $description) {
+            $that = new $thisclass();
+            $that->slug = $slug;
+            $that->description = $description;
+            $that->term_id = $locations[$menu_slug];  # Language-dependent
+            $all[] = $that;
+        }
+        return $all;
+    }
+
+    static function by_slug ($slug) {
+        foreach (static::all() as $that) {
+            if ($that->slug === $slug) {
+                return $that;
+            }
+        }
+    }
+
+    function get_local_tree () {
+        if (! $this->term_id) { return NULL; }
+        $tree = wp_get_nav_menu_items($this->term_id);
+        if ($tree === FALSE) {
+            throw new MenuError(
+                "Cannot find term with ID $this->term_id for menu $this->slug");
+        }
+        return wp_get_nav_menu_items($this->term_id);
+    }
+
+    function get_stitched_tree () {
+        return $this->get_local_tree();  // XXX Not quite!
+    }
+
+    static function autodetect () {
+        # http://ch1.php.net/manual/en/class.recursivedirectoryiterator.php#114504
+        $all_abspath_lazy = new \RecursiveDirectoryIterator(
+            ABSPATH,
+            \RecursiveDirectoryIterator::SKIP_DOTS);  // Dude, so 1990's.
+
+        $wp_configs_lazy = new \RecursiveCallbackFilterIterator(
+            $all_abspath_lazy,
+            function ($current, ...$unused) {
+                // Because there is but one return value from this
+                // here callback (not that RecursiveFilterIterator,
+                // with its sole overridable method, would be any
+                // different), the PHP API for filtering trees
+                // conflates filtering directories and "pruning" them
+                // (in the sense of find(1)). Despite the strong itch
+                // to just reimplement a RecursiveWhateverIterator as
+                // an anonymous class (which would take about as many
+                // lines as this comment), I went with the only
+                // slightly inelegant hack of filtering wp-config.php
+                // files, rather than directories that have a
+                // wp-config.php file in them.
+                if ($current->isDir()) {
+                    // Returning false means to prune the directory, so
+                    // be conservative.
+                    return ! preg_match('/^wp-/', $current->getBasename());
+                } else {
+                    return $current->getBaseName() === 'wp-config.php';
+                }
+            });
+
+        $site_url = site_url();
+        $site_url = preg_replace('|^https://jahia2wp-httpd/|',
+                                 'https://jahia2wp-httpd:8443/', $site_url);
+        foreach ((new \RecursiveIteratorIterator($wp_configs_lazy))
+                 as $info) {
+            $relpath = substr(dirname($info->getPathname()), strlen(ABSPATH));
+            if (! $relpath) continue;  // Skip our own directory
+
+            $api_base_url = $site_url . "/$relpath/wp-json/epfl/v1";
+            try {
+                $langs = RESTClient::GET_JSON("$api_base_url/languages");
+            } catch (RESTRemoteError $e) {
+                error_log("[Not our fault, IGNORED] " . $e);
+                continue;
+            }
+            foreach ($langs as $lang) {
+                try {
+                    $menus = RESTClient::GET_JSON("$api_base_url/menus?lang=$lang");
+                } catch (RESTRemoteError $e) {
+                    error_log("[Not our fault, IGNORED] " . $e);
+                    continue;
+                }
+                
+                foreach ($menus as $menu) {
+                    error_log(var_export($menu, true));
+                }
+            }
+        }
+    }
+}
+
+/**
+ * An external menu that needs fetching and/or integrating
+ * with the "normal" menus.
+ */
+class ExternalMenuItem extends \EPFL\Model\TypedPost
+{
+    const SLUG = "epfl-external-menu";
+
+    static function get_post_type () {
+        return self::SLUG;
+    }
+
+    static function all () {
+        $retval = [];
+        static::foreach(function($that) use ($retval) {
+            $retval[] = $that;
+        });
+        return $retval;
+    }
+}
+
 
 /**
  * Enumerate menus over the REST API
@@ -45,6 +182,8 @@ class MenuError extends \Exception {};
  */
 class MenuRESTController
 {
+    static public $pubsub;
+
     static function hook () {
         REST_API::GET_JSON(
             '/menus',
@@ -52,43 +191,47 @@ class MenuRESTController
         REST_API::GET_JSON(
             '/menus/(?P<slug>[a-zA-Z0-9_-]+)',
             get_called_class(), 'get_menu');
+
+        # "The feature is available only in Polylang Pro." #groan
+        REST_API::GET_JSON(
+            '/languages',
+            function() { return pll_languages_list(); });
+
+        add_action('rest_api_init', function() {
+            foreach (ExternalMenuItem::all() as $external_menu) {
+                self::$pubsub = new PubsubController(static::menu_api_slug($external_menu));
+                self::$pubsub->add_listener(function($event) use ($thisclass) {
+                    _MenuStitcher::of($external_menu)->changed();
+                    $pubsub->forward($event);
+                });
+            }
+        });
     }
 
-    /**
-     * @returns A list of objects like {'slug': slug,
-     *          'description': description }
-     */
+    // TODO: serve all menus in all languages; provide suitable
+    // endpoint URLs for the "subscribe" and "query" APIs
     static function get_menus () {
         $retval = [];
-        foreach (get_registered_nav_menus() as $slug => $description) {
+        foreach (Menu::all() as $menu) {
             array_push($retval, array(
-                'slug'        => $slug,
-                'description' => $description));
+                'slug'        => $menu->slug,
+                'description' => $menu->description));
         }
         return $retval;
     }
 
     static function get_menu ($data) {
         $menu_slug = $data['slug'];  # Matched from the URL with a named pattern
-
-        $locations = get_nav_menu_locations();
-        if (! ($locations && $term_id = $locations[$menu_slug])) {
-            throw new MenuError("No registered menu with slug $menu_slug");
-        }
-
-        if (is_wp_error($menu = get_term($term_id))) {
-            throw new MenuError(
-                "Cannot find term with id $term_id for menu $menu_slug");
-        }
-        
         return array(
             "status" => "OK",
-            "items"  => wp_get_nav_menu_items($menu->term_id)
+            "items"  => Menu::by_slug($slug)::get_stitched_tree()
+
         );
     }
 }
 
 MenuRESTController::hook();
+
 
 /**
  * The controller for external menu items (w/ custom post type)
@@ -109,8 +252,6 @@ MenuRESTController::hook();
  */
 class MenuItemController
 {
-    const SLUG = "epfl-external-menu";
-
     static function hook () {
         $thisclass = get_called_class();
         add_action('init', array($thisclass, 'register_post_type'));
@@ -134,8 +275,7 @@ class MenuItemController
      * @see https://stackoverflow.com/a/20294968/435004
      */
     static function register_post_type () {
-        $read_perms_slug = 'read_' . preg_replace('/-/', '_', self::SLUG);
-        register_post_type(self::SLUG, array(
+        register_post_type(ExternalMenuItem::get_post_type(), array(
             'labels' => array(
                 'name'               => ___('External Menus'),
                 'singular_name'      => ___('External Menu'),
@@ -158,8 +298,11 @@ class MenuItemController
         ));
     }
 
+    /**
+     * Invoked by the refresh button in the wp-admin area
+     */
     static function ajax_refresh () {
-        error_log("Refresh button");
+        Menu::autodetect();
     }
 
     /**
@@ -208,7 +351,7 @@ class MenuItemController
         // in some AJAX on top, shall we?
         global $current_screen;
 
-        if (static::SLUG != $current_screen->post_type) return;
+        if (ExternalMenuItem::SLUG != $current_screen->post_type) return;
         ?><script>
 jQuery(function($) {
     $('a.page-title-action').remove();
@@ -243,6 +386,7 @@ jQuery(function($) {
 }
 
 MenuItemController::hook();
+
 
 ################## External menus in admin menu editor #################
 

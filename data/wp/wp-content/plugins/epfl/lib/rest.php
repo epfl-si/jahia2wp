@@ -66,12 +66,28 @@ class REST_API {
         });
     }
 
+    static function POST_JSON ($path, ...$callback) {
+        $class = get_called_class();
+        add_action('rest_api_init', function() use ($class, $path, $callback) {
+            register_rest_route(BASE_URL, $path, array(
+                'methods' => 'POST',
+                'callback' => function($data) use ($class, $callback) {
+                    return $class::_call_and_APIfy($callback, $data);
+                }
+            ));
+        });
+    }
+
     /**
      * Call $callback with parameters $param_list, and ensure that the
      * result is either a JSONable structure or a @link WP_Error.
      */
     static function _call_and_APIfy ($cb, ...$params) {
         try {
+            if ($cb[0] instanceof \Closure) {
+                $cb = $cb[0];
+            }
+
             return call_user_func_array($cb, $params);
         } catch (Throwable $t) {  // Non-goal: PHP5 support
             return get_called_class()::_wp_errorify($t);
@@ -118,3 +134,84 @@ class REST_API {
 }
 
 REST_API::hook();
+
+
+class RESTError extends \Exception {
+    static function build ($doingwhat, $url, $ch) {
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($http_code === 0) {
+            $curl_error = curl_error($ch);
+            $e = new RESTLocalError("$doingwhat $url: $curl_error");
+            $e->curl_error = $curl_error;
+        } else {
+            $e = new RESTRemoteError(
+                "$doingwhat $url: remote HTTP status code $http_code");
+            $e->http_code = $http_code;
+        }
+        return $e;
+    }
+}
+
+class RESTLocalError extends RESTError {}
+class RESTRemoteError extends RESTError {}
+
+class RESTClient {
+    private function __construct ($url) {
+        $this->url = $url;
+    }
+
+    private function get_curl () {
+        if (! $this->curl) {
+            $this->curl = curl_init($this->url);
+            curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($this->curl, CURLOPT_HTTPHEADER, array(
+                'Accept: application/json'));
+
+            curl_setopt($this->curl, CURLOPT_SSL_VERIFYPEER, TRUE);
+            // Accept the self-signed certificate for traffic on
+            // localhost (typically for the menu pubsub stuff)
+            curl_setopt($this->curl, CURLOPT_CAINFO, '/etc/apache2/ssl/server.cert');
+            if (preg_match('|^https://jahia2wp-httpd[:/]|', $this->url)) {
+                curl_setopt($this->curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+            }
+
+            return $this->curl;
+        }
+
+        return $this->curl;
+    }
+
+    function execute () {
+        $ch = $this->get_curl();
+
+        $result = curl_exec($ch);
+
+        if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200) {
+            return json_decode($result);
+        } else {
+            throw RESTError::build("GET", $this->url, $ch);
+        }
+    }
+
+    static function GET_JSON ($url) {
+        $thisclass = get_called_class();
+        return (new $thisclass($url))->execute();
+    }
+
+    function _setup_POST ($data) {
+        $ch = $this->get_curl();
+
+        $payload = is_string($data) ? $data : json_encode($data);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($payload)));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+    }
+
+    static function POST_JSON ($url, $data) {
+        $thisclass = get_called_class();
+        $that = new $thisclass($url);
+        $that->_setup_POST($data);
+        return $that->execute();
+    }
+}
