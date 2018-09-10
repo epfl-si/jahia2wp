@@ -200,9 +200,13 @@ class WPGenerator:
 
         # install and configure theme (default is settings.DEFAULT_THEME_NAME)
         logging.info("%s - Installing all themes...", repr(self))
-        WPThemeConfig.install_all(self.wp_site)
+
+        # install and activate 2018 theme
+        theme = WPThemeConfig(self.wp_site, settings.DEFAULT_THEME_NAME, self._site_params['theme_faculty'])
+        theme.install_and_activate()
+
         logging.info("%s - Activating theme '%s'...", repr(self), self._site_params['theme'])
-        theme = WPThemeConfig(self.wp_site, self._site_params['theme'], self._site_params['theme_faculty'])
+
         if not theme.activate():
             logging.error("%s - could not activate theme '%s'", repr(self), self._site_params['theme'])
             return False

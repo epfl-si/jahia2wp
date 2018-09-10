@@ -91,7 +91,7 @@ from unzipper.unzip import unzip_one
 from utils import Utils
 from veritas.casters import cast_boolean
 from veritas.veritas import VeritasValidor
-from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor, WPThemeConfig
+from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
 from fan.fan_global_sitemap import FanGlobalSitemap
 
 
@@ -594,14 +594,6 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
             raise e
 
         Tracer.write_row(site=site.name, step="export", status="OK")
-
-    # install and activate 2018 theme
-    theme = WPThemeConfig(
-        wp_generator.wp_site,
-        theme_name="wp-theme-2018-master",
-        theme_faculty=wp_generator._site_params['theme_faculty']
-    )
-    theme.install_and_activate(force_reinstall=True)
 
     wp_generator.uninstall_basic_auth_plugin()
     wp_generator.enable_updates_automatic_if_allowed()
