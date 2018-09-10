@@ -18,13 +18,13 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
   $attributes = shortcode_atts( array(
        'unit' => ''
     ), $attributes );
-   
+
    // sanitize the parameters
   $unit = sanitize_text_field( $attributes['unit'] );
-	
+
   // the web service we use to retrieve the data, can be "wsgetpeople" or "getProfiles"
   $ws = "getProfiles";
-	
+
   switch($ws)
   {
     case "wsgetpeople":
@@ -32,15 +32,15 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
       break;
     case "getProfiles":
       // TODO use production URL when it's ready
-      $url = "https://test-people.epfl.ch/cgi-bin/getProfiles?unit=$unit&tmpl=JSON";
+      $url = "https://people.epfl.ch/cgi-bin/getProfiles?unit=$unit&tmpl=JSON";
       break;
     default:
-      throw new Exception("Unknown web service: $ws");	
+      throw new Exception("Unknown web service: $ws");
   }
-	
+
   // retrieve the data in JSON
   $items = Utils::get_items($url);
-	
+
   // if supported delegate the rendering to the theme
   if (has_action("epfl_people_action"))
   {

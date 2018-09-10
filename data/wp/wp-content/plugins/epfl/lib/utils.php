@@ -36,6 +36,8 @@ Class Utils
                 $data = $response['body']; // use the content
                 if ( $header["content-type"] === "application/json" ) {
                         return json_decode($data);
+                } else {
+                    return json_decode($data);
                 }
         }
     }
