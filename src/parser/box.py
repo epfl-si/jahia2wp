@@ -460,6 +460,12 @@ class Box:
         # parse the template html
         template_html = Utils.get_tag_attribute(element, "template", "jahia:value")
 
+        # Check if "function" exists (it's a filter for information)
+        function = Utils.get_tag_attribute(element, "function", "jahia:value")
+
+        if function:
+            parameters['function'] = function
+
         # check if we have an HTML template
         if not template_html:
             logging.warning("epfl_people: no HTML template set")
