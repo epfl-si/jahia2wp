@@ -41,7 +41,7 @@ Usage:
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
   jahia2wp.py fan-global-sitemap    <csv_file> <wp_path>            [--debug | --quiet]
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
-  jahia2wp.py shortcode-list        <path>                          [--debug | --quiet]
+  jahia2wp.py shortcode-list        <path> [--out-csv=<out_csv>]    [--debug | --quiet]
   jahia2wp.py shortcode-fix         <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py shortcode-fix-many    <csv_file>                      [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
@@ -861,18 +861,34 @@ def rotate_backup(csv_file, dry_run=False, **kwargs):
 
 
 @dispatch.on('shortcode-list')
-def shortcode_list(path, **kwargs):
-    logging.info("Listing used shortcodes...")
+def shortcode_list(path, out_csv=None, **kwargs):
+    """
+    Go through websites present in 'path' and list all used shortcodes
+    :param path: Path where to look for WP installs
+    :param out_csv: CSV file to save result
+    :param kwargs:
+    :return:
+    """
+    logging.info("Listing used shortcodes in path %s...", path)
 
     shortcodes = Shortcodes()
 
     shortcodes.locate_existing(path)
 
-    print("# shortcodes found: {}".format(len(shortcodes.shortcode_list.keys())))
+    print("# shortcodes found: {}".format(len(shortcodes.list.keys())))
 
-    print(shortcodes.shortcode_list)
+    # If CSV output is requested
+    if out_csv:
+        with open(out_csv, 'w') as out:
+            # Adding one line for each couple "shortcode", "website"
+            for shortcode, url_list in shortcodes.list.items():
+                for url in url_list:
+                    out.write("{},{}\n".format(shortcode, url))
+    else:
 
-    logging.info("Shortcodes listed for %s", path)
+        print(shortcodes.list)
+
+    logging.info("Shortcodes list done!")
 
 
 @dispatch.on('shortcode-fix')
