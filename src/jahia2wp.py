@@ -42,6 +42,8 @@ Usage:
   jahia2wp.py fan-global-sitemap    <csv_file> <wp_path>            [--debug | --quiet]
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
   jahia2wp.py shortcode-list        <path>                          [--debug | --quiet]
+  jahia2wp.py shortcode-fix         <wp_env> <wp_url>               [--debug | --quiet]
+  jahia2wp.py shortcode-fix-many    <csv_file>                      [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
     [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
@@ -870,6 +872,29 @@ def shortcode_list(path, **kwargs):
     print(shortcodes.shortcode_list)
 
     logging.info("Shortcodes listed for %s", path)
+
+@dispatch.on('shortcode-fix')
+def shortcode_fix(wp_env, wp_url, **kwargs):
+
+    shortcodes = Shortcodes()
+
+    report = shortcodes.fix_site(wp_env, wp_url)
+
+    logging.info("Fix report:\n%s", str(report))
+
+@dispatch_on('shortcode-fix-many')
+def shortcode_fix_many(csv_file, **kwargs):
+
+    rows = Utils.csv_filepath_to_dict(csv_file)
+
+    print("\nShortcode will now be fixed on websites...")
+    for index, row in enumerate(rows):
+        print("\nIndex #{}:\n---".format(index))
+
+        shortcode_fix(row['openshift_env'], row['wp_site_url'])
+
+    logging.info("All shortcodes for all sites fixed !")
+
 
 @dispatch.on('inventory')
 def inventory(path, **kwargs):
