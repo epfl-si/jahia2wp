@@ -4,6 +4,7 @@ import settings
 import logging
 import time
 import re
+import os
 from wordpress import WPConfig, WPSite
 from utils import Utils
 
@@ -15,6 +16,20 @@ class Shortcodes():
         self.list = {}
         self.regex = r'\[([a-z_-]+)'
 
+    def _get_site_registered_shortcodes(self, site_path):
+        """
+        Returns list of existing registered shortcodes for a WP site
+
+        :param site_path: Path to site.
+        :return: list of shortcodes
+        """
+
+        # Building path to PHP script
+        php_script = "{}/list-registered-shortcodes.php".format(os.path.dirname(os.path.realpath(__file__)))
+
+        registered = Utils.run_command("wp eval-file {} --path={}".format(php_script, site_path))
+        return registered.split(",") if registered else []
+
     def locate_existing(self, path):
         """
         Locate all existing shortcodes in a given path. Go through all WordPress installs and parse pages to extract
@@ -22,6 +37,7 @@ class Shortcodes():
         :param path: path where to start search
         :return:
         """
+
         for site_details in WPConfig.inventory(path):
 
             if site_details.valid == settings.WP_SITE_INSTALL_OK:
@@ -29,8 +45,12 @@ class Shortcodes():
                 logging.info("Checking %s...", site_details.url)
 
                 # Getting site posts
-                post_ids = Utils.run_command("wp post list --post_type=page --format=csv --fields=ID --path={}".format(
-                    site_details.path))
+                post_ids = Utils.run_command("wp post list --post_type=page --format=csv --fields=ID --skip-plugins "
+                                             "--skip-themes --path={}".format(site_details.path))
+
+                # Getting list of registered shortcodes to be sure to list only registered and not all strings
+                # written between [ ]
+                registered_shortcodes = self._get_site_registered_shortcodes(site_details.path)
 
                 if not post_ids:
                     continue
@@ -39,12 +59,15 @@ class Shortcodes():
 
                 # Looping through posts
                 for post_id in post_ids:
-                    content = Utils.run_command("wp post get {} --field=post_content --path={}".format(
-                        post_id,
-                        site_details.path))
+                    content = Utils.run_command("wp post get {} --field=post_content --skip-plugins --skip-themes "
+                                                "--path={}".format(post_id,site_details.path))
 
                     # Looking for all shortcodes in current post
                     for shortcode in re.findall(self.regex, content):
+
+                        # This is not a registered shortcode
+                        if shortcode not in registered_shortcodes:
+                            continue
 
                         if shortcode not in self.list:
                             self.list[shortcode] = []
@@ -153,12 +176,16 @@ class Shortcodes():
 
         return matching_reg.sub(r'\g<before> {} \g<after>'.format(attr), content)
 
-    def _fix_simple_sitemap(self, content):
+    def _fix_su_youtube(self, content):
+        """
+        Fix "su_youtube" from Shortcode ultimate plugin
+        :param content:
+        :return:
+        """
+        old_shortcode = 'su_youtube'
+        new_shortcode = 'epfl_video'
 
-        shortcode = 'simple-sitemap'
-        content = self.__rename_attribute(content, shortcode, 'show_labels', 'tagada')
-        content = self.__add_attribute(content, shortcode, 'new', 'attribute')
-        content = self.__rename_shortcode(content, shortcode, 'simple-sitemap-lulu')
+        content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
         return content
 
     def fix_site(self, openshift_env, wp_site_url):
@@ -180,8 +207,13 @@ class Shortcodes():
 
         logging.info("Fixing %s...", wp_site.folder)
 
+        # Getting list of registered shortcodes to be sure to list only registered and not all strings
+        # written between [ ]
+        registered_shortcodes = self._get_site_registered_shortcodes(site_details.path)
+
         # Getting site posts
-        post_ids = wp_config.run_wp_cli("post list --post_type=page --format=csv --fields=ID")
+        post_ids = wp_config.run_wp_cli("post list --post_type=page --skip-plugins --skip-themes "
+                                        "--format=csv --fields=ID")
 
         # Nothing to fix
         if not post_ids:
@@ -193,10 +225,16 @@ class Shortcodes():
         # Looping through posts
         for post_id in post_ids:
             logging.info("Fixing page ID %s...", post_id)
-            content = wp_config.run_wp_cli("post get {} --field=post_content".format(post_id))
+            content = wp_config.run_wp_cli("post get {} --skip-plugins --skip-themes "
+                                           "--field=post_content".format(post_id))
 
             # Looking for all shortcodes in current post
             for shortcode in re.findall(self.regex, content):
+
+                # This is not a registered shortcode
+                if shortcode not in registered_shortcodes:
+                    logging.debug("'%s' is not registered as shortcode, skipping", shortcode)
+                    continue
 
                 fix_func_name = "_fix_{}".format(shortcode.replace("-", "_"))
 
@@ -222,7 +260,8 @@ class Shortcodes():
 
                     for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
                         try:
-                            wp_config.run_wp_cli("post update {} - ".format(post_id), pipe_input=fixed_content)
+                            wp_config.run_wp_cli("post update {} --skip-plugins --skip-themes - ".format(post_id),
+                                                 pipe_input=fixed_content)
 
                         except Exception as e:
                             if try_no < settings.WP_CLI_AND_API_NB_TRIES - 1:
