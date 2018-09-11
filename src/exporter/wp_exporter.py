@@ -923,7 +923,7 @@ class WPExporter:
         :param sidebar_name: Name of the sidebar we want to know if it exists.
         :return:
         """
-        cmd = "sidebar list --fields=name --format=csv"
+        cmd = "sidebar list --fields=id --format=csv"
         sidebar_list = self.run_wp_cli(cmd)
 
         return sidebar_name in sidebar_list
