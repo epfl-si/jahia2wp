@@ -859,6 +859,7 @@ def rotate_backup(csv_file, dry_run=False, **kwargs):
                 include_list=[pattern]
             ).rotate_backups(path)
 
+
 @dispatch.on('shortcode-list')
 def shortcode_list(path, **kwargs):
     logging.info("Listing used shortcodes...")
@@ -873,6 +874,7 @@ def shortcode_list(path, **kwargs):
 
     logging.info("Shortcodes listed for %s", path)
 
+
 @dispatch.on('shortcode-fix')
 def shortcode_fix(wp_env, wp_url, **kwargs):
 
@@ -882,7 +884,8 @@ def shortcode_fix(wp_env, wp_url, **kwargs):
 
     logging.info("Fix report:\n%s", str(report))
 
-@dispatch_on('shortcode-fix-many')
+
+@dispatch.on('shortcode-fix-many')
 def shortcode_fix_many(csv_file, **kwargs):
 
     rows = Utils.csv_filepath_to_dict(csv_file)
