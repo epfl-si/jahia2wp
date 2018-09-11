@@ -12,8 +12,8 @@ class Shortcodes():
     """ Shortcodes helpers """
 
     def __init__(self):
-        self.shortcode_list = {}
-        self.shortcode_regex = r'\[([a-z_-]+)'
+        self.list = {}
+        self.regex = r'\[([a-z_-]+)'
 
     def locate_existing(self, path):
         """
@@ -44,12 +44,13 @@ class Shortcodes():
                         site_details.path))
 
                     # Looking for all shortcodes in current post
-                    for shortcode in re.findall(self.shortcode_regex, content):
+                    for shortcode in re.findall(self.regex, content):
 
-                        if shortcode not in self.shortcode_list:
-                            self.shortcode_list[shortcode] = []
+                        if shortcode not in self.list:
+                            self.list[shortcode] = []
 
-                        self.shortcode_list[shortcode].append(site_details.path)
+                        if site_details.path not in self.list[shortcode]:
+                            self.list[shortcode].append(site_details.path)
 
     def __rename_shortcode(self, content, old_name, new_name):
         """
@@ -195,7 +196,7 @@ class Shortcodes():
             content = wp_config.run_wp_cli("post get {} --field=post_content".format(post_id))
 
             # Looking for all shortcodes in current post
-            for shortcode in re.findall(self.shortcode_regex, content):
+            for shortcode in re.findall(self.regex, content):
 
                 fix_func_name = "_fix_{}".format(shortcode.replace("-", "_"))
 
