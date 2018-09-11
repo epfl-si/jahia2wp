@@ -163,9 +163,10 @@ class Shortcodes():
 
     def fix_site(self, openshift_env, wp_site_url):
         """
-
-        :param path_to_site:
-        :return:
+        Fix shortocdes in WP site
+        :param openshift_env: openshift environment name
+        :param wp_site_url: URL to website to fix.
+        :return: dictionnary with report.
         """
 
         report = {}
