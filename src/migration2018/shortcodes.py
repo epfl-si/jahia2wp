@@ -50,7 +50,6 @@ class Shortcodes():
                             self.shortcode_list[shortcode] = []
 
                         self.shortcode_list[shortcode].append(site_details.path)
-                break
 
     def __rename_shortcode(self, content, old_name, new_name):
         """
