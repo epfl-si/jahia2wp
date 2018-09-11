@@ -19,6 +19,7 @@ from parser.banner import Banner
 from parser.box_sorted_group import BoxSortedGroup
 from utils import Utils
 from collections import OrderedDict
+from datetime import datetime
 
 """
 This file is named jahia_site to avoid a conflict with Site [https://docs.python.org/3/library/site.html]
@@ -300,6 +301,7 @@ class Site:
                     # If URL
                     elif jahia_type.nodeName == "jahia:url":
                         txt = jahia_type.getAttribute("jahia:title")
+                        hidden = jahia_type.getAttribute("jahia:hideFromNavigationMenu") != ""
                         points_to = jahia_type.getAttribute("jahia:value")
 
                         self.num_url_menu += 1
@@ -520,6 +522,7 @@ class Site:
         Parse the PageContent. This is the content that is specific
         for each language.
         """
+        today = datetime.now().strftime("%Y-%m-%d")
 
         for language, dom_path in self.export_files.items():
             dom = Utils.get_dom(dom_path)
@@ -533,6 +536,19 @@ class Site:
                 # we don't parse the sitemap as it's not a real page
                 if template == "sitemap":
                     continue
+
+                # looking for end of validation date
+                valid_to = xml_page.getAttribute("jahia:validTo")
+
+                # If we have a validity date
+                if valid_to:
+                    # if format like "2017-10-06T11:03:00", we extract only the date.
+                    if "T" in valid_to:
+                        valid_to = valid_to.split("T")[0]
+
+                    # if page is not valid anymore, we skip it
+                    if valid_to < today:
+                        continue
 
                 # retrieve the Page definition that we already parsed
                 page = self.pages_by_pid[pid]
