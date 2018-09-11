@@ -480,7 +480,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     # skip_media: if True don't import the media
     # skip_pages: if True don't import the pages
     skip_base = False
-    skip_media = True
+    skip_media = False
     skip_pages = False
 
     # List of plugins to let in 'deactivated' state during import. To earn more time, they are not activated during
