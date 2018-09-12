@@ -27,7 +27,7 @@ function epfl_card_process_shortcode($atts = [], $content = '', $tag = '') {
     ), $atts, $tag);
 
     // sanitize parameters
-    $link  = $atts['link'];
+    $link  = esc_url($atts['link']);
     $title = sanitize_text_field( $atts['title'] );
     $text  = sanitize_text_field( $atts['text'] );
     $image = sanitize_text_field( $atts['image'] );

@@ -135,7 +135,7 @@ function epfl_news_2018_process_shortcode($atts = [], $content = '', $tag = '') 
         $channel       = sanitize_text_field( $atts['channel'] );
         $lang          = sanitize_text_field( $atts['lang'] );
         $template      = sanitize_text_field( $atts['template'] );
-        $all_news_link = $atts['all_news_link'];
+        $all_news_link = sanitize_text_field( $atts['all_news_link']);
         $nb_news       = sanitize_text_field( $atts['nb_news'] );
         $stickers      = sanitize_text_field( $atts['stickers'] );
         $category      = sanitize_text_field( $atts['category'] );
