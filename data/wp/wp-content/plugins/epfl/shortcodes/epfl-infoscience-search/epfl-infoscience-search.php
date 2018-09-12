@@ -23,6 +23,23 @@ require_once 'mathjax-config.php';
 
 define("INFOSCIENCE_SEARCH_URL", "https://infoscience.epfl.ch/search?");
 
+function epfl_infoscience_search_url_exists( $url )
+{
+    $handle = curl_init( $url );
+    curl_setopt( $handle, CURLOPT_RETURNTRANSFER, TRUE );
+
+    $response = curl_exec( $handle );
+    $httpCode = curl_getinfo( $handle, CURLINFO_HTTP_CODE );
+
+    if ( $httpCode >= 200 && $httpCode <= 400 ) {
+        return true;
+    } else {
+        return false;
+    }
+
+    curl_close($handle);
+}
+
  /**
   * From any attributes, set them as url parameters for Infoscience
   *
@@ -244,7 +261,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     
     # not in cache ?
     if ($page === false || $debug_data || $debug_template){
-        if (epfl_infoscience_url_exists( $url ) ) {
+        if (epfl_infoscience_search_url_exists( $url ) ) {
             $response = wp_remote_get( $url );
 
             if ( is_wp_error( $response ) ) {
