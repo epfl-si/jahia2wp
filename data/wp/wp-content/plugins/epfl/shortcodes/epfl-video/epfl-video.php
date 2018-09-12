@@ -12,15 +12,15 @@ require_once 'shortcake-config.php';
 function epfl_video_process_shortcode( $atts, $content = null ) {
 
   $atts = shortcode_atts( array(
-    'url' => '',
-    'width' => '600',
+    'url'    => '',
+    'width'  => '600',
     'height' => '400'
   ), $atts );
 
   // sanitize parameters
-  $url  = $atts['url'];
+  $url    = esc_url($atts['url']);
   $width  = sanitize_text_field( $atts['width'] );
-  $height  = sanitize_text_field( $atts['height'] );
+  $height = sanitize_text_field( $atts['height'] );
 
   // If YouTube video
   if(preg_match('/(youtube\.com|youtu\.be)/', $url)===1 && preg_match('/\/embed\//', $url)===0)
