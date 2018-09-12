@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-09-10 11:07+0200\n"
-"PO-Revision-Date: 2018-09-10 11:07+0200\n"
+"POT-Creation-Date: 2018-09-12 15:32+0200\n"
+"PO-Revision-Date: 2018-09-12 15:33+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -334,6 +334,22 @@ msgid "Do you want filter news by themes?. Please select themes."
 msgstr ""
 "Voulez vous filtrer les actualités par thèmes? Veuillez sélectionner un ou "
 "plusieurs thèmes."
+
+#: epfl-quote/shortcake-config.php:12 epfl-quote/shortcake-config.php:16
+msgid "Quote"
+msgstr "Citation"
+
+#: epfl-quote/shortcake-config.php:21
+msgid "Source or reference"
+msgstr "La source ou la référence de la citation"
+
+#: epfl-quote/shortcake-config.php:26
+msgid "Footer"
+msgstr "Pied de page"
+
+#: epfl-quote/shortcake-config.php:31
+msgid "Quote image"
+msgstr "Image de la citation"
 
 #: epfl-toggle/shortcake-config.php:9
 msgid "Open"

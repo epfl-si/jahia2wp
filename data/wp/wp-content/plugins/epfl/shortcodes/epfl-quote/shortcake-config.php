@@ -18,7 +18,7 @@ Class ShortCakeQuoteConfig
                             'type'  => 'textarea',
                         ),
                         array(
-                            'label' => '<h3>' . esc_html__('Cite', 'epfl') . '</h3>',
+                            'label' => '<h3>' . esc_html__('Source or reference', 'epfl') . '</h3>',
                             'attr'  => 'cite',
                             'type'  => 'text',
                         ),
