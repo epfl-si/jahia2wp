@@ -185,6 +185,9 @@ class Shortcodes():
         old_shortcode = 'su_youtube'
         new_shortcode = 'epfl_video'
 
+        # height and width are useless because display is now responsive and use 100% of width
+        content = self.__remove_attribute(content, old_shortcode, 'height')
+        content = self.__remove_attribute(content, old_shortcode, 'width')
         content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
         return content
 
