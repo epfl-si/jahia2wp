@@ -12,6 +12,26 @@ if (! defined('ABSPATH')) {
 
 use \WP_Query;
 
+class ModelException extends \Exception {
+    public function __construct ($e) {
+        if (is_wp_error($e)) {
+            parent::__construct(implode("\n", $e->get_error_messages()));
+            $this->wp_error = $e;
+        } else {
+            parent::__construct($e);
+        }
+    }
+
+    static function check ($e) {
+        if (is_wp_error($e)) {
+            $thisclass = get_called_class();
+            throw new $thisclass($e);
+        } else {
+            return $e;
+        }
+    }
+}
+
 /**
  * Abstract base class for model objects based on the WPDB API.
  */
@@ -45,7 +65,7 @@ abstract class WPDBModel
         return $wpdb->get_var(static::_prepare($sql, $placeholders));
     }
 
-    static function hook_table_creation () {
+    static function hook () {
         if (method_exists(get_called_class(), "create_tables")) {
             require_once(__DIR__ . '/this-plugin.php');
             \EPFL\ThisPlugin\on_activate(
@@ -111,7 +131,114 @@ abstract class Post
         }
         return $this->_wp_post;
     }
+
+    /**
+     * Metaprogrammed accessors e.g.
+     *
+     *    $mypost->meta()->get_myprop();
+     *
+     * These must be declared like this:
+     *
+     *    const META_ACCESSORS = array(
+     *      'myprop' => 'my-meta-slug'
+     *    )
+     *
+     * Or just
+     *
+     *    const META_ACCESSORS = array(
+     *      'myprop'
+     *    )
+     *
+     * There is a performance price, so if you don't want to pay for
+     * it, don't call this method - Instead, write ordinary accessors
+     * that wrap @link update_post_meta and @link get_post_meta.
+     */
+    function meta () {
+        if (! $this->_meta) {
+            $this->_meta = new _PostMeta(get_called_class(), $this->ID);
+        }
+        return $this->_meta;
+    }
+
+    /**
+     * Like @link wp_insert_post, but returns an instance of the class
+     * or throws a @link ModelException
+     */
+    public static function insert ($postarr) {
+        if (! $postarr['post_status']) {
+            $postarr['post_status'] = 'publish';
+        }
+        ModelException::check($id = wp_insert_post($postarr, true));
+        return static::get($id);
+    }
+
+    /**
+     * Like @link insert, but for an existing post object.
+     */
+    public function update ($postarr) {
+        $postarr['ID'] = $this->ID;
+        ModelException::check(wp_update_post($postarr, true));
+    }
+
+    public function get_language () {
+        if (! function_exists('pll_get_post_language')) {
+            return NULL;
+        }
+        return pll_get_post_language($this->ID);
+    }
+
+    public function set_language ($newlang) {
+        if (! function_exists('pll_set_post_language')) return;
+        return pll_set_post_language($this->ID, $newlang);
+    }
 }
+
+
+/**
+ * Metaprogrammed helper class for single-valued persistent instance
+ * accessors implemented on top of get_post_meta / update_post_meta.
+ */
+class _PostMeta {
+    private $_owner_class;
+    private $_post_id;
+    private $_meta;
+
+    function __construct ($owner_class, $post_id) {
+        $this->_owner_class    = $owner_class;
+        $this->_post_id        = $post_id;
+
+        $this->_meta_accessors = array();
+        foreach ($owner_class::META_ACCESSORS as $k => $v) {
+            if (is_int($k)) {
+                $this->_meta_accessors[$v] = $v;
+            } else {
+                $this->_meta_accessors[$k] = $v;
+            }
+        }
+    }
+
+    function __call ($name, $arguments) {
+        if (substr($name, 0, 4) === "get_") {
+            $is_get = true;
+        } elseif (substr($name, 0, 4) === "set_") {
+            $is_get = false;
+        } else {
+            throw new Exception(
+                sprintf('Fatal error: Call to undefined method %s::%s',
+                        $this->_owner_class, $name));
+        }
+
+        $stem = substr($name, 4);
+        $meta_name = $this->_meta_accessors[$stem];
+
+        if ($is_get) {
+            return get_post_meta($this->_post_id, $meta_name, true);
+        } else {
+            return update_post_meta($this->_post_id, $meta_name, $arguments[0]);
+        }
+    }
+}
+
 
 /**
  * Abstract base class for posts that belong to a custom post type
@@ -152,6 +279,89 @@ abstract class TypedPost extends Post
         } finally {
             $in_the_loop->leave();
         }
+    }
+
+    /**
+     * Overridden to create items of the correct post type.
+     */
+    public static function insert ($postarr) {
+        $postarr['post_type'] = static::get_post_type();
+        return parent::insert($postarr);
+    }
+}
+
+
+/**
+ * A class of Posts that can be referenced by some other kind of
+ * unique key than the WordPress post ID.
+ *
+ * The class provides "named constructors"
+ * @link get_by_unique_key and @link get_or_create (in addition to the
+ * parent class' @link get) which implement fetching/creating objects
+ * from an array containing the unique key, possiby composite (i.e.
+ * comprised of more than one value).
+ *
+ * 'Protected virtual' methods @link _query_by_unique_keys and @link
+ * _insert_by_unique_keys are provided to provide the default behavior
+ * of using Wordpress "post metas" to materialize the unique key(s)
+ * in-database. Specifically, the class-level constant
+ * META_PRIMARY_KEY shall be the name of a WordPress meta field or a
+ * list of same that make up the (possibly composite) "primary key".
+ * Subclasses may override both these methods to provide any mapping
+ * from the "primary key" to the database and back.
+ */
+abstract class UniqueKeyTypedPost extends TypedPost
+{
+    function get_or_create (...$unique_keys)
+    {
+        $result = static::_query_by_unique_keys($unique_keys)->result();
+        if ($result) {  // "get" case
+            $theclass = get_called_class();
+            return new $theclass($result->ID);
+        } else {        // "create" case
+            return static::_insert_by_unique_keys($unique_keys);
+        }
+    }
+
+    /**
+     * The piece of @link get_or_create that deals with the "get" part.
+     *
+     * The base class' implementation reads the META_PRIMARY_KEY and
+     * turns $unique_keys into a @link _WPQueryBuilder::by_meta query.
+     * A subclass may elect to override this method, as well as
+     * @link _insert_by_unique_keys, to map $unique_keys to/from the
+     * database in a different way.
+     */
+    static protected function _query_by_unique_keys ($unique_keys) {
+        return (new _WPQueryBuilder(static::get_post_type()))->by_meta(
+            static::_metaify($unique_keys));
+    }
+
+    /**
+     * The piece of @link get_or_create that deals with the "create" part.
+     *
+     * The base class' implementation reads the META_PRIMARY_KEY and
+     * turns $unique_keys into the "meta_input" parameter to
+     * @link wp_insert_post. A subclass may elect to override this
+     * method, as well as
+     * @link _query_by_unique_keys, to map $unique_keys to/from the
+     * database in a different way.
+     */
+    static protected function _insert_by_unique_keys ($unique_keys) {
+        return static::insert(array('meta_input' =>
+                                    static::_metaify($unique_keys)));
+    }
+
+    static protected function _metaify ($unique_keys) {
+        $primary_key = static::META_PRIMARY_KEY;
+        if (! is_array($primary_key)) {
+            $primary_key = array($primary_key);
+        }
+        $meta = array();
+        foreach ($primary_key as $k) {
+            $meta[$k] = array_shift($unique_keys);
+        }
+        return $meta;
     }
 }
 
@@ -237,6 +447,7 @@ class _WPQueryBuilder
         }
     }
 }
+
 
 /**
  * A helper to help us pretend that we are @link in_the_loop .

@@ -15,7 +15,22 @@ if (! defined( 'ABSPATH' )) {
 use \WP_Error;
 use \Throwable;
 
-const BASE_URL = 'epfl/v1';
+const _API_EPFL_PATH = 'epfl/v1';
+
+class RESTAPIError extends \Exception {
+    function __construct($http_code, $payload) {
+        if (is_string($payload)) {
+            $payload = array(
+                'status' => 'ERROR',
+                'msg'    => $payload
+            );
+        }
+        $this->status = $http_code;
+        $this->payload = $payload;
+        parent::__construct('' . $this->payload);
+    }
+}
+
 
 /**
  * Static-only class for registering REST API endpoints
@@ -57,7 +72,7 @@ class REST_API {
     static function GET_JSON ($path, ...$callback) {
         $class = get_called_class();
         add_action('rest_api_init', function() use ($class, $path, $callback) {
-            register_rest_route(BASE_URL, $path, array(
+            register_rest_route(_API_EPFL_PATH, $path, array(
                 'methods' => 'GET',
                 'callback' => function($data) use ($class, $callback) {
                     return $class::_call_and_APIfy($callback, $data);
@@ -69,7 +84,7 @@ class REST_API {
     static function POST_JSON ($path, ...$callback) {
         $class = get_called_class();
         add_action('rest_api_init', function() use ($class, $path, $callback) {
-            register_rest_route(BASE_URL, $path, array(
+            register_rest_route(_API_EPFL_PATH, $path, array(
                 'methods' => 'POST',
                 'callback' => function($data) use ($class, $callback) {
                     return $class::_call_and_APIfy($callback, $data);
@@ -90,7 +105,7 @@ class REST_API {
 
             return call_user_func_array($cb, $params);
         } catch (Throwable $t) {  // Non-goal: PHP5 support
-            return get_called_class()::_wp_errorify($t);
+            return get_called_class()::_serve_error($t);
         }
     }
 
@@ -98,11 +113,14 @@ class REST_API {
      * @param Throwable $t
      * @return WP_Error
      */
-    static function _wp_errorify ($t) {
+    static function _serve_error ($t) {
         $t_class_slug = preg_replace('/^-/', '',
                                      str_replace('\\', '-', get_class($t)));
-        $e = new WP_Error("ERROR:$t_class_slug", $t->getMessage());
-        return $e;
+        if ($t instanceof RESTAPIError) {
+            return new \WP_REST_Response($t->payload, $t->status);
+        } else {
+            return new WP_Error("ERROR:$t_class_slug", $t->getMessage());
+        }
     }
 
     /**
@@ -129,14 +147,15 @@ class REST_API {
      */
     static function _doing_rest_request () {
         return (false !== strpos($_SERVER['REQUEST_URI'],
-                                 '/wp-json/' . BASE_URL));
+                                 '/wp-json/' . _API_EPFL_PATH));
     }
 }
 
 REST_API::hook();
 
 
-class RESTError extends \Exception {
+class RESTClientError extends \Exception
+{
     static function build ($doingwhat, $url, $ch) {
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($http_code === 0) {
@@ -152,11 +171,15 @@ class RESTError extends \Exception {
     }
 }
 
-class RESTLocalError extends RESTError {}
-class RESTRemoteError extends RESTError {}
+class RESTLocalError extends RESTClientError {}
+class RESTRemoteError extends RESTClientError {}
 
-class RESTClient {
+class RESTClient
+{
     private function __construct ($url) {
+        if ($url instanceof REST_URL) {
+            $url = $url->fully_qualified();
+        }
         $this->url = $url;
     }
 
@@ -187,9 +210,9 @@ class RESTClient {
         $result = curl_exec($ch);
 
         if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200) {
-            return json_decode($result);
+            return HALJSON::decode($result);
         } else {
-            throw RESTError::build("GET", $this->url, $ch);
+            throw RESTClientError::build("GET", $this->url, $ch);
         }
     }
 
@@ -213,5 +236,88 @@ class RESTClient {
         $that = new $thisclass($url);
         $that->_setup_POST($data);
         return $that->execute();
+    }
+}
+
+/**
+ * @example
+ *
+ * assert 'https://www.epfl.ch/labs/mylab/wp-json/epfl/v1/foo/bar' ===
+ *        REST_URL::remote('https://www.epfl.ch/labs/mylab',
+ *                         'foo/bar')->fully_qualified();
+ *
+ * # Given get_site_url() === 'https://www.epfl.ch/labs/mylab':
+ *
+ * assert 'https://www.epfl.ch/labs/mylab/wp-json/epfl/v1/foo/bar' ===
+ *        REST_URL::local('foo/bar')->fully_qualified();
+ * assert '/labs/mylab/wp-json/epfl/v1/foo/bar' ===
+ *        REST_URL::local('foo/bar')->relative_to_root();
+ */
+class REST_URL
+{
+    private function __construct ($path, $site_base = NULL) {
+        $this->path = $path;
+        if ($site_base === NULL) {
+            $this->site_base = site_url();
+        } else {
+            $this->site_base = $site_base;
+        }
+    }
+
+    static function local ($path) {
+        $thisclass = get_called_class();
+        return new $thisclass($path);
+    }
+
+    static function remote ($site_base_url, $path_below_epfl_v1) {
+        $thisclass = get_called_class();
+        return new $thisclass($path_below_epfl_v1, $site_base_url);
+    }
+
+    function relative_to_root () {
+        return parse_url($this->fully_qualified(), PHP_URL_PATH);
+    }
+
+    function fully_qualified () {
+        $api_path = _API_EPFL_PATH;
+        return $this->site_base . "/wp-json/$api_path/" . $this->path;
+    }
+}
+
+
+/**
+ * Parse the HAL links as per draft-kelly-json-hal-0X
+ * @see http://stateless.co/hal_specification.html
+ *
+ * Even though the HAL standardization initiative appears to have
+ * fizzled out, @link WP_REST_Server::embed_links provides for
+ * emitting it - One just has to parse it client-side, so there.
+ */
+class HALJSON
+{
+    protected function __construct ($json) {
+        foreach (json_decode($json) as $k => $v) {
+            $this->$k = $v;
+        }
+    }
+
+    static function decode ($json) {
+        $thisclass = get_called_class();
+        return new $thisclass($json);
+    }
+
+    /**
+     * @return An URL or NULL
+     */
+    function get_link ($rel) {
+        $links = $this->_links->$rel;
+        if (! $links) {
+            return NULL;
+        }
+        if ($links[0]) {
+            return $links[0]->href;
+        } else {
+            return $links->href;
+        }
     }
 }

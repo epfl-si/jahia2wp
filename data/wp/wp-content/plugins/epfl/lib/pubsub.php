@@ -23,7 +23,7 @@ if (! defined('ABSPATH')) {
 require_once(__DIR__ . '/rest.php');
 use \EPFL\REST\REST_API;
 use \EPFL\REST\RESTClient;
-use \EPFL\REST\RESTError;
+use \EPFL\REST\RESTClientError;
 
 require_once(__DIR__ . '/model.php');
 use \EPFL\Model\WPDBModel;
@@ -242,7 +242,7 @@ class _Subscription extends WPDBModel
     }
 }
 
-_Subscription::hook_table_creation();
+_Subscription::hook();
 
 
 /**
@@ -259,21 +259,21 @@ _Subscription::hook_table_creation();
  */
 class PublishController
 {
-    function __construct ($subscribe_url) {
-        $this->subscribe_url = $subscribe_url;
+    function __construct ($subscribe_uri) {
+        $this->subscribe_uri = $subscribe_uri;
 
         REST_API::POST_JSON(
-            $subscribe_url, $this, 'on_REST_subscribe');
+            $subscribe_uri, $this, 'on_REST_subscribe');
     }
 
     public /* not really */
     function on_REST_subscribe ($req) {
-        _Events::request_subscribe_received($this->subscribe_url);
+        _Events::request_subscribe_received($this->subscribe_uri);
         $params = $req->get_params();
         $subscriber_id = $params["subscriber_id"];
         $callback_url  = $params["callback_url"];
 
-        $sub = _Subscriber::overwrite($this->subscribe_url, $subscriber_id, $callback_url);
+        $sub = _Subscriber::overwrite($this->subscribe_uri, $subscriber_id, $callback_url);
         $test_url = preg_replace('|/webhook([&?]|$)', '/webhook-test$1',
                                  $callback_url);
         if ($test_url != $callback_url) {
@@ -281,7 +281,7 @@ class PublishController
         }
         // Otherwise assume the subscriber doesn't want a synchronous call
         // to /webhook-test
-        _Events::request_subscribe_successful($this->subscribe_url);
+        _Events::request_subscribe_successful($this->subscribe_uri);
    }
 
     /**
@@ -291,7 +291,7 @@ class PublishController
      * by any given subscriber.
      */
     public function forward ($event) {
-        _Events::action_forward($this->subscribe_url, $event);
+        _Events::action_forward($this->subscribe_uri, $event);
         $this->_do_forward($event);
     }
 
@@ -299,17 +299,17 @@ class PublishController
      * Ping all subscribers from a new (cause-less) event
      */
     public function initiate () {
-        $event = Causality::start($this->subscribe_url);
-        _Events::action_initiate($this->subscribe_url, $event);
+        $event = Causality::start();
+        _Events::action_initiate($this->subscribe_uri, $event);
         $this->forward($event);
     }
 
     public function _do_forward ($event) {
-            foreach (_Subscriber::by_publisher_url($this->subscribe_url)
+            foreach (_Subscriber::by_publisher_url($this->subscribe_uri)
                  as $sub) {
             if ($sub->has_seen($event)) continue;
             $sub->attempt_post($sub->callback_url, $event->marshall());
-            _Events::forward_sent($this->subscribe_url, $event);
+            _Events::forward_sent($this->subscribe_uri, $event);
         }
     }
 }
@@ -329,10 +329,6 @@ class _Subscriber extends WPDBModel
 {
     private const DEAD_SUBSCRIBER_TIMEOUT_SECS = 86400 * 30;
     protected const TABLE_NAME = "epfl_pubsub_subscribers";
-
-    static function hook() {
-        static::hook_table_creation();
-    }
 
     static function create_tables () {
         static::query("CREATE TABLE IF NOT EXISTS %T (
@@ -399,7 +395,7 @@ class _Subscriber extends WPDBModel
         try {
             RESTClient::POST_JSON($url, $payload);
             $this->mark_success();
-        } catch (RESTError $e) {
+        } catch (RESTClientError $e) {
             error_log($e);
             $this->mark_error();
         }

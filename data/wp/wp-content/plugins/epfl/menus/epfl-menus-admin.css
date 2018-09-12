@@ -1,0 +1,13 @@
+#edit-external-menu {
+        background-color: yellow;
+}
+
+.ajax-spinner {
+    display: inline-block;
+    height: 16px;
+    width: 16px;
+    margin-left: 0.3em;
+    background-image: url(../../../../wp-admin/images/loading.gif);
+    background-repeat: no-repeat;
+    background-position: right center;
+}

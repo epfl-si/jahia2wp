@@ -28,6 +28,8 @@ require_once(__DIR__ . '/../lib/rest.php');
 use \EPFL\REST\REST_API;
 use \EPFL\REST\RESTClient;
 use \EPFL\REST\RESTRemoteError;
+use \EPFL\REST\RESTAPIError;
+use \EPFL\REST\REST_URL;
 
 require_once(__DIR__ . '/../lib/pubsub.php');
 use \EPFL\Pubsub\PublishController;
@@ -61,7 +63,7 @@ class Menu {
             $that = new $thisclass();
             $that->slug = $slug;
             $that->description = $description;
-            $that->term_id = $locations[$menu_slug];  # Language-dependent
+            $that->term_id = $locations[$slug];  // Language-dependent
             $all[] = $that;
         }
         return $all;
@@ -89,8 +91,57 @@ class Menu {
         return $this->get_local_tree();  // XXX Not quite!
     }
 
-    static function autodetect () {
-        # http://ch1.php.net/manual/en/class.recursivedirectoryiterator.php#114504
+    function update ($external_menu_item) {
+        // XXX Lazy but correct implementation (for low values of correct):
+        // do nothing
+    }
+}
+
+/**
+ * An external menu that needs fetching and/or integrating
+ * with the "normal" menus.
+ *
+ * Instances are represented in the Wordpress database as posts
+ * of custom post type "epfl-external-menu", keyed by the URL
+ * of the REST API that provides their contents.
+ */
+class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
+{
+    const SLUG = "epfl-external-menu";
+
+    // For get_or_create():
+    const META_PRIMARY_KEY = 'epfl-emi-rest-api-url';
+
+    // For ->meta()->{get_,set_}foo():
+    const META_ACCESSORS = array(
+        // {get_,set_} suffix => in-database post meta name ("-emi-" stands for "external menu item")
+        'rest_url'            => 'epfl-emi-rest-api-url',
+        'rest_subscribe_url'  => 'epfl-emi-rest-api-subscribe-url',
+        'remote_slug'         => 'epfl-emi-remote-slug',
+        'items_json'          => 'epfl-emi-remote-contents-json'
+    );
+
+    static function get_post_type () {
+        return self::SLUG;
+    }
+
+    private static $_all_menus;
+    static function all () {
+        if (! static::$_all_menus) {
+            static::$_all_menus = [];
+            static::foreach(function($that) use ($retval) {
+                static::$_all_menus[] = $that;
+            });
+        }
+        return static::$_all_menus;
+    }
+
+    static private function _all_changed () {
+        static::$_all_menus = NULL;
+    }
+
+    static function load_from_filesystem () {
+        // http://ch1.php.net/manual/en/class.recursivedirectoryiterator.php#114504
         $all_abspath_lazy = new \RecursiveDirectoryIterator(
             ABSPATH,
             \RecursiveDirectoryIterator::SKIP_DOTS);  // Dude, so 1990's.
@@ -127,64 +178,90 @@ class Menu {
             $relpath = substr(dirname($info->getPathname()), strlen(ABSPATH));
             if (! $relpath) continue;  // Skip our own directory
 
-            $api_base_url = $site_url . "/$relpath/wp-json/epfl/v1";
             try {
-                $langs = RESTClient::GET_JSON("$api_base_url/languages");
+                static::load_from_wp_base_url($site_url . "/$relpath");
             } catch (RESTRemoteError $e) {
                 error_log("[Not our fault, IGNORED] " . $e);
                 continue;
             }
-            foreach ($langs as $lang) {
-                try {
-                    $menus = RESTClient::GET_JSON("$api_base_url/menus?lang=$lang");
-                } catch (RESTRemoteError $e) {
-                    error_log("[Not our fault, IGNORED] " . $e);
-                    continue;
-                }
-                
-                foreach ($menus as $menu) {
-                    error_log(var_export($menu, true));
-                }
-            }
         }
     }
-}
 
-/**
- * An external menu that needs fetching and/or integrating
- * with the "normal" menus.
- */
-class ExternalMenuItem extends \EPFL\Model\TypedPost
-{
-    const SLUG = "epfl-external-menu";
+    static function load_from_wp_base_url ($base_url) {
+        foreach (RESTClient::GET_JSON(REST_URL::remote($base_url, 'languages'))
+                 as $lang) {
+            try {
+                $menu_descrs = RESTClient::GET_JSON(REST_URL::remote(
+                    $base_url,
+                    "menus?lang=$lang"));
+            } catch (RESTRemoteError $e) {
+                error_log("[Not our fault, IGNORED] " . $e);
+                continue;
+            }
+                
+            foreach ($menu_descrs as $menu_descr) {
+                $menu_slug = $menu_descr->slug;
+                $get_url = REST_URL::remote(
+                    $base_url, "menus/$menu_slug?lang=$lang")
+                         ->fully_qualified();
+                $that = static::get_or_create($get_url);
+                $that->update(array('post_title' =>
+                                    $menu_desc['description']));
+                $that->set_language($lang);
+                $that->meta()->set_remote_slug($menu_slug);
+                $that->refresh();
+            }
+        }
 
-    static function get_post_type () {
-        return self::SLUG;
+        static::_all_changed();
     }
 
-    static function all () {
-        $retval = [];
-        static::foreach(function($that) use ($retval) {
-            $retval[] = $that;
-        });
-        return $retval;
+    function refresh () {
+        if ($this->_refreshed) return;  // Not twice in same query cycle
+        if (! ($get_url = $this->meta()->get_rest_url())) {
+            error_log("Menu item #$this->ID doesn't look very external to me");
+            return;
+        }
+
+        $menu_contents = RESTClient::GET_JSON($get_url);
+        $this->set_remote_menu_items($menu_contents->items);
+        $this->meta()->set_rest_subscribe_url(
+            $menu_contents->get_link('subscribe'));
+
+        $this->_refreshed = true;
+    }
+
+    function set_remote_menu_items ($struct) {
+        $this->meta()->set_items_json(json_encode($struct));
+    }
+
+    function get_remote_menu_items () {
+        return json_decode($this->meta()->get_items_json());
+    }
+
+    function get_subscribe_url () {
+        return $this->meta()->get_rest_subscribe_url();
     }
 }
-
 
 /**
  * Enumerate menus over the REST API
  *
  * Enumeration is independent of languages (or lack thereof) i.e.
  * there is exactly one result per theme slot (in the sense of
- * @link get_registered_nav_menus).
+ * @link get_registered_nav_menus). It is also independent of the
+ * pubsub mechanism, in the sense that the code thereof is not invoked
+ * here (but URLs that point to the pubsub REST endpoints, do get
+ * computed and served)
+ *
+ * Additionally, the MenuRESTController class is in charge of managing
+ * the @link PublishController instances. (See @link MenuItemController
+ * for the subscribe side.)
  *
  * @url /epfl/v1/menus
  */
 class MenuRESTController
 {
-    static public $pubsub;
-
     static function hook () {
         REST_API::GET_JSON(
             '/menus',
@@ -193,41 +270,69 @@ class MenuRESTController
             '/menus/(?P<slug>[a-zA-Z0-9_-]+)',
             get_called_class(), 'get_menu');
 
-        # "The feature is available only in Polylang Pro." #groan
+        // "The feature is available only in Polylang Pro." #groan
         REST_API::GET_JSON(
             '/languages',
             function() { return pll_languages_list(); });
 
-        add_action('rest_api_init', function() {
-            foreach (ExternalMenuItem::all() as $external_menu) {
-                self::$pubsub = new PubsubController(static::menu_api_slug($external_menu));
-                self::$pubsub->add_listener(function($event) use ($thisclass) {
-                    _MenuStitcher::of($external_menu)->changed();
-                    $pubsub->forward($event);
-                });
-            }
-        });
+        foreach (Menu::all() as $menu) {
+            static::_get_publish_controller($menu);
+        }
     }
 
-    // TODO: serve all menus in all languages; provide suitable
-    // endpoint URLs for the "subscribe" and "query" APIs
     static function get_menus () {
         $retval = [];
         foreach (Menu::all() as $menu) {
             array_push($retval, array(
                 'slug'        => $menu->slug,
-                'description' => $menu->description));
+                'description' => $menu->description,
+            ));
         }
         return $retval;
     }
 
     static function get_menu ($data) {
-        $menu_slug = $data['slug'];  # Matched from the URL with a named pattern
-        return array(
-            "status" => "OK",
-            "items"  => Menu::by_slug($slug)::get_stitched_tree()
+        $slug = $data['slug'];  // Matched from the URL with a named pattern
 
-        );
+        if ($menu = Menu::by_slug($slug)) {
+            $response = new \WP_REST_Response(array(
+                'status' => 'OK',
+                'items'  => $menu->get_stitched_tree()));
+            $response->add_link('subscribe',
+                                REST_URL::local(static::_get_subscribe_uri($menu))
+                                ->relative_to_root());
+            return $response;
+        } else {
+            throw new RESTAPIError(404, array(
+                'status' => 'NOT_FOUND',
+                'msg' => "No menu with slug $slug"));
+        }
+    }
+
+    static function _get_subscribe_uri ($menu) {
+        return "menus/$menu->slug/subscribe";
+    }
+
+    static private $pubs = array();
+    static private function _get_publish_controller ($menu) {
+        if (! static::$pubs[$menu]) {
+            static::$pubs[$menu] = new PublishController(
+                static::_get_subscribe_uri($menu));
+        }
+        return static::$pubs[$menu];
+    }
+
+    /**
+     * Shall be called whenever $menu changes (from the point
+     * of view of @link get_menu)
+     */
+    static function menu_changed ($menu, $causality = NULL) {
+        $publisher = static::_get_publish_controller($menu);
+        if ($causality) {
+            $publisher->forward($causality);
+        } else {
+            $publisher->initiate();
+        }
     }
 }
 
@@ -255,15 +360,67 @@ class MenuItemController
 {
     static function hook () {
         $thisclass = get_called_class();
+
+        // See docstring for @link register_post_type
         add_action('init', array($thisclass, 'register_post_type'));
-        add_action('admin_head', array($thisclass, 'render_css'));
-        add_action('admin_head-edit.php',array($thisclass, 'add_refresh_button'));
-        add_action('admin_init', function() use ($thisclass) {
-            require_once(__DIR__ . '/../lib/ajax.php');
-            $endpoint = new \EPFL\AJAX\Endpoint('EPFLMenus');
-            $endpoint->register_handlers($thisclass);
-            $endpoint->admin_enqueue('edit.php');
+
+        add_action('rest_api_init', function() use ($thisclass) {
+            foreach (ExternalMenuItem::all() as $external_menu_item) {
+                $thisclass::hook_pubsub($external_menu_item);
+            }
         });
+
+        static::hook_ajax_refresh_button();
+    }
+
+    static function hook_pubsub ($external_menu_item) {
+        $thisclass = get_called_class();
+        static::_get_subscribe_controller($external_menu_item)->add_listener(
+            function($event) use ($thisclass, $external_menu_item) {
+                foreach (Menu::all() as $menu) {
+                    if ($menu->update($external_menu_item)) {
+                        MenuRESTController::menu_changed($menu, $event);
+                    }
+                }
+            });
+    }
+
+    static function hook_ajax_refresh_button () {
+        $thisclass = get_called_class();
+
+        // Server side:
+        add_action('admin_init', function() use ($thisclass) {
+            $thisclass::_get_ajax_endpoint()->register_handlers($thisclass);
+        });
+
+        // JS side:
+        add_action('current_screen', function() use ($thisclass) {
+            if ((get_current_screen()->base === 'edit') &&
+                $_REQUEST['post_type'] === ExternalMenuItem::SLUG)
+            {
+                $thisclass::_get_ajax_endpoint()->admin_enqueue();
+                _MenusJSApp::load();
+            }
+        });
+    }
+
+    static private function _get_ajax_endpoint () {
+        require_once(__DIR__ . '/../lib/ajax.php');
+        return new \EPFL\AJAX\Endpoint('EPFLMenus');
+    }
+
+    static private $subs = array();
+    static private function _get_subscribe_controller ($external_menu_item) {
+        if (! static::$subs[$external_menu_item]) {
+            static::$subs[$external_menu_item] = new SubscribeController(
+                // The subscribe slug will be embedded in webhook
+                // URLs, so it must not change inbetween queries.
+                // Using the post ID is perhaps a bit difficult to
+                // read out of error logs, but certainly the easiest
+                // and most future-proof way of going about it.
+                "menu/" . $external_menu_item->ID);
+        }
+        return static::$subs[$menu];
     }
 
     /**
@@ -303,7 +460,13 @@ class MenuItemController
      * Invoked by the refresh button in the wp-admin area
      */
     static function ajax_refresh () {
-        Menu::autodetect();
+        ExternalMenuItem::load_from_filesystem();
+        foreach (ExternalMenuItem::all() as $external_menu_item) {
+            $external_menu_item->refresh();
+            error_log($external_menu_item->get_subscribe_url());
+            static::_get_subscribe_controller($external_menu_item)->
+                subscribe($external_menu_item->get_subscribe_url());
+        }
     }
 
     /**
@@ -336,42 +499,6 @@ class MenuItemController
  <?php
     }
 
-    public static function render_css () {
-        ?>
-<style>
-#edit-external-menu {
-        background-color: yellow;
-}
-</style>
-<?php
-    }
-
-    public static function add_refresh_button () {
-        // https://stackoverflow.com/a/29813737/435004 says,
-        // there's no doing this but with jQuery. So let's throw
-        // in some AJAX on top, shall we?
-        global $current_screen;
-
-        if (ExternalMenuItem::SLUG != $current_screen->post_type) return;
-        ?><script>
-jQuery(function($) {
-    $('a.page-title-action').remove();
-    $('h1.wp-heading-inline').after('<button class="page-title-action"><?php _e("Refresh"); ?></button>');
-    var $button = $('h1.wp-heading-inline').next();
-    $button.click(function() {
-        window.EPFLMenus.post("refresh")
-              .done(function() {
-                  console.log("Refresh done");
-                  window.location.reload(true);
-              })
-              .fail(function() {
-                  alert("<?php __e('Refresh failed'); ?>");
-              });
-    });
-});
-</script><?php
-    }
-
     private static function capabilities_for_edit_but_not_create () {
         return array(
             'create_posts'       => '__NEVER_PERMITTED__',
@@ -389,7 +516,42 @@ jQuery(function($) {
 MenuItemController::hook();
 
 
+class _MenusJSApp
+{
+    /**
+     * A good hook to call this from is @link admin_enqueue_scripts
+     */
+    static function load () {
+        (new Asset("lib/polyfills.js"))->enqueue_script();
+        (new Asset("menus/epfl-menus-admin.js"))->enqueue_script();
+        (new Asset("menus/epfl-menus-admin.css"))->enqueue_style();
+        add_action('admin_print_footer_scripts', function() {
+            $screen = array('base' => get_current_screen()->base);
+            if ($_REQUEST['post_type']) {
+                $screen['post_type'] = $_REQUEST['post_type'];
+            }
+            echo "\n<script>\n";
+            // Since the app is loaded from multiple wp-admin scripts,
+            // pass enough info so that the JS side can orient itself:
+?>
+window.wp.screen = <?php echo json_encode($screen); ?>;
+<?php
+            // And I have yet to come up with a better idea than this
+            // to translate UI strings in the JS app:
+?>
+window.wp.translations = {
+  refresh_button: "<?php echo __x('Refresh', 'JS button'); ?>",
+  refresh_failed: "<?php __e('Refresh failed'); ?>"
+};
+<?php
+
+            echo "</script>\n";
+        });
+    }
+}
+
 ################## External menus in admin menu editor #################
+
 
 
 /**
@@ -405,9 +567,9 @@ class MenuEditorController
         add_action('admin_init', array(get_called_class(), 'add_meta_box'));
 
         add_action('admin_enqueue_scripts', function() {
-            if ('nav-menus' !== get_current_screen()->base) return;
-            (new Asset("menus/epfl-menus-admin.js"))->enqueue_script();
-            (new Asset("menus/epfl-menus-admin.css"))->enqueue_style();
+            if (get_current_screen()->base === 'nav-menus') {
+                _MenusJSApp::load();
+            }
         });
     }
 
@@ -439,7 +601,6 @@ class MenuEditorController
 		<p class="button-controls wp-clearfix">
 			<span class="add-to-menu">
 				<input type="submit"<?php wp_nav_menu_disabled_check( $nav_menu_selected_id ); ?> class="button submit-add-to-menu right" value="<?php esc_attr_e('Add to Menu'); ?>" name="add-custom-menu-item" id="submit-externalmenudiv" />
-				<span class="spinner"></span>
 			</span>
 		</p>
 

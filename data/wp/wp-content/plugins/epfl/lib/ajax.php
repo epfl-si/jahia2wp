@@ -154,28 +154,11 @@ class Endpoint
     }
 
     /**
-     * Arrange for @link output_bindings() to be called on some admin page(s)
-     *
-     * @param $when If set to a string, render only to the admin page
-     * with the same "$hook_suffix" (in the sense of the
-     * Wordpress @link admin_enqueue_scripts action). If set to a
-     * callable, use the Boolean return value of same to decide
-     * whether to render the script. (The callable will likewise be
-     * passed the $hook_suffix as its sole argument)
+     * Arrange for @link output_bindings() to be called
      */
-    function admin_enqueue ($when = null)
+    function admin_enqueue ()
     {
-        $self = $this;
         add_action('admin_enqueue_scripts',
-                   function($hook_suffix) use ($self, $when) {
-                       if ($when) {
-                           if (is_callable($when)) {
-                               if (! call_user_func($when, $hook_suffix)) return;
-                           } else {
-                               if ($when !== $hook_suffix) return;
-                           }
-                       }
-                       $self->output_bindings();
-                   });
+                   array($this, 'output_bindings'));
     }
 }
