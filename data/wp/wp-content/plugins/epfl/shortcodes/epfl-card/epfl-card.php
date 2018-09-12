@@ -29,7 +29,7 @@ function epfl_card_process_shortcode($atts = [], $content = '', $tag = '') {
     // sanitize parameters
     $link  = esc_url($atts['link']);
     $title = sanitize_text_field( $atts['title'] );
-    $text  = sanitize_text_field( $atts['text'] );
+    $text  = wp_kses_post($atts['text']);
     $image = sanitize_text_field( $atts['image'] );
     $image_url = wp_get_attachment_url( $image );
 
