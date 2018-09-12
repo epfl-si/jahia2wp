@@ -60,7 +60,7 @@ class Shortcodes():
                 # Looping through posts
                 for post_id in post_ids:
                     content = Utils.run_command("wp post get {} --field=post_content --skip-plugins --skip-themes "
-                                                "--path={}".format(post_id,site_details.path))
+                                                "--path={}".format(post_id, site_details.path))
 
                     # Looking for all shortcodes in current post
                     for shortcode in re.findall(self.regex, content):
@@ -205,11 +205,11 @@ class Shortcodes():
             logging.info("No WP site found at given URL (%s)", wp_site_url)
             return report
 
-        logging.info("Fixing %s...", wp_site.folder)
+        logging.info("Fixing %s...", wp_site.path)
 
         # Getting list of registered shortcodes to be sure to list only registered and not all strings
         # written between [ ]
-        registered_shortcodes = self._get_site_registered_shortcodes(site_details.path)
+        registered_shortcodes = self._get_site_registered_shortcodes(wp_site.path)
 
         # Getting site posts
         post_ids = wp_config.run_wp_cli("post list --post_type=page --skip-plugins --skip-themes "
