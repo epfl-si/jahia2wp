@@ -30,7 +30,8 @@ use \EPFL\REST\RESTClient;
 use \EPFL\REST\RESTRemoteError;
 
 require_once(__DIR__ . '/../lib/pubsub.php');
-use \EPFL\PubsubController;
+use \EPFL\Pubsub\PublishController;
+use \EPFL\Pubsub\SubscribeController;
 
 require_once(__DIR__ . '/../lib/i18n.php');
 use function EPFL\I18N\___;
