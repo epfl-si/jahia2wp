@@ -1,6 +1,4 @@
 import os
-import shutil
-
 import settings
 
 from .config import WPConfig
@@ -43,28 +41,6 @@ class WPThemeConfig(WPConfig):
         command_output = self.run_wp_cli(command)
         return False if command_output is True else self.name in command_output
 
-    @classmethod
-    def install_all(cls, wp_site):
-        """
-        Install all themes
-
-        Argument keywords:
-        wp_site -- Instance of class WPSite
-        """
-        # Generate path to source themes folder
-        src_theme_path = os.path.sep.join([settings.WP_FILES_PATH, cls.THEMES_PATH])
-
-        # Looping through folder elements
-        for theme_folder in os.listdir(src_theme_path):
-            # Generate path to current element
-            current_theme_path = os.path.join(src_theme_path, theme_folder)
-            # If current element is a directory, it is a theme
-            if os.path.isdir(current_theme_path):
-
-                # Copy current theme files into wp-content/themes
-                shutil.copytree(current_theme_path,
-                                os.path.sep.join([wp_site.path, cls.THEMES_PATH, theme_folder]))
-
     def activate(self):
         """
         Set theme as active theme in WordPress
@@ -79,3 +55,11 @@ class WPThemeConfig(WPConfig):
             return result
         else:
             return self.run_wp_cli('option add epfl:theme_faculty {}'.format(self.faculty))
+
+    def install_and_activate(self, force_reinstall=False):
+        """
+        Install and activate 2018 theme
+        """
+        zip_url = "https://github.com/epfl-idevelop/wp-theme-2018/archive/master.zip"
+        force_option = "--force" if force_reinstall else ""
+        self.run_wp_cli('theme install --activate {} {}'.format(force_option, zip_url))

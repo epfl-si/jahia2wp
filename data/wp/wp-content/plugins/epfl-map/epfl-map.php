@@ -30,12 +30,14 @@ function epfl_map_debug( $var ) {
  */
 function epfl_map_build_html( string $width, string $height, string $query, string $lang ): string
 {
-    $html  = '<iframe frameborder="0" ';
-    $html .= 'width="' . esc_attr($width) . '" ';
-    $html .= 'height="' . esc_attr($height) . '" ';
-    $html .= 'scrolling="no" src="https://plan.epfl.ch/iframe/?q=' . esc_attr($query);
-    $html .= '&amp;lang=' . esc_attr($lang) . '&amp;map_zoom=10"></iframe>';
-    return $html;
+
+    return '<div class="container">'.
+           '<div class="epfl-map epfl-map-responsive embed-responsive embed-responsive-16by9">'.
+           '<iframe frameborder="0" width="'.esc_attr($width).'" height="'.esc_attr($height).'" scrolling="no" '.
+           ' src="https://plan.epfl.ch/iframe/?q='.esc_attr($query).'&amp;lang='.esc_attr($lang).'&amp;map_zoom=10" class="embed-responsive-item"></iframe>'.
+           '</div>'.
+           '</div>';
+
 }
 
 /**
@@ -141,6 +143,13 @@ add_action( 'register_shortcode_ui',  function() {
             'post_type'     => array( 'post', 'page' ),
         )
     );
+});
+
+add_action( 'wp_enqueue_scripts', function() {
+
+  // enqueue style
+   wp_enqueue_style( 'epfl_map_style', plugin_dir_url(__FILE__).'css/style.css' );
+
 });
 
 ?>

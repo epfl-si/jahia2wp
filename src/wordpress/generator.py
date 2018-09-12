@@ -200,9 +200,13 @@ class WPGenerator:
 
         # install and configure theme (default is settings.DEFAULT_THEME_NAME)
         logging.info("%s - Installing all themes...", repr(self))
-        WPThemeConfig.install_all(self.wp_site)
+
+        # install and activate 2018 theme
+        theme = WPThemeConfig(self.wp_site, settings.DEFAULT_THEME_NAME, self._site_params['theme_faculty'])
+        theme.install_and_activate()
+
         logging.info("%s - Activating theme '%s'...", repr(self), self._site_params['theme'])
-        theme = WPThemeConfig(self.wp_site, self._site_params['theme'], self._site_params['theme_faculty'])
+
         if not theme.activate():
             logging.error("%s - could not activate theme '%s'", repr(self), self._site_params['theme'])
             return False
@@ -213,7 +217,7 @@ class WPGenerator:
         self.generate_mu_plugins()
 
         # delete all widgets, inactive themes and demo posts
-        self.delete_widgets()
+        # self.delete_widgets() #  there is no sidebar widget in the 2018 theme
         self.delete_inactive_themes()
         self.delete_demo_posts()
 
@@ -341,16 +345,24 @@ class WPGenerator:
 
     def delete_widgets(self, sidebar="homepage-widgets"):
         """
-        Delete all widgets from the given sidebar.
+        Delete all widgets from the given sidebar if it exists
 
         There are 2 sidebars :
         - One sidebar for the homepage. In this case sidebar parameter is "homepage-widgets".
         - Another sidebar for all anothers pages. In this case sidebar parameter is "page-widgets".
         """
+        cmd = "sidebar list --fields=name --format=csv"
+        sidebar_list = self.run_wp_cli(cmd)
+
+        if sidebar not in sidebar_list:
+            logging.info("%s - Sidebar %s doesn't exists", repr(self), sidebar)
+            return
+
         cmd = "widget list {} --fields=id --format=csv".format(sidebar)
         # Result is sliced to remove 1st element which is name of field (id).
         # Because WPCLI command can take several fields, the name is displayed in the result.
         widgets_id_list = self.run_wp_cli(cmd).split("\n")[1:]
+
         for widget_id in widgets_id_list:
             cmd = "widget delete " + widget_id
             self.run_wp_cli(cmd)
@@ -401,6 +413,7 @@ class WPGenerator:
         # TODO: add those plugins into the general list of plugins (with the class WPMuPluginConfig)
         WPMuPluginConfig(self.wp_site, "epfl-functions.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL_custom_editor_menu.php").install()
+        WPMuPluginConfig(self.wp_site, "EPFL_jahia_redirect.php").install()
 
         if self.wp_config.installs_locked:
             WPMuPluginConfig(self.wp_site, "EPFL_installs_locked.php").install()
