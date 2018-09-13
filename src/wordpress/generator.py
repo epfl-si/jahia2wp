@@ -424,6 +424,8 @@ class WPGenerator:
     def enable_updates_automatic_if_allowed(self):
         if self.wp_config.updates_automatic:
             WPMuPluginConfig(self.wp_site, "EPFL_enable_updates_automatic.php").install()
+            # We also uninstall the plugin which disable auto-updates otherwise we will have both...
+            WPMuPluginConfig(self.wp_site, "EPFL_disable_updates_automatic.php").uninstall()
 
     def generate_plugins(self,
                          only_one=None,
