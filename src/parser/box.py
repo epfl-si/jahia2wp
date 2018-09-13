@@ -63,6 +63,13 @@ class Box:
     UPDATE_LANG = "UPDATE_LANG_BY_EXPORTER"
 
     def __init__(self, site, page_content, element, multibox=False):
+        """
+
+        :param site: instance of Site class
+        :param page_content: instance of PageContent class. This is the page content containing current box
+        :param element: DOM element <extra> or <main>
+        :param multibox:
+        """
         # attributes
         self.site = site
         self.page_content = page_content
@@ -670,7 +677,17 @@ class Box:
         self.content = html_content
 
     def set_box_infoscience(self, element):
-        """set the attributes of a infoscience box"""
+        """
+        set the attributes of a infoscience box.
+        The "element" parameter can be type "epfl:infoscienceBox" or "epfl:htmlBox". If its an "infoscienceBox",
+        we have to look for <url> tags inside <infoscienceListList> tag. And if it's a "htmlBox", we have to look
+        inside <importHtmlList> tag. But, in "infoscienceBox", a tag <importHtmlList> can be present and we have to
+        ignore it otherwise we will take too much information to display (for "lms" website, we have both tags and
+        only <infoscienceListList> content is displayed on Jahia so it indicates we have to ignore <importHtmlList>
+        tag.
+        :param element: DOM element <main>
+        :return:
+        """
         # If box have title, we have to display it
         if self.title != "":
             html_content = "<h3>{}</h3>".format(self.title)
@@ -679,7 +696,15 @@ class Box:
 
         self.shortcode_name = "epfl_infoscience"
 
-        urls = Utils.get_tag_attributes(element, "url", "jahia:value")
+        # if "infoscienceBox"
+        if self.type == self.TYPE_INFOSCIENCE:
+            publication_list = element.getElementsByTagName("infoscienceListList")
+
+        else:  # importHtmlList (self.TYPE_INCLUDE)
+
+            publication_list = element.getElementsByTagName("importHtmlList")
+
+        urls = Utils.get_tag_attributes(publication_list[0], "url", "jahia:value")
 
         for url in urls:
             html_content += '[{} url="{}"]'.format(self.shortcode_name, url)
