@@ -23,6 +23,23 @@ require_once 'mathjax-config.php';
 
 define("INFOSCIENCE_SEARCH_URL", "https://infoscience.epfl.ch/search?");
 
+function epfl_infoscience_search_url_exists( $url )
+{
+    $handle = curl_init( $url );
+    curl_setopt( $handle, CURLOPT_RETURNTRANSFER, TRUE );
+
+    $response = curl_exec( $handle );
+    $httpCode = curl_getinfo( $handle, CURLINFO_HTTP_CODE );
+
+    if ( $httpCode >= 200 && $httpCode <= 400 ) {
+        return true;
+    } else {
+        return false;
+    }
+
+    curl_close($handle);
+}
+
  /**
   * From any attributes, set them as url parameters for Infoscience
   *
@@ -244,7 +261,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     
     # not in cache ?
     if ($page === false || $debug_data || $debug_template){
-        if (epfl_infoscience_url_exists( $url ) ) {
+        if (epfl_infoscience_search_url_exists( $url ) ) {
             $response = wp_remote_get( $url );
 
             if ( is_wp_error( $response ) ) {
@@ -262,15 +279,14 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
                     return $page;
                 }
 
-                # try to load render from theme if available
-                if (has_action("epfl_infoscience_search_action")) {
-                    ob_start();
-                    try {
-                        do_action("epfl_infoscience_search_action", $publications);
-                        $page = ob_get_contents();
-                    } finally {
-                        ob_end_clean();
-                    }
+                # try to load render from 2018 theme if available
+                if (has_filter("epfl_infoscience_search_action")) {
+                    $page = apply_filters("epfl_infoscience_search_action", $grouped_by_publications,
+                                                                $url,
+                                                                $format,
+                                                                $summary,
+                                                                $thumbnail,
+                                                                $debug_template);
                 } else {
                     # use the self renderer
                     $page = ClassesInfoscienceRender::render($grouped_by_publications,
@@ -285,7 +301,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
                 $html_verbose_comments = '<!-- epfl_infoscience_search params : ' . var_export($before_unset_attributes, true) .  ' //-->';
                 $html_verbose_comments .= '<!-- epfl_infoscience_search built url :'. var_export($url, true) . ' //-->';
 
-                $page = '<div class="infoscienceBox no-tex2jax_process">' . $html_verbose_comments . $page . '</div>';
+                $page = '<div class="infoscienceBox container no-tex2jax_process">' . $html_verbose_comments . $page . '</div>';
 
                 $page .= get_mathjax_config();
 
