@@ -1,0 +1,270 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: epfl-infoscience\n"
+"POT-Creation-Date: 2018-06-27 09:34+0200\n"
+"PO-Revision-Date: 2018-06-27 09:48+0200\n"
+"Last-Translator: Delasoie Julien <julien.delasoie@epfl.ch>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.7.1\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-KeywordsList: __;esc_html__\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: shortcake-config.php:10
+msgid "Any field"
+msgstr "Tous les champs"
+
+#: shortcake-config.php:11
+msgid "Author"
+msgstr "Auteur"
+
+#: shortcake-config.php:12
+msgid "Title"
+msgstr "Titre"
+
+#: shortcake-config.php:13
+msgid "Year"
+msgstr "Année"
+
+#: shortcake-config.php:14
+msgid "Unit"
+msgstr "Unité"
+
+#: shortcake-config.php:15
+msgid "Collection"
+msgstr "Collection"
+
+#: shortcake-config.php:16
+msgid "Journal"
+msgstr "Journal"
+
+#: shortcake-config.php:17 shortcake-config.php:275
+msgid "Summary"
+msgstr "Résumé"
+
+#: shortcake-config.php:18
+msgid "Keyword"
+msgstr "Mot-clé"
+
+#: shortcake-config.php:19
+msgid "ISSN"
+msgstr "ISSN"
+
+#: shortcake-config.php:20
+msgid "DOI"
+msgstr "DOI"
+
+#: shortcake-config.php:40
+msgid "Descending"
+msgstr "Décroissant"
+
+#: shortcake-config.php:41
+msgid "Ascending"
+msgstr "Croissant"
+
+#: shortcake-config.php:47
+msgid "AND"
+msgstr "ET"
+
+#: shortcake-config.php:48
+msgid "OR"
+msgstr "OU"
+
+#: shortcake-config.php:49
+msgid "AND NOT"
+msgstr "ET NON PAS"
+
+#: shortcake-config.php:56
+msgid "Short"
+msgstr "Court"
+
+#: shortcake-config.php:57
+msgid "Detailed"
+msgstr "Détaillé"
+
+#: shortcake-config.php:64
+msgid "Hide"
+msgstr "Cacher"
+
+#: shortcake-config.php:65
+msgid "Show"
+msgstr "Afficher"
+
+#: shortcake-config.php:81
+msgid "year as title"
+msgstr "année comme titre"
+
+#: shortcake-config.php:82
+msgid "document type as title"
+msgstr "type de document comme titre"
+
+#: shortcake-config.php:180
+#, php-format
+msgid "Add the url from a infoscience search result. %sRead this documentation%s"
+msgstr ""
+
+#: shortcake-config.php:185
+#, php-format
+msgid "%sSearch tips%s"
+msgstr "%sConseils de recherche%s"
+
+#: shortcake-config.php:194
+msgid "Infoscience search"
+msgstr "Recherche Infoscience"
+
+#: shortcake-config.php:199
+msgid "Search for"
+msgstr "Recherche"
+
+#: shortcake-config.php:204
+msgid "Search records for:"
+msgstr "Recherche des publications sur :"
+
+#: shortcake-config.php:208
+msgid "Field restriction"
+msgstr "Restriction sur un champ"
+
+#: shortcake-config.php:214
+msgid "Sort"
+msgstr "Tri"
+
+#: shortcake-config.php:230
+msgid "Additional search keys"
+msgstr "Recherche additionnelle"
+
+#: shortcake-config.php:231
+msgid "Second search text"
+msgstr "Deuxième recherche"
+
+#: shortcake-config.php:250
+msgid "Third search text"
+msgstr "Troisième recherche"
+
+#: shortcake-config.php:267
+msgid "Style"
+msgstr "Style"
+
+#: shortcake-config.php:268
+msgid "Format"
+msgstr "Format"
+
+#: shortcake-config.php:272
+msgid "Detail level for a publication"
+msgstr "Niveau de détail d'une publication"
+
+#: shortcake-config.php:282
+msgid "Thumbnail"
+msgstr "Vignette"
+
+#: shortcake-config.php:289 shortcake-config.php:295
+msgid "Group by"
+msgstr "Groupement"
+
+#: templates/book_chapters_detailed.php:49 templates/book_chapters_short.php:59
+#: templates/conference_papers_detailed.php:47
+#: templates/conference_papers_short.php:44
+#: templates/journal_articles_detailed.php:45 templates/reports_detailed.php:19
+#: templates/theses_detailed.php:54 templates/theses_short.php:44
+msgid "p."
+msgstr "p."
+
+#: templates/common/links-bar.php:10
+msgid "Detailed record"
+msgstr "Notice détaillée"
+
+#: templates/common/links-bar.php:14
+msgid "Full text"
+msgstr "Texte intégral"
+
+#: templates/common/links-bar.php:19
+msgid "View at publisher"
+msgstr "Consulter chez l'éditeur"
+
+#: templates/journal_articles_detailed.php:27
+msgid "Vol."
+msgstr "Vol."
+
+#: templates/journal_articles_detailed.php:36
+msgid "num."
+msgstr "num."
+
+#: templates/patents_detailed.php:42
+msgid "Patent number(s)"
+msgstr "Numéro de brevet"
+
+#: templates/theses_detailed.php:19 templates/theses_short.php:11
+msgid "Dir."
+msgstr "Dir."
+
+#: 17
+msgid "Journal Articles"
+msgstr "Articles de journaux"
+
+#: 18
+msgid "Conference Papers"
+msgstr "Papiers de conférences"
+
+#: 19
+msgid "Reviews"
+msgstr "Reviews"
+
+#: 20
+msgid "Books"
+msgstr "Livres"
+
+#: 21
+msgid "Theses"
+msgstr "Thèses"
+
+#: 22
+msgid "Book Chapters"
+msgstr "Chapitres de livres"
+
+#: 23
+msgid "Conference Proceedings"
+msgstr "Actes de congrès"
+
+#: 24
+msgid "Working Papers"
+msgstr "Documents de travail"
+
+#: 25
+msgid "Reports"
+msgstr "Rapports techniques"
+
+#: 26
+msgid "Posters"
+msgstr "Posters"
+
+#: 27
+msgid "Talks"
+msgstr "Présentations"
+
+#: 28
+msgid "Standards"
+msgstr "Normes"
+
+#: 29
+msgid "Patents"
+msgstr "Brevets"
+
+#: 30
+msgid "Student Projects"
+msgstr "Projets d'étudiants"
+
+#: 31
+msgid "Teaching Resources"
+msgstr "Documents d'enseignement"
+
+#: 32
+msgid "Media"
+msgstr "Média"
+
+#: 33
+msgid "Datasets"
+msgstr "Echantillons de données"
