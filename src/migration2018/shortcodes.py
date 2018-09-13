@@ -176,6 +176,35 @@ class Shortcodes():
 
         return matching_reg.sub(r'\g<before> {} \g<after>'.format(attr), content)
 
+    def __remove_shortcode(self, content, shortcode_name, remove_content=False):
+        """
+        Completely remove a shortcode (begin and end tag) and even its content if needed
+
+        :param content: string in which doing replacement
+        :param shortcode_name: Shortcode name to remove
+        :param remove_content: True|False to tell if we also have to remove content or not.
+        :return:
+        """
+
+        reg_list = []
+
+        if remove_content:
+            # To remove [shortcode_name param="2" ...]...[/shortcode_name]
+            reg_list.append(re.compile('\[{0} .*?\].*?\[\/{0}\]'.format(shortcode_name), re.VERBOSE))
+
+        else:  # We have to remove only surrounding elements
+
+            # To remove [shortcode_name param="2" ...]
+            reg_list.append(re.compile('\[{} .*?\]'.format(shortcode_name), re.VERBOSE))
+
+            # To remove [/shortcode_name]
+            reg_list.append(re.compile('\[\/{}]'.format(shortcode_name), re.VERBOSE))
+
+        for reg in reg_list:
+            content = reg.sub('', content)
+
+        return content
+
     def _fix_su_youtube(self, content):
         """
         Fix "su_youtube" from Shortcode ultimate plugin
