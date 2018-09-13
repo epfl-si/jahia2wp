@@ -285,7 +285,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
                 $html_verbose_comments = '<!-- epfl_infoscience_search params : ' . var_export($before_unset_attributes, true) .  ' //-->';
                 $html_verbose_comments .= '<!-- epfl_infoscience_search built url :'. var_export($url, true) . ' //-->';
 
-                $page = '<div class="infoscienceBox no-tex2jax_process">' . $html_verbose_comments . $page . '</div>';
+                $page = '<div class="infoscienceBox container no-tex2jax_process">' . $html_verbose_comments . $page . '</div>';
 
                 $page .= get_mathjax_config();
 
