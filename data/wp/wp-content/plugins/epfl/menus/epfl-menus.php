@@ -371,6 +371,8 @@ class MenuItemController
         });
 
         static::hook_ajax_refresh_button();
+
+        static::_auto_fields_controller()->hook();
     }
 
     static function hook_pubsub ($external_menu_item) {
@@ -452,7 +454,7 @@ class MenuItemController
             'menu_icon'             => 'dashicons-list-view',
             'capabilities'          => static::capabilities_for_edit_but_not_create(),
             'register_meta_box_cb' => array(get_called_class(),
-                                            'register_meta_box')
+                                            'register_meta_boxes')
         ));
     }
 
@@ -470,24 +472,27 @@ class MenuItemController
     }
 
     /**
-     * Make the "edit" screen for menu objects show the custom main-matter
-     * widget
+     * Make the "edit" screen for menu objects show the custom
+     * main-matter widget and an auto-fields meta box (see @link
+     * \EPFL\AutoFields\AutoFieldsController)
      */
-    public static function register_meta_box() {
+    public static function register_meta_boxes () {
         $this_class = get_called_class();
 
         add_meta_box(
             "epfl_menu_edit_metabox",
             __x("External Menu", "Post edit metabox"),
-            array(get_called_class(), 'render_meta_box'),
+            array(get_called_class(), 'render_edit_meta_box'),
             null, 'normal', 'high');
+
+        static::_auto_fields_controller()->add_meta_boxes();
     }
 
     /**
      * Render the meta box appearing as the main matter on the "edit"
      * screen for epfl-external-menu custom post type.
      */
-    public static function render_meta_box () {
+    public static function render_edit_meta_box () {
         global $post;
         ?>
         <div class="edit-external-menu">
@@ -510,6 +515,12 @@ class MenuItemController
             'publish_posts'      => 'publish_posts',       
             'read_private_posts' => 'read_private_posts', 
         );
+    }
+
+    private static function _auto_fields_controller () {
+        require_once(dirname(__DIR__) . '/lib/auto-fields.php');
+        return new \EPFL\AutoFields\AutoFieldsController(
+            ExternalMenuItem::class);
     }
 }
 

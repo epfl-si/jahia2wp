@@ -151,7 +151,9 @@ abstract class Post
      *
      * There is a performance price, so if you don't want to pay for
      * it, don't call this method - Instead, write ordinary accessors
-     * that wrap @link update_post_meta and @link get_post_meta.
+     * that wrap @link update_post_meta and @link get_post_meta. (And
+     * then if you want @link AutoFields functionality, you need to
+     * handle that explicitly as well.)
      */
     function meta () {
         if (! $this->_meta) {
@@ -234,8 +236,24 @@ class _PostMeta {
         if ($is_get) {
             return get_post_meta($this->_post_id, $meta_name, true);
         } else {
+            $this->_update_meta_auto_fields();
             return update_post_meta($this->_post_id, $meta_name, $arguments[0]);
         }
+    }
+
+    /**
+     * Automatically provide @link \EPFL\AutoFields\AutoFields functionality
+     * based on the META_ACCESSORS constant of the owner class.
+     *
+     * Called when writing through $my_model_object->meta()->set_foo(...)
+     * for all entries in META_ACCESSORS, regardless of which one we are
+     * currently writing to.
+     */
+    function _update_meta_auto_fields () {
+        if ($this->_meta_auto_fields_done) return;
+        require_once(__DIR__ . '/auto-fields.php');
+        \EPFL\AutoFields\AutoFields::of($this->_owner_class)->append(
+            array_values($this->_meta_accessors));
     }
 }
 
