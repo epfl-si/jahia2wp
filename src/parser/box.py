@@ -196,6 +196,8 @@ class Box:
 
         self.fix_video_iframes()
 
+        self.fix_img_align_left()
+
     def _set_scheduler_box(self, element, content):
         """set the attributes of a scheduler box"""
 
@@ -1245,6 +1247,27 @@ class Box:
                                                                                  height,
                                                                                  query,
                                                                                  lang)
+
+    def fix_img_align_left(self):
+        """
+        Look for <img> having attribute "align" with value set to "left", delete it and add a "class='left'" instead
+        This is done because, on Jahia, there's a mechanism (but we don't know where) which do this on the client side.
+        :return:
+        """
+        soup = BeautifulSoup(self.content, 'html5lib')
+        soup.body.hidden = True
+
+        images = soup.find_all('img')
+
+        for img in images:
+
+            align = img.get('align')
+
+            if align and align == 'left':
+                img['class'] = 'left'
+                del img['align']
+
+        self.content = str(soup.body)
 
     def fix_video_iframes(self):
         """
