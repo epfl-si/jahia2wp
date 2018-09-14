@@ -41,6 +41,9 @@ Usage:
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
   jahia2wp.py fan-global-sitemap    <csv_file> <wp_path>            [--debug | --quiet]
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
+  jahia2wp.py shortcode-list        <path> [--out-csv=<out_csv>]    [--debug | --quiet]
+  jahia2wp.py shortcode-fix         <wp_env> <wp_url>               [--debug | --quiet]
+  jahia2wp.py shortcode-fix-many    <csv_file>                      [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
     [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
@@ -67,7 +70,6 @@ import subprocess
 from collections import OrderedDict
 from datetime import datetime, date
 from pprint import pprint
-
 import os
 import shutil
 
@@ -93,6 +95,7 @@ from veritas.casters import cast_boolean
 from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
 from fan.fan_global_sitemap import FanGlobalSitemap
+from migration2018.shortcodes import Shortcodes
 
 
 def _check_site(wp_env, wp_url, **kwargs):
@@ -855,6 +858,61 @@ def rotate_backup(csv_file, dry_run=False, **kwargs):
                 dry_run=dry_run,
                 include_list=[pattern]
             ).rotate_backups(path)
+
+
+@dispatch.on('shortcode-list')
+def shortcode_list(path, out_csv=None, **kwargs):
+    """
+    Go through websites present in 'path' and list all used shortcodes
+    :param path: Path where to look for WP installs
+    :param out_csv: CSV file to save result
+    :param kwargs:
+    :return:
+    """
+    logging.info("Listing used shortcodes in path %s...", path)
+
+    shortcodes = Shortcodes()
+
+    shortcodes.locate_existing(path)
+
+    print("# shortcodes found: {}".format(len(shortcodes.list.keys())))
+
+    # If CSV output is requested
+    if out_csv:
+        with open(out_csv, 'w') as out:
+            # Adding one line for each couple "shortcode", "website"
+            for shortcode, url_list in shortcodes.list.items():
+                for url in url_list:
+                    out.write("{},{}\n".format(shortcode, url))
+    else:
+
+        print(shortcodes.list)
+
+    logging.info("Shortcodes list done!")
+
+
+@dispatch.on('shortcode-fix')
+def shortcode_fix(wp_env, wp_url, **kwargs):
+
+    shortcodes = Shortcodes()
+
+    report = shortcodes.fix_site(wp_env, wp_url)
+
+    logging.info("Fix report:\n%s", str(report))
+
+
+@dispatch.on('shortcode-fix-many')
+def shortcode_fix_many(csv_file, **kwargs):
+
+    rows = Utils.csv_filepath_to_dict(csv_file)
+
+    print("\nShortcode will now be fixed on websites...")
+    for index, row in enumerate(rows):
+        print("\nIndex #{}:\n---".format(index))
+
+        shortcode_fix(row['openshift_env'], row['wp_site_url'])
+
+    logging.info("All shortcodes for all sites fixed !")
 
 
 @dispatch.on('inventory')
