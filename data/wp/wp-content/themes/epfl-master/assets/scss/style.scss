@@ -489,6 +489,11 @@ a.a2a_button_{
   @include color-text;
 }
 
+.local-color-light {
+  background-color: $primary-color-sec;
+  color: #fff;
+}
+
 .sidebar .colored-box {
   
   h2,
