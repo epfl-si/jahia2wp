@@ -298,9 +298,12 @@ class MenuRESTController
             $response = new \WP_REST_Response(array(
                 'status' => 'OK',
                 'items'  => $menu->get_stitched_tree()));
-            $response->add_link('subscribe',
-                                REST_URL::local(static::_get_subscribe_uri($menu))
-                                ->relative_to_root());
+            // Note: this link is for subscribing to changes in any
+            // language, not just the one being served now.
+            $response->add_link(
+                'subscribe',
+                REST_URL::local_wrt_request(static::_get_subscribe_uri($menu))
+                ->fully_qualified());
             return $response;
         } else {
             throw new RESTAPIError(404, array(
@@ -309,6 +312,14 @@ class MenuRESTController
         }
     }
 
+    /**
+     * Returns the URI that provides the webhook subscription service
+     * for $menu
+     *
+     * Note that this URI may *not* be unique per $menu, and in fact
+     * isn't even in the day-one implementation (two translations of
+     * the same menu, share the same pubsub endpoint)
+     */
     static function _get_subscribe_uri ($menu) {
         return "menus/$menu->slug/subscribe";
     }
@@ -413,8 +424,9 @@ class MenuItemController
 
     static private $subs = array();
     static private function _get_subscribe_controller ($external_menu_item) {
-        if (! static::$subs[$external_menu_item]) {
-            static::$subs[$external_menu_item] = new SubscribeController(
+        $cache_key = $external_menu_item->ID;
+        if (! static::$subs[$cache_key]) {
+            static::$subs[$cache_key] = new SubscribeController(
                 // The subscribe slug will be embedded in webhook
                 // URLs, so it must not change inbetween queries.
                 // Using the post ID is perhaps a bit difficult to
@@ -422,7 +434,7 @@ class MenuItemController
                 // and most future-proof way of going about it.
                 "menu/" . $external_menu_item->ID);
         }
-        return static::$subs[$menu];
+        return static::$subs[$cache_key];
     }
 
     /**
@@ -444,6 +456,7 @@ class MenuItemController
 		'add_new'            => ___('Add New External Menu'),
 		'add_new_item'       => ___('Add New External Menu'),
                 'view_item'          => ___('View External Menu'),
+                'edit_item'          => ___('Edit External Menu'),
                 'all_items'          => ___('All External Menus'),
                 'not_found'          => ___('No external menus found.'),
             ),
@@ -465,7 +478,6 @@ class MenuItemController
         ExternalMenuItem::load_from_filesystem();
         foreach (ExternalMenuItem::all() as $external_menu_item) {
             $external_menu_item->refresh();
-            error_log($external_menu_item->get_subscribe_url());
             static::_get_subscribe_controller($external_menu_item)->
                 subscribe($external_menu_item->get_subscribe_url());
         }

@@ -249,24 +249,45 @@ class RESTClient
  * # Given get_site_url() === 'https://www.epfl.ch/labs/mylab':
  *
  * assert 'https://www.epfl.ch/labs/mylab/wp-json/epfl/v1/foo/bar' ===
- *        REST_URL::local('foo/bar')->fully_qualified();
+ *        REST_URL::local_canonical('foo/bar')->fully_qualified();
  * assert '/labs/mylab/wp-json/epfl/v1/foo/bar' ===
- *        REST_URL::local('foo/bar')->relative_to_root();
+ *        REST_URL::local_canonical('foo/bar')->relative_to_root();
  */
 class REST_URL
 {
-    private function __construct ($path, $site_base = NULL) {
+    private function __construct ($path, $site_base) {
         $this->path = $path;
-        if ($site_base === NULL) {
-            $this->site_base = site_url();
-        } else {
-            $this->site_base = $site_base;
-        }
+        $this->site_base = $site_base;
     }
 
-    static function local ($path) {
+    /**
+     * @return A REST_URL object rooted on the @link site_url
+     * value (set in-database)
+     */
+    static function local_canonical ($path) {
         $thisclass = get_called_class();
-        return new $thisclass($path);
+        return new $thisclass($path, site_url());
+    }
+
+    /**
+     * @return A REST_URL object rooted on whatever protocol,
+     * host and port the HTTP client is using
+     */
+    static function local_wrt_request ($path) {
+        $thisclass = get_called_class();
+        $site_url = site_url();
+        $site_path = parse_url($site_url, PHP_URL_PATH);
+        if (! ($proto = $_SERVER['HTTP_X_FORWARDED_PROTO'])) {
+            $proto = $_SERVER['HTTPS'] ? 'https' : 'http';
+        }
+        if (! ($hostport = $_SERVER['HTTP_X_FORWARDED_HOST'])) {
+            if (! ($hostport = $_SERVER['HTTP_HOST'])) {
+                $host = parse_url($site_url, PHP_URL_HOST);
+                $port = parse_url($site_url, PHP_URL_PORT);
+                $hostport = $port ? "$host:$port" : $host;
+            }
+        }
+        return new $thisclass($path, "$proto://$hostport/$site_path");
     }
 
     static function remote ($site_base_url, $path_below_epfl_v1) {
@@ -281,6 +302,10 @@ class REST_URL
     function fully_qualified () {
         $api_path = _API_EPFL_PATH;
         return $this->site_base . "/wp-json/$api_path/" . $this->path;
+    }
+
+    function __toString () {
+        return $this->fully_qualified();
     }
 }
 
