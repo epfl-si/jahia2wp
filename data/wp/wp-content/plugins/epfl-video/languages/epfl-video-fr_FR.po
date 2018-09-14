@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl-video\n"
-"POT-Creation-Date: 2018-08-16 09:12+0200\n"
-"PO-Revision-Date: 2018-08-16 09:12+0200\n"
+"POT-Creation-Date: 2018-09-13 09:29+0200\n"
+"PO-Revision-Date: 2018-09-13 09:30+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -16,28 +16,27 @@ msgstr ""
 "X-Poedit-SearchPath-0: shortcake-config.php\n"
 
 #: shortcake-config.php:16
-msgid "URL of the video"
+msgid "Video URL"
 msgstr "URL de la vidéo"
 
 #: shortcake-config.php:19
 msgid "You can copy/paste a YouTube or SWITCHTube URL"
-msgstr "Vous pouvez copier/coller des URLs provenant de YouTube ou SWITCHTube"
+msgstr "Vous pouvez copier/coller une URL provenant de YouTube ou SWITCHTube"
 
-#: shortcake-config.php:22
-msgid "Video width"
-msgstr "Largeur de la vidéo"
+#~ msgid "URL of the video"
+#~ msgstr "URL de la vidéo"
 
-#: shortcake-config.php:26
-msgid "Recommended value: 600"
-msgstr "Valeur recommandée: 600"
+#~ msgid "Video width"
+#~ msgstr "Largeur de la vidéo"
 
-#: shortcake-config.php:29
-msgid "Video height"
-msgstr "Hauteur de la vidéo"
+#~ msgid "Recommended value: 600"
+#~ msgstr "Valeur recommandée: 600"
 
-#: shortcake-config.php:33
-msgid "Recommended value: 400"
-msgstr "Valeur recommandée: 400"
+#~ msgid "Video height"
+#~ msgstr "Hauteur de la vidéo"
+
+#~ msgid "Recommended value: 400"
+#~ msgstr "Valeur recommandée: 400"
 
 #~ msgid "Width of the video"
 #~ msgstr "Largeur de la vidéo"

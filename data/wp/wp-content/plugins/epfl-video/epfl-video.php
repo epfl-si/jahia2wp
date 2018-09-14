@@ -13,14 +13,10 @@ function epfl_video_process_shortcode( $atts, $content = null ) {
 
   $atts = shortcode_atts( array(
     'url' => '',
-    'width' => '600',
-    'height' => '400'
   ), $atts );
 
   // sanitize parameters
   $url  = $atts['url'];
-  $width  = sanitize_text_field( $atts['width'] );
-  $height  = sanitize_text_field( $atts['height'] );
 
   // If YouTube video
   if(preg_match('/(youtube\.com|youtu\.be)/', $url)===1 && preg_match('/\/embed\//', $url)===0)
@@ -47,7 +43,7 @@ function epfl_video_process_shortcode( $atts, $content = null ) {
 
   return '<div class="container">'.
          '<div class="epfl-video epfl-video-responsive embed-responsive embed-responsive-16by9">'.
-         '<iframe src="'.$url.'" width="'.$width.'" height="'.$height.'" webkitallowfullscreen mozallowfullscreen allowfullscreen allow="autoplay; encrypted-media" frameborder="0" class="embed-responsive-item"></iframe>'.
+         '<iframe src="'.$url.'" webkitallowfullscreen mozallowfullscreen allowfullscreen allow="autoplay; encrypted-media" frameborder="0" class="embed-responsive-item"></iframe>'.
          '</div>'.
          '</div>';
 

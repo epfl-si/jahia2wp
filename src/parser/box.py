@@ -1234,19 +1234,13 @@ class Box:
         self.shortcode_name = "epfl_map"
 
         # parse info
-        height = Utils.get_tag_attribute(element, "height", "jahia:value")
-        width = Utils.get_tag_attribute(element, "width", "jahia:value")
         query = Utils.get_tag_attribute(element, "query", "jahia:value")
 
         # in the parser we can't know the current language.
         # so we assign a string that we will replace by the current language in the exporter
         lang = self.UPDATE_LANG
 
-        self.content = '[{} width="{}" height="{}" query="{}" lang="{}"]'.format(self.shortcode_name,
-                                                                                 width,
-                                                                                 height,
-                                                                                 query,
-                                                                                 lang)
+        self.content = '[{} query="{}" lang="{}"]'.format(self.shortcode_name, query, lang)
 
     def fix_img_align_left(self):
         """
@@ -1288,12 +1282,8 @@ class Box:
             src = iframe.get('src')
 
             if src and ('youtube.com' in src or 'youtu.be' in src or 'player.vimeo.com' in src):
-                width = iframe.get('width')
-                height = iframe.get('height')
 
-                shortcode = '[epfl_video url="{}" width="{}" height="{}"]'.format(src,
-                                                                                  width if width else '600',
-                                                                                  height if height else '400')
+                shortcode = '[epfl_video url="{}"]'.format(src)
                 # Replacing the iframe with shortcode text
                 iframe.replaceWith(shortcode)
 
