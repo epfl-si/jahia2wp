@@ -42,38 +42,43 @@ class Shortcodes():
 
             if site_details.valid == settings.WP_SITE_INSTALL_OK:
 
-                logging.info("Checking %s...", site_details.url)
+                try:
 
-                # Getting site posts
-                post_ids = Utils.run_command("wp post list --post_type=page --format=csv --fields=ID --skip-plugins "
-                                             "--skip-themes --path={}".format(site_details.path))
+                    logging.info("Checking %s...", site_details.url)
 
-                # Getting list of registered shortcodes to be sure to list only registered and not all strings
-                # written between [ ]
-                registered_shortcodes = self._get_site_registered_shortcodes(site_details.path)
+                    # Getting site posts
+                    post_ids = Utils.run_command("wp post list --post_type=page --format=csv --fields=ID --skip-plugins "
+                                                 "--skip-themes --path={}".format(site_details.path))
 
-                if not post_ids:
-                    continue
+                    # Getting list of registered shortcodes to be sure to list only registered and not all strings
+                    # written between [ ]
+                    registered_shortcodes = self._get_site_registered_shortcodes(site_details.path)
 
-                post_ids = post_ids.split('\n')[1:]
+                    if not post_ids:
+                        continue
 
-                # Looping through posts
-                for post_id in post_ids:
-                    content = Utils.run_command("wp post get {} --field=post_content --skip-plugins --skip-themes "
-                                                "--path={}".format(post_id, site_details.path))
+                    post_ids = post_ids.split('\n')[1:]
 
-                    # Looking for all shortcodes in current post
-                    for shortcode in re.findall(self.regex, content):
+                    # Looping through posts
+                    for post_id in post_ids:
+                        content = Utils.run_command("wp post get {} --field=post_content --skip-plugins --skip-themes "
+                                                    "--path={}".format(post_id, site_details.path))
 
-                        # This is not a registered shortcode
-                        if shortcode not in registered_shortcodes:
-                            continue
+                        # Looking for all shortcodes in current post
+                        for shortcode in re.findall(self.regex, content):
 
-                        if shortcode not in self.list:
-                            self.list[shortcode] = []
+                            # This is not a registered shortcode
+                            if shortcode not in registered_shortcodes:
+                                continue
 
-                        if site_details.path not in self.list[shortcode]:
-                            self.list[shortcode].append(site_details.path)
+                            if shortcode not in self.list:
+                                self.list[shortcode] = []
+
+                            if site_details.path not in self.list[shortcode]:
+                                self.list[shortcode].append(site_details.path)
+                except Exception as e:
+                    logging.error("Error, skipping to next site: %s", str(e))
+                    pass
 
     def __rename_shortcode(self, content, old_name, new_name):
         """
