@@ -22,21 +22,9 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
    // sanitize the parameters
   $unit = sanitize_text_field( $attributes['unit'] );
 
-  // the web service we use to retrieve the data, can be "wsgetpeople" or "getProfiles"
-  $ws = "getProfiles";
-
-  switch($ws)
-  {
-    case "wsgetpeople":
-      $url = "https://people.epfl.ch/cgi-bin/wsgetpeople?units=$unit&app=self&caller=104782";
-      break;
-    case "getProfiles":
-      // TODO use production URL when it's ready
-      $url = "https://people.epfl.ch/cgi-bin/getProfiles?unit=$unit&tmpl=JSON";
-      break;
-    default:
-      throw new Exception("Unknown web service: $ws");
-  }
+  // the web service we use to retrieve the data
+  // TODO use production URL when it's ready with token (ask Ion)
+  $url = "https://test-people.epfl.ch/cgi-bin/wsgetpeople/?units=" . $unit;
 
   // retrieve the data in JSON
   $items = Utils::get_items($url);
@@ -48,7 +36,7 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
    	
     try
     {
-      do_action("epfl_people_action", $items);
+      do_action("epfl_people_action", $items, $unit);
    		
       return ob_get_contents();
     }
