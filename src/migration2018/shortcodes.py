@@ -38,17 +38,25 @@ class Shortcodes():
         :return:
         """
 
-        for site_details in WPConfig.inventory(path):
+        all_sites = WPConfig.inventory(path)
+
+        logging.info("%s sites to analyze...", len(all_sites))
+
+        site_no = 0
+
+        for site_details in all_sites:
+
+            site_no += 1
+
+            logging.info("[%s/%s] Checking %s...", site_no, len(all_sites), site_details.url)
 
             if site_details.valid == settings.WP_SITE_INSTALL_OK:
 
                 try:
 
-                    logging.info("Checking %s...", site_details.url)
-
                     # Getting site posts
-                    post_ids = Utils.run_command("wp post list --post_type=page --format=csv --fields=ID --skip-plugins "
-                                                 "--skip-themes --path={}".format(site_details.path))
+                    post_ids = Utils.run_command("wp post list --post_type=page --format=csv --fields=ID "
+                                                 "--skip-plugins --skip-themes --path={}".format(site_details.path))
 
                     # Getting list of registered shortcodes to be sure to list only registered and not all strings
                     # written between [ ]
@@ -58,6 +66,8 @@ class Shortcodes():
                         continue
 
                     post_ids = post_ids.split('\n')[1:]
+
+                    logging.debug("%s pages to analyze...", len(post_ids))
 
                     # Looping through posts
                     for post_id in post_ids:
@@ -76,6 +86,7 @@ class Shortcodes():
 
                             if site_details.path not in self.list[shortcode]:
                                 self.list[shortcode].append(site_details.path)
+
                 except Exception as e:
                     logging.error("Error, skipping to next site: %s", str(e))
                     pass
