@@ -4,13 +4,12 @@
  * Plugin Name: EPFL Infoscience search shortcode
  * Plugin URI: https://github.com/epfl-idevelop/jahia2wp
  * Description: provides a shortcode to search and dispay results from Infoscience
- * Version: 1.2
+ * Version: 1.0
  * Author: Julien Delasoie
  * Author URI: https://people.epfl.ch/julien.delasoie?lang=en
  * Contributors: 
  * License: Copyright (c) 2018 Ecole Polytechnique Federale de Lausanne, Switzerland
 */
-declare(strict_types=1);
 
 set_include_path(get_include_path() . PATH_SEPARATOR . dirname( __FILE__) . '/lib');
  
@@ -23,6 +22,17 @@ require_once 'mathjax-config.php';
 
 define("INFOSCIENCE_SEARCH_URL", "https://infoscience.epfl.ch/search?");
 
+function epfl_infoscience_search_url_exists( $url )
+{
+    $handle = curl_init( $url );
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+
+    $response = curl_exec( $handle );
+    $httpCode = curl_getinfo( $handle, CURLINFO_HTTP_CODE );
+    curl_close($handle);
+    return ( $httpCode >= 200 && $httpCode <= 400 );
+}
+
  /**
   * From any attributes, set them as url parameters for Infoscience
   *
@@ -30,19 +40,13 @@ define("INFOSCIENCE_SEARCH_URL", "https://infoscience.epfl.ch/search?");
   *
   * @return string $url the url build
   */
-  function convert_keys_values($array_to_convert) {
+  function epfl_infoscience_search_convert_keys_values($array_to_convert) {
     $convert_fields = function($value) {
-        if ($value == 'any'){
-           return '';
-        }
-        return $value; 
+        return ($value === 'any') ? '' : $value;
     };
 
     $convert_operators = function($value) {
-        if ($value == 'and'){
-           return 'a';
-        }
-        return $value; 
+        return ($value === 'and') ? 'a' : $value;
     };
 
     $sanitize_text_field = function($value) {
@@ -53,16 +57,10 @@ define("INFOSCIENCE_SEARCH_URL", "https://infoscience.epfl.ch/search?");
         'pattern' => ['p1', $sanitize_text_field],
         'field' => ['f1', $convert_fields],
         'limit' => ['rg', function($value) {
-            if ($value == ''){
-               return 1000;
-            }
-            return $value; 
+            return ($value === '') ? '1000' : $value;
         }],
         'sort' => ['so', function($value) {
-            if ($value == 'asc') {
-               return 'a';
-            }
-            return 'd';
+            return ($value === 'asc') ? 'a' : 'd';
         }],
         'collection' => ['c', $sanitize_text_field],
         'pattern2' => ['p2', $sanitize_text_field],
@@ -109,7 +107,7 @@ function epfl_infoscience_search_generate_url_from_attrs($attrs) {
         'sf' => 'year', # year sorting
     );
 
-    $parameters = convert_keys_values($attrs);
+    $parameters = epfl_infoscience_search_convert_keys_values($attrs);
     $parameters = $default_parameters + $parameters;
 
     $additional_parameters_array = [
@@ -244,7 +242,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     
     # not in cache ?
     if ($page === false || $debug_data || $debug_template){
-        if (epfl_infoscience_url_exists( $url ) ) {
+        if (epfl_infoscience_search_url_exists( $url ) ) {
             $response = wp_remote_get( $url );
 
             if ( is_wp_error( $response ) ) {
@@ -262,15 +260,14 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
                     return $page;
                 }
 
-                # try to load render from theme if available
-                if (has_action("epfl_infoscience_search_action")) {
-                    ob_start();
-                    try {
-                        do_action("epfl_infoscience_search_action", $publications);
-                        $page = ob_get_contents();
-                    } finally {
-                        ob_end_clean();
-                    }
+                # try to load render from 2018 theme if available
+                if (has_filter("epfl_infoscience_search_action")) {
+                    $page = apply_filters("epfl_infoscience_search_action", $grouped_by_publications,
+                                                                $url,
+                                                                $format,
+                                                                $summary,
+                                                                $thumbnail,
+                                                                $debug_template);
                 } else {
                     # use the self renderer
                     $page = ClassesInfoscienceRender::render($grouped_by_publications,
@@ -287,7 +284,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
 
                 $page = '<div class="infoscienceBox container no-tex2jax_process">' . $html_verbose_comments . $page . '</div>';
 
-                $page .= get_mathjax_config();
+                $page .= epfl_infoscience_search_get_mathjax_config();
 
                 // cache the result
                 wp_cache_set( $cache_key, $page, 'epfl_infoscience_search' );

@@ -265,6 +265,7 @@ Class InfoscienceSearchShortCakeConfig
 
                     # Presentation
                     array(
+                        'title'         => esc_html__('Style', 'epfl-infoscience-search'),
                         'label'         => esc_html__('Format', 'epfl-infoscience-search'),
                         'attr'          => 'format',
                         'type'          => 'radio',
