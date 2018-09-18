@@ -25,18 +25,12 @@ define("INFOSCIENCE_SEARCH_URL", "https://infoscience.epfl.ch/search?");
 function epfl_infoscience_search_url_exists( $url )
 {
     $handle = curl_init( $url );
-    curl_setopt( $handle, CURLOPT_RETURNTRANSFER, TRUE );
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
 
     $response = curl_exec( $handle );
     $httpCode = curl_getinfo( $handle, CURLINFO_HTTP_CODE );
-
-    if ( $httpCode >= 200 && $httpCode <= 400 ) {
-        return true;
-    } else {
-        return false;
-    }
-
     curl_close($handle);
+    return ( $httpCode >= 200 && $httpCode <= 400 );
 }
 
  /**
