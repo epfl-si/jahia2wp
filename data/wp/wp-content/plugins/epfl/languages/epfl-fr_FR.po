@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-09-18 11:09+0200\n"
-"PO-Revision-Date: 2018-09-18 11:11+0200\n"
+"POT-Creation-Date: 2018-09-18 18:19+0200\n"
+"PO-Revision-Date: 2018-09-18 18:19+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -76,6 +76,36 @@ msgstr "L'URL du lien"
 msgid "Links group"
 msgstr "Groupe de liens"
 
+#: epfl-map/epfl-map.php:77 epfl-memento/shortcake-config.php:54
+#: epfl-news/shortcake-config.php:35
+msgid "English"
+msgstr "Anglais"
+
+#: epfl-map/epfl-map.php:78 epfl-memento/shortcake-config.php:55
+#: epfl-news/shortcake-config.php:36
+msgid "French"
+msgstr "Français"
+
+#: epfl-map/epfl-map.php:86
+msgid "EPFL Map"
+msgstr "Plan EPFL"
+
+#: epfl-map/epfl-map.php:90
+msgid "What information do you want to display?"
+msgstr "Quelle information voulez vous afficher?"
+
+#: epfl-map/epfl-map.php:94
+msgid "A room for example"
+msgstr "Par exemple une salle"
+
+#: epfl-map/epfl-map.php:97
+msgid "Language"
+msgstr "Langue"
+
+#: epfl-map/epfl-map.php:101
+msgid "The language used to render map result"
+msgstr "La langue utilisée pour afficher le plan"
+
 #: epfl-memento/shortcake-config.php:46
 msgid "Template with the first highlighted event"
 msgstr "Template avec le 1er événement mis en valeur"
@@ -83,14 +113,6 @@ msgstr "Template avec le 1er événement mis en valeur"
 #: epfl-memento/shortcake-config.php:47
 msgid "Template without the first highlighted event"
 msgstr "Template sans mettre le 1er événement en valeur"
-
-#: epfl-memento/shortcake-config.php:54 epfl-news/shortcake-config.php:35
-msgid "English"
-msgstr "Anglais"
-
-#: epfl-memento/shortcake-config.php:55 epfl-news/shortcake-config.php:36
-msgid "French"
-msgstr "Français"
 
 #: epfl-memento/shortcake-config.php:62 epfl-news/shortcake-config.php:51
 #: epfl-news/shortcake-config.php:75
