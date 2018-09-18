@@ -48,17 +48,11 @@ function epfl_infoscience_search_url_exists( $url )
   */
   function epfl_infoscience_search_convert_keys_values($array_to_convert) {
     $convert_fields = function($value) {
-        if ($value == 'any'){
-           return '';
-        }
-        return $value; 
+        return ($value === 'any') ? '' : $value;
     };
 
     $convert_operators = function($value) {
-        if ($value == 'and'){
-           return 'a';
-        }
-        return $value; 
+        return ($value === 'and') ? 'a' : $value;
     };
 
     $sanitize_text_field = function($value) {
@@ -69,16 +63,10 @@ function epfl_infoscience_search_url_exists( $url )
         'pattern' => ['p1', $sanitize_text_field],
         'field' => ['f1', $convert_fields],
         'limit' => ['rg', function($value) {
-            if ($value == ''){
-               return 1000;
-            }
-            return $value; 
+            return ($value === '') ? '1000' : $value;
         }],
         'sort' => ['so', function($value) {
-            if ($value == 'asc') {
-               return 'a';
-            }
-            return 'd';
+            return ($value === 'asc') ? 'a' : 'd';
         }],
         'collection' => ['c', $sanitize_text_field],
         'pattern2' => ['p2', $sanitize_text_field],
