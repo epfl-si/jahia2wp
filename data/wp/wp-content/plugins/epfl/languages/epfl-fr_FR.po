@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-09-10 11:07+0200\n"
-"PO-Revision-Date: 2018-09-10 11:07+0200\n"
+"POT-Creation-Date: 2018-09-18 11:09+0200\n"
+"PO-Revision-Date: 2018-09-18 11:11+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -93,7 +93,7 @@ msgid "French"
 msgstr "Français"
 
 #: epfl-memento/shortcake-config.php:62 epfl-news/shortcake-config.php:51
-#: epfl-news/shortcake-config.php:72
+#: epfl-news/shortcake-config.php:75
 msgid "No filter"
 msgstr "Pas de filtre"
 
@@ -147,7 +147,7 @@ msgstr ""
 "l'application %smemento.epfl.ch%s.%sSi vous n'avez pas de mémento, merci "
 "d'envoyer une demande à %s"
 
-#: epfl-memento/shortcake-config.php:94 epfl-news/shortcake-config.php:102
+#: epfl-memento/shortcake-config.php:94 epfl-news/shortcake-config.php:105
 #, php-format
 msgid ""
 "Do you need more information about templates? %sRead this documentation%s"
@@ -159,11 +159,11 @@ msgstr ""
 msgid "Select your memento"
 msgstr "Sélectionner votre mémento"
 
-#: epfl-memento/shortcake-config.php:117 epfl-news/shortcake-config.php:127
+#: epfl-memento/shortcake-config.php:117 epfl-news/shortcake-config.php:130
 msgid "Select a template"
 msgstr "Sélectionner un template"
 
-#: epfl-memento/shortcake-config.php:125 epfl-news/shortcake-config.php:147
+#: epfl-memento/shortcake-config.php:125 epfl-news/shortcake-config.php:150
 msgid "Select a language"
 msgstr "Sélectionner une langue"
 
@@ -220,54 +220,66 @@ msgid "Campus Life"
 msgstr "Vie sur le campus"
 
 #: epfl-news/shortcake-config.php:63
-msgid "Template for laboratory website"
-msgstr "Template pour les sites de laboratoire"
+msgid "Template listing"
+msgstr ""
 
 #: epfl-news/shortcake-config.php:64
-msgid "Template for homepage with 3 news"
-msgstr "Template pour la homepage de l'EPFL (avec 3 actualités)"
+msgid "Template highlighted with 3 news"
+msgstr "Template highlighted avec 3 actualités"
 
 #: epfl-news/shortcake-config.php:65
-msgid "Template for homepage with 1 news"
-msgstr "Template pour homepage (avec 1 actualités)"
+msgid "Template highlighted with 1 news"
+msgstr "Template highlighted avec 1 actualité"
 
-#: epfl-news/shortcake-config.php:73
+#: epfl-news/shortcake-config.php:66
+msgid "Template card with 1 news"
+msgstr "Template card avec 1 actualités"
+
+#: epfl-news/shortcake-config.php:67
+msgid "Template card with 2 news"
+msgstr "Template card avec 2 actualités"
+
+#: epfl-news/shortcake-config.php:68
+msgid "Template card with 3 news"
+msgstr "Template card avec 3 actualités"
+
+#: epfl-news/shortcake-config.php:76
 msgid "Basic Sciences"
 msgstr "Sciences de base"
 
-#: epfl-news/shortcake-config.php:74
+#: epfl-news/shortcake-config.php:77
 msgid "Health"
 msgstr "Santé"
 
-#: epfl-news/shortcake-config.php:75
+#: epfl-news/shortcake-config.php:78
 msgid "Computer Science"
 msgstr "Informatique"
 
-#: epfl-news/shortcake-config.php:76
+#: epfl-news/shortcake-config.php:79
 msgid "Engineering"
 msgstr "Ingénierie"
 
-#: epfl-news/shortcake-config.php:77
+#: epfl-news/shortcake-config.php:80
 msgid "Environment"
 msgstr "Environnement"
 
-#: epfl-news/shortcake-config.php:78
+#: epfl-news/shortcake-config.php:81
 msgid "Buildings"
 msgstr "Construction"
 
-#: epfl-news/shortcake-config.php:79
+#: epfl-news/shortcake-config.php:82
 msgid "Culture"
 msgstr "Société/Culture"
 
-#: epfl-news/shortcake-config.php:80
+#: epfl-news/shortcake-config.php:83
 msgid "Economy"
 msgstr "Eco/Finance"
 
-#: epfl-news/shortcake-config.php:81
+#: epfl-news/shortcake-config.php:84
 msgid "Energy"
 msgstr "Energie"
 
-#: epfl-news/shortcake-config.php:88
+#: epfl-news/shortcake-config.php:91
 #, php-format
 msgid ""
 "The news come from the application %sactu.epfl.ch%s.%sIf you don't have a "
@@ -276,23 +288,23 @@ msgstr ""
 "Les actualités proviennent de l'application %sactu.epfl.ch%s.%sSi vous "
 "n'avez pas de canal, merci d'envoyer une demande à%s"
 
-#: epfl-news/shortcake-config.php:116
+#: epfl-news/shortcake-config.php:119
 msgid "News"
 msgstr "Actualités"
 
-#: epfl-news/shortcake-config.php:120
+#: epfl-news/shortcake-config.php:123
 msgid "Select your news channel"
 msgstr "Sélectionner votre canal d'actualités"
 
-#: epfl-news/shortcake-config.php:135
+#: epfl-news/shortcake-config.php:138
 msgid "Display the link \"all news\" ?"
 msgstr "Afficher le lien \"toutes les actualités\" ?"
 
-#: epfl-news/shortcake-config.php:140
+#: epfl-news/shortcake-config.php:143
 msgid "Number of news"
 msgstr "Nombre d'actualités"
 
-#: epfl-news/shortcake-config.php:143
+#: epfl-news/shortcake-config.php:146
 msgid ""
 "The number of news can only be defined for the Template: 'Template for "
 "laboratory website'"
@@ -300,36 +312,36 @@ msgstr ""
 "Le nombre d'actualités peut être défini que pour le template: 'Template pour "
 "les sites de laboratoire'"
 
-#: epfl-news/shortcake-config.php:151
+#: epfl-news/shortcake-config.php:154
 msgid "The language used to render news results"
 msgstr "La langue utilisée pour afficher les actualités"
 
-#: epfl-news/shortcake-config.php:155
+#: epfl-news/shortcake-config.php:158
 msgid "Display the news category ?"
 msgstr "Afficher la catégorie de l'actualité ?"
 
-#: epfl-news/shortcake-config.php:159
+#: epfl-news/shortcake-config.php:162
 msgid ""
 "Do you want display the news category at the top right of the news image?"
 msgstr ""
 "Voulez vous afficher la catégorie de l'actualité en haut à droite du visuel "
 "de l'actualité?"
 
-#: epfl-news/shortcake-config.php:163
+#: epfl-news/shortcake-config.php:166
 msgid "Filter news by category"
 msgstr "Filtrer les actualités par une catégorie"
 
-#: epfl-news/shortcake-config.php:167
+#: epfl-news/shortcake-config.php:170
 msgid "Do you want filter news by category? Please select a category."
 msgstr ""
 "Voulez vous filtrer les actualités par catégorie? Veuillez sélectionner une "
 "catégorie."
 
-#: epfl-news/shortcake-config.php:170
+#: epfl-news/shortcake-config.php:173
 msgid "Filter news by themes"
 msgstr "Filtrer les actualités par thèmes"
 
-#: epfl-news/shortcake-config.php:174
+#: epfl-news/shortcake-config.php:177
 msgid "Do you want filter news by themes?. Please select themes."
 msgstr ""
 "Voulez vous filtrer les actualités par thèmes? Veuillez sélectionner un ou "
@@ -391,3 +403,6 @@ msgstr "Hauteur de la vidéo"
 #: epfl-video/shortcake-config.php:33
 msgid "Recommended value: 400"
 msgstr "Valeur recommandée: 400"
+
+#~ msgid "Template for laboratory website"
+#~ msgstr "Template pour les sites de laboratoire"
