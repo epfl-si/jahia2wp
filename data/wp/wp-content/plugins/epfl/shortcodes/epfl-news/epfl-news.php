@@ -24,19 +24,15 @@ function epfl_news_get_limit($template)
             $limit = 5;
             break;
         case "2":
+        case "6":
             $limit = 3;
             break;
         case "3":
-            $limit = 1;
-            break;
         case "4":
             $limit = 1;
             break;
         case "5":
             $limit = 2;
-            break;
-        case "6":
-            $limit = 3;
             break;
         default:
             $limit = 4;
