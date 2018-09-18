@@ -60,9 +60,12 @@ Class ShortCakeNewsConfig
     private static function get_template_options() 
     {
         return array (
-            array('value' => '1', 'label' => esc_html__('Template for laboratory website', 'epfl')),
-            array('value' => '2', 'label' => __('Template for homepage with 3 news', 'epfl')),
-            array('value' => '3', 'label' => __('Template for homepage with 1 news', 'epfl')),
+            array('value' => '1', 'label' => esc_html__('Template listing', 'epfl')),
+            array('value' => '2', 'label' => __('Template highlighted with 3 news', 'epfl')),
+            array('value' => '3', 'label' => __('Template highlighted with 1 news', 'epfl')),
+            array('value' => '4', 'label' => __('Template card with 1 news', 'epfl')),
+            array('value' => '5', 'label' => __('Template card with 2 news', 'epfl')),
+            array('value' => '6', 'label' => __('Template card with 3 news', 'epfl')),
         );
     }
 
