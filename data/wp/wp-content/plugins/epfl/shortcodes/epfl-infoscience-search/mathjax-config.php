@@ -1,5 +1,5 @@
 <?php
-function get_mathjax_config() {
+function epfl_infoscience_search_get_mathjax_config() {
     $to_return = '';
     $to_return .= '<script type="text/x-mathjax-config">';
     $to_return .= '    MathJax.Hub.Config(';

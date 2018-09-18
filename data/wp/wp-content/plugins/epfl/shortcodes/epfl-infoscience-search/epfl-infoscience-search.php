@@ -46,7 +46,7 @@ function epfl_infoscience_search_url_exists( $url )
   *
   * @return string $url the url build
   */
-  function convert_keys_values($array_to_convert) {
+  function epfl_infoscience_search_convert_keys_values($array_to_convert) {
     $convert_fields = function($value) {
         if ($value == 'any'){
            return '';
@@ -125,7 +125,7 @@ function epfl_infoscience_search_generate_url_from_attrs($attrs) {
         'sf' => 'year', # year sorting
     );
 
-    $parameters = convert_keys_values($attrs);
+    $parameters = epfl_infoscience_search_convert_keys_values($attrs);
     $parameters = $default_parameters + $parameters;
 
     $additional_parameters_array = [
@@ -300,9 +300,9 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
                 $html_verbose_comments = '<!-- epfl_infoscience_search params : ' . var_export($before_unset_attributes, true) .  ' //-->';
                 $html_verbose_comments .= '<!-- epfl_infoscience_search built url :'. var_export($url, true) . ' //-->';
 
-                $page = '<div class="infoscienceBox no-tex2jax_process">' . $html_verbose_comments . $page . '</div>';
+                $page = '<div class="infoscienceBox container no-tex2jax_process">' . $html_verbose_comments . $page . '</div>';
 
-                $page .= get_mathjax_config();
+                $page .= epfl_infoscience_search_get_mathjax_config();
 
                 // cache the result
                 wp_cache_set( $cache_key, $page, 'epfl_infoscience_search' );
