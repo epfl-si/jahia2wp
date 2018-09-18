@@ -10,7 +10,6 @@
  * Contributors: 
  * License: Copyright (c) 2018 Ecole Polytechnique Federale de Lausanne, Switzerland
 */
-declare(strict_types=1);
 
 set_include_path(get_include_path() . PATH_SEPARATOR . dirname( __FILE__) . '/lib');
  
