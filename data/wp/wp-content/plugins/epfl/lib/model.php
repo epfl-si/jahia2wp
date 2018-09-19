@@ -306,6 +306,15 @@ abstract class TypedPost extends Post
         $postarr['post_type'] = static::get_post_type();
         return parent::insert($postarr);
     }
+
+    static function make_polylang_translatable () {
+        $post_type = static::get_post_type();
+        add_filter('pll_get_post_types',
+                   function($post_types) use ($post_type) {
+                       $post_types[] = $post_type;
+                       return $post_types;
+                   });
+    }
 }
 
 

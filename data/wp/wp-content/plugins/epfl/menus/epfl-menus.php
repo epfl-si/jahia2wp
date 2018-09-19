@@ -382,6 +382,8 @@ class MenuItemController extends CustomPostTypeController
     static function hook () {
         parent::hook();
 
+        static::get_model_class()::make_polylang_translatable();
+
         $thisclass = get_called_class();
         $thisclass::hook_meta_boxes();
 
