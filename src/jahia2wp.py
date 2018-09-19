@@ -29,7 +29,7 @@ Usage:
     [--theme=<THEME> --theme-faculty=<THEME-FACULTY>]
     [--installs-locked=<BOOLEAN> --automatic-updates=<BOOLEAN>]
     [--extra-config=<YAML_FILE>]
-  jahia2wp.py backup                <wp_env> <wp_url>               [--debug | --quiet]
+  jahia2wp.py backup                <wp_env> <wp_url>      [--full] [--debug | --quiet]
   jahia2wp.py version               <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py admins                <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate-many         <csv_file>                      [--debug | --quiet]
@@ -41,6 +41,9 @@ Usage:
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
   jahia2wp.py fan-global-sitemap    <csv_file> <wp_path>            [--debug | --quiet]
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
+  jahia2wp.py shortcode-list        <path> [--out-csv=<out_csv>]    [--debug | --quiet]
+  jahia2wp.py shortcode-fix         <wp_env> <wp_url>               [--debug | --quiet]
+  jahia2wp.py shortcode-fix-many    <csv_file>                      [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
     [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
@@ -50,7 +53,6 @@ Usage:
   jahia2wp.py update-plugins-many   <csv_file>                      [--debug | --quiet]
     [--force-plugin] [--force-options] [--plugin=<PLUGIN_NAME>|--strict-list]
   jahia2wp.py global-report <csv_file> [--output-dir=<OUTPUT_DIR>] [--use-cache] [--debug | --quiet]
-  jahia2wp.py migrate-urls <csv_file> <wp_env>                    [--debug | --quiet]
     --root_wp_dest=</srv/../epfl> [--greedy] [--htaccess] [--context=<intra|inter|full>] [--dry_run]
 
 Options:
@@ -68,7 +70,6 @@ import subprocess
 from collections import OrderedDict
 from datetime import datetime, date
 from pprint import pprint
-
 import os
 import shutil
 
@@ -93,8 +94,8 @@ from utils import Utils
 from veritas.casters import cast_boolean
 from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
-from ventilation import Ventilation
 from fan.fan_global_sitemap import FanGlobalSitemap
+from migration2018.shortcodes import Shortcodes
 
 
 def _check_site(wp_env, wp_url, **kwargs):
@@ -496,6 +497,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
                            'epfl-map',
                            'epfl-memento',
                            'epfl-news',
+                           # 'epfl',
                            'epfl-people',
                            'epfl-scheduler',
                            'EPFL-Content-Filter',
@@ -702,7 +704,7 @@ def clean(wp_env, wp_url, stop_on_errors=False, no_backup=False, **kwargs):
 
     # backup before the clean, in case we need to get it back
     if not no_backup:
-        backup(wp_env, wp_url)
+        backup(wp_env, wp_url, full=True)
 
     if wp_generator.clean():
         print("Successfully cleaned WordPress site {}".format(wp_generator.wp_site.url))
@@ -778,8 +780,8 @@ def generate(wp_env, wp_url,
 
 
 @dispatch.on('backup')
-def backup(wp_env, wp_url, **kwargs):
-    wp_backup = WPBackup(wp_env, wp_url)
+def backup(wp_env, wp_url, full=False, **kwargs):
+    wp_backup = WPBackup(wp_env, wp_url, full)
     if not wp_backup.backup():
         raise SystemExit("Backup failed. More info above")
 
@@ -856,6 +858,61 @@ def rotate_backup(csv_file, dry_run=False, **kwargs):
                 dry_run=dry_run,
                 include_list=[pattern]
             ).rotate_backups(path)
+
+
+@dispatch.on('shortcode-list')
+def shortcode_list(path, out_csv=None, **kwargs):
+    """
+    Go through websites present in 'path' and list all used shortcodes
+    :param path: Path where to look for WP installs
+    :param out_csv: CSV file to save result
+    :param kwargs:
+    :return:
+    """
+    logging.info("Listing used shortcodes in path %s...", path)
+
+    shortcodes = Shortcodes()
+
+    shortcodes.locate_existing(path)
+
+    print("# shortcodes found: {}".format(len(shortcodes.list.keys())))
+
+    # If CSV output is requested
+    if out_csv:
+        with open(out_csv, 'w') as out:
+            # Adding one line for each couple "shortcode", "website"
+            for shortcode, url_list in shortcodes.list.items():
+                for url in url_list:
+                    out.write("{},{}\n".format(shortcode, url))
+    else:
+
+        print(shortcodes.list)
+
+    logging.info("Shortcodes list done!")
+
+
+@dispatch.on('shortcode-fix')
+def shortcode_fix(wp_env, wp_url, **kwargs):
+
+    shortcodes = Shortcodes()
+
+    report = shortcodes.fix_site(wp_env, wp_url)
+
+    logging.info("Fix report:\n%s", str(report))
+
+
+@dispatch.on('shortcode-fix-many')
+def shortcode_fix_many(csv_file, **kwargs):
+
+    rows = Utils.csv_filepath_to_dict(csv_file)
+
+    print("\nShortcode will now be fixed on websites...")
+    for index, row in enumerate(rows):
+        print("\nIndex #{}:\n---".format(index))
+
+        shortcode_fix(row['openshift_env'], row['wp_site_url'])
+
+    logging.info("All shortcodes for all sites fixed !")
 
 
 @dispatch.on('inventory')
@@ -1018,18 +1075,6 @@ def global_report(csv_file, output_dir=None, use_cache=False, **kwargs):
 
             except Exception as e:
                 logging.error("Site %s - Error %s", report['name'], e)
-
-
-@dispatch.on('migrate-urls')
-def url_mapping(csv_file, wp_env, greedy=False, root_wp_dest=None, htaccess=False,
-                context='intra', dry_run=False, **kwargs):
-    """
-    :param csv_file: CSV containing the URL mapping rules for source and destination.
-    :param context: intra, inter, full. Replace the occurrences at intra, inter or both.
-    """
-    logging.info('Starting ventilation process...')
-    vent = Ventilation(wp_env, csv_file, greedy, root_wp_dest, htaccess, context, dry_run)
-    vent.run_all()
 
 
 if __name__ == '__main__':

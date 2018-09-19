@@ -1,0 +1,45 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: epfl-video\n"
+"POT-Creation-Date: 2018-09-13 09:29+0200\n"
+"PO-Revision-Date: 2018-09-13 09:30+0200\n"
+"Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.7.1\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-KeywordsList: esc_html__\n"
+"X-Poedit-SearchPath-0: shortcake-config.php\n"
+
+#: shortcake-config.php:16
+msgid "Video URL"
+msgstr "URL de la vidéo"
+
+#: shortcake-config.php:19
+msgid "You can copy/paste a YouTube or SWITCHTube URL"
+msgstr "Vous pouvez copier/coller une URL provenant de YouTube ou SWITCHTube"
+
+#~ msgid "URL of the video"
+#~ msgstr "URL de la vidéo"
+
+#~ msgid "Video width"
+#~ msgstr "Largeur de la vidéo"
+
+#~ msgid "Recommended value: 600"
+#~ msgstr "Valeur recommandée: 600"
+
+#~ msgid "Video height"
+#~ msgstr "Hauteur de la vidéo"
+
+#~ msgid "Recommended value: 400"
+#~ msgstr "Valeur recommandée: 400"
+
+#~ msgid "Width of the video"
+#~ msgstr "Largeur de la vidéo"
+
+#~ msgid "Height of the video"
+#~ msgstr "Hauteur de la vidéo"

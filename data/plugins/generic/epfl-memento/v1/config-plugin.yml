@@ -1,2 +1,2 @@
-src: generic/epfl-memento/v1/epfl-memento.zip
+src: ../wp/wp-content/plugins/epfl-memento
 activate: yes

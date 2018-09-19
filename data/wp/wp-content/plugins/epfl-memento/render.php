@@ -572,7 +572,7 @@ Class MementoRender
     }
 
     /**
-     * Build HTML. This template contains all events inside ifram tag
+     * Build HTML. This template contains all events inside iframe tag
      *
      * @param $memento: slug of memento
      * @param $lang: lang of event (fr or en)
@@ -581,7 +581,7 @@ Class MementoRender
      * @return html of iframe template
      */
     public static function epfl_memento_built_html_pagination_template(string $memento, string $lang, string $color, string $period): string {
-        if ($period === 'upcoming') {
+        if (empty($period) || $period === 'upcoming') {
             $period = 2;
         } else {
             $period = 1;

@@ -54,6 +54,10 @@ class WPPluginConfig(WPConfig):
         command = "plugin install {} {} ".format(force_option, param)
         self.run_wp_cli(command)
 
+        # If we used a ZIP and it was generated 'on the fly', we do some cleaning
+        if self.config.zip_path is not None and self.config.zipped_on_the_fly:
+            os.remove(self.config.zip_path)
+
     def uninstall(self):
         self.run_wp_cli('plugin deactivate {}'.format(self.name))
         self.run_wp_cli('plugin uninstall {}'.format(self.name))
@@ -115,6 +119,10 @@ class WPMuPluginConfig(WPConfig):
                       repr(self.wp_site),
                       self.name, src_path,
                       self.path)
+
+    def uninstall(self):
+        if os.path.exists(self.path):
+            os.remove(self.path)
 
     @property
     def dir_path(self):

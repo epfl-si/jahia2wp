@@ -1,2 +1,2 @@
-src: generic/epfl-infoscience/v1/epfl-infoscience.zip
+src: ../wp/wp-content/plugins/epfl-infoscience
 activate: yes
