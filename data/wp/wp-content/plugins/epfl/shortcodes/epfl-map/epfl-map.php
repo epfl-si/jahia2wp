@@ -98,7 +98,7 @@ add_action( 'register_shortcode_ui',  function() {
                     'attr'          => 'lang',
                     'type'          => 'select',
                     'options'       => $lang_options,
-                    'description'   => esc_html__('The language used to render map result', 'epfl'),
+                    'description'   => esc_html__('Language used to render map result', 'epfl'),
                 ),
             ),
 

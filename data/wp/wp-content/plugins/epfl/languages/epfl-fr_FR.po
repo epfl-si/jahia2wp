@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-09-18 18:19+0200\n"
-"PO-Revision-Date: 2018-09-18 18:19+0200\n"
+"POT-Creation-Date: 2018-09-19 11:25+0200\n"
+"PO-Revision-Date: 2018-09-19 11:25+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -14,6 +14,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Poedit-KeywordsList: __;esc_html__\n"
 "X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: epfl-infoscience-search\n"
 
 #: epfl-card/shortcake-config.php:12
 msgid "Card"
@@ -103,8 +104,8 @@ msgid "Language"
 msgstr "Langue"
 
 #: epfl-map/epfl-map.php:101
-msgid "The language used to render map result"
-msgstr "La langue utilisée pour afficher le plan"
+msgid "Language used to render map result"
+msgstr "Langue utilisée pour afficher le plan"
 
 #: epfl-memento/shortcake-config.php:46
 msgid "Template with the first highlighted event"
