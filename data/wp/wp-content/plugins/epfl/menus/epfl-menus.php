@@ -205,10 +205,12 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
                     $base_url, "menus/$menu_slug?lang=$lang")
                          ->fully_qualified();
                 $that = static::get_or_create($get_url);
-                $that->update(array('post_title' =>
-                                    $menu_desc['description']));
-                $that->set_language($lang);
                 $that->meta()->set_remote_slug($menu_slug);
+
+                $title = $menu_desc['description'] . " @ $base_url";
+                $that->update(array('post_title' => $title));
+                $that->set_language($lang);
+
                 $that->refresh();
             }
         }
@@ -381,7 +383,7 @@ class MenuItemController
             }
         });
 
-        static::hook_ajax_refresh_button();
+        static::hook_refresh_button();
 
         static::_auto_fields_controller()->hook();
     }
@@ -398,12 +400,12 @@ class MenuItemController
             });
     }
 
-    static function hook_ajax_refresh_button () {
+    static function hook_refresh_button () {
         $thisclass = get_called_class();
 
         // Server side:
         add_action('admin_init', function() use ($thisclass) {
-            $thisclass::_get_ajax_endpoint()->register_handlers($thisclass);
+            $thisclass::_get_api()->register_handlers($thisclass);
         });
 
         // JS side:
@@ -411,15 +413,15 @@ class MenuItemController
             if ((get_current_screen()->base === 'edit') &&
                 $_REQUEST['post_type'] === ExternalMenuItem::SLUG)
             {
-                $thisclass::_get_ajax_endpoint()->admin_enqueue();
+                $thisclass::_get_api()->admin_enqueue();
                 _MenusJSApp::load();
             }
         });
     }
 
-    static private function _get_ajax_endpoint () {
-        require_once(__DIR__ . '/../lib/ajax.php');
-        return new \EPFL\AJAX\Endpoint('EPFLMenus');
+    static private function _get_api () {
+        require_once(__DIR__ . '/../lib/wp-admin-api.php');
+        return new \EPFL\AdminAPI\Endpoint('EPFLMenus');
     }
 
     static private $subs = array();
@@ -472,15 +474,16 @@ class MenuItemController
     }
 
     /**
-     * Invoked by the refresh button in the wp-admin area
+     * Invoked through form POST by the wp-admin refresh button
      */
-    static function ajax_refresh () {
+    static function admin_post_refresh () {
         ExternalMenuItem::load_from_filesystem();
         foreach (ExternalMenuItem::all() as $external_menu_item) {
             $external_menu_item->refresh();
             static::_get_subscribe_controller($external_menu_item)->
                 subscribe($external_menu_item->get_subscribe_url());
         }
+        return "edit.php?post_type=" . ExternalMenuItem::SLUG;
     }
 
     /**

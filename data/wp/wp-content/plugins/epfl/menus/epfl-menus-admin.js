@@ -29,17 +29,8 @@ function initExternalMenuList ($) {
     $button.click(function() {
         var $spinner = $('<span class="ajax-spinner"></span>');
         $button.append($spinner);
-        window.EPFLMenus.post("refresh")
-              .done(function() {
-                  console.log("Refresh done");
-                  window.location.reload(true);
-              })
-              .fail(function() {
-                  $spinner.remove();
-                  setTimeout(function() {
-                    alert(wp.translations.refresh_failed);
-                  }, 10);
-              });
+        var $form = window.EPFLMenus.asWPAdminPostForm('refresh');
+        $form.submit();
     });
 }
 
