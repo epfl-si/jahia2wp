@@ -42,7 +42,7 @@ function epfl_map_process_shortcode( $attributes, string $content = null ): stri
 
     // check parameters
     if ( false == epfl_map_check_parameters($query, $lang) ) {
-        return "";
+        return Utils::render_user_msg("Map shortcode: Please check required parameters");
     }
 
     // if supported delegate the rendering to the theme
