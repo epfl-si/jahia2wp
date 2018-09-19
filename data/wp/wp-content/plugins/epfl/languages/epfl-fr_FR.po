@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-09-19 12:44+0200\n"
-"PO-Revision-Date: 2018-09-19 12:44+0200\n"
+"POT-Creation-Date: 2018-09-19 14:34+0200\n"
+"PO-Revision-Date: 2018-09-19 14:35+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -77,6 +77,36 @@ msgstr "L'URL du lien"
 msgid "Links group"
 msgstr "Groupe de liens"
 
+#: epfl-map/epfl-map.php:77 epfl-memento/shortcake-config.php:54
+#: epfl-news/shortcake-config.php:35
+msgid "English"
+msgstr "Anglais"
+
+#: epfl-map/epfl-map.php:78 epfl-memento/shortcake-config.php:55
+#: epfl-news/shortcake-config.php:36
+msgid "French"
+msgstr "Français"
+
+#: epfl-map/epfl-map.php:86
+msgid "EPFL Map"
+msgstr "Plan EPFL"
+
+#: epfl-map/epfl-map.php:90
+msgid "What information do you want to display?"
+msgstr "Quelle information voulez vous afficher?"
+
+#: epfl-map/epfl-map.php:94
+msgid "A room for example"
+msgstr "Par exemple une salle"
+
+#: epfl-map/epfl-map.php:97
+msgid "Language"
+msgstr "Langue"
+
+#: epfl-map/epfl-map.php:101
+msgid "Language used to render map result"
+msgstr "Langue utilisée pour afficher le plan"
+
 #: epfl-memento/shortcake-config.php:46
 msgid "Template with the first highlighted event"
 msgstr "Template avec le 1er événement mis en valeur"
@@ -84,14 +114,6 @@ msgstr "Template avec le 1er événement mis en valeur"
 #: epfl-memento/shortcake-config.php:47
 msgid "Template without the first highlighted event"
 msgstr "Template sans mettre le 1er événement en valeur"
-
-#: epfl-memento/shortcake-config.php:54 epfl-news/shortcake-config.php:35
-msgid "English"
-msgstr "Anglais"
-
-#: epfl-memento/shortcake-config.php:55 epfl-news/shortcake-config.php:36
-msgid "French"
-msgstr "Français"
 
 #: epfl-memento/shortcake-config.php:62 epfl-news/shortcake-config.php:51
 #: epfl-news/shortcake-config.php:75
@@ -348,43 +370,43 @@ msgstr ""
 "Voulez vous filtrer les actualités par thèmes? Veuillez sélectionner un ou "
 "plusieurs thèmes."
 
-#: epfl-scheduler/epfl-scheduler.php:115
+#: epfl-scheduler/epfl-scheduler.php:126
 msgid "Start date"
 msgstr "Date de début"
 
-#: epfl-scheduler/epfl-scheduler.php:118
+#: epfl-scheduler/epfl-scheduler.php:129
 msgid "Please select a start date. Format: mm/dd/yyyy"
 msgstr "Veuillez sélectionner une date de début. Format: mm/dd/yyyy"
 
-#: epfl-scheduler/epfl-scheduler.php:121
+#: epfl-scheduler/epfl-scheduler.php:132
 msgid "End date"
 msgstr "Date de fin"
 
-#: epfl-scheduler/epfl-scheduler.php:124
+#: epfl-scheduler/epfl-scheduler.php:135
 msgid "Please select an end date. Format: mm/dd/yyyy"
 msgstr "Veuillez sélectionner une date de fin. Format: mm/dd/yyyy"
 
-#: epfl-scheduler/epfl-scheduler.php:127
+#: epfl-scheduler/epfl-scheduler.php:138
 msgid "Start time"
 msgstr "Heure de début"
 
-#: epfl-scheduler/epfl-scheduler.php:131
+#: epfl-scheduler/epfl-scheduler.php:142
 msgid "Please select a start time. Format: hh:mm:ss"
 msgstr "Veuillez sélectionner une heure de début. Format: hh:mm:ss"
 
-#: epfl-scheduler/epfl-scheduler.php:134
+#: epfl-scheduler/epfl-scheduler.php:145
 msgid "End time"
 msgstr "Heure de fin"
 
-#: epfl-scheduler/epfl-scheduler.php:138
+#: epfl-scheduler/epfl-scheduler.php:149
 msgid "Please select an end time. Format: hh:mm:ss"
 msgstr "Veuillez sélectionner une heure de fin. Format: hh:mm:ss"
 
-#: epfl-scheduler/epfl-scheduler.php:142
+#: epfl-scheduler/epfl-scheduler.php:153
 msgid "Content of scheduler"
 msgstr "Contenu du planificateur"
 
-#: epfl-scheduler/epfl-scheduler.php:143
+#: epfl-scheduler/epfl-scheduler.php:154
 msgid "You can enter text to display above"
 msgstr "Vous pouvez saisir ci dessus le texte à afficher"
 
@@ -429,21 +451,17 @@ msgstr "URL de la vidéo"
 msgid "You can copy/paste a YouTube or SWITCHTube URL"
 msgstr "Vous pouvez copier/coller des URLs provenant de YouTube ou SWITCHTube"
 
-#: epfl-video/shortcake-config.php:22
-msgid "Video width"
-msgstr "Largeur de la vidéo"
+#~ msgid "Video width"
+#~ msgstr "Largeur de la vidéo"
 
-#: epfl-video/shortcake-config.php:26
-msgid "Recommended value: 600"
-msgstr "Valeur recommandée: 600"
+#~ msgid "Recommended value: 600"
+#~ msgstr "Valeur recommandée: 600"
 
-#: epfl-video/shortcake-config.php:29
-msgid "Video height"
-msgstr "Hauteur de la vidéo"
+#~ msgid "Video height"
+#~ msgstr "Hauteur de la vidéo"
 
-#: epfl-video/shortcake-config.php:33
-msgid "Recommended value: 400"
-msgstr "Valeur recommandée: 400"
+#~ msgid "Recommended value: 400"
+#~ msgstr "Valeur recommandée: 400"
 
 #, fuzzy
 #~ msgid "Conference Papers"
