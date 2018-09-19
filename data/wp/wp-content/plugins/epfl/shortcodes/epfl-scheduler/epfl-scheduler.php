@@ -2,8 +2,8 @@
 /**
  * Plugin Name: EPFL scheduler shortcode
  * Description: provides a shortcode to display content according dates
- * @version: 1.1
- * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
+ * @version: 1.2
+ * @copyright: Copyright (c) 2018 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
 /**
@@ -29,19 +29,29 @@ function epfl_scheduler_validate_date( string $date, string $format = 'Y-m-d' ):
  * @param $end_date: end date
  * @param $start_time: start time
  * @param $end_time: end time
- * @return True if the parameters are populated and in the right format
+ * @return "" if the parameters are populated and in the right format
  */
-function epfl_scheduler_check_parameters( $start_date, $end_date, $start_time, $end_time ) {
-    if ( $start_date !== '' && $end_date !== '' && epfl_scheduler_validate_date($start_date) && epfl_scheduler_validate_date($end_date) ) {
-        return FALSE;
+function epfl_scheduler_check_parameters( string $start_date, string $end_date, string $start_time, string $end_time ): string {
+
+    if ( $start_date === '') {
+        return Utils::render_user_msg("Shortcode epfl-scheduler: Please check the required parameter 'start date'");
     }
-    if ( $start_time === '' || epfl_scheduler_validate_date($start_time, 'H:i:s') == FALSE ) {
-        return FALSE;
+    if ( $end_date === '') {
+        return Utils::render_user_msg("Shortcode epfl-scheduler: Please check the required parameter 'end date'");
     }
-    if ( $end_time === '' || epfl_scheduler_validate_date($end_time, 'H:i:s') == FALSE ) {
-        return FALSE;
+    if ( !epfl_scheduler_validate_date($start_date) ) {
+        return Utils::render_user_msg("Shortcode epfl-scheduler: Please check start date format");
     }
-    return TRUE;
+    if ( !epfl_scheduler_validate_date($end_date) ) {
+        return Utils::render_user_msg("Shortcode epfl-scheduler: Please check end date format");
+    }
+    if ( $start_time !== '' && !epfl_scheduler_validate_date($start_time, 'H:i:s') ) {
+        return Utils::render_user_msg("Shortcode epfl-scheduler: Please check start time format");
+    }
+    if ( $end_time !== '' && !epfl_scheduler_validate_date($end_time, 'H:i:s') ) {
+        return Utils::render_user_msg("Shortcode epfl-scheduler: Please check end time format");
+    }
+    return "";
 }
 
 /**
@@ -68,8 +78,9 @@ function epfl_scheduler_shortcode( $atts, $content = '', $tag )
     $end_time   = sanitize_text_field( $atts['end_time'] );
 
     // check parameters
-    if ( epfl_scheduler_check_parameters( $start_date, $end_date, $start_time, $end_time ) ) {
-        return "";
+    $check_parameters = epfl_scheduler_check_parameters( $start_date, $end_date, $start_time, $end_time );
+    if ( "" !== $check_parameters ) {
+        return $check_parameters;
     }
 
     // initialize time
@@ -83,7 +94,7 @@ function epfl_scheduler_shortcode( $atts, $content = '', $tag )
     // convert input user to string 'yyyy:mm:ddThh:mm:ss'
     $start_date = $start_date . "T" . $start_time;
     $end_date = $end_date . "T" . $end_time;
-    
+
     date_default_timezone_set('Europe/Paris');
 
     // convert date string to datetime
@@ -91,7 +102,7 @@ function epfl_scheduler_shortcode( $atts, $content = '', $tag )
     $end_date = strtotime( $end_date );
     $now = time();
 
-    // check if we can display content
+    // check if we can  display content
     if ( $now >= $start_date && $now <= $end_date ) {
         return do_shortcode($content);
     }
