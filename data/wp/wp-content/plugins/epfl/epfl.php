@@ -15,6 +15,7 @@ require_once 'shortcodes/epfl-links-group/epfl-links-group.php';
 require_once 'shortcodes/epfl-card/epfl-card.php';
 require_once 'shortcodes/epfl-video/epfl-video.php';
 require_once 'shortcodes/epfl-infoscience-search/epfl-infoscience-search.php';
+require_once 'shortcodes/epfl-scheduler/epfl-scheduler.php';
 
 // load .mo file for translation
 function epfl_load_plugin_textdomain() {
