@@ -21,26 +21,30 @@ if (! defined( 'ABSPATH' )) {
 
 require_once(ABSPATH . 'wp-admin/includes/class-walker-nav-menu-edit.php');
 
-require_once(__DIR__ . '/../lib/model.php');
+require_once(dirname(__DIR__) . '/lib/model.php');
 use \EPFL\Model\TypedPost;
 
-require_once(__DIR__ . '/../lib/rest.php');
+require_once(dirname(__DIR__) . '/lib/rest.php');
 use \EPFL\REST\REST_API;
 use \EPFL\REST\RESTClient;
 use \EPFL\REST\RESTRemoteError;
 use \EPFL\REST\RESTAPIError;
 use \EPFL\REST\REST_URL;
 
-require_once(__DIR__ . '/../lib/pubsub.php');
+require_once(dirname(__DIR__) . '/lib/admin-controller.php');
+use \EPFL\AdminController\TransientErrors;
+use \EPFL\AdminController\CustomPostTypeController;
+
+require_once(dirname(__DIR__) . '/lib/pubsub.php');
 use \EPFL\Pubsub\PublishController;
 use \EPFL\Pubsub\SubscribeController;
 
-require_once(__DIR__ . '/../lib/i18n.php');
+require_once(dirname(__DIR__) . '/lib/i18n.php');
 use function EPFL\I18N\___;
 use function EPFL\I18N\__x;
 use function EPFL\I18N\__e;
 
-require_once(__DIR__ . '/../lib/this-plugin.php');
+require_once(dirname(__DIR__) . '/lib/this-plugin.php');
 use EPFL\ThisPlugin\Asset;
 
 class MenuError extends \Exception {};
@@ -369,16 +373,23 @@ MenuRESTController::hook();
  * MenuItemController is a "pure static" class, i.e. no instances are
  * ever constructed.
  */
-class MenuItemController
+class MenuItemController extends CustomPostTypeController
 {
-    static function hook () {
-        $thisclass = get_called_class();
+    static function get_model_class () {
+        return ExternalMenuItem::class;
+    }
 
-        // See docstring for @link register_post_type
+    static function hook () {
+        parent::hook();
+
+        $thisclass = get_called_class();
+        $thisclass::hook_meta_boxes();
+
         add_action('init', array($thisclass, 'register_post_type'));
 
         add_action('rest_api_init', function() use ($thisclass) {
-            foreach (ExternalMenuItem::all() as $external_menu_item) {
+            foreach (static::get_model_class()::all()
+                     as $external_menu_item) {
                 $thisclass::hook_pubsub($external_menu_item);
             }
         });
@@ -411,7 +422,7 @@ class MenuItemController
         // JS side:
         add_action('current_screen', function() use ($thisclass) {
             if ((get_current_screen()->base === 'edit') &&
-                $_REQUEST['post_type'] === ExternalMenuItem::SLUG)
+                $_REQUEST['post_type'] === static::get_post_type())
             {
                 $thisclass::_get_api()->admin_enqueue();
                 _MenusJSApp::load();
@@ -420,7 +431,7 @@ class MenuItemController
     }
 
     static private function _get_api () {
-        require_once(__DIR__ . '/../lib/wp-admin-api.php');
+        require_once(dirname(__DIR__) . '/lib/wp-admin-api.php');
         return new \EPFL\AdminAPI\Endpoint('EPFLMenus');
     }
 
@@ -449,7 +460,7 @@ class MenuItemController
      * @see https://stackoverflow.com/a/20294968/435004
      */
     static function register_post_type () {
-        register_post_type(ExternalMenuItem::get_post_type(), array(
+        register_post_type(static::get_post_type(), array(
             'labels' => array(
                 'name'               => ___('External Menus'),
                 'singular_name'      => ___('External Menu'),
@@ -477,13 +488,23 @@ class MenuItemController
      * Invoked through form POST by the wp-admin refresh button
      */
     static function admin_post_refresh () {
+        try {
+            static::do_refresh();
+            static::admin_notice(___('Refresh successful'));
+        } catch (\Throwable $t) {
+            error_log($t);
+            static::admin_error(___('Refresh failed'));
+        }
+        return "edit.php?post_type=" . static::get_post_type();
+    }
+
+    static function do_refresh () {
         ExternalMenuItem::load_from_filesystem();
         foreach (ExternalMenuItem::all() as $external_menu_item) {
             $external_menu_item->refresh();
             static::_get_subscribe_controller($external_menu_item)->
                 subscribe($external_menu_item->get_subscribe_url());
         }
-        return "edit.php?post_type=" . ExternalMenuItem::SLUG;
     }
 
     /**
@@ -494,11 +515,7 @@ class MenuItemController
     public static function register_meta_boxes () {
         $this_class = get_called_class();
 
-        add_meta_box(
-            "epfl_menu_edit_metabox",
-            __x("External Menu", "Post edit metabox"),
-            array(get_called_class(), 'render_edit_meta_box'),
-            null, 'normal', 'high');
+        static::add_meta_box('edit', __x('External Menu', 'Post edit metabox'));
 
         static::_auto_fields_controller()->add_meta_boxes();
     }
@@ -507,7 +524,7 @@ class MenuItemController
      * Render the meta box appearing as the main matter on the "edit"
      * screen for epfl-external-menu custom post type.
      */
-    public static function render_edit_meta_box () {
+    public static function render_meta_box_edit () {
         global $post;
         ?>
         <div class="edit-external-menu">
