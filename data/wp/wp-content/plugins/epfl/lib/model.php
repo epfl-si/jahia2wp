@@ -55,6 +55,12 @@ abstract class WPDBModel
         return $wpdb->query(static::_prepare($sql, $placeholders));
     }
 
+    static function insert ($sql, ...$placeholders) {
+        global $wpdb;
+        $wpdb->query(static::_prepare($sql, $placeholders));
+        return $wpdb->insert_id;
+    }
+
     static function get_results ($sql, ...$placeholders) {
         global $wpdb;
         return $wpdb->get_results(static::_prepare($sql, $placeholders));
@@ -75,6 +81,18 @@ abstract class WPDBModel
             require_once(__DIR__ . '/this-plugin.php');
             \EPFL\ThisPlugin\on_deactivate(
                 array(get_called_class(), "drop_tables"));
+        }
+    }
+
+    static protected function _as_db_results ($array_or_object) {
+        if (is_array($array_or_object)) {
+            $object = new \stdClass();
+            foreach ($array_or_object as $k => $v) {
+                $object->$k = $v;
+            }
+            return $object;
+        } else {
+            return $array_or_object;
         }
     }
 }
@@ -192,6 +210,10 @@ abstract class Post
     public function set_language ($newlang) {
         if (! function_exists('pll_set_post_language')) return;
         return pll_set_post_language($this->ID, $newlang);
+    }
+
+    function error_log ($msg) {
+        error_log(get_called_class() . "::get($this->ID): " . $msg);
     }
 }
 

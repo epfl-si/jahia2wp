@@ -27,6 +27,7 @@ use \EPFL\Model\TypedPost;
 require_once(dirname(__DIR__) . '/lib/rest.php');
 use \EPFL\REST\REST_API;
 use \EPFL\REST\RESTClient;
+use \EPFL\REST\RESTClientError;
 use \EPFL\REST\RESTRemoteError;
 use \EPFL\REST\RESTAPIError;
 use \EPFL\REST\REST_URL;
@@ -49,14 +50,38 @@ use EPFL\ThisPlugin\Asset;
 
 class MenuError extends \Exception {};
 
-
 /**
  * Object model for "normal" WordPress menus, augmented with support
  * for EPFL-style menu stitching.
  */
 class Menu {
-    static $all;
-    private function __construct () {
+    private function __construct ($slug, $description, $term_id) {
+        assert($term_id);
+        $this->slug        = $slug;
+        $this->description = $description;
+        $this->term_id     = $term_id;
+    }
+
+    /**
+     * @return The slug this menu is known as to API consumers. Note that
+     *         this is not a unique key (see @link get_term_id for that):
+     *         depending on the language (passed through the ?lang=
+     *         query parameter in REST API calls), the same slug might
+     *         stand for different instances of Menu.
+     */
+    function get_slug () {
+        return $this->slug;
+    }
+
+    /**
+     * @return A site-wide unique integer ID for this Menu
+     */
+    function get_term_id () {
+        return $this->term_id;
+    }
+
+    function get_description () {
+        return $this->description;
     }
 
     static function all () {
@@ -64,18 +89,16 @@ class Menu {
         $locations = get_nav_menu_locations();
         $all = array();
         foreach (get_registered_nav_menus() as $slug => $description) {
-            $that = new $thisclass();
-            $that->slug = $slug;
-            $that->description = $description;
-            $that->term_id = $locations[$slug];  // Language-dependent
-            $all[] = $that;
+            if (! ($term_id = $locations[$slug])) continue;
+            $all[] = new $thisclass(
+                $slug, $description, $term_id);
         }
         return $all;
     }
 
     static function by_slug ($slug) {
         foreach (static::all() as $that) {
-            if ($that->slug === $slug) {
+            if ($that->get_slug() === $slug) {
                 return $that;
             }
         }
@@ -174,16 +197,13 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
                 }
             });
 
-        $site_url = site_url();
-        $site_url = preg_replace('|^https://jahia2wp-httpd/|',
-                                 'https://jahia2wp-httpd:8443/', $site_url);
         foreach ((new \RecursiveIteratorIterator($wp_configs_lazy))
                  as $info) {
             $relpath = substr(dirname($info->getPathname()), strlen(ABSPATH));
             if (! $relpath) continue;  // Skip our own directory
 
             try {
-                static::load_from_wp_base_url($site_url . "/$relpath");
+                static::load_from_wp_base_url('https://localhost:8443' . parse_url(site_url(), PHP_URL_PATH) . "/$relpath");
             } catch (RESTRemoteError $e) {
                 error_log("[Not our fault, IGNORED] " . $e);
                 continue;
@@ -198,11 +218,11 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
                 $menu_descrs = RESTClient::GET_JSON(REST_URL::remote(
                     $base_url,
                     "menus?lang=$lang"));
-            } catch (RESTRemoteError $e) {
+            } catch (RESTClientError $e) {
                 error_log("[Not our fault, IGNORED] " . $e);
                 continue;
             }
-                
+
             foreach ($menu_descrs as $menu_descr) {
                 $menu_slug = $menu_descr->slug;
                 $get_url = REST_URL::remote(
@@ -211,7 +231,7 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
                 $that = static::get_or_create($get_url);
                 $that->meta()->set_remote_slug($menu_slug);
 
-                $title = $menu_desc['description'] . " @ $base_url";
+                $title = $menu_descr->description . " @ $base_url";
                 $that->update(array('post_title' => $title));
                 $that->set_language($lang);
 
@@ -225,7 +245,7 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
     function refresh () {
         if ($this->_refreshed) return;  // Not twice in same query cycle
         if (! ($get_url = $this->meta()->get_rest_url())) {
-            error_log("Menu item #$this->ID doesn't look very external to me");
+            $this->error_log("doesn't look very external to me");
             return;
         }
 
@@ -269,29 +289,32 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
 class MenuRESTController
 {
     static function hook () {
+        $thisclass = get_called_class();
         REST_API::GET_JSON(
             '/menus',
-            get_called_class(), 'get_menus');
+            $thisclass, 'get_menus');
         REST_API::GET_JSON(
             '/menus/(?P<slug>[a-zA-Z0-9_-]+)',
-            get_called_class(), 'get_menu');
+            $thisclass, 'get_menu');
 
         // "The feature is available only in Polylang Pro." #groan
         REST_API::GET_JSON(
             '/languages',
             function() { return pll_languages_list(); });
 
-        foreach (Menu::all() as $menu) {
-            static::_get_publish_controller($menu);
-        }
+        add_action('rest_api_init', function() use ($thisclass) {
+            foreach (Menu::all() as $menu) {
+                $thisclass::_get_publish_controller($menu);
+            }
+        });
     }
 
     static function get_menus () {
         $retval = [];
         foreach (Menu::all() as $menu) {
             array_push($retval, array(
-                'slug'        => $menu->slug,
-                'description' => $menu->description,
+                'slug'        => $menu->get_slug(),
+                'description' => $menu->get_description(),
             ));
         }
         return $retval;
@@ -312,9 +335,12 @@ class MenuRESTController
                 ->fully_qualified());
             return $response;
         } else {
+            if (function_exists('pll_current_language')) {
+                $inlang = " in language " . pll_current_language();
+            }
             throw new RESTAPIError(404, array(
                 'status' => 'NOT_FOUND',
-                'msg' => "No menu with slug $slug"));
+                'msg' => "No menu with slug $slug$inlang"));
         }
     }
 
@@ -327,16 +353,18 @@ class MenuRESTController
      * the same menu, share the same pubsub endpoint)
      */
     static function _get_subscribe_uri ($menu) {
-        return "menus/$menu->slug/subscribe";
+        $term_id = $menu->get_term_id();
+        return "menus/$term_id/subscribe";
     }
 
     static private $pubs = array();
     static private function _get_publish_controller ($menu) {
-        if (! static::$pubs[$menu]) {
-            static::$pubs[$menu] = new PublishController(
+        $term_id = $menu->get_term_id();
+        if (! static::$pubs[$term_id]) {
+            static::$pubs[$term_id] = new PublishController(
                 static::_get_subscribe_uri($menu));
         }
-        return static::$pubs[$menu];
+        return static::$pubs[$term_id];
     }
 
     /**
@@ -491,22 +519,46 @@ class MenuItemController extends CustomPostTypeController
      */
     static function admin_post_refresh () {
         try {
-            static::do_refresh();
-            static::admin_notice(___('Refresh successful'));
+            ExternalMenuItem::load_from_filesystem();
         } catch (\Throwable $t) {
-            error_log($t);
-            static::admin_error(___('Refresh failed'));
+            error_log("ExternalMenuItem::load_from_filesystem(): $t");
+            static::admin_error(___('Unable to load menus of sites in the same pod'));
+            // Continue
         }
-        return "edit.php?post_type=" . static::get_post_type();
-    }
 
-    static function do_refresh () {
-        ExternalMenuItem::load_from_filesystem();
-        foreach (ExternalMenuItem::all() as $external_menu_item) {
-            $external_menu_item->refresh();
-            static::_get_subscribe_controller($external_menu_item)->
-                subscribe($external_menu_item->get_subscribe_url());
+        $errors = 0;
+        $all = ExternalMenuItem::all();
+        foreach ($all as $external_menu_item) {
+            try {
+                $external_menu_item->refresh();
+            } catch (RESTClientError $e) {
+                $external_menu_item->error_log("unable to refresh: $e");
+                $errors++;
+                continue;
+            }
+            $subscribe_url = $external_menu_item->get_subscribe_url();
+            if (! $subscribe_url) {
+                $external_menu_item->error_log("has no subscribe URL");
+                continue;
+            }
+            try {
+                static::_get_subscribe_controller($external_menu_item)->
+                    subscribe($subscribe_url);
+            } catch (RESTClientError $e) {
+                $external_menu_item->error_log(
+                    "Unable to subscribe at $subscribe_url: $e");
+                $errors++;
+            }
         }
+        if (! $errors) {
+            static::admin_notice(___('Refresh successful'));
+        } else {
+            static::admin_error(sprintf(
+                ___('Refresh failed (%d failed out of %d)'),
+                $errors, count($all)));
+        }
+
+        return "edit.php?post_type=" . static::get_post_type();
     }
 
     /**
@@ -541,13 +593,13 @@ class MenuItemController extends CustomPostTypeController
     private static function capabilities_for_edit_but_not_create () {
         return array(
             'create_posts'       => '__NEVER_PERMITTED__',
-            'edit_post'          => 'edit_posts', 
-            'read_post'          => 'read_post', 
-            'delete_post'        => 'delete_post', 
-            'edit_posts'         => 'edit_posts', 
-            'edit_others_posts'  => 'edit_others_posts', 
-            'publish_posts'      => 'publish_posts',       
-            'read_private_posts' => 'read_private_posts', 
+            'edit_post'          => 'edit_posts',
+            'read_post'          => 'read_post',
+            'delete_post'        => 'delete_posts',  // #WAT
+            'edit_posts'         => 'edit_posts',
+            'edit_others_posts'  => 'edit_others_posts',
+            'publish_posts'      => 'publish_posts',
+            'read_private_posts' => 'read_private_posts',
         );
     }
 

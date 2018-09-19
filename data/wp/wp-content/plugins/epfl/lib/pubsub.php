@@ -23,6 +23,7 @@ if (! defined('ABSPATH')) {
 require_once(__DIR__ . '/rest.php');
 use \EPFL\REST\REST_API;
 use \EPFL\REST\RESTClient;
+use \EPFL\REST\RESTAPIError;
 use \EPFL\REST\RESTClientError;
 
 require_once(__DIR__ . '/model.php');
@@ -59,15 +60,18 @@ class SubscribeController
         $this->listeners = [];
     }
 
+    const WEBHOOK = 'pubsub/webhook';
+    const WEBHOOK_TEST = 'pubsub/webhook-test';
+
     static function hook () {
         $thisclass = get_called_class();
 
         // Same entry points for all webhooks; demultiplexing is
         // performed on the nonce.
         REST_API::POST_JSON(
-            "/pubsub/webhook", $thisclass, 'on_REST_webhook');
+            static::WEBHOOK, $thisclass, 'on_REST_webhook');
         REST_API::POST_JSON(
-            "/pubsub/webhook-test", $thisclass, 'on_REST_test_webhook');
+            static::WEBHOOK_TEST, $thisclass, 'on_REST_test_webhook');
     }
 
     /**
@@ -87,7 +91,7 @@ class SubscribeController
 
     public /* not really */
     static function on_REST_webhook ($req) {
-        $sub = _Subscription::get_by_nonce($nonce = $req->params["nonce"]);
+        $sub = _Subscription::get_by_nonce($nonce = $req->get_param('nonce'));
         if (! $sub) {
             _Events::error_invalid_nonce($nonce);
             return;
@@ -115,27 +119,27 @@ class SubscribeController
      * same nonce.
      */
     public function subscribe ($remote_url) {
-        $sub = _Subscription::temporary();
+        $sub = _Subscription::make_temporary($this->slug);
+        $callback_url = REST_API::get_entrypoint_url(
+            $sub->get_entrypoint_uri(), $remote_url)->fully_qualified();
 
         try {
-            $response = RESTClient::POST_JSON(
+            RESTClient::POST_JSON(
                 $remote_url,
                 array(
                     "subscriber_id" => $this->_get_subscriber_id(),
-                    "callback_url"  => $this->my_urls->webhook(array("nonce" => $nonce))));
+                    "callback_url"  => $callback_url));
             $sub->expect_confirmed();
         } finally {
             $sub->cleanup();
         }
-        
-        (new _Subscription($this->slug))->register($this->my_urls, $remote_url);
     }
 
     public /* not really */
     static function on_REST_test_webhook ($req) {
-        $tmp_sub = _Subscription::get_by_nonce(
-            $req->params['nonce'], /* $confirmed = */ FALSE);
-        $tmp_sub->confirmed();
+        _Subscription::get_by_nonce($req->get_param('nonce'),
+                                    /* $confirmed = */ FALSE)
+            ->confirm();
     }
 
     private function _get_subscriber_id () {
@@ -183,24 +187,35 @@ class _Subscription extends WPDBModel
             "SELECT slug FROM %T WHERE nonce = %s 
              AND confirmed = $confirmed_sql",
             $nonce);
-        if (count($results)) {
-            $thisclass = get_called_class();
-            $that = new $thisclass($results[0]->slug, $nonce, $confirmed);
-        } else {
-            return NULL;
-        }
+        if (! count($results)) return null;
+        $thisclass = get_called_class();
+        return new $thisclass($results[0]->slug, $nonce, $confirmed);
     }
 
     static function make_temporary ($slug) {
         $thisclass = get_called_class();
-        return new $thisclass($slug, $thisclass::_make_nonce, false);
+        return (new $thisclass($slug, $thisclass::_make_nonce(), false))
+            ->_insert();
     }
 
     static function _make_nonce () {
-        $strength_in_bytes = 40;  // Should be an even number, so that
+        $strength_in_bytes = 42;  // Should be a multiple of 3, so that
                                   // there are no extra =='s at the end
                                   // of the base64'd string
-        return base64_encode(get_random_bytes(40));
+        return base64_encode(random_bytes($strength_in_bytes));
+    }
+
+    function _insert () {
+        // We only ever ->_insert() objects created with ->make_temporary()
+        $this->query('INSERT INTO %T (slug, nonce, confirmed)
+                      VALUES (%s, %s, FALSE);',
+                     $this->slug,
+                     $this->nonce);
+        return $this;
+    }
+
+    function get_entrypoint_uri () {
+        return SubscribeController::WEBHOOK . '?nonce=' . $this->nonce;
     }
 
     function confirm () {
@@ -230,7 +245,10 @@ class _Subscription extends WPDBModel
 
     function expect_confirmed () {
         $thisclass = get_called_class();
-        if ($thisclass->get_by_nonce($this->nonce)) return;
+        if ($thisclass::get_by_nonce($this->nonce)) {
+            $this->confirmed = true;
+            return;
+        }
         throw new TestWebhookFlowException(
             "No call to /webhook-test received for $this->slug at this time");
     }
@@ -268,13 +286,17 @@ class PublishController
 
     public /* not really */
     function on_REST_subscribe ($req) {
-        _Events::request_subscribe_received($this->subscribe_uri);
         $params = $req->get_params();
         $subscriber_id = $params["subscriber_id"];
         $callback_url  = $params["callback_url"];
+        _Events::request_subscribe_received($this->subscribe_uri, $subscriber_id, $callback_url);
+
+        if (! $callback_url) {
+            throw new RESTAPIError(400, "Cannot subscribe without a callback_url!");
+        }
 
         $sub = _Subscriber::overwrite($this->subscribe_uri, $subscriber_id, $callback_url);
-        $test_url = preg_replace('|/webhook([&?]|$)', '/webhook-test$1',
+        $test_url = preg_replace('_/webhook([&?]|$)_', '/webhook-test$1',
                                  $callback_url);
         if ($test_url != $callback_url) {
             $sub->attempt_post($test_url, array());
@@ -305,10 +327,10 @@ class PublishController
     }
 
     public function _do_forward ($event) {
-            foreach (_Subscriber::by_publisher_url($this->subscribe_uri)
+            foreach (_Subscriber::all_by_publisher_url($this->subscribe_uri)
                  as $sub) {
             if ($sub->has_seen($event)) continue;
-            $sub->attempt_post($sub->callback_url, $event->marshall());
+            $sub->attempt_post($sub->get_callback_url(), $event->marshall());
             _Events::forward_sent($this->subscribe_uri, $event);
         }
     }
@@ -332,54 +354,73 @@ class _Subscriber extends WPDBModel
 
     static function create_tables () {
         static::query("CREATE TABLE IF NOT EXISTS %T (
+  id INT4 NOT NULL PRIMARY KEY AUTO_INCREMENT,
   publisher_url VARCHAR(1024) NOT NULL,
   subscriber_id VARCHAR(1024),
   callback_url VARCHAR(1024),
-  last_failure DATETIME
+  last_attempt DATETIME,
+  failing_since DATETIME
 );");
     }
     // We never drop that table, even on plugin removal.
 
-    static public function overwrite ($publisher_url, $subscriber_id, $callback_url) {
-        $thisclass = get_called_class();
-        $that = new $thisclass();
-        $that->publisher_url = $publisher_url;
-        $that->subscriber_id = $subscriber_id;
-        $that->callback_url  = $callback_url;
+    protected function __construct ($id, $details) {
+        $this->ID = $id;
+        $details = static::_as_db_results($details);
+        assert($this->subscriber_id = $details->subscriber_id);
+        assert($this->publisher_url = $details->publisher_url);
+        assert($this->callback_url  = $details->callback_url);
+        if ($details->last_attempt) {
+            $this->last_attempt = $details->last_attempt;
+        }
+        if ($details->failing_since) {
+            $this->failing_since = $details->failing_since;
+        }
+    }
 
-        $that->_delete();
-        $that->query(
+    function get_last_attempt () {
+        return $this->last_attempt;
+    }
+
+    function get_failing_since () {
+        return $this->failing_since;
+    }
+
+    function get_callback_url () {
+        return $this->callback_url;
+    }
+
+    static public function overwrite ($publisher_url, $subscriber_id, $callback_url) {
+        static::query("DELETE FROM %T
+                      WHERE subscriber_id = %s AND publisher_url = %s",
+                     $subscriber_id, $publisher_url);
+        $thisclass = get_called_class();
+        $id = static::insert(
             "INSERT INTO %T (publisher_url, subscriber_id, callback_url)
              VALUES (%s, %s, %s)",
-            $this->publisher_url, $this->subscriber_id, $this->callback_url);
-
-        return $that;
+            $publisher_url, $subscriber_id, $callback_url);
+        return new $thisclass($id,
+            array(
+                'publisher_url' => $publisher_url,
+                'subscriber_id' => $subscriber_id,
+                'callback_url'  => $callback_url));
     }
 
-    protected function __construct () {}
-
-    private function _delete () {
-        $this->query("DELETE FROM %T
-                      WHERE subscriber_id = %s AND publisher_url = %s",
-                     $this->subscriber_id, $this->publisher_url);
-    }
-
-    static function by_slug ($slug) {
+    static function all_by_publisher_url ($publisher_url) {
         $thisclass = get_called_class();
         $objects = array();
-        foreach
-            (static::get_results( "SELECT slug, subscriber_id, callback_url,
-                                          UNIX_TIMESTAMP(last_failure)
-                                   FROM %t
-                                   WHERE slug = %s",
-                                  $slug)
-             as $line) {
-            $that = new $thisclass();
-            $that->subscriber_id  = $db_line->subscriber_id;
-            $that->slug         = $db_line->slug;
-            $that->callback_url = $db_line->callback_url;
-            $that->last_failure = $db_line->last_failure;
-            $objects[] = $that;
+        foreach (static::get_results(
+                "SELECT subscriber_id, callback_url,
+                 UNIX_TIMESTAMP(last_attempt), UNIX_TIMESTAMP(failing_since)
+                 FROM %t
+                 WHERE publisher_url = %s",
+                $url) as $line) {
+            $objects[] = new $thisclass(
+                $publisher_url,
+                $db_line->subscriber_id,
+                $db_line->callback_url,
+                ($db_line->last_attempt or NULL),
+                ($db_line->failing_since or NULL));
         }
         return $objects;
     }
@@ -397,30 +438,39 @@ class _Subscriber extends WPDBModel
             $this->mark_success();
         } catch (RESTClientError $e) {
             error_log($e);
-            $this->mark_error();
+            $this->mark_failure();
         }
     }
 
     public function mark_success () {
-        if (! $this->last_failure) return;
-        
+        $this->last_attempt = time();
+        $this->failing_since = NULL;
         $this->query(
-            "UPDATE %T SET last_failure = NULL
-                 WHERE subscriber_id = %s AND slug = %s",
-            $this->subscriber_id, $this->slug);
-        $this->last_failure = NULL;
+            "UPDATE %T SET last_attempt = FROM_UNIXTIME(%d),
+                           failing_since = NULL
+                 WHERE id = %d",
+            $this->last_attempt, $this->ID);
     }
 
-    public function mark_error () {
-        if (! $this->last_failure) {
-            $this->last_failure = time();
+    public function mark_failure () {
+        if (! $this->failing_since) {
+            $this->last_attempt = $this->failing_since = time();
             $this->query(
-                "UPDATE %T SET last_failure = FROM_UNIXTIME(%d)
-                 WHERE subscriber_id = %s AND slug = %s",
-                $this->last_failure, $this->subscriber_id, $this->slug);
-        } else if (time() - $this->last_failure
-                   > self::DEAD_SUBSCRIBER_TIMEOUT_SECS) {
-            $this->_delete();
+            "UPDATE %T SET failing_since = FROM_UNIXTIME(%d),
+                           last_attempt  = FROM_UNIXTIME(%d)
+                 WHERE id = %d",
+            $this->failing_since, $this->last_attempt, $this->ID);
+        } elseif (time() - $this->failing_since >
+                  self::DEAD_SUBSCRIBER_TIMEOUT_SECS) {
+            $this->query(
+                "DELETE FROM %T WHERE id = %d",
+                $this->ID);
+        } else {
+            $this->last_attempt = time();
+            $this->query(
+                "UPDATE %T SET last_attempt = FROM_UNIXTIME(%d)
+                 WHERE id = %d;",
+                $this->last_attempt, $this->ID);
         }
     }
 }
@@ -491,7 +541,7 @@ class _Events
 {
     static function request_webhook_received ($slug) {}
     static function request_webhook_successful ($slug) {}
-    static function request_subscribe_received ($slug) {}
+    static function request_subscribe_received ($slug, $subscriber_id, $callback_url) {}
     static function request_subscribe_successful ($slug) {}
     static function forward_sent ($slug, $event) {}
     static function action_initiate ($slug, $event) {}

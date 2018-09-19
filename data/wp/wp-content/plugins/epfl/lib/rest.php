@@ -17,6 +17,7 @@ use \Throwable;
 
 const _API_EPFL_PATH = 'epfl/v1';
 
+
 class RESTAPIError extends \Exception {
     function __construct($http_code, $payload) {
         if (is_string($payload)) {
@@ -27,7 +28,7 @@ class RESTAPIError extends \Exception {
         }
         $this->status = $http_code;
         $this->payload = $payload;
-        parent::__construct('' . $this->payload);
+        parent::__construct($this->payload['msg']);
     }
 }
 
@@ -70,27 +71,39 @@ class REST_API {
      *                  converted to JSON and served.
      */
     static function GET_JSON ($path, ...$callback) {
-        $class = get_called_class();
-        add_action('rest_api_init', function() use ($class, $path, $callback) {
-            register_rest_route(_API_EPFL_PATH, $path, array(
-                'methods' => 'GET',
-                'callback' => function($data) use ($class, $callback) {
-                    return $class::_call_and_APIfy($callback, $data);
-                }
-            ));
-        });
+        $thisclass = get_called_class();
+        static::_do_at_time(
+            'rest_api_init',
+            function() use ($thisclass, $path, $callback) {
+                register_rest_route(_API_EPFL_PATH, $path, array(
+                    'methods' => 'GET',
+                    'callback' => function($data) use ($thisclass, $callback) {
+                        return $thisclass::_call_and_APIfy($callback, $data);
+                    }
+                ));
+            });
     }
 
     static function POST_JSON ($path, ...$callback) {
-        $class = get_called_class();
-        add_action('rest_api_init', function() use ($class, $path, $callback) {
-            register_rest_route(_API_EPFL_PATH, $path, array(
-                'methods' => 'POST',
-                'callback' => function($data) use ($class, $callback) {
-                    return $class::_call_and_APIfy($callback, $data);
-                }
-            ));
-        });
+        $thisclass = get_called_class();
+        static::_do_at_time(
+            'rest_api_init',
+            function() use ($thisclass, $path, $callback) {
+                register_rest_route(_API_EPFL_PATH, $path, array(
+                    'methods' => 'POST',
+                    'callback' => function($data) use ($thisclass, $callback) {
+                        return $thisclass::_call_and_APIfy($callback, $data);
+                    }
+                ));
+            });
+    }
+
+    static private function _do_at_time ($action_name, $callable) {
+        if (did_action($action_name)) {
+            call_user_func($callable);
+        } else {
+            add_action($action_name, $callable);
+        }
     }
 
     /**
@@ -105,6 +118,7 @@ class REST_API {
 
             return call_user_func_array($cb, $params);
         } catch (Throwable $t) {  // Non-goal: PHP5 support
+            error_log($t);
             return get_called_class()::_serve_error($t);
         }
     }
@@ -149,6 +163,28 @@ class REST_API {
         return (false !== strpos($_SERVER['REQUEST_URI'],
                                  '/wp-json/' . _API_EPFL_PATH));
     }
+
+    /**
+     * @param $path The path to a local entry point, relative to the
+     *              REST root (similar to parameters to @link GET_JSON
+     *              or @link POST_JSON)
+     *
+     * @param $wrt_url (Optional) The URL of the expected caller of $path.
+     *                 If $wrt_url is a localhost URL, then the returned
+     *                 URL will be too.
+     *
+     * @return An instance of @link REST_URL that can be used to reach
+     *         that entry point
+     */
+    static function get_entrypoint_url ($path, $wrt_url = NULL) {
+        if ($wrt_url && 'localhost' === parse_url($wrt_url, PHP_URL_HOST)) {
+            return REST_URL::remote(
+                'https://localhost:8443' . parse_url(site_url(), PHP_URL_PATH),
+                $path);
+        } else {
+            return REST_URL::local_canonical($path);
+        }
+    }
 }
 
 REST_API::hook();
@@ -160,8 +196,17 @@ class RESTClientError extends \Exception
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($http_code === 0) {
             $curl_error = curl_error($ch);
-            $e = new RESTLocalError("$doingwhat $url: $curl_error");
+            $msg = "$doingwhat $url: $curl_error";
+            $curl_errno = curl_errno($ch);
+            if (FALSE !== array_search($curl_errno,
+                                       array(CURLE_SSL_CERTPROBLEM,
+                                             CURLE_SSL_CACERT))) {
+                $e = new RESTSSLError($msg);
+            } else {
+                $e = new RESTLocalError($msg);
+            }
             $e->curl_error = $curl_error;
+            $e->curl_errno = $curl_errno;
         } else {
             $e = new RESTRemoteError(
                 "$doingwhat $url: remote HTTP status code $http_code");
@@ -171,73 +216,78 @@ class RESTClientError extends \Exception
     }
 }
 
-class RESTLocalError extends RESTClientError {}
+class RESTLocalError  extends RESTClientError {}
+class RESTSSLError    extends RESTClientError {}
 class RESTRemoteError extends RESTClientError {}
 
 class RESTClient
 {
-    private function __construct ($url) {
+    private function __construct ($url, $method = 'GET') {
         if ($url instanceof REST_URL) {
             $url = $url->fully_qualified();
         }
         $this->url = $url;
-    }
-
-    private function get_curl () {
-        if (! $this->curl) {
-            $this->curl = curl_init($this->url);
-            curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($this->curl, CURLOPT_HTTPHEADER, array(
-                'Accept: application/json'));
-
-            curl_setopt($this->curl, CURLOPT_SSL_VERIFYPEER, TRUE);
-            // Accept the self-signed certificate for traffic on
-            // localhost (typically for the menu pubsub stuff)
-            curl_setopt($this->curl, CURLOPT_CAINFO, '/etc/apache2/ssl/server.cert');
-            if (preg_match('|^https://jahia2wp-httpd[:/]|', $this->url)) {
-                curl_setopt($this->curl, CURLOPT_SSL_VERIFYHOST, FALSE);
-            }
-
-            return $this->curl;
+        $this->method = $method;
+        $this->ch = curl_init($this->url);
+        curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
+        if ($method === 'POST') {
+            curl_setopt($this->ch, CURLOPT_POST, true);
         }
 
-        return $this->curl;
+        $this->headers = [];
+        $this->_add_headers('Accept: application/json');
+
+        if (preg_match('|^https?://localhost|', $this->url)) {
+            # Local traffic - Our cert is fake, deal with it
+            curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+            # As a special case for localhost, mess with the Host: header
+            # to prevent Apache from going all 404 on us.
+            $this->_add_headers('Host: ' . REST_URL::_my_hostport());
+        } else {
+            curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, TRUE);
+        }
     }
 
     function execute () {
-        $ch = $this->get_curl();
+        $result = curl_exec($this->ch);
 
-        $result = curl_exec($ch);
-
-        if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200) {
+        if (curl_getinfo($this->ch, CURLINFO_HTTP_CODE) == 200) {
             return HALJSON::decode($result);
         } else {
-            throw RESTClientError::build("GET", $this->url, $ch);
+            throw RESTClientError::build($this->method, $this->url, $this->ch);
         }
     }
 
     static function GET_JSON ($url) {
         $thisclass = get_called_class();
-        return (new $thisclass($url))->execute();
+        return (new $thisclass($url, 'GET'))->execute();
     }
 
-    function _setup_POST ($data) {
-        $ch = $this->get_curl();
-
-        $payload = is_string($data) ? $data : json_encode($data);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            'Content-Type: application/json',
-            'Content-Length: ' . strlen($payload)));
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-    }
 
     static function POST_JSON ($url, $data) {
         $thisclass = get_called_class();
-        $that = new $thisclass($url);
-        $that->_setup_POST($data);
-        return $that->execute();
+        return (new $thisclass($url, 'POST'))->_setup_POST($data)->execute();
+    }
+
+    function _setup_POST ($data) {
+        $payload = is_string($data) ? $data : json_encode($data);
+        $this->_add_headers(
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($payload));
+        curl_setopt($this->ch, CURLOPT_POSTFIELDS, $payload);
+        return $this;  // Chainable
+    }
+
+    /**
+     * Don't fall prey to https://stackoverflow.com/a/15134580/435004
+     */
+    private function _add_headers (...$headers) {
+        $this->headers = array_merge($this->headers, $headers);
+        curl_setopt($this->ch, CURLOPT_HTTPHEADER, $this->headers);
     }
 }
+
 
 /**
  * @example
@@ -270,24 +320,28 @@ class REST_URL
     }
 
     /**
-     * @return A REST_URL object rooted on whatever protocol,
-     * host and port the HTTP client is using
+     * @return A REST_URL object rooted on whatever protocol, host and
+     * port the HTTP client is using. Specifically, if
+     * $_SERVER["REMOTE_ADDR"] is a localhost address, return a URL
+     * based on localhost.
      */
     static function local_wrt_request ($path) {
-        $thisclass = get_called_class();
-        $site_url = site_url();
-        $site_path = parse_url($site_url, PHP_URL_PATH);
         if (! ($proto = $_SERVER['HTTP_X_FORWARDED_PROTO'])) {
             $proto = $_SERVER['HTTPS'] ? 'https' : 'http';
         }
-        if (! ($hostport = $_SERVER['HTTP_X_FORWARDED_HOST'])) {
+
+        if (static::_current_request_is_localhost()) {
+            $hostport = 'localhost:' . $_SERVER['SERVER_PORT'];
+        } elseif (! ($hostport = $_SERVER['HTTP_X_FORWARDED_HOST'])) {
             if (! ($hostport = $_SERVER['HTTP_HOST'])) {
-                $host = parse_url($site_url, PHP_URL_HOST);
-                $port = parse_url($site_url, PHP_URL_PORT);
-                $hostport = $port ? "$host:$port" : $host;
+                $hostport = static::_my_hostport();
             }
         }
-        return new $thisclass($path, "$proto://$hostport/$site_path");
+
+        $thisclass = get_called_class();
+        $site_url = site_url();
+        $site_path = parse_url($site_url, PHP_URL_PATH);
+        return new $thisclass($path, "$proto://$hostport$site_path");
     }
 
     static function remote ($site_base_url, $path_below_epfl_v1) {
@@ -307,6 +361,31 @@ class REST_URL
     function __toString () {
         return $this->fully_qualified();
     }
+
+    /**
+     * Utility function to get our own serving address in host:port
+     * notation.
+     *
+     * @return A string of the form $host or $host:$port, parsed out
+     *         of the return value of @link site_url
+     */
+    static function _my_hostport () {
+        $site_url = site_url();
+        $host = parse_url($site_url, PHP_URL_HOST);
+        $port = parse_url($site_url, PHP_URL_PORT);
+        return $port ? "$host:$port" : $host;
+    }
+
+    static private function _current_request_is_localhost () {
+        $remote_ip = $_SERVER['REMOTE_ADDR'];
+        if (0 === strpos($remote_ip, '127.')) {
+            return true;
+        } elseif ($remote_ip === "::1") {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
 
 
@@ -315,7 +394,7 @@ class REST_URL
  * @see http://stateless.co/hal_specification.html
  *
  * Even though the HAL standardization initiative appears to have
- * fizzled out, @link WP_REST_Server::embed_links provides for
+ * fizzled out, @link WP_REST_Server::add_link provides for
  * emitting it - One just has to parse it client-side, so there.
  */
 class HALJSON
@@ -328,7 +407,12 @@ class HALJSON
 
     static function decode ($json) {
         $thisclass = get_called_class();
-        return new $thisclass($json);
+        if (preg_match('/^\s*[{]/s', $json)) {
+            return new $thisclass($json);
+        } else {
+            # No point in HALJSON'ing an array
+            return json_decode($json);
+        }
     }
 
     /**
