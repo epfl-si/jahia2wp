@@ -30,6 +30,54 @@ class Shortcodes():
         registered = Utils.run_command("wp eval-file {} --path={}".format(php_script, site_path))
         return registered.split(",") if registered else []
 
+    def get_details(self, path, shortcode):
+        """
+        Locate all instance of given shortcode in a given path. Go through all WordPress installs and parse pages to
+        extract shortcode details
+        :param path: path where to start search
+        :param shortcode: shortcode name to look for
+        :return: Dict - Key is WP site URL and value is a list of all shorcode calls (with arguments) for the WP site.
+        """
+
+        regex = r'\[{}\s?.*?]'.format(shortcode)
+
+        shortcode_details = {}
+
+        for site_details in WPConfig.inventory(path):
+
+            if site_details.valid == settings.WP_SITE_INSTALL_OK:
+
+                logging.info("Checking %s...", site_details.url)
+
+                try:
+                    # Getting site posts
+                    post_ids = Utils.run_command("wp post list --post_type=page --format=csv --fields=ID "
+                                                 "--skip-plugins --skip-themes --path={}".format(site_details.path))
+
+                    if not post_ids:
+                        continue
+
+                    post_ids = post_ids.split('\n')[1:]
+
+                    # Looping through posts
+                    for post_id in post_ids:
+                        content = Utils.run_command("wp post get {} --field=post_content --skip-plugins --skip-themes "
+                                                    "--path={}".format(post_id, site_details.path))
+
+                        # Looking for given shortcode in current post
+                        for shortcode_with_args in re.findall(regex, content):
+
+                            if site_details.path not in shortcode_details:
+                                shortcode_details[site_details.path] = []
+
+                            shortcode_details[site_details.path].append(shortcode_with_args)
+
+                except Exception as e:
+                    logging.error("Error, skipping to next site: %s", str(e))
+                    pass
+
+        return shortcode_details
+
     def locate_existing(self, path):
         """
         Locate all existing shortcodes in a given path. Go through all WordPress installs and parse pages to extract
@@ -38,19 +86,11 @@ class Shortcodes():
         :return:
         """
 
-        all_sites = WPConfig.inventory(path)
-
-        logging.info("%s sites to analyze...", len(all_sites))
-
-        site_no = 0
-
-        for site_details in all_sites:
-
-            site_no += 1
-
-            logging.info("[%s/%s] Checking %s...", site_no, len(all_sites), site_details.url)
+        for site_details in WPConfig.inventory(path):
 
             if site_details.valid == settings.WP_SITE_INSTALL_OK:
+
+                logging.info("Checking %s...", site_details.url)
 
                 try:
 

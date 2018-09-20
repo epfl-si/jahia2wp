@@ -42,6 +42,8 @@ Usage:
   jahia2wp.py fan-global-sitemap    <csv_file> <wp_path>            [--debug | --quiet]
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
   jahia2wp.py shortcode-list        <path> [--out-csv=<out_csv>]    [--debug | --quiet]
+  jahia2wp.py shortcode-details     <path> <shortcode>              [--debug | --quiet]
+    [--out-csv=<out_csv>]
   jahia2wp.py shortcode-fix         <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py shortcode-fix-many    <csv_file>                      [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
@@ -860,6 +862,36 @@ def rotate_backup(csv_file, dry_run=False, **kwargs):
             ).rotate_backups(path)
 
 
+@dispatch.on('shortcode-details')
+def shortcode_details(path, shortcode, out_csv=None, **kwargs):
+    """
+    Go through websites present in 'path' and list all usages of a given shortcode
+    :param path: Path where to look for WP installs
+    :param shortcode: Shortcode to look for
+    :param out_csv: CSV file to save result
+    :param kwargs:
+    :return:
+    """
+    logging.info("Listing used shortcodes in path %s...", path)
+
+    shortcodes = Shortcodes()
+
+    details = shortcodes.get_details(path, shortcode)
+
+    # If CSV output is requested
+    if out_csv:
+        with open(out_csv, 'w') as out:
+            # Adding one line for each couple "shortcode", "website"
+            for url, shortcode_call_list in details.items():
+                for shortcode_call in shortcode_call_list:
+                    out.write("{},{}\n".format(url, shortcode_call))
+        logging.info("Output can be found in %s", out_csv)
+    else:
+
+        print(details)
+
+    logging.info("Shortcodes details done!")
+
 @dispatch.on('shortcode-list')
 def shortcode_list(path, out_csv=None, **kwargs):
     """
@@ -884,6 +916,7 @@ def shortcode_list(path, out_csv=None, **kwargs):
             for shortcode, url_list in shortcodes.list.items():
                 for url in url_list:
                     out.write("{},{}\n".format(shortcode, url))
+        logging.info("Output can be found in %s", out_csv)
     else:
 
         print(shortcodes.list)
