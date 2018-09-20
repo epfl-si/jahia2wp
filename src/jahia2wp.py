@@ -882,9 +882,9 @@ def shortcode_details(path, shortcode, out_csv=None, **kwargs):
     if out_csv:
         with open(out_csv, 'w') as out:
             # Adding one line for each couple "shortcode", "website"
-            for url, shortcode_call_list in details.items():
+            for site_path, shortcode_call_list in details.items():
                 for shortcode_call in shortcode_call_list:
-                    out.write("{},{}\n".format(url, shortcode_call))
+                    out.write("{},{}\n".format(site_path, shortcode_call))
         logging.info("Output can be found in %s", out_csv)
     else:
 
@@ -913,9 +913,9 @@ def shortcode_list(path, out_csv=None, **kwargs):
     if out_csv:
         with open(out_csv, 'w') as out:
             # Adding one line for each couple "shortcode", "website"
-            for shortcode, url_list in shortcodes.list.items():
-                for url in url_list:
-                    out.write("{},{}\n".format(shortcode, url))
+            for shortcode, site_path_list in shortcodes.list.items():
+                for site_path in site_path_list:
+                    out.write("{},{}\n".format(shortcode, site_path))
         logging.info("Output can be found in %s", out_csv)
     else:
 
