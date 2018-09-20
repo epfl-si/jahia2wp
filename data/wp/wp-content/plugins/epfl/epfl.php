@@ -17,6 +17,7 @@ require_once 'shortcodes/epfl-video/epfl-video.php';
 require_once 'shortcodes/epfl-map/epfl-map.php';
 require_once 'shortcodes/epfl-infoscience-search/epfl-infoscience-search.php';
 require_once 'shortcodes/epfl-scheduler/epfl-scheduler.php';
+require_once 'shortcodes/epfl-xml/epfl-xml.php';
 
 // load .mo file for translation
 function epfl_load_plugin_textdomain() {
