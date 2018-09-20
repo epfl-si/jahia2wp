@@ -892,6 +892,7 @@ def shortcode_details(path, shortcode, out_csv=None, **kwargs):
 
     logging.info("Shortcodes details done!")
 
+
 @dispatch.on('shortcode-list')
 def shortcode_list(path, out_csv=None, **kwargs):
     """
