@@ -914,6 +914,10 @@ ul.bottin {
   }
 }
 
+.peopleListBox .button.mail {
+  float: left;
+}
+
 .bottin.default-list .pers {
   @include clearfix;
   border-bottom: 1px solid #aaaaaa;
