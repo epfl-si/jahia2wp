@@ -161,7 +161,7 @@ function epfl_memento_2018_process_shortcode($atts = [], $content = '', $tag = '
         $template,
         $category,
         $keyword,
-        $period,
+        $period
     );
     $events = Utils::get_items($url);
 
