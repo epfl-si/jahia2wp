@@ -787,13 +787,10 @@ div.button {
 
 ul.bottin {
   list-style: none;
+  padding: 0;
   
   li {
     padding-left: 0;
-    
-    &:before {
-      display: none;
-    }
   }
 }
 
@@ -1595,10 +1592,6 @@ img.pdf-icon {
   
   .icon-arrow-bottom-right {
     display: inline-block;
-    
-    &:before {
-      display: none;
-    }
     
     &:after {
       @include icon;
@@ -3200,12 +3193,9 @@ img.pdf-icon {
   
   .rss_item {
     border-bottom: 1px dotted #000;
+    list-style: none;
     margin: 0 0 15px !important;
     padding: 0 0 15px !important;
-    
-    &:before {
-      display: none;
-    }
     
     .rss_image {
       display: none;
