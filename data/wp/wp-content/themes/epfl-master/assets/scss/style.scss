@@ -3478,8 +3478,8 @@ img.pdf-icon {
     
     .box {
       
-      &:nth-child(2n+1) {
-        clear: left;
+      &:nth-of-type(2n+1) {
+        //clear: left;
       }
     }
   }
