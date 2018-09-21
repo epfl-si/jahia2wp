@@ -540,7 +540,13 @@ class Box:
             rss_url = ""
             rss_title = ""
 
-        content = '[{} channel="{}" lang="{}" template="{}" '.format(
+        content = ""
+
+        # Title is only for boxes in pages
+        if not self.is_in_sidebar():
+            content += '<h3>{}</h3>'.format(self.title)
+
+        content += '[{} channel="{}" lang="{}" template="{}" '.format(
             self.shortcode_name,
             channel_id,
             lang,
@@ -555,9 +561,6 @@ class Box:
         if projects:
             content += 'projects="{}" '.format(",".join(projects))
 
-        # Title is only for boxes in pages
-        if not self.is_in_sidebar():
-            content += 'title="{}" '.format(self.title)
         content += '/]'
 
         # If we have a <moreUrl> or <rssUrl> element
