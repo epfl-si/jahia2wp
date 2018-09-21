@@ -1,14 +1,12 @@
 .infoscience_header1 {
-	font-family: "Arial Black", Arial, Helvetica, sans-serif;
-  font-weight: bold;
-  font-size: 27px;
+	font-family: "Arial Black",Arial,Helvetica,sans-serif;
+  font-weight: 700;
   color: #000;
-  letter-spacing: 0;
-  line-height: 38px;
-  padding-top: 0;
-  margin-top: 0;
-  text-transform: none;
-  margin-bottom: 20px;
+  font-size: 18px;
+  letter-spacing: 1px;
+  line-height: 22px;
+  margin-bottom: 8px;
+  margin-top: 15px;
 }
 
 .infoscience_header2 {
@@ -21,7 +19,7 @@
   line-height: 19px;
   padding-left: 8px;
   padding-bottom: 1px;
-  background-color: #F5F5F5;
+  background: url(../images/bg-lines.png);
 }
 
 .infoscience_record {
