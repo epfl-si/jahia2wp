@@ -967,6 +967,10 @@ ul.bottin {
   margin-left: 0px;
   margin-bottom: 5px;
   width: 320px;
+  
+  .picture img {
+    max-width: none;
+  }
 }
 
 // Photo box
