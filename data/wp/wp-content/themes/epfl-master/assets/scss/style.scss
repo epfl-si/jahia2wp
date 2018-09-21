@@ -918,6 +918,10 @@ ul.bottin {
   float: left;
 }
 
+.peopleListBox h3 {
+  margin-bottom: 4px;
+}
+
 .bottin.default-list .pers {
   @include clearfix;
   border-bottom: 1px solid #aaaaaa;
