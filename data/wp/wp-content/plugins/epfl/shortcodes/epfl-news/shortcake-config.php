@@ -37,14 +37,6 @@ Class ShortCakeNewsConfig
         );
     }
 
-    private static function get_stickers_options() 
-    {
-        return array(
-            array('value' => 'no', 'label' => esc_html__('No', 'epfl')),
-            array('value' => 'yes', 'label' => esc_html__('Yes', 'epfl')),
-        );
-    }
-
     private static function get_category_options() 
     {
         return array(
@@ -153,14 +145,6 @@ Class ShortCakeNewsConfig
                             'options'       => ShortCakeNewsConfig::get_lang_options(),
                             'description'   => esc_html__('The language used to render news results', 'epfl'),
                             'value'         => 'en',
-                        ),
-                        array(
-                            'label'         => '<h3>' . esc_html__('Display the news category ?', 'epfl') . '</h3>',
-                            'attr'          => 'stickers',
-                            'type'          => 'radio',
-                            'options'       => ShortCakeNewsConfig::get_stickers_options(),
-                            'description'   => esc_html__('Do you want display the news category at the top right of the news image?', 'epfl'),
-                            'value'         => 'no',
                         ),
                         array(
                             'label'         => '<h3>' . esc_html__('Filter news by category', 'epfl') . '</h3>',

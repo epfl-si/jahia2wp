@@ -129,7 +129,6 @@ function epfl_news_2018_process_shortcode($atts = [], $content = '', $tag = '') 
                 'template'      => '',
                 'nb_news'       => '',
                 'all_news_link' => '',
-                'stickers'      => '',
                 'category'      => '',
                 'themes'        => '',
                 'projects'      => '',
@@ -142,7 +141,6 @@ function epfl_news_2018_process_shortcode($atts = [], $content = '', $tag = '') 
         $template      = sanitize_text_field( $atts['template'] );
         $all_news_link = sanitize_text_field( $atts['all_news_link']);
         $nb_news       = sanitize_text_field( $atts['nb_news'] );
-        $stickers      = sanitize_text_field( $atts['stickers'] );
         $category      = sanitize_text_field( $atts['category'] );
         $themes        = sanitize_text_field( $atts['themes'] );
         $projects      = sanitize_text_field( $atts['projects'] );
@@ -151,9 +149,6 @@ function epfl_news_2018_process_shortcode($atts = [], $content = '', $tag = '') 
         if (epfl_news_check_required_parameters($channel, $lang) == FALSE) {
             return Utils::render_user_msg("News shortcode: Please check required parameters");
         }
-
-        // display stickers on images ?
-        $stickers = ($stickers == 'yes');
 
         // iframe template
         if ($template === "10") {
@@ -179,7 +174,7 @@ function epfl_news_2018_process_shortcode($atts = [], $content = '', $tag = '') 
 
             try {
 
-               do_action("epfl_news_action", $title, $actus, $template, $stickers, $all_news_link);
+               do_action("epfl_news_action", $title, $actus, $template, $all_news_link);
 
                return ob_get_contents();
 
