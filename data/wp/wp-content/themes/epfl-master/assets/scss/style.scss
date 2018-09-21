@@ -2286,7 +2286,8 @@ img.pdf-icon {
   
   .label {
     display: inline-block;
-    font: italic .75em Georgia, 'Times New Roman', Times, serif;
+    font: italic 11px Georgia, 'Times New Roman', Times, serif;
+    letter-spacing: 1px;
     margin: 0 .5em 0 0;
     position: relative;
     top: 1px;
