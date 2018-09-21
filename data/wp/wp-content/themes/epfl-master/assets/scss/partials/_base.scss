@@ -326,6 +326,7 @@ b, strong {
 
 abbr,
 acronym {
+  @include color-text;
   border: none;
   text-decoration: none;
 }
