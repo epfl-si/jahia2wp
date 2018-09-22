@@ -174,7 +174,7 @@ function epfl_news_2018_process_shortcode($atts = [], $content = '', $tag = '') 
 
             try {
 
-               do_action("epfl_news_action", $title, $actus, $template, $all_news_link);
+               do_action("epfl_news_action", $actus, $template, $all_news_link);
 
                return ob_get_contents();
 
