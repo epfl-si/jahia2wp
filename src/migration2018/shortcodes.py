@@ -265,6 +265,32 @@ class Shortcodes():
 
         return content
 
+    def __get_attribute_value(self, shortcode_call, attr_name):
+        """
+        Return attribute value (or empty string if not found) for a given shortcode call
+        :param shortcode_call: String with shortcode call: [my_shortcode attr="1"]
+        :param attr_name: Attribute name for which we want the value
+        :return:
+        """
+        matching_reg = re.compile('{}=(".+?"|\S+?)'.format(attr_name),
+                                  re.VERBOSE)
+
+        value = matching_reg.findall(shortcode_call)
+        # We remouve surrounding " if exists.
+        return value[0].strip('"') if value else ""
+
+    def __get_all_shortcode_calls(self, content, shortcode_name):
+        """
+        Look for all calls for a given shortcode in given content
+        :param content:
+        :param shortcode_name:
+        :return:
+        """
+
+        matching_reg = re.compile('\[{} .*?\]'.format(shortcode_name), re.VERBOSE)
+
+        return matching_reg.findall(content)
+
     def _fix_su_youtube(self, content):
         """
         Fix "su_youtube" from Shortcode ultimate plugin
@@ -278,6 +304,48 @@ class Shortcodes():
         content = self.__remove_attribute(content, old_shortcode, 'height')
         content = self.__remove_attribute(content, old_shortcode, 'width')
         content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
+        return content
+
+    def _fix_epfl_people(self, content):
+        """
+        Fix all epfl_people shortcodes in content
+        :param content:
+        :return:
+        """
+
+        old_shortcode = 'epfl_people'
+        new_shortcode = 'epfl_people_2018'
+
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, old_shortcode)
+
+        for call in calls:
+            new_call = call
+
+            # Extracing URL in which parameters we are looking for are
+            api_url = self.__get_attribute_value(call, 'url')
+
+            # Trying to find a 'scipers' parameter
+            scipers = Utils.get_parameter_from_url(api_url, 'scipers')
+
+            if scipers:
+                new_call = self.__add_attribute(new_call, old_shortcode, 'scipers', scipers)
+
+            # Trying to find a 'unit' parameter
+            unit = Utils.get_parameter_from_url(api_url, 'unit')
+
+            if unit:
+                new_call = self.__add_attribute(new_call, old_shortcode, 'unit', unit)
+
+            # remove old attribute
+            new_call = self.__remove_attribute(new_call, old_shortcode, 'url')
+
+            # Renaming shortcode
+            new_call = self.__rename_shortcode(new_call, old_shortcode, new_shortcode)
+
+            # Replacing in global content
+            content = content.replace(call, new_call)
+
         return content
 
     def fix_site(self, openshift_env, wp_site_url):
