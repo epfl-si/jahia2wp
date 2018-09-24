@@ -15,7 +15,7 @@ import re
 import requests
 
 
-from urllib.parse import urlsplit
+from urllib import parse
 from bs4 import BeautifulSoup
 
 
@@ -349,7 +349,7 @@ class Utils(object):
         """
         Return the domain name of url parameter
         """
-        return urlsplit(url)[1].split(':')[0]
+        return parse.urlsplit(url)[1].split(':')[0]
 
     @staticmethod
     def insert_in_htaccess(site_root_path, marker, insertion, at_beginning=False):
@@ -497,3 +497,9 @@ class Utils(object):
     @staticmethod
     def escape_quotes(str):
         return str.replace('"', '\\"')
+
+    @staticmethod
+    def get_parameter_from_url(url, param):
+        query = parse.parse_qs(parse.urlsplit(url).query)
+
+        return query[param][0] if param in query else ""
