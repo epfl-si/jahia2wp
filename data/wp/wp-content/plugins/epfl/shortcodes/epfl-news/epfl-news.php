@@ -132,7 +132,6 @@ function epfl_news_2018_process_shortcode($atts = [], $content = '', $tag = '') 
                 'category'      => '',
                 'themes'        => '',
                 'projects'      => '',
-                'title'         => '',
         ), $atts, $tag);
 
         // sanitize parameters
@@ -144,15 +143,9 @@ function epfl_news_2018_process_shortcode($atts = [], $content = '', $tag = '') 
         $category      = sanitize_text_field( $atts['category'] );
         $themes        = sanitize_text_field( $atts['themes'] );
         $projects      = sanitize_text_field( $atts['projects'] );
-        $title         = sanitize_text_field( $atts['title'] );
 
         if (epfl_news_check_required_parameters($channel, $lang) == FALSE) {
             return Utils::render_user_msg("News shortcode: Please check required parameters");
-        }
-
-        // iframe template
-        if ($template === "10") {
-            return Render::epfl_news_built_html_pagination_template($title, $channel, $lang);
         }
 
         $url = epfl_news_build_api_url(
@@ -189,9 +182,6 @@ function epfl_news_2018_process_shortcode($atts = [], $content = '', $tag = '') 
             return 'You must activate the epfl theme';
         }
     }
-
-
-
 
 add_action( 'register_shortcode_ui', ['ShortCakeNewsConfig', 'config'] );
 
