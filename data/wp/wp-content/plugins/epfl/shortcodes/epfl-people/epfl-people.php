@@ -11,10 +11,12 @@
 require_once 'shortcake-config.php';
 
 /**
- * Return true if $person_a > $person_b.
+ * Return int > 0 if $person_a->nom > $person_b->nom.
  */
-function epfl_people_person_compare($person_a, $person_b):bool {
-  return strcmp($person_a->nom, $person_b->nom);
+function epfl_people_person_compare($person_a, $person_b) {
+
+  // normalize replace accents
+  return strnatcmp(Utils::normalize($person_a->nom), Utils::normalize($person_b->nom));
 }
 
 /**
