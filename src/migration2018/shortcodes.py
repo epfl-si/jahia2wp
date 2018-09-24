@@ -98,38 +98,42 @@ class Shortcodes():
                     post_ids = Utils.run_command("wp post list --post_type=page --format=csv --fields=ID "
                                                  "--skip-plugins --skip-themes --path={}".format(site_details.path))
 
-                    # Getting list of registered shortcodes to be sure to list only registered and not all strings
-                    # written between [ ]
-                    registered_shortcodes = self._get_site_registered_shortcodes(site_details.path)
+                except Exception as e:
+                    logging.error("Error getting page list, skipping to next site: %s", str(e))
+                    continue
 
-                    if not post_ids:
-                        continue
+                # Getting list of registered shortcodes to be sure to list only registered and not all strings
+                # written between [ ]
+                registered_shortcodes = self._get_site_registered_shortcodes(site_details.path)
 
-                    post_ids = post_ids.split('\n')[1:]
+                if not post_ids:
+                    continue
 
-                    logging.debug("%s pages to analyze...", len(post_ids))
+                post_ids = post_ids.split('\n')[1:]
 
-                    # Looping through posts
-                    for post_id in post_ids:
+                logging.debug("%s pages to analyze...", len(post_ids))
+
+                # Looping through posts
+                for post_id in post_ids:
+                    try:
                         content = Utils.run_command("wp post get {} --field=post_content --skip-plugins --skip-themes "
                                                     "--path={}".format(post_id, site_details.path))
+                    except Exception as e:
+                        logging.error("Error getting page, skipping to next page: %s", str(e))
+                        continue
 
-                        # Looking for all shortcodes in current post
-                        for shortcode in re.findall(self.regex, content):
+                    # Looking for all shortcodes in current post
+                    for shortcode in re.findall(self.regex, content):
 
-                            # This is not a registered shortcode
-                            if shortcode not in registered_shortcodes:
-                                continue
+                        # This is not a registered shortcode
+                        if shortcode not in registered_shortcodes:
+                            continue
 
-                            if shortcode not in self.list:
-                                self.list[shortcode] = []
+                        if shortcode not in self.list:
+                            self.list[shortcode] = []
 
-                            if site_details.path not in self.list[shortcode]:
-                                self.list[shortcode].append(site_details.path)
-
-                except Exception as e:
-                    logging.error("Error, skipping to next site: %s", str(e))
-                    pass
+                        if site_details.path not in self.list[shortcode]:
+                            self.list[shortcode].append(site_details.path)
 
     def __rename_shortcode(self, content, old_name, new_name):
         """
