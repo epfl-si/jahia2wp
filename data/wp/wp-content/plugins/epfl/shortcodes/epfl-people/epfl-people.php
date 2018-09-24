@@ -11,32 +11,56 @@
 require_once 'shortcake-config.php';
 
 /**
+ * Return true if $person_a > $person_b.
+ */
+function epfl_people_person_compare($person_a, $person_b):bool {
+  return strcmp($person_a->nom, $person_b->nom);
+}
+
+/**
  * Process the shortcode
  */
 function epfl_people_2018_process_shortcode( $attributes, $content = null )
 {
   $attributes = shortcode_atts( array(
-       'unit' => ''
+       'units'   => '',
+       'scipers' => '',
     ), $attributes );
 
    // sanitize the parameters
-  $unit = sanitize_text_field( $attributes['unit'] );
+  $units   = sanitize_text_field( $attributes['units'] );
+  $scipers = sanitize_text_field( $attributes['scipers'] );
+
+  if ("" === $units and "" === $scipers) {
+    return Utils::render_user_msg("People shortcode: Please check required parameters");
+  }
+
+  ("" !== $units) ? $parameter['units'] = $units : $parameter['scipers'] = $scipers;
 
   // the web service we use to retrieve the data
-  // TODO use production URL when it's ready with token (ask Ion)
-  $url = "https://test-people.epfl.ch/cgi-bin/wsgetpeople/?units=" . $unit;
+  $url = "https://test-people.epfl.ch/cgi-bin/wsgetpeople/";
+  $url = add_query_arg($parameter, $url);
 
   // retrieve the data in JSON
   $items = Utils::get_items($url);
+
+  // Create a persons list
+  $persons = [];
+  foreach ($items as $item) {
+    $persons[] = $item;
+  }
+
+  // Sort persons list alphabetically
+  usort($persons, 'epfl_people_person_compare');
 
   // if supported delegate the rendering to the theme
   if (has_action("epfl_people_action"))
   {
     ob_start();
-   	
+
     try
     {
-      do_action("epfl_people_action", $items, $unit);
+      do_action("epfl_people_action", $persons);
    		
       return ob_get_contents();
     }

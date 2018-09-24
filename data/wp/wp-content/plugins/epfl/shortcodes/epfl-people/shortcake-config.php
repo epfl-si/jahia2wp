@@ -12,16 +12,23 @@ Class ShortCakePeopleConfig
       'epfl_people_2018',
       array
       (
-        'label' => 'People',
+        'label'         => 'People',
         'listItemImage' => '<img src="' . plugins_url( 'img/people.svg', __FILE__ ) . '" >',
-        'attrs' => array
+        'attrs'         => array
         (
           array
           (
-            'label'         => '<h3>' . esc_html__('Unit', 'epfl') . '</h3>',
-            'attr'          => 'unit',
+            'label'         => '<h3>' . esc_html__('Units', 'epfl') . '</h3>',
+            'attr'          => 'units',
             'type'          => 'text',
-            'description'   => '',
+            'description'   => 'You can enter many units separated by a comma',
+          ),
+          array
+          (
+            'label'         => '<h3>' . esc_html__('Scipers', 'epfl') . '</h3>',
+            'attr'          => 'scipers',
+            'type'          => 'text',
+            'description'   => 'You can enter many scipers separated by a comma',
           ),
         ),
         'post_type' => array( 'post', 'page' ),
