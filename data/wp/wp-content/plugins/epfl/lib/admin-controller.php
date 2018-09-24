@@ -204,6 +204,9 @@ abstract class CustomPostTypeController extends Controller
     /**
      * Add or mutate a column in the WP_List_Table list view in wp-admin
      *
+     * By default, the class method "render_${slug}_column" will be called
+     * to render the contents of the column.
+     *
      * @return an instance of @link _CustomPostTypeControllerColumn
      */
     static function column ($slug) {
@@ -225,15 +228,15 @@ abstract class CustomPostTypeController extends Controller
      */
     static function add_thumbnail_column ()
     {
-        static::column("thumbnail")
-            ->set_title(___( 'Thumbnail' ))
-            // Use of static::render_thumbnail_column() is the default
-            ->add_css("
+        static::add_editor_css('
 td.column-thumbnail img {
     max-width: 100%;
     height: auto;
 }
-")
+');
+        return static::column("thumbnail")
+            ->set_title(___( 'Thumbnail' ))
+            // Use of static::render_thumbnail_column() is the default
             ->hook_after(1);
     }
 
@@ -400,6 +403,11 @@ td.column-thumbnail img {
 
 /**
  * A custom column in the WP_List_Table view
+ *
+ * By default, the class method "render_${slug}_column" will be called
+ * to render the contents of the column; but this can be changed by
+ * invoking @link set_renderer. (In both cases, the callback argument
+ * is the instance of the model class to render the column for.)
  */
 class _CustomPostTypeControllerColumn
 {
@@ -425,7 +433,8 @@ class _CustomPostTypeControllerColumn
 
     function add_css ($css)
     {
-        $this->css .= $css;
+        // For compatibility with epfl-ws
+        $this->owner_controller->add_editor_css($css);
         return $this;
     }
 
@@ -441,10 +450,19 @@ class _CustomPostTypeControllerColumn
         return $this;
     }
 
-    function hook_after ($after)
+    function insert_after ($after) {
+        $this->insert_after = $after;
+        return $this;
+    }
+
+    function hook_after ($after) {
+        // For compatibility with epfl-ws
+        return $this->insert_after($after)->hook();
+    }
+
+    function hook ()
     {
         $post_type = $this->get_post_type();
-        $this->insert_after = $after;
         add_action(
             sprintf('manage_%s_posts_columns', $post_type),
             array($this, '_filter_posts_columns'));
@@ -453,8 +471,6 @@ class _CustomPostTypeControllerColumn
             sprintf('manage_%s_posts_custom_column', $post_type),
             array($this, '_filter_manage_custom_column'),
             10, 2);
-
-        add_action('admin_head', array($this, '_render_css'));
 
         // Sorting
         add_action('pre_get_posts', array($this, '_action_pre_get_posts'));
@@ -479,7 +495,25 @@ class _CustomPostTypeControllerColumn
 
     function _filter_posts_columns ($columns)
     {
-        if (is_int($this->insert_after)) {
+        if (method_exists('WP_Posts_List_Table', 'column_' . $this->slug)) {
+            // We can override a built-in column, but we have to
+            // put it under another slug in order to fool
+            // WP_List_Table's method dispatch technique.
+            $newcolumns = array();
+            foreach ($columns as $col_slug => $descr) {
+                if ($col_slug === $this->slug) {
+                    // @link _filter_manage_custom_column is aware; also,
+                    // it just so happens that "column-$col_slug" will
+                    // still be part of the class= markup computed by
+                    // WP_List_Table::single_row_columns ☺
+                    $evading_slug = "epfl-overridden column-$col_slug";
+                    $newcolumns[$evading_slug] = $this->title;
+                } else {
+                    $newcolumns[$col_slug] = $descr;
+                }
+            }
+            return $newcolumns;
+        } elseif (is_int($this->insert_after)) {
             // https://stackoverflow.com/a/3354804/435004
             $newcolumns = array_merge(
                 array_slice($columns, 0, $this->insert_after, true),
@@ -503,6 +537,8 @@ class _CustomPostTypeControllerColumn
 
     function _filter_manage_custom_column ($column, $post_id)
     {
+        // See $evading_slug in @link _filter_posts_columns
+        $column = preg_replace('/^epfl-overridden column-/', '', $column);
         if ($column !== $this->slug) return;
 
         $model_class = $this->get_model_class();
@@ -533,12 +569,5 @@ class _CustomPostTypeControllerColumn
         // by something other than a meta_key.
         $query->set('orderby', 'meta_value');
         $query->set('meta_key', $this->sort_opts['meta_key']);
-    }
-
-    function _render_css ()
-    {
-        if (! $this->css) return;
-        echo '<style>' . $this->css . '</style>';
-        $this->css = null;
     }
 }

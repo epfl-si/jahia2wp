@@ -242,24 +242,27 @@ class _PostMeta {
     }
 
     function __call ($name, $arguments) {
-        if (substr($name, 0, 4) === "get_") {
-            $is_get = true;
-        } elseif (substr($name, 0, 4) === "set_") {
-            $is_get = false;
-        } else {
+        $cmd = substr($name, 0, 3);
+        $stem = substr($name, 4);
+        $meta_name = $this->_meta_accessors[$stem];
+        if (! $meta_name) {
             throw new Exception(
                 sprintf('Fatal error: Call to undefined method %s::%s',
                         $this->_owner_class, $name));
         }
 
-        $stem = substr($name, 4);
-        $meta_name = $this->_meta_accessors[$stem];
-
-        if ($is_get) {
+        if ($cmd === 'get') {
             return get_post_meta($this->_post_id, $meta_name, true);
-        } else {
+        } elseif ($cmd === 'set') {
             $this->_update_meta_auto_fields();
             return update_post_meta($this->_post_id, $meta_name, $arguments[0]);
+        } elseif (substr($name, 0, 4) === 'del_') {
+            $this->_update_meta_auto_fields();
+            return delete_post_meta($this->_post_id, $meta_name);
+        } else {
+            throw new Exception(
+                sprintf('Fatal error: Call to undefined method %s::%s',
+                        $this->_owner_class, $name));
         }
     }
 

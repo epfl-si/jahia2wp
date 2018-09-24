@@ -39,6 +39,7 @@ use \EPFL\AdminController\CustomPostTypeController;
 require_once(dirname(__DIR__) . '/lib/pubsub.php');
 use \EPFL\Pubsub\PublishController;
 use \EPFL\Pubsub\SubscribeController;
+use \EPFL\Pubsub\TestWebhookFlowException;
 
 require_once(dirname(__DIR__) . '/lib/i18n.php');
 use function EPFL\I18N\___;
@@ -142,10 +143,12 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
     // For ->meta()->{get_,set_}foo():
     const META_ACCESSORS = array(
         // {get_,set_} suffix => in-database post meta name ("-emi-" stands for "external menu item")
-        'rest_url'            => 'epfl-emi-rest-api-url',
-        'rest_subscribe_url'  => 'epfl-emi-rest-api-subscribe-url',
-        'remote_slug'         => 'epfl-emi-remote-slug',
-        'items_json'          => 'epfl-emi-remote-contents-json'
+        'rest_url'             => 'epfl-emi-rest-api-url',
+        'rest_subscribe_url'   => 'epfl-emi-rest-api-subscribe-url',
+        'remote_slug'          => 'epfl-emi-remote-slug',
+        'items_json'           => 'epfl-emi-remote-contents-json',
+        'last_synced'          => 'epfl-emi-last-synced-epoch',
+        'sync_started_failing' => 'epfl-emi-sync-started-failing-epoch',
     );
 
     static function get_post_type () {
@@ -257,6 +260,21 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
         $this->_refreshed = true;
     }
 
+    function try_refresh () {
+        if ($this->_refreshed) return;  // Not twice in same query cycle
+        try {
+            $this->refresh();
+            $this->meta()->set_last_synced(time());
+            $this->meta()->del_sync_started_failing();
+            return true;
+        } catch (RESTClientError $e) {
+            $this->error_log("unable to refresh: $e");
+            if (! $this->meta()->get_sync_started_failing()) {
+                $this->meta()->set_sync_started_failing(time());
+            }
+        }
+    }
+
     function set_remote_menu_items ($struct) {
         $this->meta()->set_items_json(json_encode($struct));
     }
@@ -267,6 +285,32 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
 
     function get_subscribe_url () {
         return $this->meta()->get_rest_subscribe_url();
+    }
+
+    function render_sync_status () {
+        if ($failing_epoch = $this->meta()->get_sync_started_failing()) {
+            printf('<span class="epfl-menus-sync-failing">%s</span>',
+                   sprintf(___('Failing for %s'),
+                           human_time_diff($failing_epoch)));
+            $echoed_something = 1;
+        }
+        if ($success_epoch = $this->meta()->get_last_synced()) {
+            printf('Last sync success: %s ago',
+                   human_time_diff($success_epoch));
+            $echoed_something = 1;
+        }
+        if (! $echoed_something) {
+            $html = ___('Never synced yet');
+        }
+        return $html;
+    }
+
+    function is_failing () {
+        return !! $this->meta()->get_sync_started_failing();
+    }
+
+    function has_succeeded () {
+        return !! $this->meta()->get_last_synced();
     }
 }
 
@@ -426,6 +470,8 @@ class MenuItemController extends CustomPostTypeController
 
         static::hook_refresh_button();
 
+        static::hook_admin_list();
+
         static::_auto_fields_controller()->hook();
     }
 
@@ -529,13 +575,11 @@ class MenuItemController extends CustomPostTypeController
         $errors = 0;
         $all = ExternalMenuItem::all();
         foreach ($all as $external_menu_item) {
-            try {
-                $external_menu_item->refresh();
-            } catch (RESTClientError $e) {
-                $external_menu_item->error_log("unable to refresh: $e");
+            if (! $external_menu_item->try_refresh()) {
                 $errors++;
                 continue;
             }
+
             $subscribe_url = $external_menu_item->get_subscribe_url();
             if (! $subscribe_url) {
                 $external_menu_item->error_log("has no subscribe URL");
@@ -544,12 +588,13 @@ class MenuItemController extends CustomPostTypeController
             try {
                 static::_get_subscribe_controller($external_menu_item)->
                     subscribe($subscribe_url);
-            } catch (RESTClientError $e) {
+            } catch (RESTClientError | TestWebhookFlowException $e) {
                 $external_menu_item->error_log(
                     "Unable to subscribe at $subscribe_url: $e");
                 $errors++;
             }
         }
+
         if (! $errors) {
             static::admin_notice(___('Refresh successful'));
         } else {
@@ -607,6 +652,46 @@ class MenuItemController extends CustomPostTypeController
         require_once(dirname(__DIR__) . '/lib/auto-fields.php');
         return new \EPFL\AutoFields\AutoFieldsController(
             ExternalMenuItem::class);
+    }
+
+    static function hook_admin_list () {
+        // Rendered by render_date_column method, below
+        static::column('date')->set_title(___('Synced'))->hook();
+
+        add_filter('post_class',
+                   array(get_called_class(), '_filter_post_class'),
+                   10, 4);
+
+        $yellow = 'rgba(248, 247, 202, 0.45)';
+        $stripesize = '20px'; $stripesize2x = '40px';
+        static::add_editor_css("
+.wp-list-table tr.sync-failed {
+  background-image: repeating-linear-gradient(-45deg,$yellow,$yellow $stripesize,transparent $stripesize,transparent $stripesize2x);
+}
+");
+    }
+
+    static function render_date_column ($external_menu_item) {
+        $external_menu_item->render_sync_status();
+    }
+
+    /**
+     * Filter function for the @link post_class filter
+     *
+     * Add CSS classes to the <tr> element to indicate success /
+     * failure state of the last sync.
+     */
+    static function _filter_post_class ($classes_orig, $class, $post_id) {
+        $post = ExternalMenuItem::get($post_id);
+        if (! $post) return $classes_orig;
+
+        $classes = $classes_orig;
+        if ($post->is_failing()) {
+            $classes[] = 'sync-failed';
+        } elseif ($post->has_succeeded()) {
+              $classes[] = 'sync-success';
+        }
+        return $classes;
     }
 }
 

@@ -202,7 +202,12 @@ class _Subscription extends WPDBModel
         $strength_in_bytes = 42;  // Should be a multiple of 3, so that
                                   // there are no extra =='s at the end
                                   // of the base64'd string
-        return base64_encode(random_bytes($strength_in_bytes));
+        $base64nonce = base64_encode(random_bytes($strength_in_bytes));
+        // Better avoid characters that mean something in a URL:
+        return str_replace(
+            array('+', '/', '='),
+            array('-', '*', '_'),
+            $base64nonce);
     }
 
     function _insert () {
