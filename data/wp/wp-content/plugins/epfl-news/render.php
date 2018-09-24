@@ -376,7 +376,7 @@ Class Render
      * @param $lang: lang of news (fr or en)
      * @return html of template
      */
-    public static function epfl_news_built_html_pagination_template(string $title, string $channel, string $lang): string {
+    public static function epfl_news_built_html_pagination_template(string $channel, string $lang): string {
 
         // call API to get the name of channel
         $url = NEWS_API_URL . $channel;
@@ -384,24 +384,21 @@ Class Render
 
         $url = NEWS_API_URL_IFRAME . $channel->name . "/" . $lang . "/nosticker";
 
-        $result  = '';
-        if($title != "") $result .= '<h3>'.$title.'</h3>';
-        $result .= '<iframe ';
+        $result  = '<iframe ';
         $result .= 'src="' . esc_attr($url) . '" ';
-        $result .= 'width="700" height="1100" scrolling="no" frameborder="0"></IFRAME>';
+        $result .= 'width="700" height="1100" scrolling="no" frameborder="0"></iframe>';
         return $result;
     }
 
     /**
      * Build HTML.
      *
-     * @param $title: box title (can be empty string)
      * @param $news: response of news API.
      * @param $template: id of template
      * @param $stickers: display stickers on images ?
      * @return html of template
      */
-    public static function epfl_news_build_html($title, $news, string $template, bool $stickers): string
+    public static function epfl_news_build_html($news, string $template, bool $stickers): string
     {
         if ($template === "4") {
             $html = Render::epfl_news_template_labo_with_3_news($news, $stickers);
@@ -420,11 +417,8 @@ Class Render
         } else {
             $html = Render::epfl_news_template_labo_with_3_news($news, $stickers);
         }
-        $result = '<div class="newsBox">';
-        if($title != "") $result .= '<h3>'.$title.'</h3>';
-        $result .= $html . '</div>';
+        return '<div class="newsBox">'.$html . '</div>';
 
-        return $result;
     }
     
 }

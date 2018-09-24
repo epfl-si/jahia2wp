@@ -540,7 +540,13 @@ class Box:
             rss_url = ""
             rss_title = ""
 
-        content = '[{} channel="{}" lang="{}" template="{}" '.format(
+        content = ""
+
+        # Title is only for boxes in pages
+        if not self.is_in_sidebar():
+            content += '<h3>{}</h3>'.format(self.title)
+
+        content += '[{} channel="{}" lang="{}" template="{}" '.format(
             self.shortcode_name,
             channel_id,
             lang,
@@ -555,9 +561,6 @@ class Box:
         if projects:
             content += 'projects="{}" '.format(",".join(projects))
 
-        # Title is only for boxes in pages
-        if not self.is_in_sidebar():
-            content += 'title="{}" '.format(self.title)
         content += '/]'
 
         # If we have a <moreUrl> or <rssUrl> element
@@ -1092,8 +1095,7 @@ class Box:
                         # if link has a title, add it to content as ref
                         url_title = Utils.get_tag_attribute(snippet, "jahia:link", "jahia:title")
                         if url_title and not url_title == "":
-                            description += Utils.manage_quotes('<a href="' + url + '">' +
-                                                               Utils.manage_quotes(url_title) + '</a>')
+                            description += '<a href="' + url + '">' + Utils.manage_quotes(url_title) + '</a>'
 
             self.content += '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
                             ' big_image="{}" enable_zoom="{}"]{}[/{}]'.format(self.shortcode_name,

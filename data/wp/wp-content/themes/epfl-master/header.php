@@ -20,7 +20,7 @@
 <link rel="shortcut icon" href="//www.epfl.ch/favicon.ico" type="image/x-icon" />
 <link rel="stylesheet" href="//www.epfl.ch/css/print.css" type="text/css" media="print" />
 
-<link rel="stylesheet" href="https://static.epfl.ch/v0.26.0/styles/epfl-built.css">
+<link rel="stylesheet" href="https://static.epfl.ch/v0.28.0/styles/epfl-built.css">
 
 <?php wp_head(); ?>
 </head>
