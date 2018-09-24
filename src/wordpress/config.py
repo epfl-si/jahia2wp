@@ -77,6 +77,7 @@ class WPConfig:
         for (parent_path, dir_names, filenames) in os.walk(given_path, topdown=True):
             # only keep potential WP sites
             dir_names[:] = [d for d in dir_names if keep_wp_sites(d)]
+            dir_names = sorted(dir_names)
             for dir_name in dir_names:
                 logging.debug('checking %s/%s', parent_path, dir_name)
                 wp_site = WPSite.from_path(os.path.join(parent_path, dir_name))
