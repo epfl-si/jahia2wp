@@ -277,7 +277,7 @@ class Shortcodes():
 
         value = matching_reg.findall(shortcode_call)
         # We remouve surrounding " if exists.
-        return value[0].strip('"') if value else ""
+        return value[0].strip('"') if value else None
 
     def __get_all_shortcode_calls(self, content, shortcode_name):
         """
@@ -320,7 +320,8 @@ class Shortcodes():
         calls = self.__get_all_shortcode_calls(content, old_shortcode)
 
         for call in calls:
-            new_call = call
+            # We generate new shortcode from scratch
+            new_call = '[{}]'.format(new_shortcode)
 
             # Extracing URL in which parameters we are looking for are
             api_url = self.__get_attribute_value(call, 'url')
@@ -329,16 +330,55 @@ class Shortcodes():
             scipers = Utils.get_parameter_from_url(api_url, 'scipers')
 
             if scipers:
-                new_call = self.__add_attribute(new_call, old_shortcode, 'scipers', scipers)
+                new_call = self.__add_attribute(new_call, new_shortcode, 'scipers', scipers)
 
             # Trying to find a 'unit' parameter
             unit = Utils.get_parameter_from_url(api_url, 'unit')
 
             if unit:
-                new_call = self.__add_attribute(new_call, old_shortcode, 'unit', unit)
+                new_call = self.__add_attribute(new_call, new_shortcode, 'unit', unit)
 
-            # remove old attribute
-            new_call = self.__remove_attribute(new_call, old_shortcode, 'url')
+            # Replacing in global content
+            content = content.replace(call, new_call)
+
+        return content
+
+    def _fix_epfl_news(self, content):
+        """
+        Fix all epfl_news shortcodes in content
+        :param content:
+        :return:
+        """
+
+        old_shortcode = 'epfl_news'
+        new_shortcode = 'epfl_news_2018'
+
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, old_shortcode)
+
+        nb_news_from_template = {'4': '3',
+                                 '8': '5',
+                                 '6': '3',
+                                 '3': '3',
+                                 '2': '3',
+                                 '10': '3',
+                                 '7': '3',
+                                 '1': '3'}
+
+        for call in calls:
+            new_call = call
+
+            template = self.__get_attribute_value(call, 'template')
+
+            # New template is always the same
+            new_call = self.__change_attribute_value(new_call, old_shortcode, 'template', '1')
+
+            nb_news = nb_news_from_template[template] if template in nb_news_from_template else '3'
+
+            new_call = self.__add_attribute(new_call, old_shortcode, 'nb_news', nb_news)
+
+            # Add default parameter
+            new_call = self.__add_attribute(new_call, old_shortcode, 'all_news_link', 'true')
 
             # Renaming shortcode
             new_call = self.__rename_shortcode(new_call, old_shortcode, new_shortcode)
@@ -347,6 +387,45 @@ class Shortcodes():
             content = content.replace(call, new_call)
 
         return content
+
+    def _fix_su_slider(self, content):
+        """
+        Fix all su slider shortcodes in content
+        :param content:
+        :return:
+        """
+
+        old_shortcode = 'su_slider'
+        new_shortcode = 'gallery'
+
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, old_shortcode)
+
+        for call in calls:
+            # We generate new shortcode from scratch
+            new_call = '[{}]'.format(new_shortcode)
+
+            # SOURCE -> IDS
+            source = self.__get_attribute_value(call, 'source')
+            ids = source.replace('media:', '')
+            new_call = self.__add_attribute(new_call, new_shortcode, 'ids', ids)
+
+            # LINK
+            link = self.__get_attribute_value(call, 'link')
+            if link == 'image':
+                link = 'file'
+            elif link == '':
+                link = 'attachement'
+            else:  # None
+                link = 'none'
+
+            new_call = self.__add_attribute(new_call, new_shortcode, 'link', link)
+
+            # Replacing in global content
+            content = content.replace(call, new_call)
+
+        return content
+
 
     def fix_site(self, openshift_env, wp_site_url):
         """
