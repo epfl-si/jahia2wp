@@ -28,6 +28,10 @@ function epfl_memento_get_limit($template)
         case "2":
             $limit = 10;
             break;
+        case "2":
+        case "3":
+            $limit = 5;
+            break;
         default:
             $limit = 10;
     }
