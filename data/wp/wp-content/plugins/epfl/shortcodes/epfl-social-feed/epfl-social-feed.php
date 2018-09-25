@@ -1,12 +1,7 @@
 <?php
-# TODO : 
-# - translate
-# - limits
-
 namespace Epfl\SocialFeed;
 
 require_once 'shortcake-config.php';
-require_once 'twitter.php';
 
 function epfl_social_feed_process_shortcode($atts) {
     // extract shortcode parameters
@@ -14,8 +9,10 @@ function epfl_social_feed_process_shortcode($atts) {
             'twitter_url'  => '',
             'instagram_url'  => '',
             'facebook_url'  => '',
-            'height' => '788',
+            'height' => '347',
         ), $atts);
+
+    $atts['height'] = intval($atts['height']) < 347 ? 347 : $atts['height'];
 
     if (has_action("epfl_social_feed_action")) {
         ob_start();
