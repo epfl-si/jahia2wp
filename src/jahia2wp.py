@@ -883,8 +883,10 @@ def shortcode_details(path, shortcode, out_csv=None, **kwargs):
         with open(out_csv, 'w') as out:
             # Adding one line for each couple "shortcode", "website"
             for site_path, shortcode_call_list in details.items():
-                for shortcode_call in shortcode_call_list:
-                    out.write("{},{}\n".format(site_path, shortcode_call))
+                for shortcode_infos in shortcode_call_list:
+                    out.write('{};{};{}\n'.format(site_path,
+                                                  shortcode_infos['post_url'],
+                                                  shortcode_infos['shortcode_call']))
         logging.info("Output can be found in %s", out_csv)
     else:
 

@@ -36,7 +36,7 @@ class Shortcodes():
         extract shortcode details
         :param path: path where to start search
         :param shortcode: shortcode name to look for
-        :return: Dict - Key is WP site URL and value is a list of all shorcode calls (with arguments) for the WP site.
+        :return: Dict - Key is WP site URL and value is a list of dict containing shortcode infos.
         """
 
         regex = r'\[{}\s?.*?]'.format(shortcode)
@@ -70,7 +70,9 @@ class Shortcodes():
                             if site_details.path not in shortcode_details:
                                 shortcode_details[site_details.path] = []
 
-                            shortcode_details[site_details.path].append(shortcode_with_args)
+                            post_url = '{}/wp-admin/post.php?post={}&action=edit'.format(site_details.url, post_id)
+                            shortcode_details[site_details.path].append({'post_url': post_url,
+                                                                         'shortcode_call': shortcode_with_args})
 
                 except Exception as e:
                     logging.error("Error, skipping to next site: %s", str(e))
@@ -407,6 +409,11 @@ class Shortcodes():
 
             # SOURCE -> IDS
             source = self.__get_attribute_value(call, 'source')
+
+            # If not images, it is not supported, we skip it (present in STI website)
+            if source.startswith('posts:'):
+                continue
+
             ids = source.replace('media:', '')
             new_call = self.__add_attribute(new_call, new_shortcode, 'ids', ids)
 
