@@ -867,7 +867,7 @@ def shortcode_details(path, shortcode, out_csv=None, **kwargs):
     """
     Go through websites present in 'path' and list all usages of a given shortcode
     :param path: Path where to look for WP installs
-    :param shortcode: Shortcode to look for
+    :param shortcode: Shortcode to look for. It can be shortcodes separated with a comma
     :param out_csv: CSV file to save result
     :param kwargs:
     :return:
@@ -876,7 +876,7 @@ def shortcode_details(path, shortcode, out_csv=None, **kwargs):
 
     shortcodes = Shortcodes()
 
-    details = shortcodes.get_details(path, shortcode)
+    details = shortcodes.get_details(path, shortcode.split(","))
 
     # If CSV output is requested
     if out_csv:
@@ -918,7 +918,7 @@ def shortcode_list(path, out_csv=None, **kwargs):
             # Adding one line for each couple "shortcode", "website"
             for shortcode, site_path_list in shortcodes.list.items():
                 for site_path in site_path_list:
-                    out.write("{},{}\n".format(shortcode, site_path))
+                    out.write("{};{}\n".format(shortcode, site_path))
         logging.info("Output can be found in %s", out_csv)
     else:
 

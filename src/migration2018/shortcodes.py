@@ -30,16 +30,21 @@ class Shortcodes():
         registered = Utils.run_command("wp eval-file {} --path={}".format(php_script, site_path))
         return registered.split(",") if registered else []
 
-    def get_details(self, path, shortcode):
+    def get_details(self, path, shortcode_list):
         """
         Locate all instance of given shortcode in a given path. Go through all WordPress installs and parse pages to
         extract shortcode details
         :param path: path where to start search
-        :param shortcode: shortcode name to look for
+        :param shortcode_list: list with shortcode name to look for
         :return: Dict - Key is WP site URL and value is a list of dict containing shortcode infos.
         """
 
-        regex = r'\[{}\s?.*?]'.format(shortcode)
+        # Building "big" regex to match all given shortcodes
+        regexes = []
+        for shortcode in shortcode_list:
+            regexes.append('\[{}\s?.*?]'.format(shortcode))
+
+        regex = re.compile('|'.join(regexes), re.VERBOSE)
 
         shortcode_details = {}
 
