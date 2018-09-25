@@ -426,7 +426,6 @@ class Shortcodes():
 
         return content
 
-
     def fix_site(self, openshift_env, wp_site_url):
         """
         Fix shortocdes in WP site
