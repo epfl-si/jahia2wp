@@ -288,11 +288,12 @@ class Shortcodes():
 
     def __get_content(self, shortcode_call):
         """
-        Return content (or None if not found) for a given shortcode call
+        Return content (or None if not found) for a given shortcode call. This also works for nested shortcodes
         :param shortcode_call: String with shortcode call: [my_shortcode attr="1"]content[/my_shortcode]
         :return:
         """
-        matching_reg = re.compile('\](.*?)\[\/', re.VERBOSE)
+        # re.DOTALL is to match all characters including \n
+        matching_reg = re.compile('\](.*)\[\/', re.DOTALL)
 
         value = matching_reg.findall(shortcode_call)
         # We remouve surrounding " if exists.
@@ -311,7 +312,8 @@ class Shortcodes():
         if with_content:
             regex += '.*?\[\/{}\]'.format(shortcode_name)
 
-        matching_reg = re.compile("({})".format(regex), re.VERBOSE)
+        # re.DOTALL is to match all characters including \n
+        matching_reg = re.compile("({})".format(regex), re.DOTALL)
 
         # Because we have 2 parenthesis groups in regex, we obtain a list of tuples and we just want the first
         # element of each tuple and put it in a list.
@@ -433,7 +435,7 @@ class Shortcodes():
     def _fix_su_slider(self, content):
         """
         Fix all su slider shortcodes in content
-        :param content:
+        :param content: String in which to fix
         :return:
         """
 
@@ -482,7 +484,7 @@ class Shortcodes():
     def __fix_to_epfl_toggle(self, content, old_shortcode):
         """
         Fix all su_expand and my_buttonexpand to epfl_toggle
-        :param content:
+        :param content: String in which to fix
         :return:
         """
         new_shortcode = 'epfl_toggle'
@@ -497,7 +499,7 @@ class Shortcodes():
             title = self.__get_attribute(call, 'more_text')
 
             # We generate new shortcode from scratch
-            new_call = '[{0} title="{1}" state="close"]{2}[\{0}]'.format(new_shortcode, title, toggle_content)
+            new_call = '[{0} title="{1}" state="close"]{2}[/{0}]'.format(new_shortcode, title, toggle_content)
 
             # Replacing in global content
             content = content.replace(call, new_call)
@@ -507,7 +509,7 @@ class Shortcodes():
     def _fix_su_expand(self, content):
         """
         Fix "su_expand" from Shortcode ultimate plugin
-        :param content:
+        :param content: String in which to fix
         :return:
         """
         return self.__fix_to_epfl_toggle(content, 'su_expand')
@@ -516,10 +518,60 @@ class Shortcodes():
         """
         Fix "my_buttonexpand" (renamed su_expand) from Shortcode ultimate plugin
         This plugin name is only used on UC website...
-        :param content:
+        :param content: String in which to fix
         :return:
         """
         return self.__fix_to_epfl_toggle(content, 'my_buttonexpand')
+
+    def _fix_su_accordion(self, content):
+        """
+        Fix "su_accordion" from Shortcode ultimate plugin. This shortcode is a container for "su_spoiler" elements
+        :param content: String in which to fix
+        :return:
+        """
+        old_shortcode = 'su_accordion'
+
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, old_shortcode, with_content=True)
+
+        for call in calls:
+            # getting future toggle content
+            toggle_content = self.__get_content(call)
+
+            # Replacing in global content. In fact, we just remove surrounding shortcode
+            content = content.replace(call, toggle_content)
+
+        return content
+
+    def _fix_su_spoiler(self, content):
+        """
+        Fix "su_spoiler" from Shortcode Ultimate plugin. This shortcode is surrouned by "su_accordion" shortcode and
+        is just translated to "epfl_toggle"
+        :param content:
+        :return:
+        """
+        old_shortcode = 'su_spoiler'
+        new_shortcode = 'epfl_toggle'
+
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, old_shortcode, with_content=True)
+
+        for call in calls:
+            # getting future toggle content
+            toggle_content = self.__get_content(call)
+
+            title = self.__get_attribute(call, 'title')
+            is_open = self.__get_attribute(call, 'open')
+
+            state = 'close' if not is_open or is_open == 'no' else 'open'
+
+            # We generate new shortcode from scratch
+            new_call = '[{0} title="{1}" state="{2}"]{3}[/{0}]'.format(new_shortcode, title, state, toggle_content)
+
+            # Replacing in global content
+            content = content.replace(call, new_call)
+
+        return content
 
     def fix_site(self, openshift_env, wp_site_url):
         """
