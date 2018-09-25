@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-09-21 17:24+0200\n"
-"PO-Revision-Date: 2018-09-21 17:24+0200\n"
+"POT-Creation-Date: 2018-09-25 14:36+0200\n"
+"PO-Revision-Date: 2018-09-25 14:36+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -77,12 +77,12 @@ msgstr "L'URL du lien"
 msgid "Links group"
 msgstr "Groupe de liens"
 
-#: epfl-map/epfl-map.php:77 epfl-memento/shortcake-config.php:54
+#: epfl-map/epfl-map.php:77 epfl-memento/shortcake-config.php:56
 #: epfl-news/shortcake-config.php:35
 msgid "English"
 msgstr "Anglais"
 
-#: epfl-map/epfl-map.php:78 epfl-memento/shortcake-config.php:55
+#: epfl-map/epfl-map.php:78 epfl-memento/shortcake-config.php:57
 #: epfl-news/shortcake-config.php:36
 msgid "French"
 msgstr "Français"
@@ -108,59 +108,67 @@ msgid "Language used to render map result"
 msgstr "Langue utilisée pour afficher le plan"
 
 #: epfl-memento/shortcake-config.php:46
-msgid "Template with the first highlighted event"
-msgstr "Template avec le 1er événement mis en valeur"
+msgid "Template slider with the first highlighted event"
+msgstr "Template slider avec le 1er événement mis en valeur"
 
 #: epfl-memento/shortcake-config.php:47
-msgid "Template without the first highlighted event"
-msgstr "Template sans mettre le 1er événement en valeur"
+msgid "Template slider without the first highlighted event"
+msgstr "Template slider sans mettre le 1er événement en valeur"
 
-#: epfl-memento/shortcake-config.php:62 epfl-news/shortcake-config.php:43
+#: epfl-memento/shortcake-config.php:48
+msgid "Template listing with the first highlighted event"
+msgstr "Template listing avec le 1er événement mis en valeur"
+
+#: epfl-memento/shortcake-config.php:49
+msgid "Template listing without the first highlighted event"
+msgstr "Template listing sans mettre le 1er événement en valeur"
+
+#: epfl-memento/shortcake-config.php:64 epfl-news/shortcake-config.php:43
 #: epfl-news/shortcake-config.php:67
 msgid "No filter"
 msgstr "Pas de filtre"
 
-#: epfl-memento/shortcake-config.php:63
+#: epfl-memento/shortcake-config.php:65
 msgid "Conferences - Seminars"
 msgstr "Conférences - Séminaires"
 
-#: epfl-memento/shortcake-config.php:64
+#: epfl-memento/shortcake-config.php:66
 msgid "Management Board meetings"
 msgstr "Assemblées Conseils Direction"
 
-#: epfl-memento/shortcake-config.php:65
+#: epfl-memento/shortcake-config.php:67
 msgid "Miscellaneous"
 msgstr "Divers"
 
-#: epfl-memento/shortcake-config.php:66
+#: epfl-memento/shortcake-config.php:68
 msgid "Exhibitions"
 msgstr "Expositions"
 
-#: epfl-memento/shortcake-config.php:67
+#: epfl-memento/shortcake-config.php:69
 msgid "Movies"
 msgstr "Films"
 
-#: epfl-memento/shortcake-config.php:68
+#: epfl-memento/shortcake-config.php:70
 msgid "Celebrations"
 msgstr "Fêtes"
 
-#: epfl-memento/shortcake-config.php:69
+#: epfl-memento/shortcake-config.php:71
 msgid "Inaugural lectures - Honorary Lecture"
 msgstr "Leçons inaugurales - Leçons d'honneur"
 
-#: epfl-memento/shortcake-config.php:70
+#: epfl-memento/shortcake-config.php:72
 msgid "Cultural events"
 msgstr "Manifestations culturelles"
 
-#: epfl-memento/shortcake-config.php:71
+#: epfl-memento/shortcake-config.php:73
 msgid "Sporting events"
 msgstr "Manifestations sportives"
 
-#: epfl-memento/shortcake-config.php:72
+#: epfl-memento/shortcake-config.php:74
 msgid "Thesis defenses"
 msgstr "Soutenances de thèses"
 
-#: epfl-memento/shortcake-config.php:80
+#: epfl-memento/shortcake-config.php:82
 #, php-format
 msgid ""
 "Please select your memento.%sThe events come from the application %smemento."
@@ -170,7 +178,7 @@ msgstr ""
 "l'application %smemento.epfl.ch%s.%sSi vous n'avez pas de mémento, merci "
 "d'envoyer une demande à %s"
 
-#: epfl-memento/shortcake-config.php:94 epfl-news/shortcake-config.php:97
+#: epfl-memento/shortcake-config.php:96 epfl-news/shortcake-config.php:97
 #, php-format
 msgid ""
 "Do you need more information about templates? %sRead this documentation%s"
@@ -178,37 +186,37 @@ msgstr ""
 "Avez vous besoin de plus d'information à propos des templates? %sMerci de "
 "lire la documentation%s"
 
-#: epfl-memento/shortcake-config.php:110
+#: epfl-memento/shortcake-config.php:112
 msgid "Select your memento"
 msgstr "Sélectionner votre mémento"
 
-#: epfl-memento/shortcake-config.php:117 epfl-news/shortcake-config.php:122
+#: epfl-memento/shortcake-config.php:119 epfl-news/shortcake-config.php:122
 msgid "Select a template"
 msgstr "Sélectionner un template"
 
-#: epfl-memento/shortcake-config.php:125 epfl-news/shortcake-config.php:142
+#: epfl-memento/shortcake-config.php:127 epfl-news/shortcake-config.php:142
 msgid "Select a language"
 msgstr "Sélectionner une langue"
 
-#: epfl-memento/shortcake-config.php:129
+#: epfl-memento/shortcake-config.php:131
 msgid "The language used to render events results"
 msgstr "La langue utilisée pour afficher les événements"
 
-#: epfl-memento/shortcake-config.php:133
+#: epfl-memento/shortcake-config.php:135
 msgid "Filter events by category"
 msgstr "Filtrer les événements par catégorie"
 
-#: epfl-memento/shortcake-config.php:137
+#: epfl-memento/shortcake-config.php:139
 msgid "Do you want filter events by category? Please select a category."
 msgstr ""
 "Voulez vous filtrer les événements par catégorie ? Merci de sélectionner une "
 "catégorie."
 
-#: epfl-memento/shortcake-config.php:140
+#: epfl-memento/shortcake-config.php:142
 msgid "Filter events by keyword"
 msgstr "Filtrer les événements par mot clé"
 
-#: epfl-memento/shortcake-config.php:143
+#: epfl-memento/shortcake-config.php:145
 msgid "Do you want filter events by keyword? Please type a keyword."
 msgstr ""
 "Voulez vous filtrer les événements par mot clé ? Merci de renseigner un mot "
