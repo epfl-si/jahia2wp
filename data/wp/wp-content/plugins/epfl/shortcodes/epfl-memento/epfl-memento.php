@@ -28,6 +28,10 @@ function epfl_memento_get_limit($template)
         case "2":
             $limit = 10;
             break;
+        case "3":
+        case "4":
+            $limit = 5;
+            break;
         default:
             $limit = 10;
     }
@@ -148,11 +152,6 @@ function epfl_memento_2018_process_shortcode($atts = [], $content = '', $tag = '
 
     if (epfl_memento_check_required_parameters($memento, $lang) == FALSE) {
         return Utils::render_user_msg("Memento shortcode: Please check required parameters");
-    }
-
-    // iframe template
-    if ($template === "4") {
-        return MementoRender::epfl_memento_built_html_pagination_template($memento, $lang, $period);
     }
 
     $url = epfl_memento_build_api_url(
