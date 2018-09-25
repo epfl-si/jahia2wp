@@ -70,7 +70,7 @@ Class ClassesInfoscienceRender extends InfoscienceRender {
                 }
                 
                 foreach($grouped_by2_publications['values'] as $index3 => $publication) {
-                    $record_renderer_class = get_render_class_for_publication($publication, $format);
+                    $record_renderer_class = epfl_infoscience_search_get_render_class_for_publication($publication, $format);
 
                     if ($debug) {
                         $html_rendered .= '<h3>'. $record_renderer_class .'</h3>';

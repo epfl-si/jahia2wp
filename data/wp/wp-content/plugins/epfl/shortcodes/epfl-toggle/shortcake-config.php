@@ -1,6 +1,6 @@
 <?php
 
-Class ShortCakeToggleConfig
+Class ToggleShortCakeConfig
 {
 
     private static function get_state_options()
@@ -11,60 +11,39 @@ Class ShortCakeToggleConfig
         );
     }
 
-    public static function get_fields()
-    {
-        $fields = [];
-        for ( $i = 0; $i < 10; $i++) {
-
-            array_push($fields, [
-                'label'       => '<hr><hr><h3>' . esc_html__('Title', 'epfl') . '</h3>',
-                'attr'        => 'label' . $i,
-                'description' => esc_html__('Toggle title', 'epfl'),
-                'type'        => 'text',
-            ]);
-
-            array_push($fields, [
-                'label'       => '<h2>' .esc_html__('Description', 'epfl') . '</h2>' ,
-                'attr'        => 'desc' . $i,
-                'description' => esc_html__('Content shown when toggle is opened', 'epfl'),
-                'type'        => 'textarea',
-                'encode'      => true,
-                'meta'        => array(
-                    'class' => 'shortcake-richtext',
-                ),
-            ]);
-
-            array_push($fields, [
-                'label'       => '<h3>' . esc_html__('Define toggle state', 'epfl') . '</h3>',
-                'attr'        => 'state' . $i,
-                'type'        => 'radio',
-                'options'     => ShortCakeToggleConfig::get_state_options(),
-                'description' => esc_html__('Do you want display the toggle opened or closed by default ?', 'epfl'),
-                'value'       => 'close',
-
-            ]);
-
-        }
-        return $fields;
-    }
-
     public static function config()
     {
 
-        global $iconDirectory;
-
         shortcode_ui_register_for_shortcode(
 
-            'epfl_toggle_2018',
+            'epfl_toggle',
 
             array(
-                'label'         => esc_html__( 'Toggle', 'epfl'),
-                'listItemImage' => '<img src="' . $iconDirectory . 'toggle.png'.'">',
-                'attrs'         => ShortCakeToggleConfig::get_fields(),
+                'label' => 'Toggle',
+                'listItemImage' => '<img src="' . plugins_url( 'img/toggle.svg', __FILE__ ) . '" >',
+
+                'attrs'         => array(
+                        array(
+                            'label'         => '<h3>' . esc_html__('Enter toggle title', 'epfl') . '</h3>',
+                            'attr'          => 'title',
+                            'type'          => 'text',
+                        ),
+                        array(
+                            'label'         => '<h3>' . esc_html__('Define toggle state', 'epfl') . '</h3>',
+                            'attr'          => 'state',
+                            'type'          => 'radio',
+                            'options'       => ToggleShortCakeConfig::get_state_options(),
+                            'description'   => esc_html__('Do you want display the toggle open or close by default ?', 'epfl'),
+                            'value'         => 'open',
+                        ),
+                    ),
+                'inner_content' => array(
+                    'label'        => '<h3>' . esc_html__( 'Toggle content', 'epfl' ) . '</h3>',
+                ),
+                'post_type'     => array( 'post', 'page' ),
             )
-
         );
-
     }
 }
+
 ?>

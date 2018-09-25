@@ -37,14 +37,6 @@ Class ShortCakeNewsConfig
         );
     }
 
-    private static function get_stickers_options() 
-    {
-        return array(
-            array('value' => 'no', 'label' => esc_html__('No', 'epfl')),
-            array('value' => 'yes', 'label' => esc_html__('Yes', 'epfl')),
-        );
-    }
-
     private static function get_category_options() 
     {
         return array(
@@ -60,9 +52,12 @@ Class ShortCakeNewsConfig
     private static function get_template_options() 
     {
         return array (
-            array('value' => '1', 'label' => esc_html__('Template for laboratory website', 'epfl')),
-            array('value' => '2', 'label' => __('Template for homepage with 3 news', 'epfl')),
-            array('value' => '3', 'label' => __('Template for homepage with 1 news', 'epfl')),
+            array('value' => '1', 'label' => esc_html__('Template listing', 'epfl')),
+            array('value' => '2', 'label' => __('Template highlighted with 3 news', 'epfl')),
+            array('value' => '3', 'label' => __('Template highlighted with 1 news', 'epfl')),
+            array('value' => '4', 'label' => __('Template card with 1 news', 'epfl')),
+            array('value' => '5', 'label' => __('Template card with 2 news', 'epfl')),
+            array('value' => '6', 'label' => __('Template card with 3 news', 'epfl')),
         );
     }
 
@@ -150,14 +145,6 @@ Class ShortCakeNewsConfig
                             'options'       => ShortCakeNewsConfig::get_lang_options(),
                             'description'   => esc_html__('The language used to render news results', 'epfl'),
                             'value'         => 'en',
-                        ),
-                        array(
-                            'label'         => '<h3>' . esc_html__('Display the news category ?', 'epfl') . '</h3>',
-                            'attr'          => 'stickers',
-                            'type'          => 'radio',
-                            'options'       => ShortCakeNewsConfig::get_stickers_options(),
-                            'description'   => esc_html__('Do you want display the news category at the top right of the news image?', 'epfl'),
-                            'value'         => 'no',
                         ),
                         array(
                             'label'         => '<h3>' . esc_html__('Filter news by category', 'epfl') . '</h3>',
