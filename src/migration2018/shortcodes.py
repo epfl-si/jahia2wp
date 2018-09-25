@@ -293,20 +293,38 @@ class Shortcodes():
 
         return matching_reg.findall(content)
 
+    def __fix_to_epfl_video(self, content, old_shortcode):
+        """
+        Fix given video shortcode
+        :param content:
+        :return:
+        """
+        new_shortcode = 'epfl_video'
+
+        # height and width are useless because display is now responsive and use 100% of width
+        content = self.__remove_attribute(content, old_shortcode, 'height')
+        content = self.__remove_attribute(content, old_shortcode, 'width')
+        content = self.__remove_attribute(content, old_shortcode, 'autoplay')
+        content = self.__remove_attribute(content, old_shortcode, 'class')
+        content = self.__remove_attribute(content, old_shortcode, 'responsive')
+        content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
+        return content
+
+    def _fix_su_vimeo(self, content):
+        """
+        Fix "su_vimeo" from Shortcode ultimate plugin
+        :param content:
+        :return:
+        """
+        return self.__fix_to_epfl_video(content, 'su_vimeo')
+
     def _fix_su_youtube(self, content):
         """
         Fix "su_youtube" from Shortcode ultimate plugin
         :param content:
         :return:
         """
-        old_shortcode = 'su_youtube'
-        new_shortcode = 'epfl_video'
-
-        # height and width are useless because display is now responsive and use 100% of width
-        content = self.__remove_attribute(content, old_shortcode, 'height')
-        content = self.__remove_attribute(content, old_shortcode, 'width')
-        content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
-        return content
+        return self.__fix_to_epfl_video(content, 'su_youtube')
 
     def _fix_epfl_people(self, content):
         """
@@ -414,19 +432,25 @@ class Shortcodes():
             if source.startswith('posts:'):
                 continue
 
-            ids = source.replace('media:', '')
-            new_call = self.__add_attribute(new_call, new_shortcode, 'ids', ids)
+            ids = source.replace('media:', '').strip()
 
-            # LINK
-            link = self.__get_attribute_value(call, 'link')
-            if link == 'image':
-                link = 'file'
-            elif link == '':
-                link = 'attachement'
-            else:  # None
-                link = 'none'
+            # If ids were found,
+            if ids:
+                new_call = self.__add_attribute(new_call, new_shortcode, 'ids', ids)
 
-            new_call = self.__add_attribute(new_call, new_shortcode, 'link', link)
+                # LINK
+                link = self.__get_attribute_value(call, 'link')
+                if link == 'image':
+                    link = 'file'
+                elif link == '':
+                    link = 'attachement'
+                else:  # None
+                    link = 'none'
+
+                new_call = self.__add_attribute(new_call, new_shortcode, 'link', link)
+
+            else:  # No ids found.
+                new_call = ''
 
             # Replacing in global content
             content = content.replace(call, new_call)
