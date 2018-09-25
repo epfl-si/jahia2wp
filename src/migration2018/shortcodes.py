@@ -42,7 +42,7 @@ class Shortcodes():
         # Building "big" regex to match all given shortcodes
         regexes = []
         for shortcode in shortcode_list:
-            regexes.append('\[{}\s?.*?]'.format(shortcode))
+            regexes.append('\[{}\s?.*?\]'.format(shortcode))
 
         regex = re.compile('|'.join(regexes), re.VERBOSE)
 
@@ -272,9 +272,9 @@ class Shortcodes():
 
         return content
 
-    def __get_attribute_value(self, shortcode_call, attr_name):
+    def __get_attribute(self, shortcode_call, attr_name):
         """
-        Return attribute value (or empty string if not found) for a given shortcode call
+        Return attribute value (or None if not found) for a given shortcode call
         :param shortcode_call: String with shortcode call: [my_shortcode attr="1"]
         :param attr_name: Attribute name for which we want the value
         :return:
@@ -286,17 +286,36 @@ class Shortcodes():
         # We remouve surrounding " if exists.
         return value[0].strip('"') if value else None
 
-    def __get_all_shortcode_calls(self, content, shortcode_name):
+    def __get_content(self, shortcode_call):
         """
-        Look for all calls for a given shortcode in given content
-        :param content:
-        :param shortcode_name:
+        Return content (or None if not found) for a given shortcode call
+        :param shortcode_call: String with shortcode call: [my_shortcode attr="1"]content[/my_shortcode]
         :return:
         """
+        matching_reg = re.compile('\](.*?)\[\/', re.VERBOSE)
 
-        matching_reg = re.compile('\[{} .*?\]'.format(shortcode_name), re.VERBOSE)
+        value = matching_reg.findall(shortcode_call)
+        # We remouve surrounding " if exists.
+        return value[0] if value else None
 
-        return matching_reg.findall(content)
+    def __get_all_shortcode_calls(self, content, shortcode_name, with_content=False):
+        """
+        Look for all calls for a given shortcode in given content
+        :param content: String in which to look for shortcode calls
+        :param shortcode_name: shortcode name to look for
+        :param with_content: To tell if we have to return content as well. If given and shortcode doesn't have content,
+        it won't be returned
+        :return:
+        """
+        regex = '\[{}(\s.*?)?\]'.format(shortcode_name)
+        if with_content:
+            regex += '.*?\[\/{}\]'.format(shortcode_name)
+
+        matching_reg = re.compile("({})".format(regex), re.VERBOSE)
+
+        # Because we have 2 parenthesis groups in regex, we obtain a list of tuples and we just want the first
+        # element of each tuple and put it in a list.
+        return [x[0] for x in matching_reg.findall(content)]
 
     def __fix_to_epfl_video(self, content, old_shortcode):
         """
@@ -306,12 +325,13 @@ class Shortcodes():
         """
         new_shortcode = 'epfl_video'
 
-        # height and width are useless because display is now responsive and use 100% of width
+        # a lot of attributes are useless so we try to remove all of them
         content = self.__remove_attribute(content, old_shortcode, 'height')
         content = self.__remove_attribute(content, old_shortcode, 'width')
         content = self.__remove_attribute(content, old_shortcode, 'autoplay')
         content = self.__remove_attribute(content, old_shortcode, 'class')
         content = self.__remove_attribute(content, old_shortcode, 'responsive')
+
         content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
         return content
 
@@ -349,7 +369,7 @@ class Shortcodes():
             new_call = '[{}]'.format(new_shortcode)
 
             # Extracing URL in which parameters we are looking for are
-            api_url = self.__get_attribute_value(call, 'url')
+            api_url = self.__get_attribute(call, 'url')
 
             # Trying to find a 'scipers' parameter
             scipers = Utils.get_parameter_from_url(api_url, 'scipers')
@@ -391,22 +411,19 @@ class Shortcodes():
                                  '1': '3'}
 
         for call in calls:
-            new_call = call
+            new_call = '[{}]'.format(new_shortcode)
 
-            template = self.__get_attribute_value(call, 'template')
+            template = self.__get_attribute(call, 'template')
 
             # New template is always the same
-            new_call = self.__change_attribute_value(new_call, old_shortcode, 'template', '1')
+            new_call = self.__add_attribute(new_call, new_shortcode, 'template', '1')
 
             nb_news = nb_news_from_template[template] if template in nb_news_from_template else '3'
 
-            new_call = self.__add_attribute(new_call, old_shortcode, 'nb_news', nb_news)
+            new_call = self.__add_attribute(new_call, new_shortcode, 'nb_news', nb_news)
 
             # Add default parameter
-            new_call = self.__add_attribute(new_call, old_shortcode, 'all_news_link', 'true')
-
-            # Renaming shortcode
-            new_call = self.__rename_shortcode(new_call, old_shortcode, new_shortcode)
+            new_call = self.__add_attribute(new_call, new_shortcode, 'all_news_link', 'true')
 
             # Replacing in global content
             content = content.replace(call, new_call)
@@ -431,7 +448,7 @@ class Shortcodes():
             new_call = '[{}]'.format(new_shortcode)
 
             # SOURCE -> IDS
-            source = self.__get_attribute_value(call, 'source')
+            source = self.__get_attribute(call, 'source')
 
             # If not images, it is not supported, we skip it (present in STI website)
             if source.startswith('posts:'):
@@ -444,7 +461,7 @@ class Shortcodes():
                 new_call = self.__add_attribute(new_call, new_shortcode, 'ids', ids)
 
                 # LINK
-                link = self.__get_attribute_value(call, 'link')
+                link = self.__get_attribute(call, 'link')
                 if link == 'image':
                     link = 'file'
                 elif link == '':
@@ -461,6 +478,48 @@ class Shortcodes():
             content = content.replace(call, new_call)
 
         return content
+
+    def __fix_to_epfl_toggle(self, content, old_shortcode):
+        """
+        Fix all su_expand and my_buttonexpand to epfl_toggle
+        :param content:
+        :return:
+        """
+        new_shortcode = 'epfl_toggle'
+
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, old_shortcode, with_content=True)
+
+        for call in calls:
+            # getting future toggle content
+            toggle_content = self.__get_content(call)
+
+            title = self.__get_attribute(call, 'more_text')
+
+            # We generate new shortcode from scratch
+            new_call = '[{0} title="{1}" state="close"]{2}[\{0}]'.format(new_shortcode, title, toggle_content)
+
+            # Replacing in global content
+            content = content.replace(call, new_call)
+
+        return content
+
+    def _fix_su_expand(self, content):
+        """
+        Fix "su_expand" from Shortcode ultimate plugin
+        :param content:
+        :return:
+        """
+        return self.__fix_to_epfl_toggle(content, 'su_expand')
+
+    def _fix_my_buttonexpand(self, content):
+        """
+        Fix "my_buttonexpand" (renamed su_expand) from Shortcode ultimate plugin
+        This plugin name is only used on UC website...
+        :param content:
+        :return:
+        """
+        return self.__fix_to_epfl_toggle(content, 'my_buttonexpand')
 
     def fix_site(self, openshift_env, wp_site_url):
         """
@@ -501,6 +560,7 @@ class Shortcodes():
             logging.info("Fixing page ID %s...", post_id)
             content = wp_config.run_wp_cli("post get {} --skip-plugins --skip-themes "
                                            "--field=post_content".format(post_id))
+            original_content = content
 
             # Looking for all shortcodes in current post
             for shortcode in re.findall(self.regex, content):
@@ -523,26 +583,30 @@ class Shortcodes():
                 fixed_content = fix_func(content)
 
                 if fixed_content != content:
-
                     # Building report
                     if shortcode not in report:
                         report[shortcode] = 0
 
                     report[shortcode] += 1
 
-                    logging.debug("Shortcode fixed, updating page...")
+                content = fixed_content
 
-                    for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
-                        try:
-                            wp_config.run_wp_cli("post update {} --skip-plugins --skip-themes - ".format(post_id),
-                                                 pipe_input=fixed_content)
+            # If content changed for current page,
+            if content != original_content:
 
-                        except Exception as e:
-                            if try_no < settings.WP_CLI_AND_API_NB_TRIES - 1:
-                                logging.error("fix_site() error. Retry %s in %s sec...",
-                                              try_no + 1,
-                                              settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
-                                time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
-                                pass
+                logging.debug("Content fixed, updating page...")
+
+                for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
+                    try:
+                        wp_config.run_wp_cli("post update {} --skip-plugins --skip-themes - ".format(post_id),
+                                             pipe_input=content)
+
+                    except Exception as e:
+                        if try_no < settings.WP_CLI_AND_API_NB_TRIES - 1:
+                            logging.error("fix_site() error. Retry %s in %s sec...",
+                                          try_no + 1,
+                                          settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                            time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                            pass
 
         return report
