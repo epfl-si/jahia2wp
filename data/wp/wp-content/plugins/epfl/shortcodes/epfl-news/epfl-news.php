@@ -24,10 +24,15 @@ function epfl_news_get_limit($template)
             $limit = 5;
             break;
         case "2":
+        case "6":
             $limit = 3;
             break;
         case "3":
+        case "4":
             $limit = 1;
+            break;
+        case "5":
+            $limit = 2;
             break;
         default:
             $limit = 4;
@@ -124,35 +129,23 @@ function epfl_news_2018_process_shortcode($atts = [], $content = '', $tag = '') 
                 'template'      => '',
                 'nb_news'       => '',
                 'all_news_link' => '',
-                'stickers'      => '',
                 'category'      => '',
                 'themes'        => '',
                 'projects'      => '',
-                'title'         => '',
         ), $atts, $tag);
 
         // sanitize parameters
         $channel       = sanitize_text_field( $atts['channel'] );
         $lang          = sanitize_text_field( $atts['lang'] );
         $template      = sanitize_text_field( $atts['template'] );
-        $all_news_link = $atts['all_news_link'];
+        $all_news_link = sanitize_text_field( $atts['all_news_link']);
         $nb_news       = sanitize_text_field( $atts['nb_news'] );
-        $stickers      = sanitize_text_field( $atts['stickers'] );
         $category      = sanitize_text_field( $atts['category'] );
         $themes        = sanitize_text_field( $atts['themes'] );
         $projects      = sanitize_text_field( $atts['projects'] );
-        $title         = sanitize_text_field( $atts['title'] );
 
         if (epfl_news_check_required_parameters($channel, $lang) == FALSE) {
             return Utils::render_user_msg("News shortcode: Please check required parameters");
-        }
-
-        // display stickers on images ?
-        $stickers = ($stickers == 'yes');
-
-        // iframe template
-        if ($template === "10") {
-            return Render::epfl_news_built_html_pagination_template($title, $channel, $lang);
         }
 
         $url = epfl_news_build_api_url(
@@ -174,7 +167,7 @@ function epfl_news_2018_process_shortcode($atts = [], $content = '', $tag = '') 
 
             try {
 
-               do_action("epfl_news_action", $title, $actus, $template, $stickers, $all_news_link);
+               do_action("epfl_news_action", $actus, $template, $all_news_link);
 
                return ob_get_contents();
 
@@ -189,9 +182,6 @@ function epfl_news_2018_process_shortcode($atts = [], $content = '', $tag = '') 
             return 'You must activate the epfl theme';
         }
     }
-
-
-
 
 add_action( 'register_shortcode_ui', ['ShortCakeNewsConfig', 'config'] );
 

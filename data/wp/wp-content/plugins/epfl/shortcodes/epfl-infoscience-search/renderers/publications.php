@@ -17,7 +17,7 @@ define('DOCTYPE_TO_CLASS_NAME_MAP', [
     'WORKING PAPERS' => 'WorkingPapers',
 ]);
 
-function get_render_class_for_publication($publication, $format) {
+function epfl_infoscience_search_get_render_class_for_publication($publication, $format) {
     # by default, use one of this
     if ($format === "detailed") {
         $record_renderer_class_base = 'DetailedInfosciencePublicationRender';

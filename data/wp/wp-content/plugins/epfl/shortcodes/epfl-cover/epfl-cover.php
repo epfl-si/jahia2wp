@@ -25,7 +25,7 @@ function epfl_cover_process_shortcode($atts = [], $content = '', $tag = '') {
     ), $atts, $tag);
 
     // sanitize parameters
-    $description = sanitize_text_field( $atts['description'] );
+    $description = wp_kses_post( $atts['description'] );
     $image       = sanitize_text_field( $atts['image'] );
     $image_url   = wp_get_attachment_url( $image );
 

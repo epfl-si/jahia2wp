@@ -3,22 +3,22 @@
 /*
  Group by operations
 */
-function sort_group_by_year_desc($a, $b) {
+function epfl_infoscience_search_sort_group_by_year_desc($a, $b) {
     return strcmp($b["label"], $a["label"]);
 }
 
-function sort_group_by_year_asc($a, $b) {
+function epfl_infoscience_search_sort_group_by_year_asc($a, $b) {
     return strcmp($a["label"], $b["label"]);
 }
 
-function sort_group_by_doctype_asc($a, $b) {
+function epfl_infoscience_search_sort_group_by_doctype_asc($a, $b) {
     $pos_a = array_search($a['label'], array_keys(InfoscienceGroupBy::doctypes()));
     $pos_b = array_search($b['label'], array_keys(InfoscienceGroupBy::doctypes()));
 
     return ($pos_a < $pos_b) ? 1 : -1;
 }
 
-function sort_group_by_doctype_desc($a, $b) {
+function epfl_infoscience_search_sort_group_by_doctype_desc($a, $b) {
     $pos_a = array_search($a['label'], array_keys(InfoscienceGroupBy::doctypes()));
     $pos_b = array_search($b['label'], array_keys(InfoscienceGroupBy::doctypes()));
     
@@ -174,15 +174,15 @@ Class InfoscienceGroupBy {
             $grouped_by_year = InfoscienceGroupBy::array_group_by($publications, 'publication_date');
 
             if ($sort_order === 'asc') {
-                usort($grouped_by_year, 'sort_group_by_year_asc');
+                usort($grouped_by_year, 'epfl_infoscience_search_sort_group_by_year_asc');
             } else {
-                usort($grouped_by_year, 'sort_group_by_year_desc');
+                usort($grouped_by_year, 'epfl_infoscience_search_sort_group_by_year_desc');
             }
 
             foreach($grouped_by_year as $index => $by_year) {
                 $doctype_grouped = InfoscienceGroupBy::array_group_by($by_year['values'], 'doctype');
                 # order is fixed for second group by
-                usort($doctype_grouped, 'sort_group_by_doctype_desc');
+                usort($doctype_grouped, 'epfl_infoscience_search_sort_group_by_doctype_desc');
 
                 $grouped_publications['group_by'][] = [
                     'label' => $by_year['label'],
@@ -194,15 +194,15 @@ Class InfoscienceGroupBy {
             $grouped_by_doctype = InfoscienceGroupBy::array_group_by($publications, 'doctype');
 
             if ($sort_order === 'asc') {
-                usort($grouped_by_doctype, 'sort_group_by_doctype_asc');
+                usort($grouped_by_doctype, 'epfl_infoscience_search_sort_group_by_doctype_asc');
             } else {
-                usort($grouped_by_doctype , 'sort_group_by_doctype_desc');
+                usort($grouped_by_doctype , 'epfl_infoscience_search_sort_group_by_doctype_desc');
             }
 
             foreach($grouped_by_doctype as $index => $by_doctype) {
                 $year_grouped = InfoscienceGroupBy::array_group_by($by_doctype['values'], 'publication_date');
                 # order is fixed for second group by
-                usort($year_grouped, 'sort_group_by_year_desc');
+                usort($year_grouped, 'epfl_infoscience_search_sort_group_by_year_desc');
 
                 $grouped_publications['group_by'][] = [
                     'label' => $by_doctype['label'],
@@ -218,18 +218,18 @@ Class InfoscienceGroupBy {
             ];
 
             if ($sort_order === 'asc') {
-                usort($grouped_publications['group_by'], 'sort_group_by_year_asc');
+                usort($grouped_publications['group_by'], 'epfl_infoscience_search_sort_group_by_year_asc');
             } else {
-                usort($grouped_publications['group_by'], 'sort_group_by_year_desc');
+                usort($grouped_publications['group_by'], 'epfl_infoscience_search_sort_group_by_year_desc');
             }
 
         } elseif ($group_by === 'doctype') {
             $doctype_grouped = InfoscienceGroupBy::array_group_by($publications, 'doctype');
 
             if ($sort_order === 'asc') {
-                usort($doctype_grouped, 'sort_group_by_doctype_asc');
+                usort($doctype_grouped, 'epfl_infoscience_search_sort_group_by_doctype_asc');
             } else {
-                usort($doctype_grouped, 'sort_group_by_doctype_desc');
+                usort($doctype_grouped, 'epfl_infoscience_search_sort_group_by_doctype_desc');
             }
 
             $grouped_publications['group_by'] = [

@@ -43,10 +43,9 @@ function epfl_memento_get_limit($template)
  * @param $category: id of the event category
  * @param $keyword: keyword to filter events
  * @param $period: period to filter past event or upcoming events
- * @param $color: to choose a faculty color
  * @return the API URL of the memento
  */
-function epfl_memento_build_api_url($memento, $lang, $template, $category, $keyword, $period, $color)
+function epfl_memento_build_api_url($memento, $lang, $template, $category, $keyword, $period)
 {
     // returns the number of events according to the template
     $limit = epfl_memento_get_limit($template);
@@ -134,7 +133,6 @@ function epfl_memento_2018_process_shortcode($atts = [], $content = '', $tag = '
             'category' => '',
             'keyword'  => '',
             'period'   => '',
-            'color'    => 'EPFL',
     ), $atts, $tag);
 
     // sanitize parameters
@@ -144,7 +142,6 @@ function epfl_memento_2018_process_shortcode($atts = [], $content = '', $tag = '
     $category = sanitize_text_field( $atts['category'] );
     $keyword  = sanitize_text_field( $atts['keyword'] );
     $period   = sanitize_text_field( $atts['period'] );
-    $color    = sanitize_text_field( $atts['color'] );
 
     // With the new theme we display only upcoming events
     $period   = 'upcoming';
@@ -155,7 +152,7 @@ function epfl_memento_2018_process_shortcode($atts = [], $content = '', $tag = '
 
     // iframe template
     if ($template === "4") {
-        return MementoRender::epfl_memento_built_html_pagination_template($memento, $lang, $color, $period);
+        return MementoRender::epfl_memento_built_html_pagination_template($memento, $lang, $period);
     }
 
     $url = epfl_memento_build_api_url(
@@ -164,8 +161,7 @@ function epfl_memento_2018_process_shortcode($atts = [], $content = '', $tag = '
         $template,
         $category,
         $keyword,
-        $period,
-        $color
+        $period
     );
     $events = Utils::get_items($url);
 
