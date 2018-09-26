@@ -119,7 +119,7 @@ class Menu {
         return $this->get_local_tree();  // XXX Not quite!
     }
 
-    function update ($external_menu_item) {
+    function update ($emi) {
         // XXX Lazy but correct implementation (for low values of correct):
         // do nothing
     }
@@ -155,19 +155,19 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
         return self::SLUG;
     }
 
-    private static $_all_menus;
+    private static $_all_emis;
     static function all () {
-        if (! static::$_all_menus) {
-            static::$_all_menus = [];
+        if (! static::$_all_emis) {
+            static::$_all_emis = [];
             static::foreach(function($that) use ($retval) {
-                static::$_all_menus[] = $that;
+                static::$_all_emis[] = $that;
             });
         }
-        return static::$_all_menus;
+        return static::$_all_emis;
     }
 
     static private function _all_changed () {
-        static::$_all_menus = NULL;
+        static::$_all_emis = NULL;
     }
 
     static function load_from_filesystem () {
@@ -234,7 +234,8 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
                 $that = static::get_or_create($get_url);
                 $that->meta()->set_remote_slug($menu_slug);
 
-                $title = $menu_descr->description . " @ $base_url";
+                $base_url_dir = parse_url($base_url, PHP_URL_PATH);
+                $title = $menu_descr->description . " @ $base_url_dir";
                 $that->update(array('post_title' => $title));
                 $that->set_language($lang);
 
@@ -287,22 +288,11 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
         return $this->meta()->get_rest_subscribe_url();
     }
 
-    function render_sync_status () {
-        if ($failing_epoch = $this->meta()->get_sync_started_failing()) {
-            printf('<span class="epfl-menus-sync-failing">%s</span>',
-                   sprintf(___('Failing for %s'),
-                           human_time_diff($failing_epoch)));
-            $echoed_something = 1;
-        }
-        if ($success_epoch = $this->meta()->get_last_synced()) {
-            printf('Last sync success: %s ago',
-                   human_time_diff($success_epoch));
-            $echoed_something = 1;
-        }
-        if (! $echoed_something) {
-            $html = ___('Never synced yet');
-        }
-        return $html;
+    function get_sync_status () {
+        $status = new \stdClass();
+        $status->failing_since = $this->meta()->get_sync_started_failing();
+        $status->last_success  = $this->meta()->get_last_synced();
+        return $status;
     }
 
     function is_failing () {
@@ -463,8 +453,8 @@ class MenuItemController extends CustomPostTypeController
 
         add_action('rest_api_init', function() use ($thisclass) {
             foreach (static::get_model_class()::all()
-                     as $external_menu_item) {
-                $thisclass::hook_pubsub($external_menu_item);
+                     as $emi) {
+                $thisclass::hook_pubsub($emi);
             }
         });
 
@@ -475,12 +465,12 @@ class MenuItemController extends CustomPostTypeController
         static::_auto_fields_controller()->hook();
     }
 
-    static function hook_pubsub ($external_menu_item) {
+    static function hook_pubsub ($emi) {
         $thisclass = get_called_class();
-        static::_get_subscribe_controller($external_menu_item)->add_listener(
-            function($event) use ($thisclass, $external_menu_item) {
+        static::_get_subscribe_controller($emi)->add_listener(
+            function($event) use ($thisclass, $emi) {
                 foreach (Menu::all() as $menu) {
-                    if ($menu->update($external_menu_item)) {
+                    if ($menu->update($emi)) {
                         MenuRESTController::menu_changed($menu, $event);
                     }
                 }
@@ -512,8 +502,8 @@ class MenuItemController extends CustomPostTypeController
     }
 
     static private $subs = array();
-    static private function _get_subscribe_controller ($external_menu_item) {
-        $cache_key = $external_menu_item->ID;
+    static private function _get_subscribe_controller ($emi) {
+        $cache_key = $emi->ID;
         if (! static::$subs[$cache_key]) {
             static::$subs[$cache_key] = new SubscribeController(
                 // The subscribe slug will be embedded in webhook
@@ -521,7 +511,7 @@ class MenuItemController extends CustomPostTypeController
                 // Using the post ID is perhaps a bit difficult to
                 // read out of error logs, but certainly the easiest
                 // and most future-proof way of going about it.
-                "menu/" . $external_menu_item->ID);
+                "menu/" . $emi->ID);
         }
         return static::$subs[$cache_key];
     }
@@ -552,6 +542,7 @@ class MenuItemController extends CustomPostTypeController
             'supports' => array('title', 'custom-fields'),
             'public'                => false,
             'show_ui'               => true,
+            'show_in_nav_menus'     => true,
             'has_archive'           => false,
             'menu_icon'             => 'dashicons-list-view',
             'capabilities'          => static::capabilities_for_edit_but_not_create(),
@@ -574,22 +565,22 @@ class MenuItemController extends CustomPostTypeController
 
         $errors = 0;
         $all = ExternalMenuItem::all();
-        foreach ($all as $external_menu_item) {
-            if (! $external_menu_item->try_refresh()) {
+        foreach ($all as $emi) {
+            if (! $emi->try_refresh()) {
                 $errors++;
                 continue;
             }
 
-            $subscribe_url = $external_menu_item->get_subscribe_url();
+            $subscribe_url = $emi->get_subscribe_url();
             if (! $subscribe_url) {
-                $external_menu_item->error_log("has no subscribe URL");
+                $emi->error_log("has no subscribe URL");
                 continue;
             }
             try {
-                static::_get_subscribe_controller($external_menu_item)->
+                static::_get_subscribe_controller($emi)->
                     subscribe($subscribe_url);
             } catch (RESTClientError | TestWebhookFlowException $e) {
-                $external_menu_item->error_log(
+                $emi->error_log(
                     "Unable to subscribe at $subscribe_url: $e");
                 $errors++;
             }
@@ -671,8 +662,22 @@ class MenuItemController extends CustomPostTypeController
 ");
     }
 
-    static function render_date_column ($external_menu_item) {
-        $external_menu_item->render_sync_status();
+    static function render_date_column ($emi) {
+        $ss = $emi->get_sync_status();
+        if ($ss->failing_since) {
+            printf('<span class="epfl-menus-sync-failing">%s</span>',
+                   sprintf(___('Failing for %s'),
+                           human_time_diff($ss->failing_since)));
+            $echoed_something = 1;
+        }
+        if ($ss->last_success) {
+            printf('Last sync success: %s ago',
+                   human_time_diff($ss->last_success));
+            $echoed_something = 1;
+        }
+        if (! $echoed_something) {
+            echo ___('Never synced yet');
+        }
     }
 
     /**

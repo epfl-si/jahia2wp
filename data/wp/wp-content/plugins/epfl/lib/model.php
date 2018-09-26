@@ -246,7 +246,7 @@ class _PostMeta {
         $stem = substr($name, 4);
         $meta_name = $this->_meta_accessors[$stem];
         if (! $meta_name) {
-            throw new Exception(
+            throw new \Exception(
                 sprintf('Fatal error: Call to undefined method %s::%s',
                         $this->_owner_class, $name));
         }
@@ -260,7 +260,7 @@ class _PostMeta {
             $this->_update_meta_auto_fields();
             return delete_post_meta($this->_post_id, $meta_name);
         } else {
-            throw new Exception(
+            throw new \Exception(
                 sprintf('Fatal error: Call to undefined method %s::%s',
                         $this->_owner_class, $name));
         }
