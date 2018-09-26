@@ -196,7 +196,7 @@ class Shortcodes():
         # Transforms the following:
         # [my_shortcode attr_name="a" two="b"]  --> [my_shortcode two="b"]
         # [my_shortcode attr_name two="b"]      --> [my_shortcode two="b"]
-        matching_reg = re.compile('(?P<before> \[{}.+ ){}(=(".+?"|\S+?)|\s|\])?'.format(shortcode_name, attr_name),
+        matching_reg = re.compile('(?P<before> \[{}.+ ){}(=(".*?"|\S+?)|\s|\])?'.format(shortcode_name, attr_name),
                                   re.VERBOSE)
 
         return matching_reg.sub(r'\g<before>', content)
@@ -298,6 +298,17 @@ class Shortcodes():
         value = matching_reg.findall(shortcode_call)
         # We remouve surrounding " if exists.
         return value[0] if value else None
+
+    def __change_content(self, shortcode_call, new_content):
+        """
+        Return shortcode call with its content changed by new_content parameter
+        :param shortcode_call: String with shortcode call: [my_shortcode attr="1"]content[/my_shortcode]
+        :param new_content: Content to put
+        :return:
+        """
+        matching_reg = re.compile('\](.*)\[\/', re.DOTALL)
+
+        return matching_reg.sub(']{}[/'.format(new_content), shortcode_call)
 
     def __get_all_shortcode_calls(self, content, shortcode_name, with_content=False):
         """
@@ -700,6 +711,34 @@ class Shortcodes():
 
             # Replacing in global content
             content = content.replace(call, html)
+
+        return content
+
+    def _fix_epfl_snippets(self, content):
+        """
+        Fix "epfl_snippets" shortcode and transform it into epfl_card
+        :param content: String in which to fix
+        :return:
+        """
+        old_shortcode = 'epfl_snippets'
+        new_shortcode = 'epfl_card'
+
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, old_shortcode, with_content=True)
+
+        for call in calls:
+
+            new_call = call
+
+            # Delete unused attributes
+            new_call = self.__remove_attribute(new_call, old_shortcode, 'subtitle')
+            new_call = self.__remove_attribute(new_call, old_shortcode, 'big_image')
+            new_call = self.__remove_attribute(new_call, old_shortcode, 'enable_zoom')
+
+            new_call = self.__rename_shortcode(new_call, old_shortcode, new_shortcode)
+
+            # Replacing in global content
+            content = content.replace(call, new_call)
 
         return content
 
