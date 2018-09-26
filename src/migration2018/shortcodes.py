@@ -690,27 +690,26 @@ class Shortcodes():
 
     def _fix_su_box(self, content):
         """
-        Fix "su_box" from Shortcode Ultimate. We replace it with HTML code, not with another shortcode.
-        https://epfl-idevelop.github.io/elements/#/atoms/trapeze
+        Fix "su_box" from Shortcode Ultimate. We replace it with epfl_card
         :param content: String in which to fix.
         :return:
         """
+        old_shortcode = 'su_box'
+        new_shortcode = 'epfl_card'
+
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, 'su_box', with_content=True)
+        calls = self.__get_all_shortcode_calls(content, old_shortcode, with_content=True)
 
         for call in calls:
 
             box_content = self.__get_content(call)
 
-            html = '<a href="#" class="trapeze-vertical-container">'
-            html += '<div class="card">'
-            html += '<div class="card-body">{}</div>'.format(box_content)
-            html += '</div>'
-            html += '<span class="trapeze-vertical"></span>'
-            html += '</a>'
+            title = self.__get_attribute(call, 'title')
+
+            new_call = '[{0} title="{1}"]{2}[/{0}]'.format(new_shortcode, title, box_content)
 
             # Replacing in global content
-            content = content.replace(call, html)
+            content = content.replace(call, new_call)
 
         return content
 
