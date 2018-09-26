@@ -659,6 +659,50 @@ class Shortcodes():
         """
         return self.__fix_to_atom_button(content, 'my_buttonbutton')
 
+    def _fix_su_divider(self, content):
+        """
+        Fix "su_divider" from Shortcode Ultimate. We replace it with HTML code, not with another shortcode.
+        https://epfl-idevelop.github.io/elements/#/atoms/separator
+        :param content: String in which to fix.
+        :return:
+        """
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, 'su_divider')
+
+        for call in calls:
+            html = '<hr class="bold">'
+
+            # Replacing in global content
+            content = content.replace(call, html)
+
+        return content
+
+    def _fix_su_box(self, content):
+        """
+        Fix "su_box" from Shortcode Ultimate. We replace it with HTML code, not with another shortcode.
+        https://epfl-idevelop.github.io/elements/#/atoms/trapeze
+        :param content: String in which to fix.
+        :return:
+        """
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, 'su_box', with_content=True)
+
+        for call in calls:
+
+            box_content = self.__get_content(call)
+
+            html = '<a href="#" class="trapeze-vertical-container">'
+            html += '<div class="card">'
+            html += '<div class="card-body">{}</div>'.format(box_content)
+            html += '</div>'
+            html += '<span class="trapeze-vertical"></span>'
+            html += '</a>'
+
+            # Replacing in global content
+            content = content.replace(call, html)
+
+        return content
+
     def fix_site(self, openshift_env, wp_site_url):
         """
         Fix shortocdes in WP site
