@@ -750,6 +750,8 @@ class Shortcodes():
         :return: dictionnary with report.
         """
 
+        content_filename = Utils.generate_name(15, '/tmp/')
+
         report = {}
 
         wp_site = WPSite(openshift_env, wp_site_url)
@@ -819,8 +821,12 @@ class Shortcodes():
 
                 for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
                     try:
-                        wp_config.run_wp_cli("post update {} --skip-plugins --skip-themes - ".format(post_id),
-                                             pipe_input=content)
+                        # We use a temporary file to store page content to avoid to have problems with simple/double
+                        # quotes and content size
+                        with open(content_filename, 'wb') as content_file:
+                            content_file.write(content.encode())
+                        wp_config.run_wp_cli("post update {} --skip-plugins --skip-themes {} ".format(
+                            post_id, content_filename))
 
                     except Exception as e:
                         if try_no < settings.WP_CLI_AND_API_NB_TRIES - 1:
@@ -829,5 +835,9 @@ class Shortcodes():
                                           settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
                             time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
                             pass
+
+        # Cleaning
+        if os.path.exists(content_filename):
+            os.remove(content_filename)
 
         return report
