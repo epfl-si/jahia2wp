@@ -36,6 +36,15 @@ class AnsibleGroup:
         return designated_name in self.hosts
 
     def _moniker(self, url):
+        """
+        Return 
+        - the hostname of URL
+        or 
+        - the slug of WordPress site
+        Example :
+        url = "https://migration-wp.epfl.ch/help-actu/*"
+        return "help-actu"
+        """
         parsed = urlparse(url)
         hostname = parsed.netloc.split('.')[0]
         if hostname != 'migration-wp':
