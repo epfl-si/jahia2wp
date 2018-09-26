@@ -1,0 +1,379 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: epfl\n"
+"POT-Creation-Date: 2018-09-04 08:01+0200\n"
+"PO-Revision-Date: 2018-09-04 08:01+0200\n"
+"Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.7.1\n"
+"X-Poedit-Basepath: ../shortcodes\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-KeywordsList: __;esc_html__\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: epfl-card/shortcake-config.php:12
+msgid "Card"
+msgstr "Carte"
+
+#: epfl-card/shortcake-config.php:16
+msgid "Card text"
+msgstr "Texte de la carte"
+
+#: epfl-card/shortcake-config.php:21
+msgid "Card title"
+msgstr "Titre de la carte"
+
+#: epfl-card/shortcake-config.php:26
+msgid "Card link"
+msgstr "Lien de la carte"
+
+#: epfl-card/shortcake-config.php:31
+msgid "Card image"
+msgstr "Image de la carte"
+
+#: epfl-memento/shortcake-config.php:46
+msgid "Template with the first highlighted event"
+msgstr "Template avec le 1er événement mis en valeur"
+
+#: epfl-memento/shortcake-config.php:47
+msgid "Template without the first highlighted event"
+msgstr "Template sans mettre le 1er événement en valeur"
+
+#: epfl-memento/shortcake-config.php:54 epfl-news/shortcake-config.php:35
+msgid "English"
+msgstr "Anglais"
+
+#: epfl-memento/shortcake-config.php:55 epfl-news/shortcake-config.php:36
+msgid "French"
+msgstr "Français"
+
+#: epfl-memento/shortcake-config.php:62 epfl-news/shortcake-config.php:51
+#: epfl-news/shortcake-config.php:72
+msgid "No filter"
+msgstr "Pas de filtre"
+
+#: epfl-memento/shortcake-config.php:63
+msgid "Conferences - Seminars"
+msgstr "Conférences - Séminaires"
+
+#: epfl-memento/shortcake-config.php:64
+msgid "Management Board meetings"
+msgstr "Assemblées Conseils Direction"
+
+#: epfl-memento/shortcake-config.php:65
+msgid "Miscellaneous"
+msgstr "Divers"
+
+#: epfl-memento/shortcake-config.php:66
+msgid "Exhibitions"
+msgstr "Expositions"
+
+#: epfl-memento/shortcake-config.php:67
+msgid "Movies"
+msgstr "Films"
+
+#: epfl-memento/shortcake-config.php:68
+msgid "Celebrations"
+msgstr "Fêtes"
+
+#: epfl-memento/shortcake-config.php:69
+msgid "Inaugural lectures - Honorary Lecture"
+msgstr "Leçons inaugurales - Leçons d'honneur"
+
+#: epfl-memento/shortcake-config.php:70
+msgid "Cultural events"
+msgstr "Manifestations culturelles"
+
+#: epfl-memento/shortcake-config.php:71
+msgid "Sporting events"
+msgstr "Manifestations sportives"
+
+#: epfl-memento/shortcake-config.php:72
+msgid "Thesis defenses"
+msgstr "Soutenances de thèses"
+
+#: epfl-memento/shortcake-config.php:80
+#, php-format
+msgid ""
+"Please select your memento.%sThe events come from the application %smemento."
+"epfl.ch%s.%sIf you don't have a memento, please send a request to %s"
+msgstr ""
+"Veuillez sélectionner votre memento.%sLes événements proviennent de "
+"l'application %smemento.epfl.ch%s.%sSi vous n'avez pas de mémento, merci "
+"d'envoyer une demande à %s"
+
+#: epfl-memento/shortcake-config.php:94 epfl-news/shortcake-config.php:102
+#, php-format
+msgid ""
+"Do you need more information about templates? %sRead this documentation%s"
+msgstr ""
+"Avez vous besoin de plus d'information à propos des templates? %sMerci de "
+"lire la documentation%s"
+
+#: epfl-memento/shortcake-config.php:110
+msgid "Select your memento"
+msgstr "Sélectionner votre mémento"
+
+#: epfl-memento/shortcake-config.php:117 epfl-news/shortcake-config.php:127
+msgid "Select a template"
+msgstr "Sélectionner un template"
+
+#: epfl-memento/shortcake-config.php:125 epfl-news/shortcake-config.php:147
+msgid "Select a language"
+msgstr "Sélectionner une langue"
+
+#: epfl-memento/shortcake-config.php:129
+msgid "The language used to render events results"
+msgstr "La langue utilisée pour afficher les événements"
+
+#: epfl-memento/shortcake-config.php:133
+msgid "Filter events by category"
+msgstr "Filtrer les événements par catégorie"
+
+#: epfl-memento/shortcake-config.php:137
+msgid "Do you want filter events by category? Please select a category."
+msgstr ""
+"Voulez vous filtrer les événements par catégorie ? Merci de sélectionner une "
+"catégorie."
+
+#: epfl-memento/shortcake-config.php:140
+msgid "Filter events by keyword"
+msgstr "Filtrer les événements par mot clé"
+
+#: epfl-memento/shortcake-config.php:143
+msgid "Do you want filter events by keyword? Please type a keyword."
+msgstr ""
+"Voulez vous filtrer les événements par mot clé ? Merci de renseigner un mot "
+"clé."
+
+#: epfl-news/shortcake-config.php:43
+msgid "No"
+msgstr "Non"
+
+#: epfl-news/shortcake-config.php:44
+msgid "Yes"
+msgstr "Oui"
+
+#: epfl-news/shortcake-config.php:52
+msgid "Epfl"
+msgstr "Epfl"
+
+#: epfl-news/shortcake-config.php:53
+msgid "Education"
+msgstr "Enseignement"
+
+#: epfl-news/shortcake-config.php:54
+msgid "Research"
+msgstr "Recherche"
+
+#: epfl-news/shortcake-config.php:55
+msgid "Innovation"
+msgstr "Tech transfer"
+
+#: epfl-news/shortcake-config.php:56
+msgid "Campus Life"
+msgstr "Vie sur le campus"
+
+#: epfl-news/shortcake-config.php:63
+msgid "Template for laboratory website"
+msgstr "Template pour les sites de laboratoire"
+
+#: epfl-news/shortcake-config.php:64
+msgid "Template for homepage with 3 news"
+msgstr "Template pour la homepage de l'EPFL (avec 3 actualités)"
+
+#: epfl-news/shortcake-config.php:65
+msgid "Template for homepage with 1 news"
+msgstr "Template pour homepage (avec 1 actualités)"
+
+#: epfl-news/shortcake-config.php:73
+msgid "Basic Sciences"
+msgstr "Sciences de base"
+
+#: epfl-news/shortcake-config.php:74
+msgid "Health"
+msgstr "Santé"
+
+#: epfl-news/shortcake-config.php:75
+msgid "Computer Science"
+msgstr "Informatique"
+
+#: epfl-news/shortcake-config.php:76
+msgid "Engineering"
+msgstr "Ingénierie"
+
+#: epfl-news/shortcake-config.php:77
+msgid "Environment"
+msgstr "Environnement"
+
+#: epfl-news/shortcake-config.php:78
+msgid "Buildings"
+msgstr "Construction"
+
+#: epfl-news/shortcake-config.php:79
+msgid "Culture"
+msgstr "Société/Culture"
+
+#: epfl-news/shortcake-config.php:80
+msgid "Economy"
+msgstr "Eco/Finance"
+
+#: epfl-news/shortcake-config.php:81
+msgid "Energy"
+msgstr "Energie"
+
+#: epfl-news/shortcake-config.php:88
+#, php-format
+msgid ""
+"The news come from the application %sactu.epfl.ch%s.%sIf you don't have a "
+"news channel, please send a request to %s"
+msgstr ""
+"Les actualités proviennent de l'application %sactu.epfl.ch%s.%sSi vous "
+"n'avez pas de canal, merci d'envoyer une demande à%s"
+
+#: epfl-news/shortcake-config.php:116
+msgid "News"
+msgstr "Actualités"
+
+#: epfl-news/shortcake-config.php:120
+msgid "Select your news channel"
+msgstr "Sélectionner votre canal d'actualités"
+
+#: epfl-news/shortcake-config.php:135
+msgid "Display the link \"all news\" ?"
+msgstr "Afficher le lien \"toutes les actualités\" ?"
+
+#: epfl-news/shortcake-config.php:140
+msgid "Number of news"
+msgstr "Nombre d'actualités"
+
+#: epfl-news/shortcake-config.php:143
+msgid ""
+"The number of news can only be defined for the Template: 'Template for "
+"laboratory website'"
+msgstr ""
+"Le nombre d'actualités peut être défini que pour le template: 'Template pour "
+"les sites de laboratoire'"
+
+#: epfl-news/shortcake-config.php:151
+msgid "The language used to render news results"
+msgstr "La langue utilisée pour afficher les actualités"
+
+#: epfl-news/shortcake-config.php:155
+msgid "Display the news category ?"
+msgstr "Afficher la catégorie de l'actualité ?"
+
+#: epfl-news/shortcake-config.php:159
+msgid ""
+"Do you want display the news category at the top right of the news image?"
+msgstr ""
+"Voulez vous afficher la catégorie de l'actualité en haut à droite du visuel "
+"de l'actualité?"
+
+#: epfl-news/shortcake-config.php:163
+msgid "Filter news by category"
+msgstr "Filtrer les actualités par une catégorie"
+
+#: epfl-news/shortcake-config.php:167
+msgid "Do you want filter news by category? Please select a category."
+msgstr ""
+"Voulez vous filtrer les actualités par catégorie? Veuillez sélectionner une "
+"catégorie."
+
+#: epfl-news/shortcake-config.php:170
+msgid "Filter news by themes"
+msgstr "Filtrer les actualités par thèmes"
+
+#: epfl-news/shortcake-config.php:174
+msgid "Do you want filter news by themes?. Please select themes."
+msgstr ""
+"Voulez vous filtrer les actualités par thèmes? Veuillez sélectionner un ou "
+"plusieurs thèmes."
+
+#: epfl-toggle/shortcake-config.php:9
+msgid "Open"
+msgstr "Ouvert"
+
+#: epfl-toggle/shortcake-config.php:10
+msgid "Close"
+msgstr "Fermé"
+
+#: epfl-toggle/shortcake-config.php:20
+msgid "Title"
+msgstr "Titre"
+
+#: epfl-toggle/shortcake-config.php:22
+msgid "Toggle title"
+msgstr "Titre de l'accordéon"
+
+#: epfl-toggle/shortcake-config.php:27
+msgid "Description"
+msgstr "Description"
+
+#: epfl-toggle/shortcake-config.php:29
+msgid "Content shown when toggle is opened"
+msgstr "Contenu affiché lorsque l'accordéon est ouvert"
+
+#: epfl-toggle/shortcake-config.php:38
+msgid "Define toggle state"
+msgstr "Définir l'état de l'accordéon"
+
+#: epfl-toggle/shortcake-config.php:42
+msgid "Do you want display the toggle opened or closed by default ?"
+msgstr ""
+"Est ce que vous voulez que l'accordéon, par défaut, soit ouvert ou fermé ?"
+
+#: epfl-toggle/shortcake-config.php:61
+msgid "Toggle"
+msgstr "Accordéon"
+
+#~ msgid "The title of the toggle"
+#~ msgstr "Le titre de l'accordéon"
+
+#~ msgid "Template for laboratory website with 5 news"
+#~ msgstr "Template pour les sites de laboratoires (avec 5 actualités)"
+
+#~ msgid "Template for faculty website with 3 news"
+#~ msgstr "Template pour les sites de facultés (avec 3 actualités)"
+
+#~ msgid "Template for faculty website with 4 news"
+#~ msgstr "Template pour les sites de facultés (avec 4 actualités)"
+
+#~ msgid "Template text only"
+#~ msgstr "Template avec seulement du texte"
+
+#~ msgid "Template with all news"
+#~ msgstr "Template avec toutes les actualités"
+
+#~ msgid "Template for portal website with image at the top"
+#~ msgstr "Template pour un portail (avec image en haut)"
+
+#~ msgid "Template for portal website image on the left"
+#~ msgstr "Template pour un portail (avec image sur la gauche)"
+
+#~ msgid "Add News shortcode"
+#~ msgstr "Ajouter un shortcode actualités"
+
+#~ msgid "Language"
+#~ msgstr "Langue"
+
+#~ msgid "test%stest"
+#~ msgstr "testfr%stestfr"
+
+#~ msgid ""
+#~ "Please select your news channel.<br/>\n"
+#~ "                                               The news come from the "
+#~ "application <a href=\"https://actu.epfl.ch\">actu.epfl.ch</a>.<br/>\n"
+#~ "                                               If you don't have a news "
+#~ "channel, please send a request to <a href=\"mailto:1234@epfl.ch"
+#~ "\">1234@epfl.ch</a>"
+#~ msgstr ""
+#~ "Veuillez sélectionner votre canal d'actualités<br/>\n"
+#~ "Les actualités proviennent de l'application <a href=\"https://actu.epfl.ch"
+#~ "\">actu.epfl.ch</a>.<br/>\n"
+#~ "Si vous n'avez pas de canal d'actualités, merci d'envoyer une demande à "
+#~ "<a href=\"mailto:1234@epfl.ch\">1234@epfl.ch</a>"

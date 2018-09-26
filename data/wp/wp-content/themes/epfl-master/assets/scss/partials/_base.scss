@@ -115,8 +115,16 @@ p {
   }
   
   &:last-child {
-    margin-bottom: 0;
+    //margin-bottom: 0;
   }
+  
+  table & {
+    margin-bottom: .75em;
+  }
+}
+
+table p {
+  
 }
 
 p,
@@ -204,6 +212,11 @@ h5 {
   text-transform: none;
 }
 
+sub,
+sup {
+  font-size: 11px;
+}
+
 /* Links */
 
 a {
@@ -219,10 +232,6 @@ a {
   
   &:hover {
     border-bottom-style: solid;
-  }
-  
-  &:empty {
-    display: none;
   }
 }
 
@@ -247,6 +256,7 @@ li {
   margin-bottom: .5em;
 }
 
+/*
 ul {
   list-style: none;
   padding-left: 0;
@@ -271,9 +281,14 @@ ul {
     }
   }
 }
+*/
 
-ul.list-unstyled li:before {
-  display: none;
+ul li {
+  //list-style-image: url(../images/bullet.svg);
+}
+
+ul.list-unstyled li {
+  list-style: none;
 }
 
 dl dt {
@@ -311,6 +326,7 @@ b, strong {
 
 abbr,
 acronym {
+  @include color-text;
   border: none;
   text-decoration: none;
 }

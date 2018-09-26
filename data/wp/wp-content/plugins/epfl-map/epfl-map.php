@@ -7,7 +7,6 @@
  * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
-declare( strict_types = 1 );
 
 /**
  * Helper to debug the code
@@ -22,20 +21,20 @@ function epfl_map_debug( $var ) {
 /**
  * Build html
  *
- * @param $width: width of the map iframe
- * @param $height: height of the map iframe
  * @param $query: query example: the office, the person
  * @param $lang: language
  * @return string html of map iframe
  */
-function epfl_map_build_html( string $width, string $height, string $query, string $lang ): string
+function epfl_map_build_html( string $query, string $lang ): string
 {
-    $html  = '<iframe frameborder="0" ';
-    $html .= 'width="' . esc_attr($width) . '" ';
-    $html .= 'height="' . esc_attr($height) . '" ';
-    $html .= 'scrolling="no" src="https://plan.epfl.ch/iframe/?q=' . esc_attr($query);
-    $html .= '&amp;lang=' . esc_attr($lang) . '&amp;map_zoom=10"></iframe>';
-    return $html;
+
+    return '<div class="container">'.
+           '<div class="epfl-map epfl-map-responsive embed-responsive embed-responsive-16by9">'.
+           '<iframe frameborder="0" scrolling="no" '.
+           ' src="https://plan.epfl.ch/iframe/?q='.esc_attr($query).'&amp;lang='.esc_attr($lang).'&amp;map_zoom=10" class="embed-responsive-item"></iframe>'.
+           '</div>'.
+           '</div>';
+
 }
 
 /**
@@ -43,15 +42,13 @@ function epfl_map_build_html( string $width, string $height, string $query, stri
  *
  * Return True if all parameters are populated
  *
- * @param $width: width of the map iframe
- * @param $height: height of the map iframe
  * @param $query: query example: the office, the person
  * @param $lang: language
  * @return True if all parameters are populated
  */
-function epfl_map_check_parameters( string $width, string $height, string $query, string $lang): bool
+function epfl_map_check_parameters(string $query, string $lang): bool
 {
-    return $width !== "" && $height !== "" && $query !== "" && $lang !== "";
+    return $query !== "" && $lang !== "";
 }
 
 /**
@@ -65,23 +62,19 @@ function epfl_map_process_shortcode( $attributes, string $content = null ): stri
 {
     // get parameters
     $atts = shortcode_atts(array(
-        'width'  => '',
-        'height' => '',
         'query'  => '',
         'lang'   => '',
     ), $attributes);
 
     // sanitize parameters
-    $width  = sanitize_text_field($atts['width']);
-    $height = sanitize_text_field($atts['height']);
     $query  = sanitize_text_field($atts['query']);
     $lang   = sanitize_text_field($atts['lang']);
 
     // check parameters
-    if ( false == epfl_map_check_parameters($width, $height, $query, $lang) ) {
+    if ( false == epfl_map_check_parameters($query, $lang) ) {
         return "";
     }
-    return epfl_map_build_html( $width, $height, $query, $lang );
+    return epfl_map_build_html($query, $lang );
 }
 
 // Load .mo file for translation
@@ -113,34 +106,27 @@ add_action( 'register_shortcode_ui',  function() {
                     'attr'          => 'query',
                     'type'          => 'text',
                     'value'         => 'INN011',
-                    'description'   => esc_html__('For example a room', 'epfl-map'),
+                    'description'   => esc_html__('A room for example', 'epfl-map'),
                 ),
                 array(
                     'label'         => '<h3>' . esc_html__('Language', 'epfl-map') . '</h3>',
                     'attr'          => 'lang',
                     'type'          => 'select',
                     'options'       => $lang_options,
-                    'description'   => esc_html__('The language used to render map result', 'epfl-map'),
-                ),
-                array(
-                    'label'         => '<h3>' . esc_html__('Width of the map', 'epfl-map') . '</h3>',
-                    'attr'          => 'width',
-                    'type'          => 'text',
-                    'value'         => '600',
-                    'description'   => esc_html__('Width of the map. Recommended value: 600', 'epfl-map'),
-                ),
-                array(
-                    'label'         => '<h3>' . esc_html__('Height of the map', 'epfl-map') . '</h3>',
-                    'attr'          => 'height',
-                    'type'          => 'text',
-                    'value'         => '400',
-                    'description'   => esc_html__('Height of the map. Recommended value: 400', 'epfl-map'),
-                ),
+                    'description'   => esc_html__('Language used to render map result', 'epfl-map'),
+                    ),
             ),
 
             'post_type'     => array( 'post', 'page' ),
         )
     );
+});
+
+add_action( 'wp_enqueue_scripts', function() {
+
+  // enqueue style
+   wp_enqueue_style( 'epfl_map_style', plugin_dir_url(__FILE__).'css/style.css' );
+
 });
 
 ?>

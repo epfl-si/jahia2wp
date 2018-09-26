@@ -2,6 +2,18 @@ jQuery(document).ready(function($){
   
   $('html').addClass('redpandas-will-rule-the-world');
   
+  // Magnific popup
+  
+//  $('.lightbox').magnificPopup({
+//          type: 'image',
+//          closeOnContentClick: true,
+//          mainClass: 'lightbox',
+//          image: {
+//            verticalFit: true
+//          }
+//          
+//        });
+  
   // Toggle box 
   
   $(".collapsible:not(.open) .collapsible-content").hide();
@@ -89,6 +101,7 @@ jQuery(document).ready(function($){
   // Remove link border form around images
   
   $('a img').parent('a').css('border','none');
+  $('a span.read-more').parent('a').css('border','none');
   
   
 });
