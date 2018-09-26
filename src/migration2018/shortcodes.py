@@ -432,14 +432,14 @@ class Shortcodes():
 
         return content
 
-    def _fix_su_slider(self, content):
+    def _fix_to_gallery(self, content, old_shortcode):
         """
         Fix all su slider shortcodes in content
         :param content: String in which to fix
+        :param old_shortcode: Shortcode name to look for.
         :return:
         """
 
-        old_shortcode = 'su_slider'
         new_shortcode = 'gallery'
 
         # Looking for all calls to modify them one by one
@@ -452,8 +452,8 @@ class Shortcodes():
             # SOURCE -> IDS
             source = self.__get_attribute(call, 'source')
 
-            # If not images, it is not supported, we skip it (present in STI website)
-            if source.startswith('posts:'):
+            # If not images, it is not supported, we skip it
+            if not source.startswith('media:'):
                 continue
 
             ids = source.replace('media:', '').strip()
@@ -464,9 +464,13 @@ class Shortcodes():
 
                 # LINK
                 link = self.__get_attribute(call, 'link')
-                if link == 'image':
+                # 'image' is for su_slider and su_custom_gallery
+                # 'lightbox' is for su_custom_gallery
+                if link == 'image' or link == 'lightbox':
                     link = 'file'
-                elif link == '':
+                # '' is for su_slider
+                # 'post', 'attachement' is for su_custom_gallery
+                elif link == '' or link == 'post' or link == 'attachement':
                     link = 'attachement'
                 else:  # None
                     link = 'none'
@@ -480,6 +484,22 @@ class Shortcodes():
             content = content.replace(call, new_call)
 
         return content
+
+    def _fix_su_custom_gallery(self, content):
+        """
+        Fix all su_custom_gallery shortcodes in content
+        :param content: String in which to fix
+        :return:
+        """
+        return self._fix_to_gallery(content, 'su_custom_gallery')
+
+    def _fix_su_slider(self, content):
+        """
+        Fix all su_slider shortcodes in content
+        :param content: String in which to fix
+        :return:
+        """
+        return self._fix_to_gallery(content, 'su_slider')
 
     def __fix_to_epfl_toggle(self, content, old_shortcode):
         """
@@ -665,7 +685,7 @@ class Shortcodes():
             original_content = content
 
             # Looking for all shortcodes in current post
-            for shortcode in re.findall(self.regex, content):
+            for shortcode in list(set(re.findall(self.regex, content))):
 
                 # This is not a registered shortcode
                 if shortcode not in registered_shortcodes:
