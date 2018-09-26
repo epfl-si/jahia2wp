@@ -353,6 +353,14 @@ class Shortcodes():
         """
         return self.__fix_to_epfl_video(content, 'su_youtube')
 
+    def _fix_su_youtube_advanced(self, content):
+        """
+        Fix "su_youtube_advanced" from Shortcode ultimate plugin
+        :param content:
+        :return:
+        """
+        return self.__fix_to_epfl_video(content, 'su_youtube_advanced')
+
     def _fix_epfl_people(self, content):
         """
         Fix all epfl_people shortcodes in content
@@ -464,12 +472,12 @@ class Shortcodes():
 
                 # LINK
                 link = self.__get_attribute(call, 'link')
-                # 'image' is for su_slider and su_custom_gallery
-                # 'lightbox' is for su_custom_gallery
+                # 'image' is for su_slider, su_custom_gallery and su_carousel
+                # 'lightbox' is for su_custom_gallery and su_carousel
                 if link == 'image' or link == 'lightbox':
                     link = 'file'
                 # '' is for su_slider
-                # 'post', 'attachement' is for su_custom_gallery
+                # 'post', 'attachement' is for su_custom_gallery and su_carousel
                 elif link == '' or link == 'post' or link == 'attachement':
                     link = 'attachement'
                 else:  # None
@@ -484,6 +492,14 @@ class Shortcodes():
             content = content.replace(call, new_call)
 
         return content
+
+    def _fix_su_carousel(self, content):
+        """
+        Fix all su_custom_gallery shortcodes in content
+        :param content: String in which to fix
+        :return:
+        """
+        return self._fix_to_gallery(content, 'su_carousel')
 
     def _fix_su_custom_gallery(self, content):
         """
