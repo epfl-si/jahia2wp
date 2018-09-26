@@ -283,7 +283,7 @@ class Shortcodes():
                                   re.VERBOSE)
 
         value = matching_reg.findall(shortcode_call)
-        # We remouve surrounding " if exists.
+        # We remove surrounding " if exists.
         return value[0].strip('"') if value else None
 
     def __get_content(self, shortcode_call):
@@ -296,7 +296,7 @@ class Shortcodes():
         matching_reg = re.compile('\](.*)\[\/', re.DOTALL)
 
         value = matching_reg.findall(shortcode_call)
-        # We remouve surrounding " if exists.
+        # We remove surrounding " if exists.
         return value[0] if value else None
 
     def __change_content(self, shortcode_call, new_content):
@@ -740,6 +740,21 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, new_call)
 
+        return content
+
+    def _fix_epfl_memento(self, content):
+        """
+        Fix "epfl_memento" shortcode
+        :param content:
+        :return:
+        """
+        old_shortcode = 'epfl_memento'
+        new_shortcode = 'epfl_memento_2018'
+
+        # a lot of attributes are useless so we try to remove all of them
+        content = self.__change_attribute_value(content, old_shortcode, 'template', '4')
+
+        content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
         return content
 
     def fix_site(self, openshift_env, wp_site_url):
