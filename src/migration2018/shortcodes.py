@@ -573,6 +573,56 @@ class Shortcodes():
 
         return content
 
+    def __fix_to_atom_button(self, content, old_shortcode):
+        """
+        Return HTML code to display button according 2018 styleguide:
+        https://epfl-idevelop.github.io/elements/#/atoms/button
+        :param content: String in which to fix
+        :return:
+        """
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, old_shortcode, with_content=True)
+
+        for call in calls:
+            # getting future toggle content
+            text = self.__get_content(call)
+            url = self.__get_attribute(call, 'url')
+            target = self.__get_attribute(call, 'target')
+
+            html = ''
+
+            if url:
+                target = 'target="{}"'.format(target) if target else ""
+
+                html += '<a href="{}" {}>'.format(url, target)
+
+            html += '<button class="btn btn-primary">{}</button>'.format(text)
+
+            if url:
+                html += '</a>'
+
+            # Replacing in global content
+            content = content.replace(call, html)
+
+        return content
+
+    def _fix_su_button(self, content):
+        """
+        Fix "su_button" from Shortcode Ultimate plugin.
+        :param content: String in which to fix
+        :return:
+        """
+        return self.__fix_to_atom_button(content, 'su_button')
+
+    def _fix_my_buttonbutton(self, content):
+        """
+        Fix "my_buttonbutton" (renamed su_button) from Shortcode ultimate plugin
+        This plugin name is only used on UC website...
+        :param content: String in which to fix
+        :return:
+        """
+        return self.__fix_to_atom_button(content, 'my_buttonbutton')
+
     def fix_site(self, openshift_env, wp_site_url):
         """
         Fix shortocdes in WP site
