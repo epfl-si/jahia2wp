@@ -15,6 +15,16 @@ function config() {
                     'description'   => esc_html__('Url to your Twitter account (optional) (eg. https://twitter.com/EPFL)', 'epfl'),
                 ),
                 array(
+                    'label'         => esc_html__('Tweets limit', 'epfl'),
+                    'attr'          => 'twitter_limit',
+                    'type'          => 'number',
+                    'meta'        => array(
+                        'placeholder' => '0',
+                        'min'         => '0',
+                    ),
+                    'description'   => esc_html__('0 for unlimited', 'epfl'),
+                ),
+                array(
                     'label'         => '<h3>Instagram</h3>',
                     'attr'          => 'instagram_url',
                     'type'          => 'url',
