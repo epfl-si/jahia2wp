@@ -284,9 +284,11 @@ class PublishController
 {
     function __construct ($subscribe_uri) {
         $this->subscribe_uri = $subscribe_uri;
+    }
 
+    function serve_api () {
         REST_API::POST_JSON(
-            $subscribe_uri, $this, 'on_REST_subscribe');
+            $this->subscribe_uri, $this, 'on_REST_subscribe');
     }
 
     public /* not really */

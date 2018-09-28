@@ -59,11 +59,11 @@ class MenuError extends \Exception {};
  * for EPFL-style menu stitching.
  */
 class Menu {
-    private function __construct ($slug, $description, $term_id) {
-        assert($term_id);
-        $this->slug        = $slug;
-        $this->description = $description;
-        $this->term_id     = $term_id;
+    private function __construct ($slug, $lang, $term_id) {
+        assert($term_id > 0);
+        $this->slug    = $slug;
+        $this->lang    = $lang;
+        $this->term_id = $term_id;
     }
 
     /**
@@ -85,23 +85,67 @@ class Menu {
     }
 
     function get_description () {
-        return $this->description;
+        return get_registered_nav_menus()[$this->slug];
     }
 
     static function all () {
-        $thisclass = get_called_class();
-        $locations = get_nav_menu_locations();
-        $all = array();
-        foreach (get_registered_nav_menus() as $slug => $description) {
-            if (! ($term_id = $locations[$slug])) continue;
-            $all[] = new $thisclass(
-                $slug, $description, $term_id);
+        $all = static::_all_from_polylang();
+        if ($all === NULL) {
+            $all = static::all_in_current_language();
         }
         return $all;
     }
 
+    static function _all_from_polylang () {
+        // Polylang may be inactive, but with its options still
+        // available in-database so check this first.
+        if (! function_exists('pll_current_language')) return NULL;
+
+        // Really, frobbing through the Polylang persistent data is
+        // the least fragile way to go about this.
+        $poly_options = get_option('polylang');  // Auto-deserializes
+        if (! $poly_options) return NULL;
+
+        $thisclass = get_called_class();
+
+        $all = array();
+        foreach ($poly_options['nav_menus'][get_stylesheet()]
+                 as $slug => $menus) {
+            if (! static::_menu_exists_in_theme($slug)) continue;
+            foreach ($menus as $lang => $term_id) {
+                if (! $term_id) continue;
+                $all[] = new $thisclass($slug, $lang, $term_id);
+            }
+        }
+        return $all;
+    }
+
+    static function all_in_current_language () {
+        $thisclass = get_called_class();
+
+        // Polylang hooks into the 'theme_mod_nav_menu_locations'
+        // filter, therefore get_nav_menu_locations() depends on the
+        // current language.
+        $all = array();
+        $lang = function_exists('pll_current_language') ?
+                pll_current_language()                  : NULL;
+        foreach (get_nav_menu_locations() as $slug => $term_id) {
+            if (! $term_id) continue;
+            if (! static::_menu_exists_in_theme($slug)) continue;
+            $all[] = new $thisclass($slug, $lang, $term_id);
+        }
+        return $all;
+    }
+
+    static function _menu_exists_in_theme ($slug) {
+        return array_key_exists($slug, get_registered_nav_menus());
+    }
+
+    /**
+     * @return The menu associated with $slug in the current language.
+     */
     static function by_slug ($slug) {
-        foreach (static::all() as $that) {
+        foreach (static::all_in_current_language() as $that) {
             if ($that->get_slug() === $slug) {
                 return $that;
             }
@@ -286,7 +330,7 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
  * Enumerate menus over the REST API
  *
  * Enumeration is independent of languages (or lack thereof) i.e.
- * there is exactly one result per theme slot (in the sense of
+ * there is at most one result per theme slot (in the sense of
  * @link get_registered_nav_menus). It is also independent of the
  * pubsub mechanism, in the sense that the code thereof is not invoked
  * here (but URLs that point to the pubsub REST endpoints, do get
@@ -316,14 +360,14 @@ class MenuRESTController
 
         add_action('rest_api_init', function() use ($thisclass) {
             foreach (Menu::all() as $menu) {
-                $thisclass::_get_publish_controller($menu);
+                $thisclass::_get_publish_controller($menu)->serve_api();
             }
         });
     }
 
     static function get_menus () {
         $retval = [];
-        foreach (Menu::all() as $menu) {
+        foreach (Menu::all_in_current_language() as $menu) {
             array_push($retval, array(
                 'slug'        => $menu->get_slug(),
                 'description' => $menu->get_description(),
