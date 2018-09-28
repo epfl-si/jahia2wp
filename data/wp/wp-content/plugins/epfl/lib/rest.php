@@ -15,6 +15,8 @@ if (! defined( 'ABSPATH' )) {
 use \WP_Error;
 use \Throwable;
 
+require_once(__DIR__ . '/pod.php');
+
 const _API_EPFL_PATH = 'epfl/v1';
 
 
@@ -179,7 +181,7 @@ class REST_API {
     static function get_entrypoint_url ($path, $wrt_url = NULL) {
         if ($wrt_url && 'localhost' === parse_url($wrt_url, PHP_URL_HOST)) {
             return REST_URL::remote(
-                'https://localhost:8443' . parse_url(site_url(), PHP_URL_PATH),
+                \EPFL\Pod\Site::this_site()->get_localhost_url(),
                 $path);
         } else {
             return REST_URL::local_canonical($path);

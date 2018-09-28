@@ -49,6 +49,9 @@ use function EPFL\I18N\__e;
 require_once(dirname(__DIR__) . '/lib/this-plugin.php');
 use EPFL\ThisPlugin\Asset;
 
+require_once(dirname(__DIR__) . '/lib/pod.php');
+use EPFL\Pod\Site;
+
 class MenuError extends \Exception {};
 
 /**
@@ -171,47 +174,22 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
     }
 
     static function load_from_filesystem () {
-        // http://ch1.php.net/manual/en/class.recursivedirectoryiterator.php#114504
-        $all_abspath_lazy = new \RecursiveDirectoryIterator(
-            ABSPATH,
-            \RecursiveDirectoryIterator::SKIP_DOTS);  // Dude, so 1990's.
-
-        $wp_configs_lazy = new \RecursiveCallbackFilterIterator(
-            $all_abspath_lazy,
-            function ($current, ...$unused) {
-                // Because there is but one return value from this
-                // here callback (not that RecursiveFilterIterator,
-                // with its sole overridable method, would be any
-                // different), the PHP API for filtering trees
-                // conflates filtering directories and "pruning" them
-                // (in the sense of find(1)). Despite the strong itch
-                // to just reimplement a RecursiveWhateverIterator as
-                // an anonymous class (which would take about as many
-                // lines as this comment), I went with the only
-                // slightly inelegant hack of filtering wp-config.php
-                // files, rather than directories that have a
-                // wp-config.php file in them.
-                if ($current->isDir()) {
-                    // Returning false means to prune the directory, so
-                    // be conservative.
-                    return ! preg_match('/^wp-/', $current->getBasename());
-                } else {
-                    return $current->getBaseName() === 'wp-config.php';
-                }
-            });
-
-        foreach ((new \RecursiveIteratorIterator($wp_configs_lazy))
-                 as $info) {
-            $relpath = substr(dirname($info->getPathname()), strlen(ABSPATH));
-            if (! $relpath) continue;  // Skip our own directory
-
+        $me = Site::this_site();
+        $neighbors = array_merge(array(Site::root()),
+                                 $me->get_subsites());
+        foreach ($neighbors as $site) {
+            if ($site->equals($me)) continue;
             try {
-                static::load_from_wp_base_url('https://localhost:8443' . parse_url(site_url(), PHP_URL_PATH) . "/$relpath");
+                static::_load_from_site($site);
             } catch (RESTRemoteError $e) {
                 error_log("[Not our fault, IGNORED] " . $e);
                 continue;
             }
         }
+    }
+
+    static protected function _load_from_site ($site) {
+        static::load_from_wp_base_url($site->get_localhost_url());
     }
 
     static function load_from_wp_base_url ($base_url) {
