@@ -185,14 +185,18 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
     const SLUG = "epfl-external-menu";
 
     // For get_or_create():
-    const META_PRIMARY_KEY = 'epfl-emi-rest-api-url';
+    const META_PRIMARY_KEY = array(
+        'epfl-emi-site-url',
+        'epfl-emi-remote-slug',
+        'epfl-emi-remote-lang');
 
     // For ->meta()->{get_,set_}foo():
     const META_ACCESSORS = array(
         // {get_,set_} suffix => in-database post meta name ("-emi-" stands for "external menu item")
-        'rest_url'             => 'epfl-emi-rest-api-url',
+        'site_url'             => 'epfl-emi-site-url',
         'rest_subscribe_url'   => 'epfl-emi-rest-api-subscribe-url',
         'remote_slug'          => 'epfl-emi-remote-slug',
+        'remote_lang'          => 'epfl-emi-remote-lang',
         'items_json'           => 'epfl-emi-remote-contents-json',
         'last_synced'          => 'epfl-emi-last-synced-epoch',
         'sync_started_failing' => 'epfl-emi-sync-started-failing-epoch',
@@ -233,15 +237,15 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
     }
 
     static protected function _load_from_site ($site) {
-        static::load_from_wp_base_url($site->get_localhost_url());
+        static::load_from_wp_site_url($site->get_localhost_url());
     }
 
-    static function load_from_wp_base_url ($base_url) {
-        foreach (RESTClient::GET_JSON(REST_URL::remote($base_url, 'languages'))
+    static function load_from_wp_site_url ($site_url) {
+        foreach (RESTClient::GET_JSON(REST_URL::remote($site_url, 'languages'))
                  as $lang) {
             try {
                 $menu_descrs = RESTClient::GET_JSON(REST_URL::remote(
-                    $base_url,
+                    $site_url,
                     "menus?lang=$lang"));
             } catch (RESTClientError $e) {
                 error_log("[Not our fault, IGNORED] " . $e);
@@ -250,16 +254,14 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
 
             foreach ($menu_descrs as $menu_descr) {
                 $menu_slug = $menu_descr->slug;
-                $get_url = REST_URL::remote(
-                    $base_url, "menus/$menu_slug?lang=$lang")
-                         ->fully_qualified();
-                $that = static::get_or_create($get_url);
-                $that->meta()->set_remote_slug($menu_slug);
-
-                $base_url_dir = parse_url($base_url, PHP_URL_PATH);
-                $title = $menu_descr->description . " @ $base_url_dir";
-                $that->update(array('post_title' => $title));
+                $that = static::get_or_create($site_url, $menu_slug, $lang);
+                // Keep Polylang language in sync, so that the little flags
+                // show up in the wp-admin list UI.
                 $that->set_language($lang);
+
+                $site_url_dir = parse_url($site_url, PHP_URL_PATH);
+                $title = $menu_descr->description . " @ $site_url_dir";
+                $that->update(array('post_title' => $title));
 
                 $that->refresh();
             }
@@ -268,9 +270,17 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
         static::_all_changed();
     }
 
+    protected function _get_rest_url () {
+        $site_url = $this->meta()->get_site_url();
+        $menu_slug = $this->meta()->get_remote_slug();
+        $lang = $this->get_language();
+        return REST_URL::remote($site_url, "menus/$menu_slug?lang=$lang")
+            ->fully_qualified();
+    }
+
     function refresh () {
         if ($this->_refreshed) return;  // Not twice in same query cycle
-        if (! ($get_url = $this->meta()->get_rest_url())) {
+        if (! ($get_url = $this->_get_rest_url())) {
             $this->error_log("doesn't look very external to me");
             return;
         }
