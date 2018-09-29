@@ -24,6 +24,9 @@ require_once(ABSPATH . 'wp-admin/includes/class-walker-nav-menu-edit.php');
 require_once(dirname(__DIR__) . '/lib/model.php');
 use \EPFL\Model\TypedPost;
 
+require_once(dirname(__DIR__) . '/lib/results.php');
+use \EPFL\Results\FindFromAllTrait;
+
 require_once(dirname(__DIR__) . '/lib/rest.php');
 use \EPFL\REST\REST_API;
 use \EPFL\REST\RESTClient;
@@ -53,6 +56,238 @@ require_once(dirname(__DIR__) . '/lib/pod.php');
 use EPFL\Pod\Site;
 
 class MenuError extends \Exception {};
+
+
+
+/**
+ * A Wordpress-style list of menu objects.
+ *
+ * An instance represents a list of objects that are typically
+ * manipulated by Wordpress and its so-called walkers in order to
+ * construct menus. Instances are immutable: all mutating operations
+ * return a fresh object where all $item objects (the ones returned
+ * by @link as_list) are also fresh.
+ */
+class MenuItemBag
+{
+    function __construct ($items) {
+        if (! is_array($items)) {
+            throw new \Error('Bad argument: ' . var_export($items, true));
+        }
+        $this->items = array();
+        foreach ($items as $item) {
+            $this->_MUTATE_add_item($item);
+        }
+    }
+
+    static function coerce ($what) {
+        $thisclass = get_called_class();
+        if ($what instanceof $thisclass) {
+            return $what;
+        } else {
+            return new $thisclass($what);
+        }
+    }
+
+    function copy () {
+        $thisclass = get_called_class();
+        $copied_items = array();
+        foreach ($this->as_list() as $item) {
+            $copied_items[] = clone $item;
+        }
+        return new $thisclass($copied_items);
+    }
+
+    function copy_classes_and_currents ($another_bag) {
+        $another_bag = static::coerce($another_bag);
+        $copy = $this->copy();
+        foreach ($copy->items as $unused_id => $item) {
+            foreach (array('classes', 'current',
+                           'current_item_ancestor', 'current_item_parent')
+                     as $k) {
+                $item->$k = $another_bag->find($item)->$k;
+            }
+        }
+        return $copy;
+    }
+
+    function as_list () {
+        return array_values($this->items);
+    }
+
+    function find ($item_or_id) {
+        $id = is_object($item_or_id) ? $item_or_id->ID : $item_or_id;
+        return $this->items[$id];
+    }
+
+    function annotate_roots ($annotations) {
+        $copy = $this->copy();
+        foreach ($copy->items as $item) {
+            if (! $this->get_parent($item)) {
+                foreach ($annotations as $k => $v) {
+                    // ->copy() is a deep copy so this is safe.
+                    $item->$k = $v;
+                }
+            }
+        }
+        return $copy;
+    }
+
+    function graft ($at_item, $bag) {
+        return static::_MUTATE_graft(
+            $at_item, $this->copy(), $this->_renumber(static::coerce($bag)));
+    }
+
+    function reverse_graft ($at_item, $into) {
+        return static::_MUTATE_graft(
+            $at_item, $this->_renumber($into), $this);
+    }
+
+    /**
+     * Pluck all items in MenuItemBag that match $callable_predicate,
+     * and return them separately from the pruned tree
+     *
+     * @param $callable_predicate A callable that takes a $item as the
+     *        sole parameter, and returns a true value for items to
+     *        remove from the tree, and a false value for those to
+     *        keep.
+     *
+     * @return A pair of the form array($pruned_tree, $removed) where
+     *         $pruned_tree is a newly created copy of the pruned tree
+     *         (or $this if $callable_predicate never returned true),
+     *         and $removed is the list of items for which
+     *         $callable_predicate returned a true value.
+     */
+    function pluck ($callable_predicate) {
+        $remaining = array();
+        $pruned = array();
+        foreach ($this->items as $item) {
+            if (call_user_func($callable_predicate, $item)) {
+                $pruned[] = $item;
+            } else {
+                $remaining[] = $item;
+            }
+        }
+        if (count($pruned)) {
+            $thisclass = get_called_class();
+            return array(new $thisclass($remaining), $pruned);
+        } else {
+            return array($this, []);  // No change to $this
+        }
+    }
+
+    /**
+     * @return (A copy of) $this without the ExternalMenuItem nodes
+     */
+    function trim_external () {
+        return $this->pluck(function($item) {
+            return ExternalMenuItem::get($item);
+        })[0];
+    }
+
+    function get_parent ($item) {
+        return $this->items[$this->_get_parent_id($item)];
+    }
+
+    private function _get_id ($item) {
+        return $item->db_id;
+    }
+
+    private function _get_parent_id ($item) {
+        return $item->menu_item_parent;
+    }
+
+    // Mutators must be called *only* in the constructor or
+    // on (the items of) an instance obtained with @link copy.
+    private function _MUTATE_set_id ($item, $new_id) {
+        $item->db_id = $new_id;
+        // In actual menus, ->ID and ->db_id are always the same.
+        // Strange things happen if they get desynched e.g. visibility
+        // of deeper menu items seems to be regulated by the ->ID,
+        // while parent/child relationship works with the ->db_id.
+        // #gofigure
+        $item->ID = $new_id;
+    }
+
+    private function _MUTATE_set_parent_id ($item, $new_parent_id) {
+        $item->menu_item_parent = $new_parent_id;
+    }
+
+    private function _MUTATE_add_item ($item) {
+        if ($this->items[$this->_get_id($item)]) {
+            throw new \Error("Duplicate ID: " . $this->_get_id($item));
+        }
+        $this->items[$this->_get_id($item)] = $item;
+    }
+
+    function _MUTATE_graft ($at_item, $mutated_outer, $inner) {
+        $new_parent_id = $mutated_outer->_get_parent_id($at_item);
+        foreach ($inner->as_list() as $item) {
+            if (! $mutated_outer->_get_parent_id($item)) {
+                // $item is not shared with $this thanks to ->copy() being
+                // a deep copy.
+                $this->_MUTATE_set_parent_id($item, $new_parent_id);
+            }
+            $mutated_outer->_MUTATE_add_item($item);
+        }
+        return $mutated_outer;
+    }
+
+    /**
+     * Compute and return a copy of $other_bag with all IDs changed
+     * so that they don't clash with those in this instance.
+     *
+     * Renumbering always uses *negative* numbers for IDs; the
+     * positive numbers are reserved for pristine (i.e.,
+     * authoritative) nodes in the menus served over REST, so be sure
+     * to ->_renumber() the things that you are adding to your tree
+     * out of some REST query, and keep the locally-issued IDs as they
+     * are.
+     *
+     * This method does the right thing when this instance already
+     * contains items with negative IDs, thanks to @link
+     * _get_highest_negative_unused_id.
+     *
+     * @param $other_bag An instance of this class (call @link coerce
+     *        yourself if needed)
+     *
+     * @return A new instance of this class, fully unshared from both
+     *         $this and $other_bag
+     */
+    protected function _renumber ($other_bag) {
+        $next_id = $this->_get_highest_negative_unused_id();
+
+        $translation_table = array();
+        $translated = array();
+        foreach ($other_bag->items as $item) {
+            $orig_id        = $this->_get_id       ($item);
+            $orig_parent_id = $this->_get_parent_id($item);
+            foreach (array($orig_id, $orig_parent_id) as $old_id) {
+                if ($old_id and ! $translation_table[$old_id]) {
+                    $translation_table[$old_id] = $next_id--;
+                }
+            }
+            $item = clone $item;
+            if ($orig_id) {
+                $this->_MUTATE_set_id       ($item, $translation_table[$orig_id]);
+            }
+            if ($orig_parent_id) {
+                $this->_MUTATE_set_parent_id($item, $translation_table[$orig_parent_id]);
+            }
+            $translated[] = $item;
+        }
+
+        $thisclass = get_called_class();
+        return new $thisclass($translated);
+    }
+
+    protected function _get_highest_negative_unused_id () {
+        $myids = array_keys($this->items);
+        $myids[] = 0;  // Ensure return value is -1 or less
+        return min($myids) - 1;
+    }
+}
+
 
 /**
  * Object model for "normal" WordPress menus, augmented with support
@@ -91,7 +326,7 @@ class Menu {
 
     static function by_term ($term_or_term_id) {
         if (is_object($term_or_term_id)) {
-            $term_id = $term_or_term_id->ID;
+            $term_id = $term_or_term_id->term_id;
         } else {
             $term_id = $term_or_term_id;
         }
@@ -100,19 +335,116 @@ class Menu {
         return new $thisclass($term_id);
     }
 
-    function get_local_tree () {
-        $tree = wp_get_nav_menu_items($this->term_id);
-        if ($tree === FALSE) {
+    /**
+     * @return A @link MenuItemBag instance
+     */
+    private function _get_local_tree () {
+        $items = wp_get_nav_menu_items($this->term_id);
+        if ($items === FALSE) {
             throw new MenuError(
-                "Cannot find term with ID $this->term_id for menu $this->slug");
+                "Cannot find term with ID $this->term_id");
         }
-        return wp_get_nav_menu_items($this->term_id);
+        return new MenuItemBag($items);
     }
 
-    function get_stitched_tree () {
-        return $this->get_local_tree();  // XXX Not quite!
+    private const SOA_SLUG = 'epfl_soa';
+
+    /**
+     * Compute the fully stitched menu that surrounds this Menu.
+     *
+     * ExternalMenuItem entries present in the menu are decorated with
+     * the contents of the remote menu, as obtained over REST; they
+     * remain in the returned tree as a positional indicator for REST
+     * clients (call @link MenuItemBag::trim_external to remove them,
+     * e.g. prior to passing to a frontend walker).
+     *
+     * If we are rendering the primary menu and this is not the root
+     * site, graft ourselves into the root site's menu at the proper
+     * point.
+     *
+     * In both grafting operations ("down" for ExternalMenuItems, "up"
+     * for the root site's menu), keep our own nodes (the ones we have
+     * authority for) with positive IDs and renumber all foreign nodes
+     * with negative IDs.
+     *
+     * @param $mme A @link MenuMapEntry instance representing the menu
+     *             being rendered.
+     *
+     * @return A @link MenuItemBag instance, in which the
+     *         authoritative menu entries (the ones retrieved from the
+     *         local database) have positive IDs, while the remote
+     *         IDs are negative
+     */
+    function get_stitched_tree ($mme) {
+        $tree = $this->_get_local_tree();
+        foreach ($tree->as_list() as $item) {
+            if (! ($emi = ExternalMenuItem::get($item))) continue;
+            $tree = $tree->graft(
+                $item,
+                $emi->get_remote_menu()->annotate_roots(array(
+                    self::SOA_SLUG => Site::externalify_url(
+                        $emi->get_site_url()))));
+        }
+
+        $theme_location = $mme->get_theme_location();
+        if ($theme_location === 'primary' and
+            (! Site::this_site()->is_root())) {
+            $root_menu = ExternalMenuItem
+                       ::find(array(
+                           'site_url'       => Site::root()->get_localhost_url(),
+                           'theme_location' => $theme_location
+                       ))
+                       ->first_preferred(array(
+                           'language' => $mme->get_language()))
+                       ->get_remote_menu();
+            $tree = $this->_stitch_up($root_menu, $tree);
+        }
+
+        // TODO: Normalize (don't remove) the ExternalMenuItem entries.
+        //
+        // * Should remove useless and misleading guid and url
+        //
+        // * Should add sufficient info so that ->_stitch_up() (called
+        //   from another WP) be in a position to figure out which
+        //   ExternalMenuItem is the one for them
+        return $tree;
     }
 
+    protected function _stitch_up ($under, $tree) {
+        $soa_slug = self::SOA_SLUG;
+        $site_url = site_url();
+        $under = $under->pluck(function($item) use ($soa_slug, $site_url) {
+            return $item->$soa_slug === $site_url;
+        })[0];
+
+        // When stitching up, we remove all ExternalMenuItem's and graft
+        // ourselves under the (first) one that is for us.
+        //
+        // While we can have ExternalMenuItem's in the tree served
+        // over REST, these should be only "ours" i.e. the ones we
+        // have authority for. Those are in $tree, not in $under.
+        [$under, $graft_points] = $under->pluck(function($item) {
+            return $item->object === ExternalMenuItem::SLUG;
+        });
+        $graft_points = array_filter($graft_points, function() {
+            return true;  // XXX Good enough for testing only; see TODO above
+        });
+        
+        if (! $graft_points[0]) {
+            error_log(sprintf(
+                'Cannot find graft point - Unable to stitch up\n%s',
+                var_export($under, true)));
+            return $tree;
+        }
+        return $tree->reverse_graft($graft_points[0], $under);
+    }
+
+    /**
+     * @param $emi The instance of ExternalMenuItem whose menu received
+     *             an update event
+     *
+     * @return true iff this menu changed
+     */
     function update ($emi) {
         // XXX Lazy but correct implementation (for low values of correct):
         // do nothing
@@ -124,14 +456,15 @@ class Menu {
  * Model for menus as belonging to the theme's menu map.
  *
  * An instance represents one menu from the Appearance → Menus screen
- * in wp-admin; it has-a @link Menu, and also a description, a slug
- * (e.g. "main") and a language.
+ * in wp-admin; it has-a @link Menu, and also a description, a theme
+ * location (e.g. "primary") and a language.
  */
 class MenuMapEntry
 {
-    function __construct($term_or_term_id, $slug, $description, $language = NULL) {
+    function __construct($term_or_term_id, $theme_location, $description,
+                         $language = NULL) {
         $this->menu = Menu::by_term($term_or_term_id);
-        $this->slug = $slug;
+        $this->theme_location = $theme_location;
         $this->description = $description;
         $this->language = $language;
     }
@@ -140,11 +473,20 @@ class MenuMapEntry
         return $this->menu;
     }
 
+    function get_menu_term_id () {
+        return (int) $this->menu->get_term_id();
+    }
+
     /**
-     * @return The slug this entry is known as to API consumers
+     * Returns the name of the location (as defined by the theme) that
+     * this entry appears under; also used as a portion of the URL
+     * ("slug") by API consumers (see @link ExternalMenuItem).
+     *
+     * @return A string designating the menu position, e.g. "primary"
+     *         or "footer"
      */
-    function get_slug () {
-        return $this->slug;
+    function get_theme_location () {
+        return $this->theme_location;
     }
 
     function get_description () {
@@ -166,6 +508,8 @@ class MenuMapEntry
         }
     }
 
+    use FindFromAllTrait;
+
     /**
      * @return An list of MenuMapEntry instances in the current language.
      */
@@ -180,12 +524,13 @@ class MenuMapEntry
         // Polylang hooks into the 'theme_mod_nav_menu_locations'
         // filter, therefore get_nav_menu_locations() depends on the
         // current language.
-        foreach (get_nav_menu_locations() as $slug => $term_id) {
+        foreach (get_nav_menu_locations() as $theme_location => $term_id) {
             if (! $term_id) continue;
-            if (! $registered[$slug]) continue;
-            $all[] = new $thisclass($term_id, $slug, 
-                                    /* $description = */ $registered[$slug],
-                                    $lang);
+            if (! $registered[$theme_location]) continue;
+            $all[] = new $thisclass(
+                $term_id, $theme_location,
+                /* $description = */ $registered[$theme_location],
+                $lang);
         }
         return $all;
     }
@@ -205,13 +550,13 @@ class MenuMapEntry
 
         $all = array();
         foreach ($poly_options['nav_menus'][get_stylesheet()]
-                 as $slug => $menus) {
-            if (! $registered[$slug]) continue;
+                 as $theme_location => $menus) {
+            if (! $registered[$theme_location]) continue;
             foreach ($menus as $lang => $term_id) {
                 if (! $term_id) continue;
                 $all[] = new $thisclass(
-                    $term_id, $slug,
-                    /* $description = */ $registered[$slug],
+                    $term_id, $theme_location,
+                    /* $description = */ $registered[$theme_location],
                     $lang);
             }
         }
@@ -219,16 +564,16 @@ class MenuMapEntry
     }
 
     /**
-     * @return The menu map entry associated with $slug in the current
-     *         language.
+     * @return The menu map entry associated with $theme_location in
+     *         the current language.
      *
      * Note that when Polylang is in play, the result depends on the
      * current language (typically passed by a ?lang=XX query
      * parameter in REST queries)
      */
-    static function by_slug ($slug) {
+    static function by_theme_location ($theme_location) {
         foreach (MenuMapEntry::all_in_current_language() as $entry) {
-            if ($entry->get_slug() === $slug) {
+            if ($entry->get_theme_location() === $theme_location) {
                 return $entry;
             }
         }
@@ -259,6 +604,11 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
         // {get_,set_} suffix => in-database post meta name ("-emi-" stands for "external menu item")
         'site_url'             => 'epfl-emi-site-url',
         'rest_subscribe_url'   => 'epfl-emi-rest-api-subscribe-url',
+        // Note: from the ExternalMenuItem perspective this is called
+        // a slug, despite it corresponding to MenuMapEntry's
+        // theme_location, because there is nothing that says that the
+        // remote end has to be in a theme (or be Wordpress at all -
+        // Think single-purpose footer menu server written in node.js)
         'remote_slug'          => 'epfl-emi-remote-slug',
         'remote_lang'          => 'epfl-emi-remote-lang',
         'items_json'           => 'epfl-emi-remote-contents-json',
@@ -269,6 +619,27 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
     static function get_post_type () {
         return self::SLUG;
     }
+
+    function get_site_url () {
+        return $this->meta()->get_site_url();
+    }
+
+    /**
+     * Overridden to also accept a 'nav-menu-item' Post object with
+     * ->object === "epfl-external-menu".
+     */
+    static function get ($what) {
+        if (is_object($what)
+            and ($what->post_type === 'nav_menu_item')
+            and ($what->object === static::get_post_type()))
+        {
+            return parent::get($what->object_id);
+        } else {
+            return parent::get($what);
+        }
+    }
+
+    use FindFromAllTrait;
 
     static function load_from_filesystem () {
         $me = Site::this_site();
@@ -309,7 +680,7 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
                 $that->set_language($lang);
 
                 $site_url_dir = parse_url($site_url, PHP_URL_PATH);
-                $title = $menu_descr->description . " @ $site_url_dir";
+                $title = $menu_descr->description . "[$lang] @ $site_url_dir";
                 $that->update(array('post_title' => $title));
 
                 $that->refresh();
@@ -333,7 +704,7 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
         }
 
         $menu_contents = RESTClient::GET_JSON($get_url);
-        $this->set_remote_menu_items($menu_contents->items);
+        $this->set_remote_menu($menu_contents->items);
         $this->meta()->set_rest_subscribe_url(
             $menu_contents->get_link('subscribe'));
 
@@ -355,12 +726,15 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
         }
     }
 
-    function set_remote_menu_items ($struct) {
-        $this->meta()->set_items_json(json_encode($struct));
+    function set_remote_menu ($what) {
+        if (method_exists($what, 'as_list')) {
+            $what = $what->as_list();
+        }
+        $this->meta()->set_items_json(json_encode($what));
     }
 
-    function get_remote_menu_items () {
-        return json_decode($this->meta()->get_items_json());
+    function get_remote_menu () {
+        return new MenuItemBag(json_decode($this->meta()->get_items_json()));
     }
 
     function get_subscribe_url () {
@@ -426,8 +800,8 @@ class MenuRESTController
         $retval = [];
         foreach (MenuMapEntry::all_in_current_language() as $entry) {
             array_push($retval, array(
-                'slug'        => $entry->get_slug(),
-                'description' => $entry->get_description(),
+                'slug' => $entry->get_theme_location(),
+                'description'    => $entry->get_description(),
             ));
         }
         return $retval;
@@ -436,19 +810,7 @@ class MenuRESTController
     static function get_menu ($data) {
         $slug = $data['slug'];  // Matched from the URL with a named pattern
 
-        if ($entry = MenuMapEntry::by_slug($slug)) {
-            $menu = $entry->get_menu();
-            $response = new \WP_REST_Response(array(
-                'status' => 'OK',
-                'items'  => $entry->get_menu()->get_stitched_tree()));
-            // Note: this link is for subscribing to changes in any
-            // language, not just the one being served now.
-            $response->add_link(
-                'subscribe',
-                REST_URL::local_wrt_request(static::_get_subscribe_uri($menu))
-                ->fully_qualified());
-            return $response;
-        } else {
+        if (! ($entry = MenuMapEntry::by_theme_location($slug))) {
             if (function_exists('pll_current_language')) {
                 $inlang = " in language " . pll_current_language();
             }
@@ -456,6 +818,18 @@ class MenuRESTController
                 'status' => 'NOT_FOUND',
                 'msg' => "No menu with slug $slug$inlang"));
         }
+
+        $menu = $entry->get_menu();
+        $response = new \WP_REST_Response(array(
+            'status' => 'OK',
+            'items'  => $menu->get_stitched_tree($entry)->as_list()));
+        // Note: this link is for subscribing to changes in any
+        // language, not just the one being served now.
+        $response->add_link(
+            'subscribe',
+            REST_URL::local_wrt_request(static::_get_subscribe_uri($menu))
+            ->fully_qualified());
+        return $response;
     }
 
     /**
@@ -505,7 +879,9 @@ MenuRESTController::hook();
  * site's menu shall appear. This class is responsible for the
  * creation and mutation of external menu items per se and their
  * metadata - not their place, or lack thereof, in any menu; for that
- * see @link MenuEditorController instead.
+ * see @link MenuEditorController instead. This class is also not in
+ * play (except for the concern of registering the custom post type)
+ * when rendering front-end pages; see @link MenuFrontendController.
  *
  * An external menu item is handled as a Wordpress custom post type,
  * with in-database persistence and a custom editor page in the admin
@@ -879,3 +1255,73 @@ class MenuEditorController
 }
 
 MenuEditorController::hook();
+
+
+################## External menus on the main site #################
+
+/**
+ * Arrange for the front-end to render complete, stitched menus.
+ *
+ * This class has no impact on any of the wp-admin pages.
+ */
+class MenuFrontendController
+{
+    static function hook () {
+        add_filter('wp_nav_menu_objects',
+                   array(get_called_class(), 'filter_wp_nav_menu_objects'),
+                   10, 2);
+    }
+
+    /**
+     * Hooked to the @link wp_nav_menu_objects filter.
+     *
+     * Before rendering a menu to the front-end, replace its tree with
+     * the fully stitched one.
+     *
+     * @param $menu_items The menu as extracted from the database as a
+     *                    flat list of "spare parts", chained by their
+     *                    ->menu_item_parent and ->db_id fields.
+     *                    (Additionally, this module assumes that
+     *                    their ->ID is always the same as their
+     *                    ->db_id.)
+     *
+     * @param $args As passed to Wordpress' @link wp_nav_menu function
+     */
+    static function filter_wp_nav_menu_objects ($menu_items, $args) {
+        $menu_orig = Menu::by_term($args->menu);
+        if (! $menu_orig) return $menu_items;
+
+        return $menu_orig
+            ->get_stitched_tree(
+                static::_guess_menu_entry_from_wp_nav_menu_args($args))
+            ->trim_external()
+            ->copy_classes_and_currents($menu_items)
+            ->as_list();
+    }
+
+    /**
+     * @return The @link MenuMapEntry instance we are rendering the
+     *         menu for.
+     */
+    static function _guess_menu_entry_from_wp_nav_menu_args ($args) {
+        $menu_term_id = (int) (is_object($args->menu) ?
+                               $args->menu->term_id   : $args->menu);
+        $current_lang = (
+            function_exists('pll_current_language')   ? 
+            pll_current_language()                    : NULL);
+
+        $best = MenuMapEntry
+                    ::find(array('menu_term_id' => $menu_term_id))
+                    ->first_preferred(array('language' => $current_lang));
+        if ($best) {
+            return $best;
+        } else {
+            throw new \Error(
+                'Cannot find MenuMapEntry instance for $args = '
+                . var_export($args, true)
+                . " (\$current_lang = $current_lang)");
+        }
+    }
+}
+
+MenuFrontendController::hook();

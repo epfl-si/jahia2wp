@@ -61,8 +61,31 @@ class Site {
         return 'https://localhost:8443' . $this->path_under_htdocs;
     }
 
+    /**
+     * Utility function to get our own serving address in host:port
+     * notation.
+     *
+     * @return A string of the form $host or $host:$port, parsed out
+     *         of the return value of @link site_url
+     */
+    static function my_hostport () {
+        $site_url = site_url();
+        $host = parse_url($site_url, PHP_URL_HOST);
+        $port = parse_url($site_url, PHP_URL_PORT);
+        return $port ? "$host:$port" : $host;
+    }
+
+    static function externalify_url ($localhost_url) {
+        $myhostport = static::my_hostport();
+        return preg_replace('#^https://localhost:8443/#', "https://$myhostport/", $localhost_url);
+    }
+
     function equals ($that) {
         return $this->path_under_htdocs === $that->path_under_htdocs;
+    }
+
+    function is_root () {
+        return $this->equals($this->root());
     }
 
     function get_subsites () {

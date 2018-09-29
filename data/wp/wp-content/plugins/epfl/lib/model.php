@@ -32,6 +32,7 @@ class ModelException extends \Exception {
     }
 }
 
+
 /**
  * Abstract base class for model objects based on the WPDB API.
  */
@@ -215,6 +216,32 @@ abstract class Post
     function error_log ($msg) {
         error_log(get_called_class() . "::get($this->ID): " . $msg);
     }
+
+    /**
+     * Iterate with $callback over all instances returned by $query.
+     *
+     * @param $wp_query An instance of @link WP_Query
+     *
+     * @param $callback A callable that will be called with each
+     *                  instance of this class in turn. The WordPress
+     *                  global variables will be updated as if within
+     *                  "The loop".
+     */
+    public static function foreach_query ($wp_query, $callback) {
+        $in_the_loop = new _InTheLoopHelper($wp_query);
+        try {
+            $in_the_loop->enter();
+
+            while ($wp_query->have_posts()) {
+                $wp_query->next_post();
+                if ($epfl_post = static::get($wp_query->post)) {
+                    call_user_func($callback, $epfl_post);
+                }
+            }
+        } finally {
+            $in_the_loop->leave();
+        }
+    }
 }
 
 
@@ -266,6 +293,10 @@ class _PostMeta {
         }
     }
 
+    function has ($stem) {
+        return !! $this->_meta_accessors[$stem];
+    }
+
     /**
      * Automatically provide @link \EPFL\AutoFields\AutoFields functionality
      * based on the META_ACCESSORS constant of the owner class.
@@ -301,27 +332,11 @@ abstract class TypedPost extends Post
 
     /**
      * Iterate with $callback over all instances of this class.
-     *
-     * @param $callback A callable that will be called with each
-     * instance of this class in turn. The WordPress global variables
-     * will be updated as if within "The loop".
      */
-    public static function foreach ($callback)
-    {
-        $all = (new _WPQueryBuilder(static::get_post_type()))->all()->wp_query();
-        $in_the_loop = new _InTheLoopHelper($all);
-        try {
-            $in_the_loop->enter();
-
-            while ($all->have_posts()) {
-                $all->next_post();
-                if ($epfl_post = static::get($all->post)) {
-                    call_user_func($callback, $epfl_post);
-                }
-            }
-        } finally {
-            $in_the_loop->leave();
-        }
+    public static function foreach ($callback) {
+        $wp_query = (new _WPQueryBuilder(static::get_post_type()))
+                  ->all()->wp_query();
+        return static::foreach_query($wp_query, $callback);
     }
 
     /**
