@@ -364,14 +364,28 @@ abstract class TypedPost extends Post
  */
 abstract class UniqueKeyTypedPost extends TypedPost
 {
-    function get_or_create (...$unique_keys)
+    static function get_or_create (...$unique_keys)
     {
+        if ($existing = static::_get_by_unique_keys($unique_keys)) {
+            return $existing;
+        } else {
+            return static::_insert_by_unique_keys($unique_keys);
+        }
+    }
+
+    static function get_by_unique_key ($unique_key) {
+        return static::_get_by_unique_keys(array($unique_key));
+    }
+
+    static function get_by_unique_keys (...$unique_keys) {
+        return static::_get_by_unique_keys($unique_keys);
+    }
+
+    static protected function _get_by_unique_keys ($unique_keys) {
         $result = static::_query_by_unique_keys($unique_keys)->result();
-        if ($result) {  // "get" case
+        if ($result) {
             $theclass = get_called_class();
             return new $theclass($result->ID);
-        } else {        // "create" case
-            return static::_insert_by_unique_keys($unique_keys);
         }
     }
 
