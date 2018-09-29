@@ -693,6 +693,7 @@ class MenuItemController extends CustomPostTypeController
             $echoed_something = 1;
         }
         if ($ss->last_success) {
+            if ($echoed_something) { echo '<br/>'; }
             printf('Last sync success: %s ago',
                    human_time_diff($ss->last_success));
             $echoed_something = 1;
