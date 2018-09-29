@@ -60,10 +60,13 @@ class MenuError extends \Exception {};
  */
 class Menu {
     private function __construct ($slug, $lang, $term_id) {
-        assert($term_id > 0);
-        $this->slug    = $slug;
-        $this->lang    = $lang;
-        $this->term_id = $term_id;
+        if ($term_id > 0) {
+            $this->slug    = $slug;
+            $this->lang    = $lang;
+            $this->term_id = $term_id;
+        } else {
+            throw new \Error("Bogus term ID $term_id");
+        }
     }
 
     /**
@@ -153,7 +156,6 @@ class Menu {
     }
 
     function get_local_tree () {
-        if (! $this->term_id) { return NULL; }
         $tree = wp_get_nav_menu_items($this->term_id);
         if ($tree === FALSE) {
             throw new MenuError(
