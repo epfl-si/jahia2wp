@@ -206,21 +206,6 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
         return self::SLUG;
     }
 
-    private static $_all_emis;
-    static function all () {
-        if (! static::$_all_emis) {
-            static::$_all_emis = [];
-            static::foreach(function($that) use ($retval) {
-                static::$_all_emis[] = $that;
-            });
-        }
-        return static::$_all_emis;
-    }
-
-    static private function _all_changed () {
-        static::$_all_emis = NULL;
-    }
-
     static function load_from_filesystem () {
         $me = Site::this_site();
         $neighbors = array_merge(array(Site::root()),
@@ -266,8 +251,6 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
                 $that->refresh();
             }
         }
-
-        static::_all_changed();
     }
 
     protected function _get_rest_url () {

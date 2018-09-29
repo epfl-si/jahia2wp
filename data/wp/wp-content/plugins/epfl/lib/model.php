@@ -329,6 +329,7 @@ abstract class TypedPost extends Post
      */
     public static function insert ($postarr) {
         $postarr['post_type'] = static::get_post_type();
+        static::_inserted_or_deleted();
         return parent::insert($postarr);
     }
 
@@ -339,6 +340,22 @@ abstract class TypedPost extends Post
                        $post_types[] = $post_type;
                        return $post_types;
                    });
+    }
+
+    private static $all = array();  // Keyed by class name
+    static function all () {
+        $thisclass = get_called_class();
+        if (! array_key_exists($thisclass, TypedPost::$all)) {
+            TypedPost::$all[$thisclass] = array();
+            static::foreach(function($that) use ($thisclass) {
+                TypedPost::$all[$thisclass][] = $that;
+            });
+        }
+        return TypedPost::$all[$thisclass];
+    }
+
+    static private function _inserted_or_deleted () {
+        unset(TypedPost::$all[$thisclass]);
     }
 }
 
