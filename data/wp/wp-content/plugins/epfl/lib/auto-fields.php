@@ -49,6 +49,7 @@ class AutoFields
     {
         $auto_fields = get_option($this->_get_option_key());
         if (! $auto_fields) { $auto_fields = []; }
+        sort($auto_fields);
         return $auto_fields;
     }
 
