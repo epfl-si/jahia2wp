@@ -215,9 +215,9 @@ jQuery(function($) {
         }
     }
 
-
-    function clear_auto_fields ()
+    function clear ()
     {
         AutoFields::of($this->model_class)->clear();
+        return $this;  // Chainable
     }
 }
