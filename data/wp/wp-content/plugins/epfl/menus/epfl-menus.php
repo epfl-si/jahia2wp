@@ -59,25 +59,12 @@ class MenuError extends \Exception {};
  * for EPFL-style menu stitching.
  */
 class Menu {
-    private function __construct ($slug, $lang, $term_id) {
+    private function __construct ($term_id) {
         if ($term_id > 0) {
-            $this->slug    = $slug;
-            $this->lang    = $lang;
             $this->term_id = $term_id;
         } else {
             throw new \Error("Bogus term ID $term_id");
         }
-    }
-
-    /**
-     * @return The slug this menu is known as to API consumers. Note that
-     *         this is not a unique key (see @link get_term_id for that):
-     *         depending on the language (passed through the ?lang=
-     *         query parameter in REST API calls), the same slug might
-     *         stand for different instances of Menu.
-     */
-    function get_slug () {
-        return $this->slug;
     }
 
     /**
@@ -87,72 +74,30 @@ class Menu {
         return $this->term_id;
     }
 
-    function get_description () {
-        return get_registered_nav_menus()[$this->slug];
-    }
-
-    static function all () {
-        $all = static::_all_from_polylang();
-        if ($all === NULL) {
-            $all = static::all_in_current_language();
-        }
-        return $all;
-    }
-
-    static function _all_from_polylang () {
-        // Polylang may be inactive, but with its options still
-        // available in-database so check this first.
-        if (! function_exists('pll_current_language')) return NULL;
-
-        // Really, frobbing through the Polylang persistent data is
-        // the least fragile way to go about this.
-        $poly_options = get_option('polylang');  // Auto-deserializes
-        if (! $poly_options) return NULL;
-
-        $thisclass = get_called_class();
-
-        $all = array();
-        foreach ($poly_options['nav_menus'][get_stylesheet()]
-                 as $slug => $menus) {
-            if (! static::_menu_exists_in_theme($slug)) continue;
-            foreach ($menus as $lang => $term_id) {
-                if (! $term_id) continue;
-                $all[] = new $thisclass($slug, $lang, $term_id);
-            }
-        }
-        return $all;
-    }
-
-    static function all_in_current_language () {
-        $thisclass = get_called_class();
-
-        // Polylang hooks into the 'theme_mod_nav_menu_locations'
-        // filter, therefore get_nav_menu_locations() depends on the
-        // current language.
-        $all = array();
-        $lang = function_exists('pll_current_language') ?
-                pll_current_language()                  : NULL;
-        foreach (get_nav_menu_locations() as $slug => $term_id) {
-            if (! $term_id) continue;
-            if (! static::_menu_exists_in_theme($slug)) continue;
-            $all[] = new $thisclass($slug, $lang, $term_id);
-        }
-        return $all;
-    }
-
-    static function _menu_exists_in_theme ($slug) {
-        return array_key_exists($slug, get_registered_nav_menus());
-    }
-
     /**
-     * @return The menu associated with $slug in the current language.
+     * @return A list of all instances used anywhere in the theme's menus,
+     *         according to @link MenuMapEntry
      */
-    static function by_slug ($slug) {
-        foreach (static::all_in_current_language() as $that) {
-            if ($that->get_slug() === $slug) {
-                return $that;
+    static function all_mapped () {
+        $all = array();
+        foreach (MenuMapEntry::all() as $entry) {
+            $menu = $entry->get_menu();
+            if (! $all[$menu->get_term_id()]) {
+                $all[$menu->get_term_id()] = $menu;
             }
         }
+        return array_values($all);
+    }
+
+    static function by_term ($term_or_term_id) {
+        if (is_object($term_or_term_id)) {
+            $term_id = $term_or_term_id->ID;
+        } else {
+            $term_id = $term_or_term_id;
+        }
+
+        $thisclass = get_called_class();
+        return new $thisclass($term_id);
     }
 
     function get_local_tree () {
@@ -173,6 +118,123 @@ class Menu {
         // do nothing
     }
 }
+
+
+/**
+ * Model for menus as belonging to the theme's menu map.
+ *
+ * An instance represents one menu from the Appearance → Menus screen
+ * in wp-admin; it has-a @link Menu, and also a description, a slug
+ * (e.g. "main") and a language.
+ */
+class MenuMapEntry
+{
+    function __construct($term_or_term_id, $slug, $description, $language = NULL) {
+        $this->menu = Menu::by_term($term_or_term_id);
+        $this->slug = $slug;
+        $this->description = $description;
+        $this->language = $language;
+    }
+
+    function get_menu () {
+        return $this->menu;
+    }
+
+    /**
+     * @return The slug this entry is known as to API consumers
+     */
+    function get_slug () {
+        return $this->slug;
+    }
+
+    function get_description () {
+        return $this->description;
+    }
+
+    function get_language () {
+        return $this->language;
+    }
+
+    /**
+     * @return A list of instances across all languages
+     */
+    static function all () {
+        if ($all_from_polylang = static::_all_from_polylang()) {
+            return $all_from_polylang;
+        } else {
+            return static::all_in_current_language();
+        }
+    }
+
+    /**
+     * @return An list of MenuMapEntry instances in the current language.
+     */
+    static function all_in_current_language () {
+        $thisclass = get_called_class();
+
+        $registered = get_registered_nav_menus();
+        $lang = function_exists('pll_current_language') ?
+                pll_current_language()                  : NULL;
+
+        $all = array();
+        // Polylang hooks into the 'theme_mod_nav_menu_locations'
+        // filter, therefore get_nav_menu_locations() depends on the
+        // current language.
+        foreach (get_nav_menu_locations() as $slug => $term_id) {
+            if (! $term_id) continue;
+            if (! $registered[$slug]) continue;
+            $all[] = new $thisclass($term_id, $slug, 
+                                    /* $description = */ $registered[$slug],
+                                    $lang);
+        }
+        return $all;
+    }
+
+    static function _all_from_polylang () {
+        // Polylang may be inactive, but with its options still
+        // available in-database so check this first.
+        if (! function_exists('pll_current_language')) return NULL;
+
+        // Really, frobbing through the Polylang persistent data is
+        // the least fragile way to go about this.
+        $poly_options = get_option('polylang');  // Auto-deserializes
+        if (! $poly_options) return NULL;
+
+        $thisclass = get_called_class();
+        $registered = get_registered_nav_menus();
+
+        $all = array();
+        foreach ($poly_options['nav_menus'][get_stylesheet()]
+                 as $slug => $menus) {
+            if (! $registered[$slug]) continue;
+            foreach ($menus as $lang => $term_id) {
+                if (! $term_id) continue;
+                $all[] = new $thisclass(
+                    $term_id, $slug,
+                    /* $description = */ $registered[$slug],
+                    $lang);
+            }
+        }
+        return $all;
+    }
+
+    /**
+     * @return The menu map entry associated with $slug in the current
+     *         language.
+     *
+     * Note that when Polylang is in play, the result depends on the
+     * current language (typically passed by a ?lang=XX query
+     * parameter in REST queries)
+     */
+    static function by_slug ($slug) {
+        foreach (MenuMapEntry::all_in_current_language() as $entry) {
+            if ($entry->get_slug() === $slug) {
+                return $entry;
+            }
+        }
+    }
+}
+
 
 /**
  * An external menu that needs fetching and/or integrating
@@ -354,7 +416,7 @@ class MenuRESTController
             function() { return pll_languages_list(); });
 
         add_action('rest_api_init', function() use ($thisclass) {
-            foreach (Menu::all() as $menu) {
+            foreach (Menu::all_mapped() as $menu) {
                 $thisclass::_get_publish_controller($menu)->serve_api();
             }
         });
@@ -362,10 +424,10 @@ class MenuRESTController
 
     static function get_menus () {
         $retval = [];
-        foreach (Menu::all_in_current_language() as $menu) {
+        foreach (MenuMapEntry::all_in_current_language() as $entry) {
             array_push($retval, array(
-                'slug'        => $menu->get_slug(),
-                'description' => $menu->get_description(),
+                'slug'        => $entry->get_slug(),
+                'description' => $entry->get_description(),
             ));
         }
         return $retval;
@@ -374,10 +436,11 @@ class MenuRESTController
     static function get_menu ($data) {
         $slug = $data['slug'];  // Matched from the URL with a named pattern
 
-        if ($menu = Menu::by_slug($slug)) {
+        if ($entry = MenuMapEntry::by_slug($slug)) {
+            $menu = $entry->get_menu();
             $response = new \WP_REST_Response(array(
                 'status' => 'OK',
-                'items'  => $menu->get_stitched_tree()));
+                'items'  => $entry->get_menu()->get_stitched_tree()));
             // Note: this link is for subscribing to changes in any
             // language, not just the one being served now.
             $response->add_link(
@@ -486,7 +549,7 @@ class MenuItemController extends CustomPostTypeController
         $thisclass = get_called_class();
         static::_get_subscribe_controller($emi)->add_listener(
             function($event) use ($thisclass, $emi) {
-                foreach (Menu::all() as $menu) {
+                foreach (Menu::all_mapped() as $menu) {
                     if ($menu->update($emi)) {
                         MenuRESTController::menu_changed($menu, $event);
                     }
