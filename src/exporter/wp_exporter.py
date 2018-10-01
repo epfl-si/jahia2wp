@@ -556,7 +556,7 @@ class WPExporter:
             content = str(soup.body)
 
             # Transforming quotes to right html entities
-            content = WPUtils.manage_quotes(content, False)
+            content = WPUtils.handle_custom_chars(content, False)
 
             self.update_page_content(page_id=wp_id, content=content)
 
