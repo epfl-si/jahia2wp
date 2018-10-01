@@ -18,6 +18,7 @@ class Box:
     TYPE_COLORED_TEXT = "coloredText"
     TYPE_PEOPLE_LIST = "peopleList"
     TYPE_INFOSCIENCE = "infoscience"
+    TYPE_INFOSCIENCE_FILTER = "infoscienceFilter"
     TYPE_ACTU = "actu"
     TYPE_MEMENTO = "memento"
     TYPE_FAQ = "faq"
@@ -41,6 +42,7 @@ class Box:
         "epfl:coloredTextBox": TYPE_COLORED_TEXT,
         "epfl:peopleListBox": TYPE_PEOPLE_LIST,
         "epfl:infoscienceBox": TYPE_INFOSCIENCE,
+        "epfl:infoscienceFilteredBox": TYPE_INFOSCIENCE_FILTER,
         "epfl:actuBox": TYPE_ACTU,
         "epfl:mementoBox": TYPE_MEMENTO,
         "epfl:faqBox": TYPE_FAQ,
@@ -140,7 +142,7 @@ class Box:
         elif self.TYPE_PEOPLE_LIST == self.type:
             self.set_box_people_list(element)
         # infoscience
-        elif self.TYPE_INFOSCIENCE == self.type:
+        elif self.TYPE_INFOSCIENCE == self.type or self.TYPE_INFOSCIENCE_FILTER:
             self.set_box_infoscience(element)
         # actu
         elif self.TYPE_ACTU == self.type:
@@ -704,6 +706,8 @@ class Box:
         # if "infoscienceBox"
         if self.type == self.TYPE_INFOSCIENCE:
             publication_list = element.getElementsByTagName("infoscienceListList")
+        elif self.type == self.TYPE_INFOSCIENCE_FILTER:
+            publication_list = element.getElementsByTagName("infoscienceFilteredListList")
 
         else:  # importHtmlList (self.TYPE_INCLUDE)
 
