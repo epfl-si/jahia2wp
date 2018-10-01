@@ -66,7 +66,6 @@ div {
 
 .clear {
   clear:both;
-  height: 0;
 }
 
 /* --- Structure --- */
@@ -1592,6 +1591,10 @@ img.pdf-icon {
   
   .icon-arrow-bottom-right {
     display: inline-block;
+    
+    &:before {
+      display: none;
+    }
     
     &:after {
       @include icon;
@@ -4332,6 +4335,10 @@ img.pdf-icon {
     & > .gridBox,
     & > .buttonsContainer {
       margin-right: -35px;
+    }
+    
+    .page-fullwidth & {
+      padding-right: 0;
     }
   }
   
