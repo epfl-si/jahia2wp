@@ -107,7 +107,7 @@ class PageContent:
 
                     multibox = extra.getElementsByTagName("text").length > 1
 
-                    box = Box(site=self.site, page_content=self, element=extra, multibox=multibox)
+                    box = Box(site=self.site, page_content=self, element=extra, multibox=multibox, is_in_sidebar=True)
                     self.sidebar.boxes.append(box)
 
         nb_boxes = len(self.sidebar.boxes)
