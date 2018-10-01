@@ -25,7 +25,8 @@ import logging
 dirname = os.path.dirname
 sys.path.append(dirname(dirname(os.path.realpath(__file__))))
 
-from utils import Utils  # noqa: E402
+from utils import Utils                         # noqa: E402
+from wordpress_inventories import site_moniker  # noqa: E402
 
 
 class SourceWXR:
@@ -55,16 +56,6 @@ class SourceWXR:
 
     def __repr__(self):
         return '<%s "%s">' % (self.__class__.__name__, self.path)
-
-
-# This is quite unfortunately coupled with the _moniker method
-# in wordpress-inventories.py
-def site_moniker(url):
-    parsed = urlparse(url)
-    hostname = parsed.netloc.split('.')[0]
-    if hostname != 'migration-wp':
-        return hostname
-    return re.search('^/([^/]*)/', parsed.path).group(1)
 
 
 class DestinationWXR:
