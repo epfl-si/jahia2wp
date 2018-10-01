@@ -36,6 +36,15 @@ class AnsibleGroup:
         return designated_name in self.hosts
 
     def _moniker(self, url):
+        """
+        Return
+        A short name that identifies this URL either in a file path (under wxr-ventilated/),
+        or in an Ansible hosts file.
+        
+        Example:
+        url = "https://migration-wp.epfl.ch/help-actu/*"
+        return "help-actu"
+        """
         parsed = urlparse(url)
         hostname = parsed.netloc.split('.')[0]
         if hostname != 'migration-wp':
