@@ -37,11 +37,11 @@ class AnsibleGroup:
 
     def _moniker(self, url):
         """
-        Return 
-        - the hostname of URL
-        or 
-        - the slug of WordPress site
-        Example :
+        Return
+        A short name that identifies this URL either in a file path (under wxr-ventilated/),
+        or in an Ansible hosts file.
+        
+        Example:
         url = "https://migration-wp.epfl.ch/help-actu/*"
         return "help-actu"
         """
