@@ -873,6 +873,12 @@ class Site:
 
                 self.internal_links += 1
 
+            # /cms/PAGE_NAME
+            elif link.startswith("/cms/"):
+                new_link = link.replace("/cms", "")
+
+                tag[attribute] = add_lang_to_link(new_link, self.languages[0])
+
             # Internal links like
             # /site/SITE_NAME/page-14009.html
             elif link.startswith("/site/{}".format(self.name)):
