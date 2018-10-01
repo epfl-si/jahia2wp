@@ -26,7 +26,7 @@ $(SOURCES_INVENTORY) hosts/group_vars/ventilation-source-wordpresses \
 $(TARGETS_INVENTORY) hosts/group_vars/ventilation-target-wordpresses: \
   $(VENTILATION_CSV)
 	@mkdir hosts 2>/dev/null || true
-	python3 ./wordpress-inventories.py --sources=$(SOURCES_INVENTORY) --targets=$(TARGETS_INVENTORY) $<
+	python3 ./wordpress_inventories.py --sources=$(SOURCES_INVENTORY) --targets=$(TARGETS_INVENTORY) $<
 
 wxr-src: $(SOURCES_INVENTORY)
 	@mkdir "$@" 2>/dev/null || true
