@@ -62,7 +62,7 @@ class Box:
 
     UPDATE_LANG = "UPDATE_LANG_BY_EXPORTER"
 
-    def __init__(self, site, page_content, element, multibox=False):
+    def __init__(self, site, page_content, element, multibox=False, is_in_sidebar=False):
         """
 
         :param site: instance of Site class
@@ -79,6 +79,7 @@ class Box:
         self.title = Utils.get_tag_attribute(element, "boxTitle", "jahia:value")
         self.content = ""
         self.sort_group = None
+        self.is_in_sidebar = False
 
         # the shortcode attributes with URLs that must be fixed by the wp_exporter
         self.shortcode_attributes_to_fix = []
@@ -543,7 +544,7 @@ class Box:
         content = ""
 
         # Title is only for boxes in pages
-        if not self.is_in_sidebar():
+        if not self.is_in_sidebar:
             content += '<h3>{}</h3>'.format(self.title)
 
         content += '[{} channel="{}" lang="{}" template="{}" '.format(
@@ -584,13 +585,6 @@ class Box:
             content += '[/epfl_buttons_container]'
 
         self.content = content
-
-    def is_in_sidebar(self):
-        """
-        Tells if the box belongs to the sidebar
-        :return:
-        """
-        return self.page_content.page.is_homepage()
 
     @staticmethod
     def _extract_epfl_memento_parameters(url):
