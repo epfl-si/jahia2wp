@@ -54,10 +54,14 @@ class SshRemoteHost:
             assert self is SshRemoteHost.test
             wp_env = 'int'
             wp_hostname = 'migration-wp.epfl.ch'
+        elif hostname == 'www2018.epfl.ch':
+            assert self is SshRemoteHost.prod
+            wp_env = 'sandbox'
+            wp_hostname = hostname
         else:
             # TODO: there certainly is more to it than this.
             assert self is SshRemoteHost.prod
-            wp_env = 'sandbox'
+            wp_env = 'subdomains'
             wp_hostname = hostname
 
         retval = {
