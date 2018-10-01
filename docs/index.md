@@ -154,7 +154,7 @@ Did we mention that would you be looking for a more explicit process, feel free 
 You will need to ask C2C to add your public key in `authorized_keys` on the server.
 You will also need to know what environment (pod) you wish to connect into (and set `WP_ENV` accordingly)
 
-    you@host:~$ WP_ENV=c2c-env && ssh -A -o SendEnv=WP_ENV www-data@ssh-wwp.epfl.ch -p 32222
+    you@host:~$ WP_ENV=c2c-env ssh -A -o SendEnv=WP_ENV www-data@ssh-wwp.epfl.ch -p 32222
     
     www-data@mgmt-x-xxx:/srv/c2c-env$ git clone git@github.com:epfl-idevelop/jahia2wp.git
     www-data@mgmt-x-xxx:/srv/c2c-env$ cd jahia2wp
