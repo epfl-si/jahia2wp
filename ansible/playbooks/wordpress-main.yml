@@ -5,6 +5,11 @@
 - hosts: all-wordpresses
   gather_facts: no   # Delayed, see below
   pre_tasks:
+    - name: Check Ansible version
+      assert:
+        that: "ansible_version.full | version_compare('2.6', '>=')"
+        msg: >
+          "You must update Ansible to at least 2.6 to use this playbook."
     - name: Ansible pre-configuration
       set_fact:
         ansible_user: www-data
