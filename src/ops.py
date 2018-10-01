@@ -57,7 +57,8 @@ class SshRemoteHost:
         else:
             # TODO: there certainly is more to it than this.
             assert self is SshRemoteHost.prod
-            wp_env = 'subdomains'
+            # wp_env = 'subdomains'
+            wp_env = 'sandbox'
             wp_hostname = hostname
 
         retval = {
