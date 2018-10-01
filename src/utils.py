@@ -482,6 +482,9 @@ class Utils(object):
         When escaped, special characters are replaced by custom identifiers that won't be transformed by BeautifulSoup.
         And when unescaped, quotes are set back to corresponding HTML entities
 
+        For now, we only encode simple/double quotes and brackets. If more special characters needs to be added in the
+        future, just do it ;-)
+
         :param html: string in which (un)escape
         :param escape: To tells if we have to escape or unescape.
         :return:
