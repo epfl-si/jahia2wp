@@ -61,6 +61,7 @@ class AnsibleGroup:
     def __repr__(self):
         return '<%s %s>' % (self.__class__, self.name)
 
+
 def site_moniker(url):
     """
     Return
