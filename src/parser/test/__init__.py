@@ -4708,7 +4708,7 @@ class Data:
                            'mailto_links': 162,
                            'num_files': 434,
                            'num_pages': 146,
-                           'unknown_links': 10},
+                           'unknown_links': 9},
                 'server_name': 'atelierweb.epfl.ch',
                 'theme': {'en': 'epfl', 'fr': 'epfl'},
                 'title': {'en': 'WEB at EPFL', 'fr': 'ATELIER WEB'}}}
