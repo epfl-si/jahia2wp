@@ -9,7 +9,7 @@ Class ShortCakeSnippetConfig
             'epfl_snippets',
 
             array(
-                'label'         => __('Add Snippet shortcode', 'epfl-snippet'),
+                'label'         => 'Snippet',
                 'listItemImage' => '<img src="' . plugins_url( 'img/snippet.svg', __FILE__) . '" >',
                 'attrs'         => array(
                     array(

@@ -1,2 +1,2 @@
-src: generic/epfl-twitter/v1/epfl-twitter.zip
+src: ../wp/wp-content/plugins/epfl-twitter
 activate: yes

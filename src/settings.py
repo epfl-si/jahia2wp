@@ -16,6 +16,7 @@ ENV_DIRS = ['logs', 'venv', 'jahia2wp']
 
 SRC_DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 DATA_PATH = os.path.abspath(os.path.sep.join([SRC_DIR_PATH, '..', 'data']))
+PLUGIN_ZIP_PATH = os.path.abspath(os.path.sep.join([DATA_PATH, 'plugins-zip']))
 EXPORTER_DATA_PATH = os.path.join(DATA_PATH, 'exporter')
 WP_FILES_PATH = os.path.join(DATA_PATH, 'wp')
 
@@ -246,3 +247,7 @@ FEATURES_FLAGS_ATTRIBUTES_TO_CLEAN = ['style']
 # Retries settings for WPCLI and WordPress API calls
 WP_CLI_AND_API_NB_TRIES = 3
 WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES = 5
+
+# Status for WordPress site installs
+WP_SITE_INSTALL_OK = 'OK'
+WP_SITE_INSTALL_KO = 'KO'

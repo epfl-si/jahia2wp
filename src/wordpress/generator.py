@@ -293,7 +293,7 @@ class WPGenerator:
             # Command is in simple quotes and tagline between double quotes to avoid problems in case of simple quote
             # in tagline text. We initialize blogdescription with default language
             if not self.run_wp_cli('option update blogdescription "{}"'.format(
-                    self._site_params['wp_tagline'][self.default_lang()]),
+                    Utils.escape_quotes(self._site_params['wp_tagline'][self.default_lang()])),
                     encoding="utf-8"):
                 logging.error("%s - could not configure blog description", repr(self))
                 return False
@@ -341,16 +341,24 @@ class WPGenerator:
 
     def delete_widgets(self, sidebar="homepage-widgets"):
         """
-        Delete all widgets from the given sidebar.
+        Delete all widgets from the given sidebar if it exists
 
         There are 2 sidebars :
         - One sidebar for the homepage. In this case sidebar parameter is "homepage-widgets".
         - Another sidebar for all anothers pages. In this case sidebar parameter is "page-widgets".
         """
+        cmd = "sidebar list --fields=name --format=csv"
+        sidebar_list = self.run_wp_cli(cmd)
+
+        if sidebar not in sidebar_list:
+            logging.info("%s - Sidebar %s doesn't exists", repr(self), sidebar)
+            return
+
         cmd = "widget list {} --fields=id --format=csv".format(sidebar)
         # Result is sliced to remove 1st element which is name of field (id).
         # Because WPCLI command can take several fields, the name is displayed in the result.
         widgets_id_list = self.run_wp_cli(cmd).split("\n")[1:]
+
         for widget_id in widgets_id_list:
             cmd = "widget delete " + widget_id
             self.run_wp_cli(cmd)
@@ -402,6 +410,7 @@ class WPGenerator:
         WPMuPluginConfig(self.wp_site, "epfl-functions.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL_custom_editor_menu.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL_google_analytics_hook.php").install()
+        WPMuPluginConfig(self.wp_site, "EPFL_jahia_redirect.php").install()
 
         if self.wp_config.installs_locked:
             WPMuPluginConfig(self.wp_site, "EPFL_installs_locked.php").install()
@@ -416,6 +425,8 @@ class WPGenerator:
     def enable_updates_automatic_if_allowed(self):
         if self.wp_config.updates_automatic:
             WPMuPluginConfig(self.wp_site, "EPFL_enable_updates_automatic.php").install()
+            # We also uninstall the plugin which disable auto-updates otherwise we will have both...
+            WPMuPluginConfig(self.wp_site, "EPFL_disable_updates_automatic.php").uninstall()
 
     def generate_plugins(self,
                          only_one=None,

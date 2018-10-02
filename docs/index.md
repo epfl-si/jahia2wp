@@ -154,7 +154,7 @@ Did we mention that would you be looking for a more explicit process, feel free 
 You will need to ask C2C to add your public key in `authorized_keys` on the server.
 You will also need to know what environment (pod) you wish to connect into (and set `WP_ENV` accordingly)
 
-    you@host:~$ WP_ENV=c2c-env && ssh -A -o SendEnv=WP_ENV www-data@ssh-wwp.epfl.ch -p 32222
+    you@host:~$ WP_ENV=c2c-env ssh -A -o SendEnv=WP_ENV www-data@ssh-wwp.epfl.ch -p 32222
     
     www-data@mgmt-x-xxx:/srv/c2c-env$ git clone git@github.com:epfl-idevelop/jahia2wp.git
     www-data@mgmt-x-xxx:/srv/c2c-env$ cd jahia2wp
@@ -264,8 +264,8 @@ To look into the tree structure and list all valid/unvalid WordPress sites, with
     .../src$ python jahia2wp.py inventory $WP_ENV /srv/your-env/localhost
     INFO - your-env - inventory - Building inventory...
     path;valid;url;version;db_name;db_user;admins
-    /srv/your-env/localhost/htdocs/;ok;http://localhost/;4.8.2;wp_dvyrgdywryrcmnkjnmonfzjv9ts4d;ce8clbbqyzeqta31;admin
-    /srv/your-env/localhost/htdocs/folder;ok;http://localhost/folder;4.8;wp_snqi7wekjznhkfe1ggisr9jmqaqeo;o0ajktkeaygim7w9;admin
+    /srv/your-env/localhost/htdocs/;OK;http://localhost/;4.8.2;wp_dvyrgdywryrcmnkjnmonfzjv9ts4d;ce8clbbqyzeqta31;admin
+    /srv/your-env/localhost/htdocs/folder;OK;http://localhost/folder;4.8;wp_snqi7wekjznhkfe1ggisr9jmqaqeo;o0ajktkeaygim7w9;admin
     /srv/your-env/localhost/htdocs/unittest;KO;;;;;
     INFO - your-env - inventory - Inventory made for /srv/your-env/localhost
 

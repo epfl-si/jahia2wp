@@ -20,7 +20,7 @@
 <link rel="shortcut icon" href="//www.epfl.ch/favicon.ico" type="image/x-icon" />
 <link rel="stylesheet" href="//www.epfl.ch/css/print.css" type="text/css" media="print" />
 
-<link rel="stylesheet" href="https://static.epfl.ch/v0.26.0/styles/epfl-built.css">
+<link rel="stylesheet" href="https://static.epfl.ch/v0.28.0/styles/epfl-built.css">
 
 <?php wp_head(); ?>
 </head>
@@ -103,7 +103,7 @@
 	</header><!-- #masthead -->
 
 	<div class="site-content-container">
-		<div id="content" class="site-content">
+		<div id="site-content" class="site-content">
   		
   		<?php if ( is_single() || is_page() || is_home() ) : ?>
   		

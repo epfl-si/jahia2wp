@@ -3,7 +3,7 @@
 /**
  * Plugin Name: EPFL snippets
  * Description: display snippets, an image with a title, subtitle, description and image.
- * @version: 1.0
+ * @version: 1.1
  * @copyright: Copyright (c) 2018 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
@@ -32,7 +32,7 @@ function epfl_snippets_process_shortcode( $attributes, string $content = null ):
         ), $attributes);
 
     // sanitize parameters
-    $url         = sanitize_text_field($atts['url']);
+    $url         = $atts['url'];
     $title       = sanitize_text_field($atts['title']);
     $subtitle    = sanitize_text_field($atts['subtitle']);
     $image       = sanitize_text_field($atts['image']);

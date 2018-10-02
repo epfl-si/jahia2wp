@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl-map\n"
-"POT-Creation-Date: 2018-05-06 17:41+0200\n"
-"PO-Revision-Date: 2018-05-06 17:43+0200\n"
+"POT-Creation-Date: 2018-09-13 10:05+0200\n"
+"PO-Revision-Date: 2018-09-13 10:06+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -16,49 +16,54 @@ msgstr ""
 "X-Poedit-SearchPath-0: epfl-map.php;esc_html__\n"
 "X-Poedit-SearchPath-0: epfl-map.php\n"
 
-#: epfl-map.php:99
+#: epfl-map.php:92
 msgid "English"
 msgstr "Anglais"
 
-#: epfl-map.php:100
+#: epfl-map.php:93
 msgid "French"
 msgstr "Français"
 
-#: epfl-map.php:108
-msgid "Add Map shortcode"
-msgstr "Ajouter un shortcode plan EPFL"
+#: epfl-map.php:101
+msgid "EPFL Map"
+msgstr "Plan EPFL"
+
+#: epfl-map.php:105
+msgid "What information do you want to display?"
+msgstr "Quelle information voulez-vous afficher ?"
+
+#: epfl-map.php:109
+msgid "A room for example"
+msgstr "Un local par exemple"
 
 #: epfl-map.php:112
-msgid "What information do you want to display?"
-msgstr "Quelle information voulez vous afficher ?"
-
-#: epfl-map.php:116
-msgid "For example a room"
-msgstr "Par exemple, une salle."
-
-#: epfl-map.php:119
 msgid "Language"
 msgstr "Langue"
 
-#: epfl-map.php:123
-msgid "The language used to render map result"
-msgstr "La langue utilisée pour afficher le plan"
+#: epfl-map.php:116
+msgid "Language used to render map result"
+msgstr "Langue utilisée pour l'affichage de la carte"
 
-#: epfl-map.php:126
-msgid "Width of the map"
-msgstr "Largeur du plan"
+#~ msgid "For example a room"
+#~ msgstr "Par exemple, une salle."
 
-#: epfl-map.php:130
-msgid "Width of the map. Recommended value: 600"
-msgstr "Largeur du plan. Valeur recommandée: 600"
+#~ msgid "The language used to render map result"
+#~ msgstr "La langue utilisée pour afficher le plan"
 
-#: epfl-map.php:133
-msgid "Height of the map"
-msgstr "Hauteur du plan"
+#~ msgid "Width of the map"
+#~ msgstr "Largeur du plan"
 
-#: epfl-map.php:137
-msgid "Height of the map. Recommended value: 400"
-msgstr "Hauteur du plan. Valeur recommandée: 400"
+#~ msgid "Width of the map. Recommended value: 600"
+#~ msgstr "Largeur du plan. Valeur recommandée: 600"
+
+#~ msgid "Height of the map"
+#~ msgstr "Hauteur du plan"
+
+#~ msgid "Height of the map. Recommended value: 400"
+#~ msgstr "Hauteur du plan. Valeur recommandée: 400"
+
+#~ msgid "Add Map shortcode"
+#~ msgstr "Ajouter un shortcode plan EPFL"
 
 #~ msgid "Width"
 #~ msgstr "Largeur"

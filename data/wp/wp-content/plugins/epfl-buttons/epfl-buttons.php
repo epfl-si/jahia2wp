@@ -8,7 +8,11 @@
 
 declare( strict_types = 1 );
 
+define('EPFL_BUTTONS_BIG', 'big');
+define('EPFL_BUTTONS_SMALL', 'small');
+
 $total_big_buttons = 0;
+$buttons_type = '';
 
 /**
  * Helper to debug the code
@@ -23,7 +27,7 @@ function epfl_buttons_box_debug( $var ) {
 /**
  * Build html
  *
- * @param $type: Box size : "small" or "big"
+ * @param $type: Box size : EPFL_BUTTONS_BIG or EPFL_BUTTONS_SMALL
  * @param $url: the url pointed by the shortcode
  * @param $image_url: the id of the media (image) to show
  * @param $alt_text: the label for the image
@@ -34,21 +38,29 @@ function epfl_buttons_box_debug( $var ) {
  */
 function epfl_buttons_box_build_html( string $type, string $url, string $image_url, string $alt_text, string $text, string $key ): string
 {
-    $html  = '<div class="' . esc_attr($type) . 'ButtonsBox"><a class="button-link ';
+    $html = '';
 
-    if($type == 'small')
+    /* Only big buttons are surrounded by a DIV */
+    if($type == EPFL_BUTTONS_BIG) $html .= '<div class="bigButtonsBox">';
+
+    $html .= '<a class="button-link ';
+
+    if($type == EPFL_BUTTONS_SMALL)
     {
         $html .= esc_attr($key);
     }
 
     $html .= '" href="'. esc_attr($url) . '" title="' . esc_attr($alt_text) .'">';
     /* We only add this if image is given (can be empty) */
-    if($type == 'big' && $image_url != "")
+    if($type == EPFL_BUTTONS_BIG && $image_url != "")
     {
         $html .= '<img src="' . $image_url . '" />';
     }
 
-    $html .= '<span class="label">' . $text . '</span></a></div>';
+    $html .= '<span class="label">' . $text . '</span></a>';
+
+    if($type == EPFL_BUTTONS_BIG) $html .= '</div>';
+
     return $html;
 }
 
@@ -62,14 +74,20 @@ function epfl_buttons_box_build_html( string $type, string $url, string $image_u
 function epfl_buttons_container_process_shortcode( $attributes, string $content = null ): string
 {
     global $total_big_buttons;
-    $content = '<section class="buttonsContainer">'.
-           do_shortcode($content);
+    global $buttons_type;
+
+    $buttons_html = do_shortcode($content);
+
+    /* Now we have $buttons_type var initialized so we can determine the CSS class to use */
+    $css_class = ($buttons_type == EPFL_BUTTONS_BIG)?"buttonsContainer":"smallButtonsBox";
+
+    $content = '<section class="'.$css_class.'">'. $buttons_html;
 
     /* Adding empty "missing" buttons to complete line until it ends */
     if ($total_big_buttons%4 > 0) {
         for($i=$total_big_buttons%4; $i<4; $i++)
         {
-            $content .= epfl_buttons_box_build_html('big', "", "", "", "", "" );
+            $content .= epfl_buttons_box_build_html(EPFL_BUTTONS_BIG, "", "", "", "", "" );
         }
     }
 
@@ -77,6 +95,7 @@ function epfl_buttons_container_process_shortcode( $attributes, string $content 
 
     return $content;
 }
+
 
 /**
  * Execute the shortcode
@@ -88,10 +107,11 @@ function epfl_buttons_container_process_shortcode( $attributes, string $content 
 function epfl_buttons_process_shortcode( $attributes, string $content = null ): string
 {
     global $total_big_buttons;
+    global $buttons_type;
 
     // get parameters
     $atts = shortcode_atts( array(
-        'type'      => 'big',
+        'type'      => EPFL_BUTTONS_BIG,
         'image'     => '',
         'url'       => '',
         'alt_text'  => '',
@@ -102,21 +122,30 @@ function epfl_buttons_process_shortcode( $attributes, string $content = null ): 
     // sanitize parameters
     $type       = sanitize_text_field($atts['type']);
     $image      = sanitize_text_field($atts['image']); // only for big buttons
-    $url        = sanitize_text_field($atts['url']);
+    $url        = $atts['url'];
     $alt_text   = sanitize_text_field($atts['alt_text']);
     $text       = sanitize_text_field($atts['text']);
     $key        = sanitize_text_field($atts['key']); // only for small buttons
 
+    $buttons_type = $type;
 
-    if($type == 'big')
+    if($type == EPFL_BUTTONS_BIG)
     {
         /* If image given */
         if($image != "" && $image != "/")
         {
-            $image_url = wp_get_attachment_url( $image );
-            if (false == $image_url)
+            /* We have an image ID given*/
+            if(is_numeric($image))
             {
-                $image_url = "BAD MEDIA ID";
+                $image_url = wp_get_attachment_url( $image );
+                if (false == $image_url)
+                {
+                    $image_url = "BAD MEDIA ID";
+                }
+            }
+            else /* We may have an URL for the image */
+            {
+                $image_url = $image;
             }
         }
         else /* No image given */
@@ -131,10 +160,10 @@ function epfl_buttons_process_shortcode( $attributes, string $content = null ): 
         $image_url = "";
     }
 
-    return epfl_buttons_box_build_html( $type, $url, $image_url, $alt_text, $text, $key );
+    return epfl_buttons_box_build_html($type, $url, $image_url, $alt_text, $text, $key );
 }
 
-// define the shortcode
+/* Buttons container */
 add_shortcode( 'epfl_buttons_container', 'epfl_buttons_container_process_shortcode' );
 add_shortcode( 'epfl_buttons', 'epfl_buttons_process_shortcode' );
 

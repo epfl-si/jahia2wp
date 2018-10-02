@@ -101,4 +101,14 @@ function EPFL_remove_customize_admin_bar_render()
     $wp_admin_bar->remove_menu('customize');
 }
 
+/* Remove 'At a glance' and 'Welcome' widgets from Dashboard (because contains link to themes page)
+ *
+ */
+add_action( 'admin_init','EPFL_remove_theme_reference_widget', 100 );
+function EPFL_remove_theme_reference_widget() {
+    remove_meta_box('dashboard_right_now', 'dashboard', 'normal');
+    remove_action('welcome_panel', 'wp_welcome_panel');
+}
+
+
 ?>

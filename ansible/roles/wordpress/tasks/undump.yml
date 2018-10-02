@@ -8,6 +8,13 @@
 # All .xml files uder {{ undump_local_dir }} will be undumped into
 # this Wordpress, in no particular order.
 
+- assert:
+    that:
+      - inventory_hostname in wp_destructive
+      - wp_destructive[inventory_hostname] is search("^(data|wipe)")
+    msg: |
+      Please specify a write permission for {{ inventory_hostname }} using the 'wp_destructive' command line parameter. See examples in src/ventilation/Makefile or ansible/roles/wordpress/defaults/main.yml .
+
 - include_vars: jahia2wp-vars.yml  # For jahia2wp_dir, used by dump-vars below
 - include_vars: dump-vars.yml
 
@@ -26,8 +33,13 @@
   with_fileglob:
     - "{{ undump_local_dir }}/*.xml"
 
+- name: Copy importer.php
+  copy:
+    src: "{{ playbook_dir }}/../../src/importer.php"
+    dest: "{{ undump_php_script }}"
+
 - name: "Undump from {{ undump_remote_tmpdir }}/*.xml"
-  shell: "set -e -x ; cd '{{ undump_remote_tmpdir }}'; for file in *.xml; do {{ wp_cli_command }} --skip-plugins=wordpress-importer eval-file {{ undump_php_script }} -fetch-attachments $file; done"
+  shell: "set -e -x ; cd '{{ undump_remote_tmpdir }}'; for file in *.xml; do {{ wp_cli_command }} --require={{ undump_php_script }} jahia2wp import -fetch-attachments $file; done"
   register: undump_php_results
 
 - debug:

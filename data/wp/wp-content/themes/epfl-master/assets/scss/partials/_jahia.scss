@@ -182,3 +182,27 @@ div.socialshare span.label{position:relative;top:3px;padding-right:10px;cursor:d
 .memento li.studying{height:372px;}
 li.level1,li.level1 a{color:#fff!important;background-color:#000;}
 li.level1 a:hover{color:#000!important;}
+
+.dotted {
+	color: #fff; 
+	background-color: #fff; 
+	border: 1px dotted #000;
+	border-style: none none dotted;
+}
+.read-more {
+  width: 12px;
+  height: 12px;
+  margin-left: 4px;
+  display: inline-block;
+  text-decoration: none;
+  
+  &:before {
+    @include icon;
+    content: "\f101";
+    font-weight: bold;
+  }
+  
+  &:empty {
+    display: inline-block !important;
+  }
+}

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: EPFL News shortcode
  * Description: provides a shortcode to display news feed
- * @version: 1.0
+ * @version: 1.1
  * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
@@ -143,7 +143,6 @@ function epfl_news_process_shortcode(
                 'category' => '',
                 'themes'   => '',
                 'projects' => '',
-                'title'    => '',
         ), $atts, $tag);
 
         // sanitize parameters
@@ -154,7 +153,6 @@ function epfl_news_process_shortcode(
         $category = sanitize_text_field( $atts['category'] );
         $themes   = sanitize_text_field( $atts['themes'] );
         $projects = sanitize_text_field( $atts['projects'] );
-        $title    = sanitize_text_field( $atts['title'] );
 
         if (epfl_news_check_required_parameters($channel, $lang) == FALSE) {
             return "";
@@ -165,7 +163,7 @@ function epfl_news_process_shortcode(
 
         // iframe template
         if ($template === "10") {
-            return Render::epfl_news_built_html_pagination_template($title, $channel, $lang);
+            return Render::epfl_news_built_html_pagination_template($channel, $lang);
         }
 
         $url = epfl_news_build_api_url(
@@ -186,7 +184,7 @@ function epfl_news_process_shortcode(
 
             try {
 
-               do_action("epfl_news_action", $title, $actus, $template, $stickers);
+               do_action("epfl_news_action", $actus, $template, $stickers);
 
                return ob_get_contents();
 
@@ -198,7 +196,7 @@ function epfl_news_process_shortcode(
         // otherwise the plugin does the rendering
         } else {
 
-            return Render::epfl_news_build_html($title, $actus, $template, $stickers);
+            return Render::epfl_news_build_html($actus, $template, $stickers);
         }
     }
 
