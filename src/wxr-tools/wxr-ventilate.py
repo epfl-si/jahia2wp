@@ -8,9 +8,11 @@ WXR, short for Wordpress Export RSS (https://github.com/pbiron/wxr) is
 the native XML dump/restore format for WordPress.
 
 This script consumes and produces WXR files. It takes part in the
-"ventilation" process by filtering and reparenting pages so as to
-make a number of independent WordPress instances appear to the public
-as one large site, such as www.epfl.ch and vpsi.epfl.ch.
+"ventilation" process by filtering and reparenting pages so as to make
+a number of independent WordPress instances appear to the public as
+one large site, such as www.epfl.ch and vpsi.epfl.ch. Specifically, it
+gets invoked once per line in the governing CSV file, and produces
+exactly one XML file per run on standard output.
 
 Usage:
   wxr-ventilate.py [options] --new-site-url-base=<url> <input_xml_file>
