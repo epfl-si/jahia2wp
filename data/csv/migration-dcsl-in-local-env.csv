@@ -1,4 +1,2 @@
 wp_site_url,wp_tagline,wp_site_title,site_type,openshift_env,category,theme,theme_faculty,status,installs_locked,updates_automatic,langs,unit_name,Jahia_zip,comment
 https://jahia2wp-httpd/dcsl,#parser,#parser,wordpress,gcharmier,GeneralPublic,epfl-master,#parser,yes,no,yes,#parser,DCSL,dcsl,site de la labo
-#https://jahia2wp-httpd/help-servicenow,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,exdesk,help-servicenow,
-#https://jahia2wp-httpd/gonczy-lab,#parser,#parser,wordpress,int,GeneralPublic,epfl-master,#parser,yes,yes,yes,#parser,upgon,gonczy-lab,
