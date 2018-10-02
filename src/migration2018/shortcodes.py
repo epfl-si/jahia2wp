@@ -631,7 +631,6 @@ class Shortcodes():
         calls = self.__get_all_shortcode_calls(content, old_shortcode, with_content=True)
 
         for call in calls:
-            # getting future toggle content
             text = self.__get_content(call)
             url = self.__get_attribute(call, 'url')
             target = self.__get_attribute(call, 'target')
@@ -753,7 +752,6 @@ class Shortcodes():
         calls = self.__get_all_shortcode_calls(content, 'su_quote', with_content=True)
 
         for call in calls:
-            # getting future toggle content
             philosophical_thing = self.__get_content(call)
             great_person_who_said_this = self.__get_attribute(call, 'cite')
 
@@ -763,6 +761,25 @@ class Shortcodes():
             html += '<footer class="blockquote-footer">{}</footer>'.format(great_person_who_said_this)
             html += '</blockquote>'
             html += '</div>'
+
+            # Replacing in global content
+            content = content.replace(call, html)
+
+        return content
+
+    def _fix_su_list(self, content):
+        """
+        Return HTML code to display information correctly. We remove surrounding shortcode and add a <br> at the end.
+        :param content: String in which to fix
+        :return:
+        """
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, 'su_list', with_content=True)
+
+        for call in calls:
+            list_content = self.__get_content(call)
+
+            html = '{}<br>'.format(list_content)
 
             # Replacing in global content
             content = content.replace(call, html)
