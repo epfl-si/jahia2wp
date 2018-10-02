@@ -786,6 +786,13 @@ class Shortcodes():
 
         return content
 
+    def _fix_su_spacer(self, content):
+        """
+        Remove "su_spacer"
+        :return:
+        """
+        return self.__remove_shortcode(content, 'su_spacer')
+
     def _fix_epfl_memento(self, content):
         """
         Fix "epfl_memento" shortcode
