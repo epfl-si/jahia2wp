@@ -90,7 +90,7 @@ class Box:
 
     def set_sort_infos(self, element):
         """
-        Tells if element needs to be sort or not. We check if it has a parant of type "mainList" with a
+        Tells if element needs to be sort or not. We check if it has a parent of type "mainList" with a
         "jahia:sortHandler" attribute which is not empty
 
         :param element: Element to check.
@@ -1046,6 +1046,24 @@ class Box:
         else:
             self.content = ""
 
+        sort_params = element.getElementsByTagName("snippetListList")[0].getAttribute("jahia:sortHandler")
+
+        # Default values that may be overrided later
+        sort_way = 'asc'
+        sort_tag_name = None
+
+        # If we have parameters for sorting, they will look like :
+        # epfl_simple_main_snippetList_title;desc;false;false
+        # https://pel.epfl.ch/awards_en
+        if sort_params != "":
+            # Extracting tag name where to find sort info
+            # epfl_simple_main_snippetList_title;desc;false;false ==> url
+            sort_tag_name = sort_params.split(';')[0].split('_')[-1]
+
+            sort_way = sort_params.split(';')[1]
+
+        snippet_boxes = BoxSortedGroup('', '', sort_way)
+
         for snippet in snippets:
             title = Utils.get_tag_attribute(snippet, "title", "jahia:value")
             subtitle = Utils.get_tag_attribute(snippet, "subtitle", "jahia:value")
@@ -1065,6 +1083,20 @@ class Box:
             subtitle = Utils.handle_custom_chars(subtitle)
 
             url = ""
+
+            # Sorting needed
+            if sort_tag_name:
+                sort_tags = snippet.getElementsByTagName(sort_tag_name)
+                if sort_tags:
+                    # It seems that, by default, it is the "jahia:value" value that is used for sorting
+                    sort_value = sort_tags[0].getAttribute("jahia:value")
+
+                # We don't have enough information to continue
+                if not sort_tags or not sort_value:
+                    raise Exception("No sort tag (%s) found (or empty sort value found)", sort_tag_name)
+            else:
+                # No sorting needed, we generate an ID for the box
+                sort_value = len(snippet_boxes.boxes)
 
             # url
             if element.getElementsByTagName("url"):
@@ -1091,16 +1123,21 @@ class Box:
                         if url_title and not url_title == "":
                             description += '<a href="' + url + '">' + Utils.handle_custom_chars(url_title) + '</a>'
 
-            self.content += '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
-                            ' big_image="{}" enable_zoom="{}"]{}[/{}]'.format(self.shortcode_name,
-                                                                              url,
-                                                                              title,
-                                                                              subtitle,
-                                                                              image,
-                                                                              big_image,
-                                                                              enable_zoom,
-                                                                              description,
-                                                                              self.shortcode_name)
+            box_content = '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
+                          ' big_image="{}" enable_zoom="{}"]{}[/{}]'.format(self.shortcode_name,
+                                                                            url,
+                                                                            title,
+                                                                            subtitle,
+                                                                            image,
+                                                                            big_image,
+                                                                            enable_zoom,
+                                                                            description,
+                                                                            self.shortcode_name)
+
+            # Because boxes can be sortable, we use a BoxSortedGroup to handle this
+            snippet_boxes.add_box_to_sort(box_content, sort_value)
+
+        self.content += ''.join(snippet_boxes.get_sorted_boxes())
 
     def set_box_syntax_highlight(self, element):
         """Set the attributes of a syntaxHighlight box"""
