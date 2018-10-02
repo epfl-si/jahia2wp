@@ -741,6 +741,34 @@ class Shortcodes():
 
         return content
 
+    def _fix_su_quote(self, content):
+        """
+        Return HTML code to display quote according 2018 styleguide (but without an image and using "col-md-12" instead
+        of "col-md-10" for the width):
+        https://epfl-idevelop.github.io/elements/#/molecules/quote
+        :param content: String in which to fix
+        :return:
+        """
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, 'su_quote', with_content=True)
+
+        for call in calls:
+            # getting future toggle content
+            philosophical_thing = self.__get_content(call)
+            great_person_who_said_this = self.__get_attribute(call, 'cite')
+
+            html = '<div class="row">'
+            html += '<blockquote class="blockquote mt-3 col-md-12 border-0">'
+            html += '<p class="mb-0">{}</p>'.format(philosophical_thing)
+            html += '<footer class="blockquote-footer">{}</footer>'.format(great_person_who_said_this)
+            html += '</blockquote>'
+            html += '</div>'
+
+            # Replacing in global content
+            content = content.replace(call, html)
+
+        return content
+
     def _fix_epfl_memento(self, content):
         """
         Fix "epfl_memento" shortcode
