@@ -67,7 +67,7 @@ class DestinationWXR:
         os.makedirs(dirname(self.path), exist_ok=True)
         wxr_ventilate_path = os.path.join(
             dirname(__file__),
-            '../wxr-tools/wxr-ventilate.py')
+            '../wxr_tools/wxr_ventilate.py')
         cmdline = [
             sys.executable,
             wxr_ventilate_path,
