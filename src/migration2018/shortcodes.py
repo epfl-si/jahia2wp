@@ -786,6 +786,25 @@ class Shortcodes():
 
         return content
 
+    def _fix_su_heading(self, content):
+        """
+        Fix "su_heading" shortcode from shortcode ultimate. Just transform it into <h2> element.
+        :param content: String in which to fix
+        :return:
+        """
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, 'su_heading', with_content=True)
+
+        for call in calls:
+            heading_text = self.__get_content(call)
+
+            html = '<h2>{}</h2>'.format(heading_text)
+
+            # Replacing in global content
+            content = content.replace(call, html)
+
+        return content
+
     def _fix_su_spacer(self, content):
         """
         Remove "su_spacer"
