@@ -1038,15 +1038,16 @@ class Box:
         if not element.getElementsByTagName("snippetListList"):
             return
 
-        snippets = element.getElementsByTagName("snippetListList")[0].getElementsByTagName("snippetList")
-
         # If box have title, we have to display it
         if self.title != "":
             self.content = "<h3>{}</h3>".format(self.title)
         else:
             self.content = ""
 
-        sort_params = element.getElementsByTagName("snippetListList")[0].getAttribute("jahia:sortHandler")
+        snippet_list_list = element.getElementsByTagName("snippetListList")[0]
+
+        # Sorting parameters
+        sort_params = snippet_list_list.getAttribute("jahia:sortHandler")
 
         # Default values that may be overrided later
         sort_way = 'asc'
@@ -1063,6 +1064,8 @@ class Box:
             sort_way = sort_params.split(';')[1]
 
         snippet_boxes = BoxSortedGroup('', '', sort_way)
+
+        snippets = snippet_list_list.getElementsByTagName("snippetList")
 
         for snippet in snippets:
             title = Utils.get_tag_attribute(snippet, "title", "jahia:value")
