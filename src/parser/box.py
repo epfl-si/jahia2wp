@@ -64,7 +64,7 @@ class Box:
 
     UPDATE_LANG = "UPDATE_LANG_BY_EXPORTER"
 
-    def __init__(self, site, page_content, element, multibox=False):
+    def __init__(self, site, page_content, element, multibox=False, is_in_sidebar=False):
         """
 
         :param site: instance of Site class
@@ -81,6 +81,7 @@ class Box:
         self.title = Utils.get_tag_attribute(element, "boxTitle", "jahia:value")
         self.content = ""
         self.sort_group = None
+        self.is_in_sidebar = False
 
         # the shortcode attributes with URLs that must be fixed by the wp_exporter
         self.shortcode_attributes_to_fix = []
@@ -285,7 +286,7 @@ class Box:
             title = Utils.get_tag_attribute(e, "jahia:url", "jahia:title")
 
             # Escape if necessary
-            title = Utils.manage_quotes(title)
+            title = Utils.handle_custom_chars(title)
 
             self.content += '[{} layout="{}" link="{}" title="{}" image="{}"][/{}]\n'.format(
                 shortcode_inner_name, layout, link, title, image, shortcode_inner_name)
@@ -545,7 +546,7 @@ class Box:
         content = ""
 
         # Title is only for boxes in pages
-        if not self.is_in_sidebar():
+        if not self.is_in_sidebar:
             content += '<h3>{}</h3>'.format(self.title)
 
         content += '[{} channel="{}" lang="{}" template="{}" '.format(
@@ -586,13 +587,6 @@ class Box:
             content += '[/epfl_buttons_container]'
 
         self.content = content
-
-    def is_in_sidebar(self):
-        """
-        Tells if the box belongs to the sidebar
-        :return:
-        """
-        return self.page_content.page.is_homepage()
 
     @staticmethod
     def _extract_epfl_memento_parameters(url):
@@ -745,7 +739,7 @@ class Box:
 
             # Get question and escape if necessary
             question = Utils.get_tag_attribute(entry, "question", "jahia:value")
-            question = Utils.manage_quotes(question)
+            question = Utils.handle_custom_chars(question)
 
             # Get answer
             answer = Utils.get_tag_attribute(entry, "answer", "jahia:value")
@@ -885,6 +879,10 @@ class Box:
         if small_button_key:
             small_button_key = 'key="{}"'.format(small_button_key)
 
+        # Replacing necessary characters to ensure everything will work correctly
+        text = Utils.handle_custom_chars(text)
+        alt_text = Utils.handle_custom_chars(alt_text)
+
         return '[epfl_buttons type="{}" url="{}" {} alt_text="{}" text="{}" {}]'.format(box_type,
                                                                                         url,
                                                                                         big_button_image_url,
@@ -1011,10 +1009,6 @@ class Box:
             if box_type == 'small' and text == "":
                 text = alt_text
 
-            # Escape if necessary
-            text = Utils.manage_quotes(text)
-            alt_text = Utils.manage_quotes(alt_text)
-
             # bigButton will have 'image' attribute and smallButton will have 'key' attribute.
             box_content = self._get_button_shortcode(box_type,
                                                      url,
@@ -1071,8 +1065,8 @@ class Box:
                 big_image = big_image[big_image.rfind("/files"):]
 
             # escape
-            title = Utils.manage_quotes(title)
-            subtitle = Utils.manage_quotes(subtitle)
+            title = Utils.handle_custom_chars(title)
+            subtitle = Utils.handle_custom_chars(subtitle)
 
             url = ""
 
@@ -1085,7 +1079,7 @@ class Box:
                 if url != "":
                     if not subtitle or subtitle == "":
                         subtitle = Utils.get_tag_attribute(snippet, "jahia:url", "jahia:title")
-                        subtitle = Utils.manage_quotes(subtitle)
+                        subtitle = Utils.handle_custom_chars(subtitle)
                 # if not we might have a <jahia:link> (internal url)
                 else:
                     uuid = Utils.get_tag_attribute(snippet, "jahia:link", "jahia:reference")
@@ -1099,7 +1093,7 @@ class Box:
                         # if link has a title, add it to content as ref
                         url_title = Utils.get_tag_attribute(snippet, "jahia:link", "jahia:title")
                         if url_title and not url_title == "":
-                            description += '<a href="' + url + '">' + Utils.manage_quotes(url_title) + '</a>'
+                            description += '<a href="' + url + '">' + Utils.handle_custom_chars(url_title) + '</a>'
 
             self.content += '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
                             ' big_image="{}" enable_zoom="{}"]{}[/{}]'.format(self.shortcode_name,

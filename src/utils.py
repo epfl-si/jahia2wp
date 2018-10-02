@@ -475,24 +475,37 @@ class Utils(object):
         return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(length))
 
     @staticmethod
-    def manage_quotes(html, escape=True):
+    def handle_custom_chars(html, escape=True):
         """
-        Manage quotes (simples and double) to avoid BeautifulSoup to transform HTML entities back to "real" characters.
-        When escaped quotes are replaced by custom identifiers that won't be transformed by BeautifulSoup. And when
-        unescaped, quotes are set back to corresponding HTML entities
+        Manage some special characters in shortcode attributes values. We have to do this to avoid BeautifulSoup to
+        transform HTML entities back to "real" characters.
+        When escaped, special characters are replaced by custom identifiers that won't be transformed by BeautifulSoup.
+        And when unescaped, quotes are set back to corresponding HTML entities
+
+        For now, we only encode simple/double quotes and brackets. If more special characters needs to be added in the
+        future, just do it ;-)
 
         :param html: string in which (un)escape
         :param escape: To tells if we have to escape or unescape.
         :return:
         """
 
-        simple_quote = "#apos!"
-        double_quote = "#quot!"
+        # Element to replace: https://www.freeformatter.com/html-entities.html
+        # Tuple format :
+        # <originalChar>, <customHtmlEntity>, <officialHtmlEntity>
+        replace = [('[', '##91!', '&#91;'),
+                   (']', '##93!', '&#93;'),
+                   ("'", '#apos!', '&apos;'),
+                   ('"', '#quot!', '&quot;')]
 
-        if escape:
-            return html.replace('"', double_quote).replace("'", simple_quote)
-        else:
-            return html.replace(double_quote, '&quot;').replace(simple_quote, '&apos;')
+        for original, escape_to, unescape_to in replace:
+
+            if escape:
+                html = html.replace(original, escape_to)
+            else:
+                html = html.replace(escape_to, unescape_to)
+
+        return html
 
     @staticmethod
     def escape_quotes(str):

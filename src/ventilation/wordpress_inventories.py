@@ -2,13 +2,13 @@
 # -*- coding: utf-8; -*-
 # All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017
 
-"""wordpress-inventories.py: Find where source Wordpresses reside from a CSV file.
+"""wordpress_inventories.py: Find where source Wordpresses reside from a CSV file.
 
 The CSV file must have a 'source' column with URLs in it.  Other columns are
 ignored.
 
 Usage:
-  wordpress-inventories.py --sources=<sources_inventory_file> --targets=<targets_inventory_file> <ventilation_csv_file>
+  wordpress_inventories.py --sources=<sources_inventory_file> --targets=<targets_inventory_file> <ventilation_csv_file>
 
 """
 
@@ -35,16 +35,9 @@ class AnsibleGroup:
     def has_wordpress(self, designated_name):
         return designated_name in self.hosts
 
-    def _moniker(self, url):
-        parsed = urlparse(url)
-        hostname = parsed.netloc.split('.')[0]
-        if hostname != 'migration-wp':
-            return hostname
-        return re.search('^/([^/]*)/', parsed.path).group(1)
-
     def add_wordpress_by_url(self, url):
         ssh = SshRemoteHost.for_url(url)
-        moniker = self._moniker(url)
+        moniker = site_moniker(url)
         ansible_params = copy.copy(ssh.as_ansible_params(url))
         self.hosts[moniker] = ansible_params
 
@@ -67,6 +60,23 @@ class AnsibleGroup:
 
     def __repr__(self):
         return '<%s %s>' % (self.__class__, self.name)
+
+
+def site_moniker(url):
+    """
+    Return
+    A short name that identifies this URL either in a file path (under wxr-ventilated/),
+    or in an Ansible hosts file.
+
+    Example:
+    url = "https://migration-wp.epfl.ch/help-actu/*"
+    return "help-actu"
+    """
+    parsed = urlparse(url)
+    hostname = parsed.netloc.split('.')[0]
+    if hostname not in ('migration-wp', 'www2018'):
+        return hostname
+    return re.search('^/([^/]*)/', parsed.path).group(1)
 
 
 if __name__ == '__main__':
