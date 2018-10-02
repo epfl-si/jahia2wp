@@ -143,7 +143,7 @@ class Box:
         elif self.TYPE_PEOPLE_LIST == self.type:
             self.set_box_people_list(element)
         # infoscience
-        elif self.TYPE_INFOSCIENCE == self.type or self.TYPE_INFOSCIENCE_FILTER:
+        elif self.TYPE_INFOSCIENCE == self.type or self.TYPE_INFOSCIENCE_FILTER == self.type:
             self.set_box_infoscience(element)
         # actu
         elif self.TYPE_ACTU == self.type:
