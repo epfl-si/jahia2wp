@@ -50,22 +50,60 @@ class Ventilator:
         return normalize_site_url(self.flags['--new-site-url-base'])
 
     def ventilate(self):
+        """Filter and rearrange the pages under the --add-structure path.
+
+        If the site has a homepage, place it at the path given by
+        --add-structure (and its translations at a closely-related
+        path), and reparent all other pages under the homepage (and
+        translations).
+
+        If the site has no homepage, create a synthetic (untranslated)
+        node at --add-structure and reparent everything under it.
+
+        If --add-structure is not specified on the command line, still
+        reparent under the home page(s) if any (but don't move them).
+
+        Returns: The lxml etree object.
+        """
         if self.flags['--filter']:
             logging.warn('UNIMPLEMENTED: --filter')
+
+        homepage = self.homepageify()
+
         if self.flags['--add-structure']:
             path_components = self.flags['--add-structure'].split('/')
             if path_components[0] == '':
-                # Tolerate incorrect --add-parents=/foo/bar
+                # Tolerate incorrect --add-structure=/foo/bar
                 path_components.pop(0)
-            homepage = self.homepageify()
-            self.add_structure(path_components, homepage)
+
+            assert len(path_components) > 0
+
+            if homepage is not None:
+                reparent_under = self.add_structure(path_components[:-1])
+                for p in homepage.translations_list:
+                    p.parent_id = reparent_under
+                    p.post_slug = path_components[-1] + (
+                        '' if p.id == homepage.id else p.language)
+            else:
+                reparent_under = self.add_structure(path_components)
+                for p in Page.all(self.etree):
+                    if not p.parent_id:
+                        p.parent_id = reparent_under
 
             self.trim_and_reparent_menus()
 
         return self.etree
 
     def homepageify(self):
-        """Rearrange all pages under a single home page (modulo Polylang)."""
+        """Rearrange all pages under the home page(s).
+
+        (The plural case is when Polylang is in play.)
+
+        If the site has a homepage, reparent all other pages under it.
+        If the site has no homepage, do nothing.
+
+        Returns: The homepage as a Page object, or None.
+        """
 
         homepage = Page.homepage(self.etree)
         if homepage is None:
@@ -109,27 +147,19 @@ class Ventilator:
             if nav.parent_id == 0:
                 nav.parent_id = will_reparent_under[nav.menu_slug].id
 
-    def add_structure(self, path_components, above_this_page):
-        assert len(path_components) > 0
-
-        previous_id = 0
+    def add_structure(self, path_components):
+        current_id = 0
         path_so_far = ""
-        for path_component in path_components[:-1]:
+        for path_component in path_components:
             path_so_far += path_component + "/"
             structural_page = Page.insert_structural(
                 self.etree, path_component)
             structural_page.guid = self.new_root_url + path_so_far
             structural_page.post_title = '[%s]' % path_component
-            structural_page.parent_id = previous_id
-            previous_id = structural_page.id
+            structural_page.parent_id = current_id
+            current_id = structural_page.id
 
-        for p in above_this_page.translations_list:
-            p.parent_id = previous_id
-            if p.id == above_this_page.id:
-                distinctive_suffix = ''
-            else:
-                distinctive_suffix = '-' + p.language
-            p.post_slug = path_components[-1] + distinctive_suffix
+        return current_id
 
 
 if __name__ == '__main__':
