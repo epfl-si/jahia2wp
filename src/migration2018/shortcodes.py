@@ -687,6 +687,45 @@ class Shortcodes():
 
         return content
 
+    def _fix_su_row(self, content):
+        """
+        Fix "su_row" from Shortcode Ultimate.
+        :return:
+        """
+
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, 'su_row', with_content=True)
+
+        for call in calls:
+
+            row_content = self.__get_content(call)
+
+            html = '<table><tr>{}</tr></table>'.format(row_content)
+
+            # Replacing in global content
+            content = content.replace(call, html)
+
+        return content
+
+    def _fix_su_column(self, content):
+        """
+        Fix "su_column" from Shortcode Ultimate.
+        :return:
+        """
+
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, 'su_column', with_content=True)
+
+        for call in calls:
+            col_content = self.__get_content(call)
+
+            html = '<td>{}</td>'.format(col_content)
+
+            # Replacing in global content
+            content = content.replace(call, html)
+
+        return content
+
     def _fix_su_box(self, content):
         """
         Fix "su_box" from Shortcode Ultimate. We replace it with epfl_card
