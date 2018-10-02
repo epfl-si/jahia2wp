@@ -49,8 +49,11 @@ Class Utils
         if (is_array($response)) {
                 $header = $response['headers']; // array of http header lines
                 $data = $response['body']; // use the content
-                if ( $header["content-type"] === "application/json" ) {
-                        return json_decode($data);
+
+                // Check is 'application/json' is in the content type
+                // Example of content type: 'application/json;charset=utf-8'
+                if ( strpos($header["content-type"], 'application/json') === False) {
+                    return "Webservice doesn't seem to be returning JSON";
                 } else {
                     return json_decode($data);
                 }
