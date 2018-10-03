@@ -66,7 +66,7 @@ Class Render
             $html .= '<article class="post">';
             $html .= '  <figure class="post-thumbnail">';
             $html .= '    <a href="' . esc_attr($item->news_url) . '">';
-            $html .= '      <img src="' . esc_attr($item->visual_url) . '" title="' . esc_attr($item->title) . '">';
+            $html .= '      <img src="' . esc_attr($item->thumbnail_url) . '" title="' . esc_attr($item->title) . '">';
             $html .= '    </a>';
             $html .= '  </figure>';
 
@@ -122,7 +122,7 @@ Class Render
             $html .= '<article class="post">';
             $html .= '  <figure class="post-thumbnail">';
             $html .= '    <a href="' . esc_attr($item->news_url) . '">';
-            $html .= '      <img src="' . esc_attr($item->visual_url) . '" title="' . esc_attr($item->title) . '">';
+            $html .= '      <img src="' . esc_attr($item->thumbnail_url) . '" title="' . esc_attr($item->title) . '">';
             $html .= '    </a>';
             $html .= '  </figure>';
             if ($category_label) {
@@ -180,7 +180,7 @@ Class Render
             $html .= '  </header>';
             $html .= '  <figure class="post-thumbnail">';
             $html .= '    <a href="' . esc_attr($item->news_url) . '">';
-            $html .= '      <img src="' . esc_attr($item->visual_url) . '" title="' . esc_attr($item->title) . '">';
+            $html .= '      <img src="' . esc_attr($item->thumbnail_url) . '" title="' . esc_attr($item->title) . '">';
             $html .= '    </a>';
             $html .= '  </figure>';
 
@@ -237,7 +237,7 @@ Class Render
             $html .= '  </header>';
             $html .= '  <figure class="post-thumbnail">';
             $html .= '    <a href="' . esc_attr($item->news_url) . '">';
-            $html .= '      <img src="' . esc_attr($item->visual_url) . '" title="' . esc_attr($item->title) . '">';
+            $html .= '      <img src="' . esc_attr($item->thumbnail_url) . '" title="' . esc_attr($item->title) . '">';
             $html .= '    </a>';
             $html .= '  </figure>';
             if ($category_label != "") {
@@ -282,7 +282,7 @@ Class Render
             $html .= '<article class="post">';
             $html .= '  <figure class="post-thumbnail">';
             $html .= '    <a href="' . esc_attr($item->news_url) . '">';
-            $html .= '      <img src="' . esc_attr($item->visual_url) . '" title="' . esc_attr($item->title) . '">';
+            $html .= '      <img src="' . esc_attr($item->thumbnail_url) . '" title="' . esc_attr($item->title) . '">';
             $html .= '    </a>';
             $html .= '  </figure>';
 
@@ -338,7 +338,7 @@ Class Render
             $html .= '<article class="post">';
             $html .= '  <figure class="post-thumbnail">';
             $html .= '    <a href="' . esc_attr($item->news_url) . '">';
-            $html .= '      <img src="' . esc_attr($item->visual_url) . '" title="' . esc_attr($item->title) . '">';
+            $html .= '      <img src="' . esc_attr($item->thumbnail_url) . '" title="' . esc_attr($item->title) . '">';
             $html .= '    </a>';
             $html .= '  </figure>';
 
