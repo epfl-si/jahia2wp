@@ -402,7 +402,7 @@ class Shortcodes():
             unit = Utils.get_parameter_from_url(api_url, 'unit')
 
             if unit:
-                new_call = self.__add_attribute(new_call, new_shortcode, 'unit', unit)
+                new_call = self.__add_attribute(new_call, new_shortcode, 'units', unit)
 
             # Replacing in global content
             content = content.replace(call, new_call)
@@ -838,6 +838,51 @@ class Shortcodes():
             heading_text = self.__get_content(call)
 
             html = '<h2>{}</h2>'.format(heading_text)
+
+            # Replacing in global content
+            content = content.replace(call, html)
+
+        return content
+
+    def _fix_su_highlight(self, content):
+        """
+        Fix "su_highlight" shortcode from shortcode ultimate. Just transform it into <mark> element as defined
+        in the styleguide: https://epfl-idevelop.github.io/elements/#/doc/design--typography.html
+        :param content: String in which to fix
+        :return:
+        """
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, 'su_highlight', with_content=True)
+
+        for call in calls:
+            heading_text = self.__get_content(call)
+
+            html = '<mark>{}</mark>'.format(heading_text)
+
+            # Replacing in global content
+            content = content.replace(call, html)
+
+        return content
+
+    def _fix_su_note(self, content):
+        """
+        Fix "su_note" de Shortcode Ultimate afin de mettre le code HTML d'un trapèze:
+        https://epfl-idevelop.github.io/elements/#/atoms/trapeze
+        :param content: String in which to fix
+        :return:
+        """
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, 'su_note', with_content=True)
+
+        for call in calls:
+            note = self.__get_content(call)
+
+            html = '<a href="#" class="trapeze-vertical-container">'
+            html += '<div class="card">'
+            html += '<div class="card-body">{}</div>'.format(note)
+            html += '</div>'
+            html += '<span class="trapeze-vertical"></span>'
+            html += '</a>'
 
             # Replacing in global content
             content = content.replace(call, html)
