@@ -46,14 +46,16 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
   // retrieve the data in JSON
   $items = Utils::get_items($url);
 
-  // Create a persons list
   $persons = [];
-  foreach ($items as $item) {
-    $persons[] = $item;
-  }
 
-  // Sort persons list alphabetically
-  usort($persons, 'epfl_people_person_compare');
+  if (false !== $items) {
+    // Create a persons list
+    foreach ($items as $item) {
+      $persons[] = $item;
+    }
+    // Sort persons list alphabetically
+    usort($persons, 'epfl_people_person_compare');
+  }
 
   // if supported delegate the rendering to the theme
   if (has_action("epfl_people_action"))

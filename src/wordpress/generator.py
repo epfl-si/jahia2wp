@@ -205,10 +205,10 @@ class WPGenerator:
         theme = WPThemeConfig(self.wp_site, settings.DEFAULT_THEME_NAME, self._site_params['theme_faculty'])
         theme.install_and_activate()
 
-        logging.info("%s - Activating theme '%s'...", repr(self), settings.DEFAULT_THEME_NAME)
+        logging.info("%s - Activating theme '%s'...", repr(self), self._site_params['theme'])
 
         if not theme.activate():
-            logging.error("%s - could not activate theme '%s'", repr(self), settings.DEFAULT_THEME_NAME)
+            logging.error("%s - could not activate theme '%s'", repr(self), self._site_params['theme'])
             return False
 
         # install, activate and config mu-plugins
