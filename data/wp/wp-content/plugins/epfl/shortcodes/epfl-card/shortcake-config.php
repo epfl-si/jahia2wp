@@ -18,11 +18,6 @@ Class ShortCakeCardConfig
                             'type'  => 'text',
                         ),
                         array(
-                            'label' => '<h3>' . esc_html__('Card text', 'epfl') . '</h3>',
-                            'attr'  => 'text',
-                            'type'  => 'textarea',
-                        ),
-                        array(
                             'label' => '<h3>' . esc_html__('Card link', 'epfl') . '</h3>',
                             'attr'  => 'link',
                             'type'  => 'url',
@@ -34,6 +29,9 @@ Class ShortCakeCardConfig
                             'libraryType' => array( 'image' ),
                         ),
                     ),
+                'inner_content' => array(
+                    'label'        => '<h3>' . esc_html__('Card text', 'epfl') . '</h3>',
+                ),
                 'post_type'     => array( 'post', 'page' ),
             )
         );

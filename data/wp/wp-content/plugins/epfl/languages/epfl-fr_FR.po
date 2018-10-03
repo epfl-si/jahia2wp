@@ -56,7 +56,7 @@ msgstr "Liens"
 msgid "Label"
 msgstr "Libellé"
 
-#: epfl-links-group/shortcake-config.php:24 epfl-toggle/shortcake-config.php:20
+#: epfl-links-group/shortcake-config.php:24
 msgid "Title"
 msgstr "Titre"
 
@@ -77,12 +77,12 @@ msgstr "L'URL du lien"
 msgid "Links group"
 msgstr "Groupe de liens"
 
-#: epfl-map/epfl-map.php:77 epfl-memento/shortcake-config.php:54
+#: epfl-map/epfl-map.php:77 epfl-memento/shortcake-config.php:56
 #: epfl-news/shortcake-config.php:35
 msgid "English"
 msgstr "Anglais"
 
-#: epfl-map/epfl-map.php:78 epfl-memento/shortcake-config.php:55
+#: epfl-map/epfl-map.php:78 epfl-memento/shortcake-config.php:57
 #: epfl-news/shortcake-config.php:36
 msgid "French"
 msgstr "Français"
@@ -108,59 +108,67 @@ msgid "Language used to render map result"
 msgstr "Langue utilisée pour afficher le plan"
 
 #: epfl-memento/shortcake-config.php:46
-msgid "Template with the first highlighted event"
-msgstr "Template avec le 1er événement mis en valeur"
+msgid "Template slider with the first highlighted event"
+msgstr "Template slider avec le 1er événement mis en valeur"
 
 #: epfl-memento/shortcake-config.php:47
-msgid "Template without the first highlighted event"
-msgstr "Template sans mettre le 1er événement en valeur"
+msgid "Template slider without the first highlighted event"
+msgstr "Template slider sans mettre le 1er événement en valeur"
 
-#: epfl-memento/shortcake-config.php:62 epfl-news/shortcake-config.php:51
-#: epfl-news/shortcake-config.php:75
+#: epfl-memento/shortcake-config.php:48
+msgid "Template listing with the first highlighted event"
+msgstr "Template listing avec le 1er événement mis en valeur"
+
+#: epfl-memento/shortcake-config.php:49
+msgid "Template listing without the first highlighted event"
+msgstr "Template listing sans mettre le 1er événement en valeur"
+
+#: epfl-memento/shortcake-config.php:64 epfl-news/shortcake-config.php:43
+#: epfl-news/shortcake-config.php:67
 msgid "No filter"
 msgstr "Pas de filtre"
 
-#: epfl-memento/shortcake-config.php:63
+#: epfl-memento/shortcake-config.php:65
 msgid "Conferences - Seminars"
 msgstr "Conférences - Séminaires"
 
-#: epfl-memento/shortcake-config.php:64
+#: epfl-memento/shortcake-config.php:66
 msgid "Management Board meetings"
 msgstr "Assemblées Conseils Direction"
 
-#: epfl-memento/shortcake-config.php:65
+#: epfl-memento/shortcake-config.php:67
 msgid "Miscellaneous"
 msgstr "Divers"
 
-#: epfl-memento/shortcake-config.php:66
+#: epfl-memento/shortcake-config.php:68
 msgid "Exhibitions"
 msgstr "Expositions"
 
-#: epfl-memento/shortcake-config.php:67
+#: epfl-memento/shortcake-config.php:69
 msgid "Movies"
 msgstr "Films"
 
-#: epfl-memento/shortcake-config.php:68
+#: epfl-memento/shortcake-config.php:70
 msgid "Celebrations"
 msgstr "Fêtes"
 
-#: epfl-memento/shortcake-config.php:69
+#: epfl-memento/shortcake-config.php:71
 msgid "Inaugural lectures - Honorary Lecture"
 msgstr "Leçons inaugurales - Leçons d'honneur"
 
-#: epfl-memento/shortcake-config.php:70
+#: epfl-memento/shortcake-config.php:72
 msgid "Cultural events"
 msgstr "Manifestations culturelles"
 
-#: epfl-memento/shortcake-config.php:71
+#: epfl-memento/shortcake-config.php:73
 msgid "Sporting events"
 msgstr "Manifestations sportives"
 
-#: epfl-memento/shortcake-config.php:72
+#: epfl-memento/shortcake-config.php:74
 msgid "Thesis defenses"
 msgstr "Soutenances de thèses"
 
-#: epfl-memento/shortcake-config.php:80
+#: epfl-memento/shortcake-config.php:82
 #, php-format
 msgid ""
 "Please select your memento.%sThe events come from the application %smemento."
@@ -170,7 +178,7 @@ msgstr ""
 "l'application %smemento.epfl.ch%s.%sSi vous n'avez pas de mémento, merci "
 "d'envoyer une demande à %s"
 
-#: epfl-memento/shortcake-config.php:94 epfl-news/shortcake-config.php:105
+#: epfl-memento/shortcake-config.php:96 epfl-news/shortcake-config.php:97
 #, php-format
 msgid ""
 "Do you need more information about templates? %sRead this documentation%s"
@@ -178,131 +186,123 @@ msgstr ""
 "Avez vous besoin de plus d'information à propos des templates? %sMerci de "
 "lire la documentation%s"
 
-#: epfl-memento/shortcake-config.php:110
+#: epfl-memento/shortcake-config.php:112
 msgid "Select your memento"
 msgstr "Sélectionner votre mémento"
 
-#: epfl-memento/shortcake-config.php:117 epfl-news/shortcake-config.php:130
+#: epfl-memento/shortcake-config.php:119 epfl-news/shortcake-config.php:122
 msgid "Select a template"
 msgstr "Sélectionner un template"
 
-#: epfl-memento/shortcake-config.php:125 epfl-news/shortcake-config.php:150
+#: epfl-memento/shortcake-config.php:127 epfl-news/shortcake-config.php:142
 msgid "Select a language"
 msgstr "Sélectionner une langue"
 
-#: epfl-memento/shortcake-config.php:129
+#: epfl-memento/shortcake-config.php:131
 msgid "The language used to render events results"
 msgstr "La langue utilisée pour afficher les événements"
 
-#: epfl-memento/shortcake-config.php:133
+#: epfl-memento/shortcake-config.php:135
 msgid "Filter events by category"
 msgstr "Filtrer les événements par catégorie"
 
-#: epfl-memento/shortcake-config.php:137
+#: epfl-memento/shortcake-config.php:139
 msgid "Do you want filter events by category? Please select a category."
 msgstr ""
 "Voulez vous filtrer les événements par catégorie ? Merci de sélectionner une "
 "catégorie."
 
-#: epfl-memento/shortcake-config.php:140
+#: epfl-memento/shortcake-config.php:142
 msgid "Filter events by keyword"
 msgstr "Filtrer les événements par mot clé"
 
-#: epfl-memento/shortcake-config.php:143
+#: epfl-memento/shortcake-config.php:145
 msgid "Do you want filter events by keyword? Please type a keyword."
 msgstr ""
 "Voulez vous filtrer les événements par mot clé ? Merci de renseigner un mot "
 "clé."
 
-#: epfl-news/shortcake-config.php:43
-msgid "No"
-msgstr "Non"
-
 #: epfl-news/shortcake-config.php:44
-msgid "Yes"
-msgstr "Oui"
-
-#: epfl-news/shortcake-config.php:52
 msgid "Epfl"
 msgstr "Epfl"
 
-#: epfl-news/shortcake-config.php:53
+#: epfl-news/shortcake-config.php:45
 msgid "Education"
 msgstr "Enseignement"
 
-#: epfl-news/shortcake-config.php:54
+#: epfl-news/shortcake-config.php:46
 msgid "Research"
 msgstr "Recherche"
 
-#: epfl-news/shortcake-config.php:55
+#: epfl-news/shortcake-config.php:47
 msgid "Innovation"
 msgstr "Tech transfer"
 
-#: epfl-news/shortcake-config.php:56
+#: epfl-news/shortcake-config.php:48
 msgid "Campus Life"
 msgstr "Vie sur le campus"
 
-#: epfl-news/shortcake-config.php:63
+#: epfl-news/shortcake-config.php:55
 msgid "Template listing"
 msgstr ""
 
-#: epfl-news/shortcake-config.php:64
+#: epfl-news/shortcake-config.php:56
 msgid "Template highlighted with 3 news"
 msgstr "Template highlighted avec 3 actualités"
 
-#: epfl-news/shortcake-config.php:65
+#: epfl-news/shortcake-config.php:57
 msgid "Template highlighted with 1 news"
 msgstr "Template highlighted avec 1 actualité"
 
-#: epfl-news/shortcake-config.php:66
+#: epfl-news/shortcake-config.php:58
 msgid "Template card with 1 news"
 msgstr "Template card avec 1 actualités"
 
-#: epfl-news/shortcake-config.php:67
+#: epfl-news/shortcake-config.php:59
 msgid "Template card with 2 news"
 msgstr "Template card avec 2 actualités"
 
-#: epfl-news/shortcake-config.php:68
+#: epfl-news/shortcake-config.php:60
 msgid "Template card with 3 news"
 msgstr "Template card avec 3 actualités"
 
-#: epfl-news/shortcake-config.php:76
+#: epfl-news/shortcake-config.php:68
 msgid "Basic Sciences"
 msgstr "Sciences de base"
 
-#: epfl-news/shortcake-config.php:77
+#: epfl-news/shortcake-config.php:69
 msgid "Health"
 msgstr "Santé"
 
-#: epfl-news/shortcake-config.php:78
+#: epfl-news/shortcake-config.php:70
 msgid "Computer Science"
 msgstr "Informatique"
 
-#: epfl-news/shortcake-config.php:79
+#: epfl-news/shortcake-config.php:71
 msgid "Engineering"
 msgstr "Ingénierie"
 
-#: epfl-news/shortcake-config.php:80
+#: epfl-news/shortcake-config.php:72
 msgid "Environment"
 msgstr "Environnement"
 
-#: epfl-news/shortcake-config.php:81
+#: epfl-news/shortcake-config.php:73
 msgid "Buildings"
 msgstr "Construction"
 
-#: epfl-news/shortcake-config.php:82
+#: epfl-news/shortcake-config.php:74
 msgid "Culture"
 msgstr "Société/Culture"
 
-#: epfl-news/shortcake-config.php:83
+#: epfl-news/shortcake-config.php:75
 msgid "Economy"
 msgstr "Eco/Finance"
 
-#: epfl-news/shortcake-config.php:84
+#: epfl-news/shortcake-config.php:76
 msgid "Energy"
 msgstr "Energie"
 
-#: epfl-news/shortcake-config.php:91
+#: epfl-news/shortcake-config.php:83
 #, php-format
 msgid ""
 "The news come from the application %sactu.epfl.ch%s.%sIf you don't have a "
@@ -311,23 +311,23 @@ msgstr ""
 "Les actualités proviennent de l'application %sactu.epfl.ch%s.%sSi vous "
 "n'avez pas de canal, merci d'envoyer une demande à%s"
 
-#: epfl-news/shortcake-config.php:119
+#: epfl-news/shortcake-config.php:111
 msgid "News"
 msgstr "Actualités"
 
-#: epfl-news/shortcake-config.php:123
+#: epfl-news/shortcake-config.php:115
 msgid "Select your news channel"
 msgstr "Sélectionner votre canal d'actualités"
 
-#: epfl-news/shortcake-config.php:138
+#: epfl-news/shortcake-config.php:130
 msgid "Display the link \"all news\" ?"
 msgstr "Afficher le lien \"toutes les actualités\" ?"
 
-#: epfl-news/shortcake-config.php:143
+#: epfl-news/shortcake-config.php:135
 msgid "Number of news"
 msgstr "Nombre d'actualités"
 
-#: epfl-news/shortcake-config.php:146
+#: epfl-news/shortcake-config.php:138
 msgid ""
 "The number of news can only be defined for the Template: 'Template for "
 "laboratory website'"
@@ -335,36 +335,25 @@ msgstr ""
 "Le nombre d'actualités peut être défini que pour le template: 'Template pour "
 "les sites de laboratoire'"
 
-#: epfl-news/shortcake-config.php:154
+#: epfl-news/shortcake-config.php:146
 msgid "The language used to render news results"
 msgstr "La langue utilisée pour afficher les actualités"
 
-#: epfl-news/shortcake-config.php:158
-msgid "Display the news category ?"
-msgstr "Afficher la catégorie de l'actualité ?"
-
-#: epfl-news/shortcake-config.php:162
-msgid ""
-"Do you want display the news category at the top right of the news image?"
-msgstr ""
-"Voulez vous afficher la catégorie de l'actualité en haut à droite du visuel "
-"de l'actualité?"
-
-#: epfl-news/shortcake-config.php:166
+#: epfl-news/shortcake-config.php:150
 msgid "Filter news by category"
 msgstr "Filtrer les actualités par une catégorie"
 
-#: epfl-news/shortcake-config.php:170
+#: epfl-news/shortcake-config.php:154
 msgid "Do you want filter news by category? Please select a category."
 msgstr ""
 "Voulez vous filtrer les actualités par catégorie? Veuillez sélectionner une "
 "catégorie."
 
-#: epfl-news/shortcake-config.php:173
+#: epfl-news/shortcake-config.php:157
 msgid "Filter news by themes"
 msgstr "Filtrer les actualités par thèmes"
 
-#: epfl-news/shortcake-config.php:177
+#: epfl-news/shortcake-config.php:161
 msgid "Do you want filter news by themes?. Please select themes."
 msgstr ""
 "Voulez vous filtrer les actualités par thèmes? Veuillez sélectionner un ou "
@@ -457,30 +446,22 @@ msgstr "Ouvert"
 msgid "Close"
 msgstr "Fermé"
 
-#: epfl-toggle/shortcake-config.php:22
-msgid "Toggle title"
-msgstr "Titre de l'accordéon"
-
 #: epfl-toggle/shortcake-config.php:27
-msgid "Description"
-msgstr "Description"
+msgid "Enter toggle title"
+msgstr "Saisir le titre de l'accordéon"
 
-#: epfl-toggle/shortcake-config.php:29
-msgid "Content shown when toggle is opened"
-msgstr "Contenu affiché lorsque l'accordéon est ouvert"
-
-#: epfl-toggle/shortcake-config.php:38
+#: epfl-toggle/shortcake-config.php:32
 msgid "Define toggle state"
 msgstr "Définir l'état de l'accordéon"
 
-#: epfl-toggle/shortcake-config.php:42
-msgid "Do you want display the toggle opened or closed by default ?"
+#: epfl-toggle/shortcake-config.php:36
+msgid "Do you want display the toggle open or close by default ?"
 msgstr ""
 "Est ce que vous voulez que l'accordéon, par défaut, soit ouvert ou fermé ?"
 
-#: epfl-toggle/shortcake-config.php:61
-msgid "Toggle"
-msgstr "Accordéon"
+#: epfl-toggle/shortcake-config.php:41
+msgid "Toggle content"
+msgstr "Le contenu de l'accordéon"
 
 #: epfl-video/shortcake-config.php:16
 msgid "URL of the video"
@@ -489,3 +470,35 @@ msgstr "URL de la vidéo"
 #: epfl-video/shortcake-config.php:19
 msgid "You can copy/paste a YouTube or SWITCHTube URL"
 msgstr "Vous pouvez copier/coller des URLs provenant de YouTube ou SWITCHTube"
+
+#: epfl-xml/epfl-xml.php:80
+msgid "XML URL"
+msgstr "L'URL du XML"
+
+#: epfl-xml/epfl-xml.php:85
+msgid "XSLT URL"
+msgstr "L'URL du XSLT"
+
+#~ msgid "No"
+#~ msgstr "Non"
+
+#~ msgid "Yes"
+#~ msgstr "Oui"
+
+#~ msgid "Display the news category ?"
+#~ msgstr "Afficher la catégorie de l'actualité ?"
+
+#~ msgid ""
+#~ "Do you want display the news category at the top right of the news image?"
+#~ msgstr ""
+#~ "Voulez vous afficher la catégorie de l'actualité en haut à droite du "
+#~ "visuel de l'actualité?"
+
+#~ msgid "Description"
+#~ msgstr "Description"
+
+#~ msgid "Content shown when toggle is opened"
+#~ msgstr "Contenu affiché lorsque l'accordéon est ouvert"
+
+#~ msgid "Toggle"
+#~ msgstr "Accordéon"

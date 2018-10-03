@@ -14,10 +14,14 @@ require_once 'shortcodes/epfl-cover/epfl-cover.php';
 require_once 'shortcodes/epfl-links-group/epfl-links-group.php';
 require_once 'shortcodes/epfl-card/epfl-card.php';
 require_once 'shortcodes/epfl-video/epfl-video.php';
+require_once 'shortcodes/epfl-people/epfl-people.php';
 require_once 'shortcodes/epfl-map/epfl-map.php';
 require_once 'shortcodes/epfl-infoscience-search/epfl-infoscience-search.php';
 require_once 'shortcodes/epfl-scheduler/epfl-scheduler.php';
 require_once 'shortcodes/epfl-social-feed/epfl-social-feed.php';
+require_once 'shortcodes/epfl-xml/epfl-xml.php';
+require_once 'shortcodes/epfl-faq/epfl-faq.php';
+require_once 'shortcodes/epfl-share/epfl-share.php';
 
 // load .mo file for translation
 function epfl_load_plugin_textdomain() {
