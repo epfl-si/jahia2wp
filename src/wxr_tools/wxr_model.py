@@ -214,8 +214,8 @@ class Page(ItemSubset):
             return urlparse(url.rstrip('/')).path
 
         homepage_path = url_sig(Channel.the(etree).base_url)
-        return sole(p for p in cls.all(etree)
-                    if homepage_path == url_sig(p.link))
+        return sole_or_none(p for p in cls.all(etree)
+                            if homepage_path == url_sig(p.link))
 
     @property
     def language(self):

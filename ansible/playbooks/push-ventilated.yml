@@ -2,7 +2,7 @@
 # their new sites.
 #
 # ../src/ventilation/Makefile automatically creates the Ansible inventory
-# and runs this script; you therefore don't want to run this script
+# and runs this script; you therefore don't want to run this playbook
 # by hand.
 #
 # Expected directory layout in {{ from }}:

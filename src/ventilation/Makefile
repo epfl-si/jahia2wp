@@ -4,9 +4,11 @@
 #
 #   make clean all push
 #
+#   make push PUSH_EXTRA_VARS='{"wp_destructive":{"ventilation":"data-only"}}'
+#
 #   make push PUSH_EXTRA_VARS='{"wp_destructive":{"vpsi":"wipe"},"wp_unit_id":"VPSI"}'
 #
-# CAVEAT EMPTOR: the latter command *WIPES OUT* the "vpsi" remote site!
+# CAVEAT EMPTOR: the latter command *WIPES OUT* the "vpsi" site!
 
 VENTILATION_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 JAHIA2WP_TOPDIR := $(shell dirname $(shell dirname $(VENTILATION_DIR)))
