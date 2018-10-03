@@ -409,6 +409,7 @@ class WPGenerator:
         # TODO: add those plugins into the general list of plugins (with the class WPMuPluginConfig)
         WPMuPluginConfig(self.wp_site, "epfl-functions.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL_custom_editor_menu.php").install()
+        WPMuPluginConfig(self.wp_site, "EPFL_google_analytics_hook.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL_jahia_redirect.php").install()
 
         if self.wp_config.installs_locked:
