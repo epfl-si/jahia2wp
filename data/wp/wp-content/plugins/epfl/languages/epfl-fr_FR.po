@@ -1,15 +1,15 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-09-25 14:36+0200\n"
-"PO-Revision-Date: 2018-09-25 14:36+0200\n"
+"POT-Creation-Date: 2018-09-27 10:56+0200\n"
+"PO-Revision-Date: 2018-09-27 10:57+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.7.1\n"
+"X-Generator: Poedit 1.8.11\n"
 "X-Poedit-Basepath: ../shortcodes\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Poedit-KeywordsList: __;esc_html__\n"
@@ -398,6 +398,45 @@ msgstr "Contenu du planificateur"
 #: epfl-scheduler/epfl-scheduler.php:154
 msgid "You can enter text to display above"
 msgstr "Vous pouvez saisir ci dessus le texte à afficher"
+
+#: epfl-social-feed/shortcake-config.php:8
+msgid "Social feed"
+msgstr "Réseaux sociaux"
+
+#: epfl-social-feed/shortcake-config.php:15
+msgid "Url to your Twitter account (optional) (eg. https://twitter.com/EPFL)"
+msgstr "Url du compte Twitter (optionnel) (ex. https://twitter.com/EPFL)"
+
+#: epfl-social-feed/shortcake-config.php:18
+msgid "Tweets limit"
+msgstr "Limite de tweets"
+
+#: epfl-social-feed/shortcake-config.php:25
+msgid "0 for unlimited"
+msgstr "0 = aucune limite"
+
+#: epfl-social-feed/shortcake-config.php:31
+msgid ""
+"Url of an Instagram post (optional) (eg. https://www.instagram.com/p/"
+"BjuYB7Lhylj)"
+msgstr ""
+"Url du post Instagram (optionnel) (ex. https://www.instagram.com/p/"
+"BjuYB7Lhylj)"
+
+#: epfl-social-feed/shortcake-config.php:37
+msgid ""
+"Url of your Facebook account (optional) (eg. https://www.facebook.com/"
+"epflcampus)"
+msgstr ""
+"Url du compte Facebook (optionnel) (ex. https://www.facebook.com/epflcampus)"
+
+#: epfl-social-feed/shortcake-config.php:40
+msgid "Height"
+msgstr "Hauteur"
+
+#: epfl-social-feed/shortcake-config.php:43
+msgid "Set the height (min. 347)"
+msgstr "Choisir une hauteur (min. 347)"
 
 #: epfl-toggle/shortcake-config.php:9
 msgid "Open"
