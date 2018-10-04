@@ -896,6 +896,21 @@ class Shortcodes():
         """
         return self.__remove_shortcode(content, 'su_spacer')
 
+    def _fix_epfl_twitter(self, content):
+        """
+        Fix "epfl_twitter" shortcode
+        :param content:
+        :return:
+        """
+        old_shortcode = 'epfl_twitter'
+        new_shortcode = 'epfl_social_feed'
+
+        content = self.__rename_attribute(content, old_shortcode, 'url', 'twitter_url')
+        content = self.__rename_attribute(content, old_shortcode, 'limit', 'twitter_limit')
+
+        content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
+        return content
+
     def _fix_epfl_memento(self, content):
         """
         Fix "epfl_memento" shortcode
