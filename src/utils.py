@@ -516,3 +516,11 @@ class Utils(object):
         query = parse.parse_qs(parse.urlsplit(url).query)
 
         return query[param][0] if param in query else ""
+
+    @staticmethod
+    def represents_int(s):
+        try:
+            int(s)
+            return True
+        except ValueError:
+            return False

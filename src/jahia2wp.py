@@ -11,7 +11,7 @@ Usage:
     [--output-dir=<OUTPUT_DIR>]
   jahia2wp.py parse                 <site>                          [--debug | --quiet]
     [--output-dir=<OUTPUT_DIR>] [--use-cache]
-  jahia2wp.py export     <site>  <wp_site_url> <unit_name>          [--debug | --quiet]
+  jahia2wp.py export     <site>  <wp_site_url> <unit_name_or_id>          [--debug | --quiet]
     [--to-wordpress] [--clean-wordpress] [--to-dictionary]
     [--admin-password=<PASSWORD>]
     [--output-dir=<OUTPUT_DIR>]
@@ -79,7 +79,7 @@ import sys
 import yaml
 from docopt import docopt
 from docopt_dispatch import dispatch
-from epflldap.ldap_search import get_unit_id
+from epflldap.ldap_search import get_unit_id, get_unit_name
 from ldap3.core.exceptions import LDAPSocketOpenError
 from rotate_backups import RotateBackups
 
@@ -268,6 +268,7 @@ def _generate_csv_line(wp_generator):
     csv_columns['updates_automatic'] = wp_generator._site_params['updates_automatic']  # from csv (bool)
     csv_columns['langs'] = wp_generator._site_params['langs']  # from parser
     csv_columns['unit_name'] = wp_generator._site_params['unit_name']  # from csv
+    csv_columns['unit_id'] = wp_generator._site_params['unit_id']  # from csv
     csv_columns['comment'] = 'Migrated from Jahia to WP {}'.format(date.today())
 
     # Formatting values depending on their type/content
@@ -394,7 +395,7 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
 
 
 @dispatch.on('export')
-def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=False, to_dictionary=False,
+def export(site, wp_site_url, unit_name_or_id, to_wordpress=False, clean_wordpress=False, to_dictionary=False,
            admin_password=None, output_dir=None, theme=None, installs_locked=False, updates_automatic=False,
            openshift_env=None, use_cache=None, keep_extracted_files=False, features_flags=False, **kwargs):
     """
@@ -402,7 +403,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
 
     :param site: the name of the WordPress site
     :param wp_site_url: URL of WordPress site
-    :param unit_name: unit name of the WordPress site
+    :param unit_name_or_id: unit name or unit ID of the WordPress site
     :param to_wordpress: to migrate data
     :param clean_wordpress: to clean data
     :param admin_password: an admin password
@@ -447,14 +448,30 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     else:
         wp_tagline = site.title
 
-    # fetch unit id from ldap
-    try:
-        logging.info("Fetching LDAP for the id of %s...", unit_name)
-        fetched_unit_id = get_unit_id(unit_name)
-        logging.info("LDAP Id found = %s...", fetched_unit_id)
-    except LDAPSocketOpenError:
-        logging.error("LDAP is not responding, aborting here...")
-        raise
+    # If we get unit ID
+    if Utils.represents_int(unit_name_or_id):
+        unit_id = unit_name_or_id
+
+        # fetch unit name from ldap
+        try:
+            logging.info("Fetching LDAP for unit '%s' name...", unit_id)
+            unit_name = get_unit_name(unit_id)
+            logging.info("LDAP name found = %s...", unit_name)
+        except LDAPSocketOpenError:
+            logging.error("LDAP is not responding, aborting here...")
+            raise
+
+    else:  # We get unit name
+
+        unit_name = unit_name_or_id
+        # fetch unit id from ldap
+        try:
+            logging.info("Fetching LDAP for unit '%s' ID...", unit_name)
+            unit_id = get_unit_id(unit_name)
+            logging.info("LDAP ID found = %s...", unit_id)
+        except LDAPSocketOpenError:
+            logging.error("LDAP is not responding, aborting here...")
+            raise
 
     info = {
         # information from parser
@@ -472,7 +489,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         'installs_locked': installs_locked,
 
         # determined information
-        'unit_id': fetched_unit_id,
+        'unit_id': unit_id,
         'from_export': True
     }
 
@@ -543,7 +560,9 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
             # if activation fails it means the plugin is not installed
             wp_generator.install_basic_auth_plugin()
     else:
-        wp_generator.generate(deactivated_plugins)
+        # If returns false, it means there was an error
+        if not wp_generator.generate(deactivated_plugins):
+            return
 
         wp_generator.install_basic_auth_plugin()
 
@@ -667,7 +686,7 @@ def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None,
             export(
                 site=row['Jahia_zip'],
                 wp_site_url=row['wp_site_url'],
-                unit_name=row['unit_name'],
+                unit_name_or_id=row['unit_id'],  # We use unit_id event if we have unit_name because it doesn't change
                 to_wordpress=True,
                 clean_wordpress=False,
                 output_dir=output_dir,
