@@ -3,6 +3,9 @@ namespace Epfl\SocialFeed;
 
 require_once 'shortcake-config.php';
 
+define('Epfl\SocialFeed\DEFAULT_HEIGHT', 450);
+define('Epfl\SocialFeed\DEFAULT_WIDTH', 374);
+
 function epfl_social_feed_process_shortcode($atts) {
     // extract shortcode parameters
     $atts = shortcode_atts(array(
@@ -10,10 +13,12 @@ function epfl_social_feed_process_shortcode($atts) {
             'twitter_limit' => 0,
             'instagram_url'  => '',
             'facebook_url'  => '',
-            'height' => 347,
+            'height' => DEFAULT_HEIGHT,
+            'width' => DEFAULT_WIDTH,
         ), $atts);
 
-    $atts['height'] = intval($atts['height']) < 347 ? 347 : $atts['height'];
+    $atts['height'] = empty($atts['height']) ? DEFAULT_HEIGHT : $atts['height'];
+    $atts['width'] = empty($atts['width']) ? DEFAULT_WIDTH : $atts['width'];
     $atts['twitter_limit'] = intval($atts['twitter_limit']) == 0 ? '' : $atts['twitter_limit'];
 
     if (has_action("epfl_social_feed_action")) {

@@ -40,10 +40,18 @@ function config() {
                     'label'         => '<h3>' . esc_html__('Height', 'epfl') . '</h3>',
                     'attr'          => 'height',
                     'type'          => 'number',
-                    'description'   => esc_html__('Set the height (min. 347)', 'epfl'),
+                    'description'   => esc_html__('Set the height in pixel (optional). 450 is recommended', 'epfl'),
                     'meta'        => array(
-                        'placeholder' => '347',
-                        'min'         => '347',
+                        'placeholder' => '450',
+                    ),
+                ),
+                array(
+                    'label'         => '<h3>' . esc_html__('Width', 'epfl') . '</h3>',
+                    'attr'          => 'width',
+                    'type'          => 'number',
+                    'description'   => esc_html__('Set the width in pixel (optional). 374 is recommended', 'epfl'),
+                    'meta'        => array(
+                        'placeholder' => '374',
                     ),
                 ),                
             ),

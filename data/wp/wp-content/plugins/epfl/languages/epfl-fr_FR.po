@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-09-27 10:56+0200\n"
-"PO-Revision-Date: 2018-09-27 10:57+0200\n"
+"POT-Creation-Date: 2018-10-04 14:33+0200\n"
+"PO-Revision-Date: 2018-10-04 14:35+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -25,16 +25,16 @@ msgid "Card title"
 msgstr "Titre de la carte"
 
 #: epfl-card/shortcake-config.php:21
-msgid "Card text"
-msgstr "Texte de la carte"
-
-#: epfl-card/shortcake-config.php:26
 msgid "Card link"
 msgstr "Lien de la carte"
 
-#: epfl-card/shortcake-config.php:31
+#: epfl-card/shortcake-config.php:26
 msgid "Card image"
 msgstr "Image de la carte"
+
+#: epfl-card/shortcake-config.php:33
+msgid "Card text"
+msgstr "Texte de la carte"
 
 #: epfl-cover/shortcake-config.php:12
 msgid "Cover"
@@ -359,6 +359,14 @@ msgstr ""
 "Voulez vous filtrer les actualités par thèmes? Veuillez sélectionner un ou "
 "plusieurs thèmes."
 
+#: epfl-people/shortcake-config.php:21
+msgid "Units"
+msgstr ""
+
+#: epfl-people/shortcake-config.php:28
+msgid "Scipers"
+msgstr ""
+
 #: epfl-scheduler/epfl-scheduler.php:126
 msgid "Start date"
 msgstr "Date de début"
@@ -435,8 +443,16 @@ msgid "Height"
 msgstr "Hauteur"
 
 #: epfl-social-feed/shortcake-config.php:43
-msgid "Set the height (min. 347)"
-msgstr "Choisir une hauteur (min. 347)"
+msgid "Set the height in pixel (optional). 450 is recommended"
+msgstr "Hauteur en pixel (optionnel). 450 est recommandé"
+
+#: epfl-social-feed/shortcake-config.php:49
+msgid "Width"
+msgstr "Largeur"
+
+#: epfl-social-feed/shortcake-config.php:52
+msgid "Set the width in pixel (optional). 374 is recommended"
+msgstr "Largeux en pixel (optionnel). 374 est recommandé"
 
 #: epfl-toggle/shortcake-config.php:9
 msgid "Open"
@@ -478,6 +494,9 @@ msgstr "L'URL du XML"
 #: epfl-xml/epfl-xml.php:85
 msgid "XSLT URL"
 msgstr "L'URL du XSLT"
+
+#~ msgid "Set the height (min. 347)"
+#~ msgstr "Choisir une hauteur (min. 347)"
 
 #~ msgid "No"
 #~ msgstr "Non"
