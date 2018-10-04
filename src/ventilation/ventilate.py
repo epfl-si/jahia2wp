@@ -45,7 +45,7 @@ class SourceWXR:
         return urlunparse(url_obj._replace(scheme='https')).rstrip('/') + '/'
 
     def contains(self, pattern):
-        """True iff `pattern' matches the WordPress site of this WXR file.
+        """True if `pattern' matches the WordPress site of this WXR file.
 
         Args:
           pattern: A pattern excerpted from the left-hand-side column
@@ -101,10 +101,23 @@ if __name__ == '__main__':
 
         output_count_for_this_source_wxr = 0
         for csv_line in csv_lines:
-            if not source_wxr.contains(csv_line['source']):
+
+            source_url = csv_line['source']
+            # Ignore stars for the purpose of discovering source Wordpresses:
+
+            if source_url[-1] == "*":
+                one_page = False
+            else:
+                one_page = True
+                source_url = "/".join(source_url.split("/")[0:-2]) + '/'
+
+            if not source_wxr.contains(source_url):
                 continue
             dest_moniker = site_moniker(csv_line['destination_site'])
-            new_url = csv_line['destination_site'] + csv_line['relative_uri']
+            if one_page:
+                new_url = csv_line['destination_site']
+            else:
+                new_url = csv_line['destination_site'] + csv_line['relative_uri']
             destination_xml_path = '%s/%s/%s.xml' % (
                 args['<wxr_destdir>'], dest_moniker, source_moniker)
             DestinationWXR(destination_xml_path, source_wxr).create(

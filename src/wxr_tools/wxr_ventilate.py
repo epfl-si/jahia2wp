@@ -65,12 +65,40 @@ class Ventilator:
 
         Returns: The lxml etree object.
         """
+
+        one_page = False
+
         if self.flags['--filter']:
 
+            new_site_url_base = self.flags['--new-site-url-base']
+            add_structure = self.flags['--add-structure']
+            new_url = new_site_url_base + add_structure
+
             filter = self.flags['--filter']
+
+            # if not star => we try to ventilate on page
             if filter[-1] != "*":
-                slug_page = filter.split("/")[-1]
-            raise Exception("GREG")
+
+                one_page = True
+
+                url_page = filter
+                if not url_page.endswith('/'):
+                    url_page += "/"
+
+                # Delete all nodes except node corresponding
+                # to page to ventilate
+                items = self.etree.xpath("//item")
+                for item in items:
+                    for child in item.getchildren():
+                        if child.tag == "guid" and child.text != url_page:
+                            item.getparent().remove(item)
+                        if child.tag == "guid" and child.text == url_page:
+                            child.text = new_url
+                            for child in item.getchildren():
+                                if child.tag == "link":
+                                    child.text = new_url
+
+            return self.etree
 
         homepage = self.homepageify()
 
@@ -94,7 +122,8 @@ class Ventilator:
                     if not p.parent_id:
                         p.parent_id = reparent_under
 
-            self.trim_and_reparent_menus()
+            if not one_page:
+                self.trim_and_reparent_menus()
 
         return self.etree
 

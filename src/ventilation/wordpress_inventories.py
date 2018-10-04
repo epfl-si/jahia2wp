@@ -88,7 +88,10 @@ if __name__ == '__main__':
     targets = AnsibleGroup()
     for line in Utils.csv_filepath_to_dict(args['<ventilation_csv_file>']):
         # Ignore stars for the purpose of discovering source Wordpresses:
-        source = line['source'].rstrip('*')
+        if line['source'][-1] == "*":
+            source = line['source'].rstrip('*')
+        else:
+            source = "/".join(line['source'].split("/")[0:-2]) + '/'
         sources.add_wordpress_by_url(source)
 
         target = line['destination_site']
