@@ -686,7 +686,8 @@ def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None,
             export(
                 site=row['Jahia_zip'],
                 wp_site_url=row['wp_site_url'],
-                unit_name_or_id=row['unit_id'],  # We use unit_id event if we have unit_name because it doesn't change
+                # We use unit_id as first option if exists even if we have unit_name because it doesn't change
+                unit_name_or_id=row['unit_id'] if 'unit_id' in row else row['unit_name'],
                 to_wordpress=True,
                 clean_wordpress=False,
                 output_dir=output_dir,
