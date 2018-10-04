@@ -499,20 +499,6 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
                            'tinymce-advanced',
                            'varnish-http-purge',
                            'epfl',
-                           # 'epfl-faq',
-                           # 'epfl-grid',
-                           # 'epfl-infoscience',
-                           # 'epfl-infoscience-search',
-                           # 'epfl-map',
-                           # 'epfl-memento',
-                           # 'epfl-news',
-                           # 'epfl-people',
-                           # 'epfl-scheduler',
-                           # 'epfl-snippet',
-                           # 'epfl-toggle',
-                           # 'epfl-twitter',
-                           # 'epfl-xml',
-                           # 'epfl-video'
                            ]
 
     # Generate a WordPress site

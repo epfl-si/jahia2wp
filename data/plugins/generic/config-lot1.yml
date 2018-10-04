@@ -21,8 +21,6 @@ plugins:
     config: !include varnish-http-purge/v1/config-plugin.yml
   - name: EPFL-settings
     config: !include EPFL-settings/v1/config-plugin.yml
-  - name: EPFL-Share
-    config: !include EPFL-Share/v1/config-plugin.yml
   - name: EPFL-Content-Filter
     config: !include EPFL-Content-Filter/v1/config-plugin.yml
   - name: svg-support
@@ -39,34 +37,5 @@ plugins:
     config: !include shortcode-ui-richtext/v1/config-plugin.yml
   - name: epfl
     config: !include epfl/v1/config-plugin.yml
-# plugins for 2010 theme
-#  - name: epfl-scheduler
-#    config: !include epfl-scheduler/v1/config-plugin.yml
-#  - name: epfl-news
-#    config: !include epfl-news/v1/config-plugin.yml
-#  - name: epfl-memento
-#    config: !include epfl-memento/v1/config-plugin.yml
-#  - name: epfl-faq
-#    config: !include epfl-faq/v1/config-plugin.yml
-#  - name: epfl-map
-#    config: !include epfl-map/v1/config-plugin.yml
-#  - name: epfl-buttons
-#    config: !include epfl-buttons/v1/config-plugin.yml
-#  - name: epfl-snippet
-#    config: !include epfl-snippet/v1/config-plugin.yml
-#  - name: epfl-toggle
-#    config: !include epfl-toggle/v1/config-plugin.yml
-#  - name: epfl-grid
-#    config: !include epfl-grid/v1/config-plugin.yml
-#  - name: epfl-infoscience
-#    config: !include epfl-infoscience/v1/config-plugin.yml
-#  - name: epfl-infoscience-search
-#    config: !include epfl-infoscience-search/v1/config-plugin.yml
-#  - name: epfl-xml
-#    config: !include epfl-xml/v1/config-plugin.yml
-#  - name: epfl-people
-#    config: !include epfl-people/v1/config-plugin.yml
-#  - name: epfl-twitter
-#    config: !include epfl-twitter/v1/config-plugin.yml
-#  - name: epfl-video
-#    config: !include epfl-video/v1/config-plugin.yml
+  - name: epfl-infoscience
+    config: !include epfl-infoscience/v1/config-plugin.yml
