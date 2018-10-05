@@ -449,7 +449,7 @@ def export(site, wp_site_url, unit_name_or_id, to_wordpress=False, clean_wordpre
         wp_tagline = site.title
 
     # If we get unit ID
-    if Utils.represents_int(unit_name_or_id):
+    if unit_name_or_id.isdigit():
         unit_id = unit_name_or_id
 
         # fetch unit name from ldap
