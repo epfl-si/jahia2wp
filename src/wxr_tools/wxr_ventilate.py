@@ -66,7 +66,7 @@ class Ventilator:
         Returns: The lxml etree object.
         """
 
-        one_page = False
+        unique_page = None
 
         if self.flags['--filter']:
 
@@ -79,28 +79,17 @@ class Ventilator:
             # if not star => we try to ventilate on page
             if filter[-1] != "*":
 
-                one_page = True
-
                 url_page = filter
                 if not url_page.endswith('/'):
                     url_page += "/"
 
                 # Delete all nodes except node corresponding
                 # to page to ventilate
-                items = self.etree.xpath("//item")
-                for item in items:
-                    for child in item.getchildren():
-                        if child.tag == "guid" and child.text != url_page:
-                            item.getparent().remove(item)
-                        if child.tag == "guid" and child.text == url_page:
-                            child.text = new_url
-                            for child in item.getchildren():
-                                if child.tag == "link":
-                                    child.text = new_url
-
-            return self.etree
-
-        homepage = self.homepageify()
+                for item in Item.all(self.etree):
+                    if item.guid != url_page:
+                        item.delete()
+                    else:
+                        unique_page = item
 
         if self.flags['--add-structure']:
             path_components = self.flags['--add-structure'].split('/')
@@ -110,19 +99,28 @@ class Ventilator:
 
             assert len(path_components) > 0
 
-            if homepage is not None:
+            if unique_page:
                 reparent_under = self.add_structure(path_components[:-1])
-                for p in homepage.translations_list:
-                    p.parent_id = reparent_under
-                    p.post_slug = path_components[-1] + (
-                        '' if p.id == homepage.id else p.language)
+                unique_page.parent_id = reparent_under
             else:
-                reparent_under = self.add_structure(path_components)
-                for p in Page.all(self.etree):
-                    if not p.parent_id:
+                homepage = self.homepageify()
+                if homepage is not None:
+                    reparent_under = self.add_structure(path_components[:-1])
+                    for p in homepage.translations_list:
                         p.parent_id = reparent_under
+                        p.post_slug = path_components[-1] + (
+                            '' if p.id == homepage.id else p.language)
+                else:
+                    reparent_under = self.add_structure(path_components)
+                    for p in Page.all(self.etree):
+                        if not p.parent_id:
+                             p.parent_id = reparent_under
 
-            if not one_page:
+            if self.flags["--filter"] and filter[-1] != "*":
+                # Single page requested - we don't want menus
+                for menu in NavMenu.all(self.etree):
+                    menu.delete()
+            else:
                 self.trim_and_reparent_menus()
 
         return self.etree

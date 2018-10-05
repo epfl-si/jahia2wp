@@ -62,6 +62,26 @@ class AnsibleGroup:
         return '<%s %s>' % (self.__class__, self.name)
 
 
+class VentilationTodo:
+    """A list of action items for ventilation, materialized as a CSV file."""
+
+    class Item:
+        """ Line of csv ventilation.csv """
+        def __init__(self, line):
+
+            if line['source'][-1] == "*":
+                self.source_url = line['source'].rstrip('*')
+            else:
+                # TODO: this assumes that the "source" column ends with a slash.
+                self.source_url = "/".join(line['source'].split("/")[0:-2]) + '/'
+
+            self.destination_site = line['destination_site']
+            self.relative_uri = line['relative_uri']
+
+    def __init__(self, csv_path):
+        self.items = [self.Item(line) for line in Utils.csv_filepath_to_dict(args['<ventilation_csv_file>'])]
+
+
 def site_moniker(url):
     """
     Return
@@ -86,15 +106,8 @@ if __name__ == '__main__':
     # the case in prod.
     sources = AnsibleGroup()
     targets = AnsibleGroup()
-    for line in Utils.csv_filepath_to_dict(args['<ventilation_csv_file>']):
-        # Ignore stars for the purpose of discovering source Wordpresses:
-        if line['source'][-1] == "*":
-            source = line['source'].rstrip('*')
-        else:
-            source = "/".join(line['source'].split("/")[0:-2]) + '/'
-        sources.add_wordpress_by_url(source)
-
-        target = line['destination_site']
-        targets.add_wordpress_by_url(target)
+    for task in VentilationTodo(args['<ventilation_csv_file>']).items:
+        sources.add_wordpress_by_url(task.source_url)
+        targets.add_wordpress_by_url(task.destination_site)
     sources.save(args['--sources'])
     targets.save(args['--targets'])
