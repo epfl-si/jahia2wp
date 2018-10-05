@@ -2,6 +2,42 @@
 
 Class ShortCakeCardConfig
 {
+    public static function get_fields()
+    {
+        $fields = [];
+        for ( $i = 1; $i < 4; $i++) {
+            array_push($fields, [
+                'label'       => '<div class="col-6"><hr><h2>'.esc_html__('Card', 'epfl').' '.$i.'</h2> '.esc_html__('Title', 'epfl').' '.'<br>',
+                'attr'        => 'title' . $i,
+                'type'        => 'text',
+            ]);
+
+            array_push($fields, [
+                'label'       => esc_html__('Link', 'epfl'),
+                'attr'        => 'link' . $i,
+                'type'        => 'text',
+            ]);
+
+            array_push($fields, [
+                'label'       => esc_html__('Image', 'epfl'),
+                'attr'        => 'image' . $i,
+                'type'        => 'attachment',
+                'libraryType' => array( 'image' ),
+            ]);
+
+            array_push($fields, [
+                'label'       => esc_html__('Text', 'epfl'),
+                'attr'        => 'content' . $i,
+                'type'        => 'textarea',
+                'encode'      => true,
+                'meta'        => array(
+                    'class' => 'shortcake-richtext',
+                ),
+            ]);
+        }
+        return $fields;
+    }
+
     public static function config()
     {
         shortcode_ui_register_for_shortcode(
@@ -11,27 +47,7 @@ Class ShortCakeCardConfig
             array(
                 'label'         => __('Card', 'epfl'),
                 'listItemImage' => '<img src="' . plugins_url( 'img/card.svg', __FILE__ ) . '" >',
-                'attrs'         => array(
-                        array(
-                            'label' => '<h3>' . esc_html__('Card title', 'epfl') . '</h3>',
-                            'attr'  => 'title',
-                            'type'  => 'text',
-                        ),
-                        array(
-                            'label' => '<h3>' . esc_html__('Card link', 'epfl') . '</h3>',
-                            'attr'  => 'link',
-                            'type'  => 'url',
-                        ),
-                        array(
-                            'label'       => '<h3>' . esc_html__('Card image', 'epfl') . '</h3>',
-                            'attr'        => 'image',
-                            'type'        => 'attachment',
-                            'libraryType' => array( 'image' ),
-                        ),
-                    ),
-                'inner_content' => array(
-                    'label'        => '<h3>' . esc_html__('Card text', 'epfl') . '</h3>',
-                ),
+                'attrs'         => ShortCakeCardConfig::get_fields(),
                 'post_type'     => array( 'post', 'page' ),
             )
         );
