@@ -947,10 +947,6 @@ class Shortcodes():
 
         logging.info("Fixing %s...", wp_site.path)
 
-        # Getting list of registered shortcodes to be sure to list only registered and not all strings
-        # written between [ ]
-        registered_shortcodes = self._get_site_registered_shortcodes(wp_site.path)
-
         # Getting site posts
         post_ids = wp_config.run_wp_cli("post list --post_type=page --skip-plugins --skip-themes "
                                         "--format=csv --fields=ID")
@@ -971,11 +967,6 @@ class Shortcodes():
 
             # Looking for all shortcodes in current post
             for shortcode in list(set(re.findall(self.regex, content))):
-
-                # This is not a registered shortcode
-                if shortcode not in registered_shortcodes:
-                    logging.debug("'%s' is not registered as shortcode, skipping", shortcode)
-                    continue
 
                 fix_func_name = "_fix_{}".format(shortcode.replace("-", "_"))
 
