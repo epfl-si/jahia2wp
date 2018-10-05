@@ -2,6 +2,17 @@
 
 Class Render
 {
+    /**
+    * Format publish date to transform "2018-10-04T00:00:00" into "04.10.18"
+    *
+    * @param $publish_date: Date to format
+    * @return formatted date
+    */
+    public static function format_publish_date($publish_date): string
+    {
+        $publish_date = new DateTime($publish_date);
+        return $publish_date->format('d.m.y');
+    }
 
     /**
     * Template text only (template 2)
@@ -14,8 +25,8 @@ Class Render
         $html = '<div class="list-articles list-news list-news-textonly clearfix">';
         foreach ($news->results as $item) {
 
-            $publish_date = new DateTime($item->publish_date);
-            $publish_date = $publish_date->format('d.m.y');
+
+            $publish_date = Render::format_publish_date($item->publish_date);
 
             $html .= '<article class="post">';
             $html .= '  <header class="entry-header">';
@@ -52,8 +63,7 @@ Class Render
 
         foreach ($news->results as $item) {
 
-            $publish_date = new DateTime($item->publish_date);
-            $publish_date = $publish_date->format('d.m.y');
+            $publish_date = Render::format_publish_date($item->publish_date);
 
             if ($stickers == TRUE) {
                 if ($item->lang === "fr") {
@@ -116,8 +126,7 @@ Class Render
                 }
             }
 
-            $publish_date = new DateTime($item->publish_date);
-            $publish_date = $publish_date->format('d.m.y');
+            $publish_date = Render::format_publish_date($item->publish_date);
 
             $html .= '<article class="post">';
             $html .= '  <figure class="post-thumbnail">';
@@ -162,6 +171,7 @@ Class Render
 
         foreach ($news->results as $item) {
 
+            $publish_date = Render::format_publish_date($item->publish_date);
             if ($stickers == TRUE) {
                 if ($item->lang === "fr") {
                     $category_label = $item->category->fr_label;
@@ -190,7 +200,7 @@ Class Render
 
             $html .= '  <div class="entry-content">';
             $html .= '    <div class="entry-meta">';
-            $html .= '      <time class="entry-date">' . $item->publish_date . '</time>';
+            $html .= '      <time class="entry-date">' . $publish_date . '</time>';
             $html .= '    </div>';
             $html .= '    <div class="teaser">' . substr($item->subtitle, 0, 240) . '</div>';
             $html .= '  </div>';
@@ -214,8 +224,7 @@ Class Render
         $html = '<div class="list-articles list-news clearfix">';
         foreach ($news->results as $item) {
 
-            $publish_date = new DateTime($item->publish_date);
-            $publish_date = $publish_date->format('d.m.Y');
+            $publish_date = Render::format_publish_date($item->publish_date);
 
             $category_label = "";
 
@@ -276,8 +285,7 @@ Class Render
                 }
             }
 
-            $publish_date = new DateTime($item->publish_date);
-            $publish_date = $publish_date->format('d.m.y');
+            $publish_date = Render::format_publish_date($item->publish_date);
 
             $html .= '<article class="post">';
             $html .= '  <figure class="post-thumbnail">';
@@ -332,8 +340,7 @@ Class Render
                 }
             }
 
-            $publish_date = new DateTime($item->publish_date);
-            $publish_date = $publish_date->format('d.m.y');
+            $publish_date = Render::format_publish_date($item->publish_date);
 
             $html .= '<article class="post">';
             $html .= '  <figure class="post-thumbnail">';
