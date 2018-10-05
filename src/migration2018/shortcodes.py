@@ -402,7 +402,7 @@ class Shortcodes():
             unit = Utils.get_parameter_from_url(api_url, 'unit')
 
             if unit:
-                new_call = self.__add_attribute(new_call, new_shortcode, 'unit', unit)
+                new_call = self.__add_attribute(new_call, new_shortcode, 'units', unit)
 
             # Replacing in global content
             content = content.replace(call, new_call)
@@ -631,7 +631,6 @@ class Shortcodes():
         calls = self.__get_all_shortcode_calls(content, old_shortcode, with_content=True)
 
         for call in calls:
-            # getting future toggle content
             text = self.__get_content(call)
             url = self.__get_attribute(call, 'url')
             target = self.__get_attribute(call, 'target')
@@ -682,6 +681,45 @@ class Shortcodes():
 
         for call in calls:
             html = '<hr class="bold">'
+
+            # Replacing in global content
+            content = content.replace(call, html)
+
+        return content
+
+    def _fix_su_row(self, content):
+        """
+        Fix "su_row" from Shortcode Ultimate.
+        :return:
+        """
+
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, 'su_row', with_content=True)
+
+        for call in calls:
+
+            row_content = self.__get_content(call)
+
+            html = '<table><tr>{}</tr></table>'.format(row_content)
+
+            # Replacing in global content
+            content = content.replace(call, html)
+
+        return content
+
+    def _fix_su_column(self, content):
+        """
+        Fix "su_column" from Shortcode Ultimate.
+        :return:
+        """
+
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, 'su_column', with_content=True)
+
+        for call in calls:
+            col_content = self.__get_content(call)
+
+            html = '<td>{}</td>'.format(col_content)
 
             # Replacing in global content
             content = content.replace(call, html)
@@ -739,6 +777,138 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, new_call)
 
+        return content
+
+    def _fix_su_quote(self, content):
+        """
+        Return HTML code to display quote according 2018 styleguide (but without an image and using "col-md-12" instead
+        of "col-md-10" for the width):
+        https://epfl-idevelop.github.io/elements/#/molecules/quote
+        :param content: String in which to fix
+        :return:
+        """
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, 'su_quote', with_content=True)
+
+        for call in calls:
+            philosophical_thing = self.__get_content(call)
+            great_person_who_said_this = self.__get_attribute(call, 'cite')
+
+            html = '<div class="row">'
+            html += '<blockquote class="blockquote mt-3 col-md-12 border-0">'
+            html += '<p class="mb-0">{}</p>'.format(philosophical_thing)
+            html += '<footer class="blockquote-footer">{}</footer>'.format(great_person_who_said_this)
+            html += '</blockquote>'
+            html += '</div>'
+
+            # Replacing in global content
+            content = content.replace(call, html)
+
+        return content
+
+    def _fix_su_list(self, content):
+        """
+        Return HTML code to display information correctly. We remove surrounding shortcode and add a <br> at the end.
+        :param content: String in which to fix
+        :return:
+        """
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, 'su_list', with_content=True)
+
+        for call in calls:
+            list_content = self.__get_content(call)
+
+            html = '{}<br>'.format(list_content)
+
+            # Replacing in global content
+            content = content.replace(call, html)
+
+        return content
+
+    def _fix_su_heading(self, content):
+        """
+        Fix "su_heading" shortcode from shortcode ultimate. Just transform it into <h2> element.
+        :param content: String in which to fix
+        :return:
+        """
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, 'su_heading', with_content=True)
+
+        for call in calls:
+            heading_text = self.__get_content(call)
+
+            html = '<h2>{}</h2>'.format(heading_text)
+
+            # Replacing in global content
+            content = content.replace(call, html)
+
+        return content
+
+    def _fix_su_highlight(self, content):
+        """
+        Fix "su_highlight" shortcode from shortcode ultimate. Just transform it into <mark> element as defined
+        in the styleguide: https://epfl-idevelop.github.io/elements/#/doc/design--typography.html
+        :param content: String in which to fix
+        :return:
+        """
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, 'su_highlight', with_content=True)
+
+        for call in calls:
+            heading_text = self.__get_content(call)
+
+            html = '<mark>{}</mark>'.format(heading_text)
+
+            # Replacing in global content
+            content = content.replace(call, html)
+
+        return content
+
+    def _fix_su_note(self, content):
+        """
+        Fix "su_note" de Shortcode Ultimate afin de mettre le code HTML d'un trapèze:
+        https://epfl-idevelop.github.io/elements/#/atoms/trapeze
+        :param content: String in which to fix
+        :return:
+        """
+        # Looking for all calls to modify them one by one
+        calls = self.__get_all_shortcode_calls(content, 'su_note', with_content=True)
+
+        for call in calls:
+            note = self.__get_content(call)
+
+            html = '<a href="#" class="trapeze-vertical-container">'
+            html += '<div class="card">'
+            html += '<div class="card-body">{}</div>'.format(note)
+            html += '</div>'
+            html += '<span class="trapeze-vertical"></span>'
+            html += '</a>'
+
+            # Replacing in global content
+            content = content.replace(call, html)
+
+        return content
+
+    def _fix_su_spacer(self, content):
+        """
+        Remove "su_spacer"
+        :return:
+        """
+        return self.__remove_shortcode(content, 'su_spacer')
+
+    def _fix_epfl_twitter(self, content):
+        """
+        Fix "epfl_twitter" shortcode
+        :param content:
+        :return:
+        """
+        old_shortcode = 'epfl_twitter'
+        new_shortcode = 'epfl_social_feed'
+
+        content = self.__rename_attribute(content, old_shortcode, 'url', 'twitter_url')
+        content = self.__rename_attribute(content, old_shortcode, 'limit', 'twitter_limit')
+
+        content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
         return content
 
     def _fix_epfl_memento(self, content):
