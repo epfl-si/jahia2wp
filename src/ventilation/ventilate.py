@@ -93,17 +93,19 @@ if __name__ == '__main__':
     tasks = VentilationTodo(args['<ventilation_csv_file>']).items
 
     os.makedirs(args['<wxr_destdir>'])  # Should *not* already exist
+
     for xml_dirent in os.scandir(args['<wxr_sourcedir>']):
+
         if not xml_dirent.name.endswith('.xml'):
-            logging.warn('Skipping %s', xml_dirent.name)
+            logging.warning('Skipping %s', xml_dirent.name)
             continue
+
         source_wxr = SourceWXR(xml_dirent.path)
         source_moniker = site_moniker(source_wxr.root_url)
         logging.debug('Processing source WXR file %s for %s ("%s")',
                       source_wxr.path, source_wxr.root_url, source_moniker)
 
-        output_count_for_this_source_wxr = 0
-        for task in tasks:
+        for output_count_for_this_source_wxr, task in enumerate(tasks):
 
             if not source_wxr.contains(task.source_url):
                 continue
@@ -126,8 +128,6 @@ if __name__ == '__main__':
                 add_structure=task.relative_uri,
                 new_url=new_url
             )
-
-            output_count_for_this_source_wxr += 1
 
         logging.info('Created %d XML files for %s',
                      output_count_for_this_source_wxr,
