@@ -71,12 +71,15 @@ class VentilationTodo:
 
             source_url = line['source']
 
-            # ventilation of all pages of WP site
+            # all pages requested - end character * must be deleted
             if source_url.endswith("*"):
+                self.on_page = False
                 self.source_url = source_url.rstrip('*')
 
-            # ventilation of one page only of WP site
+            # single page requested - source url must be URL of WP site
             else:
+
+                self.on_page = True
 
                 if source_url.endswith("/"):
                     source_url = source_url[0:-1]

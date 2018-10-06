@@ -21,6 +21,8 @@ import fnmatch
 from docopt import docopt
 import logging
 
+from ventilation.wordpress_inventories import VentilationTodo
+
 dirname = os.path.dirname
 sys.path.append(dirname(dirname(os.path.realpath(__file__))))
 
@@ -88,7 +90,8 @@ if __name__ == '__main__':
     os.environ['WP_ENV'] = 'ventilate'   # Lest the next line raise an exception
     Utils.set_logging_config(args)
 
-    csv_lines = Utils.csv_filepath_to_dict(args['<ventilation_csv_file>'])
+    tasks = VentilationTodo(args['<ventilation_csv_file>']).items
+
     os.makedirs(args['<wxr_destdir>'])  # Should *not* already exist
     for xml_dirent in os.scandir(args['<wxr_sourcedir>']):
         if not xml_dirent.name.endswith('.xml'):
@@ -100,31 +103,32 @@ if __name__ == '__main__':
                       source_wxr.path, source_wxr.root_url, source_moniker)
 
         output_count_for_this_source_wxr = 0
-        for csv_line in csv_lines:
+        for task in tasks:
 
-            source_url = csv_line['source']
-            # Ignore stars for the purpose of discovering source Wordpresses:
-
-            if source_url[-1] == "*":
-                one_page = False
-            else:
-                one_page = True
-                source_url = "/".join(source_url.split("/")[0:-2]) + '/'
-
-            if not source_wxr.contains(source_url):
+            if not source_wxr.contains(task.source_url):
                 continue
-            dest_moniker = site_moniker(csv_line['destination_site'])
-            if one_page:
-                new_url = csv_line['destination_site']
+
+            dest_moniker = site_moniker(task.destination_site)
+
+            if task.one_page:
+                new_url = task.destination_site
             else:
-                new_url = csv_line['destination_site'] + csv_line['relative_uri']
+                new_url = task.destination_site + task.relative_uri
+
             destination_xml_path = '%s/%s/%s.xml' % (
-                args['<wxr_destdir>'], dest_moniker, source_moniker)
+                args['<wxr_destdir>'],
+                dest_moniker,
+                source_moniker
+            )
+
             DestinationWXR(destination_xml_path, source_wxr).create(
-                filter=csv_line['source'],
-                add_structure=csv_line['relative_uri'],
-                new_url=new_url)
+                filter=task.source,
+                add_structure=task.relative_uri,
+                new_url=new_url
+            )
+
             output_count_for_this_source_wxr += 1
+
         logging.info('Created %d XML files for %s',
                      output_count_for_this_source_wxr,
                      source_moniker)
