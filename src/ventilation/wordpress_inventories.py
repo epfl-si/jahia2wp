@@ -69,11 +69,19 @@ class VentilationTodo:
         """ Line of csv ventilation.csv """
         def __init__(self, line):
 
-            if line['source'][-1] == "*":
-                self.source_url = line['source'].rstrip('*')
+            source_url = line['source']
+
+            # ventilation of all pages of WP site
+            if source_url.endswith("*"):
+                self.source_url = source_url.rstrip('*')
+
+            # ventilation of one page only of WP site
             else:
-                # TODO: this assumes that the "source" column ends with a slash.
-                self.source_url = "/".join(line['source'].split("/")[0:-2]) + '/'
+
+                if source_url.endswith("/"):
+                    source_url = source_url[0:-1]
+
+                self.source_url = os.path.split(source_url)[0] + "/"
 
             self.destination_site = line['destination_site']
             self.relative_uri = line['relative_uri']
