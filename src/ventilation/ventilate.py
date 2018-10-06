@@ -124,7 +124,7 @@ if __name__ == '__main__':
             )
 
             DestinationWXR(destination_xml_path, source_wxr).create(
-                filter=task.source,
+                filter=task.source_url,
                 add_structure=task.relative_uri,
                 new_url=new_url
             )

@@ -73,13 +73,15 @@ class VentilationTodo:
 
             # all pages requested - end character * must be deleted
             if source_url.endswith("*"):
-                self.on_page = False
+                self.one_page = False
                 self.source_url = source_url.rstrip('*')
 
             # single page requested - source url must be URL of WP site
             else:
 
-                self.on_page = True
+                self.one_page = True
+
+                self.source_url_page = source_url
 
                 if source_url.endswith("/"):
                     source_url = source_url[0:-1]
@@ -90,7 +92,7 @@ class VentilationTodo:
             self.relative_uri = line['relative_uri']
 
     def __init__(self, csv_path):
-        self.items = [self.Item(line) for line in Utils.csv_filepath_to_dict(args['<ventilation_csv_file>'])]
+        self.items = [self.Item(line) for line in Utils.csv_filepath_to_dict(csv_path)]
 
 
 def site_moniker(url):
