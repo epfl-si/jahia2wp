@@ -98,13 +98,22 @@ class MenuItemBag
         return new $thisclass($copied_items);
     }
 
-    function copy_classes_and_currents ($another_bag) {
-        $another_bag = static::coerce($another_bag);
+    function copy_classes ($another_bag) {
+        return $this->_copy_attributes(static::coerce($another_bag), array('classes'));
+    }
+
+    function copy_current ($another_bag) {
+        $copy = $this->_copy_attributes(static::coerce($another_bag),
+                                        array('current', 'current_item_ancestor',
+                                              'current_item_parent'));
+        $copy->_MUTATE_sanitize_current_attributes();
+        return $copy;
+    }
+
+    private function _copy_attributes ($another_bag, $attributes) {
         $copy = $this->copy();
-        foreach ($copy->items as $unused_id => $item) {
-            foreach (array('classes', 'current',
-                           'current_item_ancestor', 'current_item_parent')
-                     as $k) {
+        foreach ($copy->items as $item) {
+            foreach ($attributes as $k) {
                 $item->$k = $another_bag->find($item)->$k;
             }
         }
@@ -231,6 +240,43 @@ class MenuItemBag
             $mutated_outer->_MUTATE_add_item($item);
         }
         return $mutated_outer;
+    }
+
+    /**
+     * Enforce the following, reasonable invariants on attributes
+     * 'current', 'current_item_ancestor' and 'current_item_parent':
+     *
+     * - every parent of an item that is 'current' is 'current_item_parent',
+     *
+     */
+    private function _MUTATE_sanitize_current_attributes() {
+        $current_items = array();  // Plural 'coz why not?
+        foreach ($this->items as $item) {
+            if ($item->current) {
+                $current_items[$this->_get_id($item)] = $item;
+            }
+        }
+
+        $breadthfirst = array();
+        foreach ($current_items as $item) {
+            $parent_id = $this->_get_parent_id($item);
+            if (! ($parent = $this->items[$parent_id])) continue;
+            $breadthfirst[$parent_id] = $parent;
+            $parent->current_item_parent = true;
+            $parent->current_item_ancestor = true;
+        }
+
+        while(count($breadthfirst)) {
+            $breadthfirst_next = array();
+            foreach ($breadthfirst as $item) {
+                $parent_id = $this->_get_parent_id($item);
+                if (! ($parent = $this->items[$parent_id])) continue;
+                if ($breadthfirst[$parent_id]) continue;  // Eliminate loops
+                $breadthfirst_next[$parent_id] = $parent;
+                $parent->current_item_ancestor = true;
+            }
+            $breadthfirst = $breadthfirst_next;
+        }
     }
 
     /**
@@ -1276,7 +1322,10 @@ class MenuFrontendController
      * Hooked to the @link wp_nav_menu_objects filter.
      *
      * Before rendering a menu to the front-end, replace its tree with
-     * the fully stitched one.
+     * the fully stitched one. Maintain all Wordpress-y bells and
+     * whistles such as additional CSS classes ('class' attribute),
+     * ancestry decoration ('current', 'current_item_parent' and
+     * 'current_item_ancestor' attributes) etc.
      *
      * @param $menu_items The menu as extracted from the database as a
      *                    flat list of "spare parts", chained by their
@@ -1295,7 +1344,8 @@ class MenuFrontendController
             ->get_stitched_tree(
                 static::_guess_menu_entry_from_wp_nav_menu_args($args))
             ->trim_external()
-            ->copy_classes_and_currents($menu_items)
+            ->copy_classes($menu_items)
+            ->copy_current($menu_items)
             ->as_list();
     }
 
