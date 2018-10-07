@@ -72,7 +72,7 @@ class Ventilator:
         if ventilate_filter:
 
             # if not star => we try to ventilate on page
-            if ventilate_filter[-1] != "*":
+            if not ventilate_filter.endswith("*"):
 
                 url_page = ventilate_filter
                 if not url_page.endswith('/'):
@@ -111,11 +111,12 @@ class Ventilator:
                         if not p.parent_id:
                             p.parent_id = reparent_under
 
-            if ventilate_filter and ventilate_filter[-1] != "*":
+            if ventilate_filter and not ventilate_filter.endswith("*"):
                 # Single page requested - we don't want menus
                 for menu in NavMenu.all(self.etree):
                     menu.delete()
             else:
+                # All pages requested
                 self.trim_and_reparent_menus()
 
         return self.etree
