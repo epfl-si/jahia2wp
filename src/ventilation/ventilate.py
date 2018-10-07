@@ -111,7 +111,6 @@ if __name__ == '__main__':
                 continue
 
             dest_moniker = site_moniker(task.destination_site)
-            new_url = task.destination_site + task.relative_uri
 
             destination_xml_path = '%s/%s/%s.xml' % (
                 args['<wxr_destdir>'],
@@ -122,7 +121,7 @@ if __name__ == '__main__':
             DestinationWXR(destination_xml_path, source_wxr).create(
                 filter=task.source_url_full,
                 add_structure=task.relative_uri,
-                new_url=new_url
+                new_url=task.destination_site + task.relative_uri
             )
 
         logging.info('Created %d XML files for %s',
