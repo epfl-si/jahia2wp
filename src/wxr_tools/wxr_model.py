@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 import lxml.etree
 
 from wxr_tools.basics import sole, sole_or_none, Delegator
-from wxr_tools.xml import XMLNamespaces
+from wxr_tools.xml import XMLNamespaces, xml_to_string
 
 __all__ = ('Channel', 'NavMenu', 'NavMenuItem', 'Page')
 
@@ -158,7 +158,7 @@ class XMLElementSubset(Delegator):
     """
     def __repr__(self):
         return '[%s %s]' % (self.__class__.__name__,
-                            xml.xml_to_string(self._elt))
+                            xml_to_string(self._elt))
 
 
 class ItemSubset(XMLElementSubset):

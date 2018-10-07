@@ -25,7 +25,6 @@ Options:
 from docopt import docopt
 import lxml.etree
 from urllib.parse import urlparse, urlunparse
-import logging
 
 from wxr_tools.wxr_model import Channel, Page, NavMenu, NavMenuItem, Item
 from wxr_tools.xml import xml_to_string
@@ -68,18 +67,14 @@ class Ventilator:
 
         unique_page = None
 
-        if self.flags['--filter']:
+        ventilate_filter = self.flags['--filter']
 
-            new_site_url_base = self.flags['--new-site-url-base']
-            add_structure = self.flags['--add-structure']
-            new_url = new_site_url_base + add_structure
-
-            filter = self.flags['--filter']
+        if ventilate_filter:
 
             # if not star => we try to ventilate on page
-            if filter[-1] != "*":
+            if ventilate_filter[-1] != "*":
 
-                url_page = filter
+                url_page = ventilate_filter
                 if not url_page.endswith('/'):
                     url_page += "/"
 
@@ -114,9 +109,9 @@ class Ventilator:
                     reparent_under = self.add_structure(path_components)
                     for p in Page.all(self.etree):
                         if not p.parent_id:
-                             p.parent_id = reparent_under
+                            p.parent_id = reparent_under
 
-            if self.flags["--filter"] and filter[-1] != "*":
+            if ventilate_filter and ventilate_filter[-1] != "*":
                 # Single page requested - we don't want menus
                 for menu in NavMenu.all(self.etree):
                     menu.delete()
