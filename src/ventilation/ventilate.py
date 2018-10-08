@@ -22,6 +22,7 @@ from docopt import docopt
 import logging
 
 from ventilation.wordpress_inventories import VentilationTodo
+from wxr_tools.utils import increment_xml_file_path
 
 dirname = os.path.dirname
 sys.path.append(dirname(dirname(os.path.realpath(__file__))))
@@ -32,6 +33,7 @@ from ventilation.wordpress_inventories import site_moniker  # noqa: E402
 
 class SourceWXR:
     """Model for one of the files in <wxr_sourcedir>"""
+
     def __init__(self, path):
         self.path = path
 
@@ -61,6 +63,7 @@ class SourceWXR:
 
 class DestinationWXR:
     """Model for one of the files in <wxr_destdir>"""
+
     def __init__(self, dest_file, source_wxr):
         self.source_file = source_wxr.path
         self.path = dest_file
@@ -105,7 +108,7 @@ if __name__ == '__main__':
         logging.debug('Processing source WXR file %s for %s ("%s")',
                       source_wxr.path, source_wxr.root_url, source_moniker)
 
-        for output_count_for_this_source_wxr, task in enumerate(tasks):
+        for output_count_for_this_source_wxr, task in enumerate(tasks, start=1):
 
             if not source_wxr.contains(task.source_url):
                 continue
@@ -118,12 +121,17 @@ if __name__ == '__main__':
                 source_moniker
             )
 
+            if os.path.exists(destination_xml_path):
+                destination_xml_path = increment_xml_file_path(destination_xml_path)
+
             DestinationWXR(destination_xml_path, source_wxr).create(
                 filter=task.source_url_full,
                 add_structure=task.relative_uri,
                 new_url=task.destination_site + task.relative_uri
             )
 
-        logging.info('Created %d XML files for %s',
-                     output_count_for_this_source_wxr,
-                     source_moniker)
+        logging.info(
+            'Created %d XML files for %s',
+            output_count_for_this_source_wxr,
+            source_moniker
+        )

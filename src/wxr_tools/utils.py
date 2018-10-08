@@ -15,3 +15,12 @@ def get_wp_site_url(wp_url):
         url_tmp += "/"
 
     return url_tmp
+
+
+def increment_xml_file_path(xml_file_path):
+
+    index = 1
+    path = xml_file_path.replace(".xml", "") + "_{}.xml"
+    while os.path.exists(path.format(index)):
+        index += 1
+    return path.format(index)
