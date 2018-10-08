@@ -26,8 +26,8 @@ from ventilation.wordpress_inventories import VentilationTodo
 dirname = os.path.dirname
 sys.path.append(dirname(dirname(os.path.realpath(__file__))))
 
-from utils import Utils                         # noqa: E402
-from wordpress_inventories import site_moniker  # noqa: E402
+from utils import Utils                                     # noqa: E402
+from ventilation.wordpress_inventories import site_moniker  # noqa: E402
 
 
 class SourceWXR:

@@ -10,8 +10,9 @@ import csv
 import string
 import binascii
 import random
-import xml.dom.minidom
 import re
+from xml.dom.minidom import parseString
+
 import requests
 
 
@@ -97,7 +98,7 @@ class Utils(object):
         # we use BeautifulSoup first because some XML files are invalid
         xml_soup = BeautifulSoup(xml_file.read(), 'xml')
 
-        dom = xml.dom.minidom.parseString(str(xml_soup))
+        dom = parseString(str(xml_soup))
 
         # save in the cache
         cls.dom_cache[path] = dom

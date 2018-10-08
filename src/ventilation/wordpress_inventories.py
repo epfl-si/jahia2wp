@@ -19,7 +19,7 @@ import sys
 import re
 import copy
 from urllib.parse import urlparse
-import requests
+from wxr_tools.utils import get_wp_site_url
 
 dirname = os.path.dirname
 basename = os.path.basename
@@ -63,6 +63,7 @@ class VentilationTodo:
 
     class Item:
         """ Line of csv ventilation.csv """
+
         def __init__(self, line):
 
             source_url = line['source']
@@ -74,17 +75,8 @@ class VentilationTodo:
                 self.one_page = False
                 self.source_url = source_url.rstrip('*')
 
-                # Dans le cas de la ventilation N pages source_url n'est pas un site WP mais une page
-
-                # path -1
-                tmp = os.path.split(self.source_url)[0] + "/"
-
-                # check if tmp is a WP web site
-                r = requests.get(tmp + "wp-admin")
-                while(r.status_code != 200):
-                    "yes"
-                else:
-                    "no"
+                # child pages requested - get WordPress site URL and not page URL
+                self.source_url = get_wp_site_url(self.source_url)
 
             # single page requested - source url must be URL of WP site
             else:

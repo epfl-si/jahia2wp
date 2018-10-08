@@ -26,6 +26,7 @@ from docopt import docopt
 import lxml.etree
 from urllib.parse import urlparse, urlunparse
 
+from wxr_tools.utils import get_wp_site_url
 from wxr_tools.wxr_model import Channel, Page, NavMenu, NavMenuItem, Item
 from wxr_tools.xml import xml_to_string
 
@@ -85,6 +86,17 @@ class Ventilator:
                         item.delete()
                     else:
                         unique_page = item
+            else:
+                url = ventilate_filter.rstrip('*')
+                wp_site_url = get_wp_site_url(url)
+
+                # child pages requested
+                if wp_site_url != url:
+
+                    for item in Item.all(self.etree):
+                        # Question for @Domq: Use link for page hierarchy, good idea ?
+                        if url not in item.link or url == item.link:
+                            item.delete()
 
         if self.flags['--add-structure']:
             path_components = self.flags['--add-structure'].split('/')
