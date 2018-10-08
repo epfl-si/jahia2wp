@@ -1,0 +1,15 @@
+- include_vars: update-vars.yml
+
+- name: Zip file for the EPFL plug-in
+  run_once: true
+  local_action:
+    module: archive
+    dest: "{{ epfl_plugin_zip_file }}"
+    format: zip
+    path: "{{ epfl_plugin_dir }}"
+
+- name: Install Zip file
+  unarchive:
+    src: "{{ epfl_plugin_zip_file }}"
+    dest: "{{ wp_plugins_dir }}"
+  when: "wp_can.write_code"

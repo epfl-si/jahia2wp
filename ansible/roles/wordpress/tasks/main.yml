@@ -14,6 +14,9 @@
 - name: "Create or restore (if requested)"
   include: '{{ "create-or-restore.yml" if play_create_or_restore is defined else "noop.yml" }}'
 
+- name: "Update themes and plugins (if requested)"
+  include: '{{ "update.yml" if play_update is defined else "noop.yml" }}'
+
 - name: "Dump (if requested)"
   include: '{{ "dump.yml" if (play_dump is defined) and (dump_local_dir is defined) else "noop.yml" }}'
 

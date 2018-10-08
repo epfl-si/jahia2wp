@@ -151,10 +151,21 @@ sub nickname {
   my $hostname = $wordpress->{wp_hostname};
   $hostname =~ s|\Wepfl\.ch$||;
   $hostname =~ s|\W|-|g;
+
+  my $path = $wordpress->{wp_path};
+  my $stem;
+  if (! $path) {
+    $stem = $hostname;
+  } else {
+    $path =~ s|/$||;
+    $path =~ s|/|-|g;
+    $stem = "$hostname-$path";
+  }
+
   my ($nickname, $uniq);
-  for($nickname = $hostname, $uniq = 0;
+  for($nickname = $stem, $uniq = 0;
       $nicknames_already_taken{$nickname};
-      $nickname = $hostname . ++$uniq)
+      $nickname = $stem . ++$uniq)
     { }
   $nicknames_already_taken{$nickname} = 1;
   return $nickname;

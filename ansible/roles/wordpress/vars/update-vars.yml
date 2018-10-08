@@ -1,0 +1,2 @@
+epfl_plugin_dir: "{{ playbook_dir }}/../../data/wp/wp-content/plugins/epfl"
+epfl_plugin_zip_file: "{{ epfl_plugin_dir }}.zip"

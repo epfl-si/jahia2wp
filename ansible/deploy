@@ -15,6 +15,12 @@
 # - https://www.ansible.com/overview/how-ansible-works
 # - https://github.com/jdauphant/awesome-ansible
 
+inventories="-i ansible/hosts-dev"
+case "$1" in
+    --prod)
+        inventories="$inventories -i ansible/hosts-prod" ;;
+esac
+
 thisdir="$(dirname "$(realpath "$0")")"
 
-ansible-playbook -e "play_create_or_restore=true" -i ansible/hosts-dev "$@" "$thisdir"/playbooks/wordpress-main.yml
+ansible-playbook -e "play_create_or_restore=true" -e "play_update=true" $inventories "$@" "$thisdir"/playbooks/wordpress-main.yml

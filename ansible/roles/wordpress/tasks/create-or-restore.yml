@@ -5,6 +5,7 @@
     play_wp_delete: '{{inventory_hostname in wp_destructive and wp_destructive[inventory_hostname] == "wipe"}}'
     play_wp_create: '{{ (not _wp_config_php_stat.stat.exists) or ((inventory_hostname in wp_destructive) and (wp_destructive[inventory_hostname] == "wipe")) }}'
     play_wp_configure: '{{inventory_hostname in wp_destructive and wp_destructive[inventory_hostname] != "none"}}'
+    play_wp_update: '{{inventory_hostname in wp_destructive and wp_destructive[inventory_hostname] != "none"}}'
     play_wp_restore: '{{ (inventory_hostname in wp_destructive) and (wp_destructive[inventory_hostname] is search("^(data|wipe)")) and (wp_restore_from is search("^backup")) }}'
 
 - name: Delete (if requested)
