@@ -19,6 +19,7 @@ import sys
 import re
 import copy
 from urllib.parse import urlparse
+import requests
 
 dirname = os.path.dirname
 basename = os.path.basename
@@ -72,6 +73,18 @@ class VentilationTodo:
             if source_url.endswith("*"):
                 self.one_page = False
                 self.source_url = source_url.rstrip('*')
+
+                # Dans le cas de la ventilation N pages source_url n'est pas un site WP mais une page
+
+                # path -1
+                tmp = os.path.split(self.source_url)[0] + "/"
+
+                # check if tmp is a WP web site
+                r = requests.get(tmp + "wp-admin")
+                while(r.status_code != 200):
+                    "yes"
+                else:
+                    "no"
 
             # single page requested - source url must be URL of WP site
             else:
