@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 from xml.dom import minidom
 from parser.box_sorted_group import BoxSortedGroup
 from bs4 import BeautifulSoup
+from django.utils.text import slugify
 
 from utils import Utils
 
@@ -198,6 +199,8 @@ class Box:
             self.set_box_unknown(element)
 
         self.fix_video_iframes()
+
+        self.add_id_to_h3()
 
         self.fix_img_align_left()
 
@@ -1326,6 +1329,25 @@ class Box:
                 shortcode = '[epfl_video url="{}"]'.format(src)
                 # Replacing the iframe with shortcode text
                 iframe.replaceWith(shortcode)
+
+        self.content = str(soup.body)
+
+    def add_id_to_h3(self):
+        """
+        Take title of <h3> elements, slugify it and add it as "id" attribute
+        :return:
+        """
+
+        soup = BeautifulSoup(self.content, 'html5lib')
+        soup.body.hidden = True
+
+        h3s = soup.find_all('<h3>')
+
+        for h3 in h3s:
+
+            if h3.text != "" and h3.get('id') is None:
+                slug = slugify(h3.text)
+                h3['id'] = slug
 
         self.content = str(soup.body)
 
