@@ -1341,7 +1341,7 @@ class Box:
         soup = BeautifulSoup(self.content, 'html5lib')
         soup.body.hidden = True
 
-        h3s = soup.find_all('<h3>')
+        h3s = soup.find_all('h3')
 
         for h3 in h3s:
 
