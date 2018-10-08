@@ -17,24 +17,6 @@ require_once 'shortcake-config.php';
  * @param $tag: the name of shortcode. epfl_card in our case.
  */
 function epfl_card_process_shortcode($atts = [], $content = '', $tag = '') {
-    // shortcode parameters
-    /*
-    $atts = shortcode_atts(array(
-            'title' => '',
-            'link'  => '',
-            'image' => '',
-    ), $atts, $tag);
-    */
-
-    // sanitize parameters
-    /*
-    $link  = esc_url($atts['link']);
-    $title = sanitize_text_field( $atts['title'] );
-    $text  = wp_kses_post($content);
-    $image = sanitize_text_field( $atts['image'] );
-    $image_url = wp_get_attachment_url( $image );
-    */
-
     // if supported delegate the rendering to the theme
     if (has_action("epfl_card_action")) {
 
