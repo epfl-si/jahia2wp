@@ -562,6 +562,8 @@ def export(site, wp_site_url, unit_name_or_id, to_wordpress=False, clean_wordpre
     else:
         # If returns false, it means there was an error
         if not wp_generator.generate(deactivated_plugins):
+            # We just display line to add to CSV
+            _generate_csv_line(wp_generator)
             return
 
         wp_generator.install_basic_auth_plugin()
