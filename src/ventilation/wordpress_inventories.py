@@ -4,8 +4,14 @@
 
 """wordpress_inventories.py: Find where source Wordpresses reside from a CSV file.
 
-The CSV file must have a 'source' column with URLs in it.  Other columns are
-ignored.
+Turn this information into a pair of Ansible inventory files.
+
+The CSV file must have 'source' and 'destination_site' columns with
+URLs in it. Values in the 'source' column are probed on the filesystem
+of the remote ssh host, in order to discover where the actual site is.
+Values in the 'destination_site' column are trusted at face value, so
+that this script may produce correct Ansible files even though the
+target sites may not exist yet.
 
 Usage:
   wordpress_inventories.py --sources=<sources_inventory_file> --targets=<targets_inventory_file> <ventilation_csv_file>
@@ -19,7 +25,6 @@ import sys
 import re
 import copy
 from urllib.parse import urlparse
-from wxr_tools.utils import get_wp_site_url
 
 dirname = os.path.dirname
 basename = os.path.basename
@@ -36,10 +41,12 @@ class AnsibleGroup:
     def has_wordpress(self, designated_name):
         return designated_name in self.hosts
 
-    def add_wordpress_by_url(self, url):
+    def add_wordpress_by_url(self, url, discover_site_path=False):
         ssh = SshRemoteHost.for_url(url)
         moniker = site_moniker(url)
-        ansible_params = copy.copy(ssh.as_ansible_params(url))
+        ansible_params = copy.copy(ssh.as_ansible_params(
+            url,
+            discover_site_path=discover_site_path))
         self.hosts[moniker] = ansible_params
 
     def save(self, target):
@@ -74,9 +81,6 @@ class VentilationTodo:
             if source_url.endswith("*"):
                 self.one_page = False
                 self.source_url = source_url.rstrip('*')
-
-                # child pages requested - get WordPress site URL and not page URL
-                self.source_url = get_wp_site_url(self.source_url)
 
             # single page requested - source url must be URL of WP site
             else:
@@ -120,7 +124,7 @@ if __name__ == '__main__':
     sources = AnsibleGroup()
     targets = AnsibleGroup()
     for task in VentilationTodo(args['<ventilation_csv_file>']).items:
-        sources.add_wordpress_by_url(task.source_url)
+        sources.add_wordpress_by_url(task.source_url, discover_site_path=True)
         targets.add_wordpress_by_url(task.destination_site)
     sources.save(args['--sources'])
     targets.save(args['--targets'])
