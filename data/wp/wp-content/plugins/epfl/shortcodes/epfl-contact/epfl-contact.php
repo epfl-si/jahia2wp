@@ -25,4 +25,3 @@ add_action( 'init', function() {
     // define the shortcode
    add_shortcode('epfl_contact', __NAMESPACE__ . '\epfl_contact_process_shortcode');
 });
-
