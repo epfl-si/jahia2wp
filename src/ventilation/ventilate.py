@@ -17,7 +17,6 @@ import sys
 import subprocess
 import lxml.etree
 from urllib.parse import urlparse, urlunparse
-import fnmatch
 from docopt import docopt
 import logging
 
@@ -48,14 +47,14 @@ class SourceWXR:
         url_obj = urlparse(self._etree.xpath('/rss/channel/link')[0].text)
         return urlunparse(url_obj._replace(scheme='https')).rstrip('/') + '/'
 
-    def contains(self, pattern):
-        """True if `pattern' matches the WordPress site of this WXR file.
+    def intersects(self, pattern):
+        """True if `pattern' can match any page in the WordPress site of this WXR file.
 
         Args:
           pattern: A pattern excerpted from the left-hand-side column
                    (`source') of the ventilation CSV file
         """
-        return fnmatch.fnmatch(self.root_url, pattern)
+        return pattern.startswith(self.root_url)
 
     def __repr__(self):
         return '<%s "%s">' % (self.__class__.__name__, self.path)
@@ -108,9 +107,10 @@ if __name__ == '__main__':
         logging.debug('Processing source WXR file %s for %s ("%s")',
                       source_wxr.path, source_wxr.root_url, source_moniker)
 
-        for output_count_for_this_source_wxr, task in enumerate(tasks, start=1):
+        output_count_for_this_source_wxr = 0
+        for task in tasks:
 
-            if not source_wxr.contains(task.source_pattern):
+            if not source_wxr.intersects(task.source_pattern):
                 continue
 
             dest_moniker = site_moniker(task.destination_site)
@@ -129,6 +129,7 @@ if __name__ == '__main__':
                 add_structure=task.relative_uri,
                 new_url=task.destination_site + task.relative_uri
             )
+            output_count_for_this_source_wxr += 1
 
         logging.info(
             'Created %d XML files for %s',
