@@ -26,9 +26,12 @@ import re
 import copy
 from urllib.parse import urlparse
 
-dirname = os.path.dirname
-basename = os.path.basename
-sys.path.append(dirname(dirname(os.path.realpath(__file__))))
+# This script is being used both as a library and as a script.
+# Only fix up the sys.path in the latter case.
+if __name__ == '__main__':
+    dirname = os.path.dirname
+    basename = os.path.basename
+    sys.path.append(dirname(dirname(os.path.realpath(__file__))))
 
 from utils import Utils        # noqa: E402
 from ops import SshRemoteHost  # noqa: E402

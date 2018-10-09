@@ -20,14 +20,30 @@ from urllib.parse import urlparse, urlunparse
 from docopt import docopt
 import logging
 
-from ventilation.wordpress_inventories import VentilationTodo
-from wxr_tools.utils import increment_xml_file_path
-
 dirname = os.path.dirname
 sys.path.append(dirname(dirname(os.path.realpath(__file__))))
 
-from utils import Utils                                     # noqa: E402
-from ventilation.wordpress_inventories import site_moniker  # noqa: E402
+from utils import Utils                                          # noqa: E402
+from wordpress_inventories import site_moniker, VentilationTodo  # noqa: E402
+
+
+def _increment_xml_file_path(xml_file_path):
+    """
+    Return the next incremental name xml file.
+
+    Example:
+    input: xml_file_path: help-actu_1.xml
+    output: help-actu_2.xml
+
+    :param xml_file_path: path of xml file
+
+    :return: next incremental name xml name
+    """
+    index = 1
+    path = xml_file_path.replace(".xml", "") + "_{}.xml"
+    while os.path.exists(path.format(index)):
+        index += 1
+    return path.format(index)
 
 
 class SourceWXR:
@@ -122,7 +138,7 @@ if __name__ == '__main__':
             )
 
             if os.path.exists(destination_xml_path):
-                destination_xml_path = increment_xml_file_path(destination_xml_path)
+                destination_xml_path = _increment_xml_file_path(destination_xml_path)
 
             DestinationWXR(destination_xml_path, source_wxr).create(
                 filter=task.source_pattern,
