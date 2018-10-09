@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-10-04 14:33+0200\n"
-"PO-Revision-Date: 2018-10-04 14:35+0200\n"
+"POT-Creation-Date: 2018-10-09 16:07+0200\n"
+"PO-Revision-Date: 2018-10-09 16:08+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -16,25 +16,49 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: epfl-infoscience-search\n"
 
-#: epfl-card/shortcake-config.php:12
+#: epfl-card/shortcake-config.php:10 epfl-card/shortcake-config.php:48
 msgid "Card"
 msgstr "Carte"
 
+#: epfl-card/shortcake-config.php:10 epfl-links-group/shortcake-config.php:24
+msgid "Title"
+msgstr "Titre"
+
 #: epfl-card/shortcake-config.php:16
-msgid "Card title"
-msgstr "Titre de la carte"
+msgid "Link"
+msgstr ""
 
-#: epfl-card/shortcake-config.php:21
-msgid "Card link"
-msgstr "Lien de la carte"
+#: epfl-card/shortcake-config.php:22
+msgid "Image"
+msgstr ""
 
-#: epfl-card/shortcake-config.php:26
-msgid "Card image"
-msgstr "Image de la carte"
+#: epfl-card/shortcake-config.php:29
+msgid "Text"
+msgstr ""
 
-#: epfl-card/shortcake-config.php:33
-msgid "Card text"
-msgstr "Texte de la carte"
+#: epfl-contact/shortcake-config.php:11
+msgid "Text introducing the contact informations (optional)"
+msgstr "Texte d'introduction (optionnel)"
+
+#: epfl-contact/shortcake-config.php:16
+msgid "Timetable"
+msgstr "Horaire"
+
+#: epfl-contact/shortcake-config.php:28
+msgid "Various information"
+msgstr "Divers"
+
+#: epfl-contact/shortcake-config.php:44
+msgid "What map information do you want to display?"
+msgstr "Lieu pour la carte"
+
+#: epfl-contact/shortcake-config.php:48 epfl-map/epfl-map.php:94
+msgid "A room for example"
+msgstr "Par exemple une salle"
+
+#: epfl-contact/shortcake-config.php:58
+msgid "Contact"
+msgstr ""
 
 #: epfl-cover/shortcake-config.php:12
 msgid "Cover"
@@ -55,10 +79,6 @@ msgstr "Liens"
 #: epfl-links-group/shortcake-config.php:14
 msgid "Label"
 msgstr "Libellé"
-
-#: epfl-links-group/shortcake-config.php:24
-msgid "Title"
-msgstr "Titre"
 
 #: epfl-links-group/shortcake-config.php:31
 #: epfl-links-group/shortcake-config.php:46
@@ -94,10 +114,6 @@ msgstr "Plan EPFL"
 #: epfl-map/epfl-map.php:90
 msgid "What information do you want to display?"
 msgstr "Quelle information voulez vous afficher?"
-
-#: epfl-map/epfl-map.php:94
-msgid "A room for example"
-msgstr "Par exemple une salle"
 
 #: epfl-map/epfl-map.php:97
 msgid "Language"
@@ -494,6 +510,18 @@ msgstr "L'URL du XML"
 #: epfl-xml/epfl-xml.php:85
 msgid "XSLT URL"
 msgstr "L'URL du XSLT"
+
+#~ msgid "Card title"
+#~ msgstr "Titre de la carte"
+
+#~ msgid "Card link"
+#~ msgstr "Lien de la carte"
+
+#~ msgid "Card image"
+#~ msgstr "Image de la carte"
+
+#~ msgid "Card text"
+#~ msgstr "Texte de la carte"
 
 #~ msgid "Set the height (min. 347)"
 #~ msgstr "Choisir une hauteur (min. 347)"
