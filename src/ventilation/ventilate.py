@@ -110,7 +110,7 @@ if __name__ == '__main__':
 
         for output_count_for_this_source_wxr, task in enumerate(tasks, start=1):
 
-            if not source_wxr.contains(task.source_url):
+            if not source_wxr.contains(task.source_pattern):
                 continue
 
             dest_moniker = site_moniker(task.destination_site)
@@ -125,7 +125,7 @@ if __name__ == '__main__':
                 destination_xml_path = increment_xml_file_path(destination_xml_path)
 
             DestinationWXR(destination_xml_path, source_wxr).create(
-                filter=task.source_url_full,
+                filter=task.source_pattern,
                 add_structure=task.relative_uri,
                 new_url=task.destination_site + task.relative_uri
             )

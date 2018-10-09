@@ -75,7 +75,7 @@ class VentilationTodo:
 
             source_url = line['source']
 
-            self.source_url_full = source_url
+            self.source_pattern = source_url
 
             # all pages requested - end character * must be deleted
             if source_url.endswith("*"):
