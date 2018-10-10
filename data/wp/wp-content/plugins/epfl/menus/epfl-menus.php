@@ -1100,32 +1100,11 @@ class MenuItemController extends CustomPostTypeController
     }
 
     /**
-     * Make the "edit" screen for menu objects show the custom
-     * main-matter widget and an auto-fields meta box (see @link
-     * \EPFL\AutoFields\AutoFieldsController)
+     * Make the "edit" screen for menu objects show an auto-fields
+     * meta box (see @link \EPFL\AutoFields\AutoFieldsController)
      */
     public static function register_meta_boxes () {
-        $this_class = get_called_class();
-
-        static::add_meta_box('edit', __x('External Menu', 'Post edit metabox'));
-
         static::_auto_fields_controller()->add_meta_boxes();
-    }
-
-    /**
-     * Render the meta box appearing as the main matter on the "edit"
-     * screen for epfl-external-menu custom post type.
-     */
-    public static function render_meta_box_edit () {
-        global $post;
-        ?>
-        <div class="edit-external-menu">
-		<p id="menu-item-url-wrap" class="wp-clearfix">
-			<label class="howto" for="custom-menu-item-url"><?php _e( 'Menu appearance' ); ?></label>
-			<img src='http://www.creditlenders.info/wp-content/uploads/stock-image-our-pick-of-the-best-worst-stock-images-sutton-silver.jpg' style='max-width: 100px;'>
-		</p>
-        </div>
- <?php
     }
 
     private static function capabilities_for_edit_but_not_create () {
@@ -1254,49 +1233,11 @@ window.wp.translations = {
 class MenuEditorController
 {
     function hook () {
-        add_action('admin_init', array(get_called_class(), 'add_meta_box'));
-
         add_action('admin_enqueue_scripts', function() {
             if (get_current_screen()->base === 'nav-menus') {
                 _MenusJSApp::load();
             }
         });
-    }
-
-    function add_meta_box () {
-        add_meta_box('add-epfl-external-menu',
-                     __x('External Menu', 'Add to menu'),
-                     array(get_called_class(), 'render_meta_box'),
-                     'nav-menus', 'side', 'default');
-    }
-
-    /**
-     * Render the left-hand-side meta box that lets one add an
-     * external menu item to the menu.
-     */
-    public static function render_meta_box () {
-        ?>
-	<div class="add-external-menu">
-		<input type="hidden" value="custom" name="menu-item[<?php echo $_nav_menu_placeholder; ?>][menu-item-type]" />
-		<p id="menu-item-url-wrap" class="wp-clearfix">
-			<label class="howto" for="custom-menu-item-url"><?php _e( 'Menu appearance' ); ?></label>
-			<img src='http://www.creditlenders.info/wp-content/uploads/stock-image-our-pick-of-the-best-worst-stock-images-sutton-silver.jpg' style='max-width: 100px;'>
-		</p>
-
-		<p id="menu-item-name-wrap" class="wp-clearfix">
-			<label class="howto" for="custom-menu-item-name"><?php __e( 'Menu URL' ); ?></label>
-			<input id="custom-menu-item-name" name="menu-item[<?php echo $_nav_menu_placeholder; ?>][menu-item-title]" type="text" class="regular-text menu-item-textbox" />
-		</p>
-
-		<p class="button-controls wp-clearfix">
-			<span class="add-to-menu">
-				<input type="submit"<?php wp_nav_menu_disabled_check( $nav_menu_selected_id ); ?> class="button submit-add-to-menu right" value="<?php esc_attr_e('Add to Menu'); ?>" name="add-custom-menu-item" id="submit-externalmenudiv" />
-			</span>
-		</p>
-
-	</div><!-- /.externalmenudiv -->
-
-        <?php
     }
 }
 
