@@ -91,7 +91,7 @@ class SshRemoteHost:
         if discover_site_path:
             remote_subdir_initial = remote_subdir
             while (self.run_ssh(
-                'test -d ' + os.path.join(remote_base, remote_subdir) + '/wp-admin',
+                'test -d ' + os.path.join(remote_base, remote_subdir, 'wp-admin'),
                     check=False).returncode):
                 if remote_subdir == '':
                     raise Exception(
