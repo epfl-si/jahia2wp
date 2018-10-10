@@ -143,7 +143,7 @@ if __name__ == '__main__':
             DestinationWXR(destination_xml_path, source_wxr).create(
                 filter=task.source_pattern,
                 add_structure=task.relative_uri,
-                new_url=task.destination_site + task.relative_uri
+                new_url=task.destination_site
             )
             output_count_for_this_source_wxr += 1
 
