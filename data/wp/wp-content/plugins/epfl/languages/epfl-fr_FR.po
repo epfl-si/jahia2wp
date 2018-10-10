@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-10-10 11:00+0200\n"
-"PO-Revision-Date: 2018-10-10 11:02+0200\n"
+"POT-Creation-Date: 2018-10-10 11:21+0200\n"
+"PO-Revision-Date: 2018-10-10 11:21+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -41,26 +41,32 @@ msgid "Text introducing the contact informations (optional)"
 msgstr "Texte d'introduction (optionnel)"
 
 #: epfl-contact/shortcake-config.php:16
+#, fuzzy
+#| msgid "Wrap with a grey border"
+msgid "Wrap with a gray border"
+msgstr "Entourer d'un cadre gris"
+
+#: epfl-contact/shortcake-config.php:23
 msgid "Timetable"
 msgstr "Horaire"
 
-#: epfl-contact/shortcake-config.php:17
+#: epfl-contact/shortcake-config.php:24
 msgid "Lundi à jeudi <b>09:00 › 18:00</b>"
 msgstr "Monday to thursday <b>09.00 am > 18.00 pm</b>"
 
-#: epfl-contact/shortcake-config.php:28
+#: epfl-contact/shortcake-config.php:35
 msgid "Various information"
 msgstr "Divers"
 
-#: epfl-contact/shortcake-config.php:44
+#: epfl-contact/shortcake-config.php:51
 msgid "What map information do you want to display?"
 msgstr "Lieu pour la carte"
 
-#: epfl-contact/shortcake-config.php:48 epfl-map/epfl-map.php:94
+#: epfl-contact/shortcake-config.php:55 epfl-map/epfl-map.php:94
 msgid "A room for example"
 msgstr "Par exemple une salle"
 
-#: epfl-contact/shortcake-config.php:58
+#: epfl-contact/shortcake-config.php:65
 msgid "Contact"
 msgstr ""
 

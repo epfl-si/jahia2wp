@@ -12,6 +12,13 @@ function get_contact_shortcake_attributes() {
                     ]
     );
 
+    array_push($shortcake_attributes, [
+                    'label'         => esc_html__('Wrap with a gray border', 'epfl'),
+                    'attr'          => 'gray_wrapper',
+                    'type'          => 'checkbox',
+                    ]
+    );
+
     for ($i = 1; $i < 5; $i++) {
         $label = ($i == 1) ? '<h3>' . esc_html__('Timetable', 'epfl') . ' 1</h3>' : esc_html__('Timetable', 'epfl') . ' '.$i;
         $description = ($i == 1) ? esc_html__('Lundi à jeudi <b>09:00 › 18:00</b>', 'epfl') : '';
