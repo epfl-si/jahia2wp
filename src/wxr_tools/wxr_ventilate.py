@@ -189,10 +189,15 @@ class Ventilator:
         current_id = 0
         path_so_far = ""
         for path_component in path_components:
-            path_so_far += path_component + "/"
+            if path_so_far:
+                path_so_far = path_so_far + "/"
+            path_so_far += path_component
             structural_page = Page.insert_structural(
                 self.etree, path_component)
-            structural_page.guid = self.new_root_url + path_so_far
+            # Abuse the <guid> to hold a relative link.
+            # See ../importer.php for the corresponding logic and
+            # explanation.
+            structural_page.guid = path_so_far
             structural_page.post_title = '[%s]' % path_component
             structural_page.parent_id = current_id
             current_id = structural_page.id
