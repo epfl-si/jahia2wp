@@ -88,14 +88,20 @@ class SiteBag:
             raise KeyError(url)
 
     def add_source(self, url):
-        m = self._create_unique_moniker(url, 'src')
-        self.source_urls[url] = m
-        return m
+        if url in self.source_urls:
+            return self.source_urls[url]
+        else:
+            m = self._create_unique_moniker(url, 'src')
+            self.source_urls[url] = m
+            return m
 
     def add_target(self, url):
-        m = self._create_unique_moniker(url)
-        self.target_urls[url] = m
-        return m
+        if url in self.target_urls:
+            return self.target_urls[url]
+        else:
+            m = self._create_unique_moniker(url)
+            self.target_urls[url] = m
+            return m
 
     def _create_unique_moniker(self, url, disambiguator=None):
         m = self._get_moniker_stem(url)
