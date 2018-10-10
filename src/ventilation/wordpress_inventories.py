@@ -72,7 +72,7 @@ class VentilationTodo:
     """A list of action items for ventilation, materialized as a CSV file."""
 
     class Item:
-        """ Line of csv ventilation.csv """
+        """One line in the CSV file."""
 
         def __init__(self, line):
 
