@@ -812,6 +812,7 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
             if (! $this->meta()->get_sync_started_failing()) {
                 $this->meta()->set_sync_started_failing(time());
             }
+            return false;
         }
     }
 
