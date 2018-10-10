@@ -34,7 +34,7 @@ if __name__ == '__main__':
     sys.path.append(dirname(dirname(os.path.realpath(__file__))))
 
 from utils import Utils        # noqa: E402
-from ops import SshRemoteHost  # noqa: E402
+from ops import SshRemoteSite  # noqa: E402
 
 
 class SiteBag:
@@ -133,7 +133,7 @@ class SiteBag:
         hostname = parsed.netloc.split('.')[0]
         if hostname not in ('migration-wp', 'www2018'):
             return hostname
-        return re.search('/([^/]*)/?$', parsed.path).group(1)
+        return re.search('([^/]*)/?$', parsed.path).group(1)
 
 
 class AnsibleGroup:
@@ -143,12 +143,15 @@ class AnsibleGroup:
     def has_wordpress(self, designated_name):
         return designated_name in self.hosts
 
-    def add_wordpress_by_url(self, moniker, url, discover_site_path=False):
-        ssh = SshRemoteHost.for_url(url)
-        ansible_params = copy.copy(ssh.as_ansible_params(
-            url,
-            discover_site_path=discover_site_path))
-        self.hosts[moniker] = ansible_params
+    def add_wordpress_by_url(self, moniker, site):
+        self.hosts[moniker] = dict(
+            ansible_host=site.host,
+            ansible_port=site.port,
+            # The other properties of SshRemoteSite just happen to
+            # be aligned with ours.
+            wp_hostname=site.wp_hostname,
+            wp_env=site.wp_env,
+            wp_path=site.wp_path)
 
     def save(self, target):
         group_name = basename(target)
@@ -178,20 +181,15 @@ class VentilationTodo:
 
             self.source_pattern = source_url
 
-            # all pages requested - end character * must be deleted
             if source_url.endswith("*"):
+                # all pages requested - end character * must be deleted
                 self.one_page = False
                 self.source_url = source_url.rstrip('*')
 
-            # single page requested - source url must be URL of WP site
             else:
-
+                # single page requested - source url must be URL of WP site
                 self.one_page = True
-
-                if source_url.endswith("/"):
-                    source_url = source_url[0:-1]
-
-                self.source_url = os.path.split(source_url)[0] + "/"
+                self.source_url = source_url
 
             self.destination_site = line['destination_site']
             self.relative_uri = line['relative_uri']
@@ -215,17 +213,22 @@ if __name__ == '__main__':
     todo = VentilationTodo(args['<ventilation_csv_file>'])
     bag = SiteBag()
     for task in todo.items:
+        # For targets, we know the URL ahead of time (and using
+        # discover_site_path would do us no good, as the target
+        # site may not exist yet)
         url = task.destination_site
         moniker = bag.add_target(url)
-        targets.add_wordpress_by_url(moniker, url)
+        site = SshRemoteSite(url)
+        targets.add_wordpress_by_url(moniker, site)
     # Add sources second, because we want to disambiguate with 'src'
     # (rationale: we don't usually want to type in the name of a source;
     # on the other hand we do want to set wp_destructive with the names
     # of the targets)
     for task in todo.items:
-        url = task.source_url
+        site = SshRemoteSite(task.source_url, discover_site_path=True)
+        url = site.get_url()
         moniker = bag.add_source(url)
-        sources.add_wordpress_by_url(moniker, url, discover_site_path=True)
+        sources.add_wordpress_by_url(moniker, site)
     sources.save(args['--sources'])
     targets.save(args['--targets'])
     bag.save()
