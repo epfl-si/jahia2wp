@@ -80,6 +80,7 @@ class SiteBag:
         return "./wxr_inventory.pickle"
 
     def get_ansible_moniker(self, url):
+        url = self._canonicalize_url(url)
         if url in self.source_urls:
             return self.source_urls[url]
         elif url in self.target_urls:
@@ -88,6 +89,7 @@ class SiteBag:
             raise KeyError(url)
 
     def add_source(self, url):
+        url = self._canonicalize_url(url)
         if url in self.source_urls:
             return self.source_urls[url]
         else:
@@ -96,12 +98,18 @@ class SiteBag:
             return m
 
     def add_target(self, url):
+        url = self._canonicalize_url(url)
         if url in self.target_urls:
             return self.target_urls[url]
         else:
             m = self._create_unique_moniker(url)
             self.target_urls[url] = m
             return m
+
+    def _canonicalize_url(self, url):
+        if not url.endswith('/'):
+            url = url + '/'
+        return url
 
     def _create_unique_moniker(self, url, disambiguator=None):
         m = self._get_moniker_stem(url)
