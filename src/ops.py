@@ -3,7 +3,7 @@
 # All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017
 
 """Model what test and prod look like on OpenShift"""
-
+import logging
 from memoize import mproperty
 from urllib.parse import urlparse
 import subprocess
@@ -19,7 +19,7 @@ class SshRemoteHost:
 
     def run_ssh(self, args, **kwargs):
         ssh_boilerplate = [
-            'ssh', '-Aq', '-T',
+            'ssh', '-A', '-T',
             '-o', 'BatchMode=yes',
             '-o', 'ConnectTimeout=1', '-p', str(self.port), 'www-data@' + self.host]
         if isinstance(args, list):
@@ -27,7 +27,7 @@ class SshRemoteHost:
         else:
             args = ' '.join(ssh_boilerplate) + ' ' + args
             kwargs['shell'] = True
-        return subprocess.run(args, stdout=subprocess.PIPE, **kwargs)
+        return subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs)
 
     @mproperty
     def ping(self):
@@ -90,9 +90,14 @@ class SshRemoteHost:
 
         if discover_site_path:
             remote_subdir_initial = remote_subdir
-            while (self.run_ssh(
-                'test -d ' + os.path.join(remote_base, remote_subdir, 'wp-admin'),
-                    check=False).returncode):
+            while True:
+                remote_cmd = 'test -d ' + os.path.join(remote_base, remote_subdir, 'wp-admin')
+                ssh = self.run_ssh(remote_cmd, check=False)
+                if ssh.returncode == 0:
+                    break
+                elif ssh.returncode != 1:
+                    logging.error(ssh.stderr)
+                    raise Exception("Unable to connect ({}): {}".format(remote_cmd, ssh.stderr))
                 if remote_subdir == '':
                     raise Exception(
                         'Unable to find Wordpress for %s (started at %s/%s)' %
