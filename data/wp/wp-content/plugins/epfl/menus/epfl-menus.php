@@ -720,6 +720,7 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
     static function get ($what) {
         if (is_object($what)
             and ($what->post_type === 'nav_menu_item')
+            and ($what->object_id)
             and ($what->object === static::get_post_type()))
         {
             return parent::get($what->object_id);
