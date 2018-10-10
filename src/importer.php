@@ -120,13 +120,15 @@ function _find_page_by_relative_url ($relative_url) {
         'post_type' => 'page',
         'pagename' => $slug));  # Search by slug
 
-    $needle = "/$relative_url";
-
     foreach ($query->get_posts() as $result) {
         $permalink = get_the_permalink($result);
-        if (strrpos($permalink, $needle, 0) ===
-            strlen($permalink) - strlen($needle)) {
+        if (_ends_with($permalink, "/$relative_url")) {
             return $result;
         }
     }
+}
+
+function _ends_with($haystack ,$needle) {
+    $expected_position = strlen($haystack) - strlen($needle);
+    return strrpos($haystack, $needle, 0) === $expected_position;
 }
