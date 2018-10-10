@@ -4,8 +4,14 @@
 
 """wordpress_inventories.py: Find where source Wordpresses reside from a CSV file.
 
-The CSV file must have a 'source' column with URLs in it.  Other columns are
-ignored.
+Turn this information into a pair of Ansible inventory files.
+
+The CSV file must have 'source' and 'destination_site' columns with
+URLs in it. Values in the 'source' column are probed on the filesystem
+of the remote ssh host, in order to discover where the actual site is.
+Values in the 'destination_site' column are trusted at face value, so
+that this script may produce correct Ansible files even though the
+target sites may not exist yet.
 
 Usage:
   wordpress_inventories.py --sources=<sources_inventory_file> --targets=<targets_inventory_file> <ventilation_csv_file>
@@ -20,9 +26,12 @@ import re
 import copy
 from urllib.parse import urlparse
 
-dirname = os.path.dirname
-basename = os.path.basename
-sys.path.append(dirname(dirname(os.path.realpath(__file__))))
+# This script is being used both as a library and as a script.
+# Only fix up the sys.path in the latter case.
+if __name__ == '__main__':
+    dirname = os.path.dirname
+    basename = os.path.basename
+    sys.path.append(dirname(dirname(os.path.realpath(__file__))))
 
 from utils import Utils        # noqa: E402
 from ops import SshRemoteHost  # noqa: E402
@@ -35,10 +44,12 @@ class AnsibleGroup:
     def has_wordpress(self, designated_name):
         return designated_name in self.hosts
 
-    def add_wordpress_by_url(self, url):
+    def add_wordpress_by_url(self, url, discover_site_path=False):
         ssh = SshRemoteHost.for_url(url)
         moniker = site_moniker(url)
-        ansible_params = copy.copy(ssh.as_ansible_params(url))
+        ansible_params = copy.copy(ssh.as_ansible_params(
+            url,
+            discover_site_path=discover_site_path))
         self.hosts[moniker] = ansible_params
 
     def save(self, target):
@@ -62,11 +73,12 @@ class VentilationTodo:
 
     class Item:
         """ Line of csv ventilation.csv """
+
         def __init__(self, line):
 
             source_url = line['source']
 
-            self.source_url_full = source_url
+            self.source_pattern = source_url
 
             # all pages requested - end character * must be deleted
             if source_url.endswith("*"):
@@ -115,7 +127,7 @@ if __name__ == '__main__':
     sources = AnsibleGroup()
     targets = AnsibleGroup()
     for task in VentilationTodo(args['<ventilation_csv_file>']).items:
-        sources.add_wordpress_by_url(task.source_url)
+        sources.add_wordpress_by_url(task.source_url, discover_site_path=True)
         targets.add_wordpress_by_url(task.destination_site)
     sources.save(args['--sources'])
     targets.save(args['--targets'])

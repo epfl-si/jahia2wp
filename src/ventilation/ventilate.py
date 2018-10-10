@@ -17,21 +17,38 @@ import sys
 import subprocess
 import lxml.etree
 from urllib.parse import urlparse, urlunparse
-import fnmatch
 from docopt import docopt
 import logging
-
-from ventilation.wordpress_inventories import VentilationTodo
 
 dirname = os.path.dirname
 sys.path.append(dirname(dirname(os.path.realpath(__file__))))
 
-from utils import Utils                         # noqa: E402
-from wordpress_inventories import site_moniker  # noqa: E402
+from utils import Utils                                          # noqa: E402
+from wordpress_inventories import site_moniker, VentilationTodo  # noqa: E402
+
+
+def _increment_xml_file_path(xml_file_path):
+    """
+    Return the next incremental name xml file.
+
+    Example:
+    input: xml_file_path: help-actu_1.xml
+    output: help-actu_2.xml
+
+    :param xml_file_path: path of xml file
+
+    :return: next incremental name xml name
+    """
+    index = 1
+    path = xml_file_path.replace(".xml", "") + "_{}.xml"
+    while os.path.exists(path.format(index)):
+        index += 1
+    return path.format(index)
 
 
 class SourceWXR:
     """Model for one of the files in <wxr_sourcedir>"""
+
     def __init__(self, path):
         self.path = path
 
@@ -46,14 +63,14 @@ class SourceWXR:
         url_obj = urlparse(self._etree.xpath('/rss/channel/link')[0].text)
         return urlunparse(url_obj._replace(scheme='https')).rstrip('/') + '/'
 
-    def contains(self, pattern):
-        """True if `pattern' matches the WordPress site of this WXR file.
+    def intersects(self, pattern):
+        """True if `pattern' can match any page in the WordPress site of this WXR file.
 
         Args:
           pattern: A pattern excerpted from the left-hand-side column
                    (`source') of the ventilation CSV file
         """
-        return fnmatch.fnmatch(self.root_url, pattern)
+        return pattern.startswith(self.root_url)
 
     def __repr__(self):
         return '<%s "%s">' % (self.__class__.__name__, self.path)
@@ -61,6 +78,7 @@ class SourceWXR:
 
 class DestinationWXR:
     """Model for one of the files in <wxr_destdir>"""
+
     def __init__(self, dest_file, source_wxr):
         self.source_file = source_wxr.path
         self.path = dest_file
@@ -105,9 +123,10 @@ if __name__ == '__main__':
         logging.debug('Processing source WXR file %s for %s ("%s")',
                       source_wxr.path, source_wxr.root_url, source_moniker)
 
-        for output_count_for_this_source_wxr, task in enumerate(tasks):
+        output_count_for_this_source_wxr = 0
+        for task in tasks:
 
-            if not source_wxr.contains(task.source_url):
+            if not source_wxr.intersects(task.source_pattern):
                 continue
 
             dest_moniker = site_moniker(task.destination_site)
@@ -118,12 +137,18 @@ if __name__ == '__main__':
                 source_moniker
             )
 
+            if os.path.exists(destination_xml_path):
+                destination_xml_path = _increment_xml_file_path(destination_xml_path)
+
             DestinationWXR(destination_xml_path, source_wxr).create(
-                filter=task.source_url_full,
+                filter=task.source_pattern,
                 add_structure=task.relative_uri,
                 new_url=task.destination_site + task.relative_uri
             )
+            output_count_for_this_source_wxr += 1
 
-        logging.info('Created %d XML files for %s',
-                     output_count_for_this_source_wxr,
-                     source_moniker)
+        logging.info(
+            'Created %d XML files for %s',
+            output_count_for_this_source_wxr,
+            source_moniker
+        )

@@ -25,9 +25,14 @@ Options:
 from docopt import docopt
 import lxml.etree
 from urllib.parse import urlparse, urlunparse
+import os
+import sys
 
-from wxr_tools.wxr_model import Channel, Page, NavMenu, NavMenuItem, Item
-from wxr_tools.xml import xml_to_string
+dirname = os.path.dirname
+sys.path.append(dirname(dirname(os.path.realpath(__file__))))
+
+from wxr_tools.wxr_model import Channel, Page, NavMenu, NavMenuItem, Item  # noqa: E402
+from wxr_tools.xml import xml_to_string                                    # noqa: E402
 
 
 def normalize_site_url(url_text):
@@ -85,6 +90,12 @@ class Ventilator:
                         item.delete()
                     else:
                         unique_page = item
+            else:
+                url = ventilate_filter.rstrip('*')
+
+                for item in Item.all(self.etree):
+                    if url not in item.link or url == item.link:
+                        item.delete()
 
         if self.flags['--add-structure']:
             path_components = self.flags['--add-structure'].split('/')
