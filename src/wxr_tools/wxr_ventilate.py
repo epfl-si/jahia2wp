@@ -136,7 +136,7 @@ class Ventilator:
                         if not p.parent_id:
                             p.parent_id = reparent_under
 
-            if ventilate_filter and not ventilate_filter.endswith("*"):
+            if ventilate_filter and not keep_children:
                 # Single page requested - we don't want menus
                 for menu in NavMenu.all(self.etree):
                     menu.delete()
