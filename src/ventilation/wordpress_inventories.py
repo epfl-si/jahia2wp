@@ -21,7 +21,6 @@ from docopt import docopt
 import os
 import sys
 import re
-import copy
 from urllib.parse import urlparse
 import itertools
 import pickle
