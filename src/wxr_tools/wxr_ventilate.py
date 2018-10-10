@@ -15,7 +15,7 @@ gets invoked once per line in the governing CSV file, and produces
 exactly one XML file per run on standard output.
 
 Usage:
-  wxr-ventilate.py [options] --new-site-url-base=<url> <input_xml_file>
+  wxr_ventilate.py [options] --new-site-url-base=<url> <input_xml_file>
 
 Options:
    --filter=<url>
@@ -25,10 +25,14 @@ Options:
 from docopt import docopt
 import lxml.etree
 from urllib.parse import urlparse, urlunparse
-import logging
+import os
+import sys
 
-from wxr_model import Channel, Page, NavMenu, NavMenuItem, Item
-from xml import xml_to_string
+dirname = os.path.dirname
+sys.path.append(dirname(dirname(os.path.realpath(__file__))))
+
+from wxr_tools.wxr_model import Channel, Page, NavMenu, NavMenuItem, Item  # noqa: E402
+from wxr_tools.xml import xml_to_string                                    # noqa: E402
 
 
 def normalize_site_url(url_text):
@@ -65,10 +69,33 @@ class Ventilator:
 
         Returns: The lxml etree object.
         """
-        if self.flags['--filter']:
-            logging.warn('UNIMPLEMENTED: --filter')
 
-        homepage = self.homepageify()
+        unique_page = None
+
+        ventilate_filter = self.flags['--filter']
+
+        if ventilate_filter:
+
+            # if not star => we try to ventilate on page
+            if not ventilate_filter.endswith("*"):
+
+                url_page = ventilate_filter
+                if not url_page.endswith('/'):
+                    url_page += "/"
+
+                # Delete all nodes except node corresponding
+                # to page to ventilate
+                for item in Item.all(self.etree):
+                    if item.guid != url_page:
+                        item.delete()
+                    else:
+                        unique_page = item
+            else:
+                url = ventilate_filter.rstrip('*')
+
+                for item in Item.all(self.etree):
+                    if url not in item.link or url == item.link:
+                        item.delete()
 
         if self.flags['--add-structure']:
             path_components = self.flags['--add-structure'].split('/')
@@ -78,19 +105,30 @@ class Ventilator:
 
             assert len(path_components) > 0
 
-            if homepage is not None:
+            if unique_page:
                 reparent_under = self.add_structure(path_components[:-1])
-                for p in homepage.translations_list:
-                    p.parent_id = reparent_under
-                    p.post_slug = path_components[-1] + (
-                        '' if p.id == homepage.id else p.language)
+                unique_page.parent_id = reparent_under
             else:
-                reparent_under = self.add_structure(path_components)
-                for p in Page.all(self.etree):
-                    if not p.parent_id:
+                homepage = self.homepageify()
+                if homepage is not None:
+                    reparent_under = self.add_structure(path_components[:-1])
+                    for p in homepage.translations_list:
                         p.parent_id = reparent_under
+                        p.post_slug = path_components[-1] + (
+                            '' if p.id == homepage.id else p.language)
+                else:
+                    reparent_under = self.add_structure(path_components)
+                    for p in Page.all(self.etree):
+                        if not p.parent_id:
+                            p.parent_id = reparent_under
 
-            self.trim_and_reparent_menus()
+            if ventilate_filter and not ventilate_filter.endswith("*"):
+                # Single page requested - we don't want menus
+                for menu in NavMenu.all(self.etree):
+                    menu.delete()
+            else:
+                # All pages requested
+                self.trim_and_reparent_menus()
 
         return self.etree
 

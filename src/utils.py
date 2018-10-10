@@ -10,8 +10,9 @@ import csv
 import string
 import binascii
 import random
-import xml.dom.minidom
 import re
+import xml.dom.minidom
+
 import requests
 
 

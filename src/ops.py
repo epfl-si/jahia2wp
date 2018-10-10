@@ -21,7 +21,7 @@ class SshRemoteHost:
         ssh_boilerplate = [
             'ssh', '-Aq', '-T',
             '-o', 'BatchMode=yes',
-            '-o', 'ConnectTimeout=1', '-p', str(self.port), self.host]
+            '-o', 'ConnectTimeout=1', '-p', str(self.port), 'www-data@' + self.host]
         if isinstance(args, list):
             args = ssh_boilerplate + args
         else:
@@ -48,7 +48,21 @@ class SshRemoteHost:
         else:
             return cls.prod.ping
 
-    def as_ansible_params(self, url):
+    def as_ansible_params(self, url, discover_site_path=False):
+        """Interpret url relative to this SshRemoteHost as Ansible parameters.
+
+        @param url The URL of either the site itself (if
+                   discover_site_path is False), or of any page inside the
+                   site
+
+        @param discover_site_path If True, don't trust `url` to be the actual
+                                  URL of the site; instead, walk directories
+                                  over ssh to discover it.
+
+        @return A dict with keys `ansible_host`, `ansible_port`, `wp_env`,
+        `wp_hostname` and `wp_path`.
+        """
+
         hostname = self._extract_hostname(url)
         if hostname == 'migration-wp.epfl.ch':
             assert self is SshRemoteHost.test
@@ -73,15 +87,17 @@ class SshRemoteHost:
 
         remote_base = os.path.join('/srv', wp_env, wp_hostname, 'htdocs')
         remote_subdir = urlparse(url).path.lstrip('/')
-        remote_subdir_initial = remote_subdir
-        while not (self.run_ssh(
-                'test -f ' + os.path.join(remote_base, remote_subdir),
-                check=False)):
-            if remote_subdir == '':
-                raise Exception(
-                    'Unable to find Wordpress for %s (started at %s/%s)',
-                    remote_base, remote_subdir_initial)
-            remote_subdir = os.path.dirname(remote_subdir)
+
+        if discover_site_path:
+            remote_subdir_initial = remote_subdir
+            while (self.run_ssh(
+                'test -d ' + os.path.join(remote_base, remote_subdir, 'wp-admin'),
+                    check=False).returncode):
+                if remote_subdir == '':
+                    raise Exception(
+                        'Unable to find Wordpress for %s (started at %s/%s)' %
+                        (self.moniker, remote_base, remote_subdir_initial))
+                remote_subdir = os.path.dirname(remote_subdir)
 
         retval['wp_path'] = remote_subdir
 

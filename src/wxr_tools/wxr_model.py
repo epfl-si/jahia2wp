@@ -8,12 +8,12 @@ import phpserialize
 from urllib.parse import urlparse
 import lxml.etree
 
-from basics import sole, sole_or_none, Delegator
-import xml
+from wxr_tools.basics import sole, sole_or_none, Delegator
+from wxr_tools.xml import XMLNamespaces, xml_to_string
 
 __all__ = ('Channel', 'NavMenu', 'NavMenuItem', 'Page')
 
-wp_namespaces = xml.XMLNamespaces(
+wp_namespaces = XMLNamespaces(
     content='http://purl.org/rss/1.0/modules/content/',
     dc='http://purl.org/dc/elements/1.1/',
     wp='http://wordpress.org/export/1.2/',
@@ -158,7 +158,7 @@ class XMLElementSubset(Delegator):
     """
     def __repr__(self):
         return '[%s %s]' % (self.__class__.__name__,
-                            xml.xml_to_string(self._elt))
+                            xml_to_string(self._elt))
 
 
 class ItemSubset(XMLElementSubset):
