@@ -382,19 +382,23 @@ class MenuItemBag
  * for EPFL-style menu stitching.
  */
 class Menu {
+    static function by_term ($term_or_term_id) {
+        if (is_object($term_or_term_id)) {
+            $term_id = $term_or_term_id->term_id;
+        } else {
+            $term_id = $term_or_term_id;
+        }
+
+        $thisclass = get_called_class();
+        return new $thisclass($term_id);
+    }
+
     private function __construct ($term_id) {
         if ($term_id > 0) {
             $this->term_id = $term_id;
         } else {
             throw new \Error("Bogus term ID $term_id");
         }
-    }
-
-    /**
-     * @return A site-wide unique integer ID for this Menu
-     */
-    function get_term_id () {
-        return $this->term_id;
     }
 
     /**
@@ -412,15 +416,11 @@ class Menu {
         return array_values($all);
     }
 
-    static function by_term ($term_or_term_id) {
-        if (is_object($term_or_term_id)) {
-            $term_id = $term_or_term_id->term_id;
-        } else {
-            $term_id = $term_or_term_id;
-        }
-
-        $thisclass = get_called_class();
-        return new $thisclass($term_id);
+    /**
+     * @return A site-wide unique integer ID for this Menu
+     */
+    function get_term_id () {
+        return $this->term_id;
     }
 
     /**
@@ -549,8 +549,9 @@ class Menu {
  */
 class MenuMapEntry
 {
-    function __construct($term_or_term_id, $theme_location, $description,
-                         $language = NULL) {
+    private function __construct(
+        $term_or_term_id, $theme_location, $description, $language = NULL)
+    {
         $this->menu = Menu::by_term($term_or_term_id);
         $this->theme_location = $theme_location;
         $this->description = $description;
