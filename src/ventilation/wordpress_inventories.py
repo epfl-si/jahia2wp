@@ -116,7 +116,7 @@ def site_moniker(url):
     hostname = parsed.netloc.split('.')[0]
     if hostname not in ('migration-wp', 'www2018'):
         return hostname
-    return re.search('^/([^/]*)/', parsed.path).group(1)
+    return re.search('/([^/]*)/?$', parsed.path).group(1)
 
 
 if __name__ == '__main__':
