@@ -154,35 +154,77 @@ class MenuItemBag
 
     /**
      * Pluck all items in MenuItemBag that match $callable_predicate,
-     * and return them separately from the pruned tree
+     * and return them separately from the pruned tree. Discard
+     * now-dangling descendants of the plucked items.
      *
      * @param $callable_predicate A callable that takes a $item as the
      *        sole parameter, and returns a true value for items to
      *        remove from the tree, and a false value for those to
-     *        keep.
+     *        keep. Items that are descendants of an item for which
+     *        $callable_predicate returned true, will be discarded
+     *        (regardless of what $callable_predicate returned for them,
+     *        if indeed $callable_predicate was called at all for them
+     *        which is left unspecified)
      *
      * @return A pair of the form array($pruned_tree, $removed) where
      *         $pruned_tree is a newly created copy of the pruned tree
      *         (or $this if $callable_predicate never returned true),
      *         and $removed is the list of items for which
-     *         $callable_predicate returned a true value.
+     *         $callable_predicate returned a true value (*not* the
+     *         descendants thereof).
      */
     function pluck ($callable_predicate) {
-        $remaining = array();
+        $remaining_candidates = array();
+
         $pruned = array();
         foreach ($this->items as $item) {
             if (call_user_func($callable_predicate, $item)) {
-                $pruned[] = $item;
+                $pruned[$this->_get_id($item)] = $item;
             } else {
-                $remaining[] = $item;
+                $remaining_candidates[] = $item;
             }
         }
-        if (count($pruned)) {
-            $thisclass = get_called_class();
-            return array(new $thisclass($remaining), $pruned);
-        } else {
-            return array($this, []);  // No change to $this
+
+        if (! count($pruned)) {
+            return array($this, []);  // No change
         }
+
+        // Keep descendants of $pruned out of $remaining
+        $remaining = array();
+        foreach ($remaining_candidates as $rc) {
+            for ($ancestor = $rc; $ancestor;
+                 $ancestor = $this->get_parent($ancestor))
+            {
+                $ancestor_id = $this->_get_id($ancestor);
+                if ($pruned[$ancestor_id]) continue;
+            }
+            $remaining[] = $rc;
+        }
+
+        $thisclass = get_called_class();
+        return array(new $thisclass($remaining), $pruned);
+    }
+
+    /**
+     * Apply a function on each item in this MenuItemBag.
+     *
+     * @param $func A callable that takes a $item as the sole
+     *        parameter, and returns either a menu item (with a type
+     *        and structure similar to $item) or NULL
+     *
+     * @return A new MenuItemBag made out of all the non-NULL values
+     *         returned by $func
+     */
+    function map ($func) {
+        $mapped_items = array();
+        foreach ($this->items as $item) {
+            $mapped_item = call_user_func($func, $item);
+            if ($mapped_item !== NULL) {
+                $mapped_items[] = $mapped_item;
+            }
+        }
+        $thisclass = get_called_class();
+        return new $thisclass($mapped_items);
     }
 
     /**
