@@ -74,10 +74,20 @@ class Ventilator:
 
         ventilate_filter = self.flags['--filter']
 
+        if ventilate_filter.endswith("**"):
+            keep_children = True
+            keep_this_page = True
+        elif ventilate_filter.endswith("*"):
+            keep_children = True
+            keep_this_page = False
+        else:
+            keep_children = False
+            keep_this_page = False
+
         if ventilate_filter:
 
-            # if not star => we try to ventilate on page
-            if not ventilate_filter.endswith("*"):
+            if not keep_children:
+                # we try to ventilate one page
 
                 url_page = ventilate_filter
                 if not url_page.endswith('/'):
@@ -91,11 +101,15 @@ class Ventilator:
                     else:
                         unique_page = item
             else:
-                url = ventilate_filter.rstrip('*')
+                filter_url = ventilate_filter.rstrip('*')
 
                 for item in Item.all(self.etree):
-                    if url not in item.link or url == item.link:
-                        item.delete()
+                    if filter_url == item.link:
+                        if not keep_this_page:
+                            item.delete()
+                    elif filter_url in item.link:
+                        if not keep_children:
+                            item.delete()
 
         if self.flags['--add-structure']:
             path_components = self.flags['--add-structure'].split('/')
