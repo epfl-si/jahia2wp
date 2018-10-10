@@ -2,16 +2,14 @@
 # -*- coding: utf-8; -*-
 # All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017
 
-"""wordpress_inventories.py: Find where source Wordpresses reside from a CSV file.
+"""wordpress_inventories.py: Create Ansible inventories from the CSV file.
 
-Turn this information into a pair of Ansible inventory files.
-
-The CSV file must have 'source' and 'destination_site' columns with
-URLs in it. Values in the 'source' column are probed on the filesystem
-of the remote ssh host, in order to discover where the actual site is.
-Values in the 'destination_site' column are trusted at face value, so
-that this script may produce correct Ansible files even though the
-target sites may not exist yet.
+Create a pair of Ansible-compatible inventory files, picking short
+names for all sites that we know about (either by actually probing
+them for the 'source' column, or verbatim from the 'destination_site'
+column). If two such sites end up having the same name, disambiguate
+them and persist the mapping to disk for future invocations of the
+same code.
 
 Usage:
   wordpress_inventories.py --sources=<sources_inventory_file> --targets=<targets_inventory_file> <ventilation_csv_file>
@@ -25,6 +23,8 @@ import sys
 import re
 import copy
 from urllib.parse import urlparse
+import itertools
+import pickle
 
 # This script is being used both as a library and as a script.
 # Only fix up the sys.path in the latter case.
@@ -37,6 +37,98 @@ from utils import Utils        # noqa: E402
 from ops import SshRemoteHost  # noqa: E402
 
 
+class SiteBag:
+    """All the urls and monikers known to this invocation of the ventilation pipeline."""
+
+    def __init__(self):
+        self.used_monikers = set()
+        # Maps from URLs to Ansible monikers
+        self.source_urls = {}
+        self.target_urls = {}
+
+    def _persistable_fields(self):
+        return ('used_monikers', 'source_urls', 'target_urls')
+
+    @classmethod
+    def load(cls):
+        if not hasattr(cls, '_singleton'):
+            cls._singleton = cls()
+            cls._singleton._unpickle(pickle.load(open(cls._get_save_filename(), 'rb')))
+        return cls._singleton
+
+    def save(self):
+        pickle.dump(self._pickle(), open(self._get_save_filename(), 'wb'))
+
+    def _pickle(self):
+        """Returns a class-name-neutral copy of our state, using only standard Python types.
+
+        Fact is, it changes depending on whether we run wordpress_inventories.py as
+        a script or import it as a library.
+        """
+        state = dict()
+        for k in self._persistable_fields():
+            state[k] = getattr(self, k)
+        return state
+
+    def _unpickle(self, state):
+        for k in self._persistable_fields():
+            setattr(self, k, state[k])
+
+    @classmethod
+    def _get_save_filename(cls):
+        return "./wxr_inventory.pickle"
+
+    def get_ansible_moniker(self, url):
+        if url in self.source_urls:
+            return self.source_urls[url]
+        elif url in self.target_urls:
+            return self.target_urls[url]
+        else:
+            raise KeyError(url)
+
+    def add_source(self, url):
+        m = self._create_unique_moniker(url, 'src')
+        self.source_urls[url] = m
+        return m
+
+    def add_target(self, url):
+        m = self._create_unique_moniker(url)
+        self.target_urls[url] = m
+        return m
+
+    def _create_unique_moniker(self, url, disambiguator=None):
+        m = self._get_moniker_stem(url)
+
+        if m in self.used_monikers and disambiguator is not None:
+            m = '{}-{}'.format(m, disambiguator)
+
+        if m in self.used_monikers:
+            for d in itertools.count():
+                m_with_digit = '{}-{}'.format(m, d)
+                if m_with_digit not in self.used_monikers:
+                    m = m_with_digit
+                    break
+
+        self.used_monikers.add(m)
+        return m
+
+    def _get_moniker_stem(self, url):
+        """
+        Return
+        A short name that identifies this URL either in a file path (under wxr-ventilated/),
+        or in an Ansible hosts file.
+
+        Example:
+        url = "https://migration-wp.epfl.ch/help-actu/"
+        return "help-actu"
+        """
+        parsed = urlparse(url)
+        hostname = parsed.netloc.split('.')[0]
+        if hostname not in ('migration-wp', 'www2018'):
+            return hostname
+        return re.search('/([^/]*)/?$', parsed.path).group(1)
+
+
 class AnsibleGroup:
     def __init__(self):
         self.hosts = {}
@@ -44,9 +136,8 @@ class AnsibleGroup:
     def has_wordpress(self, designated_name):
         return designated_name in self.hosts
 
-    def add_wordpress_by_url(self, url, discover_site_path=False):
+    def add_wordpress_by_url(self, moniker, url, discover_site_path=False):
         ssh = SshRemoteHost.for_url(url)
-        moniker = site_moniker(url)
         ansible_params = copy.copy(ssh.as_ansible_params(
             url,
             discover_site_path=discover_site_path))
@@ -105,18 +196,9 @@ class VentilationTodo:
 def site_moniker(url):
     """
     Return
-    A short name that identifies this URL either in a file path (under wxr-ventilated/),
-    or in an Ansible hosts file.
-
-    Example:
-    url = "https://migration-wp.epfl.ch/help-actu/*"
-    return "help-actu"
+      The name already chosen for the site at `url`
     """
-    parsed = urlparse(url)
-    hostname = parsed.netloc.split('.')[0]
-    if hostname not in ('migration-wp', 'www2018'):
-        return hostname
-    return re.search('^/([^/]*)/', parsed.path).group(1)
+    return SiteBag.load().get_ansible_moniker(url)
 
 
 if __name__ == '__main__':
@@ -126,8 +208,20 @@ if __name__ == '__main__':
     # the case in prod.
     sources = AnsibleGroup()
     targets = AnsibleGroup()
-    for task in VentilationTodo(args['<ventilation_csv_file>']).items:
-        sources.add_wordpress_by_url(task.source_url, discover_site_path=True)
-        targets.add_wordpress_by_url(task.destination_site)
+    todo = VentilationTodo(args['<ventilation_csv_file>'])
+    bag = SiteBag()
+    for task in todo.items:
+        url = task.destination_site
+        moniker = bag.add_target(url)
+        targets.add_wordpress_by_url(moniker, url)
+    # Add sources second, because we want to disambiguate with 'src'
+    # (rationale: we don't usually want to type in the name of a source;
+    # on the other hand we do want to set wp_destructive with the names
+    # of the targets)
+    for task in todo.items:
+        url = task.source_url
+        moniker = bag.add_source(url)
+        sources.add_wordpress_by_url(moniker, url, discover_site_path=True)
     sources.save(args['--sources'])
     targets.save(args['--targets'])
+    bag.save()
