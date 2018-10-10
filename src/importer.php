@@ -93,31 +93,42 @@ function accumulate_and_transform ($buf, $phase) {
 # have been created by the EPFL XML processing pipeline, not by "wp
 # export". Unlike the default behavior for "normal" pages and posts,
 # identified by their title and creation date, we de-duplicate structural
-# items by their <guid> field (in the sense that importing the same
-# item again with the same <guid> has no effect).
-
-$EPFL_IMPORT_GUID_META = "epfl-ventilation-guid";
+# items by their <guid> field which is set by the ventilation pipeline to
+# the relative path to place this structural item at (relative to the
+# site root).
+#
+# If a page already exists at this path, return its ID in order to alias
+# to it (and the descendants in the source XML as well). If not,
+# returns 0, which Wordpress interprets as the request to create a new
+# page. You will then see a phony ancestor page that respects the
+# intended page hierarchy.
 
 function identify_structural_pages_by_guid ($post_exists_orig, $post)
 {
     if (! ($post->ID < 0)) return $post_exists_orig;
 
-    $query = new \WP_Query(array(
-        'post_type' => 'page',
-        'meta_query' => array(array(
-            'key'     => $EPFL_IMPORT_GUID_META,
-            'value'   => $post['guid'],
-            'compare' => '='
-        ))));
-    $results = $query->get_posts();
-    if (sizeof($results) >= 1) {
-        return $results[0]->ID;
+    if ($page = _find_page_by_relative_url($post['guid'])) {
+        return $page->ID;
     } else {
-        return 0;  # Unknown structural node, must insert
+        return 0;
     }
 }
 
-function record_guid ($post_id, $original_post_ID, $postdata, $post)
-{
-    update_post_meta($post_id, $EPFL_IMPORT_GUID_META, $postdata['guid']);
+function _find_page_by_relative_url ($relative_url) {
+    $slug = basename($relative_url);
+    $query = new \WP_Query(array(
+        'post_type' => 'page',
+        'pagename' => $slug));  # Search by slug
+
+    foreach ($query->get_posts() as $result) {
+        $permalink = get_the_permalink($result);
+        if (_ends_with($permalink, "/$relative_url")) {
+            return $result;
+        }
+    }
+}
+
+function _ends_with($haystack ,$needle) {
+    $expected_position = strlen($haystack) - strlen($needle);
+    return strrpos($haystack, $needle, 0) === $expected_position;
 }

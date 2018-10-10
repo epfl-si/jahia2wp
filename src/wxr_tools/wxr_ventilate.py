@@ -74,10 +74,20 @@ class Ventilator:
 
         ventilate_filter = self.flags['--filter']
 
+        if ventilate_filter.endswith("**"):
+            keep_children = True
+            keep_this_page = True
+        elif ventilate_filter.endswith("*"):
+            keep_children = True
+            keep_this_page = False
+        else:
+            keep_children = False
+            keep_this_page = False
+
         if ventilate_filter:
 
-            # if not star => we try to ventilate on page
-            if not ventilate_filter.endswith("*"):
+            if not keep_children:
+                # we try to ventilate one page
 
                 url_page = ventilate_filter
                 if not url_page.endswith('/'):
@@ -91,11 +101,15 @@ class Ventilator:
                     else:
                         unique_page = item
             else:
-                url = ventilate_filter.rstrip('*')
+                filter_url = ventilate_filter.rstrip('*')
 
                 for item in Item.all(self.etree):
-                    if url not in item.link or url == item.link:
-                        item.delete()
+                    if filter_url == item.link:
+                        if not keep_this_page:
+                            item.delete()
+                    elif filter_url in item.link:
+                        if not keep_children:
+                            item.delete()
 
         if self.flags['--add-structure']:
             path_components = self.flags['--add-structure'].split('/')
@@ -122,7 +136,7 @@ class Ventilator:
                         if not p.parent_id:
                             p.parent_id = reparent_under
 
-            if ventilate_filter and not ventilate_filter.endswith("*"):
+            if ventilate_filter and not keep_children:
                 # Single page requested - we don't want menus
                 for menu in NavMenu.all(self.etree):
                     menu.delete()
@@ -189,10 +203,15 @@ class Ventilator:
         current_id = 0
         path_so_far = ""
         for path_component in path_components:
-            path_so_far += path_component + "/"
+            if path_so_far:
+                path_so_far = path_so_far + "/"
+            path_so_far += path_component
             structural_page = Page.insert_structural(
                 self.etree, path_component)
-            structural_page.guid = self.new_root_url + path_so_far
+            # Abuse the <guid> to hold a relative link.
+            # See ../importer.php for the corresponding logic and
+            # explanation.
+            structural_page.guid = path_so_far
             structural_page.post_title = '[%s]' % path_component
             structural_page.parent_id = current_id
             current_id = structural_page.id

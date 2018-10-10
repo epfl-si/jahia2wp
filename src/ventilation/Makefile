@@ -42,7 +42,9 @@ push: wxr-ventilated
 	ansible-playbook $(JAHIA2WP_TOPDIR)/ansible/playbooks/push-ventilated.yml  -i $(dir $(TARGETS_INVENTORY)) -l ventilation-target-wordpresses -e "from=$(VENTILATION_DIR)/wxr-ventilated" -e '$(PUSH_EXTRA_VARS)'
 
 clean:
-	rm -rf hosts/ wxr-src/ wxr-ventilated/
+# wxr_inventory.pickle is created by wxr_inventory.py (but it overwrites
+# it everytime it runs)
+	rm -rf hosts/ wxr-src/ wxr-ventilated/ wxr_inventory.pickle
 
 .PHONY: _debug
 _debug:

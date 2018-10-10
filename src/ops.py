@@ -3,7 +3,7 @@
 # All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017
 
 """Model what test and prod look like on OpenShift"""
-
+import logging
 from memoize import mproperty
 from urllib.parse import urlparse
 import subprocess
@@ -19,7 +19,7 @@ class SshRemoteHost:
 
     def run_ssh(self, args, **kwargs):
         ssh_boilerplate = [
-            'ssh', '-Aq', '-T',
+            'ssh', '-A', '-T',
             '-o', 'BatchMode=yes',
             '-o', 'ConnectTimeout=1', '-p', str(self.port), 'www-data@' + self.host]
         if isinstance(args, list):
@@ -27,7 +27,7 @@ class SshRemoteHost:
         else:
             args = ' '.join(ssh_boilerplate) + ' ' + args
             kwargs['shell'] = True
-        return subprocess.run(args, stdout=subprocess.PIPE, **kwargs)
+        return subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs)
 
     @mproperty
     def ping(self):
@@ -35,76 +35,79 @@ class SshRemoteHost:
         return self  # Chainable
 
     @classmethod
-    def _extract_hostname(cls, url):
-        parsed = urlparse(url)
-        return parsed.netloc
-
-    @classmethod
-    def for_url(cls, url):
-        if cls._extract_hostname(url) in set((
+    def for_host(cls, host):
+        if host in set((
                 'migration-wp.epfl.ch',
         )):
             return cls.test.ping
         else:
             return cls.prod.ping
 
-    def as_ansible_params(self, url, discover_site_path=False):
-        """Interpret url relative to this SshRemoteHost as Ansible parameters.
+    def __repr__(self):
+        return '<%s %s>' % (self.__class__, self.moniker)
 
-        @param url The URL of either the site itself (if
-                   discover_site_path is False), or of any page inside the
-                   site
 
-        @param discover_site_path If True, don't trust `url` to be the actual
-                                  URL of the site; instead, walk directories
-                                  over ssh to discover it.
+class SshRemoteSite:
+    """
+    A Wordpress site reachable over ssh.
 
-        @return A dict with keys `ansible_host`, `ansible_port`, `wp_env`,
-        `wp_hostname` and `wp_path`.
-        """
+    Attributes:
+       host          The host to ssh into
+       port          The port to ssh at
+       wp_env        The subdirectory of /srv that that site resides at
+       wp_hostname   The name of the directory that comes just after /srv/{wp_env}
+       wp_path       The path, relative to /srv/{wp_env}/{wp_hostname}/htdocs/, that this site resides at
+    """
+    def __init__(self, url, discover_site_path=False):
+        hostname = urlparse(url).netloc
+        self.wp_hostname = hostname
+        parent_host = SshRemoteHost.for_host(hostname)
 
-        hostname = self._extract_hostname(url)
         if hostname == 'migration-wp.epfl.ch':
-            assert self is SshRemoteHost.test
+            assert parent_host is SshRemoteHost.test
             wp_env = 'int'
-            wp_hostname = 'migration-wp.epfl.ch'
         elif hostname == 'www2018.epfl.ch':
-            assert self is SshRemoteHost.prod
+            assert parent_host is SshRemoteHost.prod
             wp_env = 'sandbox'
-            wp_hostname = hostname
         else:
             # TODO: there certainly is more to it than this.
-            assert self is SshRemoteHost.prod
+            assert parent_host is SshRemoteHost.prod
             wp_env = 'subdomains'
-            wp_hostname = hostname
 
-        retval = {
-            'ansible_host': self.host,
-            'ansible_port': self.port,
-            'wp_hostname': wp_hostname,
-            'wp_env': wp_env
-        }
-
-        remote_base = os.path.join('/srv', wp_env, wp_hostname, 'htdocs')
+        self.host = parent_host.host
+        self.port = parent_host.port
+        self.wp_env = wp_env
         remote_subdir = urlparse(url).path.lstrip('/')
 
         if discover_site_path:
-            remote_subdir_initial = remote_subdir
-            while (self.run_ssh(
-                'test -d ' + os.path.join(remote_base, remote_subdir, 'wp-admin'),
-                    check=False).returncode):
-                if remote_subdir == '':
-                    raise Exception(
-                        'Unable to find Wordpress for %s (started at %s/%s)' %
-                        (self.moniker, remote_base, remote_subdir_initial))
-                remote_subdir = os.path.dirname(remote_subdir)
+            remote_subdir = self._discover_site_top_dir(parent_host, remote_subdir)
+        self.wp_path = remote_subdir
 
-        retval['wp_path'] = remote_subdir
+    def _discover_site_top_dir(self, host, remote_subdir):
+        """Explore the remote filesystem and find the root of the site for `url`
 
-        return retval
+        Return
+           A prefix of `url`
+        """
+        remote_base = os.path.join('/srv', self.wp_env,
+                                   self.wp_hostname, 'htdocs')
+        remote_subdir_initial = remote_subdir
+        while True:
+            remote_cmd = 'test -d ' + os.path.join(remote_base, remote_subdir, 'wp-admin')
+            ssh = host.run_ssh(remote_cmd, check=False)
+            if ssh.returncode == 0:
+                return remote_subdir
+            elif ssh.returncode != 1:
+                logging.error(ssh.stderr)
+                raise Exception("Unable to connect ({}): {}".format(remote_cmd, ssh.stderr))
+            if remote_subdir == '':
+                raise Exception(
+                    'Unable to find Wordpress for %s (started at %s/%s)' %
+                    (self.moniker, remote_base, remote_subdir_initial))
+            remote_subdir = os.path.dirname(remote_subdir)
 
-    def __repr__(self):
-        return '<%s %s>' % (self.__class__, self.moniker)
+    def get_url(self):
+        return 'https://{}/{}'.format(self.wp_hostname, self.wp_path)
 
 
 SshRemoteHost.test = SshRemoteHost('test', host='test-ssh-wwp.epfl.ch', port=32222)
