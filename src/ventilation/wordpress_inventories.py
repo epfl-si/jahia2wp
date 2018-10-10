@@ -62,8 +62,9 @@ class SiteBag:
     def _pickle(self):
         """Returns a class-name-neutral copy of our state, using only standard Python types.
 
-        Fact is, it changes depending on whether we run wordpress_inventories.py as
-        a script or import it as a library.
+        Fact is, the name of this class changes depending on whether
+        we run wordpress_inventories.py as a script or import it as a
+        library; and that throws pickle off the tracks.
         """
         state = dict()
         for k in self._persistable_fields():
