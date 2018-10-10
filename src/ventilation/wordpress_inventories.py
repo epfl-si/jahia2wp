@@ -204,9 +204,6 @@ def site_moniker(url):
 
 if __name__ == '__main__':
     args = docopt(__doc__)
-    # TODO: In test, we have only one group for all sources and for
-    # all targets (same OpenShift host and WP_ENV). This may not be
-    # the case in prod.
     sources = AnsibleGroup()
     targets = AnsibleGroup()
     todo = VentilationTodo(args['<ventilation_csv_file>'])
