@@ -467,35 +467,46 @@ class Menu {
         $tree = $this->_get_local_tree();
         foreach ($tree->as_list() as $item) {
             if (! ($emi = ExternalMenuItem::get($item))) continue;
+            $soa_url = Site::externalify_url(
+                $emi->get_site_url() ?
+                $emi->get_site_url() :
+                $emi->get_rest_url());
             $tree = $tree->graft(
                 $item,
                 $emi->get_remote_menu()->annotate_roots(array(
-                    self::SOA_SLUG => Site::externalify_url(
-                        $emi->get_site_url()))));
+                    self::SOA_SLUG => $soa_url)));
         }
 
-        $theme_location = $mme->get_theme_location();
-        if ($theme_location === 'primary' and
+        if ($mme->get_theme_location() === 'primary' and
             (! Site::this_site()->is_root())) {
-            $root_menu = ExternalMenuItem
-                       ::find(array(
-                           'site_url'       => Site::root()->get_localhost_url(),
-                           'theme_location' => $theme_location
-                       ))
-                       ->first_preferred(array(
-                           'language' => $mme->get_language()))
-                       ->get_remote_menu();
-            $tree = $this->_stitch_up($root_menu, $tree);
+            $tree = $this->_stitch_up($this->_get_root_menu($mme), $tree);
         }
 
-        // TODO: Normalize (don't remove) the ExternalMenuItem entries.
-        //
-        // * Should remove useless and misleading guid and url
-        //
-        // * Should add sufficient info so that ->_stitch_up() (called
-        //   from another WP) be in a position to figure out which
-        //   ExternalMenuItem is the one for them
+        $tree = $tree->map(function($item) {
+            if (! ($emi = ExternalMenuItem::get($item))) {
+                return $item;
+            }
+
+            unset($item->url);
+            unset($item->guid);
+            unset($item->object_id);  // Only makes sense locally
+
+            $item->rest_url = $emi->get_rest_url();
+
+            return $item;
+        });
+
         return $tree;
+    }
+
+    protected function _get_root_menu ($mme) {
+        return ExternalMenuItem::find(array(
+               'site_url'       => Site::root()->get_localhost_url(),
+               'remote_slug'    => $mme->get_theme_location()
+        ))
+            ->first_preferred(array(
+                'language' => $mme->get_language()))
+            ->get_remote_menu();
     }
 
     protected function _stitch_up ($under, $tree) {
@@ -682,35 +693,49 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
 {
     const SLUG = "epfl-external-menu";
 
-    // For get_or_create():
-    const META_PRIMARY_KEY = array(
-        'epfl-emi-site-url',
-        'epfl-emi-remote-slug',
-        'epfl-emi-remote-lang');
-
     // For ->meta()->{get_,set_}foo():
     const META_ACCESSORS = array(
-        // {get_,set_} suffix => in-database post meta name ("-emi-" stands for "external menu item")
-        'site_url'             => 'epfl-emi-site-url',
+        // {get_,set_} suffix  => in-database post meta name ("-emi-" stands for "external menu item")
+        'rest_url'             => 'epfl-emi-rest-api-url',
         'rest_subscribe_url'   => 'epfl-emi-rest-api-subscribe-url',
-        // Note: from the ExternalMenuItem perspective this is called
-        // a slug, despite it corresponding to MenuMapEntry's
-        // theme_location, because there is nothing that says that the
-        // remote end has to be in a theme (or be Wordpress at all -
-        // Think single-purpose footer menu server written in node.js)
-        'remote_slug'          => 'epfl-emi-remote-slug',
-        'remote_lang'          => 'epfl-emi-remote-lang',
         'items_json'           => 'epfl-emi-remote-contents-json',
         'last_synced'          => 'epfl-emi-last-synced-epoch',
         'sync_started_failing' => 'epfl-emi-sync-started-failing-epoch',
+
+        // The following two meta fields are *optional* and only exist
+        // for "true" WordPress-generated menus. (This is not always
+        // the case - Think single-purpose footer menu server written
+        // in node.js)
+        'site_url'             => 'epfl-emi-site-url',
+        // Also from this perspective, we call this a slug not a
+        // theme_location (which is what it is from the perspective of
+        // the remote MenuMapEntry, but we don't want to know or care
+        // about that)
+        'remote_slug'          => 'epfl-emi-remote-slug',
     );
+
+    // For get_or_create():
+    const META_PRIMARY_KEY = array('epfl-emi-rest-api-url');
 
     static function get_post_type () {
         return self::SLUG;
     }
 
+    /**
+     * @return The URL of the local WordPress site that this
+     *         ExternalMenuItem comes from, or NULL if this
+     *         ExternalMenuItem doesn't live in this pod.
+     */
     function get_site_url () {
         return $this->meta()->get_site_url();
+    }
+
+    /**
+     * @return The URL that this ExternalMenuItem obtains the remote
+     *         menu from (in JSON form)
+     */
+    function get_rest_url () {
+        return $this->meta()->get_rest_url();
     }
 
     /**
@@ -764,7 +789,15 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
 
             foreach ($menu_descrs as $menu_descr) {
                 $menu_slug = $menu_descr->slug;
-                $that = static::get_or_create($site_url, $menu_slug, $lang);
+                $that = static::get_or_create(
+                    static::_make_wp_rest_url($site_url, $menu_slug, $lang));
+                // Unlike an ExternalMenuItem that would be just
+                // created from its REST URL, for this one we do know
+                // that it comes from a "true" Wordpress. Note down
+                // the additional metadata we know (for the purpose
+                // of @link Menu::_get_root_menu)
+                $that->meta()->set_site_url($site_url);
+                $that->meta()->set_remote_slug($menu_slug);
                 // Keep Polylang language in sync, so that the little flags
                 // show up in the wp-admin list UI.
                 $that->set_language($lang);
@@ -778,17 +811,18 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
         }
     }
 
-    protected function _get_rest_url () {
-        $site_url = $this->meta()->get_site_url();
-        $menu_slug = $this->meta()->get_remote_slug();
-        $lang = $this->get_language();
-        return REST_URL::remote($site_url, "menus/$menu_slug?lang=$lang")
-            ->fully_qualified();
+    static private function _make_wp_rest_url ($site_url, $menu_slug,
+                                               $lang = NULL) {
+        $stem = "menus/$menu_slug";
+        if ($lang) {
+            $stem .= "?lang=$lang";
+        }
+        return REST_URL::remote($site_url, $stem)->fully_qualified();
     }
 
     function refresh () {
         if ($this->_refreshed) return;  // Not twice in same query cycle
-        if (! ($get_url = $this->_get_rest_url())) {
+        if (! ($get_url = $this->get_rest_url())) {
             $this->error_log("doesn't look very external to me");
             return;
         }
