@@ -64,7 +64,7 @@ class SourceWXR:
         return urlunparse(url_obj._replace(scheme='https')).rstrip('/') + '/'
 
     def intersects(self, pattern):
-        """True if `pattern' can match any page in the WordPress site of this WXR file.
+        """True iff `pattern' can match any page in the WordPress site of this WXR file.
 
         Args:
           pattern: A pattern excerpted from the left-hand-side column
