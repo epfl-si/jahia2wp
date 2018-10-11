@@ -58,7 +58,6 @@ use EPFL\Pod\Site;
 class MenuError extends \Exception {};
 
 
-
 /**
  * A Wordpress-style list of menu objects.
  *
@@ -232,7 +231,7 @@ class MenuItemBag
      */
     function trim_external () {
         return $this->pluck(function($item) {
-            return ExternalMenuItem::get($item);
+            return ExternalMenuItem::looks_like($item);
         })[0];
     }
 
@@ -420,7 +419,16 @@ class Menu {
      * @return A site-wide unique integer ID for this Menu
      */
     function get_term_id () {
-        return $this->term_id;
+        return (int)$this->term_id;
+    }
+
+    function equals ($that) {
+        $thisclass = get_called_class();
+        if ($that and ($that instanceof $thisclass)) {
+            return $this->get_term_id() === $that->get_term_id();
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -516,26 +524,58 @@ class Menu {
             return $item->$soa_slug === $site_url;
         })[0];
 
-        // When stitching up, we remove all ExternalMenuItem's and graft
-        // ourselves under the (first) one that is for us.
-        //
-        // While we can have ExternalMenuItem's in the tree served
-        // over REST, these should be only "ours" i.e. the ones we
-        // have authority for. Those are in $tree, not in $under.
-        [$under, $graft_points] = $under->pluck(function($item) {
-            return $item->object === ExternalMenuItem::SLUG;
-        });
-        $graft_points = array_filter($graft_points, function() {
-            return true;  // XXX Good enough for testing only; see TODO above
-        });
-        
-        if (! $graft_points[0]) {
+        // When stitching up, the graft point(s) are any and all
+        // ExternalMenuItem's that point to ourselves.
+        $grafted_count = 0;
+        $self = $this;
+        foreach (
+            array_filter($under->as_list(),
+                         function($item) use ($self) {
+                             return $self->_corresponds($item);
+                         })
+            as $graft_point)
+        {
+            $tree = $tree->reverse_graft($graft_point, $under);
+            $grafted_count++;
+        }
+
+        if (! $grafted_count) {
             error_log(sprintf(
                 'Cannot find graft point - Unable to stitch up\n%s',
                 var_export($under, true)));
             return $tree;
         }
-        return $tree->reverse_graft($graft_points[0], $under);
+
+        return $tree;
+    }
+
+    /**
+     * @param $item An item out of a @link MenuItemBag
+     *
+     * @return True iff $item designates us - That is, it came from
+     *         the JSON representation of some ExternalMenuItem in
+     *         another WordPress in the same pod, that points to this
+     *         Menu instance.
+     */
+    protected function _corresponds ($item) {
+        if (! ExternalMenuItem::looks_like($item)) return false;
+        $url = Site::this_site()->get_relative_url($item->rest_url);
+        if (! $url) return false;
+
+        // Works by parsing the ->rest_url, so there is coupling with
+        // MenuRESTController
+        $matched = array();
+        if (! preg_match(
+            '#/wp-json/(.*)/menus/(.*?)(?:\?lang=(.*))?$#',
+            $url, $matched)) {
+            return false;
+        }
+
+        $mme = MenuMapEntry::find(array('theme_location' => $matched[2]))
+              ->first_preferred(array('language' => $matched[3]));
+        if (! $mme) return false;
+
+        return $this->equals($mme->get_menu());
     }
 
     /**
@@ -743,15 +783,30 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
      * ->object === "epfl-external-menu".
      */
     static function get ($what) {
-        if (is_object($what)
-            and ($what->post_type === 'nav_menu_item')
-            and ($what->object_id)
-            and ($what->object === static::get_post_type()))
-        {
+        if (static::looks_like($what)
+            and ($what->object_id)) {
             return parent::get($what->object_id);
         } else {
             return parent::get($what);
         }
+    }
+
+    /**
+     * Returns true iff $what looks like a menu item (e.g. from
+     * a @link MenuItemBag) that was an ExternalMenuItem at the time
+     * it was inserted into the wp-admin menu.
+     *
+     * Unlike checking @link get for a NULL return value, this check
+     * doesn't hit the database; it will work even for
+     * ExternalMenuItem's that are not local to this Wordpress site.
+     */
+    static function looks_like ($what) {
+        return (is_object($what)
+                and ($what->post_type === 'nav_menu_item')
+                // Don't test for ->object_id here, as
+                // ->get_stitched_tree() could have scrubbed it
+                // before serving over REST
+                and ($what->object === static::get_post_type()));
     }
 
     use FindFromAllTrait;
@@ -905,6 +960,8 @@ class MenuRESTController
         REST_API::GET_JSON(
             '/menus',
             $thisclass, 'get_menus');
+        // There is coupling with Menu::_corresponds as far as
+        // the URI structure is concerned.
         REST_API::GET_JSON(
             '/menus/(?P<slug>[a-zA-Z0-9_-]+)',
             $thisclass, 'get_menu');

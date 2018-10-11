@@ -61,6 +61,10 @@ class Site {
         return 'https://localhost:8443' . $this->path_under_htdocs;
     }
 
+    function get_url () {
+        return static::externalify_url($this->get_localhost_url());
+    }
+
     /**
      * Utility function to get our own serving address in host:port
      * notation.
@@ -132,5 +136,20 @@ class Site {
         }
 
         return $retval;
+    }
+
+    /**
+     * @return The part of $url that is relative to the site's root,
+     *         or NULL if $url is not "under" this site. (Note: being
+     *         part of any of the @link get_subsite s is not checked
+     *         here; such URLs will "count" as well.)
+     */
+    function get_relative_url ($url) {
+        $url = static::externalify_url($url);
+        $count_replaced = 0;
+        $url = preg_replace(
+            '#^' . quotemeta($this->get_url()) . '#',
+            '', $url, -1, $count_replaced);
+        if ($count_replaced) return $url;
     }
 }
