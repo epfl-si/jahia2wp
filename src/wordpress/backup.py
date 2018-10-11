@@ -57,15 +57,14 @@ class WPBackup:
         # set backup attributes
         self.datetime = datetime.datetime.now()
         self.timestamp = self.datetime.strftime(self.TIMESTAMP_FORMAT)
-        self.path = os.path.join(self.BACKUP_PATH, self.wp_site.name)
-
+        self.path = os.path.join(self.BACKUP_PATH, self.wp_site.path.replace('/', '_'))
         # set backup type, and name for list file
         listfile = self.get_daily_list()
         if listfile is None or full:
             self.backup_pattern = self.FULL_PATTERN
             self.listfile = os.path.join(
                 self.path,
-                "_".join((self.wp_site.name, self.timestamp)) + ".list")
+                "_".join((self.timestamp)) + ".list")
         else:
             self.backup_pattern = self.INCREMENTAL_PATTERN
             self.listfile = os.path.join(self.path, listfile)
@@ -73,10 +72,10 @@ class WPBackup:
         # set filenames
         self.tarfile = os.path.join(
                 self.path,
-                "_".join((self.wp_site.name, self.timestamp, self.backup_pattern)) + ".tar")
+                "_".join((self.timestamp, self.backup_pattern)) + ".tar")
         self.sqlfile = os.path.join(
                 self.path,
-                "_".join((self.wp_site.name, self.timestamp, self.backup_pattern)) + ".sql")
+                "_".join((self.timestamp, self.backup_pattern)) + ".sql")
 
     def get_daily_list(self):
         # shortcut if directory does not exist yet
