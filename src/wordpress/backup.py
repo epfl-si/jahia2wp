@@ -89,7 +89,7 @@ class WPBackup:
         # build regex for filenames with found dates
         matches = "|".join([valid_date.strftime("%Y%m%d")
                             for valid_date in valid_dates])
-        file_regex = re.compile("({})\d+.list".format(matches))
+        file_regex = re.compile("\d+.list".format(matches))
 
         # list directory, filtering out files with appropriate dates
         logging.debug("%s - Seeking backups with regex: %s", repr(self.wp_site), file_regex)
