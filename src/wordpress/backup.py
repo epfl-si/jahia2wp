@@ -22,13 +22,13 @@ class WPBackup:
     - inc : Incremental backup (for files only, not the DB), when full backup found (in NB_DAYS_BEFORE_NEW_FULL)
 
     A full backup generates 3 files :
-    - "<wp_site_name>_<timestamp>.list": reference for incremental backup
-    - "<wp_site_name>_<timestamp>_full.tar": to save of files
-    - "<wp_site_name>_<timestamp>_full.sql": the db dump
+    - "<BACKUP_PATH>/<wp_site.path>/<timestamp>.list": reference for incremental backup
+    - "<BACKUP_PATH>/<wp_site.path>/<timestamp>_full.tar": to save of files
+    - "<BACKUP_PATH>/<wp_site.path>/<timestamp>_full.sql": the db dump
 
     A incremental backup generates 2 files :
-    - "<wp_site_name>_<timestamp>_inc.tar": to save files
-    - "<wp_site_name>_<timestamp>_inc.sql": the db dump
+    - "<BACKUP_PATH>/<wp_site.path>/<timestamp>_inc.tar": to save files
+    - "<BACKUP_PATH>/<wp_site.path>/<timestamp>_inc.sql": the db dump
     """
 
     FULL_PATTERN = "full"
