@@ -282,7 +282,7 @@ class _PostMeta {
             return get_post_meta($this->_post_id, $meta_name, true);
         } elseif ($cmd === 'set') {
             $this->_update_meta_auto_fields();
-            return update_post_meta($this->_post_id, $meta_name, $arguments[0]);
+            return $this->_update_post_meta($this->_post_id, $meta_name, $arguments[0]);
         } elseif (substr($name, 0, 4) === 'del_') {
             $this->_update_meta_auto_fields();
             return delete_post_meta($this->_post_id, $meta_name);
@@ -290,6 +290,23 @@ class _PostMeta {
             throw new \Exception(
                 sprintf('Fatal error: Call to undefined method %s::%s',
                         $this->_owner_class, $name));
+        }
+    }
+
+    /**
+     * Like Wordpress' @link update_post_meta, sans the wp_unslash
+     * monkey business
+     */
+    private function _update_post_meta ($id, $meta_key, $meta_value) {
+        $filter_name = "sanitize_post_meta_{$meta_key}";
+        $return_pristine_value = function(...$whatever) use ($meta_value) {
+                return $meta_value;
+            };
+        try {
+            add_filter($filter_name, $return_pristine_value);
+            return update_post_meta($id, $meta_key, $meta_value);
+        } finally {
+            remove_filter($filter_name, $return_pristine_value);
         }
     }
 
