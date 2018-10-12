@@ -257,10 +257,14 @@ class WPPluginConfigInfos:
 
             # If plugin needs to be activated
             if self.is_active:
-                # If we have to download from web,
+                # If plugin is coming from WP store
                 if plugin_config['src'].lower() == settings.PLUGIN_SOURCE_WP_STORE:
                     self.zip_path = None
-                else:
+
+                # If plugin is an URL pointing to a ZIP file
+                elif plugin_config['src'].startswith('http') and plugin_config['src'].endswith('.zip'):
+                    self.handle_plugin_remote_zip(plugin_config['src'])
+                else:  # It may be a path to a local folder to use to install plugin
                     # Generate full path
                     full_path = os.path.join(settings.PLUGINS_CONFIG_BASE_FOLDER, plugin_config['src'])
                     # Do some checks and create ZIP file with plugin files if necessary
