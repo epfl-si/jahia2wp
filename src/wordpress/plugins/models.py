@@ -9,9 +9,6 @@ import settings
 import shutil
 from utils import Utils
 from urllib import request
-
-
-
 from wordpress import WPException
 
 
