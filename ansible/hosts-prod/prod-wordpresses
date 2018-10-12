@@ -138,9 +138,8 @@ sub as_ansible_hostvars {
   my $retval = {};
   while(my ($k, $v) = each %$wp) {
     next unless $k =~ m/^(ssh|wp|ansible)_/;
-    next if ! $v;  # e.g. wp_path
     $k =~ s/^ssh_/ansible_/;
-    $retval->{$k} = $v;
+    $retval->{$k} = $v || '';
   }
   return $retval;
 }
