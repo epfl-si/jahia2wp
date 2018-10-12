@@ -135,7 +135,7 @@ Class ShortCakeNewsConfig
                             'label'         => '<h3>' . esc_html__('Number of news', 'epfl') . '</h3>',
                             'attr'          => 'nb_news',
                             'type'          => 'text',
-                            'description'   => __("The number of news can only be defined for the Template: 'Template for laboratory website'"),
+                            'description'   => __("The number of news can only be defined for the Template: 'Template listing'", 'epfl'),
                             'value'         => '5',
                         ),
                         array(
