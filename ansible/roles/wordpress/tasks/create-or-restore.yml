@@ -1,12 +1,14 @@
 # Ensure that WordPress is in a known good state, restoring it
 # from backup (or ex nihilo) if appropriate
 
+- include_vars: wp-destructive.yml
+
 - set_fact:
-    play_wp_delete: '{{inventory_hostname in wp_destructive and wp_destructive[inventory_hostname] == "wipe"}}'
-    play_wp_create: '{{ (not _wp_config_php_stat.stat.exists) or ((inventory_hostname in wp_destructive) and (wp_destructive[inventory_hostname] == "wipe")) }}'
-    play_wp_configure: '{{inventory_hostname in wp_destructive and wp_destructive[inventory_hostname] != "none"}}'
-    play_wp_update: '{{inventory_hostname in wp_destructive and wp_destructive[inventory_hostname] != "none"}}'
-    play_wp_restore: '{{ (inventory_hostname in wp_destructive) and (wp_destructive[inventory_hostname] is search("^(data|wipe)")) and (wp_restore_from is search("^backup")) }}'
+    play_wp_delete: '{{ wp_can.wipe }}'
+    play_wp_create: '{{ (not _wp_config_php_stat.stat.exists) or wp_can.wipe }}'
+    play_wp_configure: '{{ wp_can.any }}}'
+    play_wp_update: '{{ wp_can.any }}'
+    play_wp_restore: '{{ wp_can.write_data and (wp_restore_from is search("^backup")) }}'
 
 - name: Delete (if requested)
   include_tasks: '{{ "delete.yml" if play_wp_delete else "noop.yml" }}'

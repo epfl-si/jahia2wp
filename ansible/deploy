@@ -16,11 +16,21 @@
 # - https://github.com/jdauphant/awesome-ansible
 
 inventories="-i ansible/hosts-dev"
-case "$1" in
-    --prod)
-        inventories="$inventories -i ansible/hosts-prod" ;;
-esac
+plays="-e play_update=true -e play_backup=true"
+
+while [ -n "$1" ]; do
+    case "$1" in
+        --prod)
+            inventories="$inventories -i ansible/hosts-prod"
+            shift ;;
+        --skip-backup)
+            plays="-e play_update=true"
+            shift ;;
+        *)
+            break ;;
+    esac
+done
 
 thisdir="$(dirname "$(realpath "$0")")"
 
-ansible-playbook -e "play_create_or_restore=true" -e "play_update=true" $inventories "$@" "$thisdir"/playbooks/wordpress-main.yml
+ansible-playbook -e "play_create_or_restore=true" $plays $inventories "$@" "$thisdir"/playbooks/wordpress-main.yml

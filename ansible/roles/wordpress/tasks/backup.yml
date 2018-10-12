@@ -1,0 +1,33 @@
+- include_vars: wp-destructive.yml
+
+- name: Create directory to revert backup in case of trouble
+  command: mktemp -d -p {{ wp_dir }} -t ansible-tmp-XXXXXX
+  changed_when: false
+  register: _backup_tmpdir_cmd
+  when: wp_can.any
+
+- set_fact:
+    _backup_tmpdir: "{{ _backup_tmpdir_cmd.stdout }}"
+  when: wp_can.any
+
+- name: Back up code to {{ _backup_tmpdir }} — 💡 In case of a catastrophe, you will find your files there.
+  shell: |
+    set -e
+    cd "{{ wp_dir }}"
+    cp -a wp-content wp-includes wp-admin {{ _backup_tmpdir }}
+  changed_when: false
+  when: wp_can.write_code
+
+- name: Back up data to {{ _backup_tmpdir }} — 💡 In case of a catastrophe, you will find your files there.
+  command: "{{ wp_cli_command }} db export {{ _backup_tmpdir }}/backup.sql"
+  changed_when: false
+  when: wp_can.write_data
+
+- name: Back up uploads to {{ _backup_tmpdir }} — 💡 In case of a catastrophe, you will find your files there.
+  shell: |
+    set -e
+    cd "{{ wp_dir }}"
+    mkdir "{{ _backup_tmpdir }}"/wp-content
+    cp -a wp-content/uploads {{ _backup_tmpdir }}/wp-content
+  changed_when: false
+  when: wp_can.write_data

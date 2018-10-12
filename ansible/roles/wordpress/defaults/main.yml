@@ -40,31 +40,7 @@ wp_unit_name: "{{ wp_unit_id }}"   # Default value
 ########################################################################
 #
 #
-# - wp_destructive: A map from WordPress names (out of the inventory
-#                   files or scripts) to a keyword among "none" (the
-#                   default), "config", "wipe", "data-and-code",
-#                   "code-only" or "data-only" indicating the level of
-#                   destructive access requested for this WordPress
-#                   instance. "wipe" means to completely and
-#                   unconditionally delete everything; "data-and-code"
-#                   and "data-only" allows restores (depending on the
-#                   setting of wp_restore_from, below) of the
-#                   corresponding assets. "code-only" resp.
-#                   "data-and-code" allow upgrading plugins and
-#                   themes, in addition to resp. instead of data.
-#                   "config" means only enforce simple configuration
-#                   changes, such as setting up strict permissions and
-#                   disabling unused services. "none" means do no
-#                   harm, yet doesn't preclude always-harmless
-#                   mutations such as creating a WP site that did not
-#                   yet exist.
-#
-#                   💡 You probably want to use the JSON-accepting
-#                   form of -e for this. Be sure to use double quotes
-#                   — Single quotes are *not* valid to escape JSON
-#                   strings. Here is a correct example in bash:
-#
-#                      -e '{"wp_destructive": {"some-hapless-wordpress": "wipe"}}'
+# - wp_destructive: See details in ../vars/wp_destructive.yml
 
 wp_destructive: {}   # Default value
 

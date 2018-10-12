@@ -20,6 +20,8 @@
   changed_when: false
 
 - name: Restore data + code from tar backups
+  # TODO: as written, we can't restore a group of sites.
+  # (see ../vars/wp-destructive.yml)
   when: wp_destructive[inventory_hostname] != "data-only"
   shell:
     cmd: |

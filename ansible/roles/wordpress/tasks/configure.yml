@@ -1,9 +1,10 @@
 # Set a sane configuration for this WordPress instance
 
+- include_vars: wp-destructive.yml
+
 - assert:
     that:
-      - inventory_hostname in wp_destructive
-      - wp_destructive[inventory_hostname] != "none"
+      - wp_can.any
 
 - name: Check whether ping_sites is set
   command: "{{ wp_cli_command }} option get ping_sites"
