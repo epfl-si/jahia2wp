@@ -926,6 +926,45 @@ class Shortcodes():
         content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
         return content
 
+    def _fix_epfl_card(self, content):
+        """
+        Fix "epfl_card" shortcode
+        
+        example:
+        input: [epfl_card title="toto titre" link="toto lien" image="29"]toto text[/epfl_card]
+        output [epfl_card title1="toto titre" link1="toto lien" image1="29" content1="%3Cp%3Etoto%20text%3C%2Fp%3E" /]
+        
+        :param 
+        :return: 
+        """
+        shortcode_name = "epfl_card"
+
+        # title1
+        title1_value = self.__get_attribute(content, "title")
+        content = self.__add_attribute(content, shortcode_name, "title1", attr_value=title1_value)
+        content = self.__remove_attribute(content, shortcode_name, "title")
+
+        # link1
+
+        # FIX: le remove_attribut merdouille si on met link à l'intérieur de la valeur de link=""
+        # [epfl_card title="toto titre" link="toto link" image="29"]toto text[/epfl_card]
+        link1_value = self.__get_attribute(content, "link")
+        content = self.__add_attribute(content, shortcode_name, "link1", attr_value=link1_value)
+        content = self.__remove_attribute(content, shortcode_name, "link")
+
+        #image1
+        image1_value = self.__get_attribute(content, "image")
+        content = self.__add_attribute(content, shortcode_name, "image1", attr_value=image1_value)
+        content = self.__remove_attribute(content, shortcode_name, "image")
+
+        # FIX: comment ça peut marcher sans préciser le nom du shortcode ? ou si plusieurs shortcodes avec content ?
+        content1_value = self.__get_content(content)
+        content = self.__add_attribute(content, shortcode_name, "content1", attr_value=content1_value)
+        content = self.__change_content(content, new_content="").replace("][/epfl_card]",  " /]")
+
+        return content
+
+
     def fix_site(self, openshift_env, wp_site_url):
         """
         Fix shortocdes in WP site
