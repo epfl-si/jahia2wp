@@ -6,6 +6,7 @@
  * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
+require_once 'epfl-multisite.php';
 require_once 'lib/utils.php';
 require_once 'shortcodes/epfl-news/epfl-news.php';
 require_once 'shortcodes/epfl-memento/epfl-memento.php';
