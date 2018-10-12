@@ -1,4 +1,4 @@
-src: generic/accred/v1/accred.zip
+src: https://github.com/epfl-sti/wordpress.plugin.accred/archive/vpsi.zip
 activate: yes
 tables:
   options:
