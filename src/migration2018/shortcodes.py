@@ -929,22 +929,16 @@ class Shortcodes():
     def _fix_epfl_card(self, content):
         """
         Fix "epfl_card" shortcode
-        
+
         example:
         input: [epfl_card title="toto titre" link="toto lien" image="29"]toto text[/epfl_card]
         output [epfl_card title1="toto titre" link1="toto lien" image1="29" content1="%3Cp%3Etoto%20text%3C%2Fp%3E" /]
-        
-        :param 
-        :return: 
         """
         shortcode_name = "epfl_card"
 
-        # title1
         title1_value = self.__get_attribute(content, "title")
         content = self.__add_attribute(content, shortcode_name, "title1", attr_value=title1_value)
         content = self.__remove_attribute(content, shortcode_name, "title")
-
-        # link1
 
         # FIX: le remove_attribut merdouille si on met link à l'intérieur de la valeur de link=""
         # [epfl_card title="toto titre" link="toto link" image="29"]toto text[/epfl_card]
@@ -952,7 +946,6 @@ class Shortcodes():
         content = self.__add_attribute(content, shortcode_name, "link1", attr_value=link1_value)
         content = self.__remove_attribute(content, shortcode_name, "link")
 
-        #image1
         image1_value = self.__get_attribute(content, "image")
         content = self.__add_attribute(content, shortcode_name, "image1", attr_value=image1_value)
         content = self.__remove_attribute(content, shortcode_name, "image")
@@ -964,12 +957,12 @@ class Shortcodes():
 
         return content
 
-
-    def fix_site(self, openshift_env, wp_site_url):
+    def fix_site(self, openshift_env, wp_site_url, shortcode_name=None):
         """
         Fix shortocdes in WP site
         :param openshift_env: openshift environment name
         :param wp_site_url: URL to website to fix.
+        :param shortcode_name: fix site for this shortcode only
         :return: dictionnary with report.
         """
 
@@ -1007,26 +1000,28 @@ class Shortcodes():
             # Looking for all shortcodes in current post
             for shortcode in list(set(re.findall(self.regex, content))):
 
-                fix_func_name = "_fix_{}".format(shortcode.replace("-", "_"))
+                if shortcode_name is None or shortcode_name == shortcode:
 
-                try:
-                    # Trying to get function to fix current shortcode
-                    fix_func = getattr(self, fix_func_name)
-                except Exception as e:
-                    # "Fix" function not found, skipping to next shortcode
-                    continue
+                    fix_func_name = "_fix_{}".format(shortcode.replace("-", "_"))
 
-                logging.debug("Fixing shortcode %s...", shortcode)
-                fixed_content = fix_func(content)
+                    try:
+                        # Trying to get function to fix current shortcode
+                        fix_func = getattr(self, fix_func_name)
+                    except Exception as e:
+                        # "Fix" function not found, skipping to next shortcode
+                        continue
 
-                if fixed_content != content:
-                    # Building report
-                    if shortcode not in report:
-                        report[shortcode] = 0
+                    logging.debug("Fixing shortcode %s...", shortcode)
+                    fixed_content = fix_func(content)
 
-                    report[shortcode] += 1
+                    if fixed_content != content:
+                        # Building report
+                        if shortcode not in report:
+                            report[shortcode] = 0
 
-                content = fixed_content
+                        report[shortcode] += 1
+
+                    content = fixed_content
 
             # If content changed for current page,
             if content != original_content:
