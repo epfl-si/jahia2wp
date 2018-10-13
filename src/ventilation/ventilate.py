@@ -17,6 +17,8 @@ import sys
 import subprocess
 import lxml.etree
 from urllib.parse import urlparse, urlunparse
+
+from bs4 import BeautifulSoup, CData
 from docopt import docopt
 import logging
 
@@ -101,6 +103,61 @@ class DestinationWXR:
                               stdout=open(self.path, 'w'),
                               check=True)
 
+    def fix_absolute_links(self, source_url_site, destination_url_site):
+        """
+        Fix absolute links in the content of page for html tags
+        like <a href="" and <img src=""
+
+        :param source_url_site: Source URL site
+        :param destination_url_site: Destination URL site
+        """
+
+        with open(self.path, "r") as wxr_ventilated_xml_file:
+
+            # parse xml
+            soup = BeautifulSoup(wxr_ventilated_xml_file.read(), 'xml')
+
+            # find all <content:encoded> xml tag
+            content_encoded_tags = soup.find_all('content:encoded')
+
+            for xml_tag in content_encoded_tags:
+
+                if len(xml_tag.contents) == 0:
+                    continue
+
+                # parse html content of xml 'content:encoded' tag
+                soup_html = BeautifulSoup(xml_tag.contents[0], 'html5lib')
+
+                # delete html tags like <html>, <head>, <body>
+                # and keeps only the HTML content
+                soup_html.body.hidden = True
+                soup_html.head.hidden = True
+                soup_html.html.hidden = True
+
+                tag_attribute_list = [('a', 'href'), ('img', 'src')]
+
+                for element in tag_attribute_list:
+
+                    # find all HTML tags like 'a' or 'img'
+                    html_tags = soup_html.find_all(element[0])
+
+                    for html_tag in html_tags:
+
+                        # get the attribute value
+                        link = html_tag.get(element[1])
+
+                        if not link:
+                            continue
+
+                        if link.startswith(source_url_site):
+                            html_tag[element[1]] = link.replace(source_url_site, destination_url_site)
+
+                # Add CDATA like this <content:encoded><![CDATA[ ... ]]></content:encoded>
+                xml_tag.contents[0] = CData(str(soup_html))
+
+            with open(self.path, "w") as wxr_ventilated_xml_file:
+                wxr_ventilated_xml_file.write(str(soup))
+
 
 if __name__ == '__main__':
     args = docopt(__doc__)
@@ -140,11 +197,19 @@ if __name__ == '__main__':
             if os.path.exists(destination_xml_path):
                 destination_xml_path = _increment_xml_file_path(destination_xml_path)
 
-            DestinationWXR(destination_xml_path, source_wxr).create(
+            destination_wxr = DestinationWXR(destination_xml_path, source_wxr)
+
+            destination_wxr.create(
                 filter=task.source_pattern,
                 add_structure=task.relative_uri,
                 new_url=task.destination_site
             )
+
+            destination_wxr.fix_absolute_links(
+                source_url_site=task.source_url,
+                destination_url_site=task.destination_site,
+            )
+
             output_count_for_this_source_wxr += 1
 
         logging.info(
