@@ -19,46 +19,67 @@ use \Error;
  */
 class Site {
     protected function __construct ($path_under_htdocs) {
-        if (0 !== strpos($path_under_htdocs, '/')) {
-            throw new \Error("Weird \$path_under_htdocs: $path_under_htdocs");
-        }
         $this->path_under_htdocs = $path_under_htdocs;
     }
 
     function __toString () {
-        return "<\\EPFL\\Pod\\Site($this->path_under_htdocs)>";
+        return "<\\EPFL\\Pod\\Site(\"$this->path_under_htdocs\")>";
     }
 
     static function this_site () {
         $thisclass = get_called_class();
-        $that = new $thisclass(static::_our_path());
+        $that = new $thisclass(static::_htdocs_split()[1]);
         $that->abspath = ABSPATH;
         return $that;
     }
 
-    static protected function _our_path () {
-        return parse_url(site_url(), PHP_URL_PATH);
-    }
-
-    static function relative_to_this_site ($relpath) {
-        if (0 === strpos($path_under_htdocs, '/')) {
-            throw new \Error("\$relpath ($relpath) should not start with a slash");
-        }
-        $thisclass = get_called_class();
-        return new $thisclass(static::_our_path() . "/$relpath");
-    }
-
     static function root () {
-        $thisclass = get_called_class();
-        preg_match('#htdocs(/[^/]*)#', ABSPATH, $matched);
-        if (! $matched) {
-            throw new \Error('Unable to find htdocs in ' . ABSPATH);
+        [ $htdocs, $my_subdirs ] = static::_htdocs_split();
+        $path_components = explode('/', $my_subdirs);
+
+        for($under_htdocs = '';
+            true;
+            $under_htdocs = ($under_htdocs ? "$under_htdocs/" : "") .
+                            array_shift($path_components))
+        {
+            if (static::exists("$htdocs/$under_htdocs")) {
+                $thisclass = get_called_class();
+                return new $thisclass($under_htdocs);
+            }
+            if (! count($path_components)) {
+                throw new \Error('Unable to find root site from ' . ABSPATH);
+            }
         }
-        return new $thisclass($matched[1]);
+    }
+
+    /**
+     * True iff $path contains a Wordpress install.
+     *
+     * @param $path A path; if relative, it is interpreted relative to
+     *              PHP's current directory which is probably not what
+     *              you want.
+     */
+    static function exists ($path) {
+        if (! preg_match('#^/#', $path)) {
+            $path = static::_htdocs_split()[0] . "/$path";
+        }
+        return is_file("$path/wp-config.php");
+    }
+
+    static private function _htdocs_split ($abspath = NULL) {
+        if ($abspath === NULL) { $abspath = ABSPATH; }
+        $abspath = preg_replace('#/+#', '/', $abspath);
+        if (! preg_match('#(^.*/htdocs)(/.*|)$#', $abspath, $matched)) {
+            throw new \Error('Unable to find htdocs in ' . $abspath);
+        }
+        $htdocs = $matched[1];
+        $below_htdocs = preg_replace('#^/#', '', 
+                                     preg_replace('#/$#', '', $matched[2]));
+        return array($htdocs, $below_htdocs);
     }
 
     function get_localhost_url () {
-        return 'https://localhost:8443' . $this->path_under_htdocs;
+        return 'https://localhost:8443/' . $this->path_under_htdocs;
     }
 
     function get_url () {
@@ -97,45 +118,22 @@ class Site {
             throw new \Error("Sorry, ->get_subsites() only works on ::this_site() for now");
         }
 
-        // http://ch1.php.net/manual/en/class.recursivedirectoryiterator.php#114504
-        $all_abspath_lazy = new \RecursiveDirectoryIterator(
-            ABSPATH,
-            \RecursiveDirectoryIterator::SKIP_DOTS);  // Dude, so 1990's.
+        return static::_get_subsites_recursive ($this->abspath);
+    }
 
-        $wp_configs_lazy = new \RecursiveCallbackFilterIterator(
-            $all_abspath_lazy,
-            function ($current, ...$unused) {
-                // Because there is but one return value from this
-                // here callback (not that RecursiveFilterIterator,
-                // with its sole overridable method, would be any
-                // different), the PHP API for filtering trees
-                // conflates filtering directories and "pruning" them
-                // (in the sense of find(1)). Despite the strong itch
-                // to just reimplement a RecursiveWhateverIterator as
-                // an anonymous class (which would take about as many
-                // lines as this comment), I went with the only
-                // slightly inelegant hack of filtering wp-config.php
-                // files, rather than directories that have a
-                // wp-config.php file in them.
-                if ($current->isDir()) {
-                    // Returning false means to prune the directory, so
-                    // be conservative.
-                    return ! preg_match('/^wp-/', $current->getBasename());
-                } else {
-                    return $current->getBaseName() === 'wp-config.php';
-                }
-            });
-
-        $retval = array();
-        foreach ((new \RecursiveIteratorIterator($wp_configs_lazy))
-                 as $info) {
-            $relpath = substr(dirname($info->getPathname()),
-                              strlen($this->abspath));
-            if (! $relpath) continue;  // Skip our own directory
-            $retval[] = static::relative_to_this_site($relpath);
+    static function _get_subsites_recursive ($path) {
+        $retvals = array();
+        foreach (scandir($path) as $filename) {
+            if (preg_match('#^([.]|wp-)#', $filename)) continue;
+            if (! is_dir($subdir = "$path/$filename")) continue;
+            if (static::exists($subdir)) {
+                $thisclass = get_called_class();
+                $retvals[] = new $thisclass($subdir);
+            } else {
+                array_push($retvals, static::_get_subsites_recursive($subdir));
+            }
         }
-
-        return $retval;
+        return $retvals;
     }
 
     /**
@@ -149,7 +147,7 @@ class Site {
         $count_replaced = 0;
         $url = preg_replace(
             '#^' . quotemeta($this->get_url()) . '#',
-            '', $url, -1, $count_replaced);
+            '/', $url, -1, $count_replaced);
         if ($count_replaced) return $url;
     }
 }
