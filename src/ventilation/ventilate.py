@@ -13,6 +13,7 @@ Options:
 """
 
 import os
+import re
 import sys
 import subprocess
 import lxml.etree
@@ -103,7 +104,7 @@ class DestinationWXR:
                               stdout=open(self.path, 'w'),
                               check=True)
 
-    def fix_absolute_links(self, source_url_site, destination_url_site):
+    def fix_links(self, source_url_site, destination_url_site):
         """
         Fix absolute links in the content of page for html tags
         like <a href="" and <img src=""
@@ -134,7 +135,7 @@ class DestinationWXR:
                 soup_html.head.hidden = True
                 soup_html.html.hidden = True
 
-                tag_attribute_list = [('a', 'href'), ('img', 'src')]
+                tag_attribute_list = [('a', 'href'), ]
 
                 for element in tag_attribute_list:
 
@@ -150,7 +151,23 @@ class DestinationWXR:
                             continue
 
                         if link.startswith(source_url_site):
+                            # absolute URLs
                             html_tag[element[1]] = link.replace(source_url_site, destination_url_site)
+
+                        else:
+                            # relative URLs
+                            parsed = urlparse(source_url_site)
+                            hostname = parsed.netloc.split('.')[0]
+
+                            if hostname not in ('migration-wp', 'www2018'):
+                                start_relative_path = "/" + hostname + "/"
+                            else:
+                                start_relative_path = re.search('([^/]*)/?$', parsed.path).group(1)
+
+                            if link.startswith(start_relative_path):
+                                html_tag[element[1]] = link.replace(
+                                    start_relative_path,
+                                    urlparse(destination_url_site).path)
 
                 # Add CDATA like this <content:encoded><![CDATA[ ... ]]></content:encoded>
                 xml_tag.contents[0] = CData(str(soup_html))
@@ -205,7 +222,7 @@ if __name__ == '__main__':
                 new_url=task.destination_site
             )
 
-            destination_wxr.fix_absolute_links(
+            destination_wxr.fix_links(
                 source_url_site=task.source_url,
                 destination_url_site=task.destination_site,
             )
