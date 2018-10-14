@@ -104,7 +104,7 @@ class DestinationWXR:
                               stdout=open(self.path, 'w'),
                               check=True)
 
-    def fix_links(self, source_url_site, destination_url_site):
+    def fix_links(self, source_url_site, destination_url_site, relative_uri):
         """
         Fix absolute links in the content of page for html tags
         like <a href="" and <img src=""
@@ -112,6 +112,8 @@ class DestinationWXR:
         :param source_url_site: Source URL site
         :param destination_url_site: Destination URL site
         """
+
+        logging.info("Starting fix links...")
 
         with open(self.path, "r") as wxr_ventilated_xml_file:
 
@@ -153,6 +155,7 @@ class DestinationWXR:
                         if link.startswith(source_url_site):
                             # absolute URLs
                             html_tag[element[1]] = link.replace(source_url_site, destination_url_site)
+                            logging.debug("Replace absolute URL {} by {}".format(source_url_site, destination_url_site))
 
                         else:
                             # relative URLs
@@ -161,19 +164,37 @@ class DestinationWXR:
 
                             if hostname not in ('migration-wp', 'www2018'):
                                 start_relative_path = "/" + hostname + "/"
+
                             else:
+                                # example:
+                                # https://migration-wp.epfl.ch/help-actu/**
+                                # start_relative_path is 'help-actu'
                                 start_relative_path = re.search('([^/]*)/?$', parsed.path).group(1)
+                                start_relative_path = "/" + start_relative_path + "/"
 
                             if link.startswith(start_relative_path):
+
+                                target_url = os.path.join(urlparse(destination_url_site).path + relative_uri)
+                                if not target_url.endswith("/"):
+                                    target_url += "/"
+
                                 html_tag[element[1]] = link.replace(
-                                    start_relative_path,
-                                    urlparse(destination_url_site).path)
+                                    start_relative_path, target_url
+                                    )
+
+                                logging.debug(
+                                    "Replace relative URL {} by {}".format(
+                                        start_relative_path, target_url
+                                    )
+                                )
 
                 # Add CDATA like this <content:encoded><![CDATA[ ... ]]></content:encoded>
                 xml_tag.contents[0] = CData(str(soup_html))
 
             with open(self.path, "w") as wxr_ventilated_xml_file:
                 wxr_ventilated_xml_file.write(str(soup))
+
+            logging.info("End of fix links...")
 
 
 if __name__ == '__main__':
@@ -225,6 +246,7 @@ if __name__ == '__main__':
             destination_wxr.fix_links(
                 source_url_site=task.source_url,
                 destination_url_site=task.destination_site,
+                relative_uri=task.relative_uri
             )
 
             output_count_for_this_source_wxr += 1
