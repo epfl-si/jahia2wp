@@ -491,7 +491,7 @@ class Menu {
             }
         }
 
-        if ($mme->get_theme_location() === 'primary' and
+        if ($mme->is_main() and
             (! Site::this_site()->is_root())) {
             if ( ($root_menu = $this->_get_root_menu($mme))
                  &&
@@ -652,6 +652,11 @@ class MenuMapEntry
 
     function get_language () {
         return $this->language;
+    }
+
+    function is_main () {
+        $loc = $this->get_theme_location();
+        return ($loc === 'primary' or $loc === 'top');
     }
 
     /**
