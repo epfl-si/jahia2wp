@@ -23,15 +23,15 @@ trait FindFromAllTrait
                 $matcher = _Matcher::make($v);
                 $getter = "get_$k";
                 if (method_exists($that, $getter)) {
-                    if (! $matcher->matches($that->$getter())) continue;
+                    if (! $matcher->matches($that->$getter())) continue 2;
                 } elseif (method_exists($that, 'meta') and
                           $that->meta()->has($k)) {
-                    if (! $matcher->matches($that->meta()->$getter())) continue;
+                    if (! $matcher->matches($that->meta()->$getter())) continue 2;
                 } else {
-                    if (! $matcher->matches($that->$k)) continue;
+                    if (! $matcher->matches($that->$k)) continue 2;
                 }
-                $found[] = $that;
             }
+            $found[] = $that;
         }
         return new InMemoryResultSet($found);
     }
