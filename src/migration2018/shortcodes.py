@@ -768,6 +768,7 @@ class Shortcodes():
 
         for call in calls:
 
+            box_content = self.__get_content(call)
             new_call = call
 
             # Delete unused attributes
@@ -776,6 +777,10 @@ class Shortcodes():
             new_call = self.__remove_attribute(new_call, old_shortcode, 'enable_zoom')
 
             new_call = self.__rename_shortcode(new_call, old_shortcode, new_shortcode)
+
+            # Content
+            new_call = self.__add_attribute(new_call, new_shortcode, "content1", attr_value=box_content)
+            new_call = self.__change_content(new_call, new_content="").replace("][/epfl_card]", " /]")
 
             # Replacing in global content
             content = content.replace(call, new_call)
@@ -1010,7 +1015,7 @@ class Shortcodes():
 
                     fix_func_name = "_fix_{}".format(shortcode.replace("-", "_"))
 
-                    if shortcode_name.endswith("_2018"):
+                    if shortcode_name is not None and shortcode_name.endswith("_2018"):
                         fix_func_name += "_2018"
 
                     try:
