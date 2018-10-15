@@ -106,11 +106,11 @@ class DestinationWXR:
 
     def fix_links(self, source_url_site, destination_url_site, relative_uri):
         """
-        Fix absolute links in the content of page for html tags
-        like <a href="" and <img src=""
+        Fix absolute and relative links in the content of page
 
         :param source_url_site: Source URL site
         :param destination_url_site: Destination URL site
+        :param relative_uri: Relative URI of destination
         """
 
         logging.info("Starting fix links...")
