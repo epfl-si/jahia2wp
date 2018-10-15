@@ -17,9 +17,9 @@
 
 - name: deactivate EPFL plug-in
   command: "{{ wp_cli_command }} plugin deactivate"
-  when: _epfl_plugin_zip_file.changed and play_unload_reload_plugins
+  when: _epfl_plugin_zip_file.changed and play_unload_reload_plugins is match("yes")
   failed_when: false
 
 - name: reactivate EPFL plug-in
   command: "{{ wp_cli_command }} plugin activate"
-  when: _epfl_plugin_zip_file.changed and play_unload_reload_plugins
+  when: _epfl_plugin_zip_file.changed and play_unload_reload_plugins is match("yes")

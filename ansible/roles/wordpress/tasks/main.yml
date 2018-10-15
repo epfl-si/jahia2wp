@@ -11,16 +11,16 @@
   register: _wp_config_php_stat
 
 - name: "Backup"
-  include: '{{ "backup.yml" if play_backup else "noop.yml" }}'
+  include: '{{ "backup.yml" if play_backup is match("yes") else "noop.yml" }}'
 
 - name: "Create or restore (if requested)"
-  include: '{{ "create-or-restore.yml" if play_create_or_restore else "noop.yml" }}'
+  include: '{{ "create-or-restore.yml" if play_create_or_restore is match("yes") else "noop.yml" }}'
 
 - name: "Update themes and plugins (if requested)"
-  include: '{{ "update.yml" if play_update else "noop.yml" }}'
+  include: '{{ "update.yml" if play_update is match("yes") else "noop.yml" }}'
 
 - name: "Dump (if requested)"
-  include: '{{ "dump.yml" if play_dump and (dump_local_dir is defined) else "noop.yml" }}'
+  include: '{{ "dump.yml" if (play_dump is match("yes")) and (dump_local_dir is defined) else "noop.yml" }}'
 
 - name: "Undump WXR (if requested)"
-  include: '{{ "undump.yml" if play_undump and (undump_local_dir is defined) else "noop.yml" }}'
+  include: '{{ "undump.yml" if (play_undump is match("yes")) and (undump_local_dir is defined) else "noop.yml" }}'

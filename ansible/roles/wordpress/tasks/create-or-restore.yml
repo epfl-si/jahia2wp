@@ -4,23 +4,23 @@
 - include_vars: wp-destructive.yml
 
 - set_fact:
-    play_wp_delete: '{{ wp_can.wipe }}'
-    play_wp_create: '{{ (not _wp_config_php_stat.stat.exists) or wp_can.wipe }}'
-    play_wp_configure: '{{ wp_can.any }}}'
-    play_wp_update: '{{ wp_can.any }}'
-    play_wp_restore: '{{ wp_can.write_data and (wp_restore_from is search("^backup")) }}'
+    _play_wp_delete: '{{ wp_can.wipe }}'
+    _play_wp_create: '{{ (not _wp_config_php_stat.stat.exists) or wp_can.wipe }}'
+    _play_wp_update: '{{ wp_can.any }}'
+    _play_wp_configure: '{{ (play_wp_configure is match("yes")) and wp_can.any }}'
+    _play_wp_restore: '{{ wp_can.write_data and (wp_restore_from is search("^backup")) }}'
 
 - name: Delete (if requested)
-  include_tasks: '{{ "delete.yml" if play_wp_delete else "noop.yml" }}'
+  include_tasks: '{{ "delete.yml" if _play_wp_delete else "noop.yml" }}'
 
 - name: (Re)create (if requested)
-  include_tasks: '{{ "create.yml" if play_wp_create else "noop.yml" }}'
+  include_tasks: '{{ "create.yml" if _play_wp_create else "noop.yml" }}'
 
 - name: Restore (if requested)
-  include_tasks: '{{ "restore.yml" if play_wp_restore else "noop.yml" }}'
+  include_tasks: '{{ "restore.yml" if _play_wp_restore else "noop.yml" }}'
 
 - name: Configure (if requested)
-  include_tasks: '{{ "configure.yml" if play_wp_configure else "noop.yml" }}'
+  include_tasks: '{{ "configure.yml" if _play_wp_configure else "noop.yml" }}'
 
 - name: Check whether WordPress is working
   command: wp --path={{ wp_dir }} eval '1;'

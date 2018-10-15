@@ -17,7 +17,7 @@
 
 inventories="-i ansible/hosts-dev"
 # One can override these overrides on the command line
-default_plays="-e play_update=true -e play_backup=true -e play_create_or_restore=true"
+default_plays="-e play_update=yes -e play_backup=yes -e play_create_or_restore=yes"
 
 while [ -n "$1" ]; do
     case "$1" in
