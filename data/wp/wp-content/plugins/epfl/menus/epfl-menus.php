@@ -55,8 +55,15 @@ use EPFL\ThisPlugin\Asset;
 require_once(dirname(__DIR__) . '/lib/pod.php');
 use EPFL\Pod\Site;
 
-class MenuError extends \Exception {};
+class MenuError extends \Exception {}
 
+class MenuLoopError extends MenuError {
+    function __construct($ids_array) {
+        $msg = implode(" ", array_keys($ids_array));
+        error_log("MenuLoopError: $msg");
+        parent::__construct($msg);
+    }
+}
 
 /**
  * A Wordpress-style list of menu objects.
@@ -191,10 +198,17 @@ class MenuItemBag
         // Keep descendants of $pruned out of $remaining
         $remaining = array();
         foreach ($remaining_candidates as $rc) {
+            $ancestor_ids = array();
+
             for ($ancestor = $rc; $ancestor;
                  $ancestor = $this->get_parent($ancestor))
             {
                 $ancestor_id = $this->_get_id($ancestor);
+                if ($ancestor_ids[$ancestor_id]) {
+                    throw new MenuLoopError($ancestor_ids);
+                } else {
+                    $ancestor_ids[$ancestor_id] = 1;
+                }
                 if ($pruned[$ancestor_id]) continue;
             }
             $remaining[] = $rc;
@@ -333,7 +347,7 @@ class MenuItemBag
      *
      * This method does the right thing when this instance already
      * contains items with negative IDs, thanks to @link
-     * _get_highest_negative_unused_id.
+     * _get_largest_negative_unused_id.
      *
      * @param $other_bag An instance of this class (call @link coerce
      *        yourself if needed)
@@ -342,25 +356,34 @@ class MenuItemBag
      *         $this and $other_bag
      */
     protected function _renumber ($other_bag) {
-        $next_id = $this->_get_highest_negative_unused_id();
+        $next_id = $this->_get_largest_negative_unused_id();
 
         $translation_table = array();
-        $translated = array();
         foreach ($other_bag->items as $item) {
             $orig_id        = $this->_get_id       ($item);
             $orig_parent_id = $this->_get_parent_id($item);
             foreach (array($orig_id, $orig_parent_id) as $old_id) {
+                $old_id = (int) $old_id;
                 if ($old_id and ! $translation_table[$old_id]) {
                     $translation_table[$old_id] = $next_id--;
                 }
             }
+        }
+
+        // Now that we have a complete $translation_table, start over
+        // and renumber
+        $translated = array();
+        foreach ($other_bag->items as $item) {
             $item = clone $item;
-            if ($orig_id) {
-                $this->_MUTATE_set_id       ($item, $translation_table[$orig_id]);
+
+            $orig_id = $this->_get_id($item);
+            $this->_MUTATE_set_id($item, $translation_table[$orig_id]);
+
+            if ($orig_parent_id = $this->_get_parent_id($item)) {
+                $this->_MUTATE_set_parent_id(
+                    $item, $translation_table[$orig_parent_id]);
             }
-            if ($orig_parent_id) {
-                $this->_MUTATE_set_parent_id($item, $translation_table[$orig_parent_id]);
-            }
+
             $translated[] = $item;
         }
 
@@ -368,7 +391,7 @@ class MenuItemBag
         return new $thisclass($translated);
     }
 
-    protected function _get_highest_negative_unused_id () {
+    protected function _get_largest_negative_unused_id () {
         $myids = array_keys($this->items);
         $myids[] = 0;  // Ensure return value is -1 or less
         return min($myids) - 1;
