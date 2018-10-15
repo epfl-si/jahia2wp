@@ -186,7 +186,7 @@ class Shortcodes():
     def __remove_attribute(self, content, shortcode_name, attr_name):
         """
         Remove a shortcode attribute
-        
+
         FIX: this method has a bug when parameter value contains parameter name
         example: [epfl_card title="toto title" link="toto link" image="29"]toto text[/epfl_card]
 
@@ -942,7 +942,7 @@ class Shortcodes():
     def _fix_epfl_card_2018(self, content):
         """
         Fix "epfl_card" shortcode
-        
+
         Note: This method name is suffix by '_2018' to prevent its use during shortcodes migration
 
         example:
