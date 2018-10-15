@@ -23,9 +23,6 @@ while [ -n "$1" ]; do
         --prod)
             inventories="$inventories -i ansible/hosts-prod"
             shift ;;
-        --skip-backup)
-            plays="-e play_update=true"
-            shift ;;
         *)
             break ;;
     esac
@@ -33,4 +30,4 @@ done
 
 thisdir="$(dirname "$(realpath "$0")")"
 
-ansible-playbook -e "play_create_or_restore=true" $plays $inventories "$@" "$thisdir"/playbooks/wordpress-main.yml
+ansible-playbook -e "play_create_or_restore=true" $inventories "$@" "$thisdir"/playbooks/wordpress-main.yml
