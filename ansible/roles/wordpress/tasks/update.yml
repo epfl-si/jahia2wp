@@ -13,3 +13,13 @@
     src: "{{ epfl_plugin_zip_file }}"
     dest: "{{ wp_plugins_dir }}"
   when: "wp_can.write_code"
+  register: _epfl_plugin_zip_file
+
+- name: deactivate EPFL plug-in
+  command: "{{ wp_cli_command }} plugin deactivate"
+  when: _epfl_plugin_zip_file.changed
+  failed_when: false
+
+- name: reactivate EPFL plug-in
+  command: "{{ wp_cli_command }} plugin activate"
+  when: _epfl_plugin_zip_file.changed
