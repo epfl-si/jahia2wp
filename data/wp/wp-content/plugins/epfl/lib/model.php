@@ -242,6 +242,10 @@ abstract class Post
             $in_the_loop->leave();
         }
     }
+    
+    function __toString () {
+        return sprintf('<%s(%d)>', get_called_class(), $this->ID);
+    }
 }
 
 
