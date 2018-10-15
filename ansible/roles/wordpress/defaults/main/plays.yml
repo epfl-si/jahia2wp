@@ -20,6 +20,11 @@ play_undump: false
 # Both ../../../../deploy and the ventilation flow overrides this one
 play_create_or_restore: false
 
+# These operations default to being run (when appropriate - not all of
+# them appear at top level), but you can pass -e play_foo=false if you
+# want to skip them
+play_unload_reload_plugins: true   # Ancillary to play_update
+
 # Note that there are more play_ variables (e.g. in
 # ../..//tasks/create-or-restore.yml - you can grep for more), but
 # these are always computed (with set_fact or otherwise) so they do

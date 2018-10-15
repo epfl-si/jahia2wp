@@ -16,7 +16,8 @@
 # - https://github.com/jdauphant/awesome-ansible
 
 inventories="-i ansible/hosts-dev"
-plays="-e play_update=true -e play_backup=true"
+# One can override these overrides on the command line
+default_plays="-e play_update=true -e play_backup=true -e play_create_or_restore=true"
 
 while [ -n "$1" ]; do
     case "$1" in
@@ -30,4 +31,4 @@ done
 
 thisdir="$(dirname "$(realpath "$0")")"
 
-ansible-playbook -e "play_create_or_restore=true" $inventories "$@" "$thisdir"/playbooks/wordpress-main.yml
+ansible-playbook $default_plays $inventories "$@" "$thisdir"/playbooks/wordpress-main.yml
