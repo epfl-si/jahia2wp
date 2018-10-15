@@ -118,7 +118,7 @@ class AutoFieldsController {
     function hook ()
     {
         add_filter("is_protected_meta", array($this, "filter_is_protected_meta"), 10, 3);
-        on_deactivate(array($this, "clear_auto_fields"));
+        on_deactivate(array($this, "clear"));
     }
 
     /**
