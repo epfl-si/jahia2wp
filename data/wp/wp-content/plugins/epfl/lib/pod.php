@@ -80,7 +80,8 @@ class Site {
     }
 
     function get_localhost_url () {
-        return 'https://localhost:8443/' . $this->path_under_htdocs;
+        $subpath = $this->path_under_htdocs;
+        return 'https://localhost:8443/' . ($subpath ? $subpath . '/' : '');
     }
 
     function get_url () {

@@ -358,7 +358,8 @@ class REST_URL
 
     function fully_qualified () {
         $api_path = _API_EPFL_PATH;
-        return $this->site_base . "/wp-json/$api_path/" . $this->path;
+        $site_base = preg_replace('#/+$#', '', $this->site_base);
+        return $site_base . "/wp-json/$api_path/" . $this->path;
     }
 
     function __toString () {
