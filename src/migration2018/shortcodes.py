@@ -186,6 +186,9 @@ class Shortcodes():
     def __remove_attribute(self, content, shortcode_name, attr_name):
         """
         Remove a shortcode attribute
+        
+        FIX: this method has a bug when parameter value contains parameter name
+        example: [epfl_card title="toto title" link="toto link" image="29"]toto text[/epfl_card]
 
         :param content: string in which doing replacement
         :param shortcode_name: Shortcode name for which we have to remove attribute
@@ -744,7 +747,7 @@ class Shortcodes():
 
             title = self.__get_attribute(call, 'title')
 
-            new_call = '[{0} title="{1}"]{2}[/{0}]'.format(new_shortcode, title, box_content)
+            new_call = '[{0} title1="{1}"]{2}[/{0}]'.format(new_shortcode, title, box_content)
 
             # Replacing in global content
             content = content.replace(call, new_call)
@@ -776,6 +779,11 @@ class Shortcodes():
 
             # Replacing in global content
             content = content.replace(call, new_call)
+
+        # Rename attributes
+        content = self.__rename_attribute(content, new_shortcode, "title", "title1")
+        content = self.__rename_attribute(content, new_shortcode, "url", "link1")
+        content = self.__rename_attribute(content, new_shortcode, "image", "image1")
 
         return content
 
@@ -926,9 +934,11 @@ class Shortcodes():
         content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
         return content
 
-    def _fix_epfl_card(self, content):
+    def _fix_epfl_card_2018(self, content):
         """
         Fix "epfl_card" shortcode
+        
+        Note: This method name is suffix by '_2018' to prevent its use during shortcodes migration
 
         example:
         input: [epfl_card title="toto titre" link="toto lien" image="29"]toto text[/epfl_card]
@@ -936,24 +946,20 @@ class Shortcodes():
         """
         shortcode_name = "epfl_card"
 
-        title1_value = self.__get_attribute(content, "title")
-        content = self.__add_attribute(content, shortcode_name, "title1", attr_value=title1_value)
-        content = self.__remove_attribute(content, shortcode_name, "title")
+        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
-        # FIX: le remove_attribut merdouille si on met link à l'intérieur de la valeur de link=""
-        # [epfl_card title="toto titre" link="toto link" image="29"]toto text[/epfl_card]
-        link1_value = self.__get_attribute(content, "link")
-        content = self.__add_attribute(content, shortcode_name, "link1", attr_value=link1_value)
-        content = self.__remove_attribute(content, shortcode_name, "link")
+        for call in calls:
 
-        image1_value = self.__get_attribute(content, "image")
-        content = self.__add_attribute(content, shortcode_name, "image1", attr_value=image1_value)
-        content = self.__remove_attribute(content, shortcode_name, "image")
+            box_content = self.__get_content(call)
 
-        # FIX: comment ça peut marcher sans préciser le nom du shortcode ? ou si plusieurs shortcodes avec content ?
-        content1_value = self.__get_content(content)
-        content = self.__add_attribute(content, shortcode_name, "content1", attr_value=content1_value)
-        content = self.__change_content(content, new_content="").replace("][/epfl_card]",  " /]")
+            new_call = self.__add_attribute(call, shortcode_name, "content1", attr_value=box_content)
+            new_call = self.__change_content(new_call, new_content="").replace("][/epfl_card]",  " /]")
+
+            content = content.replace(call, new_call)
+
+        content = self.__rename_attribute(content, shortcode_name, "title", "title1")
+        content = self.__rename_attribute(content, shortcode_name, "link", "link1")
+        content = self.__rename_attribute(content, shortcode_name, "image", "image1")
 
         return content
 
@@ -1000,9 +1006,12 @@ class Shortcodes():
             # Looking for all shortcodes in current post
             for shortcode in list(set(re.findall(self.regex, content))):
 
-                if shortcode_name is None or shortcode_name == shortcode:
+                if shortcode_name is None or shortcode_name.startswith(shortcode):
 
                     fix_func_name = "_fix_{}".format(shortcode.replace("-", "_"))
+
+                    if shortcode_name.endswith("_2018"):
+                        fix_func_name += "_2018"
 
                     try:
                         # Trying to get function to fix current shortcode
