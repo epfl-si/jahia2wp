@@ -1,7 +1,7 @@
 # Set up Ansible to use a homemade temporary directory on
 # WordPress Dockers (test and production)
 #
-# Should be skipped for read-only plays e.g. when: play_dump is defined
+# Should be skipped for read-only plays e.g. when: play_dump
 - name: Create temporary directory
   tempfile:
     state: directory

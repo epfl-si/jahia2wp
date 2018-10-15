@@ -10,7 +10,7 @@
         ansible_user: www-data
         ansible_python_interpreter: "/srv/{{wp_env}}/venv/bin/python"
     - name: Create and use remote temporary directory (if required)
-      include_tasks: '{{ "../tasks/remote-tempdir.yml" if play_dump is not defined else "../tasks/noop.yml" }}'
+      include_tasks: '{{ "../tasks/remote-tempdir.yml" if play_dump else "../tasks/noop.yml" }}'
     - name: Gathering facts (delayed after Ansible pre-configuration)
       setup:
   roles:

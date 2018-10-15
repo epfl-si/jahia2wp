@@ -1,0 +1,26 @@
+# What to do in the plays
+#
+# These defaults are overridden by whatever controlling script takes
+# command - Either a full-fledged shell script such as
+# ../../../../dump or ../../../../deploy, or the ventilation flow
+# from ../../../../playbooks/push-ventilated.yml. In the former case
+# you can override the override using a -e switch on the command
+# line.
+
+# ../../../../dump overrides this
+play_dump: false
+
+# ../../../../deploy overrides these
+play_update: false
+play_backup: false
+
+# The ventilation flow overrides this one
+play_undump: false
+
+# Both ../../../../deploy and the ventilation flow overrides this one
+play_create_or_restore: false
+
+# Note that there are more play_ variables (e.g. in
+# ../..//tasks/create-or-restore.yml - you can grep for more), but
+# these are always computed (with set_fact or otherwise) so they do
+# not need a default value here.
