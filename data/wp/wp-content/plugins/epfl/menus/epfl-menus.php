@@ -479,15 +479,29 @@ class Menu {
                 $emi->get_site_url() ?
                 $emi->get_site_url() :
                 $emi->get_rest_url());
-            $tree = $tree->graft(
-                $item,
-                $emi->get_remote_menu()->annotate_roots(array(
-                    self::SOA_SLUG => $soa_url)));
+
+            $remote_menu = $emi->get_remote_menu();
+            if ($remote_menu) {
+                $tree = $tree->graft(
+                    $item,
+                    $remote_menu->annotate_roots(array(
+                        self::SOA_SLUG => $soa_url)));
+            } else {
+                error_log("$emi has no remote menu");
+            }
         }
 
         if ($mme->get_theme_location() === 'primary' and
             (! Site::this_site()->is_root())) {
-            $tree = $this->_stitch_up($this->_get_root_menu($mme), $tree);
+            if ( ($root_menu = $this->_get_root_menu($mme))
+                 &&
+                 ($stitched_up_tree = $this->_stitch_up($root_menu, $tree)) )
+            {
+                $tree = $stitched_up_tree;
+            } else {
+                error_log('Unable to stitch up - Root menu not found');
+                return $tree;
+            }
         }
 
         $tree = $tree->map(function($item) {
@@ -508,13 +522,16 @@ class Menu {
     }
 
     protected function _get_root_menu ($mme) {
-        return ExternalMenuItem::find(array(
+        $emi = ExternalMenuItem::find(array(
                'site_url'       => Site::root()->get_localhost_url(),
                'remote_slug'    => $mme->get_theme_location()
         ))
             ->first_preferred(array(
-                'language' => $mme->get_language()))
-            ->get_remote_menu();
+                'language' => $mme->get_language()));
+
+        if (! $emi) return;
+
+        return $emi->get_remote_menu();
     }
 
     protected function _stitch_up ($under, $tree) {
@@ -914,7 +931,9 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
     }
 
     function get_remote_menu () {
-        return new MenuItemBag(json_decode($this->meta()->get_items_json()));
+        $json = $this->meta()->get_items_json();
+        if (! $json) return;
+        return new MenuItemBag(json_decode($json));
     }
 
     function get_subscribe_url () {
