@@ -24,4 +24,5 @@
 
 - name: Check whether WordPress is working
   command: wp --path={{ wp_dir }} eval '1;'
+  when: play_check_working_wordpress is match("yes")
   changed_when: false

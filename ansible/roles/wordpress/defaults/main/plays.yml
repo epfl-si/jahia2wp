@@ -26,5 +26,6 @@ play_create_or_restore: "no"
 # These operations default to being run (when appropriate - not all of
 # them appear at top level), but you can pass -e play_foo=no if you
 # want to skip them
-play_unload_reload_plugins: "yes"   # Ancillary to play_update
-play_wp_configure: "yes"            # Used in ../../tasks/create-or-restore.yml
+play_unload_reload_plugins: "yes"    # Ancillary to play_update
+play_wp_configure: "yes"             # Used in ../../tasks/create-or-restore.yml
+play_check_working_wordpress: "yes"  # Ditto
