@@ -28,8 +28,9 @@ class Site {
 
     static function this_site () {
         $thisclass = get_called_class();
-        $that = new $thisclass(static::_htdocs_split()[1]);
-        $that->abspath = ABSPATH;
+        list($htdocs_path, $under_htdocs) = static::_htdocs_split();
+        $that = new $thisclass($under_htdocs);
+        $that->htdocs_path = $htdocs_path;
         return $that;
     }
 
@@ -114,23 +115,25 @@ class Site {
     }
 
     function get_subsites () {
-        if (! $this->abspath) {
+        if (! $this->htdocs_path) {
             throw new \Error("Sorry, ->get_subsites() only works on ::this_site() for now");
         }
 
-        return static::_get_subsites_recursive ($this->abspath);
+        return static::_get_subsites_recursive (
+            $this->htdocs_path, $this->path_under_htdocs);
     }
 
-    static function _get_subsites_recursive ($path) {
+    static function _get_subsites_recursive ($htdocs_path, $path) {
         $retvals = array();
-        foreach (scandir($path) as $filename) {
+        foreach (scandir("$htdocs_path/$path") as $filename) {
             if (preg_match('#^([.]|wp-)#', $filename)) continue;
-            if (! is_dir($subdir = "$path/$filename")) continue;
+            $subdir = strlen($path) ? "$path/$filename" : $filename;
+            if (! is_dir("$htdocs_path/$subdir")) continue;
             if (static::exists($subdir)) {
                 $thisclass = get_called_class();
                 $retvals[] = new $thisclass($subdir);
             } else {
-                array_push($retvals, static::_get_subsites_recursive($subdir));
+                $retvals = array_merge($retvals, static::_get_subsites_recursive($htdocs_path, $subdir));
             }
         }
         return $retvals;
