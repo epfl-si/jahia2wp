@@ -45,6 +45,7 @@ class Item(XMLElement):
     post_status    = XMLElementProperty('wp:status',         str)  # noqa: E221
     comment_status = XMLElementProperty('wp:comment_status', str)  # noqa: E221
     ping_status    = XMLElementProperty('wp:ping_status',    str)  # noqa: E221
+    content        = XMLElementProperty('content_encoded',   str)  # noqa: E221
 
     post_meta = XMLDictProperty('wp:postmeta', 'wp:meta_key', 'wp:meta_value')
 

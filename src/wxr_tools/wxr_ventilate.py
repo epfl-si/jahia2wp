@@ -221,16 +221,21 @@ class Ventilator:
 
         return current_id
 
+    def fix_links(self, rewrite_from, rewrite_to, rewrite_relative_uri):
+        for page in Page.all(self.etree):
+            page.content = fix_links(page.content, rewrite_from, rewrite_to,
+                                     rewrite_relative_uri)
+
 
 if __name__ == '__main__':
     args = docopt(__doc__)
     v = Ventilator(args["<input_xml_file>"], args)
-    output_xml = xml_to_string(v.ventilate())
+    output = v.ventilate()
     if args['--url-rewrite']:
         rewrite_from, rewrite_to = args['--url-rewrite'].split(',')
-        output_xml = fix_links(output_xml, rewrite_from, rewrite_to, args['--rewrite-relative-uri'])
+        v.fix_links(rewrite_from, rewrite_to, args['--rewrite-relative-uri'])
 
-    print(output_xml)
+    print(xml_to_string(output))
 
 
 def demo():
