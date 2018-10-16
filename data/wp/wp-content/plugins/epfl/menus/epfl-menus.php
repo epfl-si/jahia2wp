@@ -57,10 +57,11 @@ use EPFL\Pod\Site;
 
 class MenuError extends \Exception {}
 
-class MenuLoopError extends MenuError {
+class TreeError extends \Exception {}
+
+class TreeLoopError extends TreeError {
     function __construct($ids_array) {
         $msg = implode(" ", array_keys($ids_array));
-        error_log("MenuLoopError: $msg");
         parent::__construct($msg);
     }
 }
@@ -84,6 +85,7 @@ class MenuItemBag
         foreach ($items as $item) {
             $this->_MUTATE_add_item($item);
         }
+        $this->_validate();
     }
 
     static function coerce ($what) {
@@ -124,6 +126,53 @@ class MenuItemBag
             }
         }
         return $copy;
+    }
+
+   /**
+    * Ensure that
+    *
+    *  - All ->_get_parent_id's are 0 or within the graph
+    *
+    *  - There are no ancestry loops
+    */
+    private function _validate () {
+        // Based on https://en.wikipedia.org/wiki/Topological_sorting#Kahn's_algorithm
+        $children = array();    // Adjacency list, keyed by parent ID
+        $safe     = array();    // List of nodes with no loops in their ancestry
+                                // ($S in the Wikipedia algorithm)
+        foreach ($this->items as $item) {
+            $id = $this->_get_id($item);
+            $parent_id = $this->_get_parent_id($item);
+            if (! $parent_id) {
+                $safe[] = $id;
+            } elseif (! array_key_exists($parent_id, $this->items)) {
+                throw new TreeError("Parent of $id ($parent_id) unknown");
+            } elseif (! $children[$parent_id]) {
+                $children[$parent_id] = array($id);
+            } else {
+                $children[$parent_id][] = $id;
+            }
+        }
+
+        while(count($safe)) {
+            $n = array_shift($safe);  // Proof of termination starts here
+            // $n is known not to have loops in its ancestry
+
+            // Here we would add to $n to $L if we were closely
+            // following the Wikipedia algorithm, but we aren't so we
+            // don't.
+            if ($children[$n]) {
+                // All children of a safe node are safe
+                $safe = array_merge($safe, $children[$n]);
+                // Discard the corresponding edges from the adjacency list
+                unset($children[$n]);
+            }
+        }
+
+        if (count($children)) {
+            // Some nodes were not visited; they must have cycles.
+            throw new TreeLoopError(array_keys($children));
+        }
     }
 
     function as_list () {
@@ -205,7 +254,7 @@ class MenuItemBag
             {
                 $ancestor_id = $this->_get_id($ancestor);
                 if ($ancestor_ids[$ancestor_id]) {
-                    throw new MenuLoopError($ancestor_ids);
+                    throw new TreeLoopError($ancestor_ids);
                 } else {
                     $ancestor_ids[$ancestor_id] = 1;
                 }
@@ -968,10 +1017,8 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
     }
 
     function set_remote_menu ($what) {
-        if (method_exists($what, 'as_list')) {
-            $what = $what->as_list();
-        }
-        $this->meta()->set_items_json(json_encode($what));
+        $what = MenuItemBag::coerce($what);
+        $this->meta()->set_items_json(json_encode($what->as_list()));
     }
 
     function get_remote_menu () {
