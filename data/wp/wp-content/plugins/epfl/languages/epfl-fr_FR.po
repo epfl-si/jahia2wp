@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-10-12 08:25+0200\n"
-"PO-Revision-Date: 2018-10-16 11:14+0200\n"
+"POT-Creation-Date: 2018-10-16 11:30+0200\n"
+"PO-Revision-Date: 2018-10-16 11:31+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -49,7 +49,9 @@ msgid "Timetable"
 msgstr "Horaire"
 
 #: epfl-contact/shortcake-config.php:24
-msgid "Lundi à jeudi <b>09:00 › 18:00</b>"
+#, fuzzy
+#| msgid "Lundi à jeudi <b>09:00 › 18:00</b>"
+msgid "Lundi à jeudi <b>09:00 > 18:00</b>"
 msgstr "Monday to thursday <b>09.00 am > 18.00 pm</b>"
 
 #: epfl-contact/shortcake-config.php:35
