@@ -22,6 +22,7 @@ require_once 'shortcodes/epfl-social-feed/epfl-social-feed.php';
 require_once 'shortcodes/epfl-xml/epfl-xml.php';
 require_once 'shortcodes/epfl-faq/epfl-faq.php';
 require_once 'shortcodes/epfl-share/epfl-share.php';
+require_once 'shortcodes/epfl-contact/epfl-contact.php';
 
 // load .mo file for translation
 function epfl_load_plugin_textdomain() {
