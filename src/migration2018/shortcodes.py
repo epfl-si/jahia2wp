@@ -943,7 +943,7 @@ class Shortcodes():
         """
         Fix "epfl_card" shortcode
 
-        Note: This method name is suffix by '_2018' to prevent its use during shortcodes migration
+        Note: This method name is suffix by '_new_version' to prevent its use during shortcodes migration
 
         example:
         input: [epfl_card title="toto titre" link="toto lien" image="29"]toto text[/epfl_card]
