@@ -9,10 +9,8 @@ function epfl_contact_process_shortcode($atts) {
         if ($key == 'introduction' || strpos($key, 'information') !== false)
         {
             $atts[$key] = sanitize_textarea_field($value);
-            var_dump('sanitized');
         } else {
             $atts[$key] = sanitize_text_field($value);
-            var_dump('sanitized');
         }
     }
 
