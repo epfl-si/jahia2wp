@@ -35,7 +35,7 @@ sys.path.append(dirname(dirname(os.path.realpath(__file__))))
 
 from wxr_tools.wxr_model import Channel, Page, NavMenu, NavMenuItem, Item  # noqa: E402
 from wxr_tools.xml import xml_to_string                                    # noqa: E402
-from wxr_tools.html import fix_links
+from wxr_tools.html import fix_links                                       # noqa: E402
 
 
 def normalize_site_url(url_text):
