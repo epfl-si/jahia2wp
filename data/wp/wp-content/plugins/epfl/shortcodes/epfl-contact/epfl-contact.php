@@ -4,6 +4,18 @@ namespace Epfl\Contact;
 require_once 'shortcake-config.php';
 
 function epfl_contact_process_shortcode($atts) {
+    // sanitize parameters
+    foreach($atts as $key => $value) {
+        if ($key == 'introduction' || strpos($key, 'information') !== false)
+        {
+            $atts[$key] = sanitize_textarea_field($value);
+            var_dump('sanitized');
+        } else {
+            $atts[$key] = sanitize_text_field($value);
+            var_dump('sanitized');
+        }
+    }
+
     if (has_action("epfl_contact_action")) {
         ob_start();
 
