@@ -241,12 +241,30 @@ class MenuItemBag
     }
 
     /**
-     * @return (A copy of) $this without the ExternalMenuItem nodes
+     * @return A copy of $this without the ExternalMenuItem nodes
      */
     function trim_external () {
         return $this->pluck(function($item) {
             return ExternalMenuItem::looks_like($item);
         })[0];
+    }
+
+    /**
+     * @return A copy of $this with ExternalMenuItem entries annotated
+     *         with their ->rest_url, and stripped from other
+     *         irrelevant (internal-only) metadata
+     */
+    function export_external () {
+        return $this->map(function($item) {
+            if ($emi = ExternalMenuItem::get($item)) {
+                unset($item->url);
+                unset($item->guid);
+                unset($item->object_id);  // Only makes sense locally
+
+                $item->rest_url = $emi->get_rest_url();
+            }
+            return $item;
+        });
     }
 
     function get_parent ($item) {
@@ -281,6 +299,9 @@ class MenuItemBag
         if ($this->items[$this->_get_id($item)]) {
             throw new \Error("Duplicate ID: " . $this->_get_id($item));
         }
+        $item = clone($item);
+        $this->_MUTATE_set_id       ($item, (int) $this->_get_id       ($item));
+        $this->_MUTATE_set_parent_id($item, (int) $this->_get_parent_id($item));
         $this->items[$this->_get_id($item)] = $item;
     }
 
@@ -363,7 +384,6 @@ class MenuItemBag
             $orig_id        = $this->_get_id       ($item);
             $orig_parent_id = $this->_get_parent_id($item);
             foreach (array($orig_id, $orig_parent_id) as $old_id) {
-                $old_id = (int) $old_id;
                 if ($old_id and ! $translation_table[$old_id]) {
                     $translation_table[$old_id] = $next_id--;
                 }
@@ -469,7 +489,7 @@ class Menu {
     private const SOA_SLUG = 'epfl_soa';
 
     /**
-     * Compute the fully stitched menu that surrounds this Menu.
+     * Compute "stitched down" menu rooted at this Menu.
      *
      * ExternalMenuItem entries present in the menu are decorated with
      * the contents of the remote menu, as obtained over REST; they
@@ -477,24 +497,15 @@ class Menu {
      * clients (call @link MenuItemBag::trim_external to remove them,
      * e.g. prior to passing to a frontend walker).
      *
-     * If we are rendering the primary menu and this is not the root
-     * site, graft ourselves into the root site's menu at the proper
-     * point.
-     *
-     * In both grafting operations ("down" for ExternalMenuItems, "up"
-     * for the root site's menu), keep our own nodes (the ones we have
-     * authority for) with positive IDs and renumber all foreign nodes
-     * with negative IDs.
-     *
-     * @param $mme A @link MenuMapEntry instance representing the menu
-     *             being rendered.
+     * Keep our own nodes (the ones we have authority for) with
+     * positive IDs and renumber all grafted nodes with negative IDs.
      *
      * @return A @link MenuItemBag instance, in which the
      *         authoritative menu entries (the ones retrieved from the
      *         local database) have positive IDs, while the remote
      *         IDs are negative
      */
-    function get_stitched_tree ($mme) {
+    function get_stitched_down_tree () {
         $tree = $this->_get_local_tree();
         foreach ($tree->as_list() as $item) {
             if (! ($emi = ExternalMenuItem::get($item))) continue;
@@ -514,32 +525,69 @@ class Menu {
             }
         }
 
-        if ($mme->is_main() and
-            (! Site::this_site()->is_root())) {
-            if ( ($root_menu = $this->_get_root_menu($mme))
-                 &&
-                 ($stitched_up_tree = $this->_stitch_up($root_menu, $tree)) )
-            {
-                $tree = $stitched_up_tree;
-            } else {
-                error_log('Unable to stitch up - Root menu not found');
-                return $tree;
-            }
+        return $tree;
+    }
+
+    /**
+     * Compute the fully stitched menu that surrounds this Menu.
+     *
+     * Like @link get_stitched_down_tree, but additionally if we are
+     * rendering the primary menu and this is not the root site, graft
+     * ourselves into the root site's menu at the proper point.
+     *
+     * In both grafting operations ("down" for ExternalMenuItems, "up"
+     * for the root site's menu), keep our own nodes (the ones we have
+     * authority for) with positive IDs and renumber all foreign nodes
+     * with negative IDs.
+     *
+     * @param $mme A @link MenuMapEntry instance representing the menu
+     *             being rendered.
+     *
+     * @return A @link MenuItemBag instance, in which the
+     *         authoritative menu entries (the ones retrieved from the
+     *         local database) have positive IDs, while the remote
+     *         IDs are negative
+     */
+    function get_fully_stitched_tree ($mme) {
+        $tree = $this->get_stitched_down_tree();
+        if (! $mme->is_main()) return $tree;
+        if (Site::this_site()->is_root()) return $tree;
+
+        if (! $root_menu = $this->_get_root_menu($mme)) {
+            error_log('Unable to stitch up - Root menu not found');
+            return $tree;
         }
 
-        $tree = $tree->map(function($item) {
-            if (! ($emi = ExternalMenuItem::get($item))) {
-                return $item;
-            }
+        $soa_slug = self::SOA_SLUG;
+        $site_url = site_url();
+        if (! preg_match('#/$#', $site_url)) {
+            $site_url .= '/';
+        }
+        $root_menu = $root_menu->pluck(
+            function($item) use ($soa_slug, $site_url) {
+                return $item->$soa_slug === $site_url;
+            })[0];
 
-            unset($item->url);
-            unset($item->guid);
-            unset($item->object_id);  // Only makes sense locally
+        // When stitching up, the graft point(s) are any and all
+        // ExternalMenuItem's that point to ourselves.
+        $grafted_count = 0;
+        $self = $this;
+        foreach (
+            array_filter($root_menu->as_list(),
+                         function($item) use ($self) {
+                             return $self->_corresponds($item);
+                         })
+            as $graft_point)
+        {
+            $tree = $tree->reverse_graft($graft_point, $root_menu);
+            $grafted_count++;
+        }
 
-            $item->rest_url = $emi->get_rest_url();
-
-            return $item;
-        });
+        if (! $grafted_count) {
+            error_log(sprintf(
+                'Cannot find graft point - Unable to stitch up\n%s',
+                var_export($root_menu, true)));
+        }
 
         return $tree;
     }
@@ -555,38 +603,6 @@ class Menu {
         if (! $emi) return;
 
         return $emi->get_remote_menu();
-    }
-
-    protected function _stitch_up ($under, $tree) {
-        $soa_slug = self::SOA_SLUG;
-        $site_url = site_url();
-        $under = $under->pluck(function($item) use ($soa_slug, $site_url) {
-            return $item->$soa_slug === $site_url;
-        })[0];
-
-        // When stitching up, the graft point(s) are any and all
-        // ExternalMenuItem's that point to ourselves.
-        $grafted_count = 0;
-        $self = $this;
-        foreach (
-            array_filter($under->as_list(),
-                         function($item) use ($self) {
-                             return $self->_corresponds($item);
-                         })
-            as $graft_point)
-        {
-            $tree = $tree->reverse_graft($graft_point, $under);
-            $grafted_count++;
-        }
-
-        if (! $grafted_count) {
-            error_log(sprintf(
-                'Cannot find graft point - Unable to stitch up\n%s',
-                var_export($under, true)));
-            return $tree;
-        }
-
-        return $tree;
     }
 
     /**
@@ -849,8 +865,8 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
         return (is_object($what)
                 and ($what->post_type === 'nav_menu_item')
                 // Don't test for ->object_id here, as
-                // ->get_stitched_tree() could have scrubbed it
-                // before serving over REST
+                // MenuItemBag->export_external() could have scrubbed
+                // it before serving over REST
                 and ($what->object === static::get_post_type()));
     }
 
@@ -1047,11 +1063,12 @@ class MenuRESTController
                 'status' => 'NOT_FOUND',
                 'msg' => "No menu with slug $slug$inlang"));
         }
-
         $menu = $entry->get_menu();
+
         $response = new \WP_REST_Response(array(
             'status' => 'OK',
-            'items'  => $menu->get_stitched_tree($entry)->as_list()));
+            'items'  => $menu->get_stitched_down_tree()
+                             ->export_external()->as_list()));
         // Note: this link is for subscribing to changes in any
         // language, not just the one being served now.
         $response->add_link(
@@ -1465,7 +1482,7 @@ class MenuFrontendController
         if (! $menu_orig) return $menu_items;
 
         return $menu_orig
-            ->get_stitched_tree(
+            ->get_fully_stitched_tree(
                 static::_guess_menu_entry_from_wp_nav_menu_args($args))
             ->trim_external()
             ->copy_classes($menu_items)
