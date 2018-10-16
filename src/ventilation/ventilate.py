@@ -13,13 +13,11 @@ Options:
 """
 
 import os
-import re
 import sys
 import subprocess
 import lxml.etree
 from urllib.parse import urlparse, urlunparse
 
-from bs4 import BeautifulSoup, CData
 from docopt import docopt
 import logging
 
@@ -99,104 +97,19 @@ class DestinationWXR:
             '--add-structure', kwargs['add_structure']
         ]
 
+        if (kwargs['url_rewrite_from']):
+            cmdline.extend([
+                '--url-rewrite={0},{1}'.format(kwargs['url_rewrite_from'],
+                                               kwargs['url_rewrite_to']),
+                '--rewrite-relative-uri=' + kwargs['rewrite_relative_uri']
+            ])
+
         cmdline.append(self.source_file)
 
         logging.debug(' '.join(cmdline))
         return subprocess.run(cmdline,
                               stdout=open(self.path, 'w'),
                               check=True)
-
-    def fix_links(self, source_url_site, destination_url_site, relative_uri):
-        """
-        Fix absolute and relative links in the content of page
-
-        :param source_url_site: Source URL site
-        :param destination_url_site: Destination URL site
-        :param relative_uri: Relative URI of destination
-        """
-
-        logging.info("Starting fix links...")
-
-        with open(self.path, "r") as wxr_ventilated_xml_file:
-
-            # parse xml
-            soup = BeautifulSoup(wxr_ventilated_xml_file.read(), 'xml')
-
-            # find all <content:encoded> xml tag
-            content_encoded_tags = soup.find_all('content:encoded')
-
-            for xml_tag in content_encoded_tags:
-
-                if len(xml_tag.contents) == 0:
-                    continue
-
-                # parse html content of xml 'content:encoded' tag
-                soup_html = BeautifulSoup(xml_tag.contents[0], 'html5lib')
-
-                # delete html tags like <html>, <head>, <body>
-                # and keeps only the HTML content
-                soup_html.body.hidden = True
-                soup_html.head.hidden = True
-                soup_html.html.hidden = True
-
-                tag_attribute_list = [('a', 'href'), ]
-
-                for element in tag_attribute_list:
-
-                    # find all HTML tags like 'a' or 'img'
-                    html_tags = soup_html.find_all(element[0])
-
-                    for html_tag in html_tags:
-
-                        # get the attribute value
-                        link = html_tag.get(element[1])
-
-                        if not link:
-                            continue
-
-                        if link.startswith(source_url_site):
-                            # absolute URLs
-                            html_tag[element[1]] = link.replace(source_url_site, destination_url_site)
-                            logging.debug("Replace absolute URL {} by {}".format(source_url_site, destination_url_site))
-
-                        else:
-                            # relative URLs
-                            parsed = urlparse(source_url_site)
-                            hostname = parsed.netloc.split('.')[0]
-
-                            if hostname not in ('migration-wp', 'www2018'):
-                                start_relative_path = "/" + hostname + "/"
-
-                            else:
-                                # example:
-                                # https://migration-wp.epfl.ch/help-actu/**
-                                # start_relative_path is 'help-actu'
-                                start_relative_path = re.search('([^/]*)/?$', parsed.path).group(1)
-                                start_relative_path = "/" + start_relative_path + "/"
-
-                            if link.startswith(start_relative_path):
-
-                                target_url = os.path.join(urlparse(destination_url_site).path + relative_uri)
-                                if not target_url.endswith("/"):
-                                    target_url += "/"
-
-                                html_tag[element[1]] = link.replace(
-                                    start_relative_path, target_url
-                                    )
-
-                                logging.debug(
-                                    "Replace relative URL {} by {}".format(
-                                        start_relative_path, target_url
-                                    )
-                                )
-
-                # Add CDATA like this <content:encoded><![CDATA[ ... ]]></content:encoded>
-                xml_tag.contents[0] = CData(str(soup_html))
-
-            with open(self.path, "w") as wxr_ventilated_xml_file:
-                wxr_ventilated_xml_file.write(str(soup))
-
-            logging.info("End of fix links...")
 
 
 if __name__ == '__main__':
@@ -242,13 +155,10 @@ if __name__ == '__main__':
             destination_wxr.create(
                 filter=task.source_pattern,
                 add_structure=task.relative_uri,
-                new_url=task.destination_site
-            )
-
-            destination_wxr.fix_links(
-                source_url_site=task.source_url,
-                destination_url_site=task.destination_site,
-                relative_uri=task.relative_uri
+                new_url=task.destination_site,
+                url_rewrite_from=task.source_url,
+                url_rewrite_to=task.destination_site,
+                rewrite_relative_uri=task.relative_uri
             )
 
             output_count_for_this_source_wxr += 1

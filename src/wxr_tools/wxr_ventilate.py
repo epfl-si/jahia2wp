@@ -20,6 +20,8 @@ Usage:
 Options:
    --filter=<url>
    --add-structure=<relativeuri>
+   --url-rewrite=<rewrite-expr>
+   --rewrite-relative-uri=<uri>
 
 """
 from docopt import docopt
@@ -33,6 +35,7 @@ sys.path.append(dirname(dirname(os.path.realpath(__file__))))
 
 from wxr_tools.wxr_model import Channel, Page, NavMenu, NavMenuItem, Item  # noqa: E402
 from wxr_tools.xml import xml_to_string                                    # noqa: E402
+from wxr_tools.html import fix_links
 
 
 def normalize_site_url(url_text):
@@ -222,7 +225,12 @@ class Ventilator:
 if __name__ == '__main__':
     args = docopt(__doc__)
     v = Ventilator(args["<input_xml_file>"], args)
-    print(xml_to_string(v.ventilate()))
+    output_xml = xml_to_string(v.ventilate())
+    if args['--url-rewrite']:
+        rewrite_from, rewrite_to = args['--url-rewrite'].split(',')
+        output_xml = fix_links(output_xml, rewrite_from, rewrite_to, args['--rewrite-relative-uri'])
+
+    print(output_xml)
 
 
 def demo():
