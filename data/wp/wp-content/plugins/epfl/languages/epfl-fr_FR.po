@@ -2,14 +2,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
 "POT-Creation-Date: 2018-10-12 08:25+0200\n"
-"PO-Revision-Date: 2018-10-12 08:26+0200\n"
+"PO-Revision-Date: 2018-10-16 10:49+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.7.1\n"
+"X-Generator: Poedit 2.0.6\n"
 "X-Poedit-Basepath: ../shortcodes\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Poedit-KeywordsList: __;esc_html__\n"
@@ -25,19 +25,48 @@ msgid "Title"
 msgstr "Titre"
 
 #: epfl-card/shortcake-config.php:16
-#, fuzzy
 msgid "Link"
 msgstr "Lien"
 
 #: epfl-card/shortcake-config.php:22
-#, fuzzy
 msgid "Image"
 msgstr "Image"
 
 #: epfl-card/shortcake-config.php:29
-#, fuzzy
 msgid "Text"
-msgstr "Template avec seulement du texte"
+msgstr "Texte"
+
+#: epfl-contact/shortcake-config.php:11
+msgid "Text introducing the contact informations (optional)"
+msgstr "Texte d'introduction (optionnel)"
+
+#: epfl-contact/shortcake-config.php:16
+msgid "Wrap with a gray border"
+msgstr "Entourer d'un cadre gris"
+
+#: epfl-contact/shortcake-config.php:23
+msgid "Timetable"
+msgstr "Horaire"
+
+#: epfl-contact/shortcake-config.php:24
+msgid "Lundi à jeudi <b>09:00 › 18:00</b>"
+msgstr "Monday to thursday <b>09.00 am > 18.00 pm</b>"
+
+#: epfl-contact/shortcake-config.php:35
+msgid "Various information"
+msgstr "Divers"
+
+#: epfl-contact/shortcake-config.php:51
+msgid "What map information do you want to display?"
+msgstr "Lieu pour la carte"
+
+#: epfl-contact/shortcake-config.php:55 epfl-map/epfl-map.php:94
+msgid "A room for example"
+msgstr "Par exemple une salle"
+
+#: epfl-contact/shortcake-config.php:65
+msgid "Contact"
+msgstr ""
 
 #: epfl-cover/shortcake-config.php:12
 msgid "Cover"
@@ -93,10 +122,6 @@ msgstr "Plan EPFL"
 #: epfl-map/epfl-map.php:90
 msgid "What information do you want to display?"
 msgstr "Quelle information voulez vous afficher?"
-
-#: epfl-map/epfl-map.php:94
-msgid "A room for example"
-msgstr "Par exemple une salle"
 
 #: epfl-map/epfl-map.php:97
 msgid "Language"
