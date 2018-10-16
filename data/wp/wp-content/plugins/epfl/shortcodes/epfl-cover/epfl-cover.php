@@ -27,7 +27,6 @@ function epfl_cover_process_shortcode($atts = [], $content = '', $tag = '') {
     // sanitize parameters
     $description = wp_kses_post( $atts['description'] );
     $image       = sanitize_text_field( $atts['image'] );
-    $image_url   = wp_get_attachment_url( $image );
 
     // if supported delegate the rendering to the theme
     if (has_action("epfl_cover_action")) {
@@ -36,7 +35,7 @@ function epfl_cover_process_shortcode($atts = [], $content = '', $tag = '') {
 
         try {
 
-           do_action("epfl_cover_action", $image_url, $description);
+           do_action("epfl_cover_action", $image, $description);
 
            return ob_get_contents();
 
