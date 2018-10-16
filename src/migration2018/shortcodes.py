@@ -939,7 +939,7 @@ class Shortcodes():
         content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
         return content
 
-    def _fix_epfl_card_2018(self, content):
+    def _fix_epfl_card_new_version(self, content):
         """
         Fix "epfl_card" shortcode
 
@@ -1015,8 +1015,8 @@ class Shortcodes():
 
                     fix_func_name = "_fix_{}".format(shortcode.replace("-", "_"))
 
-                    if shortcode_name is not None and shortcode_name.endswith("_2018"):
-                        fix_func_name += "_2018"
+                    if shortcode_name is not None and shortcode_name.endswith("_new_version"):
+                        fix_func_name += "_new_version"
 
                     try:
                         # Trying to get function to fix current shortcode
