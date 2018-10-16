@@ -79,5 +79,4 @@ def fix_links(html, source_url_site, destination_url_site, relative_uri):
                         )
                     )
 
-    # Add CDATA like this <content:encoded><![CDATA[ ... ]]></content:encoded>
     return str(soup_html)
