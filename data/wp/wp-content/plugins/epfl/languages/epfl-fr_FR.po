@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
 "POT-Creation-Date: 2018-10-12 08:25+0200\n"
-"PO-Revision-Date: 2018-10-16 10:49+0200\n"
+"PO-Revision-Date: 2018-10-16 11:14+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -215,6 +215,7 @@ msgid "Select your memento"
 msgstr "Sélectionner votre mémento"
 
 #: epfl-memento/shortcake-config.php:119 epfl-news/shortcake-config.php:122
+#: epfl-people/shortcake-config.php:43
 msgid "Select a template"
 msgstr "Sélectionner un template"
 
@@ -382,13 +383,21 @@ msgstr ""
 "Voulez vous filtrer les actualités par thèmes? Veuillez sélectionner un ou "
 "plusieurs thèmes."
 
-#: epfl-people/shortcake-config.php:21
-msgid "Units"
-msgstr ""
+#: epfl-people/shortcake-config.php:11
+msgid "column"
+msgstr "colonne"
 
-#: epfl-people/shortcake-config.php:28
+#: epfl-people/shortcake-config.php:12 epfl-people/shortcake-config.php:13
+msgid "columns"
+msgstr "colonnes"
+
+#: epfl-people/shortcake-config.php:30
+msgid "Units"
+msgstr "Unité"
+
+#: epfl-people/shortcake-config.php:37
 msgid "Scipers"
-msgstr ""
+msgstr "Scipers"
 
 #: epfl-scheduler/epfl-scheduler.php:126
 msgid "Start date"
