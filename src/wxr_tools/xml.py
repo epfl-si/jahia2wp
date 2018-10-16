@@ -45,7 +45,7 @@ class XMLElementProperty:
 
     This makes it possible to get / set Item().id as an integer.
     """
-    def __init__(self, element_name, type=str, namespaces=None):
+    def __init__(self, element_name, type=str, namespaces=None, cdata=False):
         """Object constructor.
 
         Arguments:
@@ -60,6 +60,7 @@ class XMLElementProperty:
         self._namespaces = namespaces or XMLNamespaces.none()
         self._cast = type
         self._uncast = str  # Good enough for type in (str, int)
+        self.cdata = cdata
 
     def _elt(self, that):
         # Out of necessity, XMLElementProperty is a "friend" of all
@@ -96,7 +97,10 @@ class XMLElementProperty:
         return self._cast(value_text)
 
     def __set__(self, that, newval):
-        self._get_or_create_node(that).text = self._uncast(newval)
+        newtext = self._uncast(newval)
+        if self.cdata:
+            newtext = lxml.etree.CDATA(newtext)
+        self._get_or_create_node(that).text = newtext
 
 
 class XMLDictProperty:
