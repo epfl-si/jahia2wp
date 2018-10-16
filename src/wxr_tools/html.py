@@ -1,7 +1,7 @@
 """Ventilation-related HTML manipulation"""
 
 import re
-from bs4 import BeautifulSoup, CData
+from bs4 import BeautifulSoup
 import logging
 import os
 from urllib.parse import urlparse
