@@ -33,7 +33,7 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
    // sanitize the parameters
   $units   = sanitize_text_field( $attributes['units'] );
   $scipers = sanitize_text_field( $attributes['scipers'] );
-  $columns = $attributes['columns'];
+  $columns = sanitize_text_field( $attributes['columns'] );
   $nb_columns = (is_numeric($columns) && intval($columns) <= 3 && intval($columns) >= 1) ? $columns : 1;
 
   if ("" === $units and "" === $scipers) {
@@ -43,7 +43,7 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
   ("" !== $units) ? $parameter['units'] = $units : $parameter['scipers'] = $scipers;
 
   // the web service we use to retrieve the data
-  $url = "https://test-people.epfl.ch/cgi-bin/wsgetpeople/";
+  $url = "https://people.epfl.ch/cgi-bin/wsgetpeople/";
   $url = add_query_arg($parameter, $url);
 
   // retrieve the data in JSON
@@ -95,3 +95,4 @@ add_action( 'init', function()
 add_action( 'register_shortcode_ui', ['ShortCakePeopleConfig', 'config'] );
 
 ?>
+
