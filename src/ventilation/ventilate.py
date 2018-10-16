@@ -86,7 +86,7 @@ class DestinationWXR:
         self.source_file = source_wxr.path
         self.path = dest_file
 
-    def create(self, filter, add_structure, new_url):
+    def create(self, **kwargs):
         os.makedirs(dirname(self.path), exist_ok=True)
         wxr_ventilate_path = os.path.join(
             dirname(__file__),
@@ -94,11 +94,13 @@ class DestinationWXR:
         cmdline = [
             sys.executable,
             wxr_ventilate_path,
-            '--new-site-url-base', new_url,
-            '--filter', filter,
-            '--add-structure', add_structure,
-            self.source_file
+            '--new-site-url-base', kwargs['new_url'],
+            '--filter', kwargs['filter'],
+            '--add-structure', kwargs['add_structure']
         ]
+
+        cmdline.append(self.source_file)
+
         logging.debug(' '.join(cmdline))
         return subprocess.run(cmdline,
                               stdout=open(self.path, 'w'),
