@@ -7,6 +7,7 @@
     dest: "{{ epfl_plugin_zip_file }}"
     format: zip
     path: "{{ epfl_plugin_dir }}"
+    exclude_path: "*~*"
 
 - name: Install Zip file
   unarchive:
