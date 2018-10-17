@@ -7,12 +7,29 @@
     dest: "{{ epfl_plugin_zip_file }}"
     format: zip
     path: "{{ epfl_plugin_dir }}"
-    exclude_path: "*~*"
+    exclude_path: "{{ epfl_ignore_files_pattern }}"
 
-- name: Install Zip file
+- name: Install EPFL plug-in
   unarchive:
     src: "{{ epfl_plugin_zip_file }}"
     dest: "{{ wp_plugins_dir }}"
+  when: "wp_can.write_code"
+  register: _epfl_plugin_zip_file
+
+
+- name: Zip file for the EPFL 2018 theme
+  run_once: true
+  local_action:
+    module: archive
+    dest: "{{ epfl_theme2018_zip_file }}"
+    format: zip
+    path: "{{ epfl_theme2018_dir }}"
+    exclude_path: "{{ epfl_ignore_files_pattern }}"
+
+- name: Install EPFL 2018 theme
+  unarchive:
+    src: "{{ epfl_theme2018_zip_file }}"
+    dest: "{{ wp_themes_dir }}"
   when: "wp_can.write_code"
   register: _epfl_plugin_zip_file
 

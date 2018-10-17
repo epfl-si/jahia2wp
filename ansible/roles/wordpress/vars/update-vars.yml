@@ -1,2 +1,7 @@
+epfl_ignore_files_pattern: "*~*"
+
 epfl_plugin_dir: "{{ playbook_dir }}/../../data/wp/wp-content/plugins/epfl"
 epfl_plugin_zip_file: "{{ epfl_plugin_dir }}.zip"
+
+epfl_theme2018_dir: "{{ playbook_dir }}/../../data/wp/wp-content/themes/wp-theme-2018"
+epfl_theme2018_zip_file: "{{ epfl_theme2018_dir }}.zip"

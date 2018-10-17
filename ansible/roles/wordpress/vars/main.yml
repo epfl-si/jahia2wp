@@ -30,4 +30,3 @@ wp_base_url: "https://{{ wp_hostname }}/{{ wp_path }}"
 
 wp_themes_dir:  "{{ wp_dir }}/wp-content/themes"
 wp_plugins_dir: "{{ wp_dir }}/wp-content/plugins"
-wp_epfl_plugin_dir: "{{ wp_plugins_dir }}/epfl"
