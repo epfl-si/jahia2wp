@@ -187,7 +187,6 @@ class Shortcodes():
         """
         Remove a shortcode attribute
 
-        FIX: this method has a bug when parameter value contains parameter name
         example: [epfl_card title="toto title" link="toto link" image="29"]toto text[/epfl_card]
 
         :param content: string in which doing replacement
@@ -199,6 +198,7 @@ class Shortcodes():
         # Transforms the following:
         # [my_shortcode attr_name="a" two="b"]  --> [my_shortcode two="b"]
         # [my_shortcode attr_name two="b"]      --> [my_shortcode two="b"]
+        # FIXME: there is a bug when parameter value contains parameter name
         matching_reg = re.compile('(?P<before> \[{}.+ ){}(=(".*?"|\S+?)|\s|\])?'.format(shortcode_name, attr_name),
                                   re.VERBOSE)
 
@@ -769,26 +769,20 @@ class Shortcodes():
         for call in calls:
 
             box_content = self.__get_content(call)
-            new_call = call
+            title = self.__get_attribute(call, 'title')
+            link = self.__get_attribute(call, 'link')
+            image = self.__get_attribute(call, 'image')
 
-            # Delete unused attributes
-            new_call = self.__remove_attribute(new_call, old_shortcode, 'subtitle')
-            new_call = self.__remove_attribute(new_call, old_shortcode, 'big_image')
-            new_call = self.__remove_attribute(new_call, old_shortcode, 'enable_zoom')
-
-            new_call = self.__rename_shortcode(new_call, old_shortcode, new_shortcode)
-
-            # Content
-            new_call = self.__add_attribute(new_call, new_shortcode, "content1", attr_value=box_content)
-            new_call = self.__change_content(new_call, new_content="").replace("][/epfl_card]", " /]")
+            new_call = '[{0} content1="{1}" title1="{2}" link1="{3}" image1="{4}" /]'.format(
+                new_shortcode,
+                box_content,
+                title,
+                link,
+                image
+            )
 
             # Replacing in global content
             content = content.replace(call, new_call)
-
-        # Rename attributes
-        content = self.__rename_attribute(content, new_shortcode, "title", "title1")
-        content = self.__rename_attribute(content, new_shortcode, "url", "link1")
-        content = self.__rename_attribute(content, new_shortcode, "image", "image1")
 
         return content
 
@@ -941,9 +935,14 @@ class Shortcodes():
 
     def _fix_epfl_card_new_version(self, content):
         """
-        Fix "epfl_card" shortcode
+        Fix "epfl_card" shortcode in the new version.
 
-        Note: This method name is suffix by '_new_version' to prevent its use during shortcodes migration
+        The epfl_card shortcode has changed. By calling this method, you can modify the parameters of epfl_card.
+
+        To call this method:
+        python jahia2wp shortcode-fix <wp_env> <wp_url> epfl_card_new_version
+
+        Note: This method name is suffix by '_new_version' to prevent its automatic use.
 
         example:
         input: [epfl_card title="toto titre" link="toto lien" image="29"]toto text[/epfl_card]
@@ -956,15 +955,19 @@ class Shortcodes():
         for call in calls:
 
             box_content = self.__get_content(call)
+            title = self.__get_attribute(call, 'title')
+            link = self.__get_attribute(call, 'link')
+            image = self.__get_attribute(call, 'image')
 
-            new_call = self.__add_attribute(call, shortcode_name, "content1", attr_value=box_content)
-            new_call = self.__change_content(new_call, new_content="").replace("][/epfl_card]",  " /]")
+            new_call = '[{0} content1="{1}" title1="{2}" link1="{3}" image1="{4}" /]'.format(
+                shortcode_name,
+                box_content,
+                title,
+                link,
+                image
+            )
 
             content = content.replace(call, new_call)
-
-        content = self.__rename_attribute(content, shortcode_name, "title", "title1")
-        content = self.__rename_attribute(content, shortcode_name, "link", "link1")
-        content = self.__rename_attribute(content, shortcode_name, "image", "image1")
 
         return content
 
