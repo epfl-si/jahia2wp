@@ -5,8 +5,9 @@ import zipfile
 import logging
 import copy
 import yaml
-from utils import Utils
 import settings
+import shutil
+from utils import Utils
 from urllib import request
 from wordpress import WPException
 
@@ -257,15 +258,14 @@ class WPPluginConfigInfos:
 
             # If plugin needs to be activated
             if self.is_active:
-                # If we have to download from web,
+                # If plugin is coming from WP store
                 if plugin_config['src'].lower() == settings.PLUGIN_SOURCE_WP_STORE:
                     self.zip_path = None
 
                 # If plugin is an URL pointing to a ZIP file
                 elif plugin_config['src'].startswith('http') and plugin_config['src'].endswith('.zip'):
                     self.handle_plugin_remote_zip(plugin_config['src'])
-                    
-                else:
+                else:  # It may be a path to a local folder to use to install plugin
                     # Generate full path
                     full_path = os.path.join(settings.PLUGINS_CONFIG_BASE_FOLDER, plugin_config['src'])
                     # Do some checks and create ZIP file with plugin files if necessary
@@ -408,7 +408,7 @@ class WPPluginConfigInfos:
         """
         Do some check to local src given for plugin and create a ZIP with plugin files if necessary
 
-        :param plugin_path: Path to plugin give in YAML file
+        :param plugin_path: Path to plugin given in YAML file
         :return:
         """
 
