@@ -950,7 +950,7 @@ def shortcode_list(path, out_csv=None, **kwargs):
 
 
 @dispatch.on('shortcode-fix')
-def shortcode_fix(wp_env, wp_url, shortcode_name, **kwargs):
+def shortcode_fix(wp_env, wp_url, shortcode_name=None, **kwargs):
 
     shortcodes = Shortcodes()
 
