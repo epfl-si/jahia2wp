@@ -1,4 +1,5 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2018"""
+from urllib.parse import quote_plus
 
 import settings
 import logging
@@ -768,9 +769,11 @@ class Shortcodes():
 
         for call in calls:
 
-            box_content = self.__get_content(call)
+            # urlencode content
+            box_content = quote_plus(self.__get_content(call))
+
             title = self.__get_attribute(call, 'title')
-            link = self.__get_attribute(call, 'link')
+            link = self.__get_attribute(call, 'url')
             image = self.__get_attribute(call, 'image')
 
             new_call = '[{0} content1="{1}" title1="{2}" link1="{3}" image1="{4}" /]'.format(
@@ -954,7 +957,9 @@ class Shortcodes():
 
         for call in calls:
 
-            box_content = self.__get_content(call)
+            # urlencode content
+            box_content = quote_plus(self.__get_content(call))
+
             title = self.__get_attribute(call, 'title')
             link = self.__get_attribute(call, 'link')
             image = self.__get_attribute(call, 'image')
