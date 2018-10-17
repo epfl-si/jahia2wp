@@ -1,4 +1,5 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2018"""
+from urllib.parse import quote_plus
 
 import settings
 import logging
@@ -187,6 +188,8 @@ class Shortcodes():
         """
         Remove a shortcode attribute
 
+        example: [epfl_card title="toto title" link="toto link" image="29"]toto text[/epfl_card]
+
         :param content: string in which doing replacement
         :param shortcode_name: Shortcode name for which we have to remove attribute
         :param attr_name: Attribute name to remove
@@ -196,6 +199,7 @@ class Shortcodes():
         # Transforms the following:
         # [my_shortcode attr_name="a" two="b"]  --> [my_shortcode two="b"]
         # [my_shortcode attr_name two="b"]      --> [my_shortcode two="b"]
+        # FIXME: there is a bug when parameter value contains parameter name
         matching_reg = re.compile('(?P<before> \[{}.+ ){}(=(".*?"|\S+?)|\s|\])?'.format(shortcode_name, attr_name),
                                   re.VERBOSE)
 
@@ -744,7 +748,7 @@ class Shortcodes():
 
             title = self.__get_attribute(call, 'title')
 
-            new_call = '[{0} title="{1}"]{2}[/{0}]'.format(new_shortcode, title, box_content)
+            new_call = '[{0} title1="{1}"]{2}[/{0}]'.format(new_shortcode, title, box_content)
 
             # Replacing in global content
             content = content.replace(call, new_call)
@@ -765,14 +769,20 @@ class Shortcodes():
 
         for call in calls:
 
-            new_call = call
+            # urlencode content
+            box_content = quote_plus(self.__get_content(call))
 
-            # Delete unused attributes
-            new_call = self.__remove_attribute(new_call, old_shortcode, 'subtitle')
-            new_call = self.__remove_attribute(new_call, old_shortcode, 'big_image')
-            new_call = self.__remove_attribute(new_call, old_shortcode, 'enable_zoom')
+            title = self.__get_attribute(call, 'title')
+            link = self.__get_attribute(call, 'url')
+            image = self.__get_attribute(call, 'image')
 
-            new_call = self.__rename_shortcode(new_call, old_shortcode, new_shortcode)
+            new_call = '[{0} content1="{1}" title1="{2}" link1="{3}" image1="{4}" /]'.format(
+                new_shortcode,
+                box_content,
+                title,
+                link,
+                image
+            )
 
             # Replacing in global content
             content = content.replace(call, new_call)
@@ -926,11 +936,52 @@ class Shortcodes():
         content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
         return content
 
-    def fix_site(self, openshift_env, wp_site_url):
+    def _fix_epfl_card_new_version(self, content):
+        """
+        Fix "epfl_card" shortcode in the new version.
+
+        The epfl_card shortcode has changed. By calling this method, you can modify the parameters of epfl_card.
+
+        To call this method:
+        python jahia2wp shortcode-fix <wp_env> <wp_url> epfl_card_new_version
+
+        Note: This method name is suffix by '_new_version' to prevent its automatic use.
+
+        example:
+        input: [epfl_card title="toto titre" link="toto lien" image="29"]toto text[/epfl_card]
+        output [epfl_card title1="toto titre" link1="toto lien" image1="29" content1="%3Cp%3Etoto%20text%3C%2Fp%3E" /]
+        """
+        shortcode_name = "epfl_card"
+
+        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
+
+        for call in calls:
+
+            # urlencode content
+            box_content = quote_plus(self.__get_content(call))
+
+            title = self.__get_attribute(call, 'title')
+            link = self.__get_attribute(call, 'link')
+            image = self.__get_attribute(call, 'image')
+
+            new_call = '[{0} content1="{1}" title1="{2}" link1="{3}" image1="{4}" /]'.format(
+                shortcode_name,
+                box_content,
+                title,
+                link,
+                image
+            )
+
+            content = content.replace(call, new_call)
+
+        return content
+
+    def fix_site(self, openshift_env, wp_site_url, shortcode_name=None):
         """
         Fix shortocdes in WP site
         :param openshift_env: openshift environment name
         :param wp_site_url: URL to website to fix.
+        :param shortcode_name: fix site for this shortcode only
         :return: dictionnary with report.
         """
 
@@ -968,26 +1019,31 @@ class Shortcodes():
             # Looking for all shortcodes in current post
             for shortcode in list(set(re.findall(self.regex, content))):
 
-                fix_func_name = "_fix_{}".format(shortcode.replace("-", "_"))
+                if shortcode_name is None or shortcode_name.startswith(shortcode):
 
-                try:
-                    # Trying to get function to fix current shortcode
-                    fix_func = getattr(self, fix_func_name)
-                except Exception as e:
-                    # "Fix" function not found, skipping to next shortcode
-                    continue
+                    fix_func_name = "_fix_{}".format(shortcode.replace("-", "_"))
 
-                logging.debug("Fixing shortcode %s...", shortcode)
-                fixed_content = fix_func(content)
+                    if shortcode_name is not None and shortcode_name.endswith("_new_version"):
+                        fix_func_name += "_new_version"
 
-                if fixed_content != content:
-                    # Building report
-                    if shortcode not in report:
-                        report[shortcode] = 0
+                    try:
+                        # Trying to get function to fix current shortcode
+                        fix_func = getattr(self, fix_func_name)
+                    except Exception as e:
+                        # "Fix" function not found, skipping to next shortcode
+                        continue
 
-                    report[shortcode] += 1
+                    logging.debug("Fixing shortcode %s...", shortcode)
+                    fixed_content = fix_func(content)
 
-                content = fixed_content
+                    if fixed_content != content:
+                        # Building report
+                        if shortcode not in report:
+                            report[shortcode] = 0
+
+                        report[shortcode] += 1
+
+                    content = fixed_content
 
             # If content changed for current page,
             if content != original_content:

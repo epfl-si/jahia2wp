@@ -44,7 +44,7 @@ Usage:
   jahia2wp.py shortcode-list        <path> [--out-csv=<out_csv>]    [--debug | --quiet]
   jahia2wp.py shortcode-details     <path> <shortcode>              [--debug | --quiet]
     [--out-csv=<out_csv>]
-  jahia2wp.py shortcode-fix         <wp_env> <wp_url>               [--debug | --quiet]
+  jahia2wp.py shortcode-fix         <wp_env> <wp_url> [<shortcode_name>] [--debug | --quiet]
   jahia2wp.py shortcode-fix-many    <csv_file>                      [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
@@ -950,11 +950,11 @@ def shortcode_list(path, out_csv=None, **kwargs):
 
 
 @dispatch.on('shortcode-fix')
-def shortcode_fix(wp_env, wp_url, **kwargs):
+def shortcode_fix(wp_env, wp_url, shortcode_name=None, **kwargs):
 
     shortcodes = Shortcodes()
 
-    report = shortcodes.fix_site(wp_env, wp_url)
+    report = shortcodes.fix_site(wp_env, wp_url, shortcode_name)
 
     logging.info("Fix report:\n%s", str(report))
 
