@@ -418,3 +418,40 @@ class WPPluginConfigInfos:
                 self.zipped_on_the_fly = True
             else:
                 self.zip_path = plugin_path
+
+    def handle_plugin_remote_zip(self, url):
+        """
+        Download ZIP, extract it to temporary folder, rename folder and use 'handle_plugin_local_src' to
+        do the rest. And finally, we some cleaning.
+        :param url: URL to plugin ZIP file
+        :return:
+        """
+        # we first generate a temporary working directory
+        work_dir = os.path.join("/tmp", Utils.generate_name(10))
+        os.makedirs(work_dir)
+
+        # Downloading ZIP file
+        response = request.urlopen(url)
+        # Extracting filename from headers :
+        # {'Content-Disposition': 'attachment; filename=wordpress.plugin.accred-vpsi.zip'}
+        zip_file_name = response.headers['Content-Disposition'].split("filename=")[1]
+        zip_full_path = os.path.join(work_dir, zip_file_name)
+        with open(zip_full_path, 'wb') as out_file:
+            shutil.copyfileobj(response, out_file)
+
+        # Extracting ZIP file
+        zip_ref = zipfile.ZipFile(zip_full_path, 'r')
+        zip_ref.extractall(work_dir)
+        zip_ref.close()
+
+        # Deleting ZIP file
+        os.remove(zip_full_path)
+
+        # Remove extracted directory to fit plugin name
+        tmp_plugin_dir = os.path.join(work_dir, self.plugin_name)
+        shutil.move(os.path.splitext(zip_full_path)[0], tmp_plugin_dir)
+
+        self.handle_plugin_local_src(tmp_plugin_dir)
+
+        # Cleaning
+        shutil.rmtree(tmp_plugin_dir)
