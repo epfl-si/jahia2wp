@@ -258,7 +258,7 @@ class MenuItemBag
                 } else {
                     $ancestor_ids[$ancestor_id] = 1;
                 }
-                if ($pruned[$ancestor_id]) continue;
+                if ($pruned[$ancestor_id]) continue 2;
             }
             $remaining[] = $rc;
         }
