@@ -199,12 +199,14 @@ class MenuItemBag
 
     function graft ($at_item, $bag) {
         return static::_MUTATE_graft(
-            $at_item, $this->copy(), $this->_renumber(static::coerce($bag)));
+            $this->_get_parent_id($at_item),
+            $this->copy(), $this->_renumber(static::coerce($bag)));
     }
 
     function reverse_graft ($at_item, $into) {
-        return static::_MUTATE_graft(
-            $at_item, $this->_renumber($into), $this);
+        $parent_id = $this->_get_parent_id($at_item);
+        $into_renumbered = $this->_renumber($into, /*&*/$parent_id);
+        return static::_MUTATE_graft($parent_id, $into_renumbered, $this);
     }
 
     /**
@@ -354,11 +356,10 @@ class MenuItemBag
         $this->items[$this->_get_id($item)] = $item;
     }
 
-    function _MUTATE_graft ($at_item, $mutated_outer, $inner) {
-        $new_parent_id = $mutated_outer->_get_parent_id($at_item);
-        foreach ($inner->as_list() as $item) {
+    function _MUTATE_graft ($new_parent_id, $mutated_outer, $inner) {
+        foreach ($inner->copy()->as_list() as $item) {
             if (! $mutated_outer->_get_parent_id($item)) {
-                // $item is not shared with $this thanks to ->copy() being
+                // $item is new, thanks to ->copy() being
                 // a deep copy.
                 $this->_MUTATE_set_parent_id($item, $new_parent_id);
             }
@@ -422,10 +423,15 @@ class MenuItemBag
      * @param $other_bag An instance of this class (call @link coerce
      *        yourself if needed)
      *
+     * @param &$follow_this_id If passed-in as the ID of an item in
+     *                         the tree being renumbered, will be
+     *                         mutated (and passed-out) as the ID of the
+     *                         same item after renumbering
+     *
      * @return A new instance of this class, fully unshared from both
      *         $this and $other_bag
      */
-    protected function _renumber ($other_bag) {
+    protected function _renumber ($other_bag, &$follow_this_id = NULL) {
         $next_id = $this->_get_largest_negative_unused_id();
 
         $translation_table = array();
@@ -454,6 +460,10 @@ class MenuItemBag
             }
 
             $translated[] = $item;
+        }
+
+        if ($follow_this_id) {  // Not NULL, not zero
+            $follow_this_id = $translation_table[$follow_this_id];
         }
 
         $thisclass = get_called_class();
