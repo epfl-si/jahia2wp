@@ -1540,7 +1540,7 @@ class MenuFrontendController
 
         return $menu_orig
             ->get_fully_stitched_tree(
-                static::_guess_menu_entry_from_wp_nav_menu_args($args))
+                static::_guess_menu_entry_from_menu_term($args->menu))
             ->trim_external()
             ->copy_classes($menu_items)
             ->copy_current($menu_items)
@@ -1551,24 +1551,16 @@ class MenuFrontendController
      * @return The @link MenuMapEntry instance we are rendering the
      *         menu for.
      */
-    static function _guess_menu_entry_from_wp_nav_menu_args ($args) {
-        $menu_term_id = (int) (is_object($args->menu) ?
-                               $args->menu->term_id   : $args->menu);
+    static function _guess_menu_entry_from_menu_term ($menu) {
+        $menu_term_id = (int) (is_object($menu) ?
+                               $menu->term_id   : $menu);
         $current_lang = (
             function_exists('pll_current_language')   ? 
             pll_current_language()                    : NULL);
 
-        $best = MenuMapEntry
-                    ::find(array('menu_term_id' => $menu_term_id))
-                    ->first_preferred(array('language' => $current_lang));
-        if ($best) {
-            return $best;
-        } else {
-            throw new \Error(
-                'Cannot find MenuMapEntry instance for $args = '
-                . var_export($args, true)
-                . " (\$current_lang = $current_lang)");
-        }
+        return MenuMapEntry
+            ::find(array('menu_term_id' => $menu_term_id))
+            ->first_preferred(array('language' => $current_lang));
     }
 }
 
