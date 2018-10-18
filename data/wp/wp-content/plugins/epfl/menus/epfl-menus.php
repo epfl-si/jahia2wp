@@ -613,7 +613,7 @@ class Menu {
         if (Site::this_site()->is_root()) return $tree;
 
         if (! $root_menu = $this->_get_root_menu($mme)) {
-            error_log('Unable to stitch up - Root menu not found');
+            error_log("Unable to stitch up - Root menu not found for $mme");
             return $tree;
         }
 
@@ -722,6 +722,11 @@ class MenuMapEntry
         $this->theme_location = $theme_location;
         $this->description = $description;
         $this->language = $language;
+    }
+
+    function __toString () {
+        $thisclass = get_called_class();
+        return "<$thisclass('$this->theme_location', '$this->language')>";
     }
 
     function get_menu () {
