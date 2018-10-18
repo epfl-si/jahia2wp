@@ -85,7 +85,7 @@ class MenuItemBag
         foreach ($items as $item) {
             $this->_MUTATE_add_item($item);
         }
-        $this->_validate();
+        $this->_MUTATE_validate_and_toposort();
     }
 
     static function coerce ($what) {
@@ -129,17 +129,21 @@ class MenuItemBag
     }
 
    /**
-    * Ensure that
+    * Sort the tree in-place in topological order (ancestors before
+    * descendants)
+    *
+    * At the same time, validate the tree so that
     *
     *  - All ->_get_parent_id's are 0 or within the graph
     *
     *  - There are no ancestry loops
     */
-    private function _validate () {
+    private function _MUTATE_validate_and_toposort () {
         // Based on https://en.wikipedia.org/wiki/Topological_sorting#Kahn's_algorithm
         $children = array();    // Adjacency list, keyed by parent ID
         $safe     = array();    // List of nodes with no loops in their ancestry
-                                // ($S in the Wikipedia algorithm)
+                                // (S in the Wikipedia algorithm)
+
         foreach ($this->items as $item) {
             $id = $this->_get_id($item);
             $parent_id = $this->_get_parent_id($item);
@@ -154,13 +158,14 @@ class MenuItemBag
             }
         }
 
+        $sorted = array();    // L in the Wikipedia algorithm
         while(count($safe)) {
             $n = array_shift($safe);  // Proof of termination starts here
-            // $n is known not to have loops in its ancestry
 
-            // Here we would add to $n to $L if we were closely
-            // following the Wikipedia algorithm, but we aren't so we
-            // don't.
+            // $n is 1) known not to have loops in its ancestry, 2)
+            // at the right place at the end of the topological sort.
+            $sorted[] = $n;
+
             if ($children[$n]) {
                 // All children of a safe node are safe
                 $safe = array_merge($safe, $children[$n]);
@@ -172,6 +177,12 @@ class MenuItemBag
         if (count($children)) {
             // Some nodes were not visited; they must have cycles.
             throw new TreeLoopError(array_keys($children));
+        }
+
+        $unsorted_items = $this->items;
+        $this->items = array();
+        foreach ($sorted as $id) {
+            $this->items[$id] = $unsorted_items[$id];
         }
     }
 
