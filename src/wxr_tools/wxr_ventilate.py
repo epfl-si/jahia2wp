@@ -5,6 +5,7 @@ import lxml.etree
 from urllib.parse import urlparse, urlunparse
 import os
 import sys
+import logging
 
 dirname = os.path.dirname
 sys.path.append(dirname(dirname(os.path.realpath(__file__))))
@@ -220,6 +221,10 @@ class Ventilator:
 
     def fix_links(self):
 
+        logging.info("Starting fix links...")
+
         for page in Page.all(self.etree):
             if page.content is not None:
                 page.content = fix_links(page.content, self.url_rewrite_from, self.url_rewrite_to, self.relative_uri)
+
+        logging.info("End fix links...")

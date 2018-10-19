@@ -17,8 +17,6 @@ def fix_links(html, source_url_site, destination_url_site, relative_uri):
     :param relative_uri: Relative URI of destination
     """
 
-    logging.info("Starting fix links...")
-
     # parse html content of xml 'content:encoded' tag
     soup_html = BeautifulSoup(html, 'html5lib')
 
