@@ -106,14 +106,11 @@ class MenuItemBag
         return new $thisclass($copied_items);
     }
 
-    function copy_classes ($another_menu_tree) {
-        return $this->_copy_attributes($another_menu_tree, array('classes'));
-    }
-
-    function copy_current ($another_menu_tree) {
-        return $this->_copy_attributes($another_menu_tree,
-                                       array('current', 'current_item_ancestor',
-                                             'current_item_parent'));
+    function mimic_tree_attributes ($another_menu_tree) {
+        $copy = $this->_copy_attributes($another_menu_tree,
+                                        array('classes', 'current'));
+        $copy->_MUTATE_fixup_tree_attributes_and_classes();
+        return $copy;
     }
 
     /**
@@ -127,13 +124,11 @@ class MenuItemBag
          'current_item_ancestor'
      *
      * - every node that has children has class 'menu-item-has-children'
-     *
-     * @return A fixed-up copy of $this
      */
-    function fixup_tree_attributes_and_classes() {
-        $copy = $this->copy();
+    private function _MUTATE_fixup_tree_attributes_and_classes() {
         $current_items = array();  // Plural 'coz why not?
-        foreach ($copy->items as $item) {
+        foreach ($this->items as $item) {
+            $this->_MUTATE_reset_current_ancestry_status($item);
             if ($item->current) {
                 $current_items[$this->_get_id($item)] = $item;
             }
@@ -141,11 +136,11 @@ class MenuItemBag
 
         $current_ancestors = array();
         foreach ($current_items as $item) {
-            $current_ancestor_id = $this->_get_parent_id($item);
-            if (! ($current_ancestor = $copy->items[$current_ancestor_id])) continue;
-            $current_ancestors[$current_ancestor_id] = $current_ancestor;
-            $current_ancestor->current_item_parent = true;
-            $current_ancestor->current_item_ancestor = true;
+            $current_parent_id = $this->_get_parent_id($item);
+            if (! ($current_parent = $this->items[$current_parent_id])) continue;
+            $this->_MUTATE_make_parent_of_current($current_parent);
+
+            $current_ancestors[$current_parent_id] = $current_parent;
         }
 
         while(count($current_ancestors)) {
@@ -153,24 +148,22 @@ class MenuItemBag
             foreach ($current_ancestors as $current_ancestor) {
                 $current_ancestor_id = $this->_get_parent_id($current_ancestor);
                 if (! ($current_ancestor =
-                       $copy->items[$current_ancestor_id])) continue;
+                       $this->items[$current_ancestor_id])) continue;
                 $current_ancestors_next[$current_ancestor_id] = $current_ancestor;
-                $current_ancestor->current_item_ancestor = true;
+                $this->_MUTATE_make_ancestor_of_current($current_ancestor);
             }
             $current_ancestors = $current_ancestors_next;
         }
 
         $all_parents = array();
-        foreach ($copy->items as $item) {
+        foreach ($this->items as $item) {
             if (! ($parent_id = $this->_get_parent_id($item))) continue;
             $all_parents[$parent_id] = 1;
         }
         foreach (array_keys($all_parents) as $parent_id) {
-            $copy->items[$parent_id]->classes[] = 'menu-item-has-children';
+            $this->items[$parent_id]->classes[] = 'menu-item-has-children';
             // wp_nav_menu() caller will eliminate any duplicates
         }
-
-        return $copy;
     }
 
     private function _copy_attributes ($another_menu, $attributes) {
@@ -422,6 +415,28 @@ class MenuItemBag
 
     private function _MUTATE_set_parent_id ($item, $new_parent_id) {
         $item->menu_item_parent = $new_parent_id;
+    }
+
+    private function _MUTATE_reset_current_ancestry_status ($item) {
+        unset($item->current_item_parent);
+        unset($item->current_item_ancestor);
+        $item->classes = array_filter(
+            $item->classes,
+            function($c) {
+                return ($c !== 'current-menu-parent' and
+                        $c != 'current-menu-ancestor');
+            });
+    }
+
+    private function _MUTATE_make_parent_of_current ($item) {
+        $item->current_item_parent = true;
+        $item->classes[] = 'current-menu-parent';
+        $this->_MUTATE_make_ancestor_of_current($item);
+    }
+
+    private function _MUTATE_make_ancestor_of_current ($item) {
+        $item->current_item_ancestor = true;
+        $item->classes[] = 'current-menu-ancestor';
     }
 
     private function _MUTATE_add_item ($item) {
@@ -1612,9 +1627,7 @@ class MenuFrontendController
             ->get_fully_stitched_tree(
                 static::_guess_menu_entry_from_menu_term($args->menu))
             ->trim_external()
-            ->copy_classes($menu_items)
-            ->copy_current($menu_items)
-            ->fixup_tree_attributes_and_classes()
+            ->mimic_tree_attributes($menu_items)
             ->as_list();
     }
 
