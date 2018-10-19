@@ -8,6 +8,7 @@ import re
 import os
 from wordpress import WPConfig, WPSite
 from utils import Utils
+from bs4 import BeautifulSoup
 
 
 class Shortcodes():
@@ -1016,6 +1017,7 @@ class Shortcodes():
                                            "--field=post_content".format(post_id))
             original_content = content
 
+            # Step 1 - Fixing shortcodes
             # Looking for all shortcodes in current post
             for shortcode in list(set(re.findall(self.regex, content))):
 
@@ -1044,6 +1046,17 @@ class Shortcodes():
                         report[shortcode] += 1
 
                     content = fixed_content
+
+            # Step 2: Removing <div class="textbox"> to avoid display issues on 2018 theme
+            soup = BeautifulSoup(content, 'html5lib')
+            soup.body.hidden = True
+
+            # Looking for all DIVs with "textBox" as class
+            for div in soup.find_all('div', {'class': 'textBox'}):
+                # Remove DIV but keep its content
+                div.unwrap()
+
+            content = str(soup.body)
 
             # If content changed for current page,
             if content != original_content:
