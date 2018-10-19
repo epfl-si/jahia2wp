@@ -1623,19 +1623,17 @@ MenuEditorController::hook();
 class MenuFrontendController
 {
     static function hook () {
+        // Note: Polylang also hooks into these two and it isn't quite
+        // as careful as we are about preserving tree invariants
+        // (topological ordering and child-parent referential
+        // integrity). Make sure to register ourselves after it.
         add_filter('wp_get_nav_menu_items',
                    array(get_called_class(), 'filter_wp_nav_menu_items_for_theme'),
-                   10, 3);
+                   30, 3);
 
-        // Note: Polylang also hooks into wp_nav_menu_objects at
-        // priority 10 and it doesn't really care about the original
-        // menu set. We need to register ourselves after it. (Besides,
-        // Polylang can produce invalid menus in the sense of
-        // _MUTATE_validate_and_toposort, containing dangling parent
-        // pointers.)
         add_filter('wp_nav_menu_objects',
                    array(get_called_class(), 'filter_wp_nav_menu_objects'),
-                   11, 2);
+                   20, 2);
     }
 
     /**
