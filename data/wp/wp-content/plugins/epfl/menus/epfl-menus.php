@@ -111,10 +111,65 @@ class MenuItemBag
     }
 
     function copy_current ($another_menu_tree) {
-        $copy = $this->_copy_attributes($another_menu_tree,
-                                        array('current', 'current_item_ancestor',
-                                              'current_item_parent'));
-        $copy->_MUTATE_sanitize_current_attributes();
+        return $this->_copy_attributes($another_menu_tree,
+                                       array('current', 'current_item_ancestor',
+                                             'current_item_parent'));
+    }
+
+    /**
+     * Enforce the same values on attributes 'current',
+     * 'current_item_ancestor' and 'current_item_parent' and 'classes'
+     * as WordPress' @link wp_nav_menu function would:
+     *
+     * - every parent of an item that is 'current' is 'current_item_parent'
+     *
+     * - every parent or ancestor of an item that is 'current' is
+         'current_item_ancestor'
+     *
+     * - every node that has children has class 'menu-item-has-children'
+     *
+     * @return A fixed-up copy of $this
+     */
+    function fixup_tree_attributes_and_classes() {
+        $copy = $this->copy();
+        $current_items = array();  // Plural 'coz why not?
+        foreach ($copy->items as $item) {
+            if ($item->current) {
+                $current_items[$this->_get_id($item)] = $item;
+            }
+        }
+
+        $current_ancestors = array();
+        foreach ($current_items as $item) {
+            $current_ancestor_id = $this->_get_parent_id($item);
+            if (! ($current_ancestor = $copy->items[$current_ancestor_id])) continue;
+            $current_ancestors[$current_ancestor_id] = $current_ancestor;
+            $current_ancestor->current_item_parent = true;
+            $current_ancestor->current_item_ancestor = true;
+        }
+
+        while(count($current_ancestors)) {
+            $current_ancestors_next = array();
+            foreach ($current_ancestors as $current_ancestor) {
+                $current_ancestor_id = $this->_get_parent_id($current_ancestor);
+                if (! ($current_ancestor =
+                       $copy->items[$current_ancestor_id])) continue;
+                $current_ancestors_next[$current_ancestor_id] = $current_ancestor;
+                $current_ancestor->current_item_ancestor = true;
+            }
+            $current_ancestors = $current_ancestors_next;
+        }
+
+        $all_parents = array();
+        foreach ($copy->items as $item) {
+            if (! ($parent_id = $this->_get_parent_id($item))) continue;
+            $all_parents[$parent_id] = 1;
+        }
+        foreach (array_keys($all_parents) as $parent_id) {
+            $copy->items[$parent_id]->classes[] = 'menu-item-has-children';
+            // wp_nav_menu() caller will eliminate any duplicates
+        }
+
         return $copy;
     }
 
@@ -389,43 +444,6 @@ class MenuItemBag
             $mutated_outer->_MUTATE_add_item($item);
         }
         return $mutated_outer;
-    }
-
-    /**
-     * Enforce the following, reasonable invariants on attributes
-     * 'current', 'current_item_ancestor' and 'current_item_parent':
-     *
-     * - every parent of an item that is 'current' is 'current_item_parent',
-     *
-     */
-    private function _MUTATE_sanitize_current_attributes() {
-        $current_items = array();  // Plural 'coz why not?
-        foreach ($this->items as $item) {
-            if ($item->current) {
-                $current_items[$this->_get_id($item)] = $item;
-            }
-        }
-
-        $breadthfirst = array();
-        foreach ($current_items as $item) {
-            $parent_id = $this->_get_parent_id($item);
-            if (! ($parent = $this->items[$parent_id])) continue;
-            $breadthfirst[$parent_id] = $parent;
-            $parent->current_item_parent = true;
-            $parent->current_item_ancestor = true;
-        }
-
-        while(count($breadthfirst)) {
-            $breadthfirst_next = array();
-            foreach ($breadthfirst as $item) {
-                $parent_id = $this->_get_parent_id($item);
-                if (! ($parent = $this->items[$parent_id])) continue;
-                if ($breadthfirst[$parent_id]) continue;  // Eliminate loops
-                $breadthfirst_next[$parent_id] = $parent;
-                $parent->current_item_ancestor = true;
-            }
-            $breadthfirst = $breadthfirst_next;
-        }
     }
 
     /**
@@ -1578,6 +1596,7 @@ class MenuFrontendController
             ->trim_external()
             ->copy_classes($menu_items)
             ->copy_current($menu_items)
+            ->fixup_tree_attributes_and_classes()
             ->as_list();
     }
 
