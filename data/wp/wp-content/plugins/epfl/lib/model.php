@@ -426,6 +426,24 @@ abstract class UniqueKeyTypedPost extends TypedPost
         }
     }
 
+    static function all_except ($instances) {
+        $instances_by_primary_key = array();
+        foreach ($instances as $instance) {
+            $k = serialize($instance->get_unique_keys());
+            $instances_by_primary_key[$k] = $instance;
+        }
+
+        $retval = array();
+        foreach (static::all() as $instance) {
+            $k = serialize($instance->get_unique_keys());
+            if (! array_key_exists($k, $instances_by_primary_key)) {
+                $retval[] = $instance;
+            }
+        }
+
+        return $retval;
+    }
+
     static function get_by_unique_key ($unique_key) {
         return static::_get_by_unique_keys(array($unique_key));
     }
@@ -472,15 +490,26 @@ abstract class UniqueKeyTypedPost extends TypedPost
     }
 
     static protected function _metaify ($unique_keys) {
-        $primary_key = static::META_PRIMARY_KEY;
-        if (! is_array($primary_key)) {
-            $primary_key = array($primary_key);
-        }
         $meta = array();
-        foreach ($primary_key as $k) {
+        foreach (static::_get_primary_key_names() as $k) {
             $meta[$k] = array_shift($unique_keys);
         }
         return $meta;
+    }
+
+    static protected function _get_primary_key_names () {
+        $primary_keys = static::META_PRIMARY_KEY;
+        if (! is_array($primary_keys)) {
+            $primary_keys = array($primary_keys);
+        }
+        return $primary_keys;
+    }
+
+    function get_unique_keys () {
+        $unique_keys = array();
+        foreach (static::_get_primary_key_names() as $k) {
+            $unique_keys[$k] = get_post_meta($this->ID, $meta_name, true);
+        }
     }
 }
 

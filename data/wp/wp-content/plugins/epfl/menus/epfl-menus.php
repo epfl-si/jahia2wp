@@ -981,22 +981,29 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
         $me = Site::this_site();
         $neighbors = array_merge(array(Site::root()),
                                  $me->get_subsites());
+
+        $instances = array();
         foreach ($neighbors as $site) {
             if ($site->equals($me)) continue;
             try {
-                static::_load_from_site($site);
+                $instances = array_merge($instances, static::_load_from_site($site));
             } catch (RESTRemoteError $e) {
                 error_log("[Not our fault, IGNORED] " . $e);
                 continue;
             }
         }
+        return $instances;
     }
 
     static protected function _load_from_site ($site) {
-        static::load_from_wp_site_url($site->get_localhost_url());
+        return static::load_from_wp_site_url($site->get_localhost_url());
     }
 
+    /**
+     * @return An array of instances of this class
+     */
     static function load_from_wp_site_url ($site_url) {
+        $instances = array();
         foreach (RESTClient::GET_JSON(REST_URL::remote($site_url, 'languages'))
                  as $lang) {
             try {
@@ -1027,9 +1034,11 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
                 $title = $menu_descr->description . "[$lang] @ $site_url_dir";
                 $that->update(array('post_title' => $title));
 
-                $that->refresh();
+                $that->try_refresh();
+                $instances[] = $that;
             }
         }
+        return $instances;
     }
 
     static private function _make_wp_rest_url ($site_url, $menu_slug,
@@ -1041,8 +1050,7 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
         return REST_URL::remote($site_url, $stem)->fully_qualified();
     }
 
-    function refresh () {
-        if ($this->_refreshed) return;  // Not twice in same query cycle
+    protected function _do_refresh () {
         if (! ($get_url = $this->get_rest_url())) {
             $this->error_log("doesn't look very external to me");
             return;
@@ -1052,14 +1060,16 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
         $this->set_remote_menu($menu_contents->items);
         $this->meta()->set_rest_subscribe_url(
             $menu_contents->get_link('subscribe'));
-
-        $this->_refreshed = true;
     }
 
     function try_refresh () {
-        if ($this->_refreshed) return;  // Not twice in same query cycle
+        if ($this->_refreshed !== NULL) {
+            // Do not attempt twice in same query cycle
+            return $this->_refreshed;
+        }
         try {
-            $this->refresh();
+            $this->_do_refresh();
+            $this->_refreshed = true;
             $this->meta()->set_last_synced(time());
             $this->meta()->del_sync_started_failing();
             return true;
@@ -1068,6 +1078,7 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
             if (! $this->meta()->get_sync_started_failing()) {
                 $this->meta()->set_sync_started_failing(time());
             }
+            $this->_refreshed = false;
             return false;
         }
     }
@@ -1360,8 +1371,9 @@ class MenuItemController extends CustomPostTypeController
      * Invoked through form POST by the wp-admin refresh button
      */
     static function admin_post_refresh () {
+        $emis = array();
         try {
-            ExternalMenuItem::load_from_filesystem();
+            $emis = ExternalMenuItem::load_from_filesystem();
         } catch (\Throwable $t) {
             error_log("ExternalMenuItem::load_from_filesystem(): $t");
             static::admin_error(___('Unable to load menus of sites in the same pod'));
@@ -1369,8 +1381,14 @@ class MenuItemController extends CustomPostTypeController
         }
 
         $errors = 0;
-        $all = ExternalMenuItem::all();
-        foreach ($all as $emi) {
+        foreach (array_merge($emis,
+                             // Optimization: keep the
+                             // ExternalMenuItem's obtained above,
+                             // along with their state, so as to avoid
+                             // ->try_refresh()ing them twice.
+                             ExternalMenuItem::all_except($emis))
+                 as $emi)
+        {
             if (! $emi->try_refresh()) {
                 $errors++;
                 continue;
