@@ -223,8 +223,8 @@ class Ventilator:
 
     def fix_links(self, rewrite_from, rewrite_to, rewrite_relative_uri):
         for page in Page.all(self.etree):
-            page.content = fix_links(page.content, rewrite_from, rewrite_to,
-                                     rewrite_relative_uri)
+            if page.content is not None:
+                page.content = fix_links(page.content, rewrite_from, rewrite_to, rewrite_relative_uri)
 
 
 if __name__ == '__main__':
