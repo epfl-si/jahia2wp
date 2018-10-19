@@ -106,10 +106,21 @@ class MenuItemBag
         return new $thisclass($copied_items);
     }
 
-    function mimic_tree_attributes ($another_menu_tree) {
+    function mimic_current ($another_menu_tree) {
         $copy = $this->_copy_attributes($another_menu_tree,
                                         array('classes', 'current'));
-        $copy->_MUTATE_fixup_tree_attributes_and_classes();
+        $copy->_MUTATE_fixup_current_attributes_and_classes();
+        return $copy;
+    }
+
+    function set_current ($current_post) {
+        $copy = $this->copy();
+        foreach ($copy->items as $item) {
+            if ((int) $item->object_id === (int) $current_post->ID) {
+                $copy->_MUTATE_make_current($item);
+            }
+        }
+        $copy->_MUTATE_fixup_current_attributes_and_classes();
         return $copy;
     }
 
@@ -125,11 +136,11 @@ class MenuItemBag
      *
      * - every node that has children has class 'menu-item-has-children'
      */
-    private function _MUTATE_fixup_tree_attributes_and_classes() {
+    private function _MUTATE_fixup_current_attributes_and_classes() {
         $current_items = array();  // Plural 'coz why not?
         foreach ($this->items as $item) {
             $this->_MUTATE_reset_current_ancestry_status($item);
-            if ($item->current) {
+            if ($this->_is_current($item)) {
                 $current_items[$this->_get_id($item)] = $item;
             }
         }
@@ -280,6 +291,20 @@ class MenuItemBag
         return static::_MUTATE_graft($parent_id, $into_renumbered, $this);
     }
 
+    function renumber_foreign_object_ids () {
+        $copy = $this->copy();
+
+        foreach($copy->items as $id => $item) {
+            if ($id < 0) {
+                if ($item->object_id && ($item->object_id > 0)) {
+                    $item->object_id = -$item->object_id;
+                }
+            }
+        }
+
+        return $copy;
+    }
+
     /**
      * Pluck all items in MenuItemBag that match $callable_predicate,
      * and return them separately from the pruned tree. Discard
@@ -415,6 +440,14 @@ class MenuItemBag
 
     private function _MUTATE_set_parent_id ($item, $new_parent_id) {
         $item->menu_item_parent = $new_parent_id;
+    }
+
+    private function _is_current ($item) {
+        return $item->current;
+    }
+
+    private function _MUTATE_make_current ($item) {
+        $item->current = true;
     }
 
     private function _MUTATE_reset_current_ancestry_status ($item) {
@@ -1590,6 +1623,10 @@ MenuEditorController::hook();
 class MenuFrontendController
 {
     static function hook () {
+        add_filter('wp_get_nav_menu_items',
+                   array(get_called_class(), 'filter_wp_nav_menu_items_for_theme'),
+                   10, 3);
+
         // Note: Polylang also hooks into wp_nav_menu_objects at
         // priority 10 and it doesn't really care about the original
         // menu set. We need to register ourselves after it. (Besides,
@@ -1610,7 +1647,7 @@ class MenuFrontendController
      * ancestry decoration ('current', 'current_item_parent' and
      * 'current_item_ancestor' attributes) etc.
      *
-     * @param $menu_items The menu as extracted from the database as a
+     * @param $items_orig The menu as extracted from the database as a
      *                    flat list of "spare parts", chained by their
      *                    ->menu_item_parent and ->db_id fields.
      *                    (Additionally, this module assumes that
@@ -1619,16 +1656,28 @@ class MenuFrontendController
      *
      * @param $args As passed to Wordpress' @link wp_nav_menu function
      */
-    static function filter_wp_nav_menu_objects ($menu_items, $args) {
-        $menu_orig = Menu::by_term($args->menu);
-        if (! $menu_orig) return $menu_items;
+    static function filter_wp_nav_menu_objects ($items_orig, $args) {
+        return static::stitch_menu($items_orig, $args->menu);
+    }
 
-        return $menu_orig
-            ->get_fully_stitched_tree(
-                static::_guess_menu_entry_from_menu_term($args->menu))
-            ->trim_external()
-            ->mimic_tree_attributes($menu_items)
-            ->as_list();
+    static function stitch_menu ($items_orig, $menu_term, $current = NULL) {
+        if ($menu_term &&
+            ($menu = Menu::by_term($menu_term)) &&
+            ($entry = static::_guess_menu_entry_from_menu_term($menu_term)))
+        {
+            $bag = $menu->get_fully_stitched_tree($entry)
+                 ->renumber_foreign_object_ids();
+
+            if ($current) {
+                $bag = $bag->set_current($current);
+            } else {
+                $bag = $bag->mimic_current($items_orig);
+            }
+
+            return $bag->trim_external()->as_list();
+        } else {
+            return $items_orig;
+        }
     }
 
     /**
@@ -1645,6 +1694,28 @@ class MenuFrontendController
         return MenuMapEntry
             ::find(array('menu_term_id' => $menu_term_id))
             ->first_preferred(array('language' => $current_lang));
+    }
+
+    /**
+     * Change the return value of @link wp_get_nav_menu_items to the
+     * complete (stitched) tree, but only if the theme is calling that
+     * function directly.
+     */
+    static function filter_wp_nav_menu_items_for_theme
+        ($items, $menu, $args)
+    {
+        $bt = debug_backtrace();
+        for ($i = 0; $i < count($bt); $i++) {
+            $caller = $bt[$i];
+            if ($caller['function'] != 'wp_get_nav_menu_items') continue;
+            if (! preg_match('#/wp-content/themes/#', $caller['file'])) {
+                return $items;
+            }
+            global $post;
+            return static::stitch_menu($items, $menu, $post);
+        }
+        error_log('Unable to find wp_get_nav_menu_items stack frame?');
+        return $items;
     }
 }
 
