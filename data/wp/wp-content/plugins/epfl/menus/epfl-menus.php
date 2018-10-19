@@ -106,23 +106,35 @@ class MenuItemBag
         return new $thisclass($copied_items);
     }
 
-    function copy_classes ($another_bag) {
-        return $this->_copy_attributes(static::coerce($another_bag), array('classes'));
+    function copy_classes ($another_menu_tree) {
+        return $this->_copy_attributes($another_menu_tree, array('classes'));
     }
 
-    function copy_current ($another_bag) {
-        $copy = $this->_copy_attributes(static::coerce($another_bag),
+    function copy_current ($another_menu_tree) {
+        $copy = $this->_copy_attributes($another_menu_tree,
                                         array('current', 'current_item_ancestor',
                                               'current_item_parent'));
         $copy->_MUTATE_sanitize_current_attributes();
         return $copy;
     }
 
-    private function _copy_attributes ($another_bag, $attributes) {
+    private function _copy_attributes ($another_menu, $attributes) {
+        $thisclass = get_called_class();
+        if ($another_menu instanceof $thisclass) {
+            $src_items = $another_menu_tree->items;
+        } else {
+            $src_items = array();
+            foreach ($another_menu as $item) {
+                $src_items[$this->_get_id($item)] = $item;
+            }
+        }
+
         $copy = $this->copy();
-        foreach ($copy->items as $item) {
+        foreach ($copy->items as $id => &$item) {
             foreach ($attributes as $k) {
-                $item->$k = $another_bag->find($item)->$k;
+                if ($src_items[$id]->$k) {
+                    $item->$k = $src_items[$id]->$k;
+                }
             }
         }
         return $copy;
@@ -1527,9 +1539,15 @@ MenuEditorController::hook();
 class MenuFrontendController
 {
     static function hook () {
+        // Note: Polylang also hooks into wp_nav_menu_objects at
+        // priority 10 and it doesn't really care about the original
+        // menu set. We need to register ourselves after it. (Besides,
+        // Polylang can produce invalid menus in the sense of
+        // _MUTATE_validate_and_toposort, containing dangling parent
+        // pointers.)
         add_filter('wp_nav_menu_objects',
                    array(get_called_class(), 'filter_wp_nav_menu_objects'),
-                   10, 2);
+                   11, 2);
     }
 
     /**
