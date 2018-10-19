@@ -85,28 +85,20 @@ class DestinationWXR:
         self.source_file = source_wxr.path
         self.path = dest_file
 
-    def create(self, **kwargs):
+    def create(self, filter, relative_uri, destination_site, source_url):
 
         os.makedirs(dirname(self.path), exist_ok=True)
 
-        d = {}
-        d['--new-site-url-base'] = kwargs['new_url']
-        d['--filter'] = kwargs['filter']
-        d['--add-structure'] = kwargs['add_structure']
-        d['--url-rewrite'] = '{0},{1}'.format(kwargs['url_rewrite_from'], kwargs['url_rewrite_to'])
-        d['--rewrite-relative-uri'] = kwargs['rewrite_relative_uri']
+        ventilator = Ventilator(
+            file=self.source_file,
+            new_site_url_base=destination_site,
+            filter=filter,
+            url_rewrite_from=source_url,
+            url_rewrite_to=destination_site,
+            relative_uri=relative_uri
+        )
 
-        v = Ventilator(self.source_file, d)
-
-        output = v.ventilate()
-
-        if kwargs['url_rewrite_from'] and kwargs['url_rewrite_to']:
-
-            rewrite_from = kwargs['url_rewrite_from']
-            rewrite_to = kwargs['url_rewrite_to']
-            rewrite_relative_uri = kwargs['rewrite_relative_uri']
-
-            v.fix_links(rewrite_from, rewrite_to, rewrite_relative_uri)
+        output = ventilator.ventilate()
 
         with open(self.path, 'w') as file:
             file.write(xml_to_string(output))
@@ -154,11 +146,9 @@ if __name__ == '__main__':
 
             destination_wxr.create(
                 filter=task.source_pattern,
-                add_structure=task.relative_uri,
-                new_url=task.destination_site,
-                url_rewrite_from=task.source_url,
-                url_rewrite_to=task.destination_site,
-                rewrite_relative_uri=task.relative_uri
+                relative_uri=task.relative_uri,
+                destination_site=task.destination_site,
+                source_url=task.source_url
             )
 
             output_count_for_this_source_wxr += 1
