@@ -565,7 +565,8 @@ class MenuItemBag
  * Object model for "normal" WordPress menus, augmented with support
  * for EPFL-style menu stitching.
  */
-class Menu {
+class Menu
+{
     static function by_term ($term_or_term_id) {
         if (is_object($term_or_term_id)) {
             $term_id = $term_or_term_id->term_id;
