@@ -291,20 +291,6 @@ class MenuItemBag
         return static::_MUTATE_graft($parent_id, $into_renumbered, $this);
     }
 
-    function renumber_foreign_object_ids () {
-        $copy = $this->copy();
-
-        foreach($copy->items as $id => $item) {
-            if ($id < 0) {
-                if ($item->object_id && ($item->object_id > 0)) {
-                    $item->object_id = -$item->object_id;
-                }
-            }
-        }
-
-        return $copy;
-    }
-
     /**
      * Pluck all items in MenuItemBag that match $callable_predicate,
      * and return them separately from the pruned tree. Discard
@@ -402,11 +388,11 @@ class MenuItemBag
      *         irrelevant (internal-only) metadata
      */
     function export_external () {
-        return $this->map(function($item) {
+        $self = $this;
+        return $this->map(function($item) use ($self) {
             if ($emi = ExternalMenuItem::get($item)) {
-                unset($item->url);
-                unset($item->guid);
-                unset($item->object_id);  // Only makes sense locally
+                $self->_MUTATE_censor_local_metadata($item);
+                unset($item->url);  // Makes no sense to API consumers
 
                 $item->rest_url = $emi->get_rest_url();
             }
@@ -440,6 +426,11 @@ class MenuItemBag
 
     private function _MUTATE_set_parent_id ($item, $new_parent_id) {
         $item->menu_item_parent = $new_parent_id;
+    }
+
+    private function _MUTATE_censor_local_metadata ($item) {
+        unset($item->guid);
+        unset($item->object_id);
     }
 
     private function _is_current ($item) {
@@ -507,7 +498,9 @@ class MenuItemBag
      *
      * This method does the right thing when this instance already
      * contains items with negative IDs, thanks to @link
-     * _get_largest_negative_unused_id.
+     * _get_largest_negative_unused_id. Also, it calls @link
+     * _MUTATE_censor_local_metadata on all (copies of) the items
+     * in $other_bag
      *
      * @param $other_bag An instance of this class (call @link coerce
      *        yourself if needed)
@@ -539,6 +532,7 @@ class MenuItemBag
         $translated = array();
         foreach ($other_bag->items as $item) {
             $item = clone $item;
+            $this->_MUTATE_censor_local_metadata($item);
 
             $orig_id = $this->_get_id($item);
             $this->_MUTATE_set_id($item, $translation_table[$orig_id]);
@@ -1663,8 +1657,7 @@ class MenuFrontendController
             ($menu = Menu::by_term($menu_term)) &&
             ($entry = static::_guess_menu_entry_from_menu_term($menu_term)))
         {
-            $bag = $menu->get_fully_stitched_tree($entry)
-                 ->renumber_foreign_object_ids();
+            $bag = $menu->get_fully_stitched_tree($entry);
 
             if ($current) {
                 $bag = $bag->set_current($current);
