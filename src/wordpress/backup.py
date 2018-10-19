@@ -64,7 +64,7 @@ class WPBackup:
             self.backup_pattern = self.FULL_PATTERN
             self.listfile = os.path.join(
                 self.path,
-                "_".join((self.timestamp)) + ".list")
+                self.timestamp + ".list")
         else:
             self.backup_pattern = self.INCREMENTAL_PATTERN
             self.listfile = os.path.join(self.path, listfile)
