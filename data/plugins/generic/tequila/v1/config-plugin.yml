@@ -1,4 +1,4 @@
-src: generic/tequila/v1/tequila.zip
+src: https://github.com/epfl-sti/wordpress.plugin.tequila/archive/vpsi.zip
 activate: yes
 
 # dual_auth is currently disactivted by default, but you can enable it with wp cli:
