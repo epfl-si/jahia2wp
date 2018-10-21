@@ -20,7 +20,7 @@
   include: '{{ "update.yml" if play_update is match("yes") else "noop.yml" }}'
 
 - name: "Dump (if requested)"
-  include: '{{ "dump.yml" if (play_dump is match("yes")) and (dump_local_dir is defined) else "noop.yml" }}'
+  include: '{{ "dump.yml" if (play_dump is match("yes") and dump_local_dir is defined) else "noop.yml" }}'
 
 - name: "Undump WXR (if requested)"
-  include: '{{ "undump.yml" if (play_undump is match("yes")) and (undump_local_dir is defined) else "noop.yml" }}'
+  include: '{{ "undump.yml" if (play_undump is match("yes") and undump_local_dir is defined and wp_can.write_data) else "noop.yml" }}'
