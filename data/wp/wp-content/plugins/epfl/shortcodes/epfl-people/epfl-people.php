@@ -70,7 +70,6 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
     try
     {
       do_action("epfl_people_action", $persons, $nb_columns);
-   		
       return ob_get_contents();
     }
     finally
@@ -95,4 +94,11 @@ add_action( 'init', function()
 add_action( 'register_shortcode_ui', ['ShortCakePeopleConfig', 'config'] );
 
 ?>
+<<<<<<< HEAD
 
+=======
+<<<<<<< HEAD
+=======
+
+>>>>>>> release2018
+>>>>>>> master2018
