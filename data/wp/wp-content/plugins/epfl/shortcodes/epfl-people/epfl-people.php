@@ -94,7 +94,3 @@ add_action( 'init', function()
 add_action( 'register_shortcode_ui', ['ShortCakePeopleConfig', 'config'] );
 
 ?>
-<<<<<<< HEAD
-=======
-
->>>>>>> release2018
