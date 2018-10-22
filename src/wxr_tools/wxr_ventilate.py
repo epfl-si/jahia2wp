@@ -70,24 +70,22 @@ class Ventilator:
 
         unique_page = None
 
-        ventilate_filter = self.filter
-
-        if ventilate_filter.endswith("**"):
+        if self.filter.endswith("**"):
             keep_children = True
             keep_this_page = True
-        elif ventilate_filter.endswith("*"):
+        elif self.filter.endswith("*"):
             keep_children = True
             keep_this_page = False
         else:
             keep_children = False
             keep_this_page = False
 
-        if ventilate_filter:
+        if self.filter:
 
             if not keep_children:
                 # we try to ventilate one page
 
-                url_page = ventilate_filter
+                url_page = self.filter
                 if not url_page.endswith('/'):
                     url_page += "/"
 
@@ -99,7 +97,7 @@ class Ventilator:
                     else:
                         unique_page = item
             else:
-                filter_url = ventilate_filter.rstrip('*')
+                filter_url = self.filter.rstrip('*')
 
                 for item in Item.all(self.etree):
                     if filter_url == item.link:
@@ -134,7 +132,7 @@ class Ventilator:
                         if not p.parent_id:
                             p.parent_id = reparent_under
 
-            if ventilate_filter and not keep_children:
+            if self.filter and not keep_children:
                 # Single page requested - we don't want menus
                 for menu in NavMenu.all(self.etree):
                     menu.delete()
