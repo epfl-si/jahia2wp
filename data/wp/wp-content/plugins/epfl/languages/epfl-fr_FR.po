@@ -1,15 +1,15 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-10-16 11:30+0200\n"
-"PO-Revision-Date: 2018-10-16 11:31+0200\n"
+"POT-Creation-Date: 2018-10-22 19:21+0200\n"
+"PO-Revision-Date: 2018-10-22 19:21+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Poedit 1.8.7.1\n"
 "X-Poedit-Basepath: ../shortcodes\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Poedit-KeywordsList: __;esc_html__\n"
@@ -49,10 +49,8 @@ msgid "Timetable"
 msgstr "Horaire"
 
 #: epfl-contact/shortcake-config.php:24
-#, fuzzy
-#| msgid "Lundi à jeudi <b>09:00 › 18:00</b>"
-msgid "Lundi à jeudi <b>09:00 > 18:00</b>"
-msgstr "Monday to thursday <b>09.00 am > 18.00 pm</b>"
+msgid "Monday to thursday <b>09:00 am > 18:00 pm</b>"
+msgstr "Lundi à jeudi <b>09.00 > 18.00 </b>"
 
 #: epfl-contact/shortcake-config.php:35
 msgid "Various information"
@@ -528,42 +526,3 @@ msgstr "L'URL du XML"
 #: epfl-xml/epfl-xml.php:85
 msgid "XSLT URL"
 msgstr "L'URL du XSLT"
-
-#~ msgid "Card title"
-#~ msgstr "Titre de la carte"
-
-#~ msgid "Card link"
-#~ msgstr "Lien de la carte"
-
-#~ msgid "Card image"
-#~ msgstr "Image de la carte"
-
-#~ msgid "Card text"
-#~ msgstr "Texte de la carte"
-
-#~ msgid "Set the height (min. 347)"
-#~ msgstr "Choisir une hauteur (min. 347)"
-
-#~ msgid "No"
-#~ msgstr "Non"
-
-#~ msgid "Yes"
-#~ msgstr "Oui"
-
-#~ msgid "Display the news category ?"
-#~ msgstr "Afficher la catégorie de l'actualité ?"
-
-#~ msgid ""
-#~ "Do you want display the news category at the top right of the news image?"
-#~ msgstr ""
-#~ "Voulez vous afficher la catégorie de l'actualité en haut à droite du "
-#~ "visuel de l'actualité?"
-
-#~ msgid "Description"
-#~ msgstr "Description"
-
-#~ msgid "Content shown when toggle is opened"
-#~ msgstr "Contenu affiché lorsque l'accordéon est ouvert"
-
-#~ msgid "Toggle"
-#~ msgstr "Accordéon"

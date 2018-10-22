@@ -21,7 +21,7 @@ function get_contact_shortcake_attributes() {
 
     for ($i = 1; $i < 5; $i++) {
         $label = ($i == 1) ? '<h3>' . esc_html__('Timetable', 'epfl') . ' 1</h3>' : esc_html__('Timetable', 'epfl') . ' '.$i;
-        $description = ($i == 1) ? esc_html__('Lundi à jeudi <b>09:00 > 18:00</b>', 'epfl') : '';
+        $description = ($i == 1) ? esc_html__('Monday to thursday <b>09:00 am > 18:00 pm</b>', 'epfl') : '';
 
         array_push($shortcake_attributes, [
             'label'         => $label,
