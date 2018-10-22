@@ -113,17 +113,6 @@ class MenuItemBag
         return $copy;
     }
 
-    function set_current ($current_post) {
-        $copy = $this->copy();
-        foreach ($copy->items as $item) {
-            if ((int) $item->object_id === (int) $current_post->ID) {
-                $copy->_MUTATE_make_current($item);
-            }
-        }
-        $copy->_MUTATE_fixup_current_attributes_and_classes();
-        return $copy;
-    }
-
     /**
      * Enforce the same values on attributes 'current',
      * 'current_item_ancestor' and 'current_item_parent' and 'classes'
@@ -435,10 +424,6 @@ class MenuItemBag
 
     private function _is_current ($item) {
         return $item->current;
-    }
-
-    private function _MUTATE_make_current ($item) {
-        $item->current = true;
     }
 
     private function _MUTATE_reset_current_ancestry_status ($item) {
@@ -1650,19 +1635,18 @@ class MenuFrontendController
      * @param $args As passed to Wordpress' @link wp_nav_menu function
      */
     static function filter_wp_nav_menu_objects ($items_orig, $args) {
-        return static::stitch_menu($items_orig, $args->menu);
+        return static::stitch_menu($items_orig, $args->menu, TRUE);
     }
 
-    static function stitch_menu ($items_orig, $menu_term, $current = NULL) {
+    static function stitch_menu ($items_orig, $menu_term,
+                                 $mimic_current = FALSE) {
         if ($menu_term &&
             ($menu = Menu::by_term($menu_term)) &&
             ($entry = static::_guess_menu_entry_from_menu_term($menu_term)))
         {
             $bag = $menu->get_fully_stitched_tree($entry);
 
-            if ($current) {
-                $bag = $bag->set_current($current);
-            } else {
+            if ($mimic_current) {
                 $bag = $bag->mimic_current($items_orig);
             }
 
@@ -1704,7 +1688,7 @@ class MenuFrontendController
                 return $items;
             }
             global $post;
-            return static::stitch_menu($items, $menu, $post);
+            return static::stitch_menu($items, $menu);
         }
         error_log('Unable to find wp_get_nav_menu_items stack frame?');
         return $items;
