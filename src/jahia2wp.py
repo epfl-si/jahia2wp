@@ -45,7 +45,7 @@ Usage:
   jahia2wp.py shortcode-details     <path> <shortcode>              [--debug | --quiet]
     [--out-csv=<out_csv>]
   jahia2wp.py shortcode-fix         <wp_env> <wp_url> [<shortcode_name>] [--debug | --quiet]
-  jahia2wp.py shortcode-fix-many    <csv_file>                      [--debug | --quiet]
+  jahia2wp.py shortcode-fix-many    <csv_file> [<shortcode_name>]   [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
     [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
@@ -960,7 +960,7 @@ def shortcode_fix(wp_env, wp_url, shortcode_name=None, **kwargs):
 
 
 @dispatch.on('shortcode-fix-many')
-def shortcode_fix_many(csv_file, **kwargs):
+def shortcode_fix_many(csv_file, shortcode_name=None, **kwargs):
 
     rows = Utils.csv_filepath_to_dict(csv_file)
 
@@ -968,7 +968,7 @@ def shortcode_fix_many(csv_file, **kwargs):
     for index, row in enumerate(rows):
         print("\nIndex #{}:\n---".format(index))
 
-        shortcode_fix(row['openshift_env'], row['wp_site_url'])
+        shortcode_fix(row['openshift_env'], row['wp_site_url'], shortcode_name)
 
     logging.info("All shortcodes for all sites fixed !")
 
