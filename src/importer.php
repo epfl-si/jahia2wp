@@ -159,7 +159,7 @@ function distinguish_normal_pages_by_slug ($post_exists_orig, $post)
     $results = $query->get_posts();
 
     if (sizeof($results) > 1) {
-        throw new Error("Duplicate slug $the_other_slug ?!");
+        throw new Error("Duplicate slug $my_slug ?!");
     } elseif (sizeof($results) == 1) {
         // Alias to that post
         return $results[0]->ID;
