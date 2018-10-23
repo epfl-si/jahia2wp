@@ -151,20 +151,23 @@ function distinguish_normal_pages_by_slug ($post_exists_orig, $post)
                                   // knows what they are doing
     }
 
-    $my_slug = $post['post_name'];
+    $id = _id_of_the_page_with_slug($post['post_name']);
+    return $id ? $id : 0;
+}
+
+function _id_of_the_page_with_slug ($slug)
+{
     $query = new \WP_Query(array(
         'post_type' => 'page',
-        'pagename'  => $my_slug));
+        'pagename'  => $slug));
 
     $results = $query->get_posts();
 
     if (sizeof($results) > 1) {
-        throw new Error("Duplicate slug $my_slug ?!");
+        throw new Error("Duplicate slug $slug ?!");
     } elseif (sizeof($results) == 1) {
-        // Alias to that post
         return $results[0]->ID;
     } else {
-        // Need to create a new page
-        return 0;
+        return NULL;
     }
 }
