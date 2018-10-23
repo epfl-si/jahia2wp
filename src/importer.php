@@ -144,25 +144,27 @@ function distinguish_normal_pages_by_slug ($post_exists_orig, $post)
 
     // If we are considering aliasing to $post_exists_orig, but
     // it and us ($post) have different slugs, then don't.
-    $query = new \WP_Query(array(
-        'post_type' => 'page',
-        'page_id' => $post_exists_orig));
-
-    $results = $query->get_posts();
-    if (sizeof($results) > 1) {
-        throw new Error("Duplicate ID $post_exists_orig ?!");
-    } elseif (sizeof($results) == 0) {
+    $the_other_post = get_post($post_exists_orig);
+    if (! $the_other_post) {
         error_log("Unknown ID $post_exists_orig ?!");
-        // Continue, hoping *something* in the filter stack
-        // knows what they are doing
-    } else {
-        $the_other_slug = $results[0]->post_name;
-        $my_slug = $post['post_name'];
-
-        if ($my_slug and $the_other_slug and ($my_slug !== $the_other_slug)) {
-            return 0;  // We need to de-alias
-        }
+        return $post_exists_orig; // hoping *something* in the filter stack
+                                  // knows what they are doing
     }
 
-    return $post_exists_orig;
+    $the_other_slug = $the_other_post->post_name;
+    $query = new \WP_Query(array(
+        'post_type' => 'page',
+        'pagename'  => $the_other_slug));
+
+    $results = $query->get_posts();
+
+    if (sizeof($results) > 1) {
+        throw new Error("Duplicate slug $the_other_slug ?!");
+    } elseif (sizeof($results) == 1) {
+        // Alias to that post
+        return $results[0]->ID;
+    } else {
+        // Need to create a new page
+        return 0;
+    }
 }
