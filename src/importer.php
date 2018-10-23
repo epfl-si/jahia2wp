@@ -151,10 +151,10 @@ function distinguish_normal_pages_by_slug ($post_exists_orig, $post)
                                   // knows what they are doing
     }
 
-    $the_other_slug = $the_other_post->post_name;
+    $my_slug = $post['post_name'];
     $query = new \WP_Query(array(
         'post_type' => 'page',
-        'pagename'  => $the_other_slug));
+        'pagename'  => $my_slug));
 
     $results = $query->get_posts();
 
