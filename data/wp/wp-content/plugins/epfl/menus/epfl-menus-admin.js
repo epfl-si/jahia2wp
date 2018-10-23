@@ -24,7 +24,7 @@ function initExternalMenuList ($) {
     });
 }
 
-jQuery( document ).ready(function($) {
+jQuery(document).ready(function($) {
     if (window.wp.screen.base === 'edit' && window.wp.screen.post_type === 'epfl-external-menu' ) {
         initExternalMenuList($);
     }
