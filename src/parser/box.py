@@ -1191,14 +1191,49 @@ class Box:
             </links>
         </linksList>
         """
+
+        # Sorting parameters
+        sort_params = element.getAttribute("jahia:sortHandler")
+
+        # Default values that may be overrided later
+        sort_way = 'asc'
+        sort_tag_name = None
+
+        # If we have parameters for sorting, they will look like :
+        # epfl_simple_main_comboList_links_link;asc;false;false
+        # https://pel.epfl.ch/awards_en
+        if sort_params != "":
+            # Extracting tag name where to find sort info
+            # epfl_simple_main_comboList_links_link;asc;false;false ==> <jahia:link -> jahia:title attribute
+            sort_tag_name = "jahia:{}".format(sort_params.split(';')[0].split('_')[-1])
+
+            sort_way = sort_params.split(';')[1]
+
+        links_boxes = BoxSortedGroup('', '', sort_way)
+
         elements = element.getElementsByTagName("links")
-        content = "<ul>"
         for e in elements:
             if e.ELEMENT_NODE != e.nodeType:
                 continue
 
-            link_html = ""
             desc = ""
+            title = ""
+            url = ""
+
+            # Sorting needed
+            if sort_tag_name:
+                sort_tags = e.getElementsByTagName(sort_tag_name)
+                if sort_tags:
+                    # It seems that, by default, it is the "jahia:title" value that is used for sorting
+                    sort_value = sort_tags[0].getAttribute("jahia:title")
+
+                # We don't have enough information to continue
+                if not sort_tags or not sort_value:
+                    raise Exception("No sort tag (%s) found (or empty sort value found)", sort_tag_name)
+            else:
+                # No sorting needed, we generate an ID for the box
+                sort_value = len(links_boxes.boxes)
+
             # Going through 'linkDesc' and 'link' nodes
             for link_node in e.childNodes:
                 if link_node.ELEMENT_NODE != link_node.nodeType:
@@ -1212,7 +1247,12 @@ class Box:
                     for jahia_tag in link_node.childNodes:
                         if jahia_tag.ELEMENT_NODE != jahia_tag.nodeType:
                             continue
+
+                        if jahia_tag.tagName in ['jahia:link', 'jahia:url']:
+                            title = jahia_tag.getAttribute("jahia:title")
+
                         if jahia_tag.tagName == "jahia:link":
+
                             # It happens that a link references a page that does not exist anymore
                             # observed on site dii
                             try:
@@ -1222,15 +1262,16 @@ class Box:
 
                             # We generate "Jahia like" URL so exporter will be able to fix it with WordPress URL
                             url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
-                            link_html = '<a href="{}">{}</a>'.format(url, jahia_tag.getAttribute("jahia:title"))
 
                         elif jahia_tag.tagName == "jahia:url":
-                            link_html = '<a href="{}">{}</a>'.format(jahia_tag.getAttribute("jahia:value"),
-                                                                     jahia_tag.getAttribute("jahia:title"))
+                            url = jahia_tag.getAttribute("jahia:value")
 
-            content += '<li>{}{}</li>'.format(link_html, desc)
+            link_html = '<li><a href="{}">{}</a>{}</li>'.format(url, title, desc)
 
-        content += "</ul>"
+            # Because boxes can be sortable, we use a BoxSortedGroup to handle this
+            links_boxes.add_box_to_sort(link_html, sort_value)
+
+        content = "<ul>{}</ul>".format(''.join(links_boxes.get_sorted_boxes()))
 
         if content == "<ul></ul>":
             content = ""
