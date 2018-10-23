@@ -61,7 +61,6 @@ Usage : wp eval [...] <filename>
     }
 
     add_filter("wp_import_existing_post", "identify_structural_pages_by_guid", 10, 2);
-    add_action("wp_import_insert_post", "record_guid", 10, 4);
 
     global $wp_import;
     $wp_import->fetch_attachments = (FALSE !== array_search("-fetch-attachments", $argv));
