@@ -21,7 +21,7 @@ function epfl_card_process_shortcode($atts = [], $content = '', $tag = '') {
     foreach($atts as $key => $value) {
         if (strpos($key, 'content') !== false)
         {
-            $atts[$key] = sanitize_textarea_field($value);
+            $atts[$key] = wp_kses_post($value);
         } else {
             $atts[$key] = sanitize_text_field($value);
         }
