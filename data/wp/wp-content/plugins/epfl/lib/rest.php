@@ -35,6 +35,15 @@ class RESTAPIError extends \Exception {
     }
 }
 
+/**
+ * Ancillary class used by @link REST_API::hook_polylang_lang_query_param
+ */
+class _ForcedPolylangChooser extends \PLL_Choose_Lang {
+    function __construct() {
+        global $polylang;
+        parent::__construct($polylang);
+    }
+}
 
 /**
  * Static-only class for registering REST API endpoints
@@ -143,18 +152,28 @@ class REST_API {
     /**
      * Have Polylang set the current language from the ?lang=XX query parameter.
      *
-     * If the current query is a wp-json query, let Polylang know through
-     * the 'pll_is_ajax_on_front' filter, and Polylang will take it from
-     * there.
+     * If the current query is not a wp-json query, do nothing. Otherwise,
+     * get Polylang to use $_REQUEST['lang'] by hook or by crook.
      */
     static function hook_polylang_lang_query_param () {
-        $thisclass = get_called_class();
-        add_filter('pll_is_ajax_on_front', function($isit) use ($thisclass) {
-            if ($thisclass::_doing_rest_request()) {
-                return true;
-            } else {
-                return $isit;
-            }
+        if (! static::_doing_rest_request()) return;
+
+        // The easy way: when Languages -> Settings -> URL
+        // modifications is set to "The language is set from the
+        // directory name in pretty permalinks", and except for the
+        // root site (see below), Polylang does the needful for
+        // AJAX-on-front requests.
+        add_filter('pll_is_ajax_on_front', function($isit) { return true; });
+
+        // The hard way: there is some code in PLL_Frontend::init() to
+        // short-circuit language detection entirely (regardless of
+        // Languages -> Settings -> URL modifications) if /wp-json/ is
+        // detected at the start of the URL. Ironically, the test is
+        // sort of buggy (only works on the root site). We can force
+        // the issue like this:
+        add_action('pll_no_language_defined', function() {
+            $chooser = new _ForcedPolylangChooser();
+            $chooser->init();
         });
     }
 
