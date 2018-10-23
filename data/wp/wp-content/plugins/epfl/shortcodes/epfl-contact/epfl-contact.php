@@ -6,7 +6,10 @@ require_once 'shortcake-config.php';
 function epfl_contact_process_shortcode($atts) {
     // sanitize parameters
     foreach($atts as $key => $value) {
-        if ($key == 'introduction' || strpos($key, 'information') !== false)
+        if (strpos($key, 'information') !== false) {
+            $atts[$key] = wp_kses_post($value);
+        }
+        elseif ($key == 'introduction')
         {
             $atts[$key] = sanitize_textarea_field($value);
         } else {
