@@ -31,10 +31,13 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
     ), $attributes );
 
    // sanitize the parameters
-  $units   = sanitize_text_field( $attributes['units'] );
-  $scipers = sanitize_text_field( $attributes['scipers'] );
-  $columns = sanitize_text_field( $attributes['columns'] );
-  $nb_columns = (is_numeric($columns) && intval($columns) <= 3 && intval($columns) >= 1) ? $columns : 1;
+  $units    = sanitize_text_field( $attributes['units'] );
+  $scipers  = sanitize_text_field( $attributes['scipers'] );
+  $columns  = sanitize_text_field( $attributes['columns'] );
+
+  if ($columns !== 'list') {
+    $columns = (is_numeric($columns) && intval($columns) <= 3 && intval($columns) >= 1) ? $columns : 1;
+  }
 
   if ("" === $units and "" === $scipers) {
     return Utils::render_user_msg("People shortcode: Please check required parameters");
@@ -43,7 +46,7 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
   ("" !== $units) ? $parameter['units'] = $units : $parameter['scipers'] = $scipers;
 
   // the web service we use to retrieve the data
-  $url = "https://people.epfl.ch/cgi-bin/wsgetpeople/";
+  $url = "https://test-people.epfl.ch/cgi-bin/wsgetpeople/";
   $url = add_query_arg($parameter, $url);
 
   // retrieve the data in JSON
@@ -69,7 +72,7 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
 
     try
     {
-      do_action("epfl_people_action", $persons, $nb_columns);
+      do_action("epfl_people_action", $persons, $columns);
       return ob_get_contents();
     }
     finally

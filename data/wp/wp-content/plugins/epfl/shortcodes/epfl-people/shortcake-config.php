@@ -8,9 +8,10 @@ Class ShortCakePeopleConfig
   private static function get_nb_columns_options()
   {
       return array(
-          array('value' => '1', 'label' => '1 ' . esc_html__('column', 'epfl')),
-          array('value' => '2', 'label' => '2 ' . esc_html__('columns', 'epfl')),
-          array('value' => '3', 'label' => '3 ' . esc_html__('columns', 'epfl')),
+          array('value' => '1', 'label' => esc_html__('As card,', 'epfl') . ', 1 ' . esc_html__('column', 'epfl')),
+          array('value' => '2', 'label' => esc_html__('As card,', 'epfl') . ', 2 ' . esc_html__('columns', 'epfl')),
+          array('value' => '3', 'label' => esc_html__('As card,', 'epfl') . ', 3 ' . esc_html__('columns', 'epfl')),
+          array('value' => 'list', 'label' => esc_html__('As list', 'epfl')),
       );
   }
 
