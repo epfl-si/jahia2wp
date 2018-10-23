@@ -25,10 +25,10 @@ function initExternalMenuList ($) {
 }
 
 jQuery( document ).ready(function($) {
-  if (window.wp.screen.base === 'edit' && window.wp.screen.post_type === 'epfl-external-menu' ) {
-    initExternalMenuList($);
-  }
+    if (window.wp.screen.base === 'edit' && window.wp.screen.post_type === 'epfl-external-menu' ) {
+        initExternalMenuList($);
+    }
 
-  // If you see this, nothing threw or crashed (yet).
-  console.log('epfl-menus-admin.js is on duty.');
+    // If you see this, nothing threw or crashed (yet).
+    console.log('epfl-menus-admin.js is on duty.');
 });
