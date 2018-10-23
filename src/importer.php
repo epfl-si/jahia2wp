@@ -61,6 +61,7 @@ Usage : wp eval [...] <filename>
     }
 
     add_filter("wp_import_existing_post", "identify_structural_pages_by_guid", 10, 2);
+    add_filter("wp_import_existing_post", "distinguish_normal_pages_by_slug", 10, 2);
 
     global $wp_import;
     $wp_import->fetch_attachments = (FALSE !== array_search("-fetch-attachments", $argv));
@@ -130,4 +131,37 @@ function _find_page_by_relative_url ($relative_url) {
 function _ends_with($haystack ,$needle) {
     $expected_position = strlen($haystack) - strlen($needle);
     return strrpos($haystack, $needle, 0) === $expected_position;
+}
+
+function distinguish_normal_pages_by_slug ($post_exists_orig, $post)
+{
+    if ($post->ID < 0) return $post_exists_orig;
+    // If we already have a reason to say this is a new page (e.g.
+    // different title or date), we don't want to invalidate this
+    // decision now:
+    if ($post_exists_orig == 0) return 0;
+
+    // If we are considering aliasing to $post_exists_orig, but
+    // it and us ($post) have different slugs, then don't.
+    $query = new \WP_Query(array(
+        'post_type' => 'page',
+        'page_id' => $post_exists_orig));
+
+    $results = $query->get_posts();
+    if (sizeof($results) > 1) {
+        throw new Error("Duplicate ID $post_exists_orig ?!");
+    } elseif (sizeof($results) == 0) {
+        error_log("Unknown ID $post_exists_orig ?!");
+        // Continue, hoping *something* in the filter stack
+        // knows what they are doing
+    } else {
+        $the_other_slug = $results[0]->post_name;
+        $my_slug = $post->post_name;
+
+        if ($my_slug and $the_other_slug and ($my_slug !== $the_other_slug)) {
+            return 0;  // We need to de-alias
+        }
+    }
+
+    return $post_exists_orig;
 }
