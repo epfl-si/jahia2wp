@@ -1,40 +1,16 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8; -*-
 # All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017
 
-"""wxr-ventilate: Transform WXR to WXR for the EPFL web sites
-
-WXR, short for Wordpress Export RSS (https://github.com/pbiron/wxr) is
-the native XML dump/restore format for WordPress.
-
-This script consumes and produces WXR files. It takes part in the
-"ventilation" process by filtering and reparenting pages so as to make
-a number of independent WordPress instances appear to the public as
-one large site, such as www.epfl.ch and vpsi.epfl.ch. Specifically, it
-gets invoked once per line in the governing CSV file, and produces
-exactly one XML file per run on standard output.
-
-Usage:
-  wxr_ventilate.py [options] --new-site-url-base=<url> <input_xml_file>
-
-Options:
-   --filter=<url>
-   --add-structure=<relativeuri>
-   --url-rewrite=<rewrite-expr>
-   --rewrite-relative-uri=<uri>
-
-"""
-from docopt import docopt
 import lxml.etree
 from urllib.parse import urlparse, urlunparse
 import os
 import sys
+import logging
 
 dirname = os.path.dirname
 sys.path.append(dirname(dirname(os.path.realpath(__file__))))
 
 from wxr_tools.wxr_model import Channel, Page, NavMenu, NavMenuItem, Item  # noqa: E402
-from wxr_tools.xml import xml_to_string                                    # noqa: E402
 from wxr_tools.html import fix_links                                       # noqa: E402
 
 
@@ -48,13 +24,32 @@ def normalize_site_url(url_text):
 
 
 class Ventilator:
-    def __init__(self, file, flags):
+    """
+    wxr-ventilate: Transform WXR to WXR for the EPFL web sites
+
+    WXR, short for Wordpress Export RSS (https://github.com/pbiron/wxr) is
+    the native XML dump/restore format for WordPress.
+
+    This class consumes and produces WXR files. It takes part in the
+    "ventilation" process by filtering and reparenting pages so as to make
+    a number of independent WordPress instances appear to the public as
+    one large site, such as www.epfl.ch and vpsi.epfl.ch. Specifically, it
+    gets invoked once per line in the governing CSV file, and produces
+    exactly one XML file per run on standard output.
+    """
+    def __init__(self, file, new_site_url_base, filter,
+                 url_rewrite_from, url_rewrite_to, relative_uri):
+
         self.etree = lxml.etree.parse(file)
-        self.flags = flags
+        self.new_site_url_base = new_site_url_base
+        self.filter = filter
+        self.url_rewrite_from = url_rewrite_from
+        self.url_rewrite_to = url_rewrite_to
+        self.relative_uri = relative_uri
 
     @property
     def new_root_url(self):
-        return normalize_site_url(self.flags['--new-site-url-base'])
+        return normalize_site_url(self.new_site_url_base)
 
     def ventilate(self):
         """Filter and rearrange the pages under the --add-structure path.
@@ -75,24 +70,22 @@ class Ventilator:
 
         unique_page = None
 
-        ventilate_filter = self.flags['--filter']
-
-        if ventilate_filter.endswith("**"):
+        if self.filter.endswith("**"):
             keep_children = True
             keep_this_page = True
-        elif ventilate_filter.endswith("*"):
+        elif self.filter.endswith("*"):
             keep_children = True
             keep_this_page = False
         else:
             keep_children = False
             keep_this_page = False
 
-        if ventilate_filter:
+        if self.filter:
 
             if not keep_children:
                 # we try to ventilate one page
 
-                url_page = ventilate_filter
+                url_page = self.filter
                 if not url_page.endswith('/'):
                     url_page += "/"
 
@@ -104,7 +97,7 @@ class Ventilator:
                     else:
                         unique_page = item
             else:
-                filter_url = ventilate_filter.rstrip('*')
+                filter_url = self.filter.rstrip('*')
 
                 for item in Item.all(self.etree):
                     if filter_url == item.link:
@@ -114,8 +107,8 @@ class Ventilator:
                         if not keep_children:
                             item.delete()
 
-        if self.flags['--add-structure']:
-            path_components = self.flags['--add-structure'].split('/')
+        if self.relative_uri:
+            path_components = self.relative_uri.split('/')
             if path_components[0] == '':
                 # Tolerate incorrect --add-structure=/foo/bar
                 path_components.pop(0)
@@ -139,13 +132,16 @@ class Ventilator:
                         if not p.parent_id:
                             p.parent_id = reparent_under
 
-            if ventilate_filter and not keep_children:
+            if self.filter and not keep_children:
                 # Single page requested - we don't want menus
                 for menu in NavMenu.all(self.etree):
                     menu.delete()
             else:
                 # All pages requested
                 self.trim_and_reparent_menus()
+
+        if self.url_rewrite_from and self.url_rewrite_to:
+            self.fix_links()
 
         return self.etree
 
@@ -221,45 +217,12 @@ class Ventilator:
 
         return current_id
 
-    def fix_links(self, rewrite_from, rewrite_to, rewrite_relative_uri):
+    def fix_links(self):
+
+        logging.info("Starting fix links...")
+
         for page in Page.all(self.etree):
-            page.content = fix_links(page.content, rewrite_from, rewrite_to,
-                                     rewrite_relative_uri)
+            if page.content is not None:
+                page.content = fix_links(page.content, self.url_rewrite_from, self.url_rewrite_to, self.relative_uri)
 
-
-if __name__ == '__main__':
-    args = docopt(__doc__)
-    v = Ventilator(args["<input_xml_file>"], args)
-    output = v.ventilate()
-    if args['--url-rewrite']:
-        rewrite_from, rewrite_to = args['--url-rewrite'].split(',')
-        v.fix_links(rewrite_from, rewrite_to, args['--rewrite-relative-uri'])
-
-    print(xml_to_string(output))
-
-
-def demo():
-    """For running in ipython - Not used in production"""
-    import subprocess
-    global srcdir, v, i, wxrdir, secure_it
-    srcdir = (subprocess.run("git rev-parse --show-toplevel", stdout=subprocess.PIPE, shell=True).stdout)[:-1]
-    wxrdir = '%s/src/ventilation/wxr-src/' % srcdir.decode('utf-8')
-    v = Ventilator(wxrdir + 'cri.xml', {})
-    i = Item.insert(v.etree).ensure_id()
-    print(repr(i.id))
-    i.id = 5
-    i.post_slug = 'Just a test'
-    print(repr(i.id))
-    print(xml_to_string(i))
-    i.parent_id = 4
-    i.post_slug = 'Just another test'
-    print(xml_to_string(i))
-
-    print("Before: %s" % xml_to_string(Item.find_by_id(v.etree, 39)))
-    Item.find_by_id(v.etree, 41).delete()  # 41 is parent of 39 in cri.xml
-    print(xml_to_string(Item.find_by_id(v.etree, 39)))
-
-    secure_it = lxml.etree.parse(wxrdir + 'secure-it-next.xml')
-    pages = Page.all(secure_it)
-    translations = next(iter(pages)).translations
-    return translations
+        logging.info("End fix links...")

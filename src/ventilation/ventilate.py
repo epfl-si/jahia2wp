@@ -14,7 +14,6 @@ Options:
 
 import os
 import sys
-import subprocess
 import lxml.etree
 from urllib.parse import urlparse, urlunparse
 
@@ -26,6 +25,8 @@ sys.path.append(dirname(dirname(os.path.realpath(__file__))))
 
 from utils import Utils                                          # noqa: E402
 from wordpress_inventories import site_moniker, VentilationTodo  # noqa: E402
+from wxr_tools.wxr_ventilate import Ventilator  # noqa: E402
+from wxr_tools.xml import xml_to_string  # noqa: E402
 
 
 def _increment_xml_file_path(xml_file_path):
@@ -84,32 +85,23 @@ class DestinationWXR:
         self.source_file = source_wxr.path
         self.path = dest_file
 
-    def create(self, **kwargs):
+    def create(self, filter, relative_uri, destination_site, source_url):
+
         os.makedirs(dirname(self.path), exist_ok=True)
-        wxr_ventilate_path = os.path.join(
-            dirname(__file__),
-            '../wxr_tools/wxr_ventilate.py')
-        cmdline = [
-            sys.executable,
-            wxr_ventilate_path,
-            '--new-site-url-base', kwargs['new_url'],
-            '--filter', kwargs['filter'],
-            '--add-structure', kwargs['add_structure']
-        ]
 
-        if (kwargs['url_rewrite_from']):
-            cmdline.extend([
-                '--url-rewrite={0},{1}'.format(kwargs['url_rewrite_from'],
-                                               kwargs['url_rewrite_to']),
-                '--rewrite-relative-uri=' + kwargs['rewrite_relative_uri']
-            ])
+        ventilator = Ventilator(
+            file=self.source_file,
+            new_site_url_base=destination_site,
+            filter=filter,
+            url_rewrite_from=source_url,
+            url_rewrite_to=destination_site,
+            relative_uri=relative_uri
+        )
 
-        cmdline.append(self.source_file)
+        output = ventilator.ventilate()
 
-        logging.debug(' '.join(cmdline))
-        return subprocess.run(cmdline,
-                              stdout=open(self.path, 'w'),
-                              check=True)
+        with open(self.path, 'w') as file:
+            file.write(xml_to_string(output))
 
 
 if __name__ == '__main__':
@@ -154,11 +146,9 @@ if __name__ == '__main__':
 
             destination_wxr.create(
                 filter=task.source_pattern,
-                add_structure=task.relative_uri,
-                new_url=task.destination_site,
-                url_rewrite_from=task.source_url,
-                url_rewrite_to=task.destination_site,
-                rewrite_relative_uri=task.relative_uri
+                relative_uri=task.relative_uri,
+                destination_site=task.destination_site,
+                source_url=task.source_url
             )
 
             output_count_for_this_source_wxr += 1
