@@ -156,7 +156,7 @@ function distinguish_normal_pages_by_slug ($post_exists_orig, $post)
         // knows what they are doing
     } else {
         $the_other_slug = $results[0]->post_name;
-        $my_slug = $post->post_name;
+        $my_slug = $post['post_name'];
 
         if ($my_slug and $the_other_slug and ($my_slug !== $the_other_slug)) {
             return 0;  // We need to de-alias
