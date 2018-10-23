@@ -135,7 +135,8 @@ function _ends_with($haystack ,$needle) {
 
 function distinguish_normal_pages_by_slug ($post_exists_orig, $post)
 {
-    if ($post->ID < 0) return $post_exists_orig;
+    if ($post['post_type'] !== 'page') return $post_exists_orig;
+    if ($post['post_id'] < 0) return $post_exists_orig;
     // If we already have a reason to say this is a new page (e.g.
     // different title or date), we don't want to invalidate this
     // decision now:
