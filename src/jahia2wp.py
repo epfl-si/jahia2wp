@@ -56,6 +56,7 @@ Usage:
     [--force-plugin] [--force-options] [--plugin=<PLUGIN_NAME>|--strict-list]
   jahia2wp.py global-report <csv_file> [--output-dir=<OUTPUT_DIR>] [--use-cache] [--debug | --quiet]
     --root_wp_dest=</srv/../epfl> [--greedy] [--htaccess] [--context=<intra|inter|full>] [--dry_run]
+  jahia2wp.py update-htaccess-files <wp_env> <csv_file>             [--debug | --quiet]
 
 Options:
   -h --help                 Show this screen.
@@ -93,6 +94,8 @@ from settings import VERSION, FULL_BACKUP_RETENTION_THEME, INCREMENTAL_BACKUP_RE
 from tracer.tracer import Tracer
 from unzipper.unzip import unzip_one
 from utils import Utils
+from ventilation.manage_redirects import generate_htaccess_content, insert_redirects_after_ventilation_in_htaccess
+from ventilation.wordpress_inventories import VentilationTodo
 from veritas.casters import cast_boolean
 from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
@@ -1071,6 +1074,27 @@ def update_plugins_many(csv_file, plugin=None, force_plugin=False, force_options
                                         force_plugin=force_plugin,
                                         force_options=force_options,
                                         strict_plugin_list=strict_list)
+
+
+@dispatch.on('update-htaccess-files')
+def update_htaccess_files(wp_env, csv_file, **kwargs):
+    """Update htaccess files after ventilation"""
+
+    for task in VentilationTodo(csv_file).items:
+
+        # generate a list of htaccess lines
+        htaccess_content = generate_htaccess_content(task.source_url, task.destination_site)
+
+        # WP site root path
+        wp_site = WPSite(wp_env, task.source_url)
+        site_root_path = wp_site.path
+
+        # write htaccess lines
+        insert_redirects_after_ventilation_in_htaccess(
+            site_root_path,
+            insertion=htaccess_content,
+            after_this_marker="Jahia-Files-Redirect"
+        )
 
 
 @dispatch.on('global-report')

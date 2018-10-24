@@ -1,22 +1,20 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2017"""
-import logging
-import functools
-import subprocess
+import binascii
+import csv
 import importlib
+import logging
+import string
+import subprocess
 import sys
+import xml.dom.minidom
+from urllib import parse
+
+import functools
 import io
 import os
-import csv
-import string
-import binascii
 import random
 import re
-import xml.dom.minidom
-
 import requests
-
-
-from urllib import parse
 from bs4 import BeautifulSoup
 
 
