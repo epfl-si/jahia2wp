@@ -772,6 +772,12 @@ class Menu
         // XXX Lazy but correct implementation (for low values of correct):
         // do nothing
     }
+
+    function __toString () {
+        $thisclass = get_called_class();
+
+        return "<$thisclass(term_id=$this->term_id)>";
+    }
 }
 
 
