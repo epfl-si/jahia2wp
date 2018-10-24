@@ -37,12 +37,19 @@ class RESTAPIError extends \Exception {
 
 /**
  * Ancillary class used by @link REST_API::hook_polylang_lang_query_param
+ *
+ * An instance is constructed iff the normal Polylang construction process
+ * *doesn't* complete the way we would want it to. The job is thereafter
+ * to fix things up.
  */
 class _ForcedPolylangChooser extends \PLL_Choose_Lang {
     function __construct() {
         global $polylang;
         parent::__construct($polylang);
-    }
+        // Ensure that nav menus are diverted like they would be in
+        // a frontend page:
+        new \PLL_Frontend_Nav_Menu($polylang);
+     }
 }
 
 /**
