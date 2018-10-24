@@ -1494,8 +1494,22 @@ class MenuItemController extends CustomPostTypeController
         $yellow = 'rgba(248, 247, 202, 0.45)';
         $stripesize = '20px'; $stripesize2x = '40px';
         static::add_editor_css("
-.wp-list-table tr.sync-failed {
+.wp-list-table tr.sync-failed, .wp-list-table tr.sync-inprogress {
   background-image: repeating-linear-gradient(-45deg,$yellow,$yellow $stripesize,transparent $stripesize,transparent $stripesize2x);
+}
+
+.wp-list-table tr.sync-inprogress {
+  animation: wp-epfl-sync-barber .5s linear infinite;
+}
+
+@keyframes wp-epfl-sync-barber {
+  from {
+    background-position-x: 0px;
+  }
+
+  to {
+    background-position-x: 57px;
+  }
 }
 ");
     }
