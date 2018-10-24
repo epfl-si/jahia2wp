@@ -1089,6 +1089,10 @@ def update_htaccess_files(wp_env, csv_file, **kwargs):
         wp_site = WPSite(wp_env, task.source_url)
         site_root_path = wp_site.path
 
+        if not os.path.isdir(site_root_path):
+            logging.warning("WP path {} doesn't exist".format(site_root_path))
+            continue
+
         # write htaccess lines
         insert_redirects_after_ventilation_in_htaccess(
             site_root_path,
