@@ -861,6 +861,7 @@ def backup_many(csv_file, **kwargs):
             row["wp_site_url"]
         ).backup()
 
+
 @dispatch.on('backup-inventory')
 def backup_inventory(path, **kwargs):
 
@@ -905,6 +906,7 @@ def rotate_backup_inventory(path, dry_run=False, **kwargs):
                     dry_run=dry_run,
                     include_list=[pattern]
                 ).rotate_backups(path)
+
 
 @dispatch.on('rotate-backup')
 def rotate_backup(csv_file, dry_run=False, **kwargs):
