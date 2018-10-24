@@ -46,7 +46,7 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
   ("" !== $units) ? $parameter['units'] = $units : $parameter['scipers'] = $scipers;
 
   // the web service we use to retrieve the data
-  $url = "https://test-people.epfl.ch/cgi-bin/wsgetpeople/";
+  $url = "https://people.epfl.ch/cgi-bin/wsgetpeople/";
   $url = add_query_arg($parameter, $url);
 
   // retrieve the data in JSON
