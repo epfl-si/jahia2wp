@@ -8,9 +8,9 @@ Class ShortCakePeopleConfig
   private static function get_nb_columns_options()
   {
       return array(
-          array('value' => '1', 'label' => '1 ' . esc_html__('column', 'epfl')),
-          array('value' => '2', 'label' => '2 ' . esc_html__('columns', 'epfl')),
-          array('value' => '3', 'label' => '3 ' . esc_html__('columns', 'epfl')),
+          array('value' => '1', 'label' => esc_html__('As card, one column', 'epfl')),
+          array('value' => '3', 'label' => esc_html__('As card, multiple columns', 'epfl')),
+          array('value' => 'list', 'label' => esc_html__('As list', 'epfl')),
       );
   }
 
@@ -45,7 +45,7 @@ Class ShortCakePeopleConfig
             'type'          => 'radio',
             'options'       => ShortCakePeopleConfig::get_nb_columns_options(),
             'description'   => '',
-            'value'         => '1',
+            'value'         => '3',
           ),
         ),
         'post_type' => array( 'post', 'page' ),

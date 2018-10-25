@@ -15,7 +15,7 @@
 # in the inventory, in no particular order.
 
 - vars:
-    play_create_or_restore: true
-    play_undump: true
+    play_create_or_restore: yes
+    play_undump: yes
     undump_local_dir: "{{ from }}/{{ inventory_hostname }}"
   import_playbook: wordpress-main.yml
