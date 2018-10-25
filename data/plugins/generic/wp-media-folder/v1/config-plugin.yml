@@ -1,3 +1,4 @@
+# Zip is hosted on EPFL internal machine with access restriction because we bought the plugin and we don't want to put it on GitHub like the others
 src: https://wp-manager.epfl.ch/resources/plugin-zip/wp-media-folder.zip
 activate: yes
 tables:
