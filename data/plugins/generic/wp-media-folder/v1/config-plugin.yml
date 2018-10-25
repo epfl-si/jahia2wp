@@ -26,7 +26,7 @@ tables:
   - autoload: 'yes'
     option_id: 314
     option_name: wpmf_usegellery
-    option_value: '1'
+    option_value: '0'
   - autoload: 'yes'
     option_id: 315
     option_name: wpmf_useorder
@@ -58,7 +58,7 @@ tables:
   - autoload: 'yes'
     option_id: 322
     option_name: wpmf_usegellery_lightbox
-    option_value: '1'
+    option_value: '0'
   - autoload: 'yes'
     option_id: 323
     option_name: wpmf_media_rename
