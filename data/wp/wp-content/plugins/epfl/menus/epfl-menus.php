@@ -453,8 +453,6 @@ class MenuItemBag
             throw new \Error("Duplicate ID: " . $this->_get_id($item));
         }
         $item = clone($item);
-        $this->_MUTATE_set_id       ($item, (int) $this->_get_id       ($item));
-        $this->_MUTATE_set_parent_id($item, (int) $this->_get_parent_id($item));
         $this->items[$this->_get_id($item)] = $item;
     }
 
