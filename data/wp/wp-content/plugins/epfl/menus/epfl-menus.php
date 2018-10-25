@@ -1614,6 +1614,10 @@ MenuEditorController::hook();
 class MenuFrontendController
 {
     static function hook () {
+        add_filter('home_url',
+                   array(get_called_class(), 'home_url_is_root_site_url_for_theme'),
+                   100, 4);
+
         // Note: Polylang also hooks into these two and it isn't quite
         // as careful as we are about preserving tree invariants
         // (topological ordering and child-parent referential
@@ -1689,20 +1693,32 @@ class MenuFrontendController
      * function directly.
      */
     static function filter_wp_nav_menu_items_for_theme
-        ($items, $menu, $args)
+        ($items_orig, $menu, $args)
     {
+        if (static::_is_being_called_by_theme('wp_get_nav_menu_items')) {
+            return static::stitch_menu($items_orig, $menu);
+        } else {
+            return $items_orig;
+        }
+    }
+
+    private static function _is_being_called_by_theme ($function_name) {
         $bt = debug_backtrace();
         for ($i = 0; $i < count($bt); $i++) {
             $caller = $bt[$i];
-            if ($caller['function'] != 'wp_get_nav_menu_items') continue;
-            if (! preg_match('#/wp-content/themes/#', $caller['file'])) {
-                return $items;
-            }
-            global $post;
-            return static::stitch_menu($items, $menu);
+            if ($caller['function'] != $function_name) continue;
+            return preg_match('#/wp-content/themes/#', $caller['file']);
         }
-        error_log('Unable to find wp_get_nav_menu_items stack frame?');
-        return $items;
+    }
+
+    static function home_url_is_root_site_url_for_theme
+        ($url_orig, $unused_path, $unused_orig_scheme, $unused_blog_id)
+    {
+        if (static::_is_being_called_by_theme('get_home_url')) {
+            return Site::root()->get_url();
+        } else {
+            return $url_orig;
+        }
     }
 }
 
