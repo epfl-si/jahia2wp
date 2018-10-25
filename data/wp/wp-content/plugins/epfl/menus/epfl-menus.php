@@ -277,7 +277,7 @@ class MenuItemBag
     function reverse_graft ($at_item, $into) {
         $id = $this->_get_id($at_item);
         $into_renumbered = $this->_renumber($into, /*&*/$id);
-        return static::_MUTATE_graft($id, $into_renumbered, $this);
+        return static::_MUTATE_graft($id, $into_renumbered, $this->copy());
     }
 
     /**
@@ -456,17 +456,40 @@ class MenuItemBag
         $this->items[$this->_get_id($item)] = $item;
     }
 
-    function _MUTATE_graft ($at_id, $mutated_outer, $inner) {
-        $new_parent_id = $mutated_outer->_get_parent_id($at_id);
-        foreach ($inner->copy()->as_list() as $item) {
-            if (! $mutated_outer->_get_parent_id($item)) {
-                // $item is new, thanks to ->copy() being
-                // a deep copy.
-                $this->_MUTATE_set_parent_id($item, $new_parent_id);
+    /**
+     * Graft $inner into $outer at $at_id, preserving ordering.
+     *
+     * Splice the node list of $inner into $outer's at the
+     * proper place, also taking care of reparenting the root nodes of
+     * $inner.
+     *
+     * _MUTATE_graft() does *not* tolerate ID clashes between $outer and
+     * $inner; caller should ->_renumber() first as appropriate.
+     * 
+     * _MUTATE_graft() may mutate (the items of) both $outer and
+     * $inner (the former, because it shares them into the return
+     * value). Again, caller should ->copy() as appropriate.
+     *
+     * @return A new instance of the class.
+     */
+
+    private static function _MUTATE_graft ($at_id, $outer, $inner) {
+        $new_parent_id = $outer->_get_parent_id($outer->find($at_id));
+
+        $items = array();
+        foreach ($outer->as_list() as $item) {
+            $items[] = $item;
+            if ($outer->_get_id($item) === $at_id) {
+                foreach ($inner->as_list() as $item) {
+                    if (! $inner->_get_parent_id($item)) {
+                        $inner->_MUTATE_set_parent_id($item, $new_parent_id);
+                    }
+                    $items[] = $item;
+                }
             }
-            $mutated_outer->_MUTATE_add_item($item);
         }
-        return $mutated_outer;
+        $thisclass = get_called_class();
+        return new $thisclass($items);
     }
 
     /**
