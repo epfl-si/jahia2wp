@@ -548,12 +548,13 @@ class _WPQueryBuilder
     function wp_query ()
     {
         if (! $this->query) {
-            throw new Exception("Can only call one of ->wp_query, ->result or ->results");
+            throw new Exception("->wp_query, ->result or ->results together may only be called once per _WPQueryBuilder object");
         }
-        $retval = new WP_Query($this->query);
-        $this->_saved_query = $this->query;
-        unset($this->query);
-        return $retval;
+        $query = $this->query;
+        unset($this->query);           // ->wp_query is a one-shot pistol
+        $this->_saved_query = $query;  // For ->moniker()'s use only
+
+        return new WP_Query($query);
     }
 
     function result ()
