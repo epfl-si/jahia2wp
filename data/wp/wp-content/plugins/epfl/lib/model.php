@@ -32,6 +32,8 @@ class ModelException extends \Exception {
     }
 }
 
+class UnicityException extends ModelException {}
+
 
 /**
  * Abstract base class for model objects based on the WPDB API.
@@ -554,6 +556,14 @@ class _WPQueryBuilder
         unset($this->query);           // ->wp_query is a one-shot pistol
         $this->_saved_query = $query;  // For ->moniker()'s use only
 
+        // Using Polylang's auto-filter-by-language feature in
+        // something called model.php, that focuses on primary keys,
+        // is a bad idea all around (e.g. think what happens when you
+        // disable the Polylang plugin?). But if caller insists we
+        // let them.
+        if (! array_key_exists('lang', $query)) {
+            $query['lang'] = '';
+        }
         return new WP_Query($query);
     }
 
