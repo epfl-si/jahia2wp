@@ -27,7 +27,7 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
   $attributes = shortcode_atts( array(
        'units'   => '',
        'scipers' => '',
-       'columns' => '1',
+       'columns' => '3',
     ), $attributes );
 
    // sanitize the parameters
@@ -36,7 +36,7 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
   $columns  = sanitize_text_field( $attributes['columns'] );
 
   if ($columns !== 'list') {
-    $columns = (is_numeric($columns) && intval($columns) <= 3 && intval($columns) >= 1) ? $columns : 1;
+    $columns = (is_numeric($columns) && intval($columns) <= 3 && intval($columns) >= 1) ? $columns : 3;
   }
 
   if ("" === $units and "" === $scipers) {
