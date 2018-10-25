@@ -772,6 +772,12 @@ class Menu
         // XXX Lazy but correct implementation (for low values of correct):
         // do nothing
     }
+
+    function __toString () {
+        $thisclass = get_called_class();
+
+        return "<$thisclass(term_id=$this->term_id)>";
+    }
 }
 
 
@@ -883,15 +889,17 @@ class MenuMapEntry
         $registered = get_registered_nav_menus();
 
         $all = array();
-        foreach ($poly_options['nav_menus'][get_stylesheet()]
-                 as $theme_location => $menus) {
-            if (! $registered[$theme_location]) continue;
-            foreach ($menus as $lang => $term_id) {
-                if (! $term_id) continue;
-                $all[] = new $thisclass(
-                    $term_id, $theme_location,
-                    /* $description = */ $registered[$theme_location],
-                    $lang);
+        $poly_nav_menus = $poly_options['nav_menus'][get_stylesheet()];
+        if ($poly_nav_menus) {
+            foreach ($poly_nav_menus as $theme_location => $menus) {
+                if (! $registered[$theme_location]) continue;
+                foreach ($menus as $lang => $term_id) {
+                    if (! $term_id) continue;
+                    $all[] = new $thisclass(
+                        $term_id, $theme_location,
+                        /* $description = */ $registered[$theme_location],
+                        $lang);
+                }
             }
         }
         return $all;

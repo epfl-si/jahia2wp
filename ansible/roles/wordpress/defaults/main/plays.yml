@@ -1,0 +1,31 @@
+# What to do in the plays
+#
+# We use strings "yes" and "no" because of
+# https://github.com/ansible/ansible/issues/17193 .
+#
+# These defaults are overridden by whatever controlling script takes
+# command - Either a full-fledged shell script such as
+# ../../../../dump or ../../../../deploy, or the ventilation flow
+# from ../../../../playbooks/push-ventilated.yml. In the former case
+# you can override the override using a -e switch on the command
+# line.
+
+# ../../../../dump overrides this
+play_dump: "no"
+
+# ../../../../deploy overrides these
+play_update: "no"
+play_backup: "no"
+
+# The ventilation flow overrides this one
+play_undump: "no"
+
+# Both ../../../../deploy and the ventilation flow overrides this one
+play_create_or_restore: "no"
+
+# These operations default to being run (when appropriate - not all of
+# them appear at top level), but you can pass -e play_foo=no if you
+# want to skip them
+play_unload_reload_plugins: "yes"    # Ancillary to play_update
+play_wp_configure: "yes"             # Used in ../../tasks/create-or-restore.yml
+play_check_working_wordpress: "yes"  # Ditto

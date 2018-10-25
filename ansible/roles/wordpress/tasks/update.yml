@@ -1,0 +1,44 @@
+- include_vars: update-vars.yml
+
+- name: Zip file for the EPFL plug-in
+  run_once: true
+  local_action:
+    module: archive
+    dest: "{{ epfl_plugin_zip_file }}"
+    format: zip
+    path: "{{ epfl_plugin_dir }}"
+    exclude_path: "{{ epfl_ignore_files_pattern }}"
+  register: _epfl_plugin_zip
+
+- name: Install EPFL plug-in
+  unarchive:
+    src: "{{ epfl_plugin_zip_file }}"
+    dest: "{{ wp_plugins_dir }}"
+  when: "wp_can.write_code and _epfl_plugin_zip is changed"
+  register: _epfl_plugin_zip_install
+
+
+- name: Zip file for the EPFL 2018 theme
+  run_once: true
+  local_action:
+    module: archive
+    dest: "{{ epfl_theme2018_zip_file }}"
+    format: zip
+    path: "{{ epfl_theme2018_dir }}"
+    exclude_path: "{{ epfl_ignore_files_pattern }}"
+  register: _epfl_theme_zip
+
+- name: Install EPFL 2018 theme
+  unarchive:
+    src: "{{ epfl_theme2018_zip_file }}"
+    dest: "{{ wp_themes_dir }}"
+  when: "wp_can.write_code and _epfl_theme_zip is changed"
+
+- name: deactivate EPFL plug-in
+  command: "{{ wp_cli_command }} plugin deactivate"
+  when: _epfl_plugin_zip_install.changed and play_unload_reload_plugins is match("yes")
+  failed_when: false
+
+- name: reactivate EPFL plug-in
+  command: "{{ wp_cli_command }} plugin activate"
+  when: _epfl_plugin_zip_install.changed and play_unload_reload_plugins is match("yes")
