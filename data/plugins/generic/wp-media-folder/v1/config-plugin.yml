@@ -4,16 +4,140 @@ activate: yes
 tables:
   options:
   - autoload: 'yes'
+    option_id: 301
+    option_name: wpmf_use_taxonomy
+    option_value: '1'
+  - autoload: 'yes'
+    option_id: 310
+    option_name: wpmf_version
+    option_value: 4.7.0
+  - autoload: 'yes'
+    option_id: 311
+    option_name: wpmf_gallery_image_size_value
+    option_value: '["thumbnail","medium","large","full"]'
+  - autoload: 'yes'
+    option_id: 312
+    option_name: wpmf_padding_masonry
+    option_value: '5'
+  - autoload: 'yes'
+    option_id: 313
+    option_name: wpmf_padding_portfolio
+    option_value: '10'
+  - autoload: 'yes'
+    option_id: 314
+    option_name: wpmf_usegellery
+    option_value: '1'
+  - autoload: 'yes'
+    option_id: 315
+    option_name: wpmf_useorder
+    option_value: '1'
+  - autoload: 'yes'
+    option_id: 316
+    option_name: wpmf_create_folder
+    option_value: role
+  - autoload: 'yes'
     option_id: 317
     option_name: wpmf_option_override
+    option_value: '1'
+  - autoload: 'yes'
+    option_id: 318
+    option_name: wpmf_option_duplicate
+    option_value: '0'
+  - autoload: 'yes'
+    option_id: 319
+    option_name: wpmf_active_media
+    option_value: '0'
+  - autoload: 'yes'
+    option_id: 320
+    option_name: wpmf_folder_option2
     option_value: '1'
   - autoload: 'yes'
     option_id: 321
     option_name: wpmf_option_searchall
     option_value: '1'
   - autoload: 'yes'
+    option_id: 322
+    option_name: wpmf_usegellery_lightbox
+    option_value: '1'
+  - autoload: 'yes'
+    option_id: 323
+    option_name: wpmf_media_rename
+    option_value: '0'
+  - autoload: 'yes'
+    option_id: 324
+    option_name: wpmf_patern_rename
+    option_value: '{sitename} - {foldername} - #'
+  - autoload: 'yes'
+    option_id: 325
+    option_name: wpmf_rename_number
+    option_value: '0'
+  - autoload: 'yes'
+    option_id: 326
+    option_name: wpmf_option_media_remove
+    option_value: '0'
+  - autoload: 'yes'
+    option_id: 327
+    option_name: wpmf_default_dimension
+    option_value: '["400x300","640x480","800x600","1024x768","1600x1200"]'
+  - autoload: 'yes'
+    option_id: 328
+    option_name: wpmf_selected_dimension
+    option_value: '["400x300","640x480","800x600","1024x768","1600x1200"]'
+  - autoload: 'yes'
+    option_id: 329
+    option_name: wpmf_weight_default
+    option_value: '[["0-61440","kB"],["61440-122880","kB"],["122880-184320","kB"],["184320-245760","kB"],["245760-307200","kB"]]'
+  - autoload: 'yes'
+    option_id: 330
+    option_name: wpmf_weight_selected
+    option_value: '[["0-61440","kB"],["61440-122880","kB"],["122880-184320","kB"],["184320-245760","kB"],["245760-307200","kB"]]'
+  - autoload: 'yes'
+    option_id: 331
+    option_name: wpmf_color_singlefile
+    option_value: '{"bgdownloadlink":"#444444","hvdownloadlink":"#888888","fontdownloadlink":"#ffffff","hoverfontcolor":"#ffffff"}'
+  - autoload: 'yes'
+    option_id: 332
+    option_name: wpmf_option_singlefile
+    option_value: '0'
+  - autoload: 'yes'
+    option_id: 333
+    option_name: wpmf_option_sync_media
+    option_value: '0'
+  - autoload: 'yes'
+    option_id: 334
+    option_name: wpmf_option_sync_media_external
+    option_value: '0'
+  - autoload: 'yes'
+    option_id: 335
+    option_name: wpmf_list_sync_media
+    option_value: a:0:{}
+  - autoload: 'yes'
+    option_id: 336
+    option_name: wpmf_time_sync
+    option_value: '60'
+  - autoload: 'yes'
+    option_id: 337
+    option_name: wpmf_lastRun_sync
+    option_value: '1540467937'
+  - autoload: 'yes'
+    option_id: 338
+    option_name: wpmf_slider_animation
+    option_value: slide
+  - autoload: 'yes'
+    option_id: 339
+    option_name: wpmf_option_mediafolder
+    option_value: '0'
+  - autoload: 'yes'
     option_id: 340
     option_name: wpmf_option_countfiles
+    option_value: '1'
+  - autoload: 'yes'
+    option_id: 341
+    option_name: wpmf_option_lightboximage
+    option_value: '0'
+  - autoload: 'yes'
+    option_id: 342
+    option_name: wpmf_option_hoverimg
     option_value: '1'
   - autoload: 'yes'
     option_id: 343
@@ -24,6 +148,39 @@ tables:
     option_name: wpmf_image_watermark_apply
     option_value: a:5:{s:8:"all_size";s:1:"1";s:9:"thumbnail";s:1:"0";s:6:"medium";s:1:"0";s:5:"large";s:1:"0";s:4:"full";s:1:"0";}
   - autoload: 'yes'
-    option_id: 369
+    option_id: 345
+    option_name: wpmf_option_image_watermark
+    option_value: '0'
+  - autoload: 'yes'
+    option_id: 346
+    option_name: wpmf_watermark_position
+    option_value: top_left
+  - autoload: 'yes'
+    option_id: 347
+    option_name: wpmf_watermark_image
+    option_value: ''
+  - autoload: 'yes'
+    option_id: 348
+    option_name: wpmf_watermark_image_id
+    option_value: '0'
+  - autoload: 'yes'
+    option_id: 349
+    option_name: wpmf_gallery_settings
+    option_value: a:1:{s:5:"theme";a:7:{s:13:"default_theme";a:6:{s:7:"columns";i:3;s:4:"size";s:6:"medium";s:10:"targetsize";s:5:"large";s:4:"link";s:4:"file";s:7:"orderby";s:8:"post__in";s:5:"order";s:3:"ASC";}s:15:"portfolio_theme";a:6:{s:7:"columns";i:3;s:4:"size";s:6:"medium";s:10:"targetsize";s:5:"large";s:4:"link";s:4:"file";s:7:"orderby";s:8:"post__in";s:5:"order";s:3:"ASC";}s:13:"masonry_theme";a:6:{s:7:"columns";i:3;s:4:"size";s:6:"medium";s:10:"targetsize";s:5:"large";s:4:"link";s:4:"file";s:7:"orderby";s:8:"post__in";s:5:"order";s:3:"ASC";}s:12:"slider_theme";a:9:{s:7:"columns";i:3;s:4:"size";s:6:"medium";s:10:"targetsize";s:5:"large";s:4:"link";s:4:"file";s:7:"orderby";s:8:"post__in";s:5:"order";s:3:"ASC";s:9:"animation";s:5:"slide";s:8:"duration";i:4000;s:14:"auto_animation";i:1;}s:15:"flowslide_theme";a:7:{s:7:"columns";i:3;s:4:"size";s:6:"medium";s:10:"targetsize";s:5:"large";s:4:"link";s:4:"file";s:7:"orderby";s:8:"post__in";s:5:"order";s:3:"ASC";s:12:"show_buttons";i:1;}s:17:"square_grid_theme";a:6:{s:7:"columns";i:3;s:4:"size";s:6:"medium";s:10:"targetsize";s:5:"large";s:4:"link";s:4:"file";s:7:"orderby";s:8:"post__in";s:5:"order";s:3:"ASC";}s:14:"material_theme";a:6:{s:7:"columns";i:3;s:4:"size";s:6:"medium";s:10:"targetsize";s:5:"large";s:4:"link";s:4:"file";s:7:"orderby";s:8:"post__in";s:5:"order";s:3:"ASC";}}}
+  - autoload: 'no'
+    option_id: 350
+    option_name: external_updates-wp-media-folder
+    option_value: O:8:"stdClass":3:{s:9:"lastCheck";i:1540467937;s:14:"checkedVersion";s:5:"4.7.0";s:6:"update";O:8:"stdClass":7:{s:2:"id";i:0;s:4:"slug";s:15:"wp-media-folder";s:7:"version";s:5:"4.7.2";s:8:"homepage";s:61:"https://www.joomunited.com/wordpress-products/wp-media-folder";s:12:"download_url";s:120:"https://www.joomunited.com/index.php?option=com_juupdater&task=download.download&extension=wp-media-folder&version=4.7.2";s:14:"upgrade_notice";s:29:"Upgrade
+      to the latest version";s:8:"filename";s:35:"wp-media-folder/wp-media-folder.php";}}
+  - autoload: 'yes'
+    option_id: 351
     option_name: wpmf_settings
-    option_value: a:9:{s:16:"gallery_settings";a:1:{s:5:"theme";a:4:{s:13:"default_theme";a:6:{s:7:"columns";s:1:"3";s:4:"size";s:6:"medium";s:10:"targetsize";s:5:"large";s:4:"link";s:4:"file";s:7:"orderby";s:8:"post__in";s:5:"order";s:3:"ASC";}s:15:"portfolio_theme";a:6:{s:7:"columns";s:1:"3";s:4:"size";s:6:"medium";s:10:"targetsize";s:5:"large";s:4:"link";s:4:"file";s:7:"orderby";s:8:"post__in";s:5:"order";s:3:"ASC";}s:13:"masonry_theme";a:6:{s:7:"columns";s:1:"3";s:4:"size";s:6:"medium";s:10:"targetsize";s:5:"large";s:4:"link";s:4:"file";s:7:"orderby";s:8:"post__in";s:5:"order";s:3:"ASC";}s:12:"slider_theme";a:9:{s:7:"columns";s:1:"3";s:4:"size";s:6:"medium";s:10:"targetsize";s:5:"large";s:4:"link";s:4:"file";s:7:"orderby";s:8:"post__in";s:9:"animation";s:5:"slide";s:8:"duration";s:4:"4000";s:5:"order";s:3:"ASC";s:14:"auto_animation";s:1:"1";}}}s:25:"watermark_exclude_folders";a:1:{i:0;s:1:"0";}s:13:"folder_design";s:15:"material_design";s:8:"load_gif";s:1:"0";s:9:"hide_tree";s:1:"1";s:17:"hide_remote_video";s:1:"0";s:16:"watermark_margin";a:4:{s:3:"top";s:1:"0";s:5:"right";s:1:"0";s:6:"bottom";s:1:"0";s:4:"left";s:1:"0";}s:23:"watermark_image_scaling";s:3:"100";s:17:"format_mediatitle";s:1:"1";}
+    option_value: a:9:{s:17:"hide_remote_video";s:1:"0";s:16:"gallery_settings";a:1:{s:5:"theme";a:4:{s:13:"default_theme";a:6:{s:7:"columns";s:1:"3";s:4:"size";s:6:"medium";s:10:"targetsize";s:5:"large";s:4:"link";s:4:"file";s:7:"orderby";s:8:"post__in";s:5:"order";s:3:"ASC";}s:15:"portfolio_theme";a:6:{s:7:"columns";s:1:"3";s:4:"size";s:6:"medium";s:10:"targetsize";s:5:"large";s:4:"link";s:4:"file";s:7:"orderby";s:8:"post__in";s:5:"order";s:3:"ASC";}s:13:"masonry_theme";a:6:{s:7:"columns";s:1:"3";s:4:"size";s:6:"medium";s:10:"targetsize";s:5:"large";s:4:"link";s:4:"file";s:7:"orderby";s:8:"post__in";s:5:"order";s:3:"ASC";}s:12:"slider_theme";a:9:{s:7:"columns";s:1:"3";s:4:"size";s:6:"medium";s:10:"targetsize";s:5:"large";s:4:"link";s:4:"file";s:7:"orderby";s:8:"post__in";s:9:"animation";s:5:"slide";s:8:"duration";s:4:"4000";s:5:"order";s:3:"ASC";s:14:"auto_animation";s:1:"1";}}}s:25:"watermark_exclude_folders";a:1:{i:0;s:1:"0";}s:13:"folder_design";s:15:"material_design";s:8:"load_gif";s:1:"1";s:9:"hide_tree";s:1:"1";s:16:"watermark_margin";a:4:{s:3:"top";s:1:"0";s:5:"right";s:1:"0";s:6:"bottom";s:1:"0";s:4:"left";s:1:"0";}s:23:"watermark_image_scaling";s:3:"100";s:17:"format_mediatitle";s:1:"1";}
+  - autoload: 'yes'
+    option_id: 354
+    option_name: _wpmf_import_order_notice_flag
+    option_value: 'yes'
+  - autoload: 'no'
+    option_id: 355
+    option_name: can_compress_scripts
+    option_value: '0'
