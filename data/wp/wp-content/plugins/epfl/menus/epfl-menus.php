@@ -270,14 +270,14 @@ class MenuItemBag
 
     function graft ($at_item, $bag) {
         return static::_MUTATE_graft(
-            $this->_get_parent_id($at_item),
+            $this->_get_id($at_item),
             $this->copy(), $this->_renumber(static::coerce($bag)));
     }
 
     function reverse_graft ($at_item, $into) {
-        $parent_id = $this->_get_parent_id($at_item);
-        $into_renumbered = $this->_renumber($into, /*&*/$parent_id);
-        return static::_MUTATE_graft($parent_id, $into_renumbered, $this);
+        $id = $this->_get_id($at_item);
+        $into_renumbered = $this->_renumber($into, /*&*/$id);
+        return static::_MUTATE_graft($id, $into_renumbered, $this);
     }
 
     /**
@@ -458,7 +458,8 @@ class MenuItemBag
         $this->items[$this->_get_id($item)] = $item;
     }
 
-    function _MUTATE_graft ($new_parent_id, $mutated_outer, $inner) {
+    function _MUTATE_graft ($at_id, $mutated_outer, $inner) {
+        $new_parent_id = $mutated_outer->_get_parent_id($at_id);
         foreach ($inner->copy()->as_list() as $item) {
             if (! $mutated_outer->_get_parent_id($item)) {
                 // $item is new, thanks to ->copy() being
