@@ -72,7 +72,7 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
 
     try
     {
-      do_action("epfl_people_action", $persons, $columns);
+      do_action_ref_array("epfl_people_action", [$persons, $columns]);
       return ob_get_contents();
     }
     finally
