@@ -1,11 +1,11 @@
 # Create a WordPress site out of thin air
 
+- include_vars: jahia2wp-vars.yml
+- include_vars: wp-destructive.yml
+
 - assert:
     that:
-      - inventory_hostname in wp_destructive
-      - (wp_destructive[inventory_hostname] == "wipe") or (not _wp_config_php_stat.stat.exists)
-
-- include_vars: jahia2wp-vars.yml
+      - (wp_can.wipe) or (not _wp_config_php_stat.stat.exists)
 
 - name: Create auxiliary YAML file for "jahia2wp.py generate"
   when: wp_restore_from == 'generate'

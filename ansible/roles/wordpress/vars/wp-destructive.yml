@@ -1,0 +1,49 @@
+# The administrator shall use the command line to set wp_destructive,
+# for instance like this: (in bash)
+#
+#   -e '{"wp_destructive": {"some-hapless-wordpress": "wipe"}}'
+#
+# (Be sure to use double quotes — Single quotes are *not* valid to
+# escape JSON strings.)
+#
+# The value shall be a map from targe names or group names (out of the
+# inventory files or scripts) to a keyword among "none" (the default),
+# "config", "wipe", "data-and-code", "code-only" or "data-only"
+# indicating the level of destructive access requested for this
+# WordPress instance. "wipe" means to completely and unconditionally
+# delete everything; "data-and-code" and "data-only" allows restores
+# (depending on the setting of wp_restore_from, below) of the
+# corresponding assets. "code-only" resp. "data-and-code" allow
+# upgrading plugins and themes, in addition to resp. instead of data.
+# "config" means only enforce simple configuration changes, such as
+# setting up strict permissions and disabling unused services. "none"
+# means do no changes, yet doesn't preclude always-harmless mutations
+# such as creating a WP site that did not yet exist.
+#
+# To use this file say
+#
+# - include_vars:
+#     file: wp-destructive.yml
+
+_my_wp_destructive: "{{ wp_destructive[inventory_hostname] if (inventory_hostname in wp_destructive) else None }}"
+
+# For shame, for shame. Not sure if one can do any better in Ansible though.
+_group_wp_destructive_0: "{{ wp_destructive[group_names[0]] if ((group_names | length > 0) and (group_names[0] in wp_destructive)) else None }}"
+_group_wp_destructive_1: "{{ wp_destructive[group_names[1]] if ((group_names | length > 1) and (group_names[1] in wp_destructive)) else None }}"
+_group_wp_destructive_2: "{{ wp_destructive[group_names[2]] if ((group_names | length > 2) and (group_names[2] in wp_destructive)) else None }}"
+
+_effective_wp_destructive: "{{ _my_wp_destructive if _my_wp_destructive else (
+    _group_wp_destructive_0 if _group_wp_destructive_0 else (
+    _group_wp_destructive_1 if _group_wp_destructive_1 else (
+    _group_wp_destructive_2))) }}"
+
+_wp_can_any: "{{ not not _effective_wp_destructive }}"
+_wp_can_wipe: "{{ _effective_wp_destructive == 'wipe' }}"
+_wp_can_write_data: '{{ _wp_can_wipe or (_effective_wp_destructive is search("data")) }}'
+_wp_can_write_code: '{{ _wp_can_wipe or (_effective_wp_destructive is search("code")) }}'
+
+wp_can:
+  any: "{{ _wp_can_any }}"
+  wipe: "{{ _wp_can_wipe }}"
+  write_data: "{{ _wp_can_write_data }}"
+  write_code: "{{ _wp_can_write_code }}"
