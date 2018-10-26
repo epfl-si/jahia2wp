@@ -161,6 +161,7 @@ p.icon {
     border: 0;
     color: #fff;
     font-size: 12px;
+    font-weight: normal;
     line-height: 24px;
     height: 24px;
     margin-right: .5em;
@@ -224,7 +225,7 @@ p.icon {
   content: "\f075";
 }
 .fa-icon.edit:before {
-  content: "\f040";
+  content: "\f303";
 }
 .fa-icon.download:before {
   content: "\f019";
@@ -634,7 +635,9 @@ a.a2a_button_{
 
 div.button {
   @extend .btn-icon;
+  font-weight: 400;
   padding-left: 28px;
+  width: auto;
   
   &:before {
     margin-left: -28px;
@@ -693,7 +696,7 @@ div.button {
     content: "\f075";
   }
   &.edit:before {
-    content: "\f040";
+    content: "\f303";
   }
   &.download:before {
     content: "\f019";
@@ -1865,7 +1868,7 @@ img.pdf-icon {
 
 .main-navigation li.link-home a:before {
   content: "\f015";
-  font: normal normal normal 14px/1 FontAwesome !important;
+  font: normal normal normal 14px/1 "Font Awesome 5 Free" !important;
   margin-right: .5em;
 }
 
