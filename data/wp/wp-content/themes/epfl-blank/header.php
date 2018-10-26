@@ -109,7 +109,7 @@
 	</header><!-- #masthead -->
 
 	<div class="site-content-container">
-		<div id="content" class="site-content">
+		<div id="site-content" class="site-content">
   		
   		<?php if ( is_single() || is_page() || is_home() ) : ?>
   		
