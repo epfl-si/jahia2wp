@@ -6,7 +6,8 @@ require_once 'shortcake-config.php';
 function epfl_contact_process_shortcode($atts) {
     // sanitize parameters
     foreach($atts as $key => $value) {
-        if (strpos($key, 'information') !== false) {
+        if (strpos($key, 'information') !== false ||
+        strpos($key, 'timetable') !== false) {
             $atts[$key] = wp_kses_post($value);
         }
         elseif ($key == 'introduction')
