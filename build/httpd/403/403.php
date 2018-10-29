@@ -2,7 +2,7 @@
 
   // Custom 403 error page.
   //
-  // This script finds the error type (e.g. "default" or "vpn")
+  // This script finds the error type (e.g. "default")
   // and then includes 403-template.php which in turn includes
   // 403-{$error_type}.php.
 
@@ -33,17 +33,11 @@
   $is_inside_epfl_string = $is_inside_epfl ? "inside EPFL" : "outside EPFL";
 
   // the error types supported by this page
-  $error_types = ["default", "vpn", "accred"];
+  $error_types = ["default", "accred"];
 
   // the current error type
   $error_type = "default";
 
-  // check if the error is that the user is trying to access the
-  // administration pages from outside the EPFL campus
-  if ((($is_login || $is_wp_admin) && !$is_inside_epfl))
-  {
-    $error_type = "vpn";
-  }
 
   // the error type can be overridden by a GET parameter,
   // this is useful for testing and it's used for the
