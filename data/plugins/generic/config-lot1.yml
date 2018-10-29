@@ -73,3 +73,5 @@ plugins:
     config: !include epfl-video/v1/config-plugin.yml
   - name: wp-media-folder
     config: !include wp-media-folder/v1/config-plugin.yml
+  - name: epfl-intranet
+    config: !include epfl-intranet/v1/config-plugin.yml
