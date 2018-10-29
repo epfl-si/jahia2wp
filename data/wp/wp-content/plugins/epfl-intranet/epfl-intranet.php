@@ -129,6 +129,174 @@ class Settings extends \EPFL\SettingsBase
     /***************************************************************************************/
 
 
+  /*************************************************************************************************/
+
+   /*
+      BUT : Add/remove .htaccess content, at the specified location
+
+            This function is an enhancement of WordPress function 'insert_with_markers'.
+            https://developer.wordpress.org/reference/functions/insert_with_markers/
+
+      IN  : $insertion     -> Array with lines to insert
+      IN  : $at_beginning  -> To tell if we have to add it at the beginning of the file or not.
+   */
+   function update_htaccess($insertion, $at_beginning=false)
+   {
+      $filename = get_home_path().'.htaccess';
+      $marker = 'EPFL-Intranet';
+
+      if(!file_exists($filename))
+      {
+         if(!is_writable(dirname($filename)))
+         {
+            return false;
+         }
+         if(!touch($filename))
+         {
+            return false;
+         }
+      }
+      elseif(!is_writeable($filename))
+      {
+         return false;
+      }
+
+      if(!is_array($insertion))
+      {
+         $insertion = explode("\n", $insertion);
+      }
+
+      $start_marker = "# BEGIN {$marker}";
+      $end_marker   = "# END {$marker}";
+
+      $fp = fopen($filename, 'r+');
+      if(!$fp)
+      {
+           return false;
+      }
+
+      // Attempt to get a lock. If the filesystem supports locking, this will block until the lock is acquired.
+      flock($fp, LOCK_EX);
+
+      $lines = array();
+      while (!feof($fp))
+      {
+         $lines[] = rtrim(fgets($fp), "\r\n");
+      }
+
+      // Split out the existing file into the preceding lines, and those that appear after the marker
+      $pre_lines = $post_lines = $existing_lines = array();
+      $found_marker = $found_end_marker = false;
+      foreach ($lines as $line)
+      {
+         if(!$found_marker && false !== strpos($line, $start_marker))
+         {
+            $found_marker = true;
+            continue;
+         }
+         elseif(!$found_end_marker && false !== strpos($line, $end_marker))
+         {
+            $found_end_marker = true;
+            continue;
+         }
+
+         if(!$found_marker)
+         {
+            $pre_lines[] = $line;
+         }
+         elseif($found_marker && $found_end_marker)
+         {
+            $post_lines[] = $line;
+         }
+         else
+         {
+            $existing_lines[] = $line;
+         }
+      }
+
+      // Check to see if there was a change
+      if($existing_lines === $insertion)
+      {
+         flock($fp, LOCK_UN);
+         fclose($fp);
+
+         return true;
+      }
+
+      /* Si on doit positionner le contenu au dÃ©but du fichier*/
+      if($at_beginning && !$found_marker)
+      {
+          // Generate the new file data
+         $new_file_data = implode("\n", array_merge(array($start_marker),
+                                                   $insertion,
+                                                   array($end_marker),
+                                                   $pre_lines,
+                                                   $post_lines));
+      }
+      else
+      {
+          // Generate the new file data
+         $new_file_data = implode("\n", array_merge($pre_lines,
+                                                   array($start_marker),
+                                                   $insertion,
+                                                   array($end_marker),
+                                                   $post_lines));
+      }
+
+
+      // Write to the start of the file, and truncate it to that length
+      fseek($fp, 0);
+      $bytes = fwrite($fp, $new_file_data);
+      if($bytes)
+      {
+         ftruncate($fp, ftell($fp));
+      }
+      fflush($fp);
+      flock($fp, LOCK_UN);
+      fclose($fp);
+
+      return (bool) $bytes;
+   }
+
+
+    /**
+    * Validate activation/deactivation. In fact we just add things into .htaccess file to protect medias.
+    */
+    function validate_enabled($enabled)
+    {
+        /* Website protection is enabled */
+        if($enabled == '1')
+        {
+           $lines = array();
+
+           $lines[] = "RewriteEngine On";
+           // if requested URL is in media folder,
+           $lines[] = "RewriteCond %{REQUEST_URI} wp-content/uploads/";
+
+           // We redirect on a file which will check if logged in (we add path to requested file as parameter
+           $lines[] = "RewriteRule wp-content/uploads/(.*)$ wp-content/plugins/epfl-intranet/inc/protect-medias.php?file=$1 [QSA,L]";
+           if($this->update_htaccess($lines, true)===false)
+           {
+              add_settings_error('cannotUpdateHtAccess',
+                              'empty',
+                              ___("Impossible de mettre à jour le fichier .htaccess"),
+                              'error');
+              $enabled = '0';
+           }
+        }
+        else /* We don't want to protect website */
+        {
+           if($this->update_htaccess(array())===false)
+           {
+              add_settings_error('cannotUpdateHtAccess',
+                              'empty',
+                              ___("Impossible de mettre à jour le fichier .htaccess"),
+                              'error');
+           }
+        }
+
+        return $enabled;
+    }
 
     /**
     * Validate entered group list for which to restrict access
@@ -180,7 +348,8 @@ class Settings extends \EPFL\SettingsBase
 
         /* Check box to activate or not the functionality */
         $this->register_setting('enabled', array(
-                'type'    => 'boolean'));
+                'type'    => 'boolean',
+                'sanitize_callback' => array($this, 'validate_enabled')));
 
         $enabled = $this->get('enabled');
         if(empty($enabled)) $enabled=0;
