@@ -47,7 +47,7 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
 
   if (function_exists('pll_current_language')) {
     $current_language = pll_current_language();
-    if(isset($current_language)) {
+    if($current_language != false) {
       $parameter['lang'] = $current_language;
     }
   }
