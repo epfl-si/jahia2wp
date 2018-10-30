@@ -45,6 +45,12 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
 
   ("" !== $units) ? $parameter['units'] = $units : $parameter['scipers'] = $scipers;
 
+  if (get_locale() == 'fr_FR') {
+    $parameter['lang'] = 'fr';
+  } else {
+    $parameter['lang'] = 'en';
+  }
+
   // the web service we use to retrieve the data
   $url = "https://people.epfl.ch/cgi-bin/wsgetpeople/";
   $url = add_query_arg($parameter, $url);
