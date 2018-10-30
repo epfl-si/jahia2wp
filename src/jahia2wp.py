@@ -37,7 +37,9 @@ Usage:
     [--output-dir=<OUTPUT_DIR> --admin-password=<PASSWORD>] [--use-cache]
     [--keep-extracted-files]
   jahia2wp.py backup-many           <csv_file>                      [--debug | --quiet]
+  jahia2wp.py backup-inventory      <path>                          [--debug | --quiet]
   jahia2wp.py rotate-backup         <csv_file>          [--dry-run] [--debug | --quiet]
+  jahia2wp.py rotate-backup-inventory   <path>          [--dry-run] [--debug | --quiet]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
   jahia2wp.py fan-global-sitemap    <csv_file> <wp_path>            [--debug | --quiet]
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
@@ -858,6 +860,52 @@ def backup_many(csv_file, **kwargs):
             row["openshift_env"],
             row["wp_site_url"]
         ).backup()
+
+
+@dispatch.on('backup-inventory')
+def backup_inventory(path, **kwargs):
+
+    logging.info("Backup from inventory...")
+
+    for site_details in WPConfig.inventory(path):
+
+        if site_details.valid == settings.WP_SITE_INSTALL_OK:
+            logging.info("Running backup for %s", site_details.url)
+
+            WPBackup(
+                WPSite.openshift_env_from_path(site_details.path),
+                site_details.url
+            ).backup()
+
+    logging.info("All backups done for path: %s", path)
+
+
+@dispatch.on('rotate-backup-inventory')
+def rotate_backup_inventory(path, dry_run=False, **kwargs):
+
+    for site_details in WPConfig.inventory(path):
+
+        if site_details.valid == settings.WP_SITE_INSTALL_OK:
+
+            path = WPBackup(
+                WPSite.openshift_env_from_path(site_details.path),
+                site_details.url
+            ).path
+
+            # rotate full backups first
+            for pattern in ["*full.sql", "*full.tar"]:
+                RotateBackups(
+                    FULL_BACKUP_RETENTION_THEME,
+                    dry_run=dry_run,
+                    include_list=[pattern]
+                ).rotate_backups(path)
+            # rotate incremental backups
+            for pattern in ["*.list", "*inc.sql", "*inc.tar"]:
+                RotateBackups(
+                    INCREMENTAL_BACKUP_RETENTION_THEME,
+                    dry_run=dry_run,
+                    include_list=[pattern]
+                ).rotate_backups(path)
 
 
 @dispatch.on('rotate-backup')
