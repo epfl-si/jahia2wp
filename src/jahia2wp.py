@@ -536,6 +536,7 @@ def export(site, wp_site_url, unit_name_or_id, to_wordpress=False, clean_wordpre
                            'simple-sitemap',
                            'svg-support',
                            'enlighter',
+                           'pdfjs-viewer-shortcode',
                            'tinymce-advanced',
                            'varnish-http-purge']
 
