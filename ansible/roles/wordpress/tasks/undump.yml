@@ -33,6 +33,12 @@
   with_fileglob:
     - "{{ undump_local_dir }}/*.xml"
 
+- name: "Create {{ undump_remote_tmpdir }}"
+  file:
+    state: directory
+    path: "{{ undump_remote_tmpdir }}"
+    recurse: yes
+
 - name: Copy importer.php
   copy:
     src: "{{ playbook_dir }}/../../src/importer.php"
