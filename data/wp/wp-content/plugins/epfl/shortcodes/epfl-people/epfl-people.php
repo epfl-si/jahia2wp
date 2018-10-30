@@ -45,10 +45,11 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
 
   ("" !== $units) ? $parameter['units'] = $units : $parameter['scipers'] = $scipers;
 
-  if (get_locale() == 'fr_FR') {
-    $parameter['lang'] = 'fr';
-  } else {
-    $parameter['lang'] = 'en';
+  if (function_exists('pll_current_language')) {
+    $current_language = pll_current_language();
+    if(isset($current_language)) {
+      $parameter['lang'] = $current_language;
+    }
   }
 
   // the web service we use to retrieve the data
