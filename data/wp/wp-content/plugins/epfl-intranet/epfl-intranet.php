@@ -60,7 +60,7 @@ class Controller
 class Settings extends \EPFL\SettingsBase
 {
     const SLUG = "epfl_intranet";
-    var $is_debug_enabled = true;
+    var $is_debug_enabled = false;
 
     function hook()
     {
@@ -222,11 +222,71 @@ class Settings extends \EPFL\SettingsBase
     }
 
     /**
+    * Displays an error using WordPress CSS and HTML
+    */
+    function display_error($error)
+    {
+        echo '<div class="notice notice-error"><p>'. $error . '</p></div>';
+    }
+
+    /**
+    * Check if all dependencies are present
+    */
+    function check_prerequisites()
+    {
+        $accred_min_version = 0.11;
+        $accred_plugin_relative_path = 'accred/EPFL-Accred.php';
+        $accred_plugin_full_path = ABSPATH. 'wp-content/plugins/'. $accred_plugin_relative_path;
+
+        /* Accred Plugin missing */
+        if(!is_plugin_active($accred_plugin_relative_path))
+        {
+            $this->display_error(__("Le plugin EPFL-Accred n'est pas installé/activé"));
+            return false;
+        }
+        else /* Accred plugin present */
+        {
+            /* Getting data */
+            $plugin_data = get_plugin_data($accred_plugin_full_path);
+
+            /* Check if version is 'vpsi' */
+            if(preg_match('/\(vpsi\)\s*$/', $plugin_data['Version'])!==1)
+            {
+                $this->display_error(__("Ce n'est pas la version <b>vpsi</b> du plugin EPFL-Accred qui est installée"));
+                return false;
+            }
+            else /* It's VPSI version */
+            {
+                /* Version is like:
+                0.11 (vpsi) */
+                preg_match('/^(\d+\.\d+)\s*\(vpsi\)\s*$/', $plugin_data['Version'], $output);
+
+                /* $output is array like :
+                array(0	=>	0.11 (vpsi)
+                      1	=>	0.11) */
+
+                error_log(var_export($output, true));
+                /* Check min version */
+                if(floatval($output[1]) < $accred_min_version)
+                {
+                    $this->display_error(sprintf(__("La version du plugin EPFL-Accred <b>vpsi</b> doit être <b>%s</b> au minimum.<br>C'est la version <b>%s</b> qui est installée"),
+                                                 $accred_min_version, $output[1]));
+                    return false;
+                }
+
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Prepare the admin menu with settings and their values
      */
     function setup_options_page()
     {
 
+        $this->check_prerequisites();
 
         $this->add_settings_section('section_about', ___('À propos'));
         $this->add_settings_section('section_settings', ___('Paramètres'));
@@ -264,7 +324,7 @@ class Settings extends \EPFL\SettingsBase
                 ___("Restreindre l'accès au(x) groupe(s)"),
                 array(
                     'type'        => 'text',
-                    'help' => ___('Si ce champ est laissé vide, seule une authentification sera demandée')
+                    'help' => ___('Si ce champ est laissé vide, seule une authentification sera demandée.')
                 )
             );
 
@@ -274,8 +334,8 @@ class Settings extends \EPFL\SettingsBase
     {
         echo "<p>\n";
         echo ___(<<<ABOUT
-A besoin du plugin <a href="https://github.com/epfl-sti/wordpress.plugin.accred">EPFL-Accred</a> pour fonctionner
-correctement. <br>Permet de limiter l'accès au site en forçant les utilisateurs à s'authentifier via
+A besoin du plugin <a href="https://github.com/epfl-sti/wordpress.plugin.accred/tree/vpsi">EPFL-Accred</a> (version VPSI)
+pour fonctionner correctement. <br>Permet de limiter l'accès au site en forçant les utilisateurs à s'authentifier via
 <a href="https://github.com/epfl-sti/wordpress.plugin.tequila">Tequila</a>. <br>On peut soit demander
 juste une authentification, soit forcer en plus à ce que l'utilisateur fasse partie d'un des groupes définis.<br>
 Si le plugin est activé, les <b>fichiers sont aussi protégés</b>.
