@@ -153,22 +153,33 @@ class Settings extends \EPFL\SettingsBase
         /* Website protection is enabled */
         if($enabled == '1')
         {
-           $lines = array();
 
-           $lines[] = "RewriteEngine On";
-           // if requested URL is in media folder,
-           $lines[] = "RewriteCond %{REQUEST_URI} wp-content/uploads/";
+            /* If prerequisite are not met, */
+            if(!$this->check_prerequisites())
+            {
+                $enabled = '0';
 
-           // We redirect on a file which will check if logged in (we add path to requested file as parameter
-           $lines[] = "RewriteRule wp-content/uploads/(.*)$ wp-content/plugins/epfl-intranet/inc/protect-medias.php?file=$1 [QSA,L]";
-           if($this->update_htaccess($lines, true)===false)
-           {
-              add_settings_error('cannotUpdateHtAccess',
-                              'empty',
-                              ___("Impossible de mettre à jour le fichier .htaccess"),
-                              'error');
-              $enabled = '0';
-           }
+            }
+            else
+            {
+
+               $lines = array();
+
+               $lines[] = "RewriteEngine On";
+               // if requested URL is in media folder,
+               $lines[] = "RewriteCond %{REQUEST_URI} wp-content/uploads/";
+
+               // We redirect on a file which will check if logged in (we add path to requested file as parameter
+               $lines[] = "RewriteRule wp-content/uploads/(.*)$ wp-content/plugins/epfl-intranet/inc/protect-medias.php?file=$1 [QSA,L]";
+               if($this->update_htaccess($lines, true)===false)
+               {
+                  add_settings_error('cannotUpdateHtAccess',
+                                  'empty',
+                                  ___("Impossible de mettre à jour le fichier .htaccess"),
+                                  'error');
+                  $enabled = '0';
+               }
+             }
         }
         else /* We don't want to protect website */
         {
@@ -221,13 +232,6 @@ class Settings extends \EPFL\SettingsBase
 
     }
 
-    /**
-    * Displays an error using WordPress CSS and HTML
-    */
-    function display_error($error)
-    {
-        echo '<div class="notice notice-error"><p>'. $error . '</p></div>';
-    }
 
     /**
     * Check if all dependencies are present
@@ -241,7 +245,10 @@ class Settings extends \EPFL\SettingsBase
         /* Accred Plugin missing */
         if(!is_plugin_active($accred_plugin_relative_path))
         {
-            $this->display_error(__("Le plugin EPFL-Accred n'est pas installé/activé"));
+            add_settings_error(null,
+                  			   null,
+                  			    __("Activation impossible!<br>Le plugin EPFL-Accred n'est pas installé/activé"),
+                  			   'error');
             return false;
         }
         else /* Accred plugin present */
@@ -252,7 +259,10 @@ class Settings extends \EPFL\SettingsBase
             /* Check if version is 'vpsi' */
             if(preg_match('/\(vpsi\)\s*$/', $plugin_data['Version'])!==1)
             {
-                $this->display_error(__("Ce n'est pas la version <b>vpsi</b> du plugin EPFL-Accred qui est installée"));
+                add_settings_error(null,
+                  			   null,
+                  			    __("Activation impossible!<br>Ce n'est pas la version vpsi du plugin EPFL-Accred qui est installée"),
+                  			   'error');
                 return false;
             }
             else /* It's VPSI version */
@@ -269,8 +279,12 @@ class Settings extends \EPFL\SettingsBase
                 /* Check min version */
                 if(floatval($output[1]) < $accred_min_version)
                 {
-                    $this->display_error(sprintf(__("La version du plugin EPFL-Accred <b>vpsi</b> doit être <b>%s</b> au minimum.<br>C'est la version <b>%s</b> qui est installée"),
-                                                 $accred_min_version, $output[1]));
+                    add_settings_error(null,
+                  			   null,
+                  			    sprintf(__("Activation impossible!<br>La version du plugin EPFL-Accred vpsi doit être %s au minimum (version %s installée)"),
+                                        $accred_min_version, $output[1]),
+                  			   'error');
+
                     return false;
                 }
 
@@ -285,8 +299,6 @@ class Settings extends \EPFL\SettingsBase
      */
     function setup_options_page()
     {
-
-        $this->check_prerequisites();
 
         $this->add_settings_section('section_about', ___('À propos'));
         $this->add_settings_section('section_settings', ___('Paramètres'));
