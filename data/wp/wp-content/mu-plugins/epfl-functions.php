@@ -123,6 +123,16 @@ add_filter('wp_get_attachment_link', 'oikos_get_attachment_link_filter', 10, 4);
 
 
 
+/*--------------------------------------------------------------
+
+ # File upload extension whitelist
+
+--------------------------------------------------------------*/
+function epfl_mimetypes($mime_types){
+    $mime_types['ppd'] = 'application/vnd.cups-ppd'; //Adding ppd extension
+    return $mime_types;
+}
+add_filter('upload_mimes', 'epfl_mimetypes', 1, 1);
 
 
 /*--------------------------------------------------------------
