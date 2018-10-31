@@ -17,10 +17,19 @@ if (! class_exists("EPFL\\SettingsBase") ) {
     require_once(dirname(__FILE__) . "/inc/settings.php");
 }
 
+/**
+Plugin function to translate text
+*/
 function ___($text)
 {
     return __($text, "epfl-intranet");
 }
+
+// load .mo file for translation
+function epfl_intranet_load_plugin_textdomain() {
+    load_plugin_textdomain( 'epfl', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
+}
+add_action( 'plugins_loaded', 'epfl_intranet_load_plugin_textdomain' );
 
 
 class Controller
@@ -52,7 +61,6 @@ class Controller
     function hook()
     {
         $this->settings->hook();
-        //add_action('tequila_save_user', array($this, 'tequila_save_user'));
     }
 
 }
@@ -247,7 +255,7 @@ class Settings extends \EPFL\SettingsBase
         {
             add_settings_error(null,
                   			   null,
-                  			    __("Activation impossible!<br>Le plugin EPFL-Accred n'est pas installé/activé"),
+                  			    ___("Activation impossible!<br>Le plugin EPFL-Accred n'est pas installé/activé"),
                   			   'error');
             return false;
         }
@@ -261,7 +269,7 @@ class Settings extends \EPFL\SettingsBase
             {
                 add_settings_error(null,
                   			   null,
-                  			    __("Activation impossible!<br>Ce n'est pas la version vpsi du plugin EPFL-Accred qui est installée"),
+                  			    ___("Activation impossible!<br>Ce n'est pas la version vpsi du plugin EPFL-Accred qui est installée"),
                   			   'error');
                 return false;
             }
@@ -281,7 +289,7 @@ class Settings extends \EPFL\SettingsBase
                 {
                     add_settings_error(null,
                   			   null,
-                  			    sprintf(__("Activation impossible!<br>La version du plugin EPFL-Accred vpsi doit être %s au minimum (version %s installée)"),
+                  			    sprintf(___("Activation impossible!<br>La version du plugin EPFL-Accred vpsi doit être %s au minimum (version %s installée)"),
                                         $accred_min_version, $output[1]),
                   			   'error');
 
