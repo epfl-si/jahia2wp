@@ -200,4 +200,6 @@ function colored_box( $atts, $content = null ) {
 }
 add_shortcode('colored-box', 'colored_box');
 
+define( 'PLL_COOKIE', false);
+
 ?>
