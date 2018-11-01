@@ -30,8 +30,7 @@ function config() {
                 ],
             ],
             'post_type'     => ['page', 'post'],
-        ],
-        
+        ]
     );
 }
 ?>
