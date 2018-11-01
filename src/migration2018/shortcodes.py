@@ -1,5 +1,5 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2018"""
-from urllib.parse import quote_plus
+from urllib.parse import quote_plus, unquote
 
 import settings
 import logging
@@ -16,7 +16,8 @@ class Shortcodes():
 
     def __init__(self):
         self.list = {}
-        self.regex = r'\[([a-z_-]+)'
+        self.report = {}
+        self.regex = r'\[([a-z0-9_-]+)'
 
     def _get_site_registered_shortcodes(self, site_path):
         """
@@ -143,6 +144,13 @@ class Shortcodes():
 
                         if site_details.path not in self.list[shortcode]:
                             self.list[shortcode].append(site_details.path)
+
+    def __update_report(self, shortcode_name):
+        # Building report
+        if shortcode_name not in self.report:
+            self.report[shortcode_name] = 0
+
+        self.report[shortcode_name] += 1
 
     def __rename_shortcode(self, content, old_name, new_name):
         """
@@ -351,6 +359,8 @@ class Shortcodes():
         content = self.__remove_attribute(content, old_shortcode, 'responsive')
 
         content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
+
+        self.__update_report(old_shortcode)
         return content
 
     def _fix_su_vimeo(self, content):
@@ -411,6 +421,7 @@ class Shortcodes():
 
             # Replacing in global content
             content = content.replace(call, new_call)
+            self.__update_report(old_shortcode)
 
         return content
 
@@ -453,6 +464,8 @@ class Shortcodes():
 
             # Replacing in global content
             content = content.replace(call, new_call)
+
+            self.__update_report(old_shortcode)
 
         return content
 
@@ -507,6 +520,8 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, new_call)
 
+            self.__update_report(old_shortcode)
+
         return content
 
     def _fix_su_carousel(self, content):
@@ -556,6 +571,8 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, new_call)
 
+            self.__update_report(old_shortcode)
+
         return content
 
     def _fix_su_expand(self, content):
@@ -593,6 +610,8 @@ class Shortcodes():
             # Replacing in global content. In fact, we just remove surrounding shortcode
             content = content.replace(call, toggle_content)
 
+            self.__update_report(old_shortcode)
+
         return content
 
     def _fix_su_spoiler(self, content):
@@ -622,6 +641,8 @@ class Shortcodes():
 
             # Replacing in global content
             content = content.replace(call, new_call)
+
+            self.__update_report(old_shortcode)
 
         return content
 
@@ -655,6 +676,8 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, html)
 
+            self.__update_report(old_shortcode)
+
         return content
 
     def _fix_su_button(self, content):
@@ -681,14 +704,18 @@ class Shortcodes():
         :param content: String in which to fix.
         :return:
         """
+        shortcode_name = 'su_divider'
+
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, 'su_divider')
+        calls = self.__get_all_shortcode_calls(content, shortcode_name)
 
         for call in calls:
             html = '<hr class="bold">'
 
             # Replacing in global content
             content = content.replace(call, html)
+
+            self.__update_report(shortcode_name)
 
         return content
 
@@ -697,9 +724,10 @@ class Shortcodes():
         Fix "su_row" from Shortcode Ultimate.
         :return:
         """
+        shortcode_name = 'su_row'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, 'su_row', with_content=True)
+        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
 
@@ -710,6 +738,8 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, html)
 
+            self.__update_report(shortcode_name)
+
         return content
 
     def _fix_su_column(self, content):
@@ -717,9 +747,10 @@ class Shortcodes():
         Fix "su_column" from Shortcode Ultimate.
         :return:
         """
+        shortcode_name = 'su_column'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, 'su_column', with_content=True)
+        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
             col_content = self.__get_content(call)
@@ -728,6 +759,8 @@ class Shortcodes():
 
             # Replacing in global content
             content = content.replace(call, html)
+
+            self.__update_report(shortcode_name)
 
         return content
 
@@ -753,6 +786,8 @@ class Shortcodes():
 
             # Replacing in global content
             content = content.replace(call, new_call)
+
+            self.__update_report(old_shortcode)
 
         return content
 
@@ -788,6 +823,8 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, new_call)
 
+            self.__update_report(old_shortcode)
+
         return content
 
     def _fix_su_quote(self, content):
@@ -798,8 +835,10 @@ class Shortcodes():
         :param content: String in which to fix
         :return:
         """
+        shortcode_name = 'su_quote'
+
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, 'su_quote', with_content=True)
+        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
             philosophical_thing = self.__get_content(call)
@@ -815,6 +854,8 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, html)
 
+            self.__update_report(shortcode_name)
+
         return content
 
     def _fix_su_list(self, content):
@@ -823,8 +864,10 @@ class Shortcodes():
         :param content: String in which to fix
         :return:
         """
+        shortcode_name = 'su_list'
+
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, 'su_list', with_content=True)
+        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
             list_content = self.__get_content(call)
@@ -834,6 +877,8 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, html)
 
+            self.__update_report(shortcode_name)
+
         return content
 
     def _fix_su_heading(self, content):
@@ -842,8 +887,10 @@ class Shortcodes():
         :param content: String in which to fix
         :return:
         """
+        shortcode_name = 'su_heading'
+
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, 'su_heading', with_content=True)
+        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
             heading_text = self.__get_content(call)
@@ -852,6 +899,8 @@ class Shortcodes():
 
             # Replacing in global content
             content = content.replace(call, html)
+
+            self.__update_report(shortcode_name)
 
         return content
 
@@ -862,8 +911,10 @@ class Shortcodes():
         :param content: String in which to fix
         :return:
         """
+        shortcode_name = 'su_highlight'
+
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, 'su_highlight', with_content=True)
+        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
             heading_text = self.__get_content(call)
@@ -872,6 +923,8 @@ class Shortcodes():
 
             # Replacing in global content
             content = content.replace(call, html)
+
+            self.__update_report(shortcode_name)
 
         return content
 
@@ -882,8 +935,10 @@ class Shortcodes():
         :param content: String in which to fix
         :return:
         """
+        shortcode_name = 'su_note'
+
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, 'su_note', with_content=True)
+        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
             note = self.__get_content(call)
@@ -898,6 +953,8 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, html)
 
+            self.__update_report(shortcode_name)
+
         return content
 
     def _fix_su_spacer(self, content):
@@ -905,7 +962,9 @@ class Shortcodes():
         Remove "su_spacer"
         :return:
         """
-        return self.__remove_shortcode(content, 'su_spacer')
+        shortcode_name = 'su_spacer'
+        self.__update_report(shortcode_name)
+        return self.__remove_shortcode(content, shortcode_name)
 
     def _fix_epfl_twitter(self, content):
         """
@@ -920,6 +979,9 @@ class Shortcodes():
         content = self.__rename_attribute(content, old_shortcode, 'limit', 'twitter_limit')
 
         content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
+
+        self.__update_report(old_shortcode)
+
         return content
 
     def _fix_epfl_memento(self, content):
@@ -935,6 +997,9 @@ class Shortcodes():
         content = self.__change_attribute_value(content, old_shortcode, 'template', '4')
 
         content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
+
+        self.__update_report(old_shortcode)
+
         return content
 
     def _fix_epfl_card_new_version(self, content):
@@ -973,7 +1038,58 @@ class Shortcodes():
                 image
             )
 
+            self.__update_report(shortcode_name)
+
             content = content.replace(call, new_call)
+
+        return content
+
+    def _fix_epfl_toggle_2018_new_version(self, content):
+        """
+        Fix "epfl_toggle_2018" shortcode in the new version.
+
+        The epfl_toggle_2018 shortcode has changed. By calling this method, you can modify the parameters
+        of epfl_toggle_2018.
+
+        To call this method:
+        python jahia2wp shortcode-fix <wp_env> <wp_url> epfl_toggle_2018_new_version
+
+        Note: This method name is suffix by '_new_version' to prevent its automatic use.
+
+        example:
+        input: [epfl_toggle_2018 label0=”IOS” desc0=”<desc0>” state0=”close” label1="Android" desc1="<desc1>" ...
+        output
+        [epfl_toggle_2018 label=”IOS” state=”close”]<desc0>[/epfl_toggle_2018]
+        [epfl_toggle label=”Android” state=”close”]<desc1>[/epfl_toggle]
+        """
+        old_shortcode = 'epfl_toggle_2018'
+        new_shortcode = 'epfl_toggle'
+
+        calls = self.__get_all_shortcode_calls(content, old_shortcode)
+
+        for call in calls:
+
+            new_calls = []
+
+            for i in range(10):
+
+                title = self.__get_attribute(call, 'label{}'.format(i))
+
+                if not title:
+                    continue
+
+                desc = unquote(self.__get_attribute(call, 'desc{}'.format(i)))
+                state = self.__get_attribute(call, 'state{}'.format(i))
+
+                new_call = '[{0} title="{1}" state="{2}"]{3}[/{0}]'.format(new_shortcode,
+                                                                           title,
+                                                                           state,
+                                                                           desc)
+                new_calls.append(new_call)
+
+                self.__update_report(old_shortcode)
+
+            content = content.replace(call, '\n'.join(new_calls))
 
         return content
 
@@ -988,14 +1104,12 @@ class Shortcodes():
 
         content_filename = Utils.generate_name(15, '/tmp/')
 
-        report = {}
-
         wp_site = WPSite(openshift_env, wp_site_url)
         wp_config = WPConfig(wp_site)
 
         if not wp_config.is_installed:
             logging.info("No WP site found at given URL (%s)", wp_site_url)
-            return report
+            return self.report
 
         logging.info("Fixing %s...", wp_site.path)
 
@@ -1036,16 +1150,7 @@ class Shortcodes():
                         continue
 
                     logging.debug("Fixing shortcode %s...", shortcode)
-                    fixed_content = fix_func(content)
-
-                    if fixed_content != content:
-                        # Building report
-                        if shortcode not in report:
-                            report[shortcode] = 0
-
-                        report[shortcode] += 1
-
-                    content = fixed_content
+                    content = fix_func(content)
 
             # Step 2: Removing <div class="textbox"> to avoid display issues on 2018 theme
             soup = BeautifulSoup(content, 'html5lib')
@@ -1084,4 +1189,4 @@ class Shortcodes():
         if os.path.exists(content_filename):
             os.remove(content_filename)
 
-        return report
+        return self.report
