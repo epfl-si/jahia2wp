@@ -10,10 +10,10 @@ function config() {
                 ['label'       => esc_html__('EPFL Tableau url', 'epfl'),
                 'attr'        => 'embed_code',
                 'type'        => 'textarea',
-                'description' => esc_html__('Paste here the content of the Embed Code when you press the "Share" button on an EPFL tableau view', 'epfl')
-                'meta'        => array(
+                'description' => esc_html__('Paste here the content of the Embed Code when you press the "Share" button on an EPFL tableau view', 'epfl'),
+                'meta'        => [
                     'placeholder' => 'Copy-paste the embed code here',
-                ),                
+                    ],
                 ],
                 ['label'       => '<h3>'. esc_html__('Ou', 'epfl') . '</h3>',
                 'attr'        => 'url',
