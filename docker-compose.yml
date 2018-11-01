@@ -33,6 +33,7 @@ services:
     ports:
       - "${WP_PORT_HTTP}:8080"
       - "${WP_PORT_HTTPS}:8443"
+      - "8443:8443"
 
   mgmt:
     labels:
