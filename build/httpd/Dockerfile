@@ -37,7 +37,6 @@ RUN mkdir /var/www/error
 
 COPY apache2.conf /etc/apache2/
 COPY ports.conf /etc/apache2/
-COPY restrict-wp-admin.conf /etc/apache2/conf-enabled/
 COPY error-pages.conf /etc/apache2/conf-enabled/
 COPY 403 /var/www/error/
 COPY modsecurity.conf /etc/modsecurity/

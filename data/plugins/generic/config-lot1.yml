@@ -71,7 +71,7 @@ plugins:
     config: !include epfl-twitter/v1/config-plugin.yml
   - name: epfl-video
     config: !include epfl-video/v1/config-plugin.yml
-  - name: wp-media-folder
-    config: !include wp-media-folder/v1/config-plugin.yml
   - name: epfl-intranet
     config: !include epfl-intranet/v1/config-plugin.yml
+  - name: pdfjs-viewer-shortcode
+    config: !include pdfjs-viewer-shortcode/v1/config-plugin.yml
