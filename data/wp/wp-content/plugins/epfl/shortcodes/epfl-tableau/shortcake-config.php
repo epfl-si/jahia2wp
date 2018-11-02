@@ -16,10 +16,10 @@ function config() {
                     'placeholder' => esc_html__('Copy-paste the embed code', 'epfl'),
                     ],
                 ],
-                ['label'       => '<h3>'. esc_html__('Ou', 'epfl') . '</h3>',
+                ['label'       => '<h3>'. esc_html__('Or', 'epfl') . '</h3><br />Url',
                 'attr'        => 'url',
                 'type'        => 'text',
-                'description' => esc_html__('Url of the view', 'epfl')
+                'description' => esc_html__('Url of the view (eg. "EPFLofficialstatistics/StatistiquesOfficielles")', 'epfl')
                 ],
                 ['label'       => esc_html__('Width', 'epfl') . '</h3>',
                 'attr'        => 'width',
@@ -31,7 +31,6 @@ function config() {
                 ],
             ],
             'post_type'     => ['page', 'post'],
-
         ]
     );
 }
