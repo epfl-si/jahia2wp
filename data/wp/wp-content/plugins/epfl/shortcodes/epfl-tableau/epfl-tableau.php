@@ -11,6 +11,7 @@ namespace Epfl\Tableau;
 require_once 'shortcake-config.php';
 
 function process_shortcode($atts) {
+
     $atts = shortcode_atts( array(
         'url' => '',
         'height'   => '',
@@ -19,7 +20,7 @@ function process_shortcode($atts) {
     ), $atts );
 
     # or get the already set url, width and height
-    if (array_key_exists('embed_code', $atts)) {
+    if (!empty($atts['embed_code'])) {
         # from a copy-paste of a embed view, parse this information :
         # the view url, the width and the height
         $embed_code = urldecode(wp_kses_post($atts['embed_code']));
@@ -27,10 +28,10 @@ function process_shortcode($atts) {
         // first step, check if we have a copy paste in a editor that encode quote
         if (strpos($embed_code, "width=") !== false) {
             $matches = [];
-            preg_match("/width='([0-9]+)'/", $embed_code, $matches);
+            preg_match("#width='([0-9]+)'#", $embed_code, $matches);
             $width = $matches[1];
 
-            preg_match("/height='([0-9]+)'/", $embed_code, $matches);
+            preg_match("#height='([0-9]+)'#", $embed_code, $matches);
             $height = $matches[1];
 
             preg_match("#param name='name' value='(.*?)'\s\/>#", $embed_code, $matches);
@@ -47,6 +48,7 @@ function process_shortcode($atts) {
     $url = sanitize_text_field($url);
     $width = sanitize_text_field($width);
     $height = sanitize_text_field($height);
+
 
     if (has_action("epfl_tableau_action")) {
         ob_start();
