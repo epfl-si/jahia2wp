@@ -20,15 +20,13 @@ function process_shortcode($atts) {
         // first step, check if we have a copy paste in a editor that encode quote
         if (strpos($embed_code, "width=") !== false) {
             $matches = [];
-            $s = preg_match("/width='([0-9]+)'/", $embed_code, $matches);
+            preg_match("/width='([0-9]+)'/", $embed_code, $matches);
             $width = $matches[1];
 
-            $matches = [];
-            $s = preg_match("/height='([0-9]+)'/", $embed_code, $matches);
+            preg_match("/height='([0-9]+)'/", $embed_code, $matches);
             $height = $matches[1];
 
-            $matches = [];
-            $s = preg_match("#param name='name' value='(.*?)'\s\/>#", $embed_code, $matches);
+            preg_match("#param name='name' value='(.*?)'\s\/>#", $embed_code, $matches);
             $url = $matches[1];
         }
     } else {
