@@ -26,11 +26,11 @@ function ___($text)
 }
 
 // load .mo file for translation
-function epfl_intranet_load_plugin_textdomain() {
+function epfl_intranet_load_plugin_textdomain()
+{
     load_plugin_textdomain( 'epfl-intranet', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
 }
 add_action( 'plugins_loaded', 'EPFL\Intranet\epfl_intranet_load_plugin_textdomain' );
-
 
 class Controller
 {
@@ -61,6 +61,7 @@ class Controller
     function hook()
     {
         $this->settings->hook();
+
     }
 
 }
@@ -80,14 +81,37 @@ class Settings extends \EPFL\SettingsBase
 
         add_action('admin_init', array($this, 'setup_options_page'));
 
-
-        if(!is_admin())
+        /* Website is private */
+        if(trim($this->get('enabled'))==1)
         {
-            if(trim($this->get('enabled'))==1)
+            /* If visiting website */
+            if(!is_admin())
             {
                 require_once(dirname(__FILE__) . "/inc/protect-site.php");
             }
+            else /* On admin console */
+            {
+                $restricted_to_groups = $this->get('subscriber_group', 'epfl_accred');
+
+                /* Only authentication needed*/
+                if($restricted_to_groups == "*")
+                {
+                    $restrict_message = ___("Website access needs Tequila/Gaspar authentication");
+                }
+                else /* Authentication AND authorization needed*/
+                {
+                    $restrict_message = sprintf(___("Website access is restricted to following group(s): %s"),
+                                            $restricted_to_groups);
+                }
+
+
+                echo '<div class="notice notice-info">'.
+                     '<img src="' . plugins_url( 'img/lock.svg', __FILE__ ) . '" style="height:32px; width:32px; float:left; margin:3px 15px 3px 0px;">'.
+                     '<p><b>EPFL Intranet - </b> '.$restrict_message.'</p>'.
+                     '</div>';
+            }
         }
+
 
     }
 
