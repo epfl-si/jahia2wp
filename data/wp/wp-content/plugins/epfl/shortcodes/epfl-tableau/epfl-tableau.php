@@ -34,7 +34,7 @@ function process_shortcode($atts) {
             preg_match("#height='([0-9]+)'#", $embed_code, $matches);
             $height = $matches[1];
 
-            preg_match("#param name='name' value='(.*?)'\s\/>#", $embed_code, $matches);
+            preg_match("#param name='name' value='(.*?)'\s/>#", $embed_code, $matches);
             $url = $matches[1];
         }
     } else {
