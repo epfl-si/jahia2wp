@@ -11,6 +11,13 @@ namespace Epfl\Tableau;
 require_once 'shortcake-config.php';
 
 function process_shortcode($atts) {
+    $atts = shortcode_atts( array(
+        'url' => '',
+        'height'   => '',
+        'width' => '',
+        'embed_code'   => '',
+    ), $atts );
+
     # or get the already set url, width and height
     if (array_key_exists('embed_code', $atts)) {
         # from a copy-paste of a embed view, parse this information :
