@@ -240,7 +240,8 @@ class Settings extends \EPFL\SettingsBase
             /* If access only need authentication */
             if(empty(trim($restrict_to_groups)))
             {
-                $epfl_accred_group = 'intranet-epfl';
+                /* All group have access, Accred plugin will handle this*/
+                $epfl_accred_group = '*';
             }
             else /* We have to filter for one (or more) group(s) */
             {
