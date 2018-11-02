@@ -27,9 +27,9 @@ function ___($text)
 
 // load .mo file for translation
 function epfl_intranet_load_plugin_textdomain() {
-    load_plugin_textdomain( 'epfl', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
+    load_plugin_textdomain( 'epfl-intranet', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
 }
-add_action( 'plugins_loaded', 'epfl_intranet_load_plugin_textdomain' );
+add_action( 'plugins_loaded', 'EPFL\Intranet\epfl_intranet_load_plugin_textdomain' );
 
 
 class Controller
@@ -74,7 +74,7 @@ class Settings extends \EPFL\SettingsBase
     {
         parent::hook();
         $this->add_options_page(
-	        ___('Réglages intranet'),    // $page_title
+	        ___('Intranet settings'),    // $page_title
             ___('EPFL Intranet'),        // $menu_title
             'manage_options');           // $capability
 
@@ -183,7 +183,7 @@ class Settings extends \EPFL\SettingsBase
                {
                   add_settings_error('cannotUpdateHtAccess',
                                   'empty',
-                                  ___("Impossible de mettre à jour le fichier .htaccess"),
+                                  ___("Impossible to update .htaccess file"),
                                   'error');
                   $enabled = '0';
                }
@@ -195,7 +195,7 @@ class Settings extends \EPFL\SettingsBase
            {
               add_settings_error('cannotUpdateHtAccess',
                               'empty',
-                              ___("Impossible de mettre à jour le fichier .htaccess"),
+                              ___("Impossible to update .htaccess file"),
                               'error');
            }
         }
@@ -255,7 +255,7 @@ class Settings extends \EPFL\SettingsBase
         {
             add_settings_error(null,
                   			   null,
-                  			    ___("Activation impossible!<br>Le plugin EPFL-Accred n'est pas installé/activé"),
+                  			    ___("Cannot activate plugin!<br>EPFL-Accred plugin is not installed/activated"),
                   			   'error');
             return false;
         }
@@ -269,7 +269,7 @@ class Settings extends \EPFL\SettingsBase
             {
                 add_settings_error(null,
                   			   null,
-                  			    ___("Activation impossible!<br>Ce n'est pas la version vpsi du plugin EPFL-Accred qui est installée"),
+                  			    ___("Cannot activate plugin!<br>This is not 'vpsi' version of EPFL-Accred plugin which is installed"),
                   			   'error');
                 return false;
             }
@@ -289,7 +289,7 @@ class Settings extends \EPFL\SettingsBase
                 {
                     add_settings_error(null,
                   			   null,
-                  			    sprintf(___("Activation impossible!<br>La version du plugin EPFL-Accred vpsi doit être %s au minimum (version %s installée)"),
+                  			    sprintf(___("Cannot activate plugin!<br>EPFL-Accred 'vpsi' plugin version must be at least %s (version %s installed)"),
                                         $accred_min_version, $output[1]),
                   			   'error');
 
@@ -308,8 +308,8 @@ class Settings extends \EPFL\SettingsBase
     function setup_options_page()
     {
 
-        $this->add_settings_section('section_about', ___('À propos'));
-        $this->add_settings_section('section_settings', ___('Paramètres'));
+        $this->add_settings_section('section_about', ___('About'));
+        $this->add_settings_section('section_settings', ___('Settings'));
 
 
         /* Check box to activate or not the functionality */
@@ -323,12 +323,12 @@ class Settings extends \EPFL\SettingsBase
         $this->add_settings_field(
                 'section_settings',
                 'enabled',
-                ___("Protéger l'accès au site"),
+                ___("Protect website access"),
                 array(
                     'type'        => 'select',
-                    'options'     => array(0 => ___('Non'), 1 => ___('Oui')),
+                    'options'     => array(0 => ___('No'), 1 => ___('Yes')),
                     'value'       => $enabled,
-                    'help' => ___('Si cette case est cochée, une authentification est nécessaire pour accéder au site.')
+                    'help' => ___('If "Yes", authentication is necessary to access website.')
                 )
             );
 
@@ -341,10 +341,10 @@ class Settings extends \EPFL\SettingsBase
         $this->add_settings_field(
                 'section_settings',
                 'restrict_to_groups',
-                ___("Restreindre l'accès au(x) groupe(s)"),
+                ___("Restrict access to group(s)"),
                 array(
                     'type'        => 'text',
-                    'help' => ___('Si ce champ est laissé vide, seule une authentification sera demandée.')
+                    'help' => ___('If field is left empty, only an authentication will be requested.')
                 )
             );
 
@@ -353,14 +353,11 @@ class Settings extends \EPFL\SettingsBase
     function render_section_about()
     {
         echo "<p>\n";
-        echo ___(<<<ABOUT
-A besoin du plugin <a href="https://github.com/epfl-sti/wordpress.plugin.accred/tree/vpsi">EPFL-Accred</a> (version VPSI)
-pour fonctionner correctement. <br>Permet de limiter l'accès au site en forçant les utilisateurs à s'authentifier via
-<a href="https://github.com/epfl-sti/wordpress.plugin.tequila">Tequila</a>. <br>On peut soit demander
-juste une authentification, soit forcer en plus à ce que l'utilisateur fasse partie d'un des groupes définis.<br>
-Si le plugin est activé, les <b>fichiers sont aussi protégés</b>.
-ABOUT
-);
+        echo ___('Needs <a href="https://github.com/epfl-sti/wordpress.plugin.accred/tree/vpsi">EPFL-Accred</a> (VPSI version) plugin
+to work correctly. <br>Allows to restrict website access by forcing user to authenticate using
+<a href="https://github.com/epfl-sti/wordpress.plugin.tequila">Tequila</a>. <br>You can either only request and authentication,
+either force to be member of one of the defined groups.<br>
+If plugin is activated, <b>media files are also protected</b>.');
         echo "</p>\n";
     }
 
