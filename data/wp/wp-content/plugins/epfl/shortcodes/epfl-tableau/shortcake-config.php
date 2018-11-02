@@ -7,12 +7,13 @@ function config() {
             ['label'         => esc_html__('Tableau', 'epfl'),
             'listItemImage' => '<img src="' . plugins_url( 'img/tableau.png', __FILE__ ) . '" >',
             'attrs'         => [
-                ['label'       => esc_html__('EPFL Tableau url', 'epfl'),
+                ['label'      => esc_html__('EPFL Tableau content', 'epfl'),
                 'attr'        => 'embed_code',
                 'type'        => 'textarea',
+                'encode'      => true,
                 'description' => esc_html__('Paste here the content of the Embed Code when you press the "Share" button on an EPFL tableau view', 'epfl'),
                 'meta'        => [
-                    'placeholder' => 'Copy-paste the embed code here',
+                    'placeholder' => esc_html__('Copy-paste the embed code', 'epfl'),
                     ],
                 ],
                 ['label'       => '<h3>'. esc_html__('Ou', 'epfl') . '</h3>',
@@ -30,6 +31,7 @@ function config() {
                 ],
             ],
             'post_type'     => ['page', 'post'],
+
         ]
     );
 }

@@ -11,23 +11,25 @@ namespace Epfl\Tableau;
 require_once 'shortcake-config.php';
 
 function process_shortcode($atts) {
+    # or get the already set url, width and height
     if (array_key_exists('embed_code', $atts)) {
         # from a copy-paste of a embed view, parse this information :
         # the view url, the width and the height
-        $embed_code = urldecode($atts['embed_code']);
+        $embed_code = urldecode(wp_kses_post($atts['embed_code']));
 
-        $dom = new \DOMDocument();
-        if ($dom->loadHTML()) {  // valid
-            $dom_object = $dom->getElementsByTagName("object");
-   
-            $width = $dom_object[0]->getAttribute('width');
-            $height = $dom_object[0]->getAttribute('height');
+        // first step, check if we have a copy paste in a editor that encode quote
+        if (strpos($embed_code, "width=") !== false) {
+            $matches = [];
+            $s = preg_match("/width='([0-9]+)'/", $embed_code, $matches);
+            $width = $matches[1];
 
-            foreach($dom->getElementsByTagName("param") as $param) {
-                if ($param->getAttribute('name') === 'name') {
-                    $url = $param->getAttribute('value');
-                }
-            }
+            $matches = [];
+            $s = preg_match("/height='([0-9]+)'/", $embed_code, $matches);
+            $height = $matches[1];
+
+            $matches = [];
+            $s = preg_match("#param name='name' value='(.*?)'\s\/>#", $embed_code, $matches);
+            $url = $matches[1];
         }
     } else {
         # or get the already set url, width and height
