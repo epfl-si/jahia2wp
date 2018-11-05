@@ -37,10 +37,18 @@ function process_shortcode($atts) {
             preg_match("#param name='name' value='(.*?)'\s/>#", $embed_code, $matches);
             $url = $matches[1];
         }
-    } else {
-        # or get the already set url, width and height
+    }
+
+    # set or overload url, width and height if set in the shortcode
+    if (!empty($atts['url'])) {
         $url = $atts['url'];
+    }
+
+    if (!empty($atts['width'])) {
         $width = $atts['width'];
+    }
+
+    if (!empty($atts['height'])) {
         $height = $atts['height'];
     }
 
@@ -48,7 +56,6 @@ function process_shortcode($atts) {
     $url = sanitize_text_field($url);
     $width = sanitize_text_field($width);
     $height = sanitize_text_field($height);
-
 
     if (has_action("epfl_tableau_action")) {
         ob_start();
