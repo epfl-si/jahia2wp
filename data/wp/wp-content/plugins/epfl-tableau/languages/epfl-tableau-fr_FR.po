@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: epfl-tableau\n"
 "POT-Creation-Date: 2018-11-05 13:26+0100\n"
-"PO-Revision-Date: 2018-11-05 13:28+0100\n"
+"PO-Revision-Date: 2018-11-05 18:22+0100\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -52,10 +52,3 @@ msgstr "Largeur"
 #: shortcake-config.php:28
 msgid "Height"
 msgstr "Hauteur"
-
-#, fuzzy
-#~ msgid "Infoscience"
-#~ msgstr "Infoscience"
-
-#~ msgid "Add Infoscience shortcode"
-#~ msgstr "Ajouter un shortcode infoscience"
