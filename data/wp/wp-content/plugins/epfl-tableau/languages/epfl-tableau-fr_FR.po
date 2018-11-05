@@ -1,0 +1,61 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: epfl-tableau\n"
+"POT-Creation-Date: 2018-11-05 13:26+0100\n"
+"PO-Revision-Date: 2018-11-05 13:28+0100\n"
+"Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.11\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-KeywordsList: __;esc_html__\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: shortcake-config.php:7
+msgid "Tableau"
+msgstr "Tableau"
+
+#: shortcake-config.php:10
+msgid "EPFL Tableau content"
+msgstr "Contenu EPFL Tableau"
+
+#: shortcake-config.php:14
+msgid ""
+"Paste here the content of the Embed Code when you press the \"Share\" button "
+"on an EPFL tableau view"
+msgstr ""
+"Coller ici le code \"Embed\" obtenu à partir du boutton \"Share\" sur une "
+"vue EPFL tableau"
+
+#: shortcake-config.php:16
+msgid "Copy-paste the embed code"
+msgstr "Copié-collé du code embarqué"
+
+#: shortcake-config.php:19
+msgid "Or"
+msgstr "Ou"
+
+#: shortcake-config.php:22
+msgid ""
+"Url of the view (eg. \"EPFLofficialstatistics/StatistiquesOfficielles\")"
+msgstr ""
+"L'url de la vue (ex. : \"EPFLofficialstatistics/StatistiquesOfficielles\")"
+
+#: shortcake-config.php:24
+msgid "Width"
+msgstr "Largeur"
+
+#: shortcake-config.php:28
+msgid "Height"
+msgstr "Hauteur"
+
+#, fuzzy
+#~ msgid "Infoscience"
+#~ msgstr "Infoscience"
+
+#~ msgid "Add Infoscience shortcode"
+#~ msgstr "Ajouter un shortcode infoscience"
