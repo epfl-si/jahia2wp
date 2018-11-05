@@ -43,8 +43,10 @@ Class ShortCakeMementoConfig
     private static function get_template_options()
     {
         return array (
-            array('value' => '1', 'label' => esc_html__('Template with the first highlighted event', 'epfl')),
-            array('value' => '2', 'label' => esc_html__('Template without the first highlighted event', 'epfl')),
+            array('value' => '1', 'label' => esc_html__('Template slider with the first highlighted event', 'epfl')),
+            array('value' => '2', 'label' => esc_html__('Template slider without the first highlighted event', 'epfl')),
+            array('value' => '3', 'label' => esc_html__('Template listing with the first highlighted event', 'epfl')),
+            array('value' => '4', 'label' => esc_html__('Template listing without the first highlighted event', 'epfl')),
         );
     }
 

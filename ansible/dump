@@ -17,4 +17,4 @@
 
 thisdir="$(dirname "$(realpath "$0")")"
 
-ansible-playbook -e "play_dump=true" -e "dump_local_dir={{ to }}" -i ansible/hosts-dev "$@" "$thisdir"/playbooks/wordpress-main.yml
+ansible-playbook -e "play_dump=yes" -e "dump_local_dir={{ to }}" -i ansible/hosts-dev "$@" "$thisdir"/playbooks/wordpress-main.yml

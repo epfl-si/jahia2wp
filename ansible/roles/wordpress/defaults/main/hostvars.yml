@@ -1,0 +1,24 @@
+# file: roles/wordpress/defaults/main/hostvars.yml
+#
+# The variables that the role relies on, and that the user is supposed
+# to pass through per-host variables (in hosts/wordpress-instances etc.)
+#
+# (unless of course there is a default value defined below - That's
+# what the "defaults" part in the path is for)
+
+# - wp_env: The name of the top-level directory (under the /srv of the
+#            Openshift instance) where the server root resides
+#
+# - wp_hostname: The HTTP host name (fully qualified domain name) this
+#                  WordPress is served under
+#
+# - wp_path: The path relative to the htdocs directory where the WordPress
+#            instance is installed
+
+wp_path: "{{ inventory_hostname }}"
+
+#
+# - wp_unit_name: The unit name (used by jahia2wp.py generate); defaults
+#                 to being equal to wp_unit_id
+
+wp_unit_name: "{{ wp_unit_id }}"   # Default value

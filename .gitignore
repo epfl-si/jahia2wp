@@ -23,3 +23,7 @@ ansible/**/*.retry
 src/ventilation/*.csv
 src/ventilation/hosts/
 src/ventilation/wxr-*/
+.pytest_cache/
+data/wp/wp-content/plugins/epfl.zip
+data/wp/wp-content/themes/wp-theme-2018.zip
+src/ventilation/wxr_inventory.pickle

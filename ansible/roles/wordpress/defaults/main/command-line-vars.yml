@@ -1,0 +1,18 @@
+# file: roles/wordpress/defaults/main/hostvars.yml
+#
+# The variables that the role relies on, and that the user is supposed
+# to pass on the command line
+#
+# - wp_unit_id: The unit ID (used by jahia2wp.py generate)
+# - wp_destructive: See details in ../../vars/wp_destructive.yml
+
+wp_destructive: {}   # Default value
+
+#
+# - wp_restore_from: One of "generate" (the default), "backup-prod",
+#                      or "none" to skip the restore process
+#                      altogether and leave the destroyed /
+#                      nonexistent WordPresses in whatever state they
+#                      are currently in.
+
+wp_restore_from: 'generate'

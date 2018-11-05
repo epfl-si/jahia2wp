@@ -488,7 +488,6 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     # there are dependencies between plugins, arrange them in the right way.
     deactivated_plugins = ['mainwp-child',
                            'EPFL-Content-Filter',
-                           'EPFL-Share',
                            'feedzy-rss-feeds',
                            'remote-content-shortcode',
                            'shortcode-ui',
@@ -499,20 +498,8 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
                            'tinymce-advanced',
                            'varnish-http-purge',
                            'epfl',
-                           # 'epfl-faq',
-                           # 'epfl-grid',
-                           # 'epfl-infoscience',
-                           # 'epfl-infoscience-search',
-                           # 'epfl-map',
-                           # 'epfl-memento',
-                           # 'epfl-news',
-                           # 'epfl-people',
-                           # 'epfl-scheduler',
-                           # 'epfl-snippet',
-                           # 'epfl-toggle',
-                           # 'epfl-twitter',
-                           # 'epfl-xml',
-                           # 'epfl-video'
+                           'epfl-infoscience',
+                           'wp-media-folder',
                            ]
 
     # Generate a WordPress site
