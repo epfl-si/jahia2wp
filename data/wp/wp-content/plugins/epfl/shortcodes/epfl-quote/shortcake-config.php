@@ -32,6 +32,7 @@ Class ShortCakeQuoteConfig
                             'attr'        => 'image',
                             'type'        => 'attachment',
                             'libraryType' => array( 'image' ),
+                            'description' => esc_html__('Please, select a square image'),
                         ),
                     ),
                 'post_type'     => array( 'post', 'page' ),
