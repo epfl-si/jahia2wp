@@ -59,7 +59,7 @@ function epfl_google_forms_process_shortcode( $atts, $content = null ) {
 
         try {
 
-           do_action("epfl_google_forms_action", $src, $width, $height);
+           do_action("epfl_google_forms_action", $src, $width, $height, __("Loading...", "epfl"));
 
            return ob_get_contents();
 
