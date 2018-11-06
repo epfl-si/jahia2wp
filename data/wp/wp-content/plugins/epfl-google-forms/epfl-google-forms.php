@@ -15,7 +15,7 @@ require_once 'shortcake-config.php';
     $attribute  -> Attribute name to extract
     $from_code  -> HTML code in which to look for attribute.
 */
-function epfl_toggle_get_attribute($attribute, $from_code)
+function epfl_google_forms_get_attribute($attribute, $from_code)
 {
     if(preg_match('/'.$attribute.'="(.*?)"/', $from_code, $matches)!==1)
     {
@@ -38,9 +38,9 @@ function epfl_google_forms_process_shortcode( $atts, $content = null ) {
     $data = urldecode($atts['data']);
 
     /* Extracting needed attributes */
-    $src = epfl_toggle_get_attribute('src', $data);
-    $width = epfl_toggle_get_attribute('width', $data);
-    $height = epfl_toggle_get_attribute('height', $data);
+    $src = epfl_google_forms_get_attribute('src', $data);
+    $width = epfl_google_forms_get_attribute('width', $data);
+    $height = epfl_google_forms_get_attribute('height', $data);
 
     /* Checking if all attributes are present */
     if($src===null || $height===null || $width===null)
