@@ -56,6 +56,7 @@ function epfl_video_process_shortcode( $atts, $content = null ) {
   // sanitize parameters
   $url  = $atts['url'];
 
+  /* To handle video URL redirection*/
   if(($url = epfl_video_get_final_video_url($url)) === false)
   {
     return epfl_video_get_error(__("EPFL-Video: Error getting final URL"));
@@ -70,12 +71,8 @@ function epfl_video_process_shortcode( $atts, $content = null ) {
   */
   if(preg_match('/(youtube\.com|youtu\.be)/', $url)===1 && preg_match('/\/embed\//', $url)===0)
   {
-    /* Extracting video ID from URL which is like one of the example before */
-    if(preg_match('/(\?v=|be\/)([^&]+)(&?)/', $url, $matches) !==1 || sizeof($matches)==0)
-    {
-        return epfl_video_get_error(__("EPFL-Video: invalid YouTube URL"));
-    }
-    $video_id = $matches[2];
+    /* Extracting video ID from URL which is like one of the example before (we also extract rest of query string) */
+    $video_id = str_replace('watch?v=', '', substr($url, strrpos($url, '/')+1 ));
     $url = "https://www.youtube.com/embed/".$video_id;
   }
 
@@ -87,15 +84,11 @@ function epfl_video_process_shortcode( $atts, $content = null ) {
   */
   else if(preg_match('/vimeo\.com\/[0-9]+/', $url)===1 && preg_match('/\/embed\//', $url)===0)
   {
-    /* Extracting video ID from URL which is like :
+    /* Extracting video ID (and rest of string) from URL which is like :
     https://vimeo.com/174044440
     https://vimeo.com/174044440#t=10s
     */
-    if(preg_match('/com\/(\d+)(#?)/', $url, $matches) !==1 || sizeof($matches)==0)
-    {
-        return epfl_video_get_error(__("EPFL-Video: invalid Vimeo URL"));
-    }
-    $video_id = $matches[1];
+    $video_id = substr($url, strrpos($url, '/')+1 );
 
     $url = "https://player.vimeo.com/video/".$video_id;
   }
@@ -105,12 +98,7 @@ function epfl_video_process_shortcode( $atts, $content = null ) {
     /* Extracting video ID from URL which is like :
     https://tube.switch.ch/videos/2527ae24
     */
-
-    if(preg_match('/videos\/(.+)/', $url, $matches) !==1 || sizeof($matches)==0)
-    {
-        return epfl_video_get_error(__("EPFL-Video: invalid SWITCHTube URL"));
-    }
-    $video_id = $matches[1];
+    $video_id = substr($url, strrpos($url, '/')+1 );
 
     $url = "https://tube.switch.ch/embed/".$video_id;
   }
