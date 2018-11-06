@@ -1070,7 +1070,6 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
                 $title = $menu_descr->description . "[$lang] @ $site_url_dir";
                 $that->update(array('post_title' => $title));
 
-                $that->try_refresh();
                 $instances[] = $that;
             }
         }
@@ -1098,24 +1097,17 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
             $menu_contents->get_link('subscribe'));
     }
 
-    function try_refresh () {
-        if ($this->_refreshed !== NULL) {
-            // Do not attempt twice in same query cycle
-            return $this->_refreshed;
-        }
+    function refresh () {
         try {
             $this->_do_refresh();
-            $this->_refreshed = true;
             $this->meta()->set_last_synced(time());
             $this->meta()->del_sync_started_failing();
-            return true;
         } catch (RESTClientError $e) {
             $this->error_log("unable to refresh: $e");
             if (! $this->meta()->get_sync_started_failing()) {
                 $this->meta()->set_sync_started_failing(time());
             }
-            $this->_refreshed = false;
-            return false;
+            throw $e;
         }
     }
 
@@ -1404,56 +1396,53 @@ class MenuItemController extends CustomPostTypeController
     }
 
     /**
-     * Invoked through form POST by the wp-admin refresh button
+     * Invoked first by the wp-admin refresh button
      */
-    static function admin_post_refresh () {
-        $emis = array();
+    static function ajax_enumerate () {
+        $transient_name = 'epfl-menus-all-external-item-ids';
+        if (false !== ($cached = get_transient($transient_name))) {
+            return $cached;
+        }
+
+        // The Varnish-side limit is 30 seconds, however the
+        // client-side AJAX app is prepared to deal with 504's
+        set_time_limit(120);
+
+        ExternalMenuItem::load_from_filesystem();
+        $value = array(
+            'status' => 'OK',
+            'external_menu_item_ids' => array_map(function($emi) {
+                return (int) $emi->ID;
+            }, ExternalMenuItem::all()));
+        set_transient($transient_name, $value, 300);
+        return $value;
+    }
+
+    /**
+     * Invoked by the wp-admin refresh button once for each
+     * ExternalMenuItemID that @link ajax_refresh_local previously
+     * returned
+     */
+    static function ajax_refresh_by_id ($data) {
+        if (! ($emi = ExternalMenuItem::get($data['id']))) {
+            error_log('Unknown ID or malformed ajax_refresh_by_id: ' . var_export($data, true));
+            return array(
+                'status' => 'ERROR',
+                'message' => "$data->id not found"
+            );
+        }
         try {
-            $emis = ExternalMenuItem::load_from_filesystem();
-        } catch (\Throwable $t) {
-            error_log("ExternalMenuItem::load_from_filesystem(): $t");
-            static::admin_error(___('Unable to load menus of sites in the same pod'));
-            // Continue
+            $emi->refresh();
+            return array(
+                'status' => 'OK'
+            );
+        } catch (RESTClientError $e) {
+            return array(
+                'status' => 'ERROR',
+                'exception' => get_class($e),
+                'message' => sprintf(___('Sync failed: %s', $e))
+            );
         }
-
-        $errors = 0;
-        foreach (array_merge($emis,
-                             // Optimization: keep the
-                             // ExternalMenuItem's obtained above,
-                             // along with their state, so as to avoid
-                             // ->try_refresh()ing them twice.
-                             ExternalMenuItem::all_except($emis))
-                 as $emi)
-        {
-            if (! $emi->try_refresh()) {
-                $errors++;
-                continue;
-            }
-
-            $subscribe_url = $emi->get_subscribe_url();
-            if (! $subscribe_url) {
-                $emi->error_log("has no subscribe URL");
-                continue;
-            }
-            try {
-                static::_get_subscribe_controller($emi)->
-                    subscribe($subscribe_url);
-            } catch (RESTClientError | TestWebhookFlowException $e) {
-                $emi->error_log(
-                    "Unable to subscribe at $subscribe_url: $e");
-                $errors++;
-            }
-        }
-
-        if (! $errors) {
-            static::admin_notice(___('Refresh successful'));
-        } else {
-            static::admin_error(sprintf(
-                ___('Refresh failed (%d failed out of %d)'),
-                $errors, count($all)));
-        }
-
-        return "edit.php?post_type=" . static::get_post_type();
     }
 
     /**
@@ -1494,8 +1483,22 @@ class MenuItemController extends CustomPostTypeController
         $yellow = 'rgba(248, 247, 202, 0.45)';
         $stripesize = '20px'; $stripesize2x = '40px';
         static::add_editor_css("
-.wp-list-table tr.sync-failed {
+.wp-list-table tr.sync-failed, .wp-list-table tr.sync-inprogress {
   background-image: repeating-linear-gradient(-45deg,$yellow,$yellow $stripesize,transparent $stripesize,transparent $stripesize2x);
+}
+
+.wp-list-table tr.sync-inprogress {
+  animation: wp-epfl-sync-barber .5s linear infinite;
+}
+
+@keyframes wp-epfl-sync-barber {
+  from {
+    background-position-x: 0px;
+  }
+
+  to {
+    background-position-x: 57px;
+  }
 }
 ");
     }

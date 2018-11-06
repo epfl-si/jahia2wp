@@ -437,9 +437,15 @@ class WPPluginConfigInfos:
 
         # Downloading ZIP file
         response = request.urlopen(url)
-        # Extracting filename from headers :
-        # {'Content-Disposition': 'attachment; filename=wordpress.plugin.accred-vpsi.zip'}
-        zip_file_name = response.headers['Content-Disposition'].split("filename=")[1]
+        # We check if we have a ZIP filename in header and use it if exists
+        if 'Content-Disposition' in response.headers:
+            # Extracting filename from headers :
+            # {'Content-Disposition': 'attachment; filename=wordpress.plugin.accred-vpsi.zip'}
+            zip_file_name = response.headers['Content-Disposition'].split("filename=")[1]
+
+        else:  # Nothing in header, we can use name from URL
+            zip_file_name = url[url.rfind("/")+1:]
+
         zip_full_path = os.path.join(work_dir, zip_file_name)
         with open(zip_full_path, 'wb') as out_file:
             shutil.copyfileobj(response, out_file)

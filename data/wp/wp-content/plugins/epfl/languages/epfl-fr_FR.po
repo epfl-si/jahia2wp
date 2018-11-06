@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-11-02 14:24+0100\n"
-"PO-Revision-Date: 2018-11-02 14:24+0100\n"
+"POT-Creation-Date: 2018-11-05 14:50+0100\n"
+"PO-Revision-Date: 2018-11-06 10:30+0100\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -402,6 +402,26 @@ msgstr "Unité"
 #: epfl-people/shortcake-config.php:37
 msgid "Scipers"
 msgstr "Scipers"
+
+#: epfl-quote/shortcake-config.php:12 epfl-quote/shortcake-config.php:16
+msgid "Quote"
+msgstr "Citation"
+
+#: epfl-quote/shortcake-config.php:21
+msgid "Source or reference"
+msgstr "La source ou la référence de la citation"
+
+#: epfl-quote/shortcake-config.php:26
+msgid "Footer"
+msgstr "Pied de page"
+
+#: epfl-quote/shortcake-config.php:31
+msgid "Quote image"
+msgstr "Image de la citation"
+
+#: epfl-quote/shortcake-config.php:35
+msgid "Please, select a square image"
+msgstr "Veuillez sélectionner une image carrée"
 
 #: epfl-scheduler/epfl-scheduler.php:126
 msgid "Start date"
