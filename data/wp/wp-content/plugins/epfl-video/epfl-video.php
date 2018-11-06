@@ -21,8 +21,6 @@ function epfl_video_get_final_video_url($url)
     // To disable page display when executing curl_exec
     curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true);
 
-    ;
-
     if ( ($response = curl_exec( $ch ))=== false )	{
         // if we get an error, use that
         error_log("EPFL-video: ".curl_error( $ch ));
