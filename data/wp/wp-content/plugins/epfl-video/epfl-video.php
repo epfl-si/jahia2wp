@@ -57,7 +57,7 @@ function epfl_video_process_shortcode( $atts, $content = null ) {
   /* To handle video URL redirection*/
   if(($url = epfl_video_get_final_video_url($url)) === false)
   {
-    return epfl_video_get_error(__("EPFL-Video: Error getting final URL"));
+    return epfl_video_get_error(__("EPFL-Video: Error getting final URL", 'epfl-video'));
   }
 
 
