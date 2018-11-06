@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-10-24 13:56+0200\n"
-"PO-Revision-Date: 2018-10-25 15:32+0200\n"
+"POT-Creation-Date: 2018-11-05 14:50+0100\n"
+"PO-Revision-Date: 2018-11-06 10:30+0100\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -403,6 +403,26 @@ msgstr "Unité"
 msgid "Scipers"
 msgstr "Scipers"
 
+#: epfl-quote/shortcake-config.php:12 epfl-quote/shortcake-config.php:16
+msgid "Quote"
+msgstr "Citation"
+
+#: epfl-quote/shortcake-config.php:21
+msgid "Source or reference"
+msgstr "La source ou la référence de la citation"
+
+#: epfl-quote/shortcake-config.php:26
+msgid "Footer"
+msgstr "Pied de page"
+
+#: epfl-quote/shortcake-config.php:31
+msgid "Quote image"
+msgstr "Image de la citation"
+
+#: epfl-quote/shortcake-config.php:35
+msgid "Please, select a square image"
+msgstr "Veuillez sélectionner une image carrée"
+
 #: epfl-scheduler/epfl-scheduler.php:126
 msgid "Start date"
 msgstr "Date de début"
@@ -475,6 +495,7 @@ msgstr ""
 "Url du compte Facebook (optionnel) (ex. https://www.facebook.com/epflcampus)"
 
 #: epfl-social-feed/shortcake-config.php:40
+#: epfl-tableau/shortcake-config.php:28
 msgid "Height"
 msgstr "Hauteur"
 
@@ -483,12 +504,43 @@ msgid "Set the height in pixel (optional). 450 is recommended"
 msgstr "Hauteur en pixel (optionnel). 450 est recommandé"
 
 #: epfl-social-feed/shortcake-config.php:49
+#: epfl-tableau/shortcake-config.php:24
 msgid "Width"
 msgstr "Largeur"
 
 #: epfl-social-feed/shortcake-config.php:52
 msgid "Set the width in pixel (optional). 374 is recommended"
 msgstr "Largeux en pixel (optionnel). 374 est recommandé"
+
+#: epfl-tableau/shortcake-config.php:7
+msgid "Tableau"
+msgstr "Tableau"
+
+#: epfl-tableau/shortcake-config.php:10
+msgid "EPFL Tableau content"
+msgstr "Contenu EPFL Tableau"
+
+#: epfl-tableau/shortcake-config.php:14
+msgid ""
+"Paste here the content of the Embed Code when you press the \"Share\" button "
+"on an EPFL tableau view"
+msgstr ""
+"Coller ici le code \"Embed\" obtenu à partir du boutton \"Share\" sur une "
+"vue EPFL tableau"
+
+#: epfl-tableau/shortcake-config.php:16
+msgid "Copy-paste the embed code"
+msgstr "Copié-collé du code embarqué"
+
+#: epfl-tableau/shortcake-config.php:19
+msgid "Or"
+msgstr "Ou"
+
+#: epfl-tableau/shortcake-config.php:22
+msgid ""
+"Url of the view (eg. \"EPFLofficialstatistics/StatistiquesOfficielles\")"
+msgstr ""
+"L'url de la vue (ex. : \"EPFLofficialstatistics/StatistiquesOfficielles\")"
 
 #: epfl-toggle/shortcake-config.php:9
 msgid "Open"

@@ -499,6 +499,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
                            'varnish-http-purge',
                            'epfl',
                            'epfl-infoscience',
+                           'wp-media-folder',
                            ]
 
     # Generate a WordPress site
