@@ -2,7 +2,7 @@
 /**
  * Plugin Name: EPFL
  * Description: Provides many epfl shortcodes 
- * @version: 1.3
+ * @version: 1.4
  * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
