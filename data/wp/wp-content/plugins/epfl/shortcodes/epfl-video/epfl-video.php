@@ -9,6 +9,42 @@
 
 require_once 'shortcake-config.php';
 
+function epfl_video_get_final_video_url($url)
+{
+    $ch = curl_init();
+    // the url to request
+    curl_setopt( $ch, CURLOPT_URL, $url );
+    // (don't) verify host ssl cert
+    curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, false );
+    // (don't) verify peer ssl cert
+    curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );
+    // To disable page display when executing curl_exec
+    curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true);
+
+    if ( ($response = curl_exec( $ch ))=== false )	{
+        // if we get an error, use that
+        error_log("EPFL-video: ".curl_error( $ch ));
+        $res = false;
+    }
+    else // no error
+    {
+
+        $redirect_url = curl_getinfo($ch, CURLINFO_REDIRECT_URL);
+
+        // If there's no redirection
+        $res = empty(trim($redirect_url))?$url:$redirect_url;
+    }
+    // close the resource
+    curl_close( $ch );
+
+    return $res;
+}
+
+function epfl_video_get_error($error)
+{
+    return '<p><font color="red">'.$error.'</font></p>';
+}
+
 function epfl_video_process_shortcode( $atts, $content = null ) {
 
   $atts = shortcode_atts( array(
