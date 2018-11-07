@@ -420,7 +420,7 @@ class _Subscriber extends WPDBModel
     // We never drop that table, even on plugin removal.
 
     protected function __construct ($id, $details) {
-        $this->ID = $id;
+        assert(is_int($this->ID = $id));
         $details = static::_as_db_results($details);
         assert(!! ($this->subscriber_id = $details->subscriber_id));
         assert(!! ($this->publisher_url = $details->publisher_url));
@@ -465,12 +465,12 @@ class _Subscriber extends WPDBModel
         $thisclass = get_called_class();
         $objects = array();
         foreach (static::get_results(
-                "SELECT publisher_url, subscriber_id, callback_url,
-                 UNIX_TIMESTAMP(last_attempt), UNIX_TIMESTAMP(failing_since)
+                "SELECT id, publisher_url, subscriber_id, callback_url,
+                 UNIX_TIMESTAMP(last_attempt) AS last_attempt, UNIX_TIMESTAMP(failing_since) AS failing_since
                  FROM %T
                  WHERE publisher_url = %s",
                 $publisher_url) as $db_line) {
-            $objects[] = new $thisclass($publisher_url, $db_line);
+            $objects[] = new $thisclass($db_line->id, $db_line);
         }
         return $objects;
     }
