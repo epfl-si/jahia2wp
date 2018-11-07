@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-11-06 14:56+0100\n"
-"PO-Revision-Date: 2018-11-06 14:57+0100\n"
+"POT-Creation-Date: 2018-11-07 14:14+0100\n"
+"PO-Revision-Date: 2018-11-07 14:14+0100\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -80,15 +80,15 @@ msgstr "Description de cover"
 msgid "Cover image"
 msgstr "Image de Cover"
 
-#: epfl-google-forms/epfl-google-forms.php:41
+#: epfl-google-forms/epfl-google-forms.php:40
 msgid "Error extracting parameters"
 msgstr "Erreur dans l'extraction des paramètres"
 
-#: epfl-google-forms/epfl-google-forms.php:47
+#: epfl-google-forms/epfl-google-forms.php:46
 msgid "Incorrect URL found"
 msgstr "URL incorrecte trouvée"
 
-#: epfl-google-forms/epfl-google-forms.php:52
+#: epfl-google-forms/epfl-google-forms.php:51
 msgid "Incorrect dimensions found"
 msgstr "Dimensions incorrectes trouvées"
 
@@ -586,6 +586,10 @@ msgstr ""
 #: epfl-toggle/shortcake-config.php:41
 msgid "Toggle content"
 msgstr "Le contenu de l'accordéon"
+
+#: epfl-video/epfl-video.php:60
+msgid "EPFL-Video: Error getting final URL"
+msgstr "EPFL-Video: Erreur de récupération de l'URL finale"
 
 #: epfl-video/shortcake-config.php:16
 msgid "URL of the video"
