@@ -27,7 +27,6 @@ function epfl_google_forms_process_shortcode( $atts, $content = null ) {
             'data' => ''
             ), $atts );
 
-    // sanitize parameters
     $data = urldecode($atts['data']);
 
     /* Extracting needed attributes */
@@ -59,7 +58,7 @@ function epfl_google_forms_process_shortcode( $atts, $content = null ) {
 
         try {
 
-           do_action("epfl_google_forms_action", $src, $width, $height, __("Loading...", "epfl"));
+           do_action("epfl_google_forms_action", $src, $width, $height);
 
            return ob_get_contents();
 

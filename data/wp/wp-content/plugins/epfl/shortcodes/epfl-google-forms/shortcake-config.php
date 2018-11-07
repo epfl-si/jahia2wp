@@ -10,7 +10,7 @@ Class ShortCakeGoogleFormsConfig
 
             array(
                 'label' => 'Google Forms',
-                'listItemImage' => '<img src="' . plugins_url( 'shortcodes/epfl-google-forms/img/google.svg', __FILE__ ) . '" >',
+                'listItemImage' => '<img src="' . plugins_url( 'img/google.svg', __FILE__ ) . '" >',
                 'attrs'         => array(
                         array(
                             'label'         => '<h3>' . esc_html__('Google Forms <iframe> HTML code', 'epfl') . '</h3>',
