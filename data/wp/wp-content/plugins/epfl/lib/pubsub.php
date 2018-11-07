@@ -354,7 +354,7 @@ class PublishController
     public function initiate () {
         $event = Causality::start();
         _Events::action_initiate($this->subscribe_uri, $event);
-        $this->forward($event);
+        $this->_do_forward($event);
     }
 
     public function _do_forward ($event) {
@@ -524,7 +524,7 @@ class Causality
         $that = new $thisclass();
         $data = is_string($json) ? json_decode($json) : $json;
         $that->timestamp = $data->timestamp;
-        $that->path      = $data->path;
+        $that->path      = $data->path ? $data->path : [];
         return $that;
     }
 
@@ -542,8 +542,8 @@ class Causality
         return $that;
     }
 
-    static function has_in_path ($subscriber_id) {
-        return in_array($subscriber_id, $event->path);
+    function has_in_path ($subscriber_id) {
+        return in_array($subscriber_id, $this->path);
     }
 
     /**
@@ -551,7 +551,7 @@ class Causality
      *         appended to the path
      */
     function received ($via_subscriber_id) {
-        if (array_search($via_subscriber_id, $this->path)) {
+        if ($this->has_in_path($via_subscriber_id)) {
             throw new CausalityLoopError(
                 implode(" -> ", $this->path) .
                 " loops back to us: $via_subscriber_id");
