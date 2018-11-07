@@ -1373,8 +1373,7 @@ class MenuItemController extends CustomPostTypeController
         // Using the post ID is perhaps a bit difficult to
         // read out of error logs, but certainly the easiest
         // and most future-proof way of going about it.
-        $cache_key = "menu/" . $emi->ID;
-        return SubscribeController::by_slug($cache_key);
+        return SubscribeController::by_namespace_and_slug("menu", $emi->ID);
     }
 
     /**

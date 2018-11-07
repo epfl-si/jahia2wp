@@ -20,6 +20,8 @@ if (! defined('ABSPATH')) {
     die('Access denied.');
 }
 
+use \WP_REST_Response;
+
 require_once(__DIR__ . '/rest.php');
 use \EPFL\REST\REST_API;
 use \EPFL\REST\RESTClient;
@@ -60,8 +62,15 @@ class SubscribeController
         $this->listeners = [];
     }
 
+    public static function by_namespace_and_slug($namespace, $slug) {
+        // Unfinished business - See TODO in on_REST_webhook()
+        // We should really add a column, which requires suitable
+        // legwork to manage live upgrades.
+        return static::by_slug("$namespace/$slug");
+    }
+
     static private $subs = array();
-    public static function by_slug($slug) {
+    private static function by_slug ($slug) {
         if (! static::$subs[$slug]) {
             static::$subs[$slug] = new SubscribeController($slug);
         }
@@ -101,8 +110,9 @@ class SubscribeController
     static function on_REST_webhook ($req) {
         $sub = _Subscription::get_by_nonce($nonce = $req->get_param('nonce'));
         if (! $sub) {
-            _Events::error_invalid_nonce($nonce);
-            return;
+            $error = "Webhook nonce is unknown here ($nonce)";
+            _Events::error_invalid_nonce($error, $nonce);
+            return new WP_REST_Response($error, 404);
         }
 
         _Events::request_webhook_received($sub->slug);
@@ -110,7 +120,21 @@ class SubscribeController
         $that = static::by_slug($sub->get_slug());
         $event = Causality::unmarshall($req->get_params())
                  ->received($that->_get_received_marker());
-        foreach ($that->listeners as $callable) {
+        $listeners = $that->listeners;
+        if (! count($listeners)) {
+            // TODO: we should clean these up. It is unwise to do so
+            // as a matter of course: we don't know that the listeners
+            // which are missing now, could be loaded on a different
+            // data flow.
+            // Hence there should be a way for SubscribeController
+            // callers to implement a cleanup policy based on the set
+            // of slugs that is private to them.
+
+            $error = "Looks like nobody is interested in $nonce";
+            _Events::error_invalid_nonce($error, $nonce);
+            return new WP_REST_Response($error, 404);
+        }
+        foreach ($listeners as $callable) {
             call_user_func($callable, $event);
         }
         _Events::request_webhook_successful($sub->slug);
@@ -572,7 +596,7 @@ class _Events
     static function forward_sent ($slug, $event) {}
     static function action_initiate ($slug, $event) {}
     static function action_forward ($slug, $event) {}
-    static function error_invalid_nonce ($msg, $slug) {
+    static function error_invalid_nonce ($msg, $nonce) {
         error_log($msg);
     }
 }
