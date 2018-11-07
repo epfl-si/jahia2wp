@@ -398,9 +398,9 @@ class _Subscriber extends WPDBModel
     protected function __construct ($id, $details) {
         $this->ID = $id;
         $details = static::_as_db_results($details);
-        assert($this->subscriber_id = $details->subscriber_id);
-        assert($this->publisher_url = $details->publisher_url);
-        assert($this->callback_url  = $details->callback_url);
+        assert(!! ($this->subscriber_id = $details->subscriber_id));
+        assert(!! ($this->publisher_url = $details->publisher_url));
+        assert(!! ($this->callback_url  = $details->callback_url));
         if ($details->last_attempt) {
             $this->last_attempt = $details->last_attempt;
         }
@@ -441,17 +441,12 @@ class _Subscriber extends WPDBModel
         $thisclass = get_called_class();
         $objects = array();
         foreach (static::get_results(
-                "SELECT subscriber_id, callback_url,
+                "SELECT publisher_url, subscriber_id, callback_url,
                  UNIX_TIMESTAMP(last_attempt), UNIX_TIMESTAMP(failing_since)
                  FROM %T
                  WHERE publisher_url = %s",
-                $url) as $line) {
-            $objects[] = new $thisclass(
-                $publisher_url,
-                $db_line->subscriber_id,
-                $db_line->callback_url,
-                ($db_line->last_attempt or NULL),
-                ($db_line->failing_since or NULL));
+                $publisher_url) as $db_line) {
+            $objects[] = new $thisclass($publisher_url, $db_line);
         }
         return $objects;
     }
