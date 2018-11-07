@@ -73,5 +73,7 @@ plugins:
     config: !include epfl-video/v1/config-plugin.yml
   - name: pdfjs-viewer-shortcode
     config: !include pdfjs-viewer-shortcode/v1/config-plugin.yml
+  - name: epfl-tableau
+    config: !include epfl-tableau/v1/config-plugin.yml
   - name: epfl-google-forms
     config: !include epfl-google-forms/v1/config-plugin.yml
