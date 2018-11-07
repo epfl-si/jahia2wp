@@ -1367,19 +1367,14 @@ class MenuItemController extends CustomPostTypeController
         return new \EPFL\AdminAPI\Endpoint('EPFLMenus');
     }
 
-    static private $subs = array();
     static private function _get_subscribe_controller ($emi) {
-        $cache_key = $emi->ID;
-        if (! static::$subs[$cache_key]) {
-            static::$subs[$cache_key] = new SubscribeController(
-                // The subscribe slug will be embedded in webhook
-                // URLs, so it must not change inbetween queries.
-                // Using the post ID is perhaps a bit difficult to
-                // read out of error logs, but certainly the easiest
-                // and most future-proof way of going about it.
-                "menu/" . $emi->ID);
-        }
-        return static::$subs[$cache_key];
+        // The subscribe slug will be embedded in webhook
+        // URLs, so it must not change inbetween queries.
+        // Using the post ID is perhaps a bit difficult to
+        // read out of error logs, but certainly the easiest
+        // and most future-proof way of going about it.
+        $cache_key = "menu/" . $emi->ID;
+        return SubscribeController::by_slug($cache_key);
     }
 
     /**

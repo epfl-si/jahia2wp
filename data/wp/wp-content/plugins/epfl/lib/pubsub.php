@@ -54,10 +54,18 @@ class SubscribeController
      * @param $slug A unique persistent string for this subscribe controller,
                     also used for loop elimination.
      */
-    function __construct ($slug) {
+    private function __construct ($slug) {
         $this->slug = $slug;
     
         $this->listeners = [];
+    }
+
+    static private $subs = array();
+    public static function by_slug($slug) {
+        if (! static::$subs[$slug]) {
+            static::$subs[$slug] = new SubscribeController($slug);
+        }
+        return static::$subs[$slug];
     }
 
     const WEBHOOK = 'pubsub/webhook';
@@ -96,13 +104,25 @@ class SubscribeController
             _Events::error_invalid_nonce($nonce);
             return;
         }
+
         _Events::request_webhook_received($sub->slug);
+
+        $that = static::by_slug($sub->get_slug());
         $event = Causality::unmarshall($req->get_params())
-                 ->received($this->_get_subscriber_id());
-        foreach ($this->listeners as $callable) {
+                 ->received($that->_get_received_marker());
+        foreach ($that->listeners as $callable) {
             call_user_func($callable, $event);
         }
         _Events::request_webhook_successful($sub->slug);
+    }
+
+    /**
+     * @return A string uniquely identifying this Web site, so as to
+     *         detect and prevent causality loops.
+     */
+    private function _get_received_marker () {
+        // TODO: If we could use WP nonces instead, that'd be great.
+        return site_url();
     }
 
     /**
@@ -179,6 +199,10 @@ class _Subscription extends WPDBModel
         $this->slug = $slug;
         $this->nonce = $nonce;
         $this->confirmed = $confirmed;
+    }
+
+    public function get_slug () {
+        return $this->slug;
     }
 
     static function get_by_nonce ($nonce, $confirmed = TRUE) {
