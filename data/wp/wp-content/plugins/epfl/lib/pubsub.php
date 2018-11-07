@@ -419,7 +419,7 @@ class _Subscriber extends WPDBModel
         foreach (static::get_results(
                 "SELECT subscriber_id, callback_url,
                  UNIX_TIMESTAMP(last_attempt), UNIX_TIMESTAMP(failing_since)
-                 FROM %t
+                 FROM %T
                  WHERE publisher_url = %s",
                 $url) as $line) {
             $objects[] = new $thisclass(
