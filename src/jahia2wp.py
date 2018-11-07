@@ -529,6 +529,7 @@ def export(site, wp_site_url, unit_name_or_id, to_wordpress=False, clean_wordpre
                            'epfl-twitter',
                            'epfl-xml',
                            'epfl-video',
+                           'epfl-google-forms',
                            'feedzy-rss-feeds',
                            'remote-content-shortcode',
                            'shortcode-ui',
