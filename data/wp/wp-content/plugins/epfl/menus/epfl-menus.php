@@ -1615,6 +1615,16 @@ class MenuEditorController
                 _MenusJSApp::load();
             }
         });
+
+        add_action('wp_update_nav_menu', function($nav_menu_selected_id, $new_menu_data = NULL) {
+            // For whatever reason, this action is called twice per click on
+            // the Save button.
+            if (! $new_menu_data) return;
+
+            if (! ($menu = Menu::by_term($nav_menu_selected_id))) return;
+
+            MenuRESTController::menu_changed($menu);
+        }, 10, 2);
     }
 }
 
