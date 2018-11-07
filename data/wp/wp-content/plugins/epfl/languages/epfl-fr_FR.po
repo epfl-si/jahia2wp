@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-11-06 13:17+0100\n"
-"PO-Revision-Date: 2018-11-06 13:18+0100\n"
+"POT-Creation-Date: 2018-11-07 14:14+0100\n"
+"PO-Revision-Date: 2018-11-07 14:14+0100\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -79,6 +79,26 @@ msgstr "Description de cover"
 #: epfl-cover/shortcake-config.php:22
 msgid "Cover image"
 msgstr "Image de Cover"
+
+#: epfl-google-forms/epfl-google-forms.php:40
+msgid "Error extracting parameters"
+msgstr "Erreur dans l'extraction des paramètres"
+
+#: epfl-google-forms/epfl-google-forms.php:46
+msgid "Incorrect URL found"
+msgstr "URL incorrecte trouvée"
+
+#: epfl-google-forms/epfl-google-forms.php:51
+msgid "Incorrect dimensions found"
+msgstr "Dimensions incorrectes trouvées"
+
+#: epfl-google-forms/shortcake-config.php:16
+msgid "Google Forms <iframe> HTML code"
+msgstr "Code HTML de l'<iframe> Google Forms"
+
+#: epfl-google-forms/shortcake-config.php:20
+msgid "You can copy/paste the given HTML code containing <iframe>"
+msgstr "Vous pouvez copier/coller le code HTML contenant l'<iframe>"
 
 #: epfl-links-group/shortcake-config.php:11
 msgid "Links"
