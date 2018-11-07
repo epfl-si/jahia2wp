@@ -487,7 +487,7 @@ class _Subscriber extends WPDBModel
             RESTClient::POST_JSON($url, $payload);
             $this->mark_success();
         } catch (RESTClientError $e) {
-            error_log($e);
+            error_log("attempt_post failed: " . $e);
             $this->mark_failure();
         }
     }
