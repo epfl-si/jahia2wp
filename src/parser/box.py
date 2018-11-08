@@ -670,7 +670,7 @@ class Box:
         if color:
             html_content += 'color="{}" '.format(color)
         if filters:
-            html_content += 'filters="{}" '.format(filters)
+            html_content += 'keyword="{}" '.format(filters)
         if category:
             html_content += 'category="{}" '.format(category)
         if reorder:
