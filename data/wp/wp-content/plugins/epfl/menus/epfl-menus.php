@@ -788,11 +788,16 @@ class Menu
      * @param $emi The instance of ExternalMenuItem whose menu received
      *             an update event
      *
-     * @return true iff this menu changed
+     * @return false if this menu cannot possibly have changed,
+               true if it did or if we are not sure.
      */
     function update ($emi) {
-        // XXX Lazy but correct implementation (for low values of correct):
-        // do nothing
+        foreach ($this->_get_local_tree()->as_list() as $item) {
+            if ($emi->equals($item)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     function __toString () {
@@ -1013,6 +1018,12 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
         } else {
             return parent::get($what);
         }
+    }
+
+    function equals ($what) {
+        $thisclass = get_called_class();
+        $what = $thisclass::get($what);
+        return ($what && $what->ID == $this->ID);
     }
 
     /**
