@@ -12,6 +12,9 @@ from veritas.validators import validate_openshift_env
 from utils import Utils
 import settings
 
+from prometheus_client import CollectorRegistry, Gauge, push_to_gateway
+from prometheus_client.exposition import basic_auth_handler
+
 
 class WPBackup:
     """
@@ -147,3 +150,18 @@ class WPBackup:
         except WPException as err:
             logging.error("%s - WP backup failed: %s", repr(self.wp_site), err)
             return False
+
+    def prometheus_monitoring(self):
+
+def my_auth_handler(url, method, timeout, headers, data):
+    username = 'ciungu9Z'
+    password = 'Iequ3Ahxua7ciiva'
+    return basic_auth_handler(url, method, timeout, headers, data, username, password)
+
+registry = CollectorRegistry()
+g = Gauge('testgreg', 'testgreg', registry=registry)
+g.set_to_current_time()
+
+url = "https://os-wwp-metrics-pushgw.epfl.ch/metrics/job/pushgateway/instance/wwp-infra"
+url = "https://os-wwp-metrics-pushgw.epfl.ch"
+push_to_gateway(url, job='batchA', registry=registry, handler=my_auth_handler)
