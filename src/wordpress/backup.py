@@ -136,6 +136,8 @@ class WPBackup:
         """
         Launch the backup
         """
+        result = False
+
         if not os.path.exists(self.path):
             os.makedirs(self.path)
 
@@ -145,23 +147,29 @@ class WPBackup:
             self.generate_wp_files()
             self.generate_db_dump()
             logging.info("%s - %s WP backup is created", repr(self.wp_site), self.backup_pattern)
-            return True
-
+            result = True
         except WPException as err:
             logging.error("%s - WP backup failed: %s", repr(self.wp_site), err)
-            return False
 
-    def prometheus_monitoring(self):
+        self.prometheus_monitoring(result)
 
-def my_auth_handler(url, method, timeout, headers, data):
-    username = 'ciungu9Z'
-    password = 'Iequ3Ahxua7ciiva'
-    return basic_auth_handler(url, method, timeout, headers, data, username, password)
+        return result
 
-registry = CollectorRegistry()
-g = Gauge('testgreg', 'testgreg', registry=registry)
-g.set_to_current_time()
+    def prometheus_monitoring(self, backup_ok):
 
-url = "https://os-wwp-metrics-pushgw.epfl.ch/metrics/job/pushgateway/instance/wwp-infra"
-url = "https://os-wwp-metrics-pushgw.epfl.ch"
-push_to_gateway(url, job='batchA', registry=registry, handler=my_auth_handler)
+        def my_auth_handler(url, method, timeout, headers, data):
+            username = Utils.get_mandatory_env("PROMETHEUS_PUSHGATEWAY_USERNAME")
+            password = Utils.get_mandatory_env("PROMETHEUS_PUSHGATEWAY_PASSWORD")
+            return basic_auth_handler(url, method, timeout, headers, data, username, password)
+
+        registry = CollectorRegistry()
+        if backup_ok:
+            status = "backup OK"
+        else:
+            status = "backup KO"
+
+        g = Gauge('backup', status, registry=registry)
+        g.set_to_current_time()
+
+        url = "https://os-wwp-metrics-pushgw.epfl.ch"
+        push_to_gateway(url, job='batchA', registry=registry, handler=my_auth_handler)
