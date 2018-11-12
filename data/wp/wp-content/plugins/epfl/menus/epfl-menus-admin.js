@@ -65,6 +65,14 @@ function updateRowsDeferred ($, ids) {
     var todoCount = ids.length;
     var hasInvisibleChanges = false;
 
+    if (! todoCount) {
+        // It is bad practice to resolve a promise before returning it:
+        window.setTimeout(function() {
+            d.resolve();
+        }, 0);
+        return d;
+    }
+
     // Here, we could update the tr's in tbody#the-list to match ids,
     // perhaps with some kind of CSS animation for
     // appearing/disappearing rows.
