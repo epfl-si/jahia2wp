@@ -382,7 +382,7 @@ class PublishController
     }
 
     public function _do_forward ($event) {
-            foreach (_Subscriber::all_by_publisher_url($this->subscribe_uri)
+        foreach (_Subscriber::all_by_publisher_url($this->subscribe_uri)
                  as $sub) {
             if ($sub->has_seen($event)) continue;
             $sub->attempt_post($sub->get_callback_url(), $event->marshall());
@@ -484,7 +484,7 @@ class _Subscriber extends WPDBModel
         // attempting to untangle it would create more coupling than
         // it would save.
         try {
-            RESTClient::POST_JSON($url, $payload);
+            RESTClient::POST_JSON_ff($url, $payload);
             $this->mark_success();
         } catch (RESTClientError $e) {
             error_log("attempt_post failed: " . $e);
@@ -522,6 +522,10 @@ class _Subscriber extends WPDBModel
                  WHERE id = %d;",
                 $this->last_attempt, $this->ID);
         }
+    }
+
+    function __toString () {
+        return sprintf('<%s %s>', get_called_class(), $this->ID);
     }
 }
 

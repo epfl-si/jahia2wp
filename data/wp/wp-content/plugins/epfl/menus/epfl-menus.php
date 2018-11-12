@@ -1346,6 +1346,7 @@ class MenuItemController extends CustomPostTypeController
         $thisclass = get_called_class();
         static::_get_subscribe_controller($emi)->add_listener(
             function($event) use ($thisclass, $emi) {
+                set_time_limit(0);
                 foreach (Menu::all_mapped() as $menu) {
                     if ($menu->update($emi)) {
                         MenuRESTController::menu_changed($menu, $event);
