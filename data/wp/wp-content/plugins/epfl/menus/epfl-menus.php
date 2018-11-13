@@ -1158,8 +1158,26 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
 
         $menu_contents = RESTClient::GET_JSON($get_url);
         $this->set_remote_menu($menu_contents->items);
-        $this->meta()->set_rest_subscribe_url(
-            $menu_contents->get_link('subscribe'));
+
+        if ($subscribe_url = $menu_contents->get_link('subscribe')) {
+            $this->meta()->set_rest_subscribe_url($subscribe_url);
+            $this->_get_subscribe_controller()->subscribe($subscribe_url);
+        }
+    }
+
+    /* A model class that has-a controller is a bad thing, but since
+       that is hidden in a protected function we're good, I guess? */
+    protected function _get_subscribe_controller () {
+        // The subscribe slug will be embedded in webhook
+        // URLs, so it must not change inbetween queries.
+        // Using the post ID is perhaps a bit difficult to
+        // read out of error logs, but certainly the easiest
+        // and most future-proof way of going about it.
+        return SubscribeController::by_namespace_and_slug("menu", $this->ID);
+    }
+
+    function add_observer ($callable) {
+        $this->_get_subscribe_controller()->add_listener($callable);
     }
 
     function refresh () {
@@ -1185,10 +1203,6 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
         $json = $this->meta()->get_items_json();
         if (! $json) return;
         return new MenuItemBag(json_decode($json));
-    }
-
-    function get_subscribe_url () {
-        return $this->meta()->get_rest_subscribe_url();
     }
 
     function get_sync_status () {
@@ -1376,7 +1390,7 @@ class MenuItemController extends CustomPostTypeController
 
     static function hook_pubsub ($emi) {
         $thisclass = get_called_class();
-        static::_get_subscribe_controller($emi)->add_listener(
+        $emi->add_observer(
             function($event) use ($thisclass, $emi) {
                 set_time_limit(0);
                 foreach (Menu::all_mapped() as $menu) {
@@ -1409,15 +1423,6 @@ class MenuItemController extends CustomPostTypeController
     static private function _get_api () {
         require_once(dirname(__DIR__) . '/lib/wp-admin-api.php');
         return new \EPFL\AdminAPI\Endpoint('EPFLMenus');
-    }
-
-    static private function _get_subscribe_controller ($emi) {
-        // The subscribe slug will be embedded in webhook
-        // URLs, so it must not change inbetween queries.
-        // Using the post ID is perhaps a bit difficult to
-        // read out of error logs, but certainly the easiest
-        // and most future-proof way of going about it.
-        return SubscribeController::by_namespace_and_slug("menu", $emi->ID);
     }
 
     /**
