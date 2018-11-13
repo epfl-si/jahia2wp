@@ -361,7 +361,8 @@ class PublishController
         $test_url = preg_replace('_/webhook([&?]|$)_', '/webhook-test$1',
                                  $callback_url);
         if ($test_url != $callback_url) {
-            $sub->attempt_post($test_url, array());
+            $sub->attempt_post($test_url, array(),
+                               /* $is_sync = */ TRUE);
         }
         // Otherwise assume the subscriber doesn't want a synchronous call
         // to /webhook-test
@@ -486,12 +487,16 @@ class _Subscriber extends WPDBModel
         return $event->has_in_path($this->subscriber_id);
     }
 
-    public function attempt_post ($url, $payload) {
+    public function attempt_post ($url, $payload, $is_sync = FALSE) {
         // So technically there is controller code in there, but
         // attempting to untangle it would create more coupling than
         // it would save.
         try {
-            RESTClient::POST_JSON_ff($url, $payload);
+            if ($is_sync) {
+                RESTClient::POST_JSON($url, $payload);
+            } else {
+                RESTClient::POST_JSON_ff($url, $payload);
+            }
             $this->mark_success();
         } catch (RESTClientError $e) {
             error_log("attempt_post failed: " . $e);
