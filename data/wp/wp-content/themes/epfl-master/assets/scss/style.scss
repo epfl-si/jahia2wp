@@ -2120,6 +2120,7 @@ img.pdf-icon {
   &:before {
     @include icon;
     content: "\f061";
+    font-size: 12px;
   }
 }
 
