@@ -369,7 +369,7 @@ class Settings extends \EPFL\SettingsBase
                 ___("Restrict access to group(s)"),
                 array(
                     'type'        => 'text',
-                    'help' => ___('If field is left empty, only an authentication will be requested.')
+                    'help' => ___('If field is left empty, only an authentication will be requested.<br>Several groups can be entered, just separated with a comma.')
                 )
             );
 
