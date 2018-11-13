@@ -12,19 +12,20 @@ Class ShortCakeCoverConfig
                 'label'         => __('Cover', 'epfl'),
                 'listItemImage' => '<img src="' . plugins_url( 'img/cover.svg', __FILE__ ) . '" >',
                 'attrs'         => array(
-                        array(
-                            'label'       => '<h3>' . esc_html__('Cover description', 'epfl') . '</h3>',
-                            'attr'        => 'description',
-                            'type'        => 'textarea',
-                            'description' => '<a target="_blank" href="https://epfl-idevelop.github.io/elements/#/molecules/cover">Documentation</a>'
-                        ),
-                        array(
-                            'label'       => '<h3>' . esc_html__('Cover image', 'epfl') . '</h3>',
-                            'attr'        => 'image',
-                            'type'        => 'attachment',
-                            'libraryType' => array( 'image' ),
-                        ),
+                    array(
+                        'label'       => '<h3>' . esc_html__('Cover description', 'epfl') . '</h3>',
+                        'attr'        => 'description',
+                        'type'        => 'textarea',
+                        'description' => '<a target="_blank" href="https://epfl-idevelop.github.io/elements/#/molecules/cover">Documentation</a>'
                     ),
+                    array(
+                        'label'       => '<h3>' . esc_html__('Cover image', 'epfl') . '</h3>',
+                        'attr'        => 'image',
+                        'type'        => 'attachment',
+                        'libraryType' => array( 'image' ),
+                        'description' => esc_html__('Recommended image size: 1920x1080', 'epfl')
+                    ),
+                ),
                 'post_type'     => array( 'post', 'page' ),
             )
         );
