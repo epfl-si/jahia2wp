@@ -23,6 +23,7 @@ Class ShortCakeCardConfig
                 'attr'        => 'image' . $i,
                 'type'        => 'attachment',
                 'libraryType' => array( 'image' ),
+                'description' => esc_html__('Recommended image size: 1920x1080', 'epfl')
             ]);
 
             array_push($fields, [
