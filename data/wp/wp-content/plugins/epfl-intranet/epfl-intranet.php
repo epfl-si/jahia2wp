@@ -381,7 +381,7 @@ class Settings extends \EPFL\SettingsBase
         echo ___('Needs <a href="https://github.com/epfl-sti/wordpress.plugin.accred/tree/vpsi">EPFL-Accred</a> (VPSI version) plugin
 to work correctly. <br>Allows to restrict website access by forcing user to authenticate using
 <a href="https://github.com/epfl-sti/wordpress.plugin.tequila">Tequila</a>. <br>You can either only request and authentication,
-either force to be member of one of the defined groups.<br>
+either force to be member of one of the defined groups (https://groups.epfl.ch).<br>
 If plugin is activated, <b>media files are also protected</b>.');
         echo "</p>\n";
     }
