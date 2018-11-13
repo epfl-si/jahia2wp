@@ -311,6 +311,13 @@ class _Subscription extends WPDBModel
         $this->query("DELETE FROM %T WHERE slug = %s AND nonce != %s",
                      $this->slug, $this->nonce);
     }
+
+    function __toString () {
+        return sprintf(
+            '<%s slug=%s nonce=%s confirmed=%s>',
+            get_called_class(),
+            $this->slug, $this->nonce, ($this->confirmed ? "TRUE" : "FALSE"));
+    }
 }
 
 _Subscription::hook();
