@@ -1505,7 +1505,7 @@ class MenuItemController extends CustomPostTypeController
             return array(
                 'status' => 'ERROR',
                 'exception' => get_class($e),
-                'message' => sprintf(___('Sync failed: %s', $e))
+                'message' => sprintf(___('Sync failed: %s'), $e)
             );
         }
     }
