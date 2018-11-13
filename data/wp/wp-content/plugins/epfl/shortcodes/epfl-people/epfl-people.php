@@ -19,6 +19,10 @@ function epfl_people_person_compare($person_a, $person_b) {
   return strnatcmp(Utils::normalize($person_a->nom), Utils::normalize($person_b->nom));
 }
 
+/**
+ * Sort an array on the key with another array
+ * Used for the sorting by sciper list
+ */
 function epfl_people_sortArrayByArray($data,$orderArray) {
   $result = array(); // result array
   foreach($orderArray as $key => $value) { // loop
