@@ -27,8 +27,8 @@ function epfl_card_process_shortcode($atts = [], $content = '', $tag = '') {
         }
     }
 
-    if (array_key_exists('gray_wrapper', $atts)) {
-        $atts['gray_wrapper'] = $atts['gray_wrapper'] === 'true' ? $atts['gray_wrapper'] : false;
+    if (array_key_exists('gray_wrapper', $atts) && $atts['gray_wrapper'] === 'true') {
+        $atts['gray_wrapper'] = true;
     } else {
         $atts['gray_wrapper'] = false;
     }
