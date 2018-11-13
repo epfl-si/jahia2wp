@@ -31,6 +31,7 @@ require_once 'menus/epfl-menus.php';
 // load .mo file for translation
 function epfl_load_plugin_textdomain() {
     load_plugin_textdomain( 'epfl', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
+    load_plugin_textdomain( 'epfl-infoscience-search', FALSE, basename( dirname( __FILE__ ) ) . '/shortcodes/epfl-infoscience-search/languages/' );
 }
 add_action( 'plugins_loaded', 'epfl_load_plugin_textdomain' );
 
