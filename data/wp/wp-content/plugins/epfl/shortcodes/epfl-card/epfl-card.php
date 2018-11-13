@@ -17,10 +17,6 @@ require_once 'shortcake-config.php';
  * @param $tag: the name of shortcode. epfl_card in our case.
  */
 function epfl_card_process_shortcode($atts = [], $content = '', $tag = '') {
-    $atts = shortcode_atts(array(
-        'gray_wrapper' => false,
-    ), $atts);
-
     // sanitize parameters
     foreach($atts as $key => $value) {
         if (strpos($key, 'content') !== false)
@@ -29,6 +25,10 @@ function epfl_card_process_shortcode($atts = [], $content = '', $tag = '') {
         } else {
             $atts[$key] = sanitize_text_field($value);
         }
+    }
+
+    if (array_key_exists('gray_wrapper', $atts)) {
+        $atts['gray_wrapper'] = is_bool($atts['gray_wrapper']) ? $atts['gray_wrapper'] : false;
     }
 
     // if supported delegate the rendering to the theme
