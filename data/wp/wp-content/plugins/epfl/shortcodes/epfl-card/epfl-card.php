@@ -17,6 +17,10 @@ require_once 'shortcake-config.php';
  * @param $tag: the name of shortcode. epfl_card in our case.
  */
 function epfl_card_process_shortcode($atts = [], $content = '', $tag = '') {
+    $atts = shortcode_atts(array(
+        'gray_wrapper' => false,
+    ), $atts);
+
     // sanitize parameters
     foreach($atts as $key => $value) {
         if (strpos($key, 'content') !== false)
