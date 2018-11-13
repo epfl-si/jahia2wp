@@ -786,19 +786,50 @@ class Menu
     }
 
     /**
-     * @param $emi The instance of ExternalMenuItem whose menu received
-     *             an update event
+     * Whether our "authoritative" menu subtree depends on $emi
      *
-     * @return false if this menu cannot possibly have changed,
-               true if it did or if we are not sure.
+     * @param $emi An @link ExternalMenuItem instance
+     *
+     * @return false if no change in $emi could possibly make "us"
+     *         change (in the sense of @link get_stitched_down_tree,
+     *         i.e. the part that we are authoritative for - Not the
+     *         parts "above us" created with @link
+     *         get_fully_stitched_tree). true otherwise.
      */
-    function update ($emi) {
+    function depends ($emi) {
         foreach ($this->_get_local_tree()->as_list() as $item) {
             if ($emi->equals($item)) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Take into account a (possible) change in $emi
+     *
+     * @return false if we can conservatively ascertain that the
+     *         change in $emi had no effect on "our" tree (in the
+     *         sense of @link get_stitched_down_tree, i.e. the part
+     *         that we are authoritative for); true otherwise
+     */
+    function update ($emi) {
+        // Always trust the caller and attempt to refresh:
+        try {
+            $emi->refresh();
+        } catch (Throwable $t) {  // Non-goal: PHP5 support
+            return false;  // Our tree hasn't changed for sure
+        }
+
+        // Block propagation in case the menu is not listed, in
+        // particular if it is the root menu - that one is of use to
+        // get_fully_stitched_tree() but not get_stitched_down_tree()
+        if (! $this->depends($emi)) return false;
+
+        // We could encache, compare and block null updates here, but
+        // for now this is conservative and good enough
+        // performance-wise:
+        return true;
     }
 
     function __toString () {
