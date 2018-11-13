@@ -80,6 +80,12 @@ class Ventilator:
             keep_children = False
             keep_this_page = False
 
+        # Delete all js media
+        for item in Item.all(self.etree):
+            if (item.guid.endswith('.js') or item.guid.endswith('.htm') or item.guid.endswith('.html') or item.guid.endswith('.css')) and item.post_type == 'attachment':
+                logging.debug("Delete {} file".format(item.guid))
+                item.delete()
+
         if self.filter:
 
             if not keep_children:
@@ -226,3 +232,5 @@ class Ventilator:
                 page.content = fix_links(page.content, self.url_rewrite_from, self.url_rewrite_to, self.relative_uri)
 
         logging.info("End fix links...")
+
+
