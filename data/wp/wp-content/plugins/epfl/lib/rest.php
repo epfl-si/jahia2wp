@@ -194,29 +194,27 @@ class REST_API {
     }
 
     /**
-     * @param $path The path to a local entry point, relative to the
+     * @param $relative_path The path to a local entry point, relative to the
      *              REST root (similar to parameters to @link GET_JSON
      *              or @link POST_JSON)
      *
-     * @param $wrt_url (Optional) The URL of the expected caller of $path.
-     *                 If $wrt_url is a localhost URL, then the returned
-     *                 URL will be too.
-     *
-     * @return An instance of @link REST_URL that can be used to reach
-     *         that entry point
+     * @param $base (Optional) The URL of the expected caller of $path,
+     *              or an instance of @link Site.
      */
-    static function get_entrypoint_url ($path, $wrt_url = NULL) {
-        if ($wrt_url && 'localhost' === parse_url($wrt_url, PHP_URL_HOST)) {
-            return REST_URL::remote(
-                Site::this_site()->get_localhost_url(),
-                $path);
-        } else {
-            return REST_URL::local_canonical($path);
+    static function get_entrypoint_url ($relative_path, $base = NULL) {
+        if (! $base) {
+            $base = Site::this_site();
         }
-    }
 
-    static function get_endpoint_relative_url ($relative_path) {
-        return sprintf('wp-json/%s/%s', _API_EPFL_PATH, $relative_path);
+        if ($base instanceof Site) {
+            $base = $base->get_url();
+        }
+
+        if (! (preg_match('#/$#', $base))) {
+            $base = "$base/";
+        }
+        return sprintf('%swp-json/%s/%s', $base,
+                       _API_EPFL_PATH, $relative_path);
     }
 }
 

@@ -1111,11 +1111,12 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
             $site_url = "$site_url/";
         }
         $instances = array();
-        foreach (RESTClient::GET_JSON($site_url . 'languages')
-                 as $lang) {
+        $languages_url = REST_API::get_entrypoint_url('languages', $site_url);
+        foreach (RESTClient::GET_JSON($languages_url) as $lang) {
             try {
-                $menu_descrs = RESTClient::GET_JSON
-                             ($site_url . "menus?lang=$lang");
+                $menus_url = REST_API::get_entrypoint_url("menus?lang=$lang",
+                                                          $site_url);
+                $menu_descrs = RESTClient::GET_JSON($menus_url);
             } catch (RESTClientError $e) {
                 error_log("[Not our fault, IGNORED] " . $e);
                 continue;
@@ -1123,8 +1124,9 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
 
             foreach ($menu_descrs as $menu_descr) {
                 $menu_slug = $menu_descr->slug;
-                $that = static::get_or_create(
-                    static::_make_wp_rest_url($site_url, $menu_slug, $lang));
+                $menu_url = REST_API::get_entrypoint_url(
+                    "menus/$menu_slug?lang=$lang", $site_url);
+                $that = static::get_or_create($menu_url);
                 // Unlike an ExternalMenuItem that would be just
                 // created from its REST URL, for this one we do know
                 // that it comes from a "true" Wordpress. Note down
@@ -1144,15 +1146,6 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
             }
         }
         return $instances;
-    }
-
-    static private function _make_wp_rest_url ($site_url, $menu_slug,
-                                               $lang = NULL) {
-        $retval = $site_url . "menus/$menu_slug";
-        if ($lang) {
-            $retval .= "?lang=$lang";
-        }
-        return $retval;
     }
 
     /* A model class that has-a controller is a bad thing, but since
@@ -1300,10 +1293,8 @@ class MenuRESTController
                              ->export_external()->as_list()));
         // Note: this link is for subscribing to changes in any
         // language, not just the one being served now.
-        $subscribe_link = Site::this_site()->make_absolute_url(
-            REST_API::get_endpoint_relative_url(
-                static::_get_subscribe_uri($menu)
-            ));
+        $subscribe_link = REST_API::get_entrypoint_url(
+            static::_get_subscribe_uri($menu));
         $response->add_link('subscribe', $subscribe_link);
 
         return $response;

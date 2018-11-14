@@ -165,7 +165,7 @@ class SubscribeController
     public function subscribe ($remote_url) {
         $sub = _Subscription::make_temporary($this->slug);
         $callback_url = REST_API::get_entrypoint_url(
-            $sub->get_entrypoint_uri(), $remote_url)->fully_qualified();
+            $sub->get_entrypoint_uri());
 
         try {
             RESTClient::POST_JSON(
