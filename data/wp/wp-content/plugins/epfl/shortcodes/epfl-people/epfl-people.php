@@ -20,6 +20,22 @@ function epfl_people_person_compare($person_a, $person_b) {
 }
 
 /**
+ * Sort an array on the key with another array
+ * Used for the sorting by sciper list
+ */
+function epfl_people_sortArrayByArray($data,$orderArray) {
+  $result = array(); // result array
+  foreach($orderArray as $key => $value) { // loop
+      foreach ($data as $k => $val) {
+          if ($data[$k]->sciper === $value) {
+             $result[$key] = $data[$k];
+          }
+      }
+  }
+  return $result;
+}
+
+/**
  * Process the shortcode
  */
 function epfl_people_2018_process_shortcode( $attributes, $content = null )
@@ -63,14 +79,20 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
     return;
   }
 
-  $persons = [];
-
   // Create a persons list
+  $persons = [];
   foreach ($items as $item) {
     $persons[] = $item;
   }
-  // Sort persons list alphabetically
-  usort($persons, 'epfl_people_person_compare');
+
+  if ("" !== $units) {
+    // Sort persons list alphabetically when units
+    usort($persons, 'epfl_people_person_compare');
+  } else {
+    // Respect given order when sciper
+    $scipers =  array_map('intval', explode(',', $parameter['scipers']));
+    $persons = epfl_people_sortArrayByArray($persons, $scipers);
+  }
 
   // if supported delegate the rendering to the theme
   if (has_action("epfl_people_action"))

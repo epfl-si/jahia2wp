@@ -27,6 +27,12 @@ function epfl_card_process_shortcode($atts = [], $content = '', $tag = '') {
         }
     }
 
+    if (array_key_exists('gray_wrapper', $atts) && $atts['gray_wrapper'] === 'true') {
+        $atts['gray_wrapper'] = true;
+    } else {
+        $atts['gray_wrapper'] = false;
+    }
+
     // if supported delegate the rendering to the theme
     if (has_action("epfl_card_action")) {
 

@@ -4,7 +4,7 @@
  * Plugin Name: EPFL Infoscience search shortcode
  * Plugin URI: https://github.com/epfl-idevelop/jahia2wp
  * Description: provides a shortcode to search and dispay results from Infoscience
- * Version: 1.3
+ * Version: 1.4
  * Author: Julien Delasoie
  * Author URI: https://people.epfl.ch/julien.delasoie?lang=en
  * Contributors: 
@@ -104,7 +104,7 @@ function epfl_infoscience_search_generate_url_from_attrs($attrs) {
 
     $default_parameters = array(
         'as' => '1',  # advanced search 
-        'ln' => 'en',  #TODO: dynamic langage
+        'ln' => 'en',  #TODO: dynamic language
         'of' => 'xm',  # template format
         'sf' => 'year', # year sorting
     );
@@ -233,9 +233,20 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         'sort' => $attributes['sort'],
     ];
 
-    # add langage if a group_by doctype is used
+    # add language to cache definer if a group_by doctype is used
     if ($group_by === 'doctype' || ($group_by === 'year' && $group_by2 === 'doctype')) {
-        $cache_define_by['langage'] = get_locale();
+        # fetch language
+        $default_lang = 'en';
+        $allowed_langs = array('en', 'fr');
+        $language = $default_lang;
+        /* If Polylang installed */
+        if(function_exists('pll_current_language'))
+        {
+            $current_lang = pll_current_language('slug');
+            // Check if current lang is supported. If not, use default lang
+            $language = (in_array($current_lang, $allowed_langs)) ? $current_lang : $default_lang;
+        }
+        $cache_define_by['language'] = $language;
     }
 
     $cache_key = md5(serialize($cache_define_by));
