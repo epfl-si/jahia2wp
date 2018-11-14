@@ -79,6 +79,10 @@ class Site {
         return array($htdocs, $below_htdocs);
     }
 
+    function get_site_url_relative () {
+        return "/" . $this->path_under_htdocs;
+    }
+
     function get_localhost_url () {
         $subpath = $this->path_under_htdocs;
         return 'https://localhost:8443/' . ($subpath ? $subpath . '/' : '');
@@ -105,6 +109,17 @@ class Site {
     static function externalify_url ($localhost_url) {
         $myhostport = static::my_hostport();
         return preg_replace('#^https://localhost:8443/#', "https://$myhostport/", $localhost_url);
+    }
+
+    function make_absolute_url ($url) {
+        if (parse_url($site_url, PHP_URL_HOST)) {
+            return $url;
+        } elseif (preg_match('#^/#', $url)) {
+            $myhostport = static::my_hostport();
+            return "https://$myhostport$url";
+        } else {
+            return $this->get_url() . $url;
+        }
     }
 
     function equals ($that) {

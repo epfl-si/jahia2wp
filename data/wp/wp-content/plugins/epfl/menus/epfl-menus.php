@@ -33,7 +33,6 @@ use \EPFL\REST\RESTClient;
 use \EPFL\REST\RESTClientError;
 use \EPFL\REST\RESTRemoteError;
 use \EPFL\REST\RESTAPIError;
-use \EPFL\REST\REST_URL;
 
 require_once(dirname(__DIR__) . '/lib/admin-controller.php');
 use \EPFL\AdminController\TransientErrors;
@@ -659,7 +658,7 @@ class Menu
         $tree = $this->_get_local_tree();
         foreach ($tree->as_list() as $item) {
             if (! ($emi = ExternalMenuItem::get($item))) continue;
-            $soa_url = Site::externalify_url(
+            $soa_url = Site::root()->make_absolute_url(
                 $emi->get_site_url() ?
                 $emi->get_site_url() :
                 $emi->get_rest_url());
@@ -745,7 +744,7 @@ class Menu
 
     protected function _get_root_menu ($mme) {
         $emi = ExternalMenuItem::find(array(
-               'site_url'       => Site::root()->get_localhost_url(),
+               'site_url'       => '/',
                'remote_slug'    => $mme->get_theme_location()
         ))
             ->first_preferred(array(
@@ -1028,7 +1027,9 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
      *         ExternalMenuItem doesn't live in this pod.
      */
     function get_site_url () {
-        return $this->meta()->get_site_url();
+        $url = $this->meta()->get_site_url();
+        $url = preg_replace('#^https://localhost:8443#', '', $url);  # XXX TMPHACK
+        return $url;
     }
 
     /**
@@ -1036,7 +1037,9 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
      *         menu from (in JSON form)
      */
     function get_rest_url () {
-        return $this->meta()->get_rest_url();
+        $url = $this->meta()->get_rest_url();
+        $url = preg_replace('#^https://localhost:8443#', '', $url);  # XXX TMPHACK
+        return $url;
     }
 
     /**
@@ -1097,20 +1100,22 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
     }
 
     static protected function _load_from_site ($site) {
-        return static::load_from_wp_site_url($site->get_localhost_url());
+        return static::load_from_wp_site_url($site->get_site_url_relative());
     }
 
     /**
      * @return An array of instances of this class
      */
     static function load_from_wp_site_url ($site_url) {
+        if (! preg_match('#/$#', $site_url)) {
+            $site_url = "$site_url/";
+        }
         $instances = array();
-        foreach (RESTClient::GET_JSON(REST_URL::remote($site_url, 'languages'))
+        foreach (RESTClient::GET_JSON($site_url . 'languages')
                  as $lang) {
             try {
-                $menu_descrs = RESTClient::GET_JSON(REST_URL::remote(
-                    $site_url,
-                    "menus?lang=$lang"));
+                $menu_descrs = RESTClient::GET_JSON
+                             ($site_url . "menus?lang=$lang");
             } catch (RESTClientError $e) {
                 error_log("[Not our fault, IGNORED] " . $e);
                 continue;
@@ -1143,11 +1148,11 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
 
     static private function _make_wp_rest_url ($site_url, $menu_slug,
                                                $lang = NULL) {
-        $stem = "menus/$menu_slug";
+        $retval = $site_url . "menus/$menu_slug";
         if ($lang) {
-            $stem .= "?lang=$lang";
+            $retval .= "?lang=$lang";
         }
-        return REST_URL::remote($site_url, $stem)->fully_qualified();
+        return $retval;
     }
 
     protected function _do_refresh () {
@@ -1292,10 +1297,12 @@ class MenuRESTController
                              ->export_external()->as_list()));
         // Note: this link is for subscribing to changes in any
         // language, not just the one being served now.
-        $response->add_link(
-            'subscribe',
-            REST_URL::local_wrt_request(static::_get_subscribe_uri($menu))
-            ->fully_qualified());
+        $subscribe_link = Site::this_site()->make_absolute_url(
+            REST_API::get_endpoint_relative_url(
+                static::_get_subscribe_uri($menu)
+            ));
+        $response->add_link('subscribe', $subscribe_link);
+
         return $response;
     }
 

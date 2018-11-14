@@ -499,7 +499,7 @@ class _Subscriber extends WPDBModel
             }
             $this->mark_success();
         } catch (RESTClientError $e) {
-            error_log("attempt_post failed: " . $e);
+            error_log("attempt_post failed on $this: " . $e);
             $this->mark_failure();
         }
     }

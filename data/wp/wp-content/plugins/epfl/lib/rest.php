@@ -214,6 +214,10 @@ class REST_API {
             return REST_URL::local_canonical($path);
         }
     }
+
+    static function get_endpoint_relative_url ($relative_path) {
+        return sprintf('wp-json/%s/%s', _API_EPFL_PATH, $relative_path);
+    }
 }
 
 REST_API::hook();
@@ -226,12 +230,34 @@ class RESTRemoteError extends RESTClientError {}
 class RESTClient
 {
     static function GET_JSON ($url) {
+        $url = static::_canonicalize_url($url);
         return HALJSON::decode((new _RESTClientCurl($url, 'GET'))->execute());
     }
 
     static function POST_JSON ($url, $data) {
+        $url = static::_canonicalize_url($url);
         return HALJSON::decode((new _RESTClientCurl($url, 'POST'))
                                ->setup_POST($data)->execute());
+    }
+
+    static function _canonicalize_url ($url) {
+        if (! preg_match('#^/#', parse_url($url, PHP_URL_PATH))) {
+            throw new \Error($url);  // Not supported right now
+        }
+
+        // TODO: We should definitely not do that (assume that all
+        // the traffic is local). We should interpret
+        // wrt Site->root() and use a translation table when
+        // connecting to our own site, not connect to localhost
+        // and muck with the Host: header as we currently do.
+        error_log("Full URL was $url");
+        $url_shortened = parse_url($url, PHP_URL_PATH);
+        if ($query = parse_url($url, PHP_URL_QUERY)) {
+            $url_shortened = "$url_shortened?$query";
+        }
+        error_log("Short URL is $url_shortened");
+
+        return "https://localhost:8443$url_shortened";
     }
 
     /**
@@ -239,6 +265,7 @@ class RESTClient
      * for a response.
      */
     static function POST_JSON_ff ($url, $data) {
+        $url = static::_canonicalize_url($url);
         (new _RESTClientSocketFireAndForget($url, 'POST'))
             ->setup_POST($data)->execute();
     }
