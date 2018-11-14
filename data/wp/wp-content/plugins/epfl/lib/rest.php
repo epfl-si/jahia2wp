@@ -218,105 +218,171 @@ class REST_API {
 
 REST_API::hook();
 
-
-class RESTClientError extends \Exception
-{
-    static function build ($doingwhat, $url, $ch) {
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if ($http_code === 0) {
-            $curl_error = curl_error($ch);
-            $msg = "$doingwhat $url: $curl_error";
-            $curl_errno = curl_errno($ch);
-            if (FALSE !== array_search($curl_errno,
-                                       array(CURLE_SSL_CERTPROBLEM,
-                                             CURLE_SSL_CACERT))) {
-                $e = new RESTSSLError($msg);
-            } else {
-                $e = new RESTLocalError($msg);
-            }
-            $e->curl_error = $curl_error;
-            $e->curl_errno = $curl_errno;
-        } else {
-            $e = new RESTRemoteError(
-                "$doingwhat $url: remote HTTP status code $http_code");
-            $e->http_code = $http_code;
-        }
-        return $e;
-    }
-}
-
+class RESTClientError extends \Exception {}
 class RESTLocalError  extends RESTClientError {}
 class RESTSSLError    extends RESTClientError {}
 class RESTRemoteError extends RESTClientError {}
 
 class RESTClient
 {
-    private function __construct ($url, $method = 'GET') {
+    static function GET_JSON ($url) {
+        return HALJSON::decode((new _RESTClientCurl($url, 'GET'))->execute());
+    }
+
+    static function POST_JSON ($url, $data) {
+        return HALJSON::decode((new _RESTClientCurl($url, 'POST'))
+                               ->setup_POST($data)->execute());
+    }
+
+    /**
+     * Like @link POST_JSON, but "fire and forget" i.e. do not wait
+     * for a response.
+     */
+    static function POST_JSON_ff ($url, $data) {
+        (new _RESTClientSocketFireAndForget($url, 'POST'))
+            ->setup_POST($data)->execute();
+    }
+}
+
+class _RESTClientBase
+{
+    function __construct ($url, $method = 'GET') {
         if ($url instanceof REST_URL) {
             $url = $url->fully_qualified();
         }
         $this->url = $url;
         $this->method = $method;
-        $this->ch = curl_init($this->url);
-        curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
-        if ($method === 'POST') {
-            curl_setopt($this->ch, CURLOPT_POST, true);
-        }
 
         $this->headers = [];
-        $this->_add_headers('Accept: application/json');
+        $this->_add_header('Accept', 'application/json');
 
-        if (preg_match('|^https?://localhost|', $this->url)) {
-            # Local traffic - Our cert is fake, deal with it
-            curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-            curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        if ($this->is_localhost()) {
             # As a special case for localhost, mess with the Host: header
             # to prevent Apache from going all 404 on us.
-            $this->_add_headers('Host: ' . Site::my_hostport());
-        } else {
-            curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, TRUE);
+            $this->_add_header('Host', Site::my_hostport());
         }
     }
 
-    function execute () {
-        $result = curl_exec($this->ch);
-
-        if (curl_getinfo($this->ch, CURLINFO_HTTP_CODE) == 200) {
-            return HALJSON::decode($result);
-        } else {
-            throw RESTClientError::build($this->method, $this->url, $this->ch);
-        }
+    function is_localhost () {
+        return parse_url($this->url, PHP_URL_HOST) === 'localhost';
     }
 
-    static function GET_JSON ($url) {
-        $thisclass = get_called_class();
-        return (new $thisclass($url, 'GET'))->execute();
+    protected function _add_header ($header, $value) {
+        $this->headers[] = array($header, $value);
     }
 
-
-    static function POST_JSON ($url, $data) {
-        $thisclass = get_called_class();
-        return (new $thisclass($url, 'POST'))->_setup_POST($data)->execute();
-    }
-
-    function _setup_POST ($data) {
-        $payload = is_string($data) ? $data : json_encode($data);
-        $this->_add_headers(
-            'Content-Type: application/json',
-            'Content-Length: ' . strlen($payload));
-        curl_setopt($this->ch, CURLOPT_POSTFIELDS, $payload);
+    public function setup_POST ($data) {
+        $this->body = is_string($data) ? $data : json_encode($data);
+        $this->_add_header('Content-Type', 'application/json');
+        $this->_add_header('Content-Length', strlen($this->body));
         return $this;  // Chainable
-    }
-
-    /**
-     * Don't fall prey to https://stackoverflow.com/a/15134580/435004
-     */
-    private function _add_headers (...$headers) {
-        $this->headers = array_merge($this->headers, $headers);
-        curl_setopt($this->ch, CURLOPT_HTTPHEADER, $this->headers);
     }
 }
 
+
+class _RESTClientCurl extends _RESTClientBase {
+    function execute () {
+        $ch = curl_init($this->url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        if ($this->method === 'POST') {
+            curl_setopt($ch, CURLOPT_POST, true);
+        }
+
+        if ($this->is_localhost()) {
+            # Local traffic - Our cert is fake, deal with it
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        } else {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
+        }
+
+        $curl_headers = array();
+        foreach ($this->headers as $header) {
+            list($header, $value) = $header;
+            $curl_headers[] = "$header: $value";
+        }
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $curl_headers);
+
+        if ($this->body) {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $this->body);
+        }
+
+        $result = curl_exec($ch);
+
+        if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200) {
+            return $result;
+        } else {
+            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            if ($http_code === 0) {
+                $curl_error = curl_error($ch);
+                $msg = "$this->method $this->url: $curl_error";
+                $curl_errno = curl_errno($ch);
+                if (FALSE !== array_search($curl_errno,
+                                           array(CURLE_SSL_CERTPROBLEM,
+                                                 CURLE_SSL_CACERT))) {
+                    $e = new RESTSSLError($msg);
+                } else {
+                    $e = new RESTLocalError($msg);
+                }
+                $e->curl_error = $curl_error;
+                $e->curl_errno = $curl_errno;
+            } else {
+                $e = new RESTRemoteError(
+                    "$this->method $this->url: remote HTTP status code $http_code");
+                $e->http_code = $http_code;
+            }
+            throw $e;
+        }
+    }
+}
+
+class _RESTClientSocketFireAndForget extends _RESTClientBase {
+    function __construct ($url, $method = 'POST') {
+        parent::__construct($url, $method);
+
+        $this->_add_header('Connection', 'close');
+    }
+
+    function execute () {
+        $tlscontext = stream_context_create(
+            array('ssl' =>
+                  array('verify_peer' => false,
+                        'verify_peer_name' => false)));
+
+        $fd = stream_socket_client(
+            sprintf('tls://%s:%d', parse_url($this->url, PHP_URL_HOST),
+                    parse_url($this->url, PHP_URL_PORT)),
+            $errno, $errstr,
+            ini_get("default_socket_timeout"),
+            STREAM_CLIENT_CONNECT,
+            $tlscontext);
+        if (! $fd) {
+            $e = new RESTLocalError("$this->method $this->url: $errstr");
+            $e->sock_errno = $errno;
+            throw $e;
+        }
+
+        $path = parse_url($this->url, PHP_URL_PATH);
+        if ($query = parse_url($this->url, PHP_URL_QUERY)) {
+            $path = "$path?$query";
+        }
+
+        $headers  = "$this->method $path HTTP/1.1\r\n";
+        foreach ($this->headers as $header) {
+            list($header, $value) = $header;
+            $headers .= "$header: $value\r\n";
+        }
+
+        $headers .= "\r\n";
+        fwrite($fd, $headers, strlen($headers));
+
+        if ($this->body) {
+            fwrite($fd, $this->body, strlen($this->body));
+        }
+
+        fclose($fd);
+    }
+}
 
 /**
  * @example

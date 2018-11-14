@@ -29,6 +29,10 @@ require_once 'shortcodes/epfl-google-forms/epfl-google-forms.php';
 require_once 'menus/epfl-menus.php';
 require_once 'preprod.php';
 
+if (class_exists('\WP_CLI')) {
+    require_once 'menus/wpcli.php';
+}
+
 // load .mo file for translation
 function epfl_load_plugin_textdomain() {
     load_plugin_textdomain( 'epfl', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
