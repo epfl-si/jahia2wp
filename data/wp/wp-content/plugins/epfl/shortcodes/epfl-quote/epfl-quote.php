@@ -31,7 +31,6 @@ function epfl_quote_process_shortcode($atts = [], $content = '', $tag = '') {
     $cite      = sanitize_text_field( $atts['cite'] );
     $footer    = sanitize_text_field( $atts['footer'] );
     $image     = sanitize_text_field( $atts['image'] );
-    $image_url = wp_get_attachment_url( $image );
 
     // if supported delegate the rendering to the theme
     if (has_action("epfl_quote_action")) {
@@ -40,7 +39,7 @@ function epfl_quote_process_shortcode($atts = [], $content = '', $tag = '') {
 
         try {
 
-           do_action("epfl_quote_action", $quote, $cite, $footer, $image_url);
+           do_action("epfl_quote_action", $quote, $cite, $footer, $image);
 
            return ob_get_contents();
 

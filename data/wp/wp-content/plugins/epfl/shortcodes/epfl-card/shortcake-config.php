@@ -5,6 +5,14 @@ Class ShortCakeCardConfig
     public static function get_fields()
     {
         $fields = [];
+        
+        array_push($fields, [
+            'label'         => esc_html__('Wrap with a gray border', 'epfl'),
+            'attr'          => 'gray_wrapper',
+            'type'          => 'checkbox',
+            ]
+        );
+
         for ( $i = 1; $i < 4; $i++) {
             array_push($fields, [
                 'label'       => '<div class="col-6"><hr><h2>'.esc_html__('Card', 'epfl').' '.$i.'</h2> '.esc_html__('Title', 'epfl').' '.'<br>',
@@ -23,6 +31,7 @@ Class ShortCakeCardConfig
                 'attr'        => 'image' . $i,
                 'type'        => 'attachment',
                 'libraryType' => array( 'image' ),
+                'description' => esc_html__('Recommended image size: 1920x1080', 'epfl')
             ]);
 
             array_push($fields, [

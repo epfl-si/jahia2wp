@@ -500,6 +500,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
                            'epfl',
                            'epfl-infoscience',
                            'wp-media-folder',
+                           'pdfjs-viewer-shortcode',
                            ]
 
     # Generate a WordPress site
