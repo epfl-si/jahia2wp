@@ -211,7 +211,7 @@ class MenuItemBag
                 $safe[] = $id;
             } elseif (! array_key_exists($parent_id, $this->items)) {
                 throw new TreeError("Parent of $id ($parent_id) unknown");
-            } elseif (! $children[$parent_id]) {
+            } elseif (! array_key_exists($parent_id, $children)) {
                 $children[$parent_id] = array($id);
             } else {
                 $children[$parent_id][] = $id;
@@ -226,7 +226,7 @@ class MenuItemBag
             // at the right place at the end of the topological sort.
             $sorted[] = $n;
 
-            if ($children[$n]) {
+            if (array_key_exists($n, $children)) {
                 // All children of a safe node are safe
                 $safe = array_merge($safe, $children[$n]);
                 // Discard the corresponding edges from the adjacency list
@@ -449,7 +449,7 @@ class MenuItemBag
     }
 
     private function _MUTATE_add_item ($item) {
-        if ($this->items[$this->_get_id($item)]) {
+        if (array_key_exists($this->_get_id($item), $this->items)) {
             throw new \Error("Duplicate ID: " . $this->_get_id($item));
         }
         $item = clone($item);
