@@ -1155,21 +1155,6 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
         return $retval;
     }
 
-    protected function _do_refresh () {
-        if (! ($get_url = $this->get_rest_url())) {
-            $this->error_log("doesn't look very external to me");
-            return;
-        }
-
-        $menu_contents = RESTClient::GET_JSON($get_url);
-        $this->set_remote_menu($menu_contents->items);
-
-        if ($subscribe_url = $menu_contents->get_link('subscribe')) {
-            $this->meta()->set_rest_subscribe_url($subscribe_url);
-            $this->_get_subscribe_controller()->subscribe($subscribe_url);
-        }
-    }
-
     /* A model class that has-a controller is a bad thing, but since
        that is hidden in a protected function we're good, I guess? */
     protected function _get_subscribe_controller () {
@@ -1187,15 +1172,33 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
 
     function refresh () {
         try {
-            $this->_do_refresh();
+            if (! ($get_url = $this->get_rest_url())) {
+                $this->error_log("doesn't look very external to me");
+                return;
+            }
+
+            $menu_contents = RESTClient::GET_JSON($get_url);
+            $this->set_remote_menu($menu_contents->items);
+
             $this->meta()->set_last_synced(time());
             $this->meta()->del_sync_started_failing();
+            if ($subscribe_url = $menu_contents->get_link('subscribe')) {
+                $this->meta()->set_rest_subscribe_url($subscribe_url);
+            }
+
+            return $menu_contents;
         } catch (RESTClientError $e) {
             $this->error_log("unable to refresh: $e");
             if (! $this->meta()->get_sync_started_failing()) {
                 $this->meta()->set_sync_started_failing(time());
             }
             throw $e;
+        }
+    }
+
+    function resubscribe () {
+        if ($subscribe_url = $this->meta()->get_rest_subscribe_url()) {
+            $this->_get_subscribe_controller()->subscribe($subscribe_url);
         }
     }
 
@@ -1495,9 +1498,9 @@ class MenuItemController extends CustomPostTypeController
      * ExternalMenuItemID that @link ajax_refresh_local previously
      * returned
      */
-    static function ajax_refresh_by_id ($data) {
+    static function ajax_refresh_and_resubscribe_by_id ($data) {
         if (! ($emi = ExternalMenuItem::get($data['id']))) {
-            error_log('Unknown ID or malformed ajax_refresh_by_id: ' . var_export($data, true));
+            error_log('Unknown ID or malformed ajax_refresh_and_resubscribe_by_id: ' . var_export($data, true));
             return array(
                 'status' => 'ERROR',
                 'message' => "$data->id not found"
@@ -1505,6 +1508,7 @@ class MenuItemController extends CustomPostTypeController
         }
         try {
             $emi->refresh();
+            $emi->resubscribe();
             return array(
                 'status' => 'OK'
             );
