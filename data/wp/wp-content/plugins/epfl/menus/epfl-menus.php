@@ -773,7 +773,7 @@ class Menu
         // MenuRESTController
         $matched = array();
         if (! preg_match(
-            '#/wp-json/(.*)/menus/(.*?)(?:\?lang=(.*))?$#',
+            '#^/wp-json/(.*)/menus/(.*?)(?:\?lang=(.*))?$#',
             $url, $matched)) {
             return false;
         }
