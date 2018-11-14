@@ -428,11 +428,14 @@ class _Subscriber extends WPDBModel
     // We never drop that table, even on plugin removal.
 
     protected function __construct ($id, $details) {
-        assert(($this->ID = 0 + $id) > 0);
+        $this->ID = 0 + $id;
+        assert($this->ID > 0);
         $details = static::_as_db_results($details);
-        assert(!! ($this->subscriber_id = $details->subscriber_id));
-        assert(!! ($this->publisher_url = $details->publisher_url));
-        assert(!! ($this->callback_url  = $details->callback_url));
+        $this->subscriber_id = $details->subscriber_id;
+        $this->publisher_url = $details->publisher_url;
+        $this->callback_url  = $details->callback_url;
+        assert($this->subscriber_id && $this->publisher_url &&
+               $this->callback_url);
         if ($details->last_attempt) {
             $this->last_attempt = $details->last_attempt;
         }
