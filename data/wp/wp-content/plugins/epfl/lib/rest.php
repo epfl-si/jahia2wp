@@ -292,9 +292,6 @@ class RESTClient
 class _RESTRequestBase
 {
     function __construct ($url, $method = 'GET') {
-        if ($url instanceof REST_URL) {
-            $url = $url->fully_qualified();
-        }
         $this->url = $url;
         $this->method = $method;
 
@@ -426,92 +423,6 @@ class _RESTRequestSocketFireAndForget extends _RESTRequestBase {
         }
 
         fclose($fd);
-    }
-}
-
-/**
- * @example
- *
- * assert 'https://www.epfl.ch/labs/mylab/wp-json/epfl/v1/foo/bar' ===
- *        REST_URL::remote('https://www.epfl.ch/labs/mylab',
- *                         'foo/bar')->fully_qualified();
- *
- * # Given get_site_url() === 'https://www.epfl.ch/labs/mylab':
- *
- * assert 'https://www.epfl.ch/labs/mylab/wp-json/epfl/v1/foo/bar' ===
- *        REST_URL::local_canonical('foo/bar')->fully_qualified();
- * assert '/labs/mylab/wp-json/epfl/v1/foo/bar' ===
- *        REST_URL::local_canonical('foo/bar')->relative_to_root();
- */
-class REST_URL
-{
-    private function __construct ($path, $site_base) {
-        $this->path = $path;
-        $this->site_base = $site_base;
-    }
-
-    /**
-     * @return A REST_URL object rooted on the @link site_url
-     * value (set in-database)
-     */
-    static function local_canonical ($path) {
-        $thisclass = get_called_class();
-        return new $thisclass($path, site_url());
-    }
-
-    /**
-     * @return A REST_URL object rooted on whatever protocol, host and
-     * port the HTTP client is using. Specifically, if
-     * $_SERVER["REMOTE_ADDR"] is a localhost address, return a URL
-     * based on localhost.
-     */
-    static function local_wrt_request ($path) {
-        if (! ($proto = $_SERVER['HTTP_X_FORWARDED_PROTO'])) {
-            $proto = $_SERVER['HTTPS'] ? 'https' : 'http';
-        }
-
-        if (static::_current_request_is_localhost()) {
-            $hostport = 'localhost:' . $_SERVER['SERVER_PORT'];
-        } elseif (! ($hostport = $_SERVER['HTTP_X_FORWARDED_HOST'])) {
-            if (! ($hostport = $_SERVER['HTTP_HOST'])) {
-                $hostport = static::_my_hostport();
-            }
-        }
-
-        $thisclass = get_called_class();
-        $site_url = site_url();
-        $site_path = parse_url($site_url, PHP_URL_PATH);
-        return new $thisclass($path, "$proto://$hostport$site_path");
-    }
-
-    static function remote ($site_base_url, $path_below_epfl_v1) {
-        $thisclass = get_called_class();
-        return new $thisclass($path_below_epfl_v1, $site_base_url);
-    }
-
-    function relative_to_root () {
-        return parse_url($this->fully_qualified(), PHP_URL_PATH);
-    }
-
-    function fully_qualified () {
-        $api_path = _API_EPFL_PATH;
-        $site_base = preg_replace('#/+$#', '', $this->site_base);
-        return $site_base . "/wp-json/$api_path/" . $this->path;
-    }
-
-    function __toString () {
-        return $this->fully_qualified();
-    }
-
-    static private function _current_request_is_localhost () {
-        $remote_ip = $_SERVER['REMOTE_ADDR'];
-        if (0 === strpos($remote_ip, '127.')) {
-            return true;
-        } elseif ($remote_ip === "::1") {
-            return true;
-        } else {
-            return false;
-        }
     }
 }
 
