@@ -1111,12 +1111,12 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
             $site_url = "$site_url/";
         }
         $instances = array();
-        $languages_url = REST_API::get_entrypoint_url('languages', $site_url);
-        foreach (RESTClient::GET_JSON($languages_url) as $lang) {
+
+        $rest = (new RESTClient())->set_base_uri(
+            REST_API::get_entrypoint_url('', $site_url));
+        foreach ($rest->GET_JSON("languages") as $lang) {
             try {
-                $menus_url = REST_API::get_entrypoint_url("menus?lang=$lang",
-                                                          $site_url);
-                $menu_descrs = RESTClient::GET_JSON($menus_url);
+                $menu_descrs = $rest->GET_JSON("menus?lang=$lang");
             } catch (RESTClientError $e) {
                 error_log("[Not our fault, IGNORED] " . $e);
                 continue;

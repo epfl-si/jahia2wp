@@ -227,49 +227,69 @@ class RESTRemoteError extends RESTClientError {}
 
 class RESTClient
 {
-    static function GET_JSON ($url) {
-        $url = static::_canonicalize_url($url);
-        return HALJSON::decode((new _RESTClientCurl($url, 'GET'))->execute());
+    function __construct () {}
+
+    function set_base_uri($base_uri) {
+        $this->base_uri = $base_uri;
+        return $this;  // Chainable
     }
 
-    static function POST_JSON ($url, $data) {
-        $url = static::_canonicalize_url($url);
-        return HALJSON::decode((new _RESTClientCurl($url, 'POST'))
+    function GET_JSON ($url) {
+        if (! isset($this)) {
+            return (new static())->GET_JSON($url);
+        }
+
+        $url = $this->_canonicalize_url($url);
+        return HALJSON::decode((new _RESTRequestCurl($url, 'GET'))->execute());
+    }
+
+    function POST_JSON ($url, $data) {
+        if (! isset($this)) {
+            return (new static())->POST_JSON($url, $data);
+        }
+
+        $url = $this->_canonicalize_url($url);
+        return HALJSON::decode((new _RESTRequestCurl($url, 'POST'))
                                ->setup_POST($data)->execute());
     }
-
-    static function _canonicalize_url ($url) {
-        if (! preg_match('#^/#', parse_url($url, PHP_URL_PATH))) {
-            throw new \Error($url);  // Not supported right now
-        }
-
-        // TODO: We should definitely not do that (assume that all
-        // the traffic is local). We should interpret
-        // wrt Site->root() and use a translation table when
-        // connecting to our own site, not connect to localhost
-        // and muck with the Host: header as we currently do.
-        error_log("Full URL was $url");
-        $url_shortened = parse_url($url, PHP_URL_PATH);
-        if ($query = parse_url($url, PHP_URL_QUERY)) {
-            $url_shortened = "$url_shortened?$query";
-        }
-        error_log("Short URL is $url_shortened");
-
-        return "https://localhost:8443$url_shortened";
-    }
-
     /**
      * Like @link POST_JSON, but "fire and forget" i.e. do not wait
      * for a response.
      */
-    static function POST_JSON_ff ($url, $data) {
-        $url = static::_canonicalize_url($url);
-        (new _RESTClientSocketFireAndForget($url, 'POST'))
+    function POST_JSON_ff ($url, $data) {
+        if (! isset($this)) {
+            return (new static())->POST_JSON_ff($url, $data);
+        }
+
+        $url = $this->_canonicalize_url($url);
+        (new _RESTRequestSocketFireAndForget($url, 'POST'))
             ->setup_POST($data)->execute();
+    }
+
+    function _canonicalize_url ($url) {
+        if (! preg_match('#^/#', parse_url($url, PHP_URL_PATH))) {
+            if ($this->base_uri) {
+                $url = $this->base_uri . $url;
+            } else {
+                throw new \Error("Cannot canonicalize root-less uri $url");
+            }
+        }
+
+        // TODO: We should definitely not assume that all the traffic
+        // is local like this. We should interpret wrt Site->root()
+        // and use a translation table when connecting to our own
+        // site, not connect to localhost and muck with the Host:
+        // header as we currently do.
+        $url_shortened = parse_url($url, PHP_URL_PATH);
+        if ($query = parse_url($url, PHP_URL_QUERY)) {
+            $url_shortened = "$url_shortened?$query";
+        }
+
+        return "https://localhost:8443$url_shortened";
     }
 }
 
-class _RESTClientBase
+class _RESTRequestBase
 {
     function __construct ($url, $method = 'GET') {
         if ($url instanceof REST_URL) {
@@ -305,7 +325,7 @@ class _RESTClientBase
 }
 
 
-class _RESTClientCurl extends _RESTClientBase {
+class _RESTRequestCurl extends _RESTRequestBase {
     function execute () {
         $ch = curl_init($this->url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -361,7 +381,7 @@ class _RESTClientCurl extends _RESTClientBase {
     }
 }
 
-class _RESTClientSocketFireAndForget extends _RESTClientBase {
+class _RESTRequestSocketFireAndForget extends _RESTRequestBase {
     function __construct ($url, $method = 'POST') {
         parent::__construct($url, $method);
 
