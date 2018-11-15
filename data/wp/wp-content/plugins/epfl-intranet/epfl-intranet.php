@@ -81,15 +81,29 @@ class Settings extends \EPFL\SettingsBase
 
         add_action('admin_init', array($this, 'setup_options_page'));
 
-        /* Website is private */
+        add_action( 'admin_notices', array($this, 'show_plugin_status' ));
+
         if(trim($this->get('enabled'))==1)
         {
             /* If visiting website */
             if(!is_admin())
             {
+                $this->debug("Require protect-site.php");
                 require_once(dirname(__FILE__) . "/inc/protect-site.php");
             }
-            else /* On admin console */
+        }
+
+    }
+
+    function show_plugin_status()
+    {
+
+        $this->debug("-> show_plugin_status");
+        /* Website is private */
+        if(trim($this->get('enabled'))==1)
+        {
+            /* If visiting admin console  */
+            if(is_admin())
             {
                 $restricted_to_groups = $this->get('subscriber_group', 'epfl_accred');
 
@@ -111,9 +125,9 @@ class Settings extends \EPFL\SettingsBase
                      '</div>';
             }
         }
-
-
     }
+
+
 
     /***************************************************************************************/
     /************************ Override some methods to fit our needs ***********************/
@@ -396,7 +410,7 @@ If plugin is activated, <b>media files are also protected</b>.');
     function debug ($msg)
     {
         if ($this->is_debug_enabled) {
-            error_log($msg);
+            error_log("EPFL-Intranet: ".$msg);
         }
     }
 
