@@ -69,7 +69,7 @@ class Controller
 class Settings extends \EPFL\SettingsBase
 {
     const SLUG = "epfl_intranet";
-    var $is_debug_enabled = true;
+    var $is_debug_enabled = false;
 
     function hook()
     {
