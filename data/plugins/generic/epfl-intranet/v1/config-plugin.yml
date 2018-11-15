@@ -1,0 +1,8 @@
+src: ../wp/wp-content/plugins/epfl-intranet
+activate: yes
+tables:
+  options:
+  - autoload: 'yes'
+    option_id: 225
+    option_name: plugin:epfl_intranet:enabled
+    option_value: 1
