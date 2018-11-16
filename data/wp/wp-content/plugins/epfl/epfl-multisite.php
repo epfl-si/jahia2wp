@@ -12,12 +12,23 @@ if (! defined( 'ABSPATH' )) {
     die( 'Access denied.' );
 }
 
-add_action('template_redirect', function() {
-    if (! class_exists('\SEED_CSP4')) return;
+function has_wordpress_cookie () {
     foreach ($_COOKIE as $cookie_name => $unused_value) {
         if (preg_match('#^wordpress_logged_in_#', $cookie_name)) {
-            remove_action('template_redirect', array(\SEED_CSP4::get_instance(), 'render_comingsoon_page'));
-            break;
+            return true;
         }
     }
-}, 8);
+    return false;
+}
+
+function get_logged_out_redirect_url () {
+    return get_option("epfl-multisite-logged-out-redirect");
+}
+
+add_action('template_redirect', function() {
+    $redirect = get_logged_out_redirect_url();
+    if ($redirect && ! has_wordpress_cookie()) {
+        header("Location: $redirect");
+        exit;
+    }
+});
