@@ -9,11 +9,9 @@ namespace EPFL\Preprod;
 function is_subscriber () {
     if (! is_user_logged_in()) return false;
 
-    $CHEATING = ($user->ID === 27);
-
     $user = wp_get_current_user();
     foreach ($user->roles as $role) {
-        if (($role === 'subscriber') || $CHEATING) {
+        if ($role === 'subscriber') {
             return true;
         }
     }
