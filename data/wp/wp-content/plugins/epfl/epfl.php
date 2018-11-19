@@ -7,6 +7,7 @@
  */
 
 require_once 'lib/utils.php';
+require_once 'lib/language.php';
 require_once 'shortcodes/epfl-news/epfl-news.php';
 require_once 'shortcodes/epfl-memento/epfl-memento.php';
 require_once 'shortcodes/epfl-toggle/epfl-toggle.php';
