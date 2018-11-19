@@ -20,6 +20,8 @@ if (! defined('ABSPATH')) {
     die('Access denied.');
 }
 
+use \WP_REST_Response;
+
 require_once(__DIR__ . '/rest.php');
 use \EPFL\REST\REST_API;
 use \EPFL\REST\RESTClient;
@@ -54,10 +56,25 @@ class SubscribeController
      * @param $slug A unique persistent string for this subscribe controller,
                     also used for loop elimination.
      */
-    function __construct ($slug) {
+    private function __construct ($slug) {
         $this->slug = $slug;
     
         $this->listeners = [];
+    }
+
+    public static function by_namespace_and_slug($namespace, $slug) {
+        // Unfinished business - See TODO in on_REST_webhook()
+        // We should really add a column, which requires suitable
+        // legwork to manage live upgrades.
+        return static::by_slug("$namespace/$slug");
+    }
+
+    static private $subs = array();
+    private static function by_slug ($slug) {
+        if (! static::$subs[$slug]) {
+            static::$subs[$slug] = new SubscribeController($slug);
+        }
+        return static::$subs[$slug];
     }
 
     const WEBHOOK = 'pubsub/webhook';
@@ -93,16 +110,43 @@ class SubscribeController
     static function on_REST_webhook ($req) {
         $sub = _Subscription::get_by_nonce($nonce = $req->get_param('nonce'));
         if (! $sub) {
-            _Events::error_invalid_nonce($nonce);
-            return;
+            $error = "Webhook nonce is unknown here ($nonce)";
+            _Events::error_invalid_nonce($error, $nonce);
+            return new WP_REST_Response($error, 404);
         }
+
         _Events::request_webhook_received($sub->slug);
+
+        $that = static::by_slug($sub->get_slug());
         $event = Causality::unmarshall($req->get_params())
-                 ->received($this->_get_subscriber_id());
-        foreach ($this->listeners as $callable) {
+                 ->received($that->_get_received_marker());
+        $listeners = $that->listeners;
+        if (! count($listeners)) {
+            // TODO: we should clean these up. It is unwise to do so
+            // as a matter of course: we don't know that the listeners
+            // which are missing now, could be loaded on a different
+            // data flow.
+            // Hence there should be a way for SubscribeController
+            // callers to implement a cleanup policy based on the set
+            // of slugs that is private to them.
+
+            $error = "Looks like nobody is interested in $nonce";
+            _Events::error_invalid_nonce($error, $nonce);
+            return new WP_REST_Response($error, 404);
+        }
+        foreach ($listeners as $callable) {
             call_user_func($callable, $event);
         }
         _Events::request_webhook_successful($sub->slug);
+    }
+
+    /**
+     * @return A string uniquely identifying this Web site, so as to
+     *         detect and prevent causality loops.
+     */
+    private function _get_received_marker () {
+        // TODO: If we could use WP nonces instead, that'd be great.
+        return site_url();
     }
 
     /**
@@ -179,6 +223,10 @@ class _Subscription extends WPDBModel
         $this->slug = $slug;
         $this->nonce = $nonce;
         $this->confirmed = $confirmed;
+    }
+
+    public function get_slug () {
+        return $this->slug;
     }
 
     static function get_by_nonce ($nonce, $confirmed = TRUE) {
@@ -263,6 +311,13 @@ class _Subscription extends WPDBModel
         $this->query("DELETE FROM %T WHERE slug = %s AND nonce != %s",
                      $this->slug, $this->nonce);
     }
+
+    function __toString () {
+        return sprintf(
+            '<%s slug=%s nonce=%s confirmed=%s>',
+            get_called_class(),
+            $this->slug, $this->nonce, ($this->confirmed ? "TRUE" : "FALSE"));
+    }
 }
 
 _Subscription::hook();
@@ -306,7 +361,8 @@ class PublishController
         $test_url = preg_replace('_/webhook([&?]|$)_', '/webhook-test$1',
                                  $callback_url);
         if ($test_url != $callback_url) {
-            $sub->attempt_post($test_url, array());
+            $sub->attempt_post($test_url, array(),
+                               /* $is_sync = */ TRUE);
         }
         // Otherwise assume the subscriber doesn't want a synchronous call
         // to /webhook-test
@@ -330,11 +386,11 @@ class PublishController
     public function initiate () {
         $event = Causality::start();
         _Events::action_initiate($this->subscribe_uri, $event);
-        $this->forward($event);
+        $this->_do_forward($event);
     }
 
     public function _do_forward ($event) {
-            foreach (_Subscriber::all_by_publisher_url($this->subscribe_uri)
+        foreach (_Subscriber::all_by_publisher_url($this->subscribe_uri)
                  as $sub) {
             if ($sub->has_seen($event)) continue;
             $sub->attempt_post($sub->get_callback_url(), $event->marshall());
@@ -372,11 +428,11 @@ class _Subscriber extends WPDBModel
     // We never drop that table, even on plugin removal.
 
     protected function __construct ($id, $details) {
-        $this->ID = $id;
+        assert(($this->ID = 0 + $id) > 0);
         $details = static::_as_db_results($details);
-        assert($this->subscriber_id = $details->subscriber_id);
-        assert($this->publisher_url = $details->publisher_url);
-        assert($this->callback_url  = $details->callback_url);
+        assert(!! ($this->subscriber_id = $details->subscriber_id));
+        assert(!! ($this->publisher_url = $details->publisher_url));
+        assert(!! ($this->callback_url  = $details->callback_url));
         if ($details->last_attempt) {
             $this->last_attempt = $details->last_attempt;
         }
@@ -417,17 +473,12 @@ class _Subscriber extends WPDBModel
         $thisclass = get_called_class();
         $objects = array();
         foreach (static::get_results(
-                "SELECT subscriber_id, callback_url,
-                 UNIX_TIMESTAMP(last_attempt), UNIX_TIMESTAMP(failing_since)
-                 FROM %t
+                "SELECT id, publisher_url, subscriber_id, callback_url,
+                 UNIX_TIMESTAMP(last_attempt) AS last_attempt, UNIX_TIMESTAMP(failing_since) AS failing_since
+                 FROM %T
                  WHERE publisher_url = %s",
-                $url) as $line) {
-            $objects[] = new $thisclass(
-                $publisher_url,
-                $db_line->subscriber_id,
-                $db_line->callback_url,
-                ($db_line->last_attempt or NULL),
-                ($db_line->failing_since or NULL));
+                $publisher_url) as $db_line) {
+            $objects[] = new $thisclass($db_line->id, $db_line);
         }
         return $objects;
     }
@@ -436,15 +487,19 @@ class _Subscriber extends WPDBModel
         return $event->has_in_path($this->subscriber_id);
     }
 
-    public function attempt_post ($url, $payload) {
+    public function attempt_post ($url, $payload, $is_sync = FALSE) {
         // So technically there is controller code in there, but
         // attempting to untangle it would create more coupling than
         // it would save.
         try {
-            RESTClient::POST_JSON($url, $payload);
+            if ($is_sync) {
+                RESTClient::POST_JSON($url, $payload);
+            } else {
+                RESTClient::POST_JSON_ff($url, $payload);
+            }
             $this->mark_success();
         } catch (RESTClientError $e) {
-            error_log($e);
+            error_log("attempt_post failed: " . $e);
             $this->mark_failure();
         }
     }
@@ -480,6 +535,10 @@ class _Subscriber extends WPDBModel
                 $this->last_attempt, $this->ID);
         }
     }
+
+    function __toString () {
+        return sprintf('<%s %s>', get_called_class(), $this->ID);
+    }
 }
 
 _Subscriber::hook();
@@ -500,7 +559,7 @@ class Causality
         $that = new $thisclass();
         $data = is_string($json) ? json_decode($json) : $json;
         $that->timestamp = $data->timestamp;
-        $that->path      = $data->path;
+        $that->path      = $data->path ? $data->path : [];
         return $that;
     }
 
@@ -518,8 +577,8 @@ class Causality
         return $that;
     }
 
-    static function has_in_path ($subscriber_id) {
-        return in_array($subscriber_id, $event->path);
+    function has_in_path ($subscriber_id) {
+        return in_array($subscriber_id, $this->path);
     }
 
     /**
@@ -527,7 +586,7 @@ class Causality
      *         appended to the path
      */
     function received ($via_subscriber_id) {
-        if (array_search($via_subscriber_id, $this->path)) {
+        if ($this->has_in_path($via_subscriber_id)) {
             throw new CausalityLoopError(
                 implode(" -> ", $this->path) .
                 " loops back to us: $via_subscriber_id");
@@ -553,7 +612,7 @@ class _Events
     static function forward_sent ($slug, $event) {}
     static function action_initiate ($slug, $event) {}
     static function action_forward ($slug, $event) {}
-    static function error_invalid_nonce ($msg, $slug) {
+    static function error_invalid_nonce ($msg, $nonce) {
         error_log($msg);
     }
 }

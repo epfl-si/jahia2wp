@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-11-14 07:25+0100\n"
-"PO-Revision-Date: 2018-11-14 07:25+0100\n"
+"POT-Creation-Date: 2018-11-13 13:39+0100\n"
+"PO-Revision-Date: 2018-11-13 13:39+0100\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -16,37 +16,33 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: epfl-infoscience-search\n"
 
-#: epfl-card/shortcake-config.php:10 epfl-contact/shortcake-config.php:16
-msgid "Wrap with a gray border"
-msgstr "Entourer d'un cadre gris"
-
-#: epfl-card/shortcake-config.php:18 epfl-card/shortcake-config.php:57
+#: epfl-card/shortcake-config.php:10 epfl-card/shortcake-config.php:48
 msgid "Card"
 msgstr "Carte"
 
-#: epfl-card/shortcake-config.php:18 epfl-links-group/shortcake-config.php:24
+#: epfl-card/shortcake-config.php:10 epfl-links-group/shortcake-config.php:24
 msgid "Title"
 msgstr "Titre"
 
-#: epfl-card/shortcake-config.php:24
+#: epfl-card/shortcake-config.php:16
 msgid "Link"
 msgstr "Lien"
 
-#: epfl-card/shortcake-config.php:30
+#: epfl-card/shortcake-config.php:22
 msgid "Image"
 msgstr "Image"
 
-#: epfl-card/shortcake-config.php:34 epfl-cover/shortcake-config.php:26
-msgid "Recommended image size: 1920x1080"
-msgstr "Taille recommandée de l'image: 1920x1080"
-
-#: epfl-card/shortcake-config.php:38
+#: epfl-card/shortcake-config.php:29
 msgid "Text"
 msgstr "Texte"
 
 #: epfl-contact/shortcake-config.php:11
 msgid "Text introducing the contact informations (optional)"
 msgstr "Texte d'introduction (optionnel)"
+
+#: epfl-contact/shortcake-config.php:16
+msgid "Wrap with a gray border"
+msgstr "Entourer d'un cadre gris"
 
 #: epfl-contact/shortcake-config.php:23
 msgid "Timetable"
@@ -83,6 +79,10 @@ msgstr "Description de cover"
 #: epfl-cover/shortcake-config.php:22
 msgid "Cover image"
 msgstr "Image de Cover"
+
+#: epfl-cover/shortcake-config.php:26
+msgid "Recommended image size: 1920x1080"
+msgstr "Taille recommandée de l'image: 1920x1080"
 
 #: epfl-google-forms/epfl-google-forms.php:40
 msgid "Error extracting parameters"
