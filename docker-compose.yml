@@ -20,7 +20,7 @@ services:
 
   httpd:
     container_name: jahia2wp-httpd
-    build: build/httpd
+    build: ../wp-ops/docker/httpd
     labels:
       ch.epfl.jahia2wp.httpd.env: ${WP_ENV}
     image: epflidevelop/os-wp-httpd
@@ -39,7 +39,7 @@ services:
     labels:
       ch.epfl.jahia2wp.mgmt.env: ${WP_ENV}
     image: epflidevelop/os-wp-mgmt
-    build: build/httpd
+    build: ../wp-ops/docker/mgmt
     env_file:
       - .env
     environment:
