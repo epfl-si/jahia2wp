@@ -236,6 +236,9 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     # add language to cache definer if a group_by doctype is used
     if ($group_by === 'doctype' || ($group_by === 'year' && $group_by2 === 'doctype')) {
         # fetch language
+        # if you can, use the method
+        # use function EPFL\Language\get_current_or_default_language;
+        
         $default_lang = 'en';
         $allowed_langs = array('en', 'fr');
         $language = $default_lang;

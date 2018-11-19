@@ -7,6 +7,8 @@
  * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
+ use function EPFL\Language\get_current_or_default_language;
+
 /**
  * Check the parameters
  *
@@ -39,6 +41,11 @@ function epfl_map_process_shortcode( $attributes, string $content = null ): stri
     // sanitize parameters
     $query  = sanitize_text_field($atts['query']);
     $lang   = sanitize_text_field($atts['lang']);
+
+    if (empty($lang)) {
+        # use the current page language
+        $lang = get_current_or_default_language();
+    }
 
     // check parameters
     if ( false == epfl_map_check_parameters($query, $lang) ) {
@@ -92,13 +99,6 @@ add_action( 'register_shortcode_ui',  function() {
                     'type'          => 'text',
                     'value'         => 'INN011',
                     'description'   => esc_html__('A room for example', 'epfl'),
-                ),
-                array(
-                    'label'         => '<h3>' . esc_html__('Language', 'epfl') . '</h3>',
-                    'attr'          => 'lang',
-                    'type'          => 'select',
-                    'options'       => $lang_options,
-                    'description'   => esc_html__('Language used to render map result', 'epfl'),
                 ),
             ),
 
