@@ -194,7 +194,7 @@ Class Render
             $html .= '    </a>';
             $html .= '  </figure>';
 
-            if ($category_label) {
+            if (isset($category_label)) {
                 $html .= '  <p class="category-label">' . $category_label . ' </p>';
             }
 
