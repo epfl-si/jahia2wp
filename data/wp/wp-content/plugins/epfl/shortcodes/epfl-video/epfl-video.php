@@ -3,7 +3,7 @@
 /**
  * Plugin Name: EPFL Video
  * Description: provides a shortcode to display video from YouTube and SwitchTube
- * @version: 1.1
+ * @version: 1.2
  * @copyright: Copyright (c) 2018 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
@@ -54,23 +54,53 @@ function epfl_video_process_shortcode( $atts, $content = null ) {
   // sanitize parameters
   $url    = esc_url($atts['url']);
 
-    /* To handle video URL redirection*/
+  /* To handle video URL redirection
+
+    NOTE: if we have an URL like 'https://youtu.be/M4Ufs7-FpvU', it will be transformed to
+    https://youtube.com/watch?v=M4Ufs7-FpvU&feature=youtu.be
+    So, '&feature=youtu.be' will be added at the end and we will have to handle it.
+  */
   if(($url = epfl_video_get_final_video_url($url)) === false)
   {
-    return epfl_video_get_error(__("EPFL-Video: Error getting final URL", 'epfl'));
+    return epfl_video_get_error(__("EPFL-Video: Error getting final URL", 'epfl-video'));
   }
 
   /* If YouTube video - Allowed formats:
     - https://www.youtube.com/watch?v=Tit6bvRIDtI
     - https://www.youtube.com/watch?v=Tit6bvRIDtI&t=281s
-    - https://youtu.be/M4Ufs7-FpvU
     - https://www.youtube.com/watch?v=M4Ufs7-FpvU&feature=youtu.be
   */
   if(preg_match('/(youtube\.com|youtu\.be)/', $url)===1 && preg_match('/\/embed\//', $url)===0)
   {
-    /* Extracting video ID from URL which is like one of the example before (we also extract rest of query string) */
-    $video_id = str_replace('watch?v=', '', substr($url, strrpos($url, '/')+1 ));
+    /* Extracting query string */
+    $query = parse_url($url, PHP_URL_QUERY);
+
+    parse_str($query, $query_args);
+
+    $video_id = $query_args['v'];
+    /* Removing video ID from query string */
+    unset($query_args['v']);
+
+    /* If we have a time at which to start video */
+    if(array_key_exists('t', $query_args))
+    {
+        /* When video is embed, the parameters is called 'start' and not 't', so we remove the incorrect one
+        and add the new one. */
+        $query_args['start'] = $query_args['t'];
+        unset($query_args['t']);
+    }
+
+    /* We remove existing query string from URL */
+    $url = str_replace('?'.$query, '', $url);
+
+    /* Updating query (without video_id if it was present) to reuse it later */
+    $query = http_build_query($query_args);
+
     $url = "https://www.youtube.com/embed/".$video_id;
+    if($query != "")
+    {
+        $url .= '?'.$query;
+    }
   }
 
   /* if Vimeo video - Allowed formats:
