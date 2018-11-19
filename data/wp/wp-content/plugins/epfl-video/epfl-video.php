@@ -65,8 +65,6 @@ function epfl_video_process_shortcode( $atts, $content = null ) {
     return epfl_video_get_error(__("EPFL-Video: Error getting final URL", 'epfl-video'));
   }
 
-    error_log($url);
-
   /* If YouTube video - Allowed formats:
     - https://www.youtube.com/watch?v=Tit6bvRIDtI
     - https://www.youtube.com/watch?v=Tit6bvRIDtI&t=281s
