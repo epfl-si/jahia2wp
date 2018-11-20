@@ -1,0 +1,8 @@
+src: web
+activate: yes
+tables:
+  options:
+  - autoload: 'yes'
+    option_id: 379
+    option_name: cache_control_front_page_max_age
+    option_value: '3600'
