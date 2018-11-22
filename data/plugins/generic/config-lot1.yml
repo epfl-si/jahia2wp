@@ -43,8 +43,6 @@ plugins:
     config: !include shortcode-ui-richtext/v1/config-plugin.yml
   - name: epfl-news
     config: !include epfl-news/v1/config-plugin.yml
-  #- name: epfl
-  #  config: !include epfl/v1/config-plugin.yml
   - name: epfl-memento
     config: !include epfl-memento/v1/config-plugin.yml
   - name: epfl-faq
@@ -71,8 +69,6 @@ plugins:
     config: !include epfl-twitter/v1/config-plugin.yml
   - name: epfl-video
     config: !include epfl-video/v1/config-plugin.yml
-  - name: epfl-intranet
-    config: !include epfl-intranet/v1/config-plugin.yml
   - name: pdfjs-viewer-shortcode
     config: !include pdfjs-viewer-shortcode/v1/config-plugin.yml
   - name: epfl-tableau
