@@ -27,6 +27,21 @@ services:
     image: epflidevelop/os-wp-httpd
     volumes:
       - ./volumes/srv:/srv
+      - /srv/sti.epfl.ch/media/${WP_ENV}/uploads:/srv/${WP_ENV}/sti.epfl.ch/htdocs/wp-content/uploads
+      - ./data/wp/wp-content/plugins/EPFL-Content-Filter:/srv/${WP_ENV}/sti.epfl.ch/htdocs/wp-content/plugins/EPFL-Content-Filter
+      - ./data/wp/wp-content/plugins/epfl-map:/srv/${WP_ENV}/sti.epfl.ch/htdocs/wp-content/plugins/epfl-map
+      - ./data/wp/wp-content/plugins/epfl-scheduler:/srv/${WP_ENV}/sti.epfl.ch/htdocs/wp-content/plugins/epfl-scheduler
+      - ./data/wp/wp-content/plugins/epfl-toggle:/srv/${WP_ENV}/sti.epfl.ch/htdocs/wp-content/plugins/epfl-toggle
+      - ./data/wp/wp-content/plugins/epfl-faq:/srv/${WP_ENV}/sti.epfl.ch/htdocs/wp-content/plugins/epfl-faq
+      - ./data/wp/wp-content/plugins/epfl-memento:/srv/${WP_ENV}/sti.epfl.ch/htdocs/wp-content/plugins/epfl-memento
+      - ./data/wp/wp-content/plugins/EPFL-settings:/srv/${WP_ENV}/sti.epfl.ch/htdocs/wp-content/plugins/EPFL-settings
+      - ./data/wp/wp-content/plugins/epfl-xml:/srv/${WP_ENV}/sti.epfl.ch/htdocs/wp-content/plugins/epfl-xml
+      - ./data/wp/wp-content/plugins/epfl-grid:/srv/${WP_ENV}/sti.epfl.ch/htdocs/wp-content/plugins/epfl-grid
+      - ./data/wp/wp-content/plugins/epfl-news:/srv/${WP_ENV}/sti.epfl.ch/htdocs/wp-content/plugins/epfl-news
+      - ./data/wp/wp-content/plugins/EPFL-Share:/srv/${WP_ENV}/sti.epfl.ch/htdocs/wp-content/plugins/EPFL-Share
+      - ./data/wp/wp-content/plugins/epfl-infoscience:/srv/${WP_ENV}/sti.epfl.ch/htdocs/wp-content/plugins/epfl-infoscience
+      - ./data/wp/wp-content/plugins/epfl-people:/srv/${WP_ENV}/sti.epfl.ch/htdocs/wp-content/plugins/epfl-people
+      - ./data/wp/wp-content/plugins/epfl-snippet:/srv/${WP_ENV}/sti.epfl.ch/htdocs/wp-content/plugins/epfl-snippet
     links:
       - db:db
     environment:
@@ -44,6 +59,7 @@ services:
       - LOGGING_FILE=/srv/${WP_ENV}/logs/jahia2wp.log
     volumes:
       - ./volumes/srv:/srv
+      - /srv/sti.epfl.ch/media/${WP_ENV}/uploads:/srv/${WP_ENV}/sti.epfl.ch/htdocs/wp-content/uploads
       - ./etc/.bash_history:/var/www/.bash_history
       - ./etc/.aliases:/srv/.aliases
       - ./etc/.bashrc:/srv/.bashrc
