@@ -11,8 +11,8 @@ python:
 - 3.5
 
 before_install:
-- docker pull epflidevelop/os-wp-httpd
-- docker pull epflidevelop/os-wp-mgmt
+- docker pull epflidevelop/wp-ops-httpd
+- docker pull epflidevelop/wp-ops-mgmt
 - cp .env.sample .env
 
 install:
