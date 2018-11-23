@@ -953,6 +953,28 @@ ul.bottin {
     max-width: none;
     //width: 50px;
   }
+  
+  span.phone-number {
+    padding-right: 10px;
+    white-space: nowrap;
+  }
+}
+
+.bottin,
+.pers_bloc,
+.peopleListBox {
+  
+  span.phone-number {
+    white-space: nowrap;
+  }
+}
+
+.peopleListBox {
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+  display: block;
+  width: 100%;
+  overflow-x: auto;
 }
 
 .peopleListBox .button.mail {
@@ -4443,6 +4465,12 @@ img.pdf-icon {
     &:nth-child(4n+3) {
       @include color-background-ter;
     }
+  }
+  
+  /* --- People --- */
+  
+  .peopleListBox {
+    width: auto;
   }
   
   
