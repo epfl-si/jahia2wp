@@ -11,9 +11,14 @@ python:
 - 3.5
 
 before_install:
-- docker pull epflidevelop/os-wp-httpd
-- docker pull epflidevelop/os-wp-mgmt
+- docker pull epflidevelop/wp-ops-httpd
+- docker pull epflidevelop/wp-ops-mgmt
 - cp .env.sample .env
+# We have to clone this repository because Travis will always try to build images defined by "build" entry in
+# "docker-compose.yml", even if we told him to not do it. Because we have to keep "build" entries in "docker-compose.yml"
+# file, we have to clone this repo before doing "make up". Furthermore, building images will help to check if everything
+# is ok in images files.
+- git clone https://github.com/epfl-idevelop/wp-ops.git /home/travis/build/epfl-idevelop/wp-ops
 
 install:
 - make up
