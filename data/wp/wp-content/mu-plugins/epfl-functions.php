@@ -45,6 +45,27 @@ function sanitize_file_name_chars( $special_chars = array() ) {
 	return $special_chars;
 }
 
+
+/*--------------------------------------------------------------
+
+ # REST API
+
+--------------------------------------------------------------*/
+
+/*
+ * Disable display list of users from /wp-json/wp/v2/users/
+ */
+add_filter( 'rest_endpoints', function( $endpoints ){
+        if ( isset( $endpoints['/wp/v2/users'] ) ) {
+                    unset( $endpoints['/wp/v2/users'] );
+                    }
+            if ( isset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] ) ) {
+                    unset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] );
+                    }
+            return $endpoints;
+});
+
+
 /*--------------------------------------------------------------
   
  # Content improvements
