@@ -16,7 +16,7 @@ before_install:
 - cp .env.sample .env
 
 install:
-- make up-travis
+- make up
 # On searching containers by labels, see
 # https://docs.docker.com/engine/reference/commandline/ps/#filtering
 # The labels introduced by docker-compose don't seem to be documented

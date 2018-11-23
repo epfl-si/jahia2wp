@@ -75,14 +75,6 @@ up: check-env
 		WP_PORT_HTTPS=${WP_PORT_HTTPS} \
 		docker-compose up -d
 
-up-travis: check-env
-	@WP_ENV=${WP_ENV} \
-		MYSQL_DB_HOST=${MYSQL_DB_HOST} \
-		MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
-		WP_PORT_HTTP=${WP_PORT_HTTP} \
-		WP_PORT_HTTPS=${WP_PORT_HTTPS} \
-		docker-compose up -d --no-build
-
 exec: check-env
 	@docker exec --user www-data -it  \
 	  -e WP_ENV=${WP_ENV} \
