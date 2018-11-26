@@ -27,8 +27,8 @@ plugins:
     config: !include svg-support/v1/config-plugin.yml
   - name: feedzy-rss-feeds
     config: !include feedzy-rss-feeds/v1/config-plugin.yml
-  - name: enlighter
-    config: !include enlighter/v1/config-plugin.yml
+#  - name: enlighter
+#    config: !include enlighter/v1/config-plugin.yml
   - name: remote-content-shortcode
     config: !include remote-content-shortcode/v1/config-plugin.yml
   - name: shortcode-ui
