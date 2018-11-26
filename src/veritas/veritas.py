@@ -5,7 +5,7 @@ from django.core.validators import URLValidator, ValidationError
 from utils import Utils
 from .validators import validate_string, validate_yes_or_no, validate_integer, \
     validate_openshift_env, validate_site_type, validate_theme, validate_theme_faculty, validate_languages, \
-    validate_unit, mock_validate_unit
+    mock_validate_unit
 
 BASE_COLUMNS = [
     ("wp_site_url", URLValidator(schemes=['https']), True),
@@ -29,11 +29,6 @@ if Utils.get_optional_env('TRAVIS', False):
     JAHIA2WP_COLUMNS = BASE_COLUMNS + [
         ("unit_name", mock_validate_unit, False),
     ]
-else:
-    JAHIA2WP_COLUMNS = BASE_COLUMNS + [
-        ("unit_name", validate_unit, False),
-    ]
-
 
 MOCK_JAHIA2WP_COLUMNS = BASE_COLUMNS + [
     ("unit_name", mock_validate_unit, False),
