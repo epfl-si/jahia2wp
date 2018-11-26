@@ -29,6 +29,8 @@ if Utils.get_optional_env('TRAVIS', False):
     JAHIA2WP_COLUMNS = BASE_COLUMNS + [
         ("unit_name", mock_validate_unit, False),
     ]
+else:
+    JAHIA2WP_COLUMNS = BASE_COLUMNS
 
 MOCK_JAHIA2WP_COLUMNS = BASE_COLUMNS + [
     ("unit_name", mock_validate_unit, False),
