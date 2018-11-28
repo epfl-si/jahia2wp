@@ -1091,17 +1091,16 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
         foreach ($neighbors as $site) {
             if ($site->equals($me)) continue;
             try {
-                $instances = array_merge($instances, static::_load_from_site($site));
+                $instances = array_merge(
+                    $instances,
+                    static::load_from_wp_site_url(
+                        $site->get_path()));
             } catch (RESTRemoteError $e) {
                 error_log("[Not our fault, IGNORED] " . $e);
                 continue;
             }
         }
         return $instances;
-    }
-
-    static protected function _load_from_site ($site) {
-        return static::load_from_wp_site_url($site->get_site_url_relative());
     }
 
     /**
