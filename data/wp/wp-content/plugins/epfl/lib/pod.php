@@ -112,7 +112,7 @@ class Site {
     }
 
     function make_absolute_url ($url) {
-        if (parse_url($site_url, PHP_URL_HOST)) {
+        if (parse_url($url, PHP_URL_HOST)) {
             return $url;
         } elseif (preg_match('#^/#', $url)) {
             $myhostport = static::my_hostport();
