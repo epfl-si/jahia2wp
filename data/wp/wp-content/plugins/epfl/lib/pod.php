@@ -79,17 +79,16 @@ class Site {
         return array($htdocs, $below_htdocs);
     }
 
-    function get_site_url_relative () {
-        return "/" . $this->path_under_htdocs;
-    }
-
-    function get_localhost_url () {
-        $subpath = $this->path_under_htdocs;
-        return 'https://localhost:8443/' . ($subpath ? $subpath . '/' : '');
+    function get_path () {
+        $path = "/" . $this->path_under_htdocs;
+        if (! preg_match('#/$#', $path)) {
+            $path = "$path/";
+        }
+        return $path;
     }
 
     function get_url () {
-        return static::externalify_url($this->get_localhost_url());
+        return 'https://' . static::my_hostport() . $this->get_path();
     }
 
     /**
@@ -100,15 +99,13 @@ class Site {
      *         of the return value of @link site_url
      */
     static function my_hostport () {
-        $site_url = site_url();
-        $host = parse_url($site_url, PHP_URL_HOST);
-        $port = parse_url($site_url, PHP_URL_PORT);
-        return $port ? "$host:$port" : $host;
+        return static::_parse_hostport(site_url());
     }
 
-    static function externalify_url ($localhost_url) {
-        $myhostport = static::my_hostport();
-        return preg_replace('#^https://localhost:8443/#', "https://$myhostport/", $localhost_url);
+    static private function _parse_hostport ($url) {
+        $host = parse_url($url, PHP_URL_HOST);
+        $port = parse_url($url, PHP_URL_PORT);
+        return $port ? "$host:$port" : $host;
     }
 
     function make_absolute_url ($url) {
@@ -120,6 +117,28 @@ class Site {
         } else {
             return $this->get_url() . $url;
         }
+    }
+
+    /**
+     * @return The part of $url that is relative to the site's root,
+     *         or NULL if $url is not "under" this site. (Note: being
+     *         part of any of the @link get_subsite s is not checked
+     *         here; such URLs will "count" as well.)
+     */
+    function make_relative_url ($url) {
+        if ($hostport = static::_parse_hostport($url)) {
+            if ($hostport === static::my_hostport()
+                || $hostport === "localhost:8443") {   // XXX TMPHACK
+                $url = preg_replace("#^https?://$hostport#", '', $url);
+            } else {
+                return NULL;
+            }
+        }
+        $count_replaced = 0;
+        $url = preg_replace(
+            '#^' . quotemeta($this->get_path()) . '#',
+            '/', $url, -1, $count_replaced);
+        if ($count_replaced) return $url;
     }
 
     function equals ($that) {
@@ -153,20 +172,5 @@ class Site {
             }
         }
         return $retvals;
-    }
-
-    /**
-     * @return The part of $url that is relative to the site's root,
-     *         or NULL if $url is not "under" this site. (Note: being
-     *         part of any of the @link get_subsite s is not checked
-     *         here; such URLs will "count" as well.)
-     */
-    function get_relative_url ($url) {
-        $url = static::externalify_url($url);
-        $count_replaced = 0;
-        $url = preg_replace(
-            '#^' . quotemeta($this->get_url()) . '#',
-            '/', $url, -1, $count_replaced);
-        if ($count_replaced) return $url;
     }
 }

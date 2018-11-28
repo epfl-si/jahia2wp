@@ -744,7 +744,7 @@ class Menu
 
     protected function _get_root_menu ($mme) {
         $emi = ExternalMenuItem::find(array(
-               'site_url'       => '/',
+               'site_url'       => Site::root()->get_path(),
                'remote_slug'    => $mme->get_theme_location()
         ))
             ->first_preferred(array(
@@ -765,7 +765,7 @@ class Menu
      */
     protected function _corresponds ($item) {
         if (! ExternalMenuItem::looks_like($item)) return false;
-        $url = Site::this_site()->get_relative_url($item->rest_url);
+        $url = Site::this_site()->make_relative_url($item->rest_url);
         if (! $url) return false;
 
         // Works by parsing the ->rest_url, so there is coupling with
@@ -1107,9 +1107,6 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
      * @return An array of instances of this class
      */
     static function load_from_wp_site_url ($site_url) {
-        if (! preg_match('#/$#', $site_url)) {
-            $site_url = "$site_url/";
-        }
         $instances = array();
 
         $rest = (new RESTClient())->set_base_uri(
