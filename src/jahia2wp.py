@@ -877,17 +877,17 @@ def veritas(csv_file, **kwargs):
 @dispatch.on('search-and-replace-many')
 def search_and_replace_many(csv_file, source, destination, **kwargs):
 
-    # CSV file validation
     rows = Utils.csv_filepath_to_dict(csv_file)
 
-    # create a new WP site for each row
     print("\nSearch and replace {} by {} for {} websites ".format(source, destination, len(rows)))
     for index, row in enumerate(rows):
 
         print("\nIndex #{}:\n---".format(index))
+
         # CSV file is utf-8 so we encode correctly the string to avoid errors during logging.debug display
         row_bytes = repr(row).encode('utf-8')
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row_bytes)
+
         wp_generator = WPGenerator({'openshift_env': row['openshift_env'], 'wp_site_url': row['wp_site_url']})
         wp_generator.run_wp_cli("search-replace {} {}".format(source, destination))
 
