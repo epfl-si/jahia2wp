@@ -1137,7 +1137,6 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
 
                 $site_url_dir = parse_url($site_url, PHP_URL_PATH);
                 $title = $menu_descr->description . "[$lang] @ $site_url_dir";
-                $that->update(array('post_title' => $title));
 
                 $instances[] = $that;
             }
