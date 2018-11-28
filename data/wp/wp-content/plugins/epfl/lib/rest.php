@@ -274,18 +274,7 @@ class RESTClient
                 throw new \Error("Cannot canonicalize root-less uri $url");
             }
         }
-
-        // TODO: We should definitely not assume that all the traffic
-        // is local like this. We should interpret wrt Site->root()
-        // and use a translation table when connecting to our own
-        // site, not connect to localhost and muck with the Host:
-        // header as we currently do.
-        $url_shortened = parse_url($url, PHP_URL_PATH);
-        if ($query = parse_url($url, PHP_URL_QUERY)) {
-            $url_shortened = "$url_shortened?$query";
-        }
-
-        return "https://localhost:8443$url_shortened";
+        return Site::this_site()->make_absolute_url($url);
     }
 }
 
@@ -297,16 +286,6 @@ class _RESTRequestBase
 
         $this->headers = [];
         $this->_add_header('Accept', 'application/json');
-
-        if ($this->is_localhost()) {
-            # As a special case for localhost, mess with the Host: header
-            # to prevent Apache from going all 404 on us.
-            $this->_add_header('Host', Site::my_hostport());
-        }
-    }
-
-    function is_localhost () {
-        return parse_url($this->url, PHP_URL_HOST) === 'localhost';
     }
 
     protected function _add_header ($header, $value) {
@@ -319,8 +298,41 @@ class _RESTRequestBase
         $this->_add_header('Content-Length', strlen($this->body));
         return $this;  // Chainable
     }
-}
 
+    protected function _get_connect_to () {
+        if (! $this->_connect_to) {
+            $host = parse_url($this->url, PHP_URL_HOST);
+            $port = parse_url($this->url, PHP_URL_PORT);
+            if (! $port) {
+                $port = (parse_url($this->url, PHP_URL_SCHEME) === "http") ?
+                         80 : 443;
+            }
+            $hostport = "$host:$port";
+
+            /**
+             * Filters the host:port to connect to while attempting to
+             * perform a REST API call.
+             *
+             * In order to bypass proxies and caches, it is possible
+             * to add a filter that rewrites a particular host:port to
+             * another one. In that case, the Host: header will still
+             * be sent as if from the original query.
+             */
+            $hostport_filtered = apply_filters("epfl_rest_rewrite_connect_to", $hostport, $host, $port);
+
+            $exploded = explode(':', $hostport_filtered);
+            $this->_connect_to = (object) array(
+                    'is_altered'  => ($hostport_filtered !== $hostport),
+                    'hostport'    => $hostport_filtered,
+                    'host'        => $exploded[0]
+                );
+            if (count($exploded) > 1) {
+                $this->_connect_to->port = $exploded[1];
+            }
+        }
+        return $this->_connect_to;
+    }
+}
 
 class _RESTRequestCurl extends _RESTRequestBase {
     function execute () {
@@ -330,12 +342,27 @@ class _RESTRequestCurl extends _RESTRequestBase {
             curl_setopt($ch, CURLOPT_POST, true);
         }
 
-        if ($this->is_localhost()) {
-            # Local traffic - Our cert is fake, deal with it
+        $connect_to = $this->_get_connect_to();
+
+        if ($connect_to->is_altered) {
+            $host_orig = parse_url($this->url, PHP_URL_HOST);
+            $port_orig = parse_url($this->url, PHP_URL_PORT);
+            if (! $port_orig) {
+                $port_orig = (parse_url($this->url, PHP_URL_SCHEME) === "http") ?
+                           80 : 443;
+            }
+            $connectto = sprintf(
+                '%s:%d:%s',
+                $host_orig, $port_orig, $connect_to->hostport);
+            curl_setopt($ch, CURLOPT_CONNECT_TO, array($connectto));
+
+            # It is very likely that an altered connect-to be using
+            # a fake certificate:
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
         } else {
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER,
+                        $connect_to->host != 'localhost');
         }
 
         $curl_headers = array();
@@ -386,14 +413,17 @@ class _RESTRequestSocketFireAndForget extends _RESTRequestBase {
     }
 
     function execute () {
-        $tlscontext = stream_context_create(
-            array('ssl' =>
-                  array('verify_peer' => false,
-                        'verify_peer_name' => false)));
+        $connect_to = $this->_get_connect_to();
+        $verify_cert = ((! $connect_to->is_altered) &&
+                        ($connect_to->host != 'localhost'));
+        $ssl_params = array('ssl' =>
+                            array('verify_peer'      => $verify_cert,
+                                  'verify_peer_name' => $verify_cert));
+
+        $tlscontext = stream_context_create($ssl_params);
 
         $fd = stream_socket_client(
-            sprintf('tls://%s:%d', parse_url($this->url, PHP_URL_HOST),
-                    parse_url($this->url, PHP_URL_PORT)),
+            sprintf('tls://%s:%d', $connect_to->host, $connect_to->port),
             $errno, $errstr,
             ini_get("default_socket_timeout"),
             STREAM_CLIENT_CONNECT,
@@ -409,7 +439,15 @@ class _RESTRequestSocketFireAndForget extends _RESTRequestBase {
             $path = "$path?$query";
         }
 
+        $host = parse_url($this->url, PHP_URL_HOST);
+        if ($port = parse_url($this->$url, PHP_URL_PORT)) {
+            $hostheader = "$host:$port";
+        } else {
+            $hostheader = "$host";
+        }
+
         $headers  = "$this->method $path HTTP/1.1\r\n";
+        $headers  .= "Host: $hostheader\r\n";
         foreach ($this->headers as $header) {
             list($header, $value) = $header;
             $headers .= "$header: $value\r\n";
@@ -424,6 +462,18 @@ class _RESTRequestSocketFireAndForget extends _RESTRequestBase {
 
         fclose($fd);
     }
+}
+
+if (php_sapi_name() !== 'cli') {
+    add_filter('epfl_rest_rewrite_connect_to', function($hostport, $host, $port) {
+        $myhostport = Site::my_hostport();
+        if ($hostport === $myhostport ||
+            $hostport === "$myhostport:443") {
+            return "localhost:8443";
+        } else {
+            return $hostport;
+        }
+    }, 10, 3);
 }
 
 
