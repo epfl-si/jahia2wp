@@ -41,6 +41,8 @@ Usage:
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
   jahia2wp.py fan-global-sitemap    <csv_file> <wp_path>            [--debug | --quiet]
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
+  jahia2wp.py search-and-replace-many <csv_file> <source> <destination> [--debug | --quiet]
+  jahia2wp.py search-and-replace-by-inventory <path> <source> <destination> [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
     [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
@@ -870,6 +872,39 @@ def veritas(csv_file, **kwargs):
         validator.print_errors()
     else:
         print("CSV file validated!")
+
+
+@dispatch.on('search-and-replace-many')
+def search_and_replace_many(csv_file, source, destination, **kwargs):
+
+    # CSV file validation
+    rows = Utils.csv_filepath_to_dict(csv_file)
+
+    # create a new WP site for each row
+    print("\nSearch and replace {} by {} for {} websites ".format(source, destination, len(rows)))
+    for index, row in enumerate(rows):
+
+        print("\nIndex #{}:\n---".format(index))
+        # CSV file is utf-8 so we encode correctly the string to avoid errors during logging.debug display
+        row_bytes = repr(row).encode('utf-8')
+        logging.debug("%s - row %s: %s", row["wp_site_url"], index, row_bytes)
+        wp_generator = WPGenerator({'openshift_env': row['openshift_env'], 'wp_site_url': row['wp_site_url']})
+        wp_generator.run_wp_cli("search-replace {} {}".format(source, destination))
+
+
+@dispatch.on('search-and-replace-by-inventory')
+def search_and_replace_by_inventory(path, source, destination, **kwargs):
+
+    sites = []
+    for site_details in WPConfig.inventory(path):
+        sites.append({'wp_site_url': site_details.url, 'openshift_env': site_details.openshift_env})
+
+    for site in sites:
+
+        if 'openshift_env' in site and site['openshift_env'] and 'wp_site_url' in site and site['wp_site_url']:
+
+            wp_generator = WPGenerator({'openshift_env': site['openshift_env'], 'wp_site_url': site['wp_site_url']})
+            wp_generator.run_wp_cli("search-replace {} {}".format(source, destination))
 
 
 @dispatch.on('extract-plugin-config')

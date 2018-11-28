@@ -66,7 +66,7 @@ class WPConfig:
 
         # helper class to wrap results
         WPResult = collections.namedtuple(
-            'WPResult', ['path', 'valid', 'url', 'version', 'db_name', 'db_user', 'admins'])
+            'WPResult', ['path', 'valid', 'url', 'version', 'db_name', 'db_user', 'admins', 'openshift_env'])
 
         # set initial path
         given_path = os.path.abspath(path)
@@ -92,9 +92,10 @@ class WPConfig:
                         wp_config.db_name,
                         wp_config.db_user,
                         ",".join([wp_user.username for wp_user in wp_config.admins]),
+                        wp_config.wp_site.openshift_env
                     )
                 else:
-                    yield WPResult(wp_config.wp_site.path, "KO", "", "", "", "", "")
+                    yield WPResult(wp_config.wp_site.path, "KO", "", "", "", "", "", "")
 
     def run_wp_cli(self, command, encoding=sys.getdefaultencoding(), pipe_input=None, extra_options=None):
         """
