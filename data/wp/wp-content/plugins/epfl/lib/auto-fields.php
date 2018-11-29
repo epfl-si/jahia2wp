@@ -207,13 +207,17 @@ class AutoFieldsController {
 jQuery(function($) {
   $('#<?php echo $button_id; ?>').click(function(e) {
     e.stopPropagation();
-    console.log('<?php echo "$key ="; ?>', JSON.parse("<?php echo preg_replace('/([\\"])/', '\\\\${1}', $value); ?>"));
+    console.log('<?php echo "$key ="; ?>', JSON.parse("<?php echo static::escape_js_doublequoted($value); ?>"));
     return false;
   });
 });
 </script>
 <?php
         }
+    }
+
+    static function escape_js_doublequoted ($value) {
+        return addslashes($value);
     }
 
     function clear ()

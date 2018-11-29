@@ -194,214 +194,286 @@ class REST_API {
     }
 
     /**
-     * @param $path The path to a local entry point, relative to the
+     * @param $relative_path The path to a local entry point, relative to the
      *              REST root (similar to parameters to @link GET_JSON
      *              or @link POST_JSON)
      *
-     * @param $wrt_url (Optional) The URL of the expected caller of $path.
-     *                 If $wrt_url is a localhost URL, then the returned
-     *                 URL will be too.
-     *
-     * @return An instance of @link REST_URL that can be used to reach
-     *         that entry point
+     * @param $base (Optional) The URL of the expected caller of $path,
+     *              or an instance of @link Site.
      */
-    static function get_entrypoint_url ($path, $wrt_url = NULL) {
-        if ($wrt_url && 'localhost' === parse_url($wrt_url, PHP_URL_HOST)) {
-            return REST_URL::remote(
-                Site::this_site()->get_localhost_url(),
-                $path);
-        } else {
-            return REST_URL::local_canonical($path);
+    static function get_entrypoint_url ($relative_path, $base = NULL) {
+        if (! $base) {
+            $base = Site::this_site();
         }
+
+        if ($base instanceof Site) {
+            $base = $base->get_url();
+        }
+
+        if (! (preg_match('#/$#', $base))) {
+            $base = "$base/";
+        }
+        return sprintf('%swp-json/%s/%s', $base,
+                       _API_EPFL_PATH, $relative_path);
     }
 }
 
 REST_API::hook();
 
-
-class RESTClientError extends \Exception
-{
-    static function build ($doingwhat, $url, $ch) {
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if ($http_code === 0) {
-            $curl_error = curl_error($ch);
-            $msg = "$doingwhat $url: $curl_error";
-            $curl_errno = curl_errno($ch);
-            if (FALSE !== array_search($curl_errno,
-                                       array(CURLE_SSL_CERTPROBLEM,
-                                             CURLE_SSL_CACERT))) {
-                $e = new RESTSSLError($msg);
-            } else {
-                $e = new RESTLocalError($msg);
-            }
-            $e->curl_error = $curl_error;
-            $e->curl_errno = $curl_errno;
-        } else {
-            $e = new RESTRemoteError(
-                "$doingwhat $url: remote HTTP status code $http_code");
-            $e->http_code = $http_code;
-        }
-        return $e;
-    }
-}
-
+class RESTClientError extends \Exception {}
 class RESTLocalError  extends RESTClientError {}
 class RESTSSLError    extends RESTClientError {}
 class RESTRemoteError extends RESTClientError {}
 
 class RESTClient
 {
-    private function __construct ($url, $method = 'GET') {
-        if ($url instanceof REST_URL) {
-            $url = $url->fully_qualified();
-        }
-        $this->url = $url;
-        $this->method = $method;
-        $this->ch = curl_init($this->url);
-        curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
-        if ($method === 'POST') {
-            curl_setopt($this->ch, CURLOPT_POST, true);
-        }
+    function __construct () {}
 
-        $this->headers = [];
-        $this->_add_headers('Accept: application/json');
-
-        if (preg_match('|^https?://localhost|', $this->url)) {
-            # Local traffic - Our cert is fake, deal with it
-            curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-            curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-            # As a special case for localhost, mess with the Host: header
-            # to prevent Apache from going all 404 on us.
-            $this->_add_headers('Host: ' . Site::my_hostport());
-        } else {
-            curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, TRUE);
-        }
-    }
-
-    function execute () {
-        $result = curl_exec($this->ch);
-
-        if (curl_getinfo($this->ch, CURLINFO_HTTP_CODE) == 200) {
-            return HALJSON::decode($result);
-        } else {
-            throw RESTClientError::build($this->method, $this->url, $this->ch);
-        }
-    }
-
-    static function GET_JSON ($url) {
-        $thisclass = get_called_class();
-        return (new $thisclass($url, 'GET'))->execute();
-    }
-
-
-    static function POST_JSON ($url, $data) {
-        $thisclass = get_called_class();
-        return (new $thisclass($url, 'POST'))->_setup_POST($data)->execute();
-    }
-
-    function _setup_POST ($data) {
-        $payload = is_string($data) ? $data : json_encode($data);
-        $this->_add_headers(
-            'Content-Type: application/json',
-            'Content-Length: ' . strlen($payload));
-        curl_setopt($this->ch, CURLOPT_POSTFIELDS, $payload);
+    function set_base_uri($base_uri) {
+        $this->base_uri = $base_uri;
         return $this;  // Chainable
     }
 
+    function GET_JSON ($url) {
+        if (! isset($this)) {
+            return (new static())->GET_JSON($url);
+        }
+
+        $url = $this->_canonicalize_url($url);
+        return HALJSON::decode((new _RESTRequestCurl($url, 'GET'))->execute());
+    }
+
+    function POST_JSON ($url, $data) {
+        if (! isset($this)) {
+            return (new static())->POST_JSON($url, $data);
+        }
+
+        $url = $this->_canonicalize_url($url);
+        return HALJSON::decode((new _RESTRequestCurl($url, 'POST'))
+                               ->setup_POST($data)->execute());
+    }
     /**
-     * Don't fall prey to https://stackoverflow.com/a/15134580/435004
+     * Like @link POST_JSON, but "fire and forget" i.e. do not wait
+     * for a response.
      */
-    private function _add_headers (...$headers) {
-        $this->headers = array_merge($this->headers, $headers);
-        curl_setopt($this->ch, CURLOPT_HTTPHEADER, $this->headers);
+    function POST_JSON_ff ($url, $data) {
+        if (! isset($this)) {
+            return (new static())->POST_JSON_ff($url, $data);
+        }
+
+        $url = $this->_canonicalize_url($url);
+        (new _RESTRequestSocketFireAndForget($url, 'POST'))
+            ->setup_POST($data)->execute();
+    }
+
+    function _canonicalize_url ($url) {
+        if (! preg_match('#^/#', parse_url($url, PHP_URL_PATH))) {
+            if ($this->base_uri) {
+                $url = $this->base_uri . $url;
+            } else {
+                throw new \Error("Cannot canonicalize root-less uri $url");
+            }
+        }
+        return Site::this_site()->make_absolute_url($url);
     }
 }
 
-
-/**
- * @example
- *
- * assert 'https://www.epfl.ch/labs/mylab/wp-json/epfl/v1/foo/bar' ===
- *        REST_URL::remote('https://www.epfl.ch/labs/mylab',
- *                         'foo/bar')->fully_qualified();
- *
- * # Given get_site_url() === 'https://www.epfl.ch/labs/mylab':
- *
- * assert 'https://www.epfl.ch/labs/mylab/wp-json/epfl/v1/foo/bar' ===
- *        REST_URL::local_canonical('foo/bar')->fully_qualified();
- * assert '/labs/mylab/wp-json/epfl/v1/foo/bar' ===
- *        REST_URL::local_canonical('foo/bar')->relative_to_root();
- */
-class REST_URL
+class _RESTRequestBase
 {
-    private function __construct ($path, $site_base) {
-        $this->path = $path;
-        $this->site_base = $site_base;
+    function __construct ($url, $method = 'GET') {
+        $this->url = $url;
+        $this->method = $method;
+
+        $this->headers = [];
+        $this->_add_header('Accept', 'application/json');
     }
 
-    /**
-     * @return A REST_URL object rooted on the @link site_url
-     * value (set in-database)
-     */
-    static function local_canonical ($path) {
-        $thisclass = get_called_class();
-        return new $thisclass($path, site_url());
+    protected function _add_header ($header, $value) {
+        $this->headers[] = array($header, $value);
     }
 
-    /**
-     * @return A REST_URL object rooted on whatever protocol, host and
-     * port the HTTP client is using. Specifically, if
-     * $_SERVER["REMOTE_ADDR"] is a localhost address, return a URL
-     * based on localhost.
-     */
-    static function local_wrt_request ($path) {
-        if (! ($proto = $_SERVER['HTTP_X_FORWARDED_PROTO'])) {
-            $proto = $_SERVER['HTTPS'] ? 'https' : 'http';
-        }
+    public function setup_POST ($data) {
+        $this->body = is_string($data) ? $data : json_encode($data);
+        $this->_add_header('Content-Type', 'application/json');
+        $this->_add_header('Content-Length', strlen($this->body));
+        return $this;  // Chainable
+    }
 
-        if (static::_current_request_is_localhost()) {
-            $hostport = 'localhost:' . $_SERVER['SERVER_PORT'];
-        } elseif (! ($hostport = $_SERVER['HTTP_X_FORWARDED_HOST'])) {
-            if (! ($hostport = $_SERVER['HTTP_HOST'])) {
-                $hostport = static::_my_hostport();
+    protected function _get_connect_to () {
+        if (! $this->_connect_to) {
+            $host = parse_url($this->url, PHP_URL_HOST);
+            $port = parse_url($this->url, PHP_URL_PORT);
+            if (! $port) {
+                $port = (parse_url($this->url, PHP_URL_SCHEME) === "http") ?
+                         80 : 443;
+            }
+            $hostport = "$host:$port";
+
+            /**
+             * Filters the host:port to connect to while attempting to
+             * perform a REST API call.
+             *
+             * In order to bypass proxies and caches, it is possible
+             * to add a filter that rewrites a particular host:port to
+             * another one. In that case, the Host: header will still
+             * be sent as if from the original query.
+             */
+            $hostport_filtered = apply_filters("epfl_rest_rewrite_connect_to", $hostport, $host, $port);
+
+            $exploded = explode(':', $hostport_filtered);
+            $this->_connect_to = (object) array(
+                    'is_altered'  => ($hostport_filtered !== $hostport),
+                    'hostport'    => $hostport_filtered,
+                    'host'        => $exploded[0]
+                );
+            if (count($exploded) > 1) {
+                $this->_connect_to->port = $exploded[1];
             }
         }
-
-        $thisclass = get_called_class();
-        $site_url = site_url();
-        $site_path = parse_url($site_url, PHP_URL_PATH);
-        return new $thisclass($path, "$proto://$hostport$site_path");
+        return $this->_connect_to;
     }
+}
 
-    static function remote ($site_base_url, $path_below_epfl_v1) {
-        $thisclass = get_called_class();
-        return new $thisclass($path_below_epfl_v1, $site_base_url);
-    }
+class _RESTRequestCurl extends _RESTRequestBase {
+    function execute () {
+        $ch = curl_init($this->url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        if ($this->method === 'POST') {
+            curl_setopt($ch, CURLOPT_POST, true);
+        }
 
-    function relative_to_root () {
-        return parse_url($this->fully_qualified(), PHP_URL_PATH);
-    }
+        $connect_to = $this->_get_connect_to();
 
-    function fully_qualified () {
-        $api_path = _API_EPFL_PATH;
-        $site_base = preg_replace('#/+$#', '', $this->site_base);
-        return $site_base . "/wp-json/$api_path/" . $this->path;
-    }
+        if ($connect_to->is_altered) {
+            $host_orig = parse_url($this->url, PHP_URL_HOST);
+            $port_orig = parse_url($this->url, PHP_URL_PORT);
+            if (! $port_orig) {
+                $port_orig = (parse_url($this->url, PHP_URL_SCHEME) === "http") ?
+                           80 : 443;
+            }
+            $connectto = sprintf(
+                '%s:%d:%s',
+                $host_orig, $port_orig, $connect_to->hostport);
+            curl_setopt($ch, CURLOPT_CONNECT_TO, array($connectto));
 
-    function __toString () {
-        return $this->fully_qualified();
-    }
-
-    static private function _current_request_is_localhost () {
-        $remote_ip = $_SERVER['REMOTE_ADDR'];
-        if (0 === strpos($remote_ip, '127.')) {
-            return true;
-        } elseif ($remote_ip === "::1") {
-            return true;
+            # It is very likely that an altered connect-to be using
+            # a fake certificate:
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
         } else {
-            return false;
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER,
+                        $connect_to->host != 'localhost');
+        }
+
+        $curl_headers = array();
+        foreach ($this->headers as $header) {
+            list($header, $value) = $header;
+            $curl_headers[] = "$header: $value";
+        }
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $curl_headers);
+
+        if ($this->body) {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $this->body);
+        }
+
+        $result = curl_exec($ch);
+
+        if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200) {
+            return $result;
+        } else {
+            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            if ($http_code === 0) {
+                $curl_error = curl_error($ch);
+                $msg = "$this->method $this->url: $curl_error";
+                $curl_errno = curl_errno($ch);
+                if (FALSE !== array_search($curl_errno,
+                                           array(CURLE_SSL_CERTPROBLEM,
+                                                 CURLE_SSL_CACERT))) {
+                    $e = new RESTSSLError($msg);
+                } else {
+                    $e = new RESTLocalError($msg);
+                }
+                $e->curl_error = $curl_error;
+                $e->curl_errno = $curl_errno;
+            } else {
+                $e = new RESTRemoteError(
+                    "$this->method $this->url: remote HTTP status code $http_code");
+                $e->http_code = $http_code;
+            }
+            throw $e;
         }
     }
+}
+
+class _RESTRequestSocketFireAndForget extends _RESTRequestBase {
+    function __construct ($url, $method = 'POST') {
+        parent::__construct($url, $method);
+
+        $this->_add_header('Connection', 'close');
+    }
+
+    function execute () {
+        $connect_to = $this->_get_connect_to();
+        $verify_cert = ((! $connect_to->is_altered) &&
+                        ($connect_to->host != 'localhost'));
+        $ssl_params = array('ssl' =>
+                            array('verify_peer'      => $verify_cert,
+                                  'verify_peer_name' => $verify_cert));
+
+        $tlscontext = stream_context_create($ssl_params);
+
+        $fd = stream_socket_client(
+            sprintf('tls://%s:%d', $connect_to->host, $connect_to->port),
+            $errno, $errstr,
+            ini_get("default_socket_timeout"),
+            STREAM_CLIENT_CONNECT,
+            $tlscontext);
+        if (! $fd) {
+            $e = new RESTLocalError("$this->method $this->url: $errstr");
+            $e->sock_errno = $errno;
+            throw $e;
+        }
+
+        $path = parse_url($this->url, PHP_URL_PATH);
+        if ($query = parse_url($this->url, PHP_URL_QUERY)) {
+            $path = "$path?$query";
+        }
+
+        $host = parse_url($this->url, PHP_URL_HOST);
+        if ($port = parse_url($this->$url, PHP_URL_PORT)) {
+            $hostheader = "$host:$port";
+        } else {
+            $hostheader = "$host";
+        }
+
+        $headers  = "$this->method $path HTTP/1.1\r\n";
+        $headers  .= "Host: $hostheader\r\n";
+        foreach ($this->headers as $header) {
+            list($header, $value) = $header;
+            $headers .= "$header: $value\r\n";
+        }
+
+        $headers .= "\r\n";
+        fwrite($fd, $headers, strlen($headers));
+
+        if ($this->body) {
+            fwrite($fd, $this->body, strlen($this->body));
+        }
+
+        fclose($fd);
+    }
+}
+
+if (php_sapi_name() !== 'cli') {
+    add_filter('epfl_rest_rewrite_connect_to', function($hostport, $host, $port) {
+        $myhostport = Site::my_hostport();
+        if ($hostport === $myhostport ||
+            $hostport === "$myhostport:443") {
+            return "localhost:8443";
+        } else {
+            return $hostport;
+        }
+    }, 10, 3);
 }
 
 

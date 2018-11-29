@@ -17,6 +17,8 @@ plugins:
     config: !include accred/v1/config-plugin.yml
   - name: epfl-intranet
     config: !include epfl-intranet/v1/config-plugin.yml
+  - name: cache-control
+    config: !include cache-control/v1/config-plugin.yml
   - name: varnish-http-purge
     config: !include varnish-http-purge/v1/config-plugin.yml
   - name: EPFL-settings
@@ -27,8 +29,8 @@ plugins:
     config: !include svg-support/v1/config-plugin.yml
   - name: feedzy-rss-feeds
     config: !include feedzy-rss-feeds/v1/config-plugin.yml
-  - name: enlighter
-    config: !include enlighter/v1/config-plugin.yml
+#  - name: enlighter
+#    config: !include enlighter/v1/config-plugin.yml
   - name: remote-content-shortcode
     config: !include remote-content-shortcode/v1/config-plugin.yml
   - name: shortcode-ui

@@ -33,7 +33,6 @@ use \EPFL\REST\RESTClient;
 use \EPFL\REST\RESTClientError;
 use \EPFL\REST\RESTRemoteError;
 use \EPFL\REST\RESTAPIError;
-use \EPFL\REST\REST_URL;
 
 require_once(dirname(__DIR__) . '/lib/admin-controller.php');
 use \EPFL\AdminController\TransientErrors;
@@ -211,7 +210,7 @@ class MenuItemBag
                 $safe[] = $id;
             } elseif (! array_key_exists($parent_id, $this->items)) {
                 throw new TreeError("Parent of $id ($parent_id) unknown");
-            } elseif (! $children[$parent_id]) {
+            } elseif (! array_key_exists($parent_id, $children)) {
                 $children[$parent_id] = array($id);
             } else {
                 $children[$parent_id][] = $id;
@@ -226,7 +225,7 @@ class MenuItemBag
             // at the right place at the end of the topological sort.
             $sorted[] = $n;
 
-            if ($children[$n]) {
+            if (array_key_exists($n, $children)) {
                 // All children of a safe node are safe
                 $safe = array_merge($safe, $children[$n]);
                 // Discard the corresponding edges from the adjacency list
@@ -270,14 +269,14 @@ class MenuItemBag
 
     function graft ($at_item, $bag) {
         return static::_MUTATE_graft(
-            $this->_get_parent_id($at_item),
+            $this->_get_id($at_item),
             $this->copy(), $this->_renumber(static::coerce($bag)));
     }
 
     function reverse_graft ($at_item, $into) {
-        $parent_id = $this->_get_parent_id($at_item);
-        $into_renumbered = $this->_renumber($into, /*&*/$parent_id);
-        return static::_MUTATE_graft($parent_id, $into_renumbered, $this);
+        $id = $this->_get_id($at_item);
+        $into_renumbered = $this->_renumber($into, /*&*/$id);
+        return static::_MUTATE_graft($id, $into_renumbered, $this->copy());
     }
 
     /**
@@ -449,25 +448,47 @@ class MenuItemBag
     }
 
     private function _MUTATE_add_item ($item) {
-        if ($this->items[$this->_get_id($item)]) {
+        if (array_key_exists($this->_get_id($item), $this->items)) {
             throw new \Error("Duplicate ID: " . $this->_get_id($item));
         }
         $item = clone($item);
-        $this->_MUTATE_set_id       ($item, (int) $this->_get_id       ($item));
-        $this->_MUTATE_set_parent_id($item, (int) $this->_get_parent_id($item));
         $this->items[$this->_get_id($item)] = $item;
     }
 
-    function _MUTATE_graft ($new_parent_id, $mutated_outer, $inner) {
-        foreach ($inner->copy()->as_list() as $item) {
-            if (! $mutated_outer->_get_parent_id($item)) {
-                // $item is new, thanks to ->copy() being
-                // a deep copy.
-                $this->_MUTATE_set_parent_id($item, $new_parent_id);
+    /**
+     * Graft $inner into $outer at $at_id, preserving ordering.
+     *
+     * Splice the node list of $inner into $outer's at the
+     * proper place, also taking care of reparenting the root nodes of
+     * $inner.
+     *
+     * _MUTATE_graft() does *not* tolerate ID clashes between $outer and
+     * $inner; caller should ->_renumber() first as appropriate.
+     * 
+     * _MUTATE_graft() may mutate (the items of) both $outer and
+     * $inner (the former, because it shares them into the return
+     * value). Again, caller should ->copy() as appropriate.
+     *
+     * @return A new instance of the class.
+     */
+
+    private static function _MUTATE_graft ($at_id, $outer, $inner) {
+        $new_parent_id = $outer->_get_parent_id($outer->find($at_id));
+
+        $items = array();
+        foreach ($outer->as_list() as $item) {
+            $items[] = $item;
+            if ($outer->_get_id($item) === $at_id) {
+                foreach ($inner->as_list() as $item) {
+                    if (! $inner->_get_parent_id($item)) {
+                        $inner->_MUTATE_set_parent_id($item, $new_parent_id);
+                    }
+                    $items[] = $item;
+                }
             }
-            $mutated_outer->_MUTATE_add_item($item);
         }
-        return $mutated_outer;
+        $thisclass = get_called_class();
+        return new $thisclass($items);
     }
 
     /**
@@ -637,7 +658,7 @@ class Menu
         $tree = $this->_get_local_tree();
         foreach ($tree->as_list() as $item) {
             if (! ($emi = ExternalMenuItem::get($item))) continue;
-            $soa_url = Site::externalify_url(
+            $soa_url = Site::root()->make_absolute_url(
                 $emi->get_site_url() ?
                 $emi->get_site_url() :
                 $emi->get_rest_url());
@@ -713,7 +734,9 @@ class Menu
 
         if (! $grafted_count) {
             error_log(sprintf(
-                'Cannot find graft point - Unable to stitch up\n%s',
+                'Cannot find graft point - Unable to stitch up %s (in %s)\n%s',
+                $self,
+                get_site_url(),
                 var_export($root_menu, true)));
         }
 
@@ -722,7 +745,7 @@ class Menu
 
     protected function _get_root_menu ($mme) {
         $emi = ExternalMenuItem::find(array(
-               'site_url'       => Site::root()->get_localhost_url(),
+               'site_url'       => Site::root()->get_path(),
                'remote_slug'    => $mme->get_theme_location()
         ))
             ->first_preferred(array(
@@ -743,14 +766,14 @@ class Menu
      */
     protected function _corresponds ($item) {
         if (! ExternalMenuItem::looks_like($item)) return false;
-        $url = Site::this_site()->get_relative_url($item->rest_url);
+        $url = Site::this_site()->make_relative_url($item->rest_url);
         if (! $url) return false;
 
         // Works by parsing the ->rest_url, so there is coupling with
         // MenuRESTController
         $matched = array();
         if (! preg_match(
-            '#/wp-json/(.*)/menus/(.*?)(?:\?lang=(.*))?$#',
+            '#^/wp-json/(.*)/menus/(.*?)(?:\?lang=(.*))?$#',
             $url, $matched)) {
             return false;
         }
@@ -763,14 +786,50 @@ class Menu
     }
 
     /**
-     * @param $emi The instance of ExternalMenuItem whose menu received
-     *             an update event
+     * Whether our "authoritative" menu subtree depends on $emi
      *
-     * @return true iff this menu changed
+     * @param $emi An @link ExternalMenuItem instance
+     *
+     * @return false if no change in $emi could possibly make "us"
+     *         change (in the sense of @link get_stitched_down_tree,
+     *         i.e. the part that we are authoritative for - Not the
+     *         parts "above us" created with @link
+     *         get_fully_stitched_tree). true otherwise.
+     */
+    function depends ($emi) {
+        foreach ($this->_get_local_tree()->as_list() as $item) {
+            if ($emi->equals($item)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Take into account a (possible) change in $emi
+     *
+     * @return false if we can conservatively ascertain that the
+     *         change in $emi had no effect on "our" tree (in the
+     *         sense of @link get_stitched_down_tree, i.e. the part
+     *         that we are authoritative for); true otherwise
      */
     function update ($emi) {
-        // XXX Lazy but correct implementation (for low values of correct):
-        // do nothing
+        // Always trust the caller and attempt to refresh:
+        try {
+            $emi->refresh();
+        } catch (Throwable $t) {  // Non-goal: PHP5 support
+            return false;  // Our tree hasn't changed for sure
+        }
+
+        // Block propagation in case the menu is not listed, in
+        // particular if it is the root menu - that one is of use to
+        // get_fully_stitched_tree() but not get_stitched_down_tree()
+        if (! $this->depends($emi)) return false;
+
+        // We could encache, compare and block null updates here, but
+        // for now this is conservative and good enough
+        // performance-wise:
+        return true;
     }
 
     function __toString () {
@@ -969,7 +1028,9 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
      *         ExternalMenuItem doesn't live in this pod.
      */
     function get_site_url () {
-        return $this->meta()->get_site_url();
+        $url = $this->meta()->get_site_url();
+        $url = preg_replace('#^https://localhost:8443#', '', $url);  # XXX TMPHACK
+        return $url;
     }
 
     /**
@@ -977,7 +1038,9 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
      *         menu from (in JSON form)
      */
     function get_rest_url () {
-        return $this->meta()->get_rest_url();
+        $url = $this->meta()->get_rest_url();
+        $url = preg_replace('#^https://localhost:8443#', '', $url);  # XXX TMPHACK
+        return $url;
     }
 
     /**
@@ -991,6 +1054,12 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
         } else {
             return parent::get($what);
         }
+    }
+
+    function equals ($what) {
+        $thisclass = get_called_class();
+        $what = $thisclass::get($what);
+        return ($what && $what->ID == $this->ID);
     }
 
     /**
@@ -1022,7 +1091,10 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
         foreach ($neighbors as $site) {
             if ($site->equals($me)) continue;
             try {
-                $instances = array_merge($instances, static::_load_from_site($site));
+                $instances = array_merge(
+                    $instances,
+                    static::load_from_wp_site_url(
+                        $site->get_path()));
             } catch (RESTRemoteError $e) {
                 error_log("[Not our fault, IGNORED] " . $e);
                 continue;
@@ -1031,21 +1103,17 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
         return $instances;
     }
 
-    static protected function _load_from_site ($site) {
-        return static::load_from_wp_site_url($site->get_localhost_url());
-    }
-
     /**
      * @return An array of instances of this class
      */
     static function load_from_wp_site_url ($site_url) {
         $instances = array();
-        foreach (RESTClient::GET_JSON(REST_URL::remote($site_url, 'languages'))
-                 as $lang) {
+
+        $rest = (new RESTClient())->set_base_uri(
+            REST_API::get_entrypoint_url('', $site_url));
+        foreach ($rest->GET_JSON("languages") as $lang) {
             try {
-                $menu_descrs = RESTClient::GET_JSON(REST_URL::remote(
-                    $site_url,
-                    "menus?lang=$lang"));
+                $menu_descrs = $rest->GET_JSON("menus?lang=$lang");
             } catch (RESTClientError $e) {
                 error_log("[Not our fault, IGNORED] " . $e);
                 continue;
@@ -1053,8 +1121,9 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
 
             foreach ($menu_descrs as $menu_descr) {
                 $menu_slug = $menu_descr->slug;
-                $that = static::get_or_create(
-                    static::_make_wp_rest_url($site_url, $menu_slug, $lang));
+                $menu_url = REST_API::get_entrypoint_url(
+                    "menus/$menu_slug?lang=$lang", $site_url);
+                $that = static::get_or_create($menu_url);
                 // Unlike an ExternalMenuItem that would be just
                 // created from its REST URL, for this one we do know
                 // that it comes from a "true" Wordpress. Note down
@@ -1068,7 +1137,6 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
 
                 $site_url_dir = parse_url($site_url, PHP_URL_PATH);
                 $title = $menu_descr->description . "[$lang] @ $site_url_dir";
-                $that->update(array('post_title' => $title));
 
                 $instances[] = $that;
             }
@@ -1076,38 +1144,50 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
         return $instances;
     }
 
-    static private function _make_wp_rest_url ($site_url, $menu_slug,
-                                               $lang = NULL) {
-        $stem = "menus/$menu_slug";
-        if ($lang) {
-            $stem .= "?lang=$lang";
-        }
-        return REST_URL::remote($site_url, $stem)->fully_qualified();
+    /* A model class that has-a controller is a bad thing, but since
+       that is hidden in a protected function we're good, I guess? */
+    protected function _get_subscribe_controller () {
+        // The subscribe slug will be embedded in webhook
+        // URLs, so it must not change inbetween queries.
+        // Using the post ID is perhaps a bit difficult to
+        // read out of error logs, but certainly the easiest
+        // and most future-proof way of going about it.
+        return SubscribeController::by_namespace_and_slug("menu", $this->ID);
     }
 
-    protected function _do_refresh () {
-        if (! ($get_url = $this->get_rest_url())) {
-            $this->error_log("doesn't look very external to me");
-            return;
-        }
-
-        $menu_contents = RESTClient::GET_JSON($get_url);
-        $this->set_remote_menu($menu_contents->items);
-        $this->meta()->set_rest_subscribe_url(
-            $menu_contents->get_link('subscribe'));
+    function add_observer ($callable) {
+        $this->_get_subscribe_controller()->add_listener($callable);
     }
 
     function refresh () {
         try {
-            $this->_do_refresh();
+            if (! ($get_url = $this->get_rest_url())) {
+                $this->error_log("doesn't look very external to me");
+                return;
+            }
+
+            $menu_contents = RESTClient::GET_JSON($get_url);
+            $this->set_remote_menu($menu_contents->items);
+
             $this->meta()->set_last_synced(time());
             $this->meta()->del_sync_started_failing();
+            if ($subscribe_url = $menu_contents->get_link('subscribe')) {
+                $this->meta()->set_rest_subscribe_url($subscribe_url);
+            }
+
+            return $menu_contents;
         } catch (RESTClientError $e) {
             $this->error_log("unable to refresh: $e");
             if (! $this->meta()->get_sync_started_failing()) {
                 $this->meta()->set_sync_started_failing(time());
             }
             throw $e;
+        }
+    }
+
+    function resubscribe () {
+        if ($subscribe_url = $this->meta()->get_rest_subscribe_url()) {
+            $this->_get_subscribe_controller()->subscribe($subscribe_url);
         }
     }
 
@@ -1120,10 +1200,6 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
         $json = $this->meta()->get_items_json();
         if (! $json) return;
         return new MenuItemBag(json_decode($json));
-    }
-
-    function get_subscribe_url () {
-        return $this->meta()->get_rest_subscribe_url();
     }
 
     function get_sync_status () {
@@ -1213,10 +1289,10 @@ class MenuRESTController
                              ->export_external()->as_list()));
         // Note: this link is for subscribing to changes in any
         // language, not just the one being served now.
-        $response->add_link(
-            'subscribe',
-            REST_URL::local_wrt_request(static::_get_subscribe_uri($menu))
-            ->fully_qualified());
+        $subscribe_link = REST_API::get_entrypoint_url(
+            static::_get_subscribe_uri($menu));
+        $response->add_link('subscribe', $subscribe_link);
+
         return $response;
     }
 
@@ -1311,8 +1387,9 @@ class MenuItemController extends CustomPostTypeController
 
     static function hook_pubsub ($emi) {
         $thisclass = get_called_class();
-        static::_get_subscribe_controller($emi)->add_listener(
+        $emi->add_observer(
             function($event) use ($thisclass, $emi) {
+                set_time_limit(0);
                 foreach (Menu::all_mapped() as $menu) {
                     if ($menu->update($emi)) {
                         MenuRESTController::menu_changed($menu, $event);
@@ -1343,21 +1420,6 @@ class MenuItemController extends CustomPostTypeController
     static private function _get_api () {
         require_once(dirname(__DIR__) . '/lib/wp-admin-api.php');
         return new \EPFL\AdminAPI\Endpoint('EPFLMenus');
-    }
-
-    static private $subs = array();
-    static private function _get_subscribe_controller ($emi) {
-        $cache_key = $emi->ID;
-        if (! static::$subs[$cache_key]) {
-            static::$subs[$cache_key] = new SubscribeController(
-                // The subscribe slug will be embedded in webhook
-                // URLs, so it must not change inbetween queries.
-                // Using the post ID is perhaps a bit difficult to
-                // read out of error logs, but certainly the easiest
-                // and most future-proof way of going about it.
-                "menu/" . $emi->ID);
-        }
-        return static::$subs[$cache_key];
     }
 
     /**
@@ -1423,9 +1485,9 @@ class MenuItemController extends CustomPostTypeController
      * ExternalMenuItemID that @link ajax_refresh_local previously
      * returned
      */
-    static function ajax_refresh_by_id ($data) {
+    static function ajax_refresh_and_resubscribe_by_id ($data) {
         if (! ($emi = ExternalMenuItem::get($data['id']))) {
-            error_log('Unknown ID or malformed ajax_refresh_by_id: ' . var_export($data, true));
+            error_log('Unknown ID or malformed ajax_refresh_and_resubscribe_by_id: ' . var_export($data, true));
             return array(
                 'status' => 'ERROR',
                 'message' => "$data->id not found"
@@ -1433,6 +1495,7 @@ class MenuItemController extends CustomPostTypeController
         }
         try {
             $emi->refresh();
+            $emi->resubscribe();
             return array(
                 'status' => 'OK'
             );
@@ -1440,7 +1503,7 @@ class MenuItemController extends CustomPostTypeController
             return array(
                 'status' => 'ERROR',
                 'exception' => get_class($e),
-                'message' => sprintf(___('Sync failed: %s', $e))
+                'message' => sprintf(___('Sync failed: %s'), $e)
             );
         }
     }
@@ -1598,6 +1661,16 @@ class MenuEditorController
                 _MenusJSApp::load();
             }
         });
+
+        add_action('wp_update_nav_menu', function($nav_menu_selected_id, $new_menu_data = NULL) {
+            // For whatever reason, this action is called twice per click on
+            // the Save button.
+            if (! $new_menu_data) return;
+
+            if (! ($menu = Menu::by_term($nav_menu_selected_id))) return;
+
+            MenuRESTController::menu_changed($menu);
+        }, 10, 2);
     }
 }
 
@@ -1614,6 +1687,10 @@ MenuEditorController::hook();
 class MenuFrontendController
 {
     static function hook () {
+        add_filter('home_url',
+                   array(get_called_class(), 'home_url_is_root_site_url_for_theme'),
+                   100, 4);
+
         // Note: Polylang also hooks into these two and it isn't quite
         // as careful as we are about preserving tree invariants
         // (topological ordering and child-parent referential
@@ -1689,20 +1766,32 @@ class MenuFrontendController
      * function directly.
      */
     static function filter_wp_nav_menu_items_for_theme
-        ($items, $menu, $args)
+        ($items_orig, $menu, $args)
     {
+        if (static::_is_being_called_by_theme('wp_get_nav_menu_items')) {
+            return static::stitch_menu($items_orig, $menu);
+        } else {
+            return $items_orig;
+        }
+    }
+
+    private static function _is_being_called_by_theme ($function_name) {
         $bt = debug_backtrace();
         for ($i = 0; $i < count($bt); $i++) {
             $caller = $bt[$i];
-            if ($caller['function'] != 'wp_get_nav_menu_items') continue;
-            if (! preg_match('#/wp-content/themes/#', $caller['file'])) {
-                return $items;
-            }
-            global $post;
-            return static::stitch_menu($items, $menu);
+            if ($caller['function'] != $function_name) continue;
+            return preg_match('#/wp-content/themes/#', $caller['file']);
         }
-        error_log('Unable to find wp_get_nav_menu_items stack frame?');
-        return $items;
+    }
+
+    static function home_url_is_root_site_url_for_theme
+        ($url_orig, $unused_path, $unused_orig_scheme, $unused_blog_id)
+    {
+        if (static::_is_being_called_by_theme('get_home_url')) {
+            return Site::root()->get_url();
+        } else {
+            return $url_orig;
+        }
     }
 }
 
