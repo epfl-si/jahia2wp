@@ -1216,6 +1216,12 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
     function has_succeeded () {
         return !! $this->meta()->get_last_synced();
     }
+
+    function __toString () {
+        return sprintf('<ExternalMenuItem(id=%d name="%s")>',
+                       $this->ID,
+                       get_the_title($this->ID));
+    }
 }
 
 /**
