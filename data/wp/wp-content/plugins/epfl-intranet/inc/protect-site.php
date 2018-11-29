@@ -34,10 +34,23 @@ function epfl_intranet_force_login() {
 		return;
 	}
 
-	error_log("EPFL-intranet: not logged in, redirecting to auth (".var_export(wp_login_url(), true).")");
+    /* Defining URL on which we have to redirect to */
+	$http = ( empty( $_SERVER['HTTPS'] ) || ( $_SERVER['HTTPS'] == 'off' ) )?'http://':'https://';
+	$after_login_url = $http . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+
+	/* Forcing cache-control entry from headers otherwise, if we already have a Tequila token but we are not currently
+	authenticated on present WordPress website, we will redirect (below) to "wp-login.php" but this redirect will be
+	cached. This mean that access to current URL and redirect to wp-login.php is cached.
+	And when we will come back from Tequila (without any login because we already have the token), we will be redirected
+	(locally it seems) to primary asked URL and the cache will answer and tell to redirect on wp-login.php... so we will
+	be stuck in an infinite loop that could destroy the world!
+	The only way to fix this is to update the header specifying we must not cache the page.
+	And, this problem does not occurs when we primary authenticate on Tequila (if we don't have any token) because we
+	will go on Tequila website and come back on WordPress. And in this case, cache is not used. */
+	header('Cache-Control: no-cache, no-store, must-revalidate');
 
 	/*	wp_redirect( wp_login_url() ) goes to WP login URL right after exit on the line that follows. */
-	wp_redirect( wp_login_url() );
+	wp_redirect( wp_login_url($after_login_url) );
 	exit;
 }
 
