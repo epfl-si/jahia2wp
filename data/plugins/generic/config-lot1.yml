@@ -17,8 +17,6 @@ plugins:
     config: !include accred/v1/config-plugin.yml
 #  - name: jonradio-private-site
 #    config: !include jonradio-private-site/v1/config-plugin.yml
-  - name: cache-control
-    config: !include cache-control/v1/config-plugin.yml
   - name: varnish-http-purge
     config: !include varnish-http-purge/v1/config-plugin.yml
   - name: EPFL-settings
@@ -45,3 +43,5 @@ plugins:
     config: !include wp-media-folder/v1/config-plugin.yml
   - name: pdfjs-viewer-shortcode
     config: !include pdfjs-viewer-shortcode/v1/config-plugin.yml
+  - name: cloudflare
+    config: !include cloudflare/v1/config-plugin.yml

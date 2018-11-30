@@ -512,6 +512,7 @@ def export(site, wp_site_url, unit_name_or_id, to_wordpress=False, clean_wordpre
                            'svg-support',
                            'enlighter',
                            'tinymce-advanced',
+                           'cloudflare',
                            'varnish-http-purge',
                            'epfl',
                            'epfl-infoscience',
