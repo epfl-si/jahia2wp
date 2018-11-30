@@ -497,3 +497,11 @@ class Utils(object):
     @staticmethod
     def escape_quotes(str):
         return str.replace('"', '\\"')
+
+    @staticmethod
+    def represents_int(s):
+        try:
+            int(s)
+            return True
+        except ValueError:
+            return False
