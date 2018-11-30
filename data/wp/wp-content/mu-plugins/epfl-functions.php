@@ -3,7 +3,7 @@
  * Plugin Name: EPFL Functions
  * Plugin URI: 
  * Description: Must-use plugin for the EPFL website.
- * Version: 0.0.1
+ * Version: 0.0.2
  * Author: Aline Keller
  * Author URI: http://www.alinekeller.ch
  */
