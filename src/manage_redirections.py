@@ -97,14 +97,14 @@ def copy_jahia_redirections_many(csv_file, **kwargs):
     rows = Utils.csv_filepath_to_dict(csv_file)
 
     logging.info("Starting copy jahia redirections for {} sites".format(len(rows)))
-    for index, row in enumerate(rows):
+    for index, row in enumerate(rows, start=1):
 
         source_site_url = row['source_site_url']
         destination_site_url = row['destination_site_url']
 
-        logging.info("Starting copy jahia redirections from {} to {} ".format(source_site_url, destination_site_url))
+        logging.info("Starting site n°{} copy jahia redirections from {} to {} ".format(index, source_site_url, destination_site_url))
         _copy_jahia_redirections(source_site_url, destination_site_url)
-        logging.info("End of copy jahia redirections from {} to {} ".format(source_site_url, destination_site_url))
+        logging.info("End site n°{} of copy jahia redirections from {} to {} ".format(index, source_site_url, destination_site_url))
 
 
 @dispatch.on('update-redirections')

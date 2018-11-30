@@ -119,8 +119,7 @@ class SshRemoteSite:
         ssh = self.parent_host.run_ssh(remote_cmd, check=False)
 
         if ssh.returncode == 0:
-            htaccess_file_content = ssh.stdout
-            htaccess_file_content = htaccess_file_content.decode("utf-8")
+            htaccess_file_content = self.get_htaccess_content()
             logging.debug("htaccess content {} after update:\n{}".format(htaccess_file, htaccess_file_content))
 
         elif ssh.returncode != 1:
