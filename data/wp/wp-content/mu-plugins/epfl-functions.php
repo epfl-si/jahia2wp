@@ -190,4 +190,23 @@ function colored_box( $atts, $content = null ) {
 }
 add_shortcode('colored-box', 'colored_box');
 
+
+/*--------------------------------------------------------------
+
+ # CloudFlare
+
+--------------------------------------------------------------*/
+
+/*
+    If we have 302 redirection on local address, we transform them to 303 to avoid CloudFlare to cache
+    them. If we don't do this, we have issues to switch from one language to another (Polylang) because the
+    first time we visit the homepage, it does a 302 to default lang homepage and this request is cached in cloudflare
+    so it's impossible to switch to the other language
+*/
+function http_status_change_to_non_cacheable($status, $location) {
+   /* We only do 303 redirect if redirection are local to website. */
+   return (strpos($location, $_SERVER['SERVER_NAME'])!==false)? 303: $status;
+}
+add_filter( 'wp_redirect_status', 'http_status_change_to_non_cacheable', 10, 2);
+
 ?>
