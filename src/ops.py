@@ -106,23 +106,51 @@ class SshRemoteSite:
                     (self.moniker, remote_base, remote_subdir_initial))
             remote_subdir = os.path.dirname(remote_subdir)
 
+    def write_htaccess_content(self, content):
+        htaccess_file_content = ""
+        htaccess_file = os.path.join('/srv',
+                                     self.wp_env,
+                                     self.wp_hostname,
+                                     'htdocs',
+                                     self.wp_path,
+                                     '.htaccess')
+
+        remote_cmd = "'echo -e \"{}\" > {}'".format(content, htaccess_file)
+        ssh = self.parent_host.run_ssh(remote_cmd, check=False)
+
+        if ssh.returncode == 0:
+            htaccess_file_content = ssh.stdout
+            htaccess_file_content = htaccess_file_content.decode("utf-8")
+            logging.debug("htaccess content {} after update:\n{}".format(htaccess_file, htaccess_file_content))
+
+        elif ssh.returncode != 1:
+            logging.error(ssh.stderr)
+
+        return htaccess_file_content
+
     def get_htaccess_content(self):
+        """
+        :return: htaccess content file 
+        """
+        htaccess_file_content = ""
         htaccess_file = os.path.join('/srv',
                                    self.wp_env,
                                    self.wp_hostname,
                                    'htdocs',
                                    self.wp_path,
                                    '.htaccess')
-
         remote_cmd = "cat {}".format(htaccess_file)
         ssh = self.parent_host.run_ssh(remote_cmd, check=False)
 
         if ssh.returncode == 0:
             htaccess_file_content = ssh.stdout
-            return htaccess_file_content
+            htaccess_file_content = htaccess_file_content.decode("utf-8")
+            logging.debug("htaccess content of {}:\n{}".format(htaccess_file, htaccess_file_content))
 
         elif ssh.returncode != 1:
             logging.error(ssh.stderr)
+
+        return htaccess_file_content
 
     def get_url(self):
         return 'https://{}/{}'.format(self.wp_hostname, self.wp_path)
