@@ -34,16 +34,18 @@ def extract_htaccess_part(content, marker):
     :param marker: each WordPress htaccess contains part which define by marker
     :return: the "right" part of htaccess file
     """
-
     start_marker = "# BEGIN {}".format(marker)
     end_marker = "# END {}".format(marker)
-
-    # TODO: tester si le marker n'existe pas
-    # TODO: tester si le marker de fin n'existe pas
-    # TODO: tester si le marker de début n'existe pas
-    result = (content.split(start_marker))[1].split(end_marker)[0]
-    result = "\n".join([start_marker, result, end_marker])
-
+    result = ""
+    if start_marker not in content:
+        error_msg = "Error during extract_htaccess_part: start marker {} not in content {}".format(start_marker, content)
+        logging.error(error_msg)
+    elif end_marker not in content:
+        error_msg = "Error during extract_htaccess_part: end marker {} not in content {}".format(end_marker, content)
+        logging.error(error_msg)
+    else:
+        result = (content.split(start_marker))[1].split(end_marker)[0]
+        result = "\n".join([start_marker, result, end_marker])
     return result
 
 
