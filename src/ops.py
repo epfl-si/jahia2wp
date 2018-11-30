@@ -62,7 +62,7 @@ class SshRemoteSite:
         hostname = urlparse(url).netloc
         self.wp_hostname = hostname
         parent_host = SshRemoteHost.for_host(hostname)
-
+        self.parent_host = parent_host
         if hostname == 'migration-wp.epfl.ch':
             assert parent_host is SshRemoteHost.test
             wp_env = 'int'
@@ -105,6 +105,24 @@ class SshRemoteSite:
                     'Unable to find Wordpress for %s (started at %s/%s)' %
                     (self.moniker, remote_base, remote_subdir_initial))
             remote_subdir = os.path.dirname(remote_subdir)
+
+    def get_htaccess_content(self):
+        htaccess_file = os.path.join('/srv',
+                                   self.wp_env,
+                                   self.wp_hostname,
+                                   'htdocs',
+                                   self.wp_path,
+                                   '.htaccess')
+
+        remote_cmd = "cat {}".format(htaccess_file)
+        ssh = self.parent_host.run_ssh(remote_cmd, check=False)
+
+        if ssh.returncode == 0:
+            htaccess_file_content = ssh.stdout
+            return htaccess_file_content
+
+        elif ssh.returncode != 1:
+            logging.error(ssh.stderr)
 
     def get_url(self):
         return 'https://{}/{}'.format(self.wp_hostname, self.wp_path)
