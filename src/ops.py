@@ -107,6 +107,9 @@ class SshRemoteSite:
             remote_subdir = os.path.dirname(remote_subdir)
 
     def write_htaccess_content(self, content):
+        """
+        Write content in htaccess file
+        """
         htaccess_file_content = ""
         htaccess_file = os.path.join('/srv',
                                      self.wp_env,
@@ -129,7 +132,7 @@ class SshRemoteSite:
 
     def get_htaccess_content(self):
         """
-        :return: htaccess content file
+        Return content of htaccess file
         """
         htaccess_file_content = ""
         htaccess_file = os.path.join('/srv',

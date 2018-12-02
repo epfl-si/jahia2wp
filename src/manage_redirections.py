@@ -61,9 +61,9 @@ def extract_htaccess_part(content, marker):
 
 def get_jahia_redirections(content):
     """
-    Return jahia redirections from htaccess file
+    Extract and return jahia redirections from htaccess content
 
-    :param content: content of htaccess file
+    :param content: htaccess content (string)
     :return: jahia redirections
     """
     jahia_page_redirect = extract_htaccess_part(content, "Jahia-Page-Redirect")
@@ -75,6 +75,14 @@ def get_jahia_redirections(content):
 
 
 def _copy_jahia_redirections(source_site_url, destination_site_url):
+    """
+    1. Connect in SSH to the server of source site
+    2. Read htaccess file from source site
+    3. Extract jahia redirections from htaccess file
+    4. Connect in SSH to the server of destination site
+    5. Read htaccess file from destination site
+    6. Insert jahia redirections at the begining of htaccess file from destination site
+    """
 
     # retrieve the content of the htaccess file from the source site
     source_site = SshRemoteSite(source_site_url)
@@ -104,6 +112,11 @@ def _copy_jahia_redirections(source_site_url, destination_site_url):
 
 
 def _update_redirections(site_url):
+    """
+    Update redirections.
+    In other words, we replace the content of the htaccess file with a 302 rule like :
+    RewriteRule ^(.*)$ https://dcsl.epfl.ch$1 [L,QSA,R=301]
+    """
 
     site = SshRemoteSite(site_url)
 
@@ -116,7 +129,14 @@ def _update_redirections(site_url):
 
 @dispatch.on('copy-jahia-redirections')
 def copy_jahia_redirections(source_site_url, destination_site_url, **kwargs):
-
+    """
+    1. Connect in SSH to the server of source site
+    2. Read htaccess file from source site
+    3. Extract jahia redirections from htaccess file
+    4. Connect in SSH to the server of destination site
+    5. Read htaccess file from destination site
+    6. Insert jahia redirections at the begining of htaccess file from destination site
+    """
     logging.info("Starting copy jahia redirections from {} to {} ".format(source_site_url, destination_site_url))
     _copy_jahia_redirections(source_site_url, destination_site_url)
     logging.info("End of copy jahia redirections from {} to {} ".format(source_site_url, destination_site_url))
@@ -124,7 +144,9 @@ def copy_jahia_redirections(source_site_url, destination_site_url, **kwargs):
 
 @dispatch.on('copy-jahia-redirections-many')
 def copy_jahia_redirections_many(csv_file, **kwargs):
-
+    """
+    Copy jahia redirections for all sites present in the csv file
+    """
     rows = Utils.csv_filepath_to_dict(csv_file)
 
     logging.info("Starting copy jahia redirections for {} sites".format(len(rows)))
@@ -148,6 +170,11 @@ def copy_jahia_redirections_many(csv_file, **kwargs):
 
 @dispatch.on('update-redirections')
 def update_redirections(site_url, **kwargs):
+    """
+    Update redirections.
+    In other words, we replace the content of the htaccess file with a 302 rule like :
+    RewriteRule ^(.*)$ https://dcsl.epfl.ch$1 [L,QSA,R=301]
+    """
     logging.info("Starting update redirections from {} ".format(site_url))
     _update_redirections(site_url)
     logging.info("End of update redirections from {} ".format(site_url))
@@ -155,6 +182,11 @@ def update_redirections(site_url, **kwargs):
 
 @dispatch.on('update-redirections-many')
 def update_redirections_many(csv_file, **kwargs):
+    """
+    Update redirections for all sites present in the csv file.
+    In other words, we replace the content of the htaccess file with a 302 rule like :
+    RewriteRule ^(.*)$ https://dcsl.epfl.ch$1 [L,QSA,R=301]
+    """
 
     rows = Utils.csv_filepath_to_dict(csv_file)
     logging.info("Updating redirections for {} sites".format(len(rows)))
