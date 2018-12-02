@@ -29,19 +29,29 @@ WP_REDIRECTS_AFTER_VENTILATION = "WordPress-Redirects-After-Ventilation"
 def extract_htaccess_part(content, marker):
     """
     Extract htaccess part between start and end marker.
-    
-    :param content: content of htaccess file 
+
+    :param content: content of htaccess file
     :param marker: each WordPress htaccess contains part which define by marker
     :return: the "right" part of htaccess file
     """
     start_marker = "# BEGIN {}".format(marker)
     end_marker = "# END {}".format(marker)
     result = ""
-    if start_marker not in content:
-        error_msg = "Error during extract_htaccess_part: start marker {} not in content {}".format(start_marker, content)
+
+    if start_marker not in content and end_marker not in content:
+        # This marker is untraceable but it's probably normal. Example: 'Jahia-Files-Redirect'
+        logging.debug("The marker {} is untraceable in htaccess content {}".format(marker, content))
+    elif start_marker not in content:
+        error_msg = "Error during extract_htaccess_part: start marker {} not in content {}".format(
+            start_marker,
+            content
+        )
         logging.error(error_msg)
     elif end_marker not in content:
-        error_msg = "Error during extract_htaccess_part: end marker {} not in content {}".format(end_marker, content)
+        error_msg = "Error during extract_htaccess_part: end marker {} not in content {}".format(
+            end_marker,
+            content
+        )
         logging.error(error_msg)
     else:
         result = (content.split(start_marker))[1].split(end_marker)[0]
@@ -52,8 +62,8 @@ def extract_htaccess_part(content, marker):
 def get_jahia_redirections(content):
     """
     Return jahia redirections from htaccess file
-     
-    :param content: content of htaccess file 
+
+    :param content: content of htaccess file
     :return: jahia redirections
     """
     jahia_page_redirect = extract_htaccess_part(content, "Jahia-Page-Redirect")
@@ -70,6 +80,17 @@ def _copy_jahia_redirections(source_site_url, destination_site_url):
     source_site = SshRemoteSite(source_site_url)
     source_site_content = source_site.get_htaccess_content()
 
+    # if source_site comes from test infra, we need to delete the site name inside all 301 jahia redirections
+    if source_site_url.startswith("https://migration-wp.epfl.ch/"):
+
+        # prepare the search and replace '/<site/' by '/'
+        if not source_site.wp_path.startswith('/'):
+            source_site.wp_path = '/' + source_site.wp_path
+
+        # search and replace '/<site/' by '/' in htaccess content
+        source_site_content = source_site_content.replace(source_site.wp_path, "/")
+        logging.debug("Rename all 301 jahia redirections without then site name: {}".format(source_site_content))
+
     # extract jahia rules
     jahia_redirections_content = get_jahia_redirections(source_site_content)
 
@@ -79,8 +100,18 @@ def _copy_jahia_redirections(source_site_url, destination_site_url):
 
     # insert jahia rules
     new_content = "\n".join([jahia_redirections_content, destination_site_content])
-
     destination_site.write_htaccess_content(new_content)
+
+
+def _update_redirections(site_url):
+
+    site = SshRemoteSite(site_url)
+
+    new_content = "# BEGIN {}".format(WP_REDIRECTS_AFTER_VENTILATION),
+    new_content += "RewriteRule ^(.*)$ {}$1 [L,QSA,R=301]".format(site_url),
+    new_content += "# END {}".format(WP_REDIRECTS_AFTER_VENTILATION)
+
+    site.write_htaccess_content(new_content)
 
 
 @dispatch.on('copy-jahia-redirections')
@@ -102,29 +133,37 @@ def copy_jahia_redirections_many(csv_file, **kwargs):
         source_site_url = row['source_site_url']
         destination_site_url = row['destination_site_url']
 
-        logging.info("Starting site n°{} copy jahia redirections from {} to {} ".format(index, source_site_url, destination_site_url))
+        logging.info("Starting site n°{} copy jahia redirections from {} to {}".format(
+            index,
+            source_site_url,
+            destination_site_url)
+        )
         _copy_jahia_redirections(source_site_url, destination_site_url)
-        logging.info("End site n°{} of copy jahia redirections from {} to {} ".format(index, source_site_url, destination_site_url))
+        logging.info("End site n°{} of copy jahia redirections from {} to {}".format(
+            index,
+            source_site_url,
+            destination_site_url)
+        )
 
 
 @dispatch.on('update-redirections')
 def update_redirections(site_url, **kwargs):
     logging.info("Starting update redirections from {} ".format(site_url))
-
-    site = SshRemoteSite(site_url)
-
-    new_content = "# BEGIN {}".format(WP_REDIRECTS_AFTER_VENTILATION),
-    new_content += "RewriteRule ^(.*)$ {}$1 [L,QSA,R=301]".format(site_url),
-    new_content += "# END {}".format(WP_REDIRECTS_AFTER_VENTILATION)
-
-    site.write_htaccess_content(new_content)
-
+    _update_redirections(site_url)
     logging.info("End of update redirections from {} ".format(site_url))
 
 
 @dispatch.on('update-redirections-many')
-def update_redirections_many(site_url, **kwargs):
-    pass
+def update_redirections_many(csv_file, **kwargs):
+
+    rows = Utils.csv_filepath_to_dict(csv_file)
+    logging.info("Updating redirections for {} sites".format(len(rows)))
+    for index, row in enumerate(rows, start=1):
+
+        site_url = row['site_url']
+        logging.info("Updating redirections for site n°{} {}".format(index, site_url))
+        _update_redirections(site_url)
+        logging.info("End update redirections for site n°{} {}".format(index, site_url))
 
 
 if __name__ == '__main__':

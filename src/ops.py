@@ -129,15 +129,15 @@ class SshRemoteSite:
 
     def get_htaccess_content(self):
         """
-        :return: htaccess content file 
+        :return: htaccess content file
         """
         htaccess_file_content = ""
         htaccess_file = os.path.join('/srv',
-                                   self.wp_env,
-                                   self.wp_hostname,
-                                   'htdocs',
-                                   self.wp_path,
-                                   '.htaccess')
+                                     self.wp_env,
+                                     self.wp_hostname,
+                                     'htdocs',
+                                     self.wp_path,
+                                     '.htaccess')
         remote_cmd = "cat {}".format(htaccess_file)
         ssh = self.parent_host.run_ssh(remote_cmd, check=False)
 
