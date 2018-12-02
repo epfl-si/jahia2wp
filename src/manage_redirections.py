@@ -111,17 +111,18 @@ def _copy_jahia_redirections(source_site_url, destination_site_url):
     destination_site.write_htaccess_content(new_content)
 
 
-def _update_redirections(site_url):
+def _update_redirections(source_site_url, destination_site_url):
     """
     Update redirections.
     In other words, we replace the content of the htaccess file with a 302 rule like :
     RewriteRule ^(.*)$ https://dcsl.epfl.ch$1 [L,QSA,R=301]
     """
 
-    site = SshRemoteSite(site_url)
+    site = SshRemoteSite(source_site_url)
 
     new_content = "# BEGIN {}".format(WP_REDIRECTS_AFTER_VENTILATION),
-    new_content += "RewriteRule ^(.*)$ {}$1 [L,QSA,R=301]".format(site_url),
+    new_content += "RewriteCond %{{HTTP_HOST}} ^{}$ [NC]".format(source_site_url),
+    new_content += "RewriteRule ^(.*)$ {}$1 [L,QSA,R=301]".format(destination_site_url),
     new_content += "# END {}".format(WP_REDIRECTS_AFTER_VENTILATION)
 
     site.write_htaccess_content(new_content)
@@ -169,15 +170,15 @@ def copy_jahia_redirections_many(csv_file, **kwargs):
 
 
 @dispatch.on('update-redirections')
-def update_redirections(site_url, **kwargs):
+def update_redirections(source_site_url, destination_site_url, **kwargs):
     """
     Update redirections.
     In other words, we replace the content of the htaccess file with a 302 rule like :
     RewriteRule ^(.*)$ https://dcsl.epfl.ch$1 [L,QSA,R=301]
     """
-    logging.info("Starting update redirections from {} ".format(site_url))
-    _update_redirections(site_url)
-    logging.info("End of update redirections from {} ".format(site_url))
+    logging.info("Starting update redirections from {} ".format(source_site_url))
+    _update_redirections(source_site_url, destination_site_url)
+    logging.info("End of update redirections from {} ".format(source_site_url))
 
 
 @dispatch.on('update-redirections-many')
@@ -192,10 +193,12 @@ def update_redirections_many(csv_file, **kwargs):
     logging.info("Updating redirections for {} sites".format(len(rows)))
     for index, row in enumerate(rows, start=1):
 
-        site_url = row['site_url']
-        logging.info("Updating redirections for site n°{} {}".format(index, site_url))
-        _update_redirections(site_url)
-        logging.info("End update redirections for site n°{} {}".format(index, site_url))
+        source_site_url = row['source_site_url']
+        destination_site_url = row['destination_site_url']
+
+        logging.info("Updating redirections for site n°{} {}".format(index, source_site_url))
+        _update_redirections(source_site_url, destination_site_url)
+        logging.info("End update redirections for site n°{} {}".format(index, source_site_url))
 
 
 if __name__ == '__main__':
