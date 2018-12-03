@@ -59,7 +59,40 @@ def extract_htaccess_part(content, marker):
     return result
 
 
-def get_jahia_redirections(content):
+def update_uploads_path(jahia_files_redirect, source_site, destination_site):
+    """
+    1. Extract directory uploads path like wp-content/uploads/2018/<month>/
+    2. Select name of the first directory uploads file from source_site
+    3. Search this file into destination_site and return the upload directory path
+    4. Update htaccess content with the 'right' path
+    """
+
+    # Extract directory uploads path like wp-content/uploads/2018/<month>/
+    jahia_redirect_list = jahia_files_redirect.split(" ")
+    remote_uploads_dir_path = ""
+    for element in jahia_redirect_list:
+        if element.startswith("wp-content/uploads/"):
+            remote_uploads_dir_path = element
+            break
+
+    # Select name of the first directory uploads file from source_site
+    remote_jahia_uploads_dir_path = os.path.join(source_site.get_root_dir_path(), remote_uploads_dir_path[:-2])
+    first_uploads_file = source_site.get_first_file_name(remote_jahia_uploads_dir_path)
+
+    # Search this file into destination_site and return the upload directory path
+    directory_path = destination_site.get_directory_path_contains(first_uploads_file)
+    month = directory_path.split("/")[-2]
+
+    # Update htaccess content with the 'right' path
+    jahia_files_redirect = jahia_files_redirect.replace(
+        remote_uploads_dir_path,
+        'wp-content/uploads/2018/' + month + '/$2'
+    )
+
+    return jahia_files_redirect
+
+
+def get_jahia_redirections(content, source_site, destination_site):
     """
     Extract and return jahia redirections from htaccess content
 
@@ -67,15 +100,9 @@ def get_jahia_redirections(content):
     :return: jahia redirections
     """
     jahia_page_redirect = extract_htaccess_part(content, "Jahia-Page-Redirect")
-
-    # TODO: Attention ! Il faut adapter le chemin du wp-content/uploads/2018/07/ ci-dessous
-    # BEGIN Jahia-Files-Redirect
-    # RewriteRule ^files/content/(.*/)*(.*)$ wp-content/uploads/2018/07/ [R=301,NC,L]
-    # END Jahia-Files-Redirect
-    # L'idée de Lucien, est de chercher un fichier uploadé de sudomain dans sandbox
-    # et de le trouver dans sandbox pour déterminer le bon wp-content/uploads/2018/<mois>/
-
     jahia_files_redirect = extract_htaccess_part(content, "Jahia-Files-Redirect")
+    jahia_files_redirect = update_uploads_path(jahia_files_redirect, source_site, destination_site)
+
     jahia_redirect = "\n".join([jahia_page_redirect, jahia_files_redirect])
     logging.debug("Jahia redirections:\n{}".format(jahia_redirect))
 
@@ -91,9 +118,10 @@ def _copy_jahia_redirections(source_site_url, destination_site_url):
     5. Read htaccess file from destination site
     6. Insert jahia redirections at the begining of htaccess file from destination site
     """
+    source_site = SshRemoteSite(source_site_url)
+    destination_site = SshRemoteSite(destination_site_url)
 
     # retrieve the content of the htaccess file from the source site
-    source_site = SshRemoteSite(source_site_url)
     source_site_content = source_site.get_htaccess_content()
 
     # if source_site comes from test infra, we need to delete the site name inside all 301 jahia redirections
@@ -108,10 +136,9 @@ def _copy_jahia_redirections(source_site_url, destination_site_url):
         logging.debug("Rename all 301 jahia redirections without then site name: {}".format(source_site_content))
 
     # extract jahia rules
-    jahia_redirections_content = get_jahia_redirections(source_site_content)
+    jahia_redirections_content = get_jahia_redirections(source_site_content, source_site, destination_site)
 
     # retrieve the content of the htaccess file from the destination site
-    destination_site = SshRemoteSite(destination_site_url)
     destination_site_content = destination_site.get_htaccess_content()
 
     # insert jahia rules

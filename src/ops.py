@@ -106,11 +106,54 @@ class SshRemoteSite:
                     (self.moniker, remote_base, remote_subdir_initial))
             remote_subdir = os.path.dirname(remote_subdir)
 
+    def get_root_dir_path(self):
+        """
+        Return the root dir path
+        """
+        return os.path.join('/srv', self.wp_env, self.wp_hostname, 'htdocs', self.wp_path)
+
     def get_htaccess_file_path(self):
         """
         Return the htaccess file path
         """
-        return os.path.join('/srv', self.wp_env, self.wp_hostname, 'htdocs', self.wp_path, '.htaccess')
+        return os.path.join(self.get_root_dir_path(), '.htaccess')
+
+    def get_directory_path_contains(self, file_name):
+        """
+        Return the path of the upload directory which contains file 'filename'
+        """
+        directory_path = ""
+        upload_dir = os.path.join(self.get_root_dir_path(), 'wp-content/uploads/2018')
+
+        remote_cmd = "find {} -name {}".format(upload_dir, file_name)
+        ssh = self.parent_host.run_ssh(remote_cmd, check=False)
+        if ssh.returncode == 0:
+            directory_path = ssh.stdout.decode("utf-8")
+            if directory_path.endswith("\n"):
+                directory_path = directory_path[:-1]
+            logging.debug("File {} found in {}".format(file_name, directory_path))
+
+        elif ssh.returncode != 1:
+            logging.error(ssh.stderr)
+        return directory_path
+
+    def get_first_file_name(self, month_upload_dir):
+        """
+        Return the file name of the first file of directory 'month_upload_dir'
+        """
+        first_file_name = ""
+        remote_cmd = "ls {} | sort -n | head -1".format(month_upload_dir)
+        ssh = self.parent_host.run_ssh(remote_cmd, check=False)
+        if ssh.returncode == 0:
+            first_file_name = ssh.stdout.decode("utf-8")
+            if first_file_name.endswith("\n"):
+                first_file_name = first_file_name[:-1]
+            logging.debug("First file name of {} is {}".format(month_upload_dir, first_file_name))
+
+        elif ssh.returncode != 1:
+            logging.error(ssh.stderr)
+
+        return first_file_name
 
     def create_htaccess_backup(self):
         """
