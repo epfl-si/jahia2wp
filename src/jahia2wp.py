@@ -42,7 +42,7 @@ Usage:
   jahia2wp.py fan-global-sitemap    <csv_file> <wp_path>            [--debug | --quiet]
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
   jahia2wp.py search-and-replace-many <csv_file> <source> <destination> [--debug | --quiet]
-  jahia2wp.py search-and-replace-by-inventory <path> <source> <destination> [--debug | --quiet]
+  jahia2wp.py search-and-replace-inventory <path> <source> <destination> [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
     [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
@@ -879,6 +879,7 @@ def search_and_replace_many(csv_file, source, destination, **kwargs):
 
     rows = Utils.csv_filepath_to_dict(csv_file)
 
+    logging.info("Starting search and replace {} by {} for {} websites".format(source, destination, len(rows)))
     print("\nSearch and replace {} by {} for {} websites ".format(source, destination, len(rows)))
     for index, row in enumerate(rows):
 
@@ -890,16 +891,15 @@ def search_and_replace_many(csv_file, source, destination, **kwargs):
 
         wp_generator = WPGenerator({'openshift_env': row['openshift_env'], 'wp_site_url': row['wp_site_url']})
         wp_generator.run_wp_cli("search-replace {} {}".format(source, destination))
+    logging.info("End of search and replace {} by {} for {} websites".format(source, destination, len(rows)))
 
 
-@dispatch.on('search-and-replace-by-inventory')
-def search_and_replace_by_inventory(path, source, destination, **kwargs):
+@dispatch.on('search-and-replace-inventory')
+def search_and_replace_inventory(path, source, destination, **kwargs):
 
-    sites = []
     for site_details in WPConfig.inventory(path):
-        sites.append({'wp_site_url': site_details.url, 'openshift_env': site_details.openshift_env})
 
-    for site in sites:
+        site = {'wp_site_url': site_details.url, 'openshift_env': site_details.openshift_env}
 
         if 'openshift_env' in site and site['openshift_env'] and 'wp_site_url' in site and site['wp_site_url']:
 
