@@ -66,9 +66,9 @@ class SshRemoteSite:
         if hostname == 'migration-wp.epfl.ch':
             assert parent_host is SshRemoteHost.test
             wp_env = 'int'
-        elif hostname == 'www2018.epfl.ch':
+        elif hostname == 'www.epfl.ch':
             assert parent_host is SshRemoteHost.prod
-            wp_env = 'sandbox'
+            wp_env = 'www'
         else:
             # TODO: there certainly is more to it than this.
             assert parent_host is SshRemoteHost.prod
@@ -105,6 +105,27 @@ class SshRemoteSite:
                     'Unable to find Wordpress for %s (started at %s/%s)' %
                     (self.moniker, remote_base, remote_subdir_initial))
             remote_subdir = os.path.dirname(remote_subdir)
+
+    def create_htaccess_backup(self):
+        """ 
+        """
+        htaccess_file = os.path.join('/srv',
+                                     self.wp_env,
+                                     self.wp_hostname,
+                                     'htdocs',
+                                     self.wp_path,
+                                     '.htaccess')
+
+        remote_cmd = 'cp {}'.format(htaccess_file) + '{,.bak."$(date +%Y-%m-%dT%H:%M:%S)"}'
+        ssh = self.parent_host.run_ssh(remote_cmd, check=False)
+
+        if ssh.returncode == 0:
+            logging.debug("backup file .htaccess.bak.timestamp created")
+            return True
+
+        elif ssh.returncode != 1:
+            logging.error(ssh.stderr)
+            return False
 
     def write_htaccess_content(self, content):
         """

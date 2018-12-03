@@ -4,7 +4,7 @@ manage_redirections: an amazing tool !
 Usage:
   manage_redirections.py copy-jahia-redirections <source_site_url> <destination_site_url> [--debug | --quiet]
   manage_redirections.py copy-jahia-redirections-many <csv_file> [--debug | --quiet]
-  manage_redirections.py update-redirections <site_url> [--debug | --quiet]
+  manage_redirections.py update-redirections <source_site_url> <destination_site_url> [--debug | --quiet]
   manage_redirections.py update-redirections-many <csv_file> [--debug | --quiet]
 
 Options:
@@ -67,6 +67,14 @@ def get_jahia_redirections(content):
     :return: jahia redirections
     """
     jahia_page_redirect = extract_htaccess_part(content, "Jahia-Page-Redirect")
+
+    # TODO: Attention ! Il faut adapter le chemin du wp-content/uploads/2018/07/ ci-dessous
+    # BEGIN Jahia-Files-Redirect
+    # RewriteRule ^files/content/(.*/)*(.*)$ wp-content/uploads/2018/07/ [R=301,NC,L]
+    # END Jahia-Files-Redirect
+    # L'idée de Lucien, est de chercher un fichier uploadé de sudomain dans sandbox
+    # et de le trouver dans sandbox pour déterminer le bon wp-content/uploads/2018/<mois>/
+
     jahia_files_redirect = extract_htaccess_part(content, "Jahia-Files-Redirect")
     jahia_redirect = "\n".join([jahia_page_redirect, jahia_files_redirect])
     logging.debug("Jahia redirections:\n{}".format(jahia_redirect))
@@ -118,14 +126,18 @@ def _update_redirections(source_site_url, destination_site_url):
     RewriteRule ^(.*)$ https://dcsl.epfl.ch$1 [L,QSA,R=301]
     """
 
-    site = SshRemoteSite(source_site_url)
+    source_site = SshRemoteSite(source_site_url)
 
-    new_content = "# BEGIN {}".format(WP_REDIRECTS_AFTER_VENTILATION),
-    new_content += "RewriteCond %{{HTTP_HOST}} ^{}$ [NC]".format(source_site_url),
-    new_content += "RewriteRule ^(.*)$ {}$1 [L,QSA,R=301]".format(destination_site_url),
-    new_content += "# END {}".format(WP_REDIRECTS_AFTER_VENTILATION)
+    # Create a htaccess backup with name .htacces.bak.timestamp
+    is_backup_created = source_site.create_htaccess_backup()
 
-    site.write_htaccess_content(new_content)
+    if is_backup_created:
+        new_content = "# BEGIN {}".format(WP_REDIRECTS_AFTER_VENTILATION),
+        new_content += "RewriteCond %{{HTTP_HOST}} ^{}$ [NC]".format(source_site_url),
+        new_content += "RewriteRule ^(.*)$ {}$1 [L,QSA,R=301]".format(destination_site_url),
+        new_content += "# END {}".format(WP_REDIRECTS_AFTER_VENTILATION)
+
+        source_site.write_htaccess_content(new_content)
 
 
 @dispatch.on('copy-jahia-redirections')
