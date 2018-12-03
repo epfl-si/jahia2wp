@@ -86,7 +86,7 @@ class WPConfig:
                 if wp_config.is_config_valid:
                     yield WPResult(
                         wp_config.wp_site.path,
-                        "ok",
+                        settings.WP_SITE_INSTALL_OK,
                         wp_config.wp_site.url,
                         wp_config.wp_version,
                         wp_config.db_name,
@@ -95,7 +95,7 @@ class WPConfig:
                         wp_config.wp_site.openshift_env
                     )
                 else:
-                    yield WPResult(wp_config.wp_site.path, "KO", "", "", "", "", "", "")
+                    yield WPResult(wp_config.wp_site.path, settings.WP_SITE_INSTALL_KO, "", "", "", "", "", "")
 
     def run_wp_cli(self, command, encoding=sys.getdefaultencoding(), pipe_input=None, extra_options=None):
         """
