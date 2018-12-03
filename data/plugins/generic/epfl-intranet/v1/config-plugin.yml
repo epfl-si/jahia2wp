@@ -5,7 +5,7 @@ tables:
   - autoload: 'yes'
     option_id: 301
     option_name: plugin:epfl_accred:subscriber_group
-    option_value: '*'
+    option_value: 'www2018'
   - autoload: 'yes'
     option_id: 302
     option_name: plugin:epfl_intranet:enabled
