@@ -147,7 +147,7 @@ abstract class Post
 
     function wp_post ()
     {
-        if (! $this->_wp_post) {
+        if (! property_exists($this, '_wp_post')) {
             $this->_wp_post = get_post($this->ID);
         }
         return $this->_wp_post;
