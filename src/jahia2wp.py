@@ -901,7 +901,7 @@ def search_and_replace_inventory(path, source, destination, **kwargs):
 
         site = {'wp_site_url': site_details.url, 'openshift_env': site_details.openshift_env}
 
-        if 'openshift_env' in site and site['openshift_env'] and 'wp_site_url' in site and site['wp_site_url']:
+        if site.valid == settings.WP_SITE_INSTALL_OK:
 
             wp_generator = WPGenerator({'openshift_env': site['openshift_env'], 'wp_site_url': site['wp_site_url']})
             wp_generator.run_wp_cli("search-replace {} {}".format(source, destination))
