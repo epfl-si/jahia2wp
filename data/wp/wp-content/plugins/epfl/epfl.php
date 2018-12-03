@@ -29,7 +29,8 @@ require_once 'shortcodes/epfl-tableau/epfl-tableau.php';
 require_once 'shortcodes/epfl-google-forms/epfl-google-forms.php';
 require_once 'menus/epfl-menus.php';
 require_once 'epfl-multisite.php';
-require_once 'preprod.php';
+// Disabled due to 'epfl-intranet' plugin use
+//require_once 'preprod.php';
 
 if (class_exists('\WP_CLI')) {
     require_once 'menus/wpcli.php';
