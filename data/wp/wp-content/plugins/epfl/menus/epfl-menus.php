@@ -1135,8 +1135,13 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
                 // show up in the wp-admin list UI.
                 $that->set_language($lang);
 
-                $site_url_dir = parse_url($site_url, PHP_URL_PATH);
-                $title = $menu_descr->description . "[$lang] @ $site_url_dir";
+                if (! $that->wp_post()->post_title) {
+                    $site_moniker = parse_url($site_url, PHP_URL_PATH);
+                    $menu_moniker = $menu_descr->description;
+                    wp_update_post(array(
+                        'ID' => $that->ID,
+                        'post_title' =>  "$menu_moniker\[$lang\] @ $site_moniker"));
+                }
 
                 $instances[] = $that;
             }
@@ -1220,7 +1225,7 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
     function __toString () {
         return sprintf('<ExternalMenuItem(id=%d name="%s")>',
                        $this->ID,
-                       get_the_title($this->ID));
+                       $this->wp_post()->post_title);
     }
 }
 
