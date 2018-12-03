@@ -106,16 +106,18 @@ class SshRemoteSite:
                     (self.moniker, remote_base, remote_subdir_initial))
             remote_subdir = os.path.dirname(remote_subdir)
 
-    def create_htaccess_backup(self):
-        """ 
+    def get_htaccess_file_path(self):
         """
-        htaccess_file = os.path.join('/srv',
-                                     self.wp_env,
-                                     self.wp_hostname,
-                                     'htdocs',
-                                     self.wp_path,
-                                     '.htaccess')
+        Return the htaccess file path
+        """
+        return os.path.join('/srv', self.wp_env, self.wp_hostname, 'htdocs', self.wp_path, '.htaccess')
 
+    def create_htaccess_backup(self):
+        """
+        Create htaccess backup.
+        Example of backup file: .htaccess.bak.2018-12-03T17:14:29
+        """
+        htaccess_file = self.get_htaccess_file_path()
         remote_cmd = 'cp {}'.format(htaccess_file) + '{,.bak."$(date +%Y-%m-%dT%H:%M:%S)"}'
         ssh = self.parent_host.run_ssh(remote_cmd, check=False)
 
@@ -132,12 +134,7 @@ class SshRemoteSite:
         Write content in htaccess file
         """
         htaccess_file_content = ""
-        htaccess_file = os.path.join('/srv',
-                                     self.wp_env,
-                                     self.wp_hostname,
-                                     'htdocs',
-                                     self.wp_path,
-                                     '.htaccess')
+        htaccess_file = self.get_htaccess_file_path()
 
         remote_cmd = "'echo -e \"{}\" > {}'".format(content, htaccess_file)
         ssh = self.parent_host.run_ssh(remote_cmd, check=False)
@@ -156,12 +153,7 @@ class SshRemoteSite:
         Return content of htaccess file
         """
         htaccess_file_content = ""
-        htaccess_file = os.path.join('/srv',
-                                     self.wp_env,
-                                     self.wp_hostname,
-                                     'htdocs',
-                                     self.wp_path,
-                                     '.htaccess')
+        htaccess_file = self.get_htaccess_file_path()
         remote_cmd = "cat {}".format(htaccess_file)
         ssh = self.parent_host.run_ssh(remote_cmd, check=False)
 
