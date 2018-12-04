@@ -24,7 +24,7 @@ services:
   httpd:
     labels:
       ch.epfl.jahia2wp.httpd.env: ${WP_ENV}
-    image: epflidevelop/os-wp-httpd
+    build: build/httpd
     volumes:
       - ./volumes/srv:/srv
       - /srv/sti.epfl.ch/media/${WP_ENV}/uploads:/srv/${WP_ENV}/sti.epfl.ch/htdocs/wp-content/uploads

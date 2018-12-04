@@ -30,6 +30,7 @@ COPY modsecurity.conf /etc/modsecurity/
 COPY modsecurity-whitelist.conf /etc/modsecurity/
 COPY docker-entrypoint.sh /
 RUN chmod a+x /docker-entrypoint.sh
+RUN a2disconf other-vhosts-access-log
 
 EXPOSE 8080 8443
 
