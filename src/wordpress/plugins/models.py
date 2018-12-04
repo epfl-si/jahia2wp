@@ -256,24 +256,18 @@ class WPPluginConfigInfos:
             # Let's see if we have to activate the plugin or not
             self.is_active = plugin_config['activate']
 
-            # If plugin needs to be activated
-            if self.is_active:
-                # If plugin is coming from WP store
-                if plugin_config['src'].lower() == settings.PLUGIN_SOURCE_WP_STORE:
-                    self.zip_path = None
+            # If plugin is coming from WP store
+            if plugin_config['src'].lower() == settings.PLUGIN_SOURCE_WP_STORE:
+                self.zip_path = None
 
-                # If plugin is an URL pointing to a ZIP file
-                elif plugin_config['src'].startswith('http') and plugin_config['src'].endswith('.zip'):
-                    self.handle_plugin_remote_zip(plugin_config['src'])
-                else:  # It may be a path to a local folder to use to install plugin
-                    # Generate full path
-                    full_path = os.path.join(settings.PLUGINS_CONFIG_BASE_FOLDER, plugin_config['src'])
-                    # Do some checks and create ZIP file with plugin files if necessary
-                    self.handle_plugin_local_src(full_path)
-
-            else:  # Plugin has to be deactivated
-                # So, action is set to nothing
-                self.action = settings.PLUGIN_ACTION_NOTHING
+            # If plugin is an URL pointing to a ZIP file
+            elif plugin_config['src'].startswith('http') and plugin_config['src'].endswith('.zip'):
+                self.handle_plugin_remote_zip(plugin_config['src'])
+            else:  # It may be a path to a local folder to use to install plugin
+                # Generate full path
+                full_path = os.path.join(settings.PLUGINS_CONFIG_BASE_FOLDER, plugin_config['src'])
+                # Do some checks and create ZIP file with plugin files if necessary
+                self.handle_plugin_local_src(full_path)
 
         # If there's no information for DB tables (= no options) for plugin
         if 'tables' not in plugin_config:
