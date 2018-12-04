@@ -264,7 +264,7 @@ class WPPluginConfigInfos:
             # If plugin is an URL pointing to a ZIP file
             elif plugin_config['src'].startswith('http') and plugin_config['src'].endswith('.zip'):
                 self.handle_plugin_remote_zip(plugin_config['src'])
-                
+
             else:  # It may be a path to a local folder to use to install plugin
                 # Generate full path
                 full_path = os.path.join(settings.PLUGINS_CONFIG_BASE_FOLDER, plugin_config['src'])
