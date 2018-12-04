@@ -176,7 +176,7 @@ abstract class CustomPostTypeController extends Controller
     abstract static function get_model_class ();
 
     static function is_active () {
-        return $_REQUEST['post_type'] === static::get_post_type();
+        return array_key_exists('post_type', $_REQUEST)?$_REQUEST['post_type'] === static::get_post_type():false;
     }
 
     static function hook ()
@@ -562,7 +562,7 @@ class _CustomPostTypeControllerColumn
     function _action_pre_get_posts ($query)
     {
         if ( ! is_admin() ) return;
-        if (! $this->sort_opts) return;
+        if (! property_exists($this, 'sort_opts')) return;
         if ($query->get( 'orderby' ) !== $this->slug) return;
 
         // Here we could examine $this->sort_opts to support sorting
