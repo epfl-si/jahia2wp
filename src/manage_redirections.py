@@ -81,13 +81,17 @@ def update_uploads_path(jahia_files_redirect, source_site, destination_site):
 
     # Search this file into destination_site and return the upload directory path
     directory_path = destination_site.get_directory_path_contains(first_uploads_file)
-    month = directory_path.split("/")[-2]
+    if directory_path:
+        month = directory_path.split("/")[-2]
 
-    # Update htaccess content with the 'right' path
-    jahia_files_redirect = jahia_files_redirect.replace(
-        remote_uploads_dir_path,
-        'wp-content/uploads/2018/' + month + '/$2'
-    )
+        # Update htaccess content with the 'right' path
+        jahia_files_redirect = jahia_files_redirect.replace(
+            remote_uploads_dir_path,
+            'wp-content/uploads/2018/' + month + '/$2'
+        )
+    else:
+        destination_uploads_dir = os.path.join(destination_site.get_root_dir_path(), 'wp-content/uploads/2018')
+        logging.debug("The file {} was not found in the site {}".format(first_uploads_file, destination_uploads_dir))
 
     return jahia_files_redirect
 
@@ -159,9 +163,9 @@ def _update_redirections(source_site_url, destination_site_url):
     is_backup_created = source_site.create_htaccess_backup()
 
     if is_backup_created:
-        new_content = "# BEGIN {}".format(WP_REDIRECTS_AFTER_VENTILATION),
-        new_content += "RewriteCond %{{HTTP_HOST}} ^{}$ [NC]".format(source_site_url),
-        new_content += "RewriteRule ^(.*)$ {}$1 [L,QSA,R=301]".format(destination_site_url),
+        new_content = "# BEGIN {}".format(WP_REDIRECTS_AFTER_VENTILATION)
+        new_content += "RewriteCond %{{HTTP_HOST}} ^{}$ [NC]".format(source_site_url)
+        new_content += "RewriteRule ^(.*)$ {}$1 [L,QSA,R=301]".format(destination_site_url)
         new_content += "# END {}".format(WP_REDIRECTS_AFTER_VENTILATION)
 
         source_site.write_htaccess_content(new_content)
