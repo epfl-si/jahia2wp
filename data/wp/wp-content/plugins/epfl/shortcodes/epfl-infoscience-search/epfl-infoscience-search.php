@@ -267,7 +267,12 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     # not in cache ?
     if ($page === false || $debug_data || $debug_template){
         if (epfl_infoscience_search_url_exists( $url ) ) {
+
+            $start = microtime(true);
             $response = wp_remote_get( $url );
+            $end = microtime(true);
+
+            Prometheus\record_ws_call($url, $end-$start);
 
             if ( is_wp_error( $response ) ) {
                 $error_message = $response->get_error_message();
