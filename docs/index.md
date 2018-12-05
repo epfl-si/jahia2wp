@@ -132,8 +132,10 @@ Note that python is not in the requirements. You do not necessarily need it on y
 As some commands require `sudo`, you will be asked for your system password. The process will add a line in your `.bashrc` (again: head to [INSTALL_TOOLS.md](./INSTALL_TOOLS.md) to get more details):
 
     you@host:~$ git clone git@github.com:epfl-idevelop/jahia2wp.git
+    you@host:~$ git clone git@github.com:epfl-idevelop/wp-ops.git
     # or, would you rather use https instead of SSH
     # you@host:~$ git clone https://github.com/epfl-idevelop/jahia2wp.git 
+    # you@host:~$ git clone https://github.com/epfl-idevelop/wp-ops.git 
     you@host:~$ cd jahia2wp
     you@host:jahia2wp$ make bootstrap-local (add ENV=your-env if you use a C2C environment name here if you have one)
     ...
