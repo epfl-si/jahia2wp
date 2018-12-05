@@ -19,3 +19,6 @@
     require_once __DIR__."/Prometheus/PushGateway.php";
     require_once __DIR__."/Prometheus/RenderTextFormat.php";
     require_once __DIR__."/Prometheus/Sample.php";
+
+    /* Functions */
+    require_once __DIR__."/Prometheus/functions.php";
