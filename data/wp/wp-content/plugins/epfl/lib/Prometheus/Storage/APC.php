@@ -12,6 +12,16 @@ class APC implements Adapter
     const PROMETHEUS_PREFIX = 'prom';
 
     /**
+     * @throws StorageException
+     */
+    public function __construct()
+    {
+        if (!ini_get('apc.enabled') || ((php_sapi_name() == 'cli') && !ini_get('apc.enable_cli'))) {
+            throw new StorageException('APC is not enabled');
+        }
+    }
+
+    /**
      * @return MetricFamilySamples[]
      */
     public function collect()
@@ -155,6 +165,7 @@ class APC implements Adapter
                 'help' => $metaData['help'],
                 'type' => $metaData['type'],
                 'labelNames' => $metaData['labelNames'],
+                'samples' => array(),
             );
             foreach (new \APCUIterator('/^prom:counter:' . $metaData['name'] . ':.*:value/') as $value) {
                 $parts = explode(':', $value['key']);
@@ -185,6 +196,7 @@ class APC implements Adapter
                 'help' => $metaData['help'],
                 'type' => $metaData['type'],
                 'labelNames' => $metaData['labelNames'],
+                'samples' => array(),
             );
             foreach (new \APCUIterator('/^prom:gauge:' . $metaData['name'] . ':.*:value/') as $value) {
                 $parts = explode(':', $value['key']);
@@ -216,7 +228,8 @@ class APC implements Adapter
                 'help' => $metaData['help'],
                 'type' => $metaData['type'],
                 'labelNames' => $metaData['labelNames'],
-                'buckets' => $metaData['buckets']
+                'buckets' => $metaData['buckets'],
+                'samples' => array(),
             );
 
             // Add the Inf bucket so we can compute it later on
