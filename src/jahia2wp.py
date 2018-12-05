@@ -504,6 +504,7 @@ def export(site, wp_site_url, unit_name_or_id, to_wordpress=False, clean_wordpre
     # there are dependencies between plugins, arrange them in the right way.
     deactivated_plugins = ['mainwp-child',
                            'EPFL-Content-Filter',
+                           'epfl-intranet',
                            'feedzy-rss-feeds',
                            'remote-content-shortcode',
                            'shortcode-ui',

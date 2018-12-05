@@ -90,8 +90,6 @@ function EPFL_remove_admin_submenus() {
    remove_submenu_page( 'options-general.php', 'epfl_tequila' );
    // CloudFlare
    remove_submenu_page( 'options-general.php', 'cloudflare' );
-   // Jonradio private site
-   remove_submenu_page( 'options-general.php', 'jr_ps_settings' );
    // WP Media folder
    remove_submenu_page( 'options-general.php', 'option-folder' );
 }
