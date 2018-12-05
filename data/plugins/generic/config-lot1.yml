@@ -15,8 +15,6 @@ plugins:
     config: !include tequila/v1/config-plugin.yml
   - name: accred
     config: !include accred/v1/config-plugin.yml
-#  - name: jonradio-private-site
-#    config: !include jonradio-private-site/v1/config-plugin.yml
   - name: varnish-http-purge
     config: !include varnish-http-purge/v1/config-plugin.yml
   - name: EPFL-settings
