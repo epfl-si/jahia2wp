@@ -44,7 +44,11 @@ Class Utils
      */
     public static function get_items(string $url) {
 
+        $start = microtime(true);
         $response = wp_remote_get($url);
+        $end = microtime(true);
+
+        Prometheus\record_ws_call($url, $end-$start);
 
         if (is_array($response)) {
             $header = $response['headers']; // array of http header lines
