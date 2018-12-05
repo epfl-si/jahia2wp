@@ -61,6 +61,8 @@ class SshRemoteSite:
     def __init__(self, url, discover_site_path=False):
         hostname = urlparse(url).netloc
         self.wp_hostname = hostname
+        self.site_name = hostname.replace(".epfl.ch", "")
+
         parent_host = SshRemoteHost.for_host(hostname)
         self.parent_host = parent_host
         if hostname == 'migration-wp.epfl.ch':
@@ -69,6 +71,9 @@ class SshRemoteSite:
         elif hostname == 'www.epfl.ch':
             assert parent_host is SshRemoteHost.prod
             wp_env = 'www'
+        elif hostname == 'archive-wp.epfl.ch':
+            assert parent_host is SshRemoteHost.prod
+            wp_env = 'sandbox'
         else:
             # TODO: there certainly is more to it than this.
             assert parent_host is SshRemoteHost.prod
@@ -105,6 +110,32 @@ class SshRemoteSite:
                     'Unable to find Wordpress for %s (started at %s/%s)' %
                     (self.moniker, remote_base, remote_subdir_initial))
             remote_subdir = os.path.dirname(remote_subdir)
+
+    def _run_ssh(self, remote_cmd, success_msg=""):
+        result = ""
+        ssh = self.parent_host.run_ssh(remote_cmd, check=False)
+        if ssh.returncode == 0:
+            logging.debug(success_msg)
+            result = ssh.stdout
+        elif ssh.returncode == 1:
+            logging.warning(ssh.stderr)
+        elif ssh.returncode != 1:
+            logging.error(ssh.stderr)
+        return result
+
+    def is_valid(self):
+
+        wp_config_path = os.path.join(self.get_root_dir_path(), 'wp-config.php')
+        remote_cmd = "ls {}".format(wp_config_path)
+        ssh = self.parent_host.run_ssh(remote_cmd, check=False)
+
+        if ssh.returncode == 0:
+            logging.debug("WP site is valid")
+            return True
+
+        elif ssh.returncode != 1:
+            logging.error(ssh.stderr)
+            return False
 
     def get_root_dir_path(self):
         """
@@ -172,6 +203,10 @@ class SshRemoteSite:
             logging.error(ssh.stderr)
             return False
 
+    def wp_cli(self, remote_cmd):
+
+        return self._run_ssh(remote_cmd)
+
     def write_htaccess_content(self, content):
         """
         Write content in htaccess file
@@ -212,6 +247,39 @@ class SshRemoteSite:
 
     def get_url(self):
         return 'https://{}/{}'.format(self.wp_hostname, self.wp_path)
+
+    def archive_wp_site(self):
+        """
+        To archive a WordPress site:
+        1. mv /srv/subdomains/dcsl.epfl.ch/htdocs /srv/sandox/archive-wp.epfl.ch/htdocs/dcsl
+        2. mkdir /srv/subdomains/dcsl.epfl.ch/htdocs
+        3. cp /srv/sandox/archive-wp.epfl.ch/htdocs/dcsl/.htaccess /srv/subdomains/dcsl.epfl.ch/htdocs/
+        """
+        archive_directory = "/srv/sandbox/archive-wp.epfl.ch/htdocs/{}".format(self.site_name)
+        archive_site_url = "https://archive-wp.epfl.ch/{}".format(self.site_name)
+
+        # 1. mv /srv/subdomains/dcsl.epfl.ch/htdocs /srv/sandox/archive-wp.epfl.ch/htdocs/dcsl
+        remote_cmd = "mv {} {}".format(
+            self.get_root_dir_path(),
+            archive_directory
+        )
+        success_msg = "Command {} executed with success".format(remote_cmd)
+        # TODO uncomment this line below
+        # self._run_ssh(remote_cmd, success_msg=success_msg)
+
+        # 2. mkdir /srv/subdomains/dcsl.epfl.ch/htdocs
+        remote_cmd = "mkdir {}".format(self.get_root_dir_path())
+        success_msg = "Command {} executed with success".format(remote_cmd)
+        # TODO uncomment this line below
+        # self._run_ssh(remote_cmd, success_msg=success_msg)
+
+        # 3. cp /srv/sandox/archive-wp.epfl.ch/htdocs/dcsl/.htaccess /srv/subdomains/dcsl.epfl.ch/htdocs/
+        remote_cmd = "cp {}/.htaccess {}".format(archive_directory, self.get_root_dir_path())
+        success_msg = "Command {} executed with success".format(remote_cmd)
+        # TODO uncomment this line below
+        # self._run_ssh(remote_cmd, success_msg=success_msg)
+
+        return archive_site_url
 
 
 SshRemoteHost.test = SshRemoteHost('test', host='test-ssh-wwp.epfl.ch', port=32222)

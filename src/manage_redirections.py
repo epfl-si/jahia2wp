@@ -6,6 +6,8 @@ Usage:
   manage_redirections.py copy-jahia-redirections-many <csv_file> [--debug | --quiet]
   manage_redirections.py update-redirections <source_site_url> <destination_site_url> [--debug | --quiet]
   manage_redirections.py update-redirections-many <csv_file> [--debug | --quiet]
+  manage_redirections.py archive-wp-site <source_site_url> [--debug | --quiet]
+  manage_redirections.py create-directory <csv_file> [--debug | --quiet]
 
 Options:
   -h --help                 Show this screen.
@@ -17,7 +19,7 @@ import os
 import logging
 from docopt import docopt
 from docopt_dispatch import dispatch
-from ops import SshRemoteSite
+from ops import SshRemoteSite, SshRemoteHost
 from utils import Utils
 os.environ['WP_ENV'] = 'manage redirections'  # noqa
 from settings import VERSION
@@ -104,8 +106,21 @@ def get_jahia_redirections(content, source_site, destination_site):
     :return: jahia redirections
     """
     jahia_page_redirect = extract_htaccess_part(content, "Jahia-Page-Redirect")
+
+    start = "# BEGIN Jahia-Page-Redirect\n"
+    end = jahia_page_redirect.split("# BEGIN Jahia-Page-Redirect\n\n")[1]
+
+    # Add RewriteBase / before 301
+    wp_path = destination_site.wp_path
+    if not wp_path.startswith("/"):
+        wp_path = "/" + wp_path
+
+    jahia_page_redirect = start + "RewriteBase {}\n".format(wp_path) + end
+
     jahia_files_redirect = extract_htaccess_part(content, "Jahia-Files-Redirect")
-    jahia_files_redirect = update_uploads_path(jahia_files_redirect, source_site, destination_site)
+    if jahia_files_redirect:
+
+        jahia_files_redirect = update_uploads_path(jahia_files_redirect, source_site, destination_site)
 
     jahia_redirect = "\n".join([jahia_page_redirect, jahia_files_redirect])
     logging.debug("Jahia redirections:\n{}".format(jahia_redirect))
@@ -123,10 +138,21 @@ def _copy_jahia_redirections(source_site_url, destination_site_url):
     6. Insert jahia redirections at the begining of htaccess file from destination site
     """
     source_site = SshRemoteSite(source_site_url)
-    destination_site = SshRemoteSite(destination_site_url)
+    if not source_site.is_valid():
+        logging.debug("WP {} is not valid".format(source_site_url))
+        return
+
+    destination_site = SshRemoteSite(destination_site_url, discover_site_path=True)
+    if not source_site.is_valid():
+        logging.debug("WP {} is not valid".format(source_site_url))
+        return
 
     # retrieve the content of the htaccess file from the source site
     source_site_content = source_site.get_htaccess_content()
+
+    if not source_site_content:
+        logging.debug("htaccess file is empty for site {}".format(source_site_url))
+        return
 
     # if source_site comes from test infra, we need to delete the site name inside all 301 jahia redirections
     if source_site_url.startswith("https://migration-wp.epfl.ch/"):
@@ -144,6 +170,9 @@ def _copy_jahia_redirections(source_site_url, destination_site_url):
 
     # retrieve the content of the htaccess file from the destination site
     destination_site_content = destination_site.get_htaccess_content()
+    if not source_site_content:
+        logging.debug("htaccess is empty for site {}".format(destination_site_url))
+        return
 
     # insert jahia rules
     new_content = "\n".join([jahia_redirections_content, destination_site_content])
@@ -158,15 +187,18 @@ def _update_redirections(source_site_url, destination_site_url):
     """
 
     source_site = SshRemoteSite(source_site_url)
+    if not source_site.is_valid():
+        logging.debug("WP {} is not valid".format(source_site_url))
+        return
 
     # Create a htaccess backup with name .htacces.bak.timestamp
     is_backup_created = source_site.create_htaccess_backup()
 
     if is_backup_created:
-        new_content = "# BEGIN {}".format(WP_REDIRECTS_AFTER_VENTILATION)
-        new_content += "RewriteCond %{{HTTP_HOST}} ^{}$ [NC]".format(source_site_url)
-        new_content += "RewriteRule ^(.*)$ {}$1 [L,QSA,R=301]".format(destination_site_url)
-        new_content += "# END {}".format(WP_REDIRECTS_AFTER_VENTILATION)
+        new_content = "# BEGIN {}\n".format(WP_REDIRECTS_AFTER_VENTILATION)
+        new_content += "RewriteCond %{{HTTP_HOST}}" + " ^{}$ [NC]\n".format(source_site_url)
+        new_content += "RewriteRule ^(.*)$ {}$1 [L,QSA,R=301]\n".format(destination_site_url)
+        new_content += "# END {}\n".format(WP_REDIRECTS_AFTER_VENTILATION)
 
         source_site.write_htaccess_content(new_content)
 
@@ -242,6 +274,83 @@ def update_redirections_many(csv_file, **kwargs):
         logging.info("Updating redirections for site n°{} {}".format(index, source_site_url))
         _update_redirections(source_site_url, destination_site_url)
         logging.info("End update redirections for site n°{} {}".format(index, source_site_url))
+
+
+@dispatch.on('archive-wp-site')
+def archive_wp_site(source_site_url, **kwargs):
+    """
+    1. mv /srv/subdomains/dcsl.epfl.ch/htdocs /srv/sandox/archive-wp.epfl.ch/htdocs/dcsl
+    2. mkdir /srv/subdomains/dcsl.epfl.ch/htdocs
+    3. cp /srv/sandox/archive-wp.epfl.ch/htdocs/dcsl/.htaccess /srv/subdomains/dcsl.epfl.ch/htdocs/
+    4. Modify .htaccess file of archive site
+    5. Search and replace
+    """
+    source_site = SshRemoteSite(source_site_url)
+    site_name = source_site.site_name
+    archive_site_url = source_site.archive_wp_site()
+
+    archive_site = SshRemoteSite(archive_site_url)
+    htaccess_content = archive_site.get_htaccess_content()
+
+    # Modify 2 lines to add site_name :
+    # RewriteBase /dcsl/
+    # RewriteRule . /dcsl/index.php [L]
+    lines = htaccess_content.split("\n")
+    new_content = ""
+    for line in lines:
+        if "RewriteBase" in line:
+            line = line.replace("RewriteBase /", "RewriteBase /{}/".format(site_name))
+
+        if "RewriteRule . /index.php" in line:
+            line = line.replace("RewriteRule . /index.php", "RewriteRule . /{}/index.php".format(site_name))
+        new_content += line + "\n"
+
+    # TODO uncomment this line below
+    # archive_site.write_htaccess_content(new_content)
+
+    # Search and replace
+    # Example: https://information-systems.epfl.ch => https://archive-wp.epfl.ch/information-systems
+    remote_cmd = "wp search-replace '{}' '{}' --path={}".format(
+        source_site_url, archive_site_url, archive_site.get_root_dir_path()
+    )
+    # TODO uncomment this line below
+    # archive_site.wp_cli(remote_cmd)
+
+
+def _run_ssh(remote_cmd, success_msg=""):
+    ssh = SshRemoteHost.prod.run_ssh(remote_cmd)
+    if ssh.returncode == 0:
+        logging.debug(success_msg)
+    elif ssh.returncode == 1:
+        logging.warning(ssh.stderr)
+    elif ssh.returncode != 1:
+        logging.error(ssh.stderr)
+
+
+@dispatch.on('create-directory')
+def create_directory(csv_file, **kwargs):
+
+    rows = Utils.csv_filepath_to_dict(csv_file)
+    logging.info("Creating directory for {} sites".format(len(rows)))
+    for index, row in enumerate(rows, start=1):
+        if row['systeme'] == 'jahia':
+
+            SshRemoteHost.prod = SshRemoteHost('prod', host='ssh-wwp.epfl.ch', port=32222)
+
+            domain = row['OLD URL'].replace("https://", "")
+            if domain.endswith("/"):
+                domain = domain[:-1]
+
+            path = "/srv/subdomains/{}".format(domain)
+            remote_cmd = "mkdir {}".format(path)
+            _run_ssh(remote_cmd, success_msg="mkdir {} success".format(path))
+
+            path += "/htdocs"
+            remote_cmd = "mkdir {}".format(path)
+            _run_ssh(remote_cmd, success_msg="mkdir {} success".format(path))
+
+            remote_cmd = "touch {}/.htaccess".format(path)
+            _run_ssh(remote_cmd, success_msg="touch .htaccess success")
 
 
 if __name__ == '__main__':
