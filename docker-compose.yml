@@ -29,22 +29,11 @@ services:
       - ./volumes/srv:/srv
     links:
       - db:db
-      - php-fpm
     environment:
       - WP_ENV=${WP_ENV}
     ports:
       - "${WP_PORT_HTTP}:8080"
       - "${WP_PORT_HTTPS}:8443"
-
-  php-fpm:
-    build: ../wp-ops/docker/php-fpm
-    volumes:
-      - .:/var/www/html
-
-  pushgateway:
-    image: prom/pushgateway
-    ports:
-      - 9091:9091
 
   mgmt:
     labels:
