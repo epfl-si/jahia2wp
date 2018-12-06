@@ -51,7 +51,7 @@ Class Utils
         $response = wp_remote_get($url);
         $end = microtime(true);
 
-        Utils::record_ws_call($url, $end-$start);
+        Utils::perf($url, $end-$start);
 
         if (is_array($response)) {
             $header = $response['headers']; // array of http header lines
@@ -74,7 +74,7 @@ Class Utils
         @param $url         -> Webservice URL call
         @param $duration    -> webservice call duration (microsec)
     */
-    public static function record_ws_call($url, $duration)
+    public static function perf($url, $duration)
     {
 
         global $wp;
