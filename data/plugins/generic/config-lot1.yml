@@ -46,4 +46,4 @@ plugins:
   - name: pdfjs-viewer-shortcode
     config: !include pdfjs-viewer-shortcode/v1/config-plugin.yml
   - name: very-simple-meta-description
-    config: !very-simple-meta-description/v1/config-plugin.yml
+    config: !include very-simple-meta-description/v1/config-plugin.yml
