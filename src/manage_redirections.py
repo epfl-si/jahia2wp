@@ -98,24 +98,44 @@ def update_uploads_path(jahia_files_redirect, source_site, destination_site):
     return jahia_files_redirect
 
 
-def get_jahia_redirections(content, source_site, destination_site):
+def get_jahia_redirections(content, source_site, destination_site, destination_site_url):
     """
     Extract and return jahia redirections from htaccess content
 
     :param content: htaccess content (string)
     :return: jahia redirections
     """
+    slug_full = ""
     jahia_page_redirect = extract_htaccess_part(content, "Jahia-Page-Redirect")
+    lines = jahia_page_redirect.split("\n")
+    jahia_page_redirect = ""
+    for line in lines:
+        if line.startswith("Redirect 301"):
 
-    start = "# BEGIN Jahia-Page-Redirect\n"
-    end = jahia_page_redirect.split("# BEGIN Jahia-Page-Redirect\n\n")[1]
+            slug_full = ""
+            if (destination_site_url.startswith("https://www.epfl.ch")):
+                slug_full = destination_site_url.replace("https://www.epfl.ch", "")
+            elif (destination_site_url.startswith("https://migration-wp.epfl.ch")):
+                slug_full = destination_site_url.replace("https://migration-wp.epfl.ch", "")
+            else:
+                logging.error("URL starts with a strange string !")
 
-    # Add RewriteBase / before 301
-    wp_path = destination_site.wp_path
-    if not wp_path.startswith("/"):
-        wp_path = "/" + wp_path
+            slug_instance_wp = destination_site.wp_path
+            if not slug_instance_wp.startswith("/"):
+                slug_instance_wp = "/" + slug_instance_wp
 
-    jahia_page_redirect = start + "RewriteBase {}\n".format(wp_path) + end
+            elements = line.split(" /")
+
+            # gauche tout sans le www.epfl.ch/
+            line = " ".join([elements[0], slug_full + "/" + elements[1]])
+
+            # droite si / => tout sans www.epefl si autre chose chemin juska l'instance
+            if elements[2] == "":
+                line += " " + slug_full
+            else:
+                line += " " + slug_instance_wp + "/" + elements[2]
+
+        jahia_page_redirect += line + "\n"
 
     jahia_files_redirect = extract_htaccess_part(content, "Jahia-Files-Redirect")
     if jahia_files_redirect:
@@ -166,7 +186,7 @@ def _copy_jahia_redirections(source_site_url, destination_site_url):
         logging.debug("Rename all 301 jahia redirections without then site name: {}".format(source_site_content))
 
     # extract jahia rules
-    jahia_redirections_content = get_jahia_redirections(source_site_content, source_site, destination_site)
+    jahia_redirections_content = get_jahia_redirections(source_site_content, source_site, destination_site, destination_site_url)
 
     # retrieve the content of the htaccess file from the destination site
     destination_site_content = destination_site.get_htaccess_content()
@@ -187,17 +207,21 @@ def _update_redirections(source_site_url, destination_site_url):
     """
 
     source_site = SshRemoteSite(source_site_url)
-    if not source_site.is_valid():
-        logging.debug("WP {} is not valid".format(source_site_url))
-        return
+
+    #if not source_site.is_valid():
+    #    logging.debug("WP {} is not valid".format(source_site_url))
+    #    return
 
     # Create a htaccess backup with name .htacces.bak.timestamp
     is_backup_created = source_site.create_htaccess_backup()
 
+    if not destination_site_url.endswith("/"):
+        destination_site_url = destination_site_url + "/"
+
     if is_backup_created:
         new_content = "# BEGIN {}\n".format(WP_REDIRECTS_AFTER_VENTILATION)
-        new_content += "RewriteCond %{{HTTP_HOST}}" + " ^{}$ [NC]\n".format(source_site_url)
-        new_content += "RewriteRule ^(.*)$ {}$1 [L,QSA,R=301]\n".format(destination_site_url)
+        new_content += "RewriteCond %{HTTP_HOST}" + " ^{}$ [NC]\n".format(source_site_url.replace("https://", ""))
+        new_content += "RewriteRule ^(.*)$ " + destination_site_url + "\$1 [L,QSA,R=301]\n"
         new_content += "# END {}\n".format(WP_REDIRECTS_AFTER_VENTILATION)
 
         source_site.write_htaccess_content(new_content)
@@ -271,8 +295,16 @@ def update_redirections_many(csv_file, **kwargs):
         source_site_url = row['source_site_url']
         destination_site_url = row['destination_site_url']
 
+        # source_site_url = row['OLD URL']
+        # destination_site_url = row['NEW URL']
+        # system = row['systeme']
+
         logging.info("Updating redirections for site n°{} {}".format(index, source_site_url))
+
+        # if row['systeme'] == 'jahia':
+
         _update_redirections(source_site_url, destination_site_url)
+
         logging.info("End update redirections for site n°{} {}".format(index, source_site_url))
 
 
