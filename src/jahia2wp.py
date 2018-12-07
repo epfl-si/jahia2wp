@@ -1045,61 +1045,6 @@ def shortcode_fix_many(csv_file, shortcode_name=None, **kwargs):
     logging.info("All shortcodes for all sites fixed !")
 
 
-@dispatch.on('shortcode-list')
-def shortcode_list(path, out_csv=None, **kwargs):
-    """
-    Go through websites present in 'path' and list all used shortcodes
-    :param path: Path where to look for WP installs
-    :param out_csv: CSV file to save result
-    :param kwargs:
-    :return:
-    """
-    logging.info("Listing used shortcodes in path %s...", path)
-
-    shortcodes = Shortcodes()
-
-    shortcodes.locate_existing(path)
-
-    print("# shortcodes found: {}".format(len(shortcodes.list.keys())))
-
-    # If CSV output is requested
-    if out_csv:
-        with open(out_csv, 'w') as out:
-            # Adding one line for each couple "shortcode", "website"
-            for shortcode, url_list in shortcodes.list.items():
-                for url in url_list:
-                    out.write("{},{}\n".format(shortcode, url))
-    else:
-
-        print(shortcodes.list)
-
-    logging.info("Shortcodes list done!")
-
-
-@dispatch.on('shortcode-fix')
-def shortcode_fix(wp_env, wp_url, **kwargs):
-
-    shortcodes = Shortcodes()
-
-    report = shortcodes.fix_site(wp_env, wp_url)
-
-    logging.info("Fix report:\n%s", str(report))
-
-
-@dispatch.on('shortcode-fix-many')
-def shortcode_fix_many(csv_file, **kwargs):
-
-    rows = Utils.csv_filepath_to_dict(csv_file)
-
-    print("\nShortcode will now be fixed on websites...")
-    for index, row in enumerate(rows):
-        print("\nIndex #{}:\n---".format(index))
-
-        shortcode_fix(row['openshift_env'], row['wp_site_url'])
-
-    logging.info("All shortcodes for all sites fixed !")
-
-
 @dispatch.on('inventory')
 def inventory(path, **kwargs):
     logging.info("Building inventory...")
