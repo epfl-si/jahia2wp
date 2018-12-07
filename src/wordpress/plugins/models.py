@@ -5,9 +5,10 @@ import zipfile
 import logging
 import copy
 import yaml
-from utils import Utils
 import settings
-
+import shutil
+from utils import Utils
+from urllib import request
 from wordpress import WPException
 
 
@@ -255,20 +256,20 @@ class WPPluginConfigInfos:
             # Let's see if we have to activate the plugin or not
             self.is_active = plugin_config['activate']
 
-            # If plugin needs to be activated
-            if self.is_active:
-                # If we have to download from web,
-                if plugin_config['src'].lower() == settings.PLUGIN_SOURCE_WP_STORE:
-                    self.zip_path = None
-                else:
-                    # Generate full path
-                    full_path = os.path.join(settings.PLUGINS_CONFIG_BASE_FOLDER, plugin_config['src'])
-                    # Do some checks and create ZIP file with plugin files if necessary
-                    self.handle_plugin_local_src(full_path)
+            # If plugin is coming from WP store or if we don't have any info
+            if 'src' not in plugin_config or \
+                    plugin_config['src'].lower() == settings.PLUGIN_SOURCE_WP_STORE:
+                self.zip_path = None
 
-            else:  # Plugin has to be deactivated
-                # So, action is set to nothing
-                self.action = settings.PLUGIN_ACTION_NOTHING
+            # If plugin is an URL pointing to a ZIP file
+            elif plugin_config['src'].startswith('http') and plugin_config['src'].endswith('.zip'):
+                self.handle_plugin_remote_zip(plugin_config['src'])
+
+            else:  # It may be a path to a local folder to use to install plugin
+                # Generate full path
+                full_path = os.path.join(settings.PLUGINS_CONFIG_BASE_FOLDER, plugin_config['src'])
+                # Do some checks and create ZIP file with plugin files if necessary
+                self.handle_plugin_local_src(full_path)
 
         # If there's no information for DB tables (= no options) for plugin
         if 'tables' not in plugin_config:
@@ -403,7 +404,7 @@ class WPPluginConfigInfos:
         """
         Do some check to local src given for plugin and create a ZIP with plugin files if necessary
 
-        :param plugin_path: Path to plugin give in YAML file
+        :param plugin_path: Path to plugin given in YAML file
         :return:
         """
 
@@ -418,3 +419,46 @@ class WPPluginConfigInfos:
                 self.zipped_on_the_fly = True
             else:
                 self.zip_path = plugin_path
+
+    def handle_plugin_remote_zip(self, url):
+        """
+        Download ZIP, extract it to temporary folder, rename folder and use 'handle_plugin_local_src' to
+        do the rest. And finally, we some cleaning.
+        :param url: URL to plugin ZIP file
+        :return:
+        """
+        # we first generate a temporary working directory
+        work_dir = os.path.join("/tmp", Utils.generate_name(10))
+        os.makedirs(work_dir)
+
+        # Downloading ZIP file
+        response = request.urlopen(url)
+        # We check if we have a ZIP filename in header and use it if exists
+        if 'Content-Disposition' in response.headers:
+            # Extracting filename from headers :
+            # {'Content-Disposition': 'attachment; filename=wordpress.plugin.accred-vpsi.zip'}
+            zip_file_name = response.headers['Content-Disposition'].split("filename=")[1]
+
+        else:  # Nothing in header, we can use name from URL
+            zip_file_name = url[url.rfind("/")+1:]
+
+        zip_full_path = os.path.join(work_dir, zip_file_name)
+        with open(zip_full_path, 'wb') as out_file:
+            shutil.copyfileobj(response, out_file)
+
+        # Extracting ZIP file
+        zip_ref = zipfile.ZipFile(zip_full_path, 'r')
+        zip_ref.extractall(work_dir)
+        zip_ref.close()
+
+        # Deleting ZIP file
+        os.remove(zip_full_path)
+
+        # Remove extracted directory to fit plugin name
+        tmp_plugin_dir = os.path.join(work_dir, self.plugin_name)
+        shutil.move(os.path.splitext(zip_full_path)[0], tmp_plugin_dir)
+
+        self.handle_plugin_local_src(tmp_plugin_dir)
+
+        # Cleaning
+        shutil.rmtree(tmp_plugin_dir)

@@ -4,9 +4,11 @@
 #
 #   make clean all push
 #
+#   make push PUSH_EXTRA_VARS='{"wp_destructive":{"ventilation":"data-only"}}'
+#
 #   make push PUSH_EXTRA_VARS='{"wp_destructive":{"vpsi":"wipe"},"wp_unit_id":"VPSI"}'
 #
-# CAVEAT EMPTOR: the latter command *WIPES OUT* the "vpsi" remote site!
+# CAVEAT EMPTOR: the latter command *WIPES OUT* the "vpsi" site!
 
 VENTILATION_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 JAHIA2WP_TOPDIR := $(shell dirname $(shell dirname $(VENTILATION_DIR)))
@@ -26,7 +28,7 @@ $(SOURCES_INVENTORY) hosts/group_vars/ventilation-source-wordpresses \
 $(TARGETS_INVENTORY) hosts/group_vars/ventilation-target-wordpresses: \
   $(VENTILATION_CSV)
 	@mkdir hosts 2>/dev/null || true
-	python3 ./wordpress-inventories.py --sources=$(SOURCES_INVENTORY) --targets=$(TARGETS_INVENTORY) $<
+	python3 ./wordpress_inventories.py --sources=$(SOURCES_INVENTORY) --targets=$(TARGETS_INVENTORY) $<
 
 wxr-src: $(SOURCES_INVENTORY)
 	@mkdir "$@" 2>/dev/null || true
@@ -40,7 +42,9 @@ push: wxr-ventilated
 	ansible-playbook $(JAHIA2WP_TOPDIR)/ansible/playbooks/push-ventilated.yml  -i $(dir $(TARGETS_INVENTORY)) -l ventilation-target-wordpresses -e "from=$(VENTILATION_DIR)/wxr-ventilated" -e '$(PUSH_EXTRA_VARS)'
 
 clean:
-	rm -rf hosts/ wxr-src/ wxr-ventilated/
+# wxr_inventory.pickle is created by wxr_inventory.py (but it overwrites
+# it everytime it runs)
+	rm -rf hosts/ wxr-src/ wxr-ventilated/ wxr_inventory.pickle
 
 .PHONY: _debug
 _debug:

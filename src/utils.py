@@ -10,12 +10,13 @@ import csv
 import string
 import binascii
 import random
-import xml.dom.minidom
 import re
+import xml.dom.minidom
+
 import requests
 
 
-from urllib.parse import urlsplit
+from urllib import parse
 from bs4 import BeautifulSoup
 
 
@@ -318,17 +319,35 @@ class Utils(object):
     @staticmethod
     def generate_tar_file(tar_file_path, tar_listed_inc_file_path, source_path):
         """
-        Generate a tar file
+        Generate a tar file from a WordPress installation.
+        Doing a simple tar file backups everything in the folder and also in subfolders. This can be a problem in case
+        of multiple WordPress installation in subfolders of folder we have to backup.
+        To avoid to backup those WordPress installations, we'll first list files/folders to backup (using "find") and
+        we take care to exclude/include exactly the files/folders we want.
+        Two commands are used :
+        - list files at root level (excluding the ones starting with "wp-")
+        - list all element (files/(sub)folders) starting (at root level) with "wp-".
+        The output of those 2 commands is concaneted and given as input to "tar" command so we have the exact list
+        of files to backup.
 
         Arguments keywords
         tar_file_path -- path of TAR file to create
         tar_listed_inc_file_path -- path to file containing incremental infos to help to create tar file
         source_path -- path to infos to put in TAR file
         """
-        command = "tar --create --no-check-device --file={} --listed-incremental={} {}".format(
+
+        # To list root FILES not starting with "wp-"
+        cmd_first_level_files = 'find {0} -maxdepth 1 -type f -print | grep -v "{0}/wp-"'.format(source_path)
+
+        # To list all files/dirs starting with "<tar_file_path>/wp-" (this will exclude non-WordPress subfolder,
+        # which will be very useful when backuping multiple WordPress in a subfolder hierarchy
+        cmd_all_others = 'find {0} -print | grep "{0}/wp-"'.format(source_path)
+
+        command = "{{ {} ; {}; }} | tar --create --no-check-device --file={} --listed-incremental={} -T -".format(
+            cmd_first_level_files,
+            cmd_all_others,
             tar_file_path,
-            tar_listed_inc_file_path,
-            source_path
+            tar_listed_inc_file_path
         )
         return Utils.run_command(command)
 
@@ -349,7 +368,7 @@ class Utils(object):
         """
         Return the domain name of url parameter
         """
-        return urlsplit(url)[1].split(':')[0]
+        return parse.urlsplit(url)[1].split(':')[0]
 
     @staticmethod
     def insert_in_htaccess(site_root_path, marker, insertion, at_beginning=False):
@@ -475,25 +494,44 @@ class Utils(object):
         return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(length))
 
     @staticmethod
-    def manage_quotes(html, escape=True):
+    def handle_custom_chars(html, escape=True):
         """
-        Manage quotes (simples and double) to avoid BeautifulSoup to transform HTML entities back to "real" characters.
-        When escaped quotes are replaced by custom identifiers that won't be transformed by BeautifulSoup. And when
-        unescaped, quotes are set back to corresponding HTML entities
+        Manage some special characters in shortcode attributes values. We have to do this to avoid BeautifulSoup to
+        transform HTML entities back to "real" characters.
+        When escaped, special characters are replaced by custom identifiers that won't be transformed by BeautifulSoup.
+        And when unescaped, quotes are set back to corresponding HTML entities
+
+        For now, we only encode simple/double quotes and brackets. If more special characters needs to be added in the
+        future, just do it ;-)
 
         :param html: string in which (un)escape
         :param escape: To tells if we have to escape or unescape.
         :return:
         """
 
-        simple_quote = "#apos!"
-        double_quote = "#quot!"
+        # Element to replace: https://www.freeformatter.com/html-entities.html
+        # Tuple format :
+        # <originalChar>, <customHtmlEntity>, <officialHtmlEntity>
+        replace = [('[', '##91!', '&#91;'),
+                   (']', '##93!', '&#93;'),
+                   ("'", '#apos!', '&apos;'),
+                   ('"', '#quot!', '&quot;')]
 
-        if escape:
-            return html.replace('"', double_quote).replace("'", simple_quote)
-        else:
-            return html.replace(double_quote, '&quot;').replace(simple_quote, '&apos;')
+        for original, escape_to, unescape_to in replace:
+
+            if escape:
+                html = html.replace(original, escape_to)
+            else:
+                html = html.replace(escape_to, unescape_to)
+
+        return html
 
     @staticmethod
     def escape_quotes(str):
         return str.replace('"', '\\"')
+
+    @staticmethod
+    def get_parameter_from_url(url, param):
+        query = parse.parse_qs(parse.urlsplit(url).query)
+
+        return query[param][0] if param in query else ""

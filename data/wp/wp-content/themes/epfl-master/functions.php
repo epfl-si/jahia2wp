@@ -516,7 +516,7 @@ function get_breadcrumb() {
 function epfl_scripts() {
 	wp_enqueue_style( 'epfl-style', get_stylesheet_uri() );
 	
-	wp_enqueue_style('font-awesome', get_template_directory_uri() .'/assets/css/font-awesome.min.css');
+	wp_enqueue_style('font-awesome', get_template_directory_uri() .'/assets/css/fa-solid.min.css');
 	wp_enqueue_style('grid', get_template_directory_uri() .'/assets/css/stylisticss.grid.css');
 	
 	wp_enqueue_style('compiled-styles', get_template_directory_uri() .'/assets/css/theme.min.css');

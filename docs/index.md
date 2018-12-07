@@ -132,8 +132,10 @@ Note that python is not in the requirements. You do not necessarily need it on y
 As some commands require `sudo`, you will be asked for your system password. The process will add a line in your `.bashrc` (again: head to [INSTALL_TOOLS.md](./INSTALL_TOOLS.md) to get more details):
 
     you@host:~$ git clone git@github.com:epfl-idevelop/jahia2wp.git
+    you@host:~$ git clone git@github.com:epfl-idevelop/wp-ops.git
     # or, would you rather use https instead of SSH
-    # you@host:~$ git clone https://github.com/epfl-idevelop/jahia2wp.git 
+    # you@host:~$ git clone https://github.com/epfl-idevelop/jahia2wp.git
+    # you@host:~$ git clone https://github.com/epfl-idevelop/wp-ops.git 
     you@host:~$ cd jahia2wp
     you@host:jahia2wp$ make bootstrap-local (add ENV=your-env if you use a C2C environment name here if you have one)
     ...
@@ -154,7 +156,7 @@ Did we mention that would you be looking for a more explicit process, feel free 
 You will need to ask C2C to add your public key in `authorized_keys` on the server.
 You will also need to know what environment (pod) you wish to connect into (and set `WP_ENV` accordingly)
 
-    you@host:~$ WP_ENV=c2c-env && ssh -A -o SendEnv=WP_ENV www-data@ssh-wwp.epfl.ch -p 32222
+    you@host:~$ WP_ENV=c2c-env ssh -A -o SendEnv=WP_ENV www-data@ssh-wwp.epfl.ch -p 32222
     
     www-data@mgmt-x-xxx:/srv/c2c-env$ git clone git@github.com:epfl-idevelop/jahia2wp.git
     www-data@mgmt-x-xxx:/srv/c2c-env$ cd jahia2wp

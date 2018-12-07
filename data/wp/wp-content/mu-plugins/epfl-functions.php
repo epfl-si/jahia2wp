@@ -3,7 +3,7 @@
  * Plugin Name: EPFL Functions
  * Plugin URI: 
  * Description: Must-use plugin for the EPFL website.
- * Version: 0.0.1
+ * Version: 0.0.2
  * Author: Aline Keller
  * Author URI: http://www.alinekeller.ch
  */
@@ -44,6 +44,27 @@ function sanitize_file_name_chars( $special_chars = array() ) {
 	$special_chars = array_merge( array( '’', '‘', '“', '”', '«', '»', '‹', '›', '—', 'æ', 'œ', '€','é','à','ç','ä','ö','ü','ï','û','ô','è' ), $special_chars );
 	return $special_chars;
 }
+
+
+/*--------------------------------------------------------------
+
+ # REST API
+
+--------------------------------------------------------------*/
+
+/*
+ * Disable display list of users from /wp-json/wp/v2/users/
+ */
+add_filter( 'rest_endpoints', function( $endpoints ){
+        if ( isset( $endpoints['/wp/v2/users'] ) ) {
+                    unset( $endpoints['/wp/v2/users'] );
+                    }
+            if ( isset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] ) ) {
+                    unset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] );
+                    }
+            return $endpoints;
+});
+
 
 /*--------------------------------------------------------------
   
@@ -123,6 +144,16 @@ add_filter('wp_get_attachment_link', 'oikos_get_attachment_link_filter', 10, 4);
 
 
 
+/*--------------------------------------------------------------
+
+ # File upload extension whitelist
+
+--------------------------------------------------------------*/
+function epfl_mimetypes($mime_types){
+    $mime_types['ppd'] = 'application/vnd.cups-ppd'; //Adding ppd extension
+    return $mime_types;
+}
+add_filter('upload_mimes', 'epfl_mimetypes', 1, 1);
 
 
 /*--------------------------------------------------------------
@@ -189,5 +220,25 @@ function colored_box( $atts, $content = null ) {
   return $return;
 }
 add_shortcode('colored-box', 'colored_box');
+
+
+/*--------------------------------------------------------------
+
+ # CloudFlare
+
+--------------------------------------------------------------*/
+
+/*
+    If we have 302 redirection on local address, we transform them to 303 to avoid CloudFlare to cache
+    them. If we don't do this, we have issues to switch from one language to another (Polylang) because the
+    first time we visit the homepage, it does a 302 to default lang homepage and this request is cached in cloudflare
+    so it's impossible to switch to the other language
+*/
+function http_status_change_to_non_cacheable($status, $location) {
+   /* We only do 303 redirect if redirection are local to website. */
+   return (strpos($location, $_SERVER['SERVER_NAME'])!==false)? 303: $status;
+}
+add_filter( 'wp_redirect_status', 'http_status_change_to_non_cacheable', 10, 2);
+
 
 ?>

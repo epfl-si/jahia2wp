@@ -88,6 +88,7 @@ function EPFL_remove_admin_submenus() {
    remove_submenu_page( 'options-general.php', 'mainwp_child_tab' );
    remove_submenu_page( 'options-general.php', 'epfl_accred' );
    remove_submenu_page( 'options-general.php', 'epfl_tequila' );
+   remove_submenu_page( 'options-general.php', 'option-folder' );
 }
 
 

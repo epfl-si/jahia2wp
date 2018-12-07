@@ -2,7 +2,7 @@
 /*
  * Plugin Name: EPFL General settings
  * Description: General settings for allow users
- * Version:     0.5
+ * Version:     0.6
  * Author:      <a href="mailto:wwp-admin@epfl.ch">wwp-admin@epfl.ch</a>
  * Text Domain: EPFL-settings
  */
@@ -33,8 +33,6 @@ function validate_breadcrumb($input) {
 }
   
 function EPFL_settings_register_settings() {
-   add_option( 'EPFL_settings_option_name', 'This is my option value.');
-   register_setting( 'EPFL_settings_options_group', 'EPFL_settings_option_name', 'EPFL_settings_callback' );
    register_setting( 'EPFL_settings_options_group', 'blogname' );
    register_setting( 'EPFL_settings_options_group', 'blogdescription' );
    register_setting( 'EPFL_settings_options_group', 'WPLANG' );
