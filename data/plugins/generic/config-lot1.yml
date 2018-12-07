@@ -45,3 +45,5 @@ plugins:
     config: !include wp-media-folder/v1/config-plugin.yml
   - name: pdfjs-viewer-shortcode
     config: !include pdfjs-viewer-shortcode/v1/config-plugin.yml
+  - name: very-simple-meta-description
+    config: !include very-simple-meta-description/v1/config-plugin.yml
