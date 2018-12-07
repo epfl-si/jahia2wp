@@ -228,6 +228,9 @@ add_shortcode('colored-box', 'colored_box');
 
 --------------------------------------------------------------*/
 
+/* CloudFlare doesn't like the Polylang cookie (or any cookie) */
+define('PLL_COOKIE', false);
+
 /*
     If we have 302 redirection on local address, we transform them to 303 to avoid CloudFlare to cache
     them. If we don't do this, we have issues to switch from one language to another (Polylang) because the
