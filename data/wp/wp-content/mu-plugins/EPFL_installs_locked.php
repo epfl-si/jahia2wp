@@ -112,5 +112,15 @@ function EPFL_remove_theme_reference_widget() {
     remove_action('welcome_panel', 'wp_welcome_panel');
 }
 
+/* Hide "Update" link for everyone except admins
+ *
+ */
+function hide_update_notice_to_all_but_admin_users()
+{
+    if (!current_user_can('update_core')) {
+        remove_action( 'admin_notices', 'update_nag', 3 );
+    }
+}
+add_action( 'admin_head', 'hide_update_notice_to_all_but_admin_users', 1 );
 
 ?>
