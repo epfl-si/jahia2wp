@@ -863,10 +863,13 @@ def backup_many(csv_file, **kwargs):
     print("\n{} websites will now be backuped...".format(len(validator.rows)))
     for index, row in enumerate(validator.rows):
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
-        WPBackup(
-            row["openshift_env"],
-            row["wp_site_url"]
-        ).backup()
+        try:
+            WPBackup(
+                row["openshift_env"],
+                row["wp_site_url"]
+            ).backup()
+        except:
+            logging.error("Site %s - Error %s",  row["wp_site_url"], sys.exc_info())
 
 
 @dispatch.on('backup-inventory')
@@ -877,12 +880,15 @@ def backup_inventory(path, **kwargs):
     for site_details in WPConfig.inventory(path):
 
         if site_details.valid == settings.WP_SITE_INSTALL_OK:
-            logging.info("Running backup for %s", site_details.url)
 
-            WPBackup(
-                WPSite.openshift_env_from_path(site_details.path),
-                site_details.url
-            ).backup()
+            logging.info("Running backup for %s", site_details.url)
+            try:
+                WPBackup(
+                    WPSite.openshift_env_from_path(site_details.path),
+                    site_details.url
+                ).backup()
+            except:
+                logging.error("Site %s - Error %s", site_details.url, sys.exc_info())
 
     logging.info("All backups done for path: %s", path)
 
@@ -894,11 +900,42 @@ def rotate_backup_inventory(path, dry_run=False, **kwargs):
 
         if site_details.valid == settings.WP_SITE_INSTALL_OK:
 
-            path = WPBackup(
-                WPSite.openshift_env_from_path(site_details.path),
-                site_details.url
-            ).path
+            try:
+                path = WPBackup(
+                    WPSite.openshift_env_from_path(site_details.path),
+                    site_details.url
+                ).path
 
+                # rotate full backups first
+                for pattern in ["*full.sql", "*full.tar"]:
+                    RotateBackups(
+                        FULL_BACKUP_RETENTION_THEME,
+                        dry_run=dry_run,
+                        include_list=[pattern]
+                    ).rotate_backups(path)
+                # rotate incremental backups
+                for pattern in ["*.list", "*inc.sql", "*inc.tar"]:
+                    RotateBackups(
+                        INCREMENTAL_BACKUP_RETENTION_THEME,
+                        dry_run=dry_run,
+                        include_list=[pattern]
+                    ).rotate_backups(path)
+
+            except:
+
+                logging.error("Site %s - Error %s", site_details.url, sys.exc_info())
+
+
+@dispatch.on('rotate-backup')
+def rotate_backup(csv_file, dry_run=False, **kwargs):
+
+    # CSV file validation
+    validator = _check_csv(csv_file)
+
+    for index, row in enumerate(validator.rows):
+
+        try:
+            path = WPBackup(row["openshift_env"], row["wp_site_url"]).path
             # rotate full backups first
             for pattern in ["*full.sql", "*full.tar"]:
                 RotateBackups(
@@ -914,29 +951,9 @@ def rotate_backup_inventory(path, dry_run=False, **kwargs):
                     include_list=[pattern]
                 ).rotate_backups(path)
 
+        except:
 
-@dispatch.on('rotate-backup')
-def rotate_backup(csv_file, dry_run=False, **kwargs):
-
-    # CSV file validation
-    validator = _check_csv(csv_file)
-
-    for index, row in enumerate(validator.rows):
-        path = WPBackup(row["openshift_env"], row["wp_site_url"]).path
-        # rotate full backups first
-        for pattern in ["*full.sql", "*full.tar"]:
-            RotateBackups(
-                FULL_BACKUP_RETENTION_THEME,
-                dry_run=dry_run,
-                include_list=[pattern]
-            ).rotate_backups(path)
-        # rotate incremental backups
-        for pattern in ["*.list", "*inc.sql", "*inc.tar"]:
-            RotateBackups(
-                INCREMENTAL_BACKUP_RETENTION_THEME,
-                dry_run=dry_run,
-                include_list=[pattern]
-            ).rotate_backups(path)
+            logging.error("Site %s - Error %s", row["wp_site_url"], sys.exc_info())
 
 
 @dispatch.on('shortcode-details')
