@@ -24,4 +24,3 @@ src/ventilation/*.csv
 src/ventilation/hosts/
 src/ventilation/wxr-*/
 src/ventilation/wxr_inventory.pickle
-data/wp/wp-content/themes/epfl-master/assets/css/epfl.css
