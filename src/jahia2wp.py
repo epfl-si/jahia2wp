@@ -868,8 +868,8 @@ def backup_many(csv_file, **kwargs):
                 row["openshift_env"],
                 row["wp_site_url"]
             ).backup()
-        except Exception as e:
-            logging.error("Site %s - Error %s", row['wp_site_url'], e)
+        except:
+            logging.error("Site %s - Error %s",  row["wp_site_url"], sys.exc_info())
 
 
 @dispatch.on('backup-inventory')
@@ -887,8 +887,8 @@ def backup_inventory(path, **kwargs):
                     WPSite.openshift_env_from_path(site_details.path),
                     site_details.url
                 ).backup()
-            except Exception as e:
-                logging.error("Site %s - Error %s", site_details.url, e)
+            except:
+                logging.error("Site %s - Error %s", site_details.url, sys.exc_info())
 
     logging.info("All backups done for path: %s", path)
 
@@ -921,8 +921,9 @@ def rotate_backup_inventory(path, dry_run=False, **kwargs):
                         include_list=[pattern]
                     ).rotate_backups(path)
 
-            except Exception as e:
-                logging.error("Site %s - Error %s", site_details.url, e)
+            except:
+
+                logging.error("Site %s - Error %s", site_details.url, sys.exc_info())
 
 
 @dispatch.on('rotate-backup')
@@ -950,8 +951,9 @@ def rotate_backup(csv_file, dry_run=False, **kwargs):
                     include_list=[pattern]
                 ).rotate_backups(path)
 
-        except Exception as e:
-            logging.error("Site %s - Error %s", row["wp_site_url"], e)
+        except:
+
+            logging.error("Site %s - Error %s", row["wp_site_url"], sys.exc_info())
 
 
 @dispatch.on('shortcode-details')
