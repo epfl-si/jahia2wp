@@ -17,8 +17,8 @@ use \EPFL\Menus\ExternalMenuItem;
 
 add_filter('epfl_rest_rewrite_connect_to', function($hostport, $host, $port) {
     // TODO: this is not a way to go through life, son
-    if ($hostport === "www2018.epfl.ch:443") {
-        return "httpd-sandbox:8443";
+    if ($hostport === "www.epfl.ch:443") {
+        return "httpd-www:8443";
     } else {
         return $hostport;
     }
