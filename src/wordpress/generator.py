@@ -200,13 +200,9 @@ class WPGenerator:
 
         # install and configure theme (default is settings.DEFAULT_THEME_NAME)
         logging.info("%s - Installing all themes...", repr(self))
-
-        # install and activate 2018 theme
-        theme = WPThemeConfig(self.wp_site, settings.DEFAULT_THEME_NAME, self._site_params['theme_faculty'])
-        theme.install_and_activate()
-
+        WPThemeConfig.install_all(self.wp_site)
         logging.info("%s - Activating theme '%s'...", repr(self), self._site_params['theme'])
-
+        theme = WPThemeConfig(self.wp_site, self._site_params['theme'], self._site_params['theme_faculty'])
         if not theme.activate():
             logging.error("%s - could not activate theme '%s'", repr(self), self._site_params['theme'])
             return False
@@ -217,7 +213,7 @@ class WPGenerator:
         self.generate_mu_plugins()
 
         # delete all widgets, inactive themes and demo posts
-        # self.delete_widgets() #  there is no sidebar widget in the 2018 theme
+        self.delete_widgets()
         self.delete_inactive_themes()
         self.delete_demo_posts()
 
@@ -414,7 +410,6 @@ class WPGenerator:
         WPMuPluginConfig(self.wp_site, "epfl-functions.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL_custom_editor_menu.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL_jahia_redirect.php").install()
-        WPMuPluginConfig(self.wp_site, "EPFL_google_analytics_hook.php").install()
 
         if self.wp_config.installs_locked:
             WPMuPluginConfig(self.wp_site, "EPFL_installs_locked.php").install()
@@ -429,6 +424,8 @@ class WPGenerator:
     def enable_updates_automatic_if_allowed(self):
         if self.wp_config.updates_automatic:
             WPMuPluginConfig(self.wp_site, "EPFL_enable_updates_automatic.php").install()
+            # We also uninstall the plugin which disable auto-updates otherwise we will have both...
+            WPMuPluginConfig(self.wp_site, "EPFL_disable_updates_automatic.php").uninstall()
 
     def generate_plugins(self,
                          only_one=None,
