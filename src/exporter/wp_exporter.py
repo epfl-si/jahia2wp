@@ -900,21 +900,24 @@ class WPExporter:
                 # AND parent is not homepage
                 # AND we have an ID for its content,
                 if page.parent and not page.parent.is_homepage() and page_content.wp_id:
-                    # We use the page parent id to update it in WordPress
-                    wp_page_info = {
-                        'parent': page.parent.contents[lang].wp_id
-                    }
 
-                    for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
-                        try:
-                            self.wp.post_pages(page_id=page.contents[lang].wp_id, data=wp_page_info)
-                        except Exception as e:
-                            if try_no < settings.WP_CLI_AND_API_NB_TRIES - 1:
-                                logging.error("Run WPCLI error. Retry %s in %s sec...",
-                                              try_no+1,
-                                              settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
-                                time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
-                                pass
+                    # if there's content for the parent:
+                    if lang in page.parent.contents:
+                        # We use the page parent id to update it in WordPress
+                        wp_page_info = {
+                            'parent': page.parent.contents[lang].wp_id
+                        }
+
+                        for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
+                            try:
+                                self.wp.post_pages(page_id=page.contents[lang].wp_id, data=wp_page_info)
+                            except Exception as e:
+                                if try_no < settings.WP_CLI_AND_API_NB_TRIES - 1:
+                                    logging.error("Run WPCLI error. Retry %s in %s sec...",
+                                                  try_no+1,
+                                                  settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                                    time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                                    pass
 
     def create_sitemaps_and_footer(self):
 
