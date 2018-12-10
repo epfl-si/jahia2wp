@@ -1,5 +1,5 @@
 src: ../wp/wp-content/plugins/epfl-intranet
-activate: no
+activate: yes
 tables:
   options:
   - autoload: 'yes'
