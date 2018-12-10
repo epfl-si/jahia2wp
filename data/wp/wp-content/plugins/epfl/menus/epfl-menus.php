@@ -632,6 +632,29 @@ class Menu
             throw new MenuError(
                 "Cannot find term with ID $this->term_id");
         }
+
+        if (function_exists('pll_get_post_translations') &&
+            ($homepage_id = 0 + get_option('page_on_front'))) {
+            // For whatever reason, URLs of homepages and their
+            // translations are... weird. Reconstruct them
+            $is_homepage_translation = array();
+
+            foreach (pll_get_post_translations($homepage_id)
+                     as $id) {
+                $is_homepage_translation[$id] = 1;
+            }
+
+            foreach ($items as $item) {
+                $post_id = 0 + $item->object_id;
+                if (array_key_exists($post_id, $is_homepage_translation)) {
+                    $item->url = sprintf('%s/%s/%s/',
+                                         site_url(),
+                                         pll_get_post_language($post_id),
+                                         get_post($post_id)->post_name);
+                }
+            }
+        }
+
         return new MenuItemBag($items);
     }
 
