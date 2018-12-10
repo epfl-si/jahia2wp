@@ -238,8 +238,15 @@ define('PLL_COOKIE', false);
     so it's impossible to switch to the other language
 */
 function http_status_change_to_non_cacheable($status, $location) {
-   /* We only do 303 redirect if redirection are local to website. */
-   return (strpos($location, $_SERVER['SERVER_NAME'])!==false)? 303: $status;
+   /* We update header to avoid caching when redirect on local host */
+   if(strpos($location, $_SERVER['SERVER_NAME'])!==false)
+   {
+        header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+        header("Cache-Control: post-check=0, pre-check=0", false);
+        header("Pragma: no-cache");
+   }
+
+   return $status;
 }
 add_filter( 'wp_redirect_status', 'http_status_change_to_non_cacheable', 10, 2);
 
