@@ -3,7 +3,7 @@
  * Plugin Name: EPFL Functions
  * Plugin URI: 
  * Description: Must-use plugin for the EPFL website.
- * Version: 0.0.3
+ * Version: 0.0.4
  * Author: Aline Keller
  * Author URI: http://www.alinekeller.ch
  */
@@ -238,6 +238,7 @@ define('PLL_COOKIE', false);
     so it's impossible to switch to the other language
 */
 function http_status_change_to_non_cacheable($status, $location) {
+
    /* We update header to avoid caching when using 302 redirect on local host */
    if($status==302 && strpos($location, $_SERVER['SERVER_NAME'])!==false)
    {
