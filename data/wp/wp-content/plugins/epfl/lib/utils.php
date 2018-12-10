@@ -87,7 +87,8 @@ Class Utils
                                           'epfl_shortcode_duration_second',
                                           'How long a web service request takes',
                                            ['src', 'target', 'timestamp']);
-        $gauge->set($duration, [home_url( $wp->request ), $url, microtime(true)]);
+        /* Timestamp is given in millisec (C2C prerequisite) */
+        $gauge->set($duration, [home_url( $wp->request ), $url, floor(microtime(true)*1000)]);
 
     }
 }
