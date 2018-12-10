@@ -238,8 +238,8 @@ define('PLL_COOKIE', false);
     so it's impossible to switch to the other language
 */
 function http_status_change_to_non_cacheable($status, $location) {
-   /* We update header to avoid caching when redirect on local host */
-   if(strpos($location, $_SERVER['SERVER_NAME'])!==false)
+   /* We update header to avoid caching when using 302 redirect on local host */
+   if($status==302 && strpos($location, $_SERVER['SERVER_NAME'])!==false)
    {
         header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
         header("Cache-Control: post-check=0, pre-check=0", false);
