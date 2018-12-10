@@ -14,3 +14,9 @@ $renderer = new EPFLRenderTextFormat();
 $result = $renderer->render($registry->getMetricFamilySamples(), ['timestamp']);
 header('Content-type: ' . RenderTextFormat::MIME_TYPE);
 echo $result;
+
+/* If we have to flush cache right after request, */
+if(array_key_exists('flush', $_GET))
+{
+    $adapter->flushAPC();
+}
