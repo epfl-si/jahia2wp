@@ -16,7 +16,7 @@ VALID_LINE = {
         'theme': 'epfl',
         'theme_faculty': '',
         'unit_name': 'VPR',
-        'unit_id': 123,
+        'unit_id': '123',
         'updates_automatic': 'no',
         'wp_site_title': 'RSR',
         'wp_tagline': 'Recherche',
