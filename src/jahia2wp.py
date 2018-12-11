@@ -521,7 +521,6 @@ def export(site, wp_site_url, unit_name_or_id, to_wordpress=False, clean_wordpre
                            'epfl-map',
                            'epfl-memento',
                            'epfl-news',
-                           # 'epfl',
                            'epfl-people',
                            'epfl-scheduler',
                            'EPFL-Content-Filter',
