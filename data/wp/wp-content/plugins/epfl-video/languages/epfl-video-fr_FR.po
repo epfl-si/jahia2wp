@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl-video\n"
-"POT-Creation-Date: 2018-11-06 12:56+0100\n"
-"PO-Revision-Date: 2018-11-06 12:57+0100\n"
+"POT-Creation-Date: 2018-12-07 13:20+0100\n"
+"PO-Revision-Date: 2018-12-07 13:20+0100\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -16,21 +16,9 @@ msgstr ""
 "X-Poedit-SearchPath-0: shortcake-config.php\n"
 "X-Poedit-SearchPath-1: epfl-video.php\n"
 
-#: epfl-video.php:61
+#: epfl-video.php:65
 msgid "EPFL-Video: Error getting final URL"
 msgstr "EPFL-Video: Erreur dans la récupération de l'URL finale"
-
-#: epfl-video.php:76
-msgid "EPFL-Video: invalid YouTube URL"
-msgstr "EPFL-Video: URL YouTube invalide"
-
-#: epfl-video.php:96
-msgid "EPFL-Video: invalid Vimeo URL"
-msgstr "EPFL-Video: URL Vimeo invalide"
-
-#: epfl-video.php:111
-msgid "EPFL-Video: invalid SWITCHTube URL"
-msgstr "EPFL-Video: URL SWITCHTube invalide"
 
 #: shortcake-config.php:16
 msgid "Video URL"
@@ -39,6 +27,15 @@ msgstr "URL de la vidéo"
 #: shortcake-config.php:19
 msgid "You can copy/paste a YouTube, Vimeo or SWITCHTube URL"
 msgstr "Vous pouvez copier/coller une URL de vidéo YouTube, Vimeo ou SWITCHTube"
+
+#~ msgid "EPFL-Video: invalid YouTube URL"
+#~ msgstr "EPFL-Video: URL YouTube invalide"
+
+#~ msgid "EPFL-Video: invalid Vimeo URL"
+#~ msgstr "EPFL-Video: URL Vimeo invalide"
+
+#~ msgid "EPFL-Video: invalid SWITCHTube URL"
+#~ msgstr "EPFL-Video: URL SWITCHTube invalide"
 
 #~ msgid "Error getting final URL"
 #~ msgstr "EPFL-Video: Erreur dans la récupération de l'URL finale"
