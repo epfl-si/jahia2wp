@@ -107,33 +107,30 @@ class WPSite:
 
     @classmethod
     def from_path(cls, path):
-        try:
-            given_path = os.path.abspath(path).rstrip('/')
 
-            openshift_env = WPSite.openshift_env_from_path(given_path)
+        given_path = os.path.abspath(path).rstrip('/')
 
-            # validate given path
-            if not os.path.isdir(given_path):
-                logging.warning("given path '%s' is not a valid dir", given_path)
+        openshift_env = WPSite.openshift_env_from_path(given_path)
 
-            # make sure we are in an apache root directory
-            if 'htdocs' not in given_path:
-                return None
+        # validate given path
+        if not os.path.isdir(given_path):
+            logging.warning("given path '%s' is not a valid dir", given_path)
 
-            # build URL from path
-            regex = re.compile("/([^/]*)")
-            directories = regex.findall(os.path.abspath(path))
-            htdocs_index = directories.index('htdocs')
-            domain = directories[htdocs_index-1]
-            folders = '/'.join(directories[htdocs_index+1:])
-            url = "{}://{}/{}".format(cls.PROTOCOL, domain, folders)
-
-            # return WPSite
-            return cls(openshift_env, url)
-        except:
-
-            logging.error("Cannot extract WPSite from path '%s' - Error %s", path, sys.exc_info())
+        # make sure we are in an apache root directory
+        if 'htdocs' not in given_path:
             return None
+
+        # build URL from path
+        regex = re.compile("/([^/]*)")
+        directories = regex.findall(os.path.abspath(path))
+        htdocs_index = directories.index('htdocs')
+        domain = directories[htdocs_index-1]
+        folders = '/'.join(directories[htdocs_index+1:])
+        url = "{}://{}/{}".format(cls.PROTOCOL, domain, folders)
+
+        # return WPSite
+        return cls(openshift_env, url)
+
 
 
 class WPUser:
