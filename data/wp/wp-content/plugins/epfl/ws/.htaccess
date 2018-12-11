@@ -2,4 +2,5 @@
   Order Deny,Allow
   Deny from all
   Allow from 172.16.0.0/12
+  Allow from localhost
 </Files>
