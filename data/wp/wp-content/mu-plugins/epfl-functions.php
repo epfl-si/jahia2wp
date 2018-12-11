@@ -3,7 +3,7 @@
  * Plugin Name: EPFL Functions
  * Plugin URI: 
  * Description: Must-use plugin for the EPFL website.
- * Version: 0.0.3
+ * Version: 0.0.3.1
  * Author: Aline Keller
  * Author URI: http://www.alinekeller.ch
  */
@@ -242,8 +242,6 @@ function http_status_change_to_non_cacheable($status, $location) {
    if($status==302 && strpos($location, $_SERVER['SERVER_NAME'])!==false)
    {
         header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-        header("Cache-Control: post-check=0, pre-check=0", false);
-        header("Pragma: no-cache");
    }
    return $status;
 }
