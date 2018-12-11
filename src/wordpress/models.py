@@ -1,7 +1,6 @@
 import os
 import re
 import logging
-import sys
 
 from urllib.parse import urlparse
 from epflldap.ldap_search import get_username, get_email
@@ -107,7 +106,6 @@ class WPSite:
 
     @classmethod
     def from_path(cls, path):
-
         given_path = os.path.abspath(path).rstrip('/')
 
         openshift_env = WPSite.openshift_env_from_path(given_path)
@@ -130,7 +128,6 @@ class WPSite:
 
         # return WPSite
         return cls(openshift_env, url)
-
 
 
 class WPUser:
