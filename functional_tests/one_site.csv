@@ -1,3 +1,3 @@
 # Field 'unit_id' has been added in this file but isn't present in "real" csv file used by the script. 'unit_id' is needed to go correctly through Travis tests
 wp_site_url,wp_tagline,wp_site_title,site_type,openshift_env,category,theme,theme_faculty,status,installs_locked,updates_automatic,langs,unit_name,comment,unit_id
-https://localhost/test_many,Recherche,RSR,wordpress,test,GeneralPublic,epfl-master,,asked,yes,no,"fr,en",idev-fsd,tagada tsoin tsoin,42
+https://localhost/test_many,Recherche,RSR,wordpress,test,GeneralPublic,epfl-master,,asked,yes,no,"fr,en",ideving,tagada tsoin tsoin,42

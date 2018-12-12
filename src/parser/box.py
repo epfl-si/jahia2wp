@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 from xml.dom import minidom
 from parser.box_sorted_group import BoxSortedGroup
 from bs4 import BeautifulSoup
+from django.utils.text import slugify
 
 from utils import Utils
 
@@ -18,6 +19,7 @@ class Box:
     TYPE_COLORED_TEXT = "coloredText"
     TYPE_PEOPLE_LIST = "peopleList"
     TYPE_INFOSCIENCE = "infoscience"
+    TYPE_INFOSCIENCE_FILTER = "infoscienceFilter"
     TYPE_ACTU = "actu"
     TYPE_MEMENTO = "memento"
     TYPE_FAQ = "faq"
@@ -41,6 +43,7 @@ class Box:
         "epfl:coloredTextBox": TYPE_COLORED_TEXT,
         "epfl:peopleListBox": TYPE_PEOPLE_LIST,
         "epfl:infoscienceBox": TYPE_INFOSCIENCE,
+        "epfl:infoscienceFilteredBox": TYPE_INFOSCIENCE_FILTER,
         "epfl:actuBox": TYPE_ACTU,
         "epfl:mementoBox": TYPE_MEMENTO,
         "epfl:faqBox": TYPE_FAQ,
@@ -62,7 +65,14 @@ class Box:
 
     UPDATE_LANG = "UPDATE_LANG_BY_EXPORTER"
 
-    def __init__(self, site, page_content, element, multibox=False):
+    def __init__(self, site, page_content, element, multibox=False, is_in_sidebar=False):
+        """
+
+        :param site: instance of Site class
+        :param page_content: instance of PageContent class. This is the page content containing current box
+        :param element: DOM element <extra> or <main>
+        :param multibox:
+        """
         # attributes
         self.site = site
         self.page_content = page_content
@@ -72,6 +82,7 @@ class Box:
         self.title = Utils.get_tag_attribute(element, "boxTitle", "jahia:value")
         self.content = ""
         self.sort_group = None
+        self.is_in_sidebar = False
 
         # the shortcode attributes with URLs that must be fixed by the wp_exporter
         self.shortcode_attributes_to_fix = []
@@ -82,7 +93,7 @@ class Box:
 
     def set_sort_infos(self, element):
         """
-        Tells if element needs to be sort or not. We check if it has a parant of type "mainList" with a
+        Tells if element needs to be sort or not. We check if it has a parent of type "mainList" with a
         "jahia:sortHandler" attribute which is not empty
 
         :param element: Element to check.
@@ -133,7 +144,7 @@ class Box:
         elif self.TYPE_PEOPLE_LIST == self.type:
             self.set_box_people_list(element)
         # infoscience
-        elif self.TYPE_INFOSCIENCE == self.type:
+        elif self.TYPE_INFOSCIENCE == self.type or self.TYPE_INFOSCIENCE_FILTER == self.type:
             self.set_box_infoscience(element)
         # actu
         elif self.TYPE_ACTU == self.type:
@@ -188,6 +199,10 @@ class Box:
             self.set_box_unknown(element)
 
         self.fix_video_iframes()
+
+        self.add_id_to_h3()
+
+        self.fix_img_align_left()
 
     def _set_scheduler_box(self, element, content):
         """set the attributes of a scheduler box"""
@@ -274,7 +289,7 @@ class Box:
             title = Utils.get_tag_attribute(e, "jahia:url", "jahia:title")
 
             # Escape if necessary
-            title = Utils.manage_quotes(title)
+            title = Utils.handle_custom_chars(title)
 
             self.content += '[{} layout="{}" link="{}" title="{}" image="{}"][/{}]\n'.format(
                 shortcode_inner_name, layout, link, title, image, shortcode_inner_name)
@@ -531,7 +546,13 @@ class Box:
             rss_url = ""
             rss_title = ""
 
-        content = '[{} channel="{}" lang="{}" template="{}" '.format(
+        content = ""
+
+        # Title is only for boxes in pages
+        if not self.is_in_sidebar:
+            content += '<h3>{}</h3>'.format(self.title)
+
+        content += '[{} channel="{}" lang="{}" template="{}" '.format(
             self.shortcode_name,
             channel_id,
             lang,
@@ -546,9 +567,6 @@ class Box:
         if projects:
             content += 'projects="{}" '.format(",".join(projects))
 
-        # Title is only for boxes in pages
-        if not self.is_in_sidebar():
-            content += 'title="{}" '.format(self.title)
         content += '/]'
 
         # If we have a <moreUrl> or <rssUrl> element
@@ -572,13 +590,6 @@ class Box:
             content += '[/epfl_buttons_container]'
 
         self.content = content
-
-    def is_in_sidebar(self):
-        """
-        Tells if the box belongs to the sidebar
-        :return:
-        """
-        return self.page_content.page.is_homepage()
 
     @staticmethod
     def _extract_epfl_memento_parameters(url):
@@ -659,7 +670,7 @@ class Box:
         if color:
             html_content += 'color="{}" '.format(color)
         if filters:
-            html_content += 'filters="{}" '.format(filters)
+            html_content += 'keyword="{}" '.format(filters)
         if category:
             html_content += 'category="{}" '.format(category)
         if reorder:
@@ -670,7 +681,17 @@ class Box:
         self.content = html_content
 
     def set_box_infoscience(self, element):
-        """set the attributes of a infoscience box"""
+        """
+        set the attributes of a infoscience box.
+        The "element" parameter can be type "epfl:infoscienceBox" or "epfl:htmlBox". If its an "infoscienceBox",
+        we have to look for <url> tags inside <infoscienceListList> tag. And if it's a "htmlBox", we have to look
+        inside <importHtmlList> tag. But, in "infoscienceBox", a tag <importHtmlList> can be present and we have to
+        ignore it otherwise we will take too much information to display (for "lms" website, we have both tags and
+        only <infoscienceListList> content is displayed on Jahia so it indicates we have to ignore <importHtmlList>
+        tag.
+        :param element: DOM element <main>
+        :return:
+        """
         # If box have title, we have to display it
         if self.title != "":
             html_content = "<h3>{}</h3>".format(self.title)
@@ -679,7 +700,17 @@ class Box:
 
         self.shortcode_name = "epfl_infoscience"
 
-        urls = Utils.get_tag_attributes(element, "url", "jahia:value")
+        # if "infoscienceBox"
+        if self.type == self.TYPE_INFOSCIENCE:
+            publication_list = element.getElementsByTagName("infoscienceListList")
+        elif self.type == self.TYPE_INFOSCIENCE_FILTER:
+            publication_list = element.getElementsByTagName("infoscienceFilteredListList")
+
+        else:  # importHtmlList (self.TYPE_INCLUDE)
+
+            publication_list = element.getElementsByTagName("importHtmlList")
+
+        urls = Utils.get_tag_attributes(publication_list[0], "url", "jahia:value")
 
         for url in urls:
             html_content += '[{} url="{}"]'.format(self.shortcode_name, url)
@@ -711,7 +742,7 @@ class Box:
 
             # Get question and escape if necessary
             question = Utils.get_tag_attribute(entry, "question", "jahia:value")
-            question = Utils.manage_quotes(question)
+            question = Utils.handle_custom_chars(question)
 
             # Get answer
             answer = Utils.get_tag_attribute(entry, "answer", "jahia:value")
@@ -851,6 +882,10 @@ class Box:
         if small_button_key:
             small_button_key = 'key="{}"'.format(small_button_key)
 
+        # Replacing necessary characters to ensure everything will work correctly
+        text = Utils.handle_custom_chars(text)
+        alt_text = Utils.handle_custom_chars(alt_text)
+
         return '[epfl_buttons type="{}" url="{}" {} alt_text="{}" text="{}" {}]'.format(box_type,
                                                                                         url,
                                                                                         big_button_image_url,
@@ -977,10 +1012,6 @@ class Box:
             if box_type == 'small' and text == "":
                 text = alt_text
 
-            # Escape if necessary
-            text = Utils.manage_quotes(text)
-            alt_text = Utils.manage_quotes(alt_text)
-
             # bigButton will have 'image' attribute and smallButton will have 'key' attribute.
             box_content = self._get_button_shortcode(box_type,
                                                      url,
@@ -1014,13 +1045,34 @@ class Box:
         if not element.getElementsByTagName("snippetListList"):
             return
 
-        snippets = element.getElementsByTagName("snippetListList")[0].getElementsByTagName("snippetList")
-
         # If box have title, we have to display it
         if self.title != "":
             self.content = "<h3>{}</h3>".format(self.title)
         else:
             self.content = ""
+
+        snippet_list_list = element.getElementsByTagName("snippetListList")[0]
+
+        # Sorting parameters
+        sort_params = snippet_list_list.getAttribute("jahia:sortHandler")
+
+        # Default values that may be overrided later
+        sort_way = 'asc'
+        sort_tag_name = None
+
+        # If we have parameters for sorting, they will look like :
+        # epfl_simple_main_snippetList_title;desc;false;false
+        # https://pel.epfl.ch/awards_en
+        if sort_params != "":
+            # Extracting tag name where to find sort info
+            # epfl_simple_main_snippetList_title;desc;false;false ==> url
+            sort_tag_name = sort_params.split(';')[0].split('_')[-1]
+
+            sort_way = sort_params.split(';')[1]
+
+        snippet_boxes = BoxSortedGroup('', '', sort_way)
+
+        snippets = snippet_list_list.getElementsByTagName("snippetList")
 
         for snippet in snippets:
             title = Utils.get_tag_attribute(snippet, "title", "jahia:value")
@@ -1037,10 +1089,24 @@ class Box:
                 big_image = big_image[big_image.rfind("/files"):]
 
             # escape
-            title = Utils.manage_quotes(title)
-            subtitle = Utils.manage_quotes(subtitle)
+            title = Utils.handle_custom_chars(title)
+            subtitle = Utils.handle_custom_chars(subtitle)
 
             url = ""
+
+            # Sorting needed
+            if sort_tag_name:
+                sort_tags = snippet.getElementsByTagName(sort_tag_name)
+                if sort_tags:
+                    # It seems that, by default, it is the "jahia:value" value that is used for sorting
+                    sort_value = sort_tags[0].getAttribute("jahia:value")
+
+                # We don't have enough information to continue
+                if not sort_tags or not sort_value:
+                    raise Exception("No sort tag (%s) found (or empty sort value found)", sort_tag_name)
+            else:
+                # No sorting needed, we generate an ID for the box
+                sort_value = len(snippet_boxes.boxes)
 
             # url
             if element.getElementsByTagName("url"):
@@ -1051,7 +1117,7 @@ class Box:
                 if url != "":
                     if not subtitle or subtitle == "":
                         subtitle = Utils.get_tag_attribute(snippet, "jahia:url", "jahia:title")
-                        subtitle = Utils.manage_quotes(subtitle)
+                        subtitle = Utils.handle_custom_chars(subtitle)
                 # if not we might have a <jahia:link> (internal url)
                 else:
                     uuid = Utils.get_tag_attribute(snippet, "jahia:link", "jahia:reference")
@@ -1065,19 +1131,23 @@ class Box:
                         # if link has a title, add it to content as ref
                         url_title = Utils.get_tag_attribute(snippet, "jahia:link", "jahia:title")
                         if url_title and not url_title == "":
-                            description += Utils.manage_quotes('<a href="' + url + '">' +
-                                                               Utils.manage_quotes(url_title) + '</a>')
+                            description += '<a href="' + url + '">' + Utils.handle_custom_chars(url_title) + '</a>'
 
-            self.content += '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
-                            ' big_image="{}" enable_zoom="{}"]{}[/{}]'.format(self.shortcode_name,
-                                                                              url,
-                                                                              title,
-                                                                              subtitle,
-                                                                              image,
-                                                                              big_image,
-                                                                              enable_zoom,
-                                                                              description,
-                                                                              self.shortcode_name)
+            box_content = '[{} url="{}" title="{}" subtitle="{}" image="{}"' \
+                          ' big_image="{}" enable_zoom="{}"]{}[/{}]'.format(self.shortcode_name,
+                                                                            url,
+                                                                            title,
+                                                                            subtitle,
+                                                                            image,
+                                                                            big_image,
+                                                                            enable_zoom,
+                                                                            description,
+                                                                            self.shortcode_name)
+
+            # Because boxes can be sortable, we use a BoxSortedGroup to handle this
+            snippet_boxes.add_box_to_sort(box_content, sort_value)
+
+        self.content += ''.join(snippet_boxes.get_sorted_boxes())
 
     def set_box_syntax_highlight(self, element):
         """Set the attributes of a syntaxHighlight box"""
@@ -1121,14 +1191,49 @@ class Box:
             </links>
         </linksList>
         """
+
+        # Sorting parameters
+        sort_params = element.getAttribute("jahia:sortHandler")
+
+        # Default values that may be overrided later
+        sort_way = 'asc'
+        sort_tag_name = None
+
+        # If we have parameters for sorting, they will look like :
+        # epfl_simple_main_comboList_links_link;asc;false;false
+        # https://pel.epfl.ch/awards_en
+        if sort_params != "":
+            # Extracting tag name where to find sort info
+            # epfl_simple_main_comboList_links_link;asc;false;false ==> <jahia:link -> jahia:title attribute
+            sort_tag_name = "jahia:{}".format(sort_params.split(';')[0].split('_')[-1])
+
+            sort_way = sort_params.split(';')[1]
+
+        links_boxes = BoxSortedGroup('', '', sort_way)
+
         elements = element.getElementsByTagName("links")
-        content = "<ul>"
         for e in elements:
             if e.ELEMENT_NODE != e.nodeType:
                 continue
 
-            link_html = ""
             desc = ""
+            title = ""
+            url = ""
+
+            # Sorting needed
+            if sort_tag_name:
+                sort_tags = e.getElementsByTagName(sort_tag_name)
+                if sort_tags:
+                    # It seems that, by default, it is the "jahia:title" value that is used for sorting
+                    sort_value = sort_tags[0].getAttribute("jahia:title")
+
+                # We don't have enough information to continue
+                if not sort_tags or not sort_value:
+                    raise Exception("No sort tag (%s) found (or empty sort value found)", sort_tag_name)
+            else:
+                # No sorting needed, we generate an ID for the box
+                sort_value = len(links_boxes.boxes)
+
             # Going through 'linkDesc' and 'link' nodes
             for link_node in e.childNodes:
                 if link_node.ELEMENT_NODE != link_node.nodeType:
@@ -1142,7 +1247,12 @@ class Box:
                     for jahia_tag in link_node.childNodes:
                         if jahia_tag.ELEMENT_NODE != jahia_tag.nodeType:
                             continue
+
+                        if jahia_tag.tagName in ['jahia:link', 'jahia:url']:
+                            title = jahia_tag.getAttribute("jahia:title")
+
                         if jahia_tag.tagName == "jahia:link":
+
                             # It happens that a link references a page that does not exist anymore
                             # observed on site dii
                             try:
@@ -1152,15 +1262,16 @@ class Box:
 
                             # We generate "Jahia like" URL so exporter will be able to fix it with WordPress URL
                             url = "/page-{}-{}.html".format(page.pid, self.page_content.language)
-                            link_html = '<a href="{}">{}</a>'.format(url, jahia_tag.getAttribute("jahia:title"))
 
                         elif jahia_tag.tagName == "jahia:url":
-                            link_html = '<a href="{}">{}</a>'.format(jahia_tag.getAttribute("jahia:value"),
-                                                                     jahia_tag.getAttribute("jahia:title"))
+                            url = jahia_tag.getAttribute("jahia:value")
 
-            content += '<li>{}{}</li>'.format(link_html, desc)
+            link_html = '<li><a href="{}">{}</a>{}</li>'.format(url, title, desc)
 
-        content += "</ul>"
+            # Because boxes can be sortable, we use a BoxSortedGroup to handle this
+            links_boxes.add_box_to_sort(link_html, sort_value)
+
+        content = "<ul>{}</ul>".format(''.join(links_boxes.get_sorted_boxes()))
 
         if content == "<ul></ul>":
             content = ""
@@ -1207,19 +1318,34 @@ class Box:
         self.shortcode_name = "epfl_map"
 
         # parse info
-        height = Utils.get_tag_attribute(element, "height", "jahia:value")
-        width = Utils.get_tag_attribute(element, "width", "jahia:value")
         query = Utils.get_tag_attribute(element, "query", "jahia:value")
 
         # in the parser we can't know the current language.
         # so we assign a string that we will replace by the current language in the exporter
         lang = self.UPDATE_LANG
 
-        self.content = '[{} width="{}" height="{}" query="{}" lang="{}"]'.format(self.shortcode_name,
-                                                                                 width,
-                                                                                 height,
-                                                                                 query,
-                                                                                 lang)
+        self.content = '[{} query="{}" lang="{}"]'.format(self.shortcode_name, query, lang)
+
+    def fix_img_align_left(self):
+        """
+        Look for <img> having attribute "align" with value set to "left", delete it and add a "class='left'" instead
+        This is done because, on Jahia, there's a mechanism (but we don't know where) which do this on the client side.
+        :return:
+        """
+        soup = BeautifulSoup(self.content, 'html5lib')
+        soup.body.hidden = True
+
+        images = soup.find_all('img')
+
+        for img in images:
+
+            align = img.get('align')
+
+            if align and align == 'left':
+                img['class'] = 'left'
+                del img['align']
+
+        self.content = str(soup.body)
 
     def fix_video_iframes(self):
         """
@@ -1240,14 +1366,29 @@ class Box:
             src = iframe.get('src')
 
             if src and ('youtube.com' in src or 'youtu.be' in src or 'player.vimeo.com' in src):
-                width = iframe.get('width')
-                height = iframe.get('height')
 
-                shortcode = '[epfl_video url="{}" width="{}" height="{}"]'.format(src,
-                                                                                  width if width else '600',
-                                                                                  height if height else '400')
+                shortcode = '[epfl_video url="{}"]'.format(src)
                 # Replacing the iframe with shortcode text
                 iframe.replaceWith(shortcode)
+
+        self.content = str(soup.body)
+
+    def add_id_to_h3(self):
+        """
+        Take title of <h3> elements, slugify it and add it as "id" attribute
+        :return:
+        """
+
+        soup = BeautifulSoup(self.content, 'html5lib')
+        soup.body.hidden = True
+
+        h3s = soup.find_all('h3')
+
+        for h3 in h3s:
+
+            if h3.text != "" and h3.get('id') is None:
+                slug = slugify(h3.text)
+                h3['id'] = slug
 
         self.content = str(soup.body)
 

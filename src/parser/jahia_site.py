@@ -331,7 +331,8 @@ class Site:
 
                 # If no childNode, it means <navigationPage> can be a "reference" to a menu entry of another language
                 if not nav_page.childNodes:
-                    menu_item = MenuItem(None, nav_page_uuid, False, None)
+                    # Creating a menu entry with a blank title because we don't know the "target" title.
+                    menu_item = MenuItem("", nav_page_uuid, False, None)
 
                     # If we are parsing root menu entries
                     if parent_menu is None:
@@ -342,6 +343,8 @@ class Site:
 
         # Looking for sort information. If exists, the format is the following:
         # epfl_simple_navigationList_navigationPage;asc;false;false
+        # Note: If sorting is done using 'txt' field (menu title), it will be incorrect if there are references to
+        # menu entries in other language.
         sort_infos = nav_list_list_node.getAttribute("jahia:sortHandler")
         if sort_infos:
             # FIXME: For now, root menu entries sorting is not handled because never encountered in a Jahia Website
@@ -869,6 +872,12 @@ class Site:
                 tag[attribute] = add_lang_to_link(new_link, link_lang)
 
                 self.internal_links += 1
+
+            # /cms/PAGE_NAME
+            elif link.startswith("/cms/"):
+                new_link = link.replace("/cms", "")
+
+                tag[attribute] = add_lang_to_link(new_link, self.languages[0])
 
             # Internal links like
             # /site/SITE_NAME/page-14009.html

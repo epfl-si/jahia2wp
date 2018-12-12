@@ -120,6 +120,10 @@ class WPMuPluginConfig(WPConfig):
                       self.name, src_path,
                       self.path)
 
+    def uninstall(self):
+        if os.path.exists(self.path):
+            os.remove(self.path)
+
     @property
     def dir_path(self):
         dir_path = os.path.join(self.wp_site.path, self.PLUGINS_PATH)
