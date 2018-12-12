@@ -21,6 +21,7 @@ services:
   httpd:
     container_name: jahia2wp-httpd
     # We use build info available in another cloned repository : https://github.com/epfl-idevelop/wp-ops/
+    # TODO: Read domq's comment on PR https://github.com/epfl-idevelop/jahia2wp/pull/800 and determine what can be done
     build: ../wp-ops/docker/httpd
     labels:
       ch.epfl.jahia2wp.httpd.env: ${WP_ENV}
@@ -34,13 +35,13 @@ services:
     ports:
       - "${WP_PORT_HTTP}:8080"
       - "${WP_PORT_HTTPS}:8443"
-      - "8443:8443"
 
   mgmt:
     labels:
       ch.epfl.jahia2wp.mgmt.env: ${WP_ENV}
     image: epflidevelop/wp-ops-mgmt
     # We use build info available in another cloned repository : https://github.com/epfl-idevelop/wp-ops/
+    # TODO: Read domq's comment on PR https://github.com/epfl-idevelop/jahia2wp/pull/800 and determine what can be done
     build: ../wp-ops/docker/mgmt
     env_file:
       - .env
