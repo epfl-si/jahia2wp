@@ -1,5 +1,8 @@
 <?php
 
+use Prometheus\CollectorRegistry;
+
+
 Class Utils
 {
     public static function debug($var) {
@@ -44,7 +47,11 @@ Class Utils
      */
     public static function get_items(string $url) {
 
+        $start = microtime(true);
         $response = wp_remote_get($url);
+        $end = microtime(true);
+
+        Utils::perf($url, $end-$start);
 
         if (is_array($response)) {
             $header = $response['headers']; // array of http header lines
@@ -59,6 +66,30 @@ Class Utils
                 return json_decode($data);
             }
         }
+    }
+
+    /*
+        Save a webservice call duration including source page and timestamp on which call occurs
+
+        @param $url         -> Webservice URL call
+        @param $duration    -> webservice call duration (microsec)
+    */
+    public static function perf($url, $duration)
+    {
+
+        global $wp;
+
+        $adapter = new Prometheus\Storage\APC();
+
+        $registry = new CollectorRegistry($adapter);
+
+        $gauge = $registry->registerGauge('wp',
+                                          'epfl_shortcode_duration_second',
+                                          'How long a web service request takes',
+                                           ['src', 'target', 'timestamp']);
+        /* Timestamp is given in millisec (C2C prerequisite) */
+        $gauge->set($duration, [home_url( $wp->request ), $url, floor(microtime(true)*1000)]);
+
     }
 }
 
