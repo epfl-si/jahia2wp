@@ -4,6 +4,8 @@
 
 """Model what test and prod look like on OpenShift"""
 import logging
+
+import re
 from memoize import mproperty
 from urllib.parse import urlparse
 import subprocess
@@ -143,11 +145,25 @@ class SshRemoteSite:
         """
         return os.path.join('/srv', self.wp_env, self.wp_hostname, 'htdocs', self.wp_path)
 
-    def get_htaccess_file_path(self):
+    def get_htaccess_file_path(self, bak_file=False):
         """
         Return the htaccess file path
         """
-        return os.path.join(self.get_root_dir_path(), '.htaccess')
+        path = os.path.join(self.get_root_dir_path(), '.htaccess')
+
+        if bak_file:
+
+            remote_cmd = "ls -la {}/.htaccess.bak*".format(self.get_root_dir_path())
+            ssh = self.parent_host.run_ssh(remote_cmd, check=False)
+            if ssh.returncode == 0:
+                file_name = ssh.stdout.decode("utf-8")
+                file_name = ".bak" + file_name.split(".htaccess.bak")[1].replace("\n", "")
+            elif ssh.returncode != 1:
+                logging.error(ssh.stderr)
+
+            path += file_name
+
+        return path
 
     def get_directory_path_contains(self, file_name):
         """
@@ -226,12 +242,14 @@ class SshRemoteSite:
 
         return htaccess_file_content
 
-    def get_htaccess_content(self):
+    def get_htaccess_content(self, bak_file = False):
         """
         Return content of htaccess file
         """
         htaccess_file_content = ""
-        htaccess_file = self.get_htaccess_file_path()
+
+        htaccess_file = self.get_htaccess_file_path(bak_file)
+
         remote_cmd = "cat {}".format(htaccess_file)
         ssh = self.parent_host.run_ssh(remote_cmd, check=False)
 
@@ -265,19 +283,19 @@ class SshRemoteSite:
         )
         success_msg = "Command {} executed with success".format(remote_cmd)
         # TODO uncomment this line below
-        # self._run_ssh(remote_cmd, success_msg=success_msg)
+        self._run_ssh(remote_cmd, success_msg=success_msg)
 
         # 2. mkdir /srv/subdomains/dcsl.epfl.ch/htdocs
         remote_cmd = "mkdir {}".format(self.get_root_dir_path())
         success_msg = "Command {} executed with success".format(remote_cmd)
         # TODO uncomment this line below
-        # self._run_ssh(remote_cmd, success_msg=success_msg)
+        self._run_ssh(remote_cmd, success_msg=success_msg)
 
         # 3. cp /srv/sandox/archive-wp.epfl.ch/htdocs/dcsl/.htaccess /srv/subdomains/dcsl.epfl.ch/htdocs/
         remote_cmd = "cp {}/.htaccess {}".format(archive_directory, self.get_root_dir_path())
         success_msg = "Command {} executed with success".format(remote_cmd)
         # TODO uncomment this line below
-        # self._run_ssh(remote_cmd, success_msg=success_msg)
+        self._run_ssh(remote_cmd, success_msg=success_msg)
 
         return archive_site_url
 

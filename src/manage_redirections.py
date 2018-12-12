@@ -7,7 +7,9 @@ Usage:
   manage_redirections.py update-redirections <source_site_url> <destination_site_url> [--debug | --quiet]
   manage_redirections.py update-redirections-many <csv_file> [--debug | --quiet]
   manage_redirections.py archive-wp-site <source_site_url> [--debug | --quiet]
+  manage_redirections.py archive-wp-site-many <csv_file> [--debug | --quiet]
   manage_redirections.py create-directory <csv_file> [--debug | --quiet]
+  manage_redirections.py generate-301 <csv_file> <destination_site> [--debug | --quiet]
 
 Options:
   -h --help                 Show this screen.
@@ -23,6 +25,7 @@ from ops import SshRemoteSite, SshRemoteHost
 from utils import Utils
 os.environ['WP_ENV'] = 'manage redirections'  # noqa
 from settings import VERSION
+from urllib.parse import urlparse
 
 
 WP_REDIRECTS_AFTER_VENTILATION = "WordPress-Redirects-After-Ventilation"
@@ -120,16 +123,19 @@ def get_jahia_redirections(content, source_site, destination_site, destination_s
             else:
                 logging.error("URL starts with a strange string !")
 
+            if not slug_full.endswith("/"):
+                slug_full += "/"
+
             slug_instance_wp = destination_site.wp_path
             if not slug_instance_wp.startswith("/"):
                 slug_instance_wp = "/" + slug_instance_wp
 
             elements = line.split(" /")
 
-            # gauche tout sans le www.epfl.ch/
-            line = " ".join([elements[0], slug_full + "/" + elements[1]])
+            # 301 gauche tout sans le www.epfl.ch/
+            line = " ".join([elements[0], slug_full + elements[1]])
 
-            # droite si / => tout sans www.epefl si autre chose chemin juska l'instance
+            # 301 droite si / => tout sans www.epfl si autre chose chemin jusqu'a l'instance WP
             if elements[2] == "":
                 line += " " + slug_full
             else:
@@ -208,9 +214,9 @@ def _update_redirections(source_site_url, destination_site_url):
 
     source_site = SshRemoteSite(source_site_url)
 
-    #if not source_site.is_valid():
-    #    logging.debug("WP {} is not valid".format(source_site_url))
-    #    return
+    if not source_site.is_valid():
+        logging.debug("WP {} is not valid".format(source_site_url))
+        return
 
     # Create a htaccess backup with name .htacces.bak.timestamp
     is_backup_created = source_site.create_htaccess_backup()
@@ -295,17 +301,62 @@ def update_redirections_many(csv_file, **kwargs):
         source_site_url = row['source_site_url']
         destination_site_url = row['destination_site_url']
 
-        # source_site_url = row['OLD URL']
-        # destination_site_url = row['NEW URL']
-        # system = row['systeme']
+        #source_site_url = row['OLD URL']
+        #destination_site_url = row['NEW URL']
 
         logging.info("Updating redirections for site n°{} {}".format(index, source_site_url))
 
-        # if row['systeme'] == 'jahia':
-
+        #if row['systeme'] == 'jahia':
         _update_redirections(source_site_url, destination_site_url)
 
         logging.info("End update redirections for site n°{} {}".format(index, source_site_url))
+
+@dispatch.on('archive-wp-site-many')
+def archive_wp_site_many(csv_file, **kwargs):
+
+    rows = Utils.csv_filepath_to_dict(csv_file)
+    logging.info("Archiving redirections for {} sites".format(len(rows)))
+
+    for index, row in enumerate(rows, start=1):
+
+        source_site_url = row['site_url']
+
+        source_site = SshRemoteSite(source_site_url)
+
+        site_name = source_site.site_name
+        archive_site_url = source_site.archive_wp_site()
+        archive_site = SshRemoteSite(archive_site_url)
+
+        # bak
+        htaccess_content = archive_site.get_htaccess_content(bak_file=True)
+
+        # Modify 2 lines to add site_name :
+        # RewriteBase /dcsl/
+        # RewriteRule . /dcsl/index.php [L]
+        lines = htaccess_content.split("\n")
+        new_content = ""
+        for line in lines:
+            if "RewriteBase" in line:
+                line = line.replace("RewriteBase /", "RewriteBase /{}/".format(site_name))
+
+            if "RewriteRule . /index.php" in line:
+                line = line.replace("RewriteRule . /index.php", "RewriteRule . /{}/index.php".format(site_name))
+            new_content += line + "\n"
+
+        # TODO uncomment this line below
+        archive_site.write_htaccess_content(new_content)
+
+        # Search and replace
+        # Example: https://information-systems.epfl.ch => https://archive-wp.epfl.ch/information-systems
+        remote_cmd = "wp search-replace '{}' '{}' --path={}".format(
+            source_site_url, archive_site_url, archive_site.get_root_dir_path()
+        )
+        # TODO uncomment this line below
+        archive_site.wp_cli(remote_cmd)
+
+
+
+
 
 
 @dispatch.on('archive-wp-site')
@@ -318,11 +369,13 @@ def archive_wp_site(source_site_url, **kwargs):
     5. Search and replace
     """
     source_site = SshRemoteSite(source_site_url)
+
     site_name = source_site.site_name
     archive_site_url = source_site.archive_wp_site()
-
     archive_site = SshRemoteSite(archive_site_url)
-    htaccess_content = archive_site.get_htaccess_content()
+
+    # bak
+    htaccess_content = archive_site.get_htaccess_content(bak_file=True)
 
     # Modify 2 lines to add site_name :
     # RewriteBase /dcsl/
@@ -338,7 +391,7 @@ def archive_wp_site(source_site_url, **kwargs):
         new_content += line + "\n"
 
     # TODO uncomment this line below
-    # archive_site.write_htaccess_content(new_content)
+    archive_site.write_htaccess_content(new_content)
 
     # Search and replace
     # Example: https://information-systems.epfl.ch => https://archive-wp.epfl.ch/information-systems
@@ -346,7 +399,9 @@ def archive_wp_site(source_site_url, **kwargs):
         source_site_url, archive_site_url, archive_site.get_root_dir_path()
     )
     # TODO uncomment this line below
-    # archive_site.wp_cli(remote_cmd)
+    archive_site.wp_cli(remote_cmd)
+
+
 
 
 def _run_ssh(remote_cmd, success_msg=""):
@@ -383,6 +438,46 @@ def create_directory(csv_file, **kwargs):
 
             remote_cmd = "touch {}/.htaccess".format(path)
             _run_ssh(remote_cmd, success_msg="touch .htaccess success")
+
+
+@dispatch.on('generate-301')
+def generate_301(csv_file, destination_site="", **kwargs):
+    """
+    # BEGIN Jahia-Page-Redirect
+    Redirect 301 /about/campus/neuchatel/page-121739-en.html /about/campus/neuchatel/
+    Redirect 301 /about/campus/neuchatel/index-fr.html /about/campus/index-fr-html/
+    # END Jahia-Page-Redirect
+    """
+    rows = Utils.csv_filepath_to_dict(csv_file)
+    logging.info("Creating {} 301".format(len(rows)))
+
+    content = "# BEGIN Jahia-Page-Redirect\n"
+
+    for index, row in enumerate(rows, start=1):
+
+        source_url = row['URL']
+        destination_url = row['NEW URL']
+
+        path = SshRemoteSite(destination_site, discover_site_path=True).wp_path
+        if not path.startswith("/"):
+            path = "/" + path
+        if path.endswith("/"):
+            path = path[:-1]
+
+        source_slug = path + urlparse(source_url).path
+        destination_slug = urlparse(destination_url).path
+
+        if source_slug.endswith("/"):
+            source_slug = source_slug[:-1]
+
+        if not destination_slug.endswith("/"):
+            destination_slug += "/"
+
+        content += "Redirect 301 {} {}\n".format(source_slug, destination_slug)
+
+    content += "# END Jahia-Page-Redirect\n"
+
+    logging.info(content)
 
 
 if __name__ == '__main__':
