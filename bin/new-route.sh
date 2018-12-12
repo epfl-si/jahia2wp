@@ -36,13 +36,13 @@ metadata:
 spec:
   host: ${HOST}
   port:
-    targetPort: 80-tcp
+    targetPort: http
   tls:
     insecureEdgeTerminationPolicy: Redirect
     termination: edge
   to:
     kind: Service
-    name: ${SERVICE}
+    name: varnish-varnish
     weight: 100
   wildcardPolicy: None
 EOF
