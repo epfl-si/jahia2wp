@@ -137,6 +137,10 @@ function epfl_news_2018_process_shortcode($atts = [], $content = '', $tag = '') 
         $themes        = sanitize_text_field( $atts['themes'] );
         $projects      = sanitize_text_field( $atts['projects'] );
 
+        if (epfl_news_check_required_parameters($channel, $lang) == FALSE) {
+            return Utils::render_user_msg("News shortcode: Please check required parameters");
+        }
+
         $url = epfl_news_build_api_url(
             $channel,
             $template,
@@ -146,10 +150,6 @@ function epfl_news_2018_process_shortcode($atts = [], $content = '', $tag = '') 
             $themes,
             $projects
         );
-
-        if (epfl_news_check_required_parameters($channel, $lang) == FALSE) {
-            return Utils::render_user_msg("News shortcode: Please check required parameters");
-        }
 
         $actus = Utils::get_items($url);
 
