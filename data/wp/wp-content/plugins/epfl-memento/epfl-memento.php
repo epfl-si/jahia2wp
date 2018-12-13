@@ -179,7 +179,7 @@ function epfl_memento_process_shortcode(
 
     // iframe template
     if ($template === "4") {
-        return MementoRender::epfl_memento_built_html_pagination_template($memento, $lang, $color, $period);
+        return MementoRender::epfl_memento_built_html_pagination_template($memento, $lang, $color, $period, $keyword);
     }
 
     $url = epfl_memento_build_api_url(
