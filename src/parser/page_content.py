@@ -107,7 +107,7 @@ class PageContent:
 
                     multibox = extra.getElementsByTagName("text").length > 1
 
-                    box = Box(site=self.site, page_content=self, element=extra, multibox=multibox)
+                    box = Box(site=self.site, page_content=self, element=extra, multibox=multibox, is_in_sidebar=True)
                     self.sidebar.boxes.append(box)
 
         nb_boxes = len(self.sidebar.boxes)
@@ -117,14 +117,17 @@ class PageContent:
             parent = self.page.parent
 
             while parent:
-                sidebar = parent.contents[self.language].sidebar
+                # Check if parent have a content in current lang
+                if self.language in parent.contents:
+                    sidebar = parent.contents[self.language].sidebar
 
-                # we found a sidebar with boxes, we stop
-                if len(sidebar.boxes) > 0:
-                    self.sidebar = sidebar
-                    break
+                    # we found a sidebar with boxes, we stop
+                    if len(sidebar.boxes) > 0:
+                        self.sidebar = sidebar
+                        break
 
-                # otherwise we continue in the hierarchy
+                    # otherwise we continue in the hierarchy
+
                 parent = parent.parent
 
     def set_path(self):

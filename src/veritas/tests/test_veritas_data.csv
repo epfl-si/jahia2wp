@@ -1,9 +1,10 @@
-wp_site_url,wp_tagline,wp_site_title,site_type,openshift_env,category,theme,theme_faculty,status,installs_locked,updates_automatic,langs,unit_name,comment
-htt://www.epfl.ch/recherche,Recherche,RSR,WordPress,test,GeneralPublic,epfl,,asked,yes,no,"fr,en",VPR,je mets ici
-https://www.epfl.ch/education,Education,edu,wordpress,test,GeneralPublic,epfl,,yes,yes,no,"fr,en",VPE,ce qui me plait
-https://www.epfl.ch/education,Master's studies,EPFL,wordpress,test,GeneralPublic,epfl,,yes,yes,no,"fr,en,en",VPE,des infos que l'utilisateur m'a donné par ex
-https://www.epfl.ch/atelierweb,Atelier Web,WEB-EPFL,wordpress,test,GeneralPublic,epfl,,no,yes,no,"fr,ed",VPSI,
-https://dcsl.epfl.ch,Data Center Systems Laboratory,DCSL,wordpress,test,Lab,epfl,enac,to check,yes,no,fr,IC,
-https://dcsl.epfl.ch/toto,Data Center Systems Laboratory,DCSL,wordpress,test,Lab,epfl,sti,to check,yes,nos,fr,IC,
-https://dcsl.epfl.ch/toto,Data Center Systems Laboratory,DCSL,wordpress,ebraton,Lab,epfl,ic,to check,yes,no,fr,IC,
-http://dcsl.epfl.ch/tata,Data Center Systems Laboratory,DCSL,wordpress,test,Lab,epfl,ic,to check,yes,no,fr,IC,
+wp_site_url,wp_tagline,wp_site_title,site_type,openshift_env,category,theme,theme_faculty,status,installs_locked,updates_automatic,langs,unit_name,unit_id,comment
+htt://www.epfl.ch/recherche,Recherche,RSR,WordPress,test,GeneralPublic,epfl,,asked,yes,no,"fr,en",VPR,123,je mets ici
+https://www.epfl.ch/education,Education,edu,wordpress,test,GeneralPublic,epfl,,yes,yes,no,"fr,en",VPE,456,ce qui me plait
+https://www.epfl.ch/education,Master's studies,EPFL,wordpress,test,GeneralPublic,epfl,,yes,yes,no,"fr,en,en",VPE,789,des infos que l'utilisateur m'a donné par ex
+https://www.epfl.ch/atelierweb,Atelier Web,WEB-EPFL,wordpress,test,GeneralPublic,epfl,,no,yes,no,"fr,ed",VPSI,555,
+https://dcsl.epfl.ch,Data Center Systems Laboratory,DCSL,wordpress,test,Lab,epfl,enac,to check,yes,no,fr,IC,878,
+https://dcsl.epfl.ch/toto,Data Center Systems Laboratory,DCSL,wordpress,test,Lab,epfl,sti,to check,yes,nos,fr,IC,978981,
+https://dcsl.epfl.ch/toto,Data Center Systems Laboratory,DCSL,wordpress,ebraton,Lab,epfl,ic,to check,yes,no,fr,IC,94564,
+http://dcsl.epfl.ch/tata,Data Center Systems Laboratory,DCSL,wordpress,test,Lab,epfl,ic,to check,yes,no,fr,IC,849,
+https://www.epfl.ch/edu,Education,edu,wordpress,test,GeneralPublic,epfl,,yes,yes,no,"fr,en",VPE,45d6,ce qui me plait
