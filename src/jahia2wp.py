@@ -533,6 +533,7 @@ def export(site, wp_site_url, unit_name_or_id, to_wordpress=False, clean_wordpre
                            'epfl-video',
                            'epfl-google-forms',
                            'feedzy-rss-feeds',
+                           'cache-control',
                            'remote-content-shortcode',
                            'shortcode-ui',
                            'shortcode-ui-richtext',   # This one needs to come after the previous one
