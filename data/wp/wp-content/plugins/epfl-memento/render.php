@@ -578,6 +578,7 @@ Class MementoRender
      * @param $lang: lang of event (fr or en)
      * @param $color: color of the faculty
      * @param $period: period of events (past or upcoming)
+     * @param $keyword: filter events by keyword
      * @return html of iframe template
      */
     public static function epfl_memento_built_html_pagination_template(string $memento, string $lang, string $color, string $period, string $keyword): string {
