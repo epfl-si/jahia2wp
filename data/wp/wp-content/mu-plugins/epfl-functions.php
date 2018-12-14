@@ -3,23 +3,23 @@
  * Plugin Name: EPFL Functions
  * Plugin URI: 
  * Description: Must-use plugin for the EPFL website.
- * Version: 0.0.4.1
+ * Version: 0.0.5
  * Author: Aline Keller
  * Author URI: http://www.alinekeller.ch
  */
 
 /*
  * File Upload Security
- 
- * Sources: 
+
+ * Sources:
  * http://www.geekpress.fr/wordpress/astuce/suppression-accents-media-1903/
  * https://gist.github.com/herewithme/7704370
- 
+
  * See also Ticket #22363
  * https://core.trac.wordpress.org/ticket/22363
  * and #24661 - remove_accents is not removing combining accents
  * https://core.trac.wordpress.org/ticket/24661
-*/ 
+*/
 
 add_filter('robots_txt', 'get_robots_txt');
 
@@ -39,7 +39,7 @@ Disallow: /wp-admin/
 
 add_filter( 'sanitize_file_name', 'remove_accents', 10, 1 );
 add_filter( 'sanitize_file_name_chars', 'sanitize_file_name_chars', 10, 1 );
- 
+
 function sanitize_file_name_chars( $special_chars = array() ) {
 	$special_chars = array_merge( array( '’', '‘', '“', '”', '«', '»', '‹', '›', '—', 'æ', 'œ', '€','é','à','ç','ä','ö','ü','ï','û','ô','è' ), $special_chars );
 	return $special_chars;
@@ -238,16 +238,52 @@ define('PLL_COOKIE', false);
     so it's impossible to switch to the other language
 */
 function http_status_change_to_non_cacheable($status, $location) {
-
-   /* We update header to avoid caching when using 302 redirect on local host */
+      /* We update header to avoid caching when using 302 redirect on local host */
    if($status==302 && strpos($location, $_SERVER['SERVER_NAME'])!==false)
    {
         header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
    }
-
    return $status;
 }
 add_filter( 'wp_redirect_status', 'http_status_change_to_non_cacheable', 10, 2);
+
+/*--------------------------------------------------------------
+
+ # Media page
+
+--------------------------------------------------------------*/
+
+/*
+ * When an attachement is requested, we look for a page (post_type='page', not 'post') with same name (slug)
+ * and if we found one, we redirect on it
+ */
+function epfl_redirect_attachment_page_to_real_page() {
+	if ( is_attachment() ) {
+		global $post;
+
+		if($post)
+		{
+            /* We look for page with same name as media */
+            $args = array(
+              'name'        => $post->post_name,
+              'post_type'   => 'page',
+              'post_status' => 'publish',
+              'numberposts' => 1
+            );
+
+            $target_page = get_posts($args);
+
+            /* If page is found */
+            if(sizeof($target_page)>0)
+            {
+                /* Redirecting to page */
+                wp_redirect( esc_url( get_permalink($target_page[0]) ), 301 );
+			    exit;
+            }
+		}
+	}
+}
+add_action( 'template_redirect', 'epfl_redirect_attachment_page_to_real_page' );
 
 
 ?>
