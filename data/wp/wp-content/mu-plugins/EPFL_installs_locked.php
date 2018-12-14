@@ -90,6 +90,8 @@ function EPFL_remove_admin_submenus() {
    remove_submenu_page( 'options-general.php', 'epfl_tequila' );
    // WP Media folder
    remove_submenu_page( 'options-general.php', 'option-folder' );
+   // Cache-Control
+   remove_submenu_page( 'options-general.php', 'cache_control' );
 }
 
 
