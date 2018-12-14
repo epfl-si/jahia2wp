@@ -3,7 +3,7 @@
  * Plugin Name: EPFL Functions
  * Plugin URI: 
  * Description: Must-use plugin for the EPFL website.
- * Version: 0.0.4.1
+ * Version: 0.0.5
  * Author: Aline Keller
  * Author URI: http://www.alinekeller.ch
  */
@@ -246,6 +246,44 @@ function http_status_change_to_non_cacheable($status, $location) {
    return $status;
 }
 add_filter( 'wp_redirect_status', 'http_status_change_to_non_cacheable', 10, 2);
+
+/*--------------------------------------------------------------
+
+ # Media page
+
+--------------------------------------------------------------*/
+
+/*
+ * When an attachement is requested, we look for a page (post_type='page', not 'post') with same name (slug)
+ * and if we found one, we redirect on it
+ */
+function epfl_redirect_attachment_page_to_real_page() {
+	if ( is_attachment() ) {
+		global $post;
+
+		if($post)
+		{
+            /* We look for page with same name as media */
+            $args = array(
+              'name'        => $post->post_name,
+              'post_type'   => 'page',
+              'post_status' => 'publish',
+              'numberposts' => 1
+            );
+
+            $target_page = get_posts($args);
+
+            /* If page is found */
+            if(sizeof($target_page)>0)
+            {
+                /* Redirecting to page */
+                wp_redirect( esc_url( get_permalink($target_page[0]) ), 301 );
+			    exit;
+            }
+		}
+	}
+}
+add_action( 'template_redirect', 'epfl_redirect_attachment_page_to_real_page' );
 
 
 ?>
