@@ -165,9 +165,9 @@ class WPBackup:
 
         registry = CollectorRegistry()
         if backup_status:
-            status = "backup OK"
+            status = 1
         else:
-            status = "backup KO"
+            status = 0
 
         g = Gauge('backup_status', status, registry=registry)
         g.set_to_current_time()
