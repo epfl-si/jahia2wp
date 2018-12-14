@@ -3,7 +3,7 @@
  * Plugin Name: EPFL lock plugin and theme install and configuration
  * Plugin URI: 
  * Description: Must-use plugin for the EPFL website.
- * Version: 0.0.2
+ * Version: 0.0.3
  * Author: wwp-admin@epfl.ch
  * */
 
