@@ -580,13 +580,13 @@ Class MementoRender
      * @param $period: period of events (past or upcoming)
      * @return html of iframe template
      */
-    public static function epfl_memento_built_html_pagination_template(string $memento, string $lang, string $color, string $period): string {
+    public static function epfl_memento_built_html_pagination_template(string $memento, string $lang, string $color, string $period, string $keyword): string {
         if (empty($period) || $period === 'upcoming') {
             $period = 2;
         } else {
             $period = 1;
         }
-        $url = MEMENTO_API_URL_IFRAME. '&memento=' . $memento . '&lang=' . $lang . '&template=4&period=' . $period . '&color=' . strtoupper($color);
+        $url = MEMENTO_API_URL_IFRAME. '&memento=' . $memento . '&lang=' . $lang . '&template=4&period=' . $period . '&color=' . strtoupper($color) . '&filters=' . $keyword;
         $result = '<IFRAME ';
         $result .= 'src="' . esc_attr($url) . '" ';
         $result .= 'width="660" height="1255" scrolling="no" frameborder="0"></IFRAME>';

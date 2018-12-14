@@ -66,9 +66,9 @@ class SshRemoteSite:
         if hostname == 'migration-wp.epfl.ch':
             assert parent_host is SshRemoteHost.test
             wp_env = 'int'
-        elif hostname == 'www2018.epfl.ch':
+        elif hostname == 'www.epfl.ch':
             assert parent_host is SshRemoteHost.prod
-            wp_env = 'sandbox'
+            wp_env = 'www'
         else:
             # TODO: there certainly is more to it than this.
             assert parent_host is SshRemoteHost.prod

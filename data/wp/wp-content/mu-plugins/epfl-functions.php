@@ -3,7 +3,7 @@
  * Plugin Name: EPFL Functions
  * Plugin URI: 
  * Description: Must-use plugin for the EPFL website.
- * Version: 0.0.1
+ * Version: 0.0.4.1
  * Author: Aline Keller
  * Author URI: http://www.alinekeller.ch
  */
@@ -44,6 +44,27 @@ function sanitize_file_name_chars( $special_chars = array() ) {
 	$special_chars = array_merge( array( '’', '‘', '“', '”', '«', '»', '‹', '›', '—', 'æ', 'œ', '€','é','à','ç','ä','ö','ü','ï','û','ô','è' ), $special_chars );
 	return $special_chars;
 }
+
+
+/*--------------------------------------------------------------
+
+ # REST API
+
+--------------------------------------------------------------*/
+
+/*
+ * Disable display list of users from /wp-json/wp/v2/users/
+ */
+add_filter( 'rest_endpoints', function( $endpoints ){
+        if ( isset( $endpoints['/wp/v2/users'] ) ) {
+                    unset( $endpoints['/wp/v2/users'] );
+                    }
+            if ( isset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] ) ) {
+                    unset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] );
+                    }
+            return $endpoints;
+});
+
 
 /*--------------------------------------------------------------
   
@@ -200,6 +221,31 @@ function colored_box( $atts, $content = null ) {
 }
 add_shortcode('colored-box', 'colored_box');
 
-define( 'PLL_COOKIE', false);
+
+/*--------------------------------------------------------------
+
+ # CloudFlare
+
+--------------------------------------------------------------*/
+
+/* CloudFlare doesn't like the Polylang cookie (or any cookie) */
+define('PLL_COOKIE', false);
+
+/*
+    If we have 302 redirection on local address, we transform them to 303 to avoid CloudFlare to cache
+    them. If we don't do this, we have issues to switch from one language to another (Polylang) because the
+    first time we visit the homepage, it does a 302 to default lang homepage and this request is cached in cloudflare
+    so it's impossible to switch to the other language
+*/
+function http_status_change_to_non_cacheable($status, $location) {
+      /* We update header to avoid caching when using 302 redirect on local host */
+   if($status==302 && strpos($location, $_SERVER['SERVER_NAME'])!==false)
+   {
+        header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+   }
+   return $status;
+}
+add_filter( 'wp_redirect_status', 'http_status_change_to_non_cacheable', 10, 2);
+
 
 ?>

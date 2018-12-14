@@ -29,7 +29,7 @@
 07  PRIMARY CONTENT
 
 --  MEDIA QUERIES
-    
+
 ------------------------------------------*/
 
 @import "variables-site/_variables-site";
@@ -124,11 +124,11 @@ body {
   margin: 0;
   position: relative;
   width: auto;
-  
+
   &:before {
     @include icon;
   }
-  
+
   &:hover {
     border: 0;
     text-decoration: none;
@@ -138,9 +138,9 @@ body {
 p.fa-icon,
 p.icon {
   @extend p;
-  
+
   padding-left: 28px;
-  
+
   &:before {
     margin-left: -28px;
   }
@@ -154,7 +154,7 @@ p.icon {
 
 .btn-icon {
   @include color-bg-icons;
-  
+
   &:before {
     @include icon;
     border-radius: 50%;
@@ -170,7 +170,7 @@ p.icon {
     vertical-align: middle;
     width: 24px;
   }
-  
+
   & > .label {
     @include minor-text;
     border-bottom: 1px dotted #000;
@@ -178,7 +178,7 @@ p.icon {
     transition: all .2s ease-in-out;
     vertical-align: middle;
   }
-  
+
   &:hover > .label {
     border-bottom-style: solid;
   }
@@ -331,12 +331,12 @@ a[class*="a2a_button_"],
   margin: 0 6px 0 0;
   padding: 0 !important;
   width: 26px !important;
-  
+
   svg,
   .a2a_svg {
     display: none;
   }
-  
+
   &:before {
     @include icon;
     height: inherit;
@@ -344,7 +344,7 @@ a[class*="a2a_button_"],
     text-align: center;
     width: inherit;
   }
-    
+
   &:hover {
     background: #6b6d6a;
     color: #fff;
@@ -353,7 +353,7 @@ a[class*="a2a_button_"],
 }
 
 a.a2a_button_{
-  
+
   // Facebook
   &facebook {
     &:before {
@@ -363,7 +363,7 @@ a.a2a_button_{
       background: #3b5998;
     }
   }
-  
+
   // Twitter
   &twitter {
     &:before {
@@ -373,7 +373,7 @@ a.a2a_button_{
       background: #00b6f1;
     }
   }
-  
+
   // LinkedIn
   &linkedin {
     &:before {
@@ -383,7 +383,7 @@ a.a2a_button_{
       background: #007bb6;
     }
   }
-  
+
   // Google +
   &google_plus {
     &:before {
@@ -393,7 +393,7 @@ a.a2a_button_{
       background: #df4a32;
     }
   }
-  
+
   // Email
   &email {
     &:before {
@@ -423,11 +423,11 @@ a.a2a_button_{
   margin-left: 16px;
   margin-top: 0;
   padding-right: 0;
-  
+
   &:hover {
     border-bottom-style: solid;
   }
-  
+
   &:before {
     @include icon;
     content: "\f0da";
@@ -438,7 +438,7 @@ a.a2a_button_{
     position: absolute;
     top: auto; right: auto; bottom: auto; left: 0;
   }
-  
+
   .open &:before {
     content: "\f0d7";
   }
@@ -454,7 +454,7 @@ a.a2a_button_{
   margin: 20px 0;
   padding-left: 16px;
   position: relative;
-  
+
   &:before {
     @include icon;
     content: "\f0da";
@@ -465,11 +465,11 @@ a.a2a_button_{
     position: absolute;
     top: auto; right: auto; bottom: auto; left: 0;
   }
-  
+
   .toggled-active &:before {
     content: "\f0d7";
   }
-  
+
   & + .toggler-content {
     margin-top: -10px;
   }
@@ -497,11 +497,11 @@ a.a2a_button_{
   @include colored-text-box;
   @include clearfix;
   margin: 1.5em 0;
-  
+
   &:first-child {
     margin-top: 0;
   }
-  
+
   table {
     border-collapse: inherit;
   }
@@ -517,13 +517,13 @@ a.a2a_button_{
 }
 
 .sidebar .colored-box {
-  
+
   h2,
   h3,
   h4,
   h5 {
     font-weight: 400;
-    
+
     &:first-child {
       margin-top: 0;
     }
@@ -537,7 +537,7 @@ a.a2a_button_{
   float: right;
   padding: 0;
   width: 32px;
-  
+
   &:before {
     @include icon;
     content: "\f002";
@@ -561,11 +561,11 @@ a.a2a_button_{
   font-size: 13px;
   line-height: 1.3em;
   margin-bottom: 20px;
-  
+
   p {
     font-size: 13px;
     margin: 7px 0;
-    
+
     &:last-child {
       margin-bottom: 0;
     }
@@ -596,7 +596,7 @@ a.a2a_button_{
 .local-color,
 .local-color-down {
   font-size: 14px;
-  
+
   p {
     font-size: 1em;
     font-size: 13px;
@@ -619,7 +619,7 @@ a.a2a_button_{
   ul li:before {
     background: #fff;
   }
-  
+
   .btn-icon > .label {
     border-color: #fff;
   }
@@ -635,7 +635,7 @@ a.a2a_button_{
   margin-bottom: 10px;
   padding: 0;
   text-transform: none;
-  
+
   .label {
     font-family: Georgia,'Times New Roman',Times,serif;
     font-size: 12px;
@@ -651,23 +651,23 @@ div.button {
   font-weight: 400;
   padding-left: 28px;
   width: auto;
-  
+
   &:before {
     margin-left: -28px;
   }
-  
+
   button:empty {
     display: none;
   }
-  
+
   &.mail:before {
     content: "\f0e0";
   }
-  
+
   &.contact:before {
     content: "\f007";
   }
-  
+
   &.print:before {
     content: "\f02f";
   }
@@ -828,7 +828,7 @@ div.button {
 ul.bottin {
   list-style: none;
   padding: 0;
-  
+
   li {
     padding-left: 0;
   }
@@ -837,16 +837,16 @@ ul.bottin {
 .bottin {
   @include clearfix;
   margin: 16px 0 30px;
-  
+
   .row {
     @include clearfix;
   }
-  
+
   h3.people {
     font-size: 18px;
     margin-bottom: .5em;
   }
-  
+
   & + h3.people {
     font-size: 18px;
     margin-top: 20px;
@@ -858,7 +858,7 @@ ul.bottin {
   height: 140px;
   overflow: hidden;
   text-align: left;
-  
+
   img {
     display: block;
   }
@@ -868,11 +868,11 @@ ul.bottin {
   margin: 0 5px 2px auto;
   padding: 0;
   width: 24px;
-  
+
   &:before {
     margin: 0;
   }
-  
+
   + div.name {
     min-height: 24px;
   }
@@ -894,22 +894,22 @@ ul.bottin {
   padding: 0;
   position: relative;
   width: 24px;
-  
+
   &:before {
     vertical-align: top;
     line-height: inherit !important;
     height: inherit;
     width: inherit !important;
   }
-  
+
   &.mail:before {
     content: "\f0e0";
   }
-  
+
   &.contact:before {
     content: "\f007";
   }
-  
+
   .icon {
     display: block;
     height: 24px;
@@ -933,19 +933,20 @@ ul.bottin {
   padding-top: 4px;
   padding-bottom: 4px;
   vertical-align: middle;
-  
+
   &:first-child {
     padding-left: 0;
   }
-  
+
   .button.mail {
     margin: 0;
   }
-  
+
   div.picture {
-    margin-bottom: 0;
+    margin: 0;
+    max-width: 50px;
   }
-  
+
   img {
     display: block;
     margin-bottom: 0;
@@ -953,6 +954,28 @@ ul.bottin {
     max-width: none;
     //width: 50px;
   }
+
+  span.phone-number {
+    padding-right: 10px;
+    white-space: nowrap;
+  }
+}
+
+.bottin,
+.pers_bloc,
+.peopleListBox {
+
+  span.phone-number {
+    white-space: nowrap;
+  }
+}
+
+.peopleListBox {
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+  display: block;
+  width: 100%;
+  overflow-x: auto;
 }
 
 .peopleListBox .button.mail {
@@ -970,18 +993,18 @@ ul.bottin {
   margin-bottom: 4px;
   padding-top: 4px;
   width: 100%;
-  
+
   & + h3.people {
     margin-top: 26px;
   }
-  
+
   .name {
     margin-left: 29px;
     min-height: 0;
   }
   .button.mail {
     float: left;
-    
+
     & + .name {
       margin-left: 0;
     }
@@ -996,7 +1019,7 @@ ul.bottin {
 }
 
 .bottin.list-img {
-  
+
   .tdpeople {
     height: auto;
   }
@@ -1016,7 +1039,7 @@ ul.bottin {
   margin-left: 0px;
   margin-bottom: 5px;
   width: 320px;
-  
+
   .picture img {
     max-width: none;
   }
@@ -1029,15 +1052,15 @@ ul.bottin {
   margin-bottom: 30px;
   padding-right: 20px;
   width: 50% !important;
-  
+
   h1 {
     display: none;
   }
-  
+
   .button.mail {
     float: left;
   }
-  
+
   .picture {
     float: none;
     width: 110px;
@@ -1056,12 +1079,12 @@ ul.bottin {
 // Misc templates
 
 .people-list {
-  
+
   .icon-mail_button:before,
   .tools .share-mail .icon:before {
     content: "\f0e0";
   }
-  
+
   .btn-inline.themed .icon::before,
   .btn-inline.themed::before,
   .themed .btn-inline .icon::before,
@@ -1079,34 +1102,34 @@ ul.bottin {
 .people_list,
 #people_list {
   @include clearfix;
-  
+
   h3 {
     margin: .5em 0;
   }
-  
+
   tr:not(:first-child) h3 {
     margin-top: 1em;
   }
-  
+
   td {
     border: 0;
     vertical-align: middle;
   }
-  
+
   .photo {
     margin-bottom: 5px;
-    
+
     img {
       vertical-align: top;
     }
   }
-  
+
   .details,
   .email,
   .phone {
     margin-bottom: 5px;
   }
-  
+
   .email .button,
   .button.mail {
     @extend .btn-icon;
@@ -1116,11 +1139,11 @@ ul.bottin {
     padding: 0;
     position: relative;
     width: 24px;
-    
+
     &:before {
       vertical-align: top;
     }
-    
+
     &.mail:before {
       content: "\f0e0";
     }
@@ -1131,27 +1154,27 @@ ul.bottin {
       position: absolute;
       top: 0; right: 0; bottom: 0; left: 0;
       width: 24px;
-      
+
       &[hidden] {
         display: block;
       }
     }
   }
-  
+
   .personn {
     @include clearfix;
   }
-  
+
 }
 
 /* Studies plan */
 
 #content div {
   font-size: 11px;
-  
+
   p {
     font-size: 11px;
-    
+
     &:last-child {
       margin-bottom: 0;
     }
@@ -1493,7 +1516,7 @@ img.pdf-icon {
   position: relative;
   width: 100%;
   z-index: 9999;
-  
+
   @include clearfix;
 }
 
@@ -1503,7 +1526,7 @@ img.pdf-icon {
 
 #nav-menus {
   width: auto;
-  
+
   li {
     @include no-bullet;
   }
@@ -1511,7 +1534,7 @@ img.pdf-icon {
 
 #header2013 #nav-menus a.main-link {
   border-bottom: none;
-  
+
   &:after {
     @include icon;
     content: "\f063";
@@ -1537,11 +1560,11 @@ img.pdf-icon {
   margin-bottom: 10px;
   padding-right: 10px;
   width: 33.3334%;
-  
+
   ul {
     margin-left: 0;
   }
-  
+
   h3 a {
     border: 0;
   }
@@ -1549,9 +1572,9 @@ img.pdf-icon {
 
 #nav-search {
   @include clearfix;
-  float: right; 
+  float: right;
   width: 320px;
-  
+
   #search-box {
     position: static;
   }
@@ -1564,7 +1587,7 @@ img.pdf-icon {
 
 #header2013 .search-filter {
   position: relative;
-  
+
   &:before {
     content: "";
     border-left: 1px dotted #c5c5c5;
@@ -1579,7 +1602,7 @@ img.pdf-icon {
 
 #header2013 .search-filter .selected-field {
   position: relative;
-  
+
   &:after {
     @include icon;
     content: "\f063";
@@ -1596,7 +1619,7 @@ img.pdf-icon {
   color: black;
   padding: 0;
   position: relative;
-  
+
   .svg & {
     background-image: url(../images/search.svg);
   }
@@ -1607,17 +1630,17 @@ img.pdf-icon {
 .site-header.epfl {
   margin: 0;
   padding: 5px 0 0;
-  
+
   .logo {
     margin-top: 10px;
     padding: 0;
     width: 16%;
   }
-  
+
   .epflnav {
     width: 50%;
   }
-  
+
   .search {
     float: right;
     width: 33%;
@@ -1629,14 +1652,14 @@ img.pdf-icon {
 }
 .epflnav .nav-link {
   color: #000;
-  
+
   .icon-arrow-bottom-right {
     display: inline-block;
-    
+
     &:before {
       display: none;
     }
-    
+
     &:after {
       @include icon;
       content: "\f063";
@@ -1646,14 +1669,14 @@ img.pdf-icon {
       padding: 0;
       transform: rotate(-45deg);
     }
-    
+
   }
 }
 
 .epflnav .icon-menu {
   padding: 0 6px;
   top: 10px;
-  
+
   &:before {
     @include icon;
     content: "\f0c9";
@@ -1667,7 +1690,7 @@ img.pdf-icon {
 }
 
 .site-header.epfl nav {
-  
+
   h2,
   h3 {
     margin: 0 0 4px 0;
@@ -1677,18 +1700,18 @@ img.pdf-icon {
     line-height: 14px;
     font-weight: 700;
     letter-spacing: .05em;
-    
+
     a {
       color: red;
     }
   }
-  
+
 }
 
 .search .icon {
   padding: 0 6px;
   top: 10px;
-  
+
   &:before {
     @include icon;
     content: "\f002";
@@ -1706,18 +1729,18 @@ img.pdf-icon {
   float: left;
   width: 150px;
   width: calc(100% - 120px - 25px);
-  
+
   .search-query {
     height: 25px;
     line-height: 25px;
     padding: 0 5px;
     width: 100%;
-    
+
     &:focus {
       border-color: #000;
     }
   }
-  
+
   &.form-input-mini {
     min-width: 0;
     width: 25px;
@@ -1728,7 +1751,7 @@ img.pdf-icon {
   border-top: 0;
   margin-top: -0.5em;
   width: 329px !important;
-  
+
   .autocomplete-suggestion {
     font-size: 14px;
   }
@@ -1746,7 +1769,7 @@ img.pdf-icon {
   position: relative;
   transition: all .3s ease-in-out;
   width: 120px;
-  
+
   &:after {
     @include icon;
     content: "\f063";
@@ -1759,12 +1782,12 @@ img.pdf-icon {
     top: 8px; right: 5px; bottom: 5px; left: auto;
     transform: rotate(-45deg);
   }
-  
+
   &:hover {
     background: #000;
     color: #fff;
   }
-  
+
   select {
     height: inherit;
     line-height: inherit;
@@ -1781,7 +1804,7 @@ img.pdf-icon {
   padding: 0;
   vertical-align: bottom;
   width: 25px;
-  
+
   &:before {
     @include icon;
     content: "\f002";
@@ -1836,7 +1859,7 @@ img.pdf-icon {
   display: block;
   margin-bottom: 10px;
   padding: 0;
-  
+
   img {
     display: block;
   }
@@ -1846,7 +1869,7 @@ img.pdf-icon {
 
 .site-header {
   background: none;
-  
+
   a {
     @include color-link;
     border: 0;
@@ -1878,17 +1901,17 @@ img.pdf-icon {
   border-bottom: 1px solid #000;
   padding-top: 6px;
   padding-bottom: 6px;
-  
+
   li {
     border-bottom: 1px solid #000;
     margin: 0;
     position: relative;
-    
+
     &:last-child {
       border-bottom: 0;
     }
   }
-  
+
   a {
     border: none !important;
     padding: .5em;
@@ -1898,7 +1921,7 @@ img.pdf-icon {
 .main-navigation .current-menu-item,
 .main-navigation .current_page_item {
   background: #000;
-  
+
   & > a {
     color: #fff;
   }
@@ -1917,22 +1940,22 @@ img.pdf-icon {
   padding: 0;
   right: 0;
   width: 25px;
-  
+
   &:hover {
     color: $primary-color;
   }
-  
+
   &:after {
     @include icon;
     content: "\f107";
     font-size: 20px;
     vertical-align: middle;
   }
-  
+
   &.toggled-on:after {
     content: "\f106";
   }
-  
+
   .main-navigation .current-menu-item &,
   .main-navigation .current_page_item & {
     color: #fff;
@@ -1941,7 +1964,7 @@ img.pdf-icon {
 
 .main-navigation .sub-menu {
   padding-bottom: 10px;
-  
+
   &.toggled-on {
     display: block;
   }
@@ -1952,13 +1975,13 @@ img.pdf-icon {
 .main-navigation .menu-toggle {
   color: #fff;
   padding: .5em 1em;
-  
+
   &:before {
     @include icon;
     content: "\f0c9";
     margin-right: .5em;
   }
-  
+
   &[aria-expanded="true"]:before {
     content: "\f00d";
   }
@@ -1969,7 +1992,7 @@ img.pdf-icon {
 .page-tools {
   background: #eee;
   padding: 4px 0;
-  
+
   a {
     &:hover {
       border-bottom: 1px solid #000;
@@ -1981,14 +2004,14 @@ img.pdf-icon {
 
 .page-tools .breadcrumb {
   display: none;
-  
+
   .breadcrumbs {
     list-style: none;
     margin: 0;
     overflow: hidden;
     padding: 0;
   }
-  
+
   li {
     display: inline-block;
     vertical-align: middle;
@@ -1998,7 +2021,7 @@ img.pdf-icon {
 }
 #breadcrumbs {
   top: 0;
-  
+
   a {
     padding: 0;
   }
@@ -2016,32 +2039,32 @@ img.pdf-icon {
   list-style: none;
   margin: 0;
   padding: 0;
-  
+
   li {
     display: inline-block;
     font-size: .75em;
     margin: 0;
     margin-right: .5em;
-    
+
     &:after {
       content: "/";
       color: #a3a3a3;
       margin-left: .75em;
     }
-    
+
     &:last-child {
       margin-right: 0;
-      
+
       &:after {
         display: none;
       }
     }
   }
-  
+
   a {
     color: #666;
   }
-  
+
   .current-lang {
     a {
       color: #000;
@@ -2057,22 +2080,22 @@ img.pdf-icon {
 .site-footer {
   border: 0;
   margin-top: 0;
-  
+
   .wrap {
     padding-top: 0;
     padding-bottom: 0;
   }
-  
+
   .footer-content {
     @include clearfix;
     border-bottom: 1px solid #000;
     padding: 40px 0 5px;
   }
-  
+
   p {
     font-size: 11px;
   }
-  
+
   a {
     @include color-link;
     border: none;
@@ -2083,13 +2106,13 @@ img.pdf-icon {
   @include clearfix;
   list-style: none;
   margin-top: 0;
-  
+
   li {
     float: left;
     font-size: 11px;
     margin-right: .5em;
     position: relative;
-    
+
     &:after {
       content: "|";
       margin-left: .5em;
@@ -2098,17 +2121,17 @@ img.pdf-icon {
 }
 
 .footer-content .site-info {
-  
+
   span {
     display: inline-block;
     margin-right: .5em;
     position: relative;
-    
+
     &:after {
       content: "|";
       margin-left: .5em;
     }
-    
+
     &:last-child:after {
       display: none;
     }
@@ -2116,10 +2139,11 @@ img.pdf-icon {
 }
 
 .footer-content .site-admin {
-  
+
   &:before {
     @include icon;
     content: "\f061";
+    font-size: 12px;
   }
 }
 
@@ -2136,7 +2160,7 @@ img.pdf-icon {
 // Hide all pages, and show only the ones related to the current page (parent, ancestors, siblings, etc)
 
 .sidebar .nav > li.menu-item {
-  
+
   // Hide the top level item of the current page ancestry
   & > a {
     display: none;
@@ -2148,7 +2172,7 @@ img.pdf-icon {
 .sidebar .nav {
   list-style: none;
   margin: 0 0 30px;
-  
+
   a {
     @include color-background-btn;
     border: none;
@@ -2157,21 +2181,21 @@ img.pdf-icon {
     font-weight: bold;
     padding: 3px 20px;
   }
-  
+
   li {
     border-bottom: 1px solid #fff;
     margin: 0;
     position: relative;
-    
+
     &.current_page_item {
-      
+
       a {
         background: #000;
         color: #fff;
       }
     }
   }
-  
+
   & > .menu-item {
     margin-bottom: 10px;
   }
@@ -2185,41 +2209,41 @@ img.pdf-icon {
 
 // Select top menu item
 .sidebar .nav > .menu-item {
-  
+
   // 2nd level children
   .sub-menu .sub-menu {
     border-top: 1px solid #fff;
-    
+
     li {
       border-bottom: 1px solid #a3a3a3;
       color: #000;
-      
+
       &:last-child {
         border: 0;
       }
     }
-    
+
     a {
       background: #fff;
       color: #000;
       font-weight: bold;
       padding-left: 40px;
-      
+
       &:hover {
         background: $light-grey;
       }
     }
-    
-    
+
+
     // 3rd level children
     ul li {
       border: none;
-      
+
       a {
         padding-left: 60px;
       }
     }
-    
+
   }
 }
 .sidebar .nav li.current_page_item > a {
@@ -2228,9 +2252,9 @@ img.pdf-icon {
 }
 
 .sub-menu-control {
-  
+
   @include icon;
-  
+
   background: transparent;
   color: #fff;
   height: 20px;
@@ -2238,23 +2262,23 @@ img.pdf-icon {
   position: absolute;
   top: 1px; right: auto; bottom: auto; left: 0;
   width: 20px;
-  
+
   &:hover {
     background: transparent;
   }
-  
+
   &:before {
     content: "\f105";
   }
   .open > &:before {
     content: "\f107";
   }
-  
+
   .sub-menu .sub-menu & {
     color: #000;
     left: 20px;
   }
-  
+
 }
 .sub-menu .sub-menu .sub-menu-control {
   color: #000;
@@ -2266,11 +2290,11 @@ img.pdf-icon {
 .sidebar .widget {
   margin-bottom: 40px;
   padding: 0;
-  
+
   &:last-child {
     margin-bottom: 0;
   }
-  
+
   p {
     margin-top: 9px;
     margin-bottom: 2px;
@@ -2298,24 +2322,24 @@ img.pdf-icon {
 }
 
 .sidebar .collapsible {
-  
+
   .collapsible-header {
     @extend .sidebar-title;
-  
+
     .title {
       @include txt-narrow;
       border: 0;
-      
+
       &:before {
         line-height: 24px;
       }
     }
   }
-  
+
   .collapsible-content {
     padding: 0 0 0 16px;
   }
-  
+
 }
 
 /*  ---------------------------------------
@@ -2332,7 +2356,7 @@ img.pdf-icon {
 }
 
 .social-share {
-  
+
   .label {
     display: inline-block;
     font: italic 11px Georgia, 'Times New Roman', Times, serif;
@@ -2342,38 +2366,38 @@ img.pdf-icon {
     top: 1px;
     vertical-align: middle;
   }
-  
+
   .EPFLShareHorizontal {
     display: inline-block;
     vertical-align: middle;
   }
-  
+
 }
 
 .EPFLShareUl {
   @include clearfix;
-  
+
   .EPFLShare {
     @include transition-colors;
     background: darken( $light-grey, 6%);
     margin-top: 0;
-    
+
     &.EPFLShareFacebookBackground:hover {
        background-color: #3C589A
     }
-    
+
     &.EPFLShareTwitterBackground:hover {
        background-color: #55acee
     }
-    
+
     &.EPFLShareLinkedinBackground:hover {
        background-color: #0077B5
     }
-    
+
     &.EPFLShareGoogleplusBackground:hover {
        background-color: #dd4b39
     }
-    
+
     &.EPFLShareEmailBackground:hover {
        background-color: #649A3F
     }
@@ -2394,11 +2418,11 @@ img.pdf-icon {
 .entry-header .entry-title {
   letter-spacing: normal;
 }
-  
+
 .page-header,
 .entry-header {
   margin-bottom: 20px;
-  
+
   .page-title {
     margin: 0;
     padding: 0;
@@ -2410,7 +2434,7 @@ img.pdf-icon {
 .post-thumbnail {
   margin-top: 20px;
   margin-bottom: 20px;
-  
+
   img {
     display: block;
     margin: 0;
@@ -2427,13 +2451,13 @@ img.pdf-icon {
 .entry-content img {
   margin-top: 4px;
   margin-bottom: 10px;
-  
+
   &.alignleft,
   &[align="left"] {
     float: left;
     margin-right: 10px;
   }
-  
+
   &.alignright,
   &[align="right"] {
     float: right;
@@ -2450,7 +2474,7 @@ img.pdf-icon {
 
 .list-articles .entry-header {
   margin-bottom: 0;
-  
+
   .entry-title {
     font-family: Arial,Helvetica,Verdana,sans-serif;
     font-size: 14px;
@@ -2461,17 +2485,17 @@ img.pdf-icon {
     text-transform: none;
 
   }
-  
+
 }
 .list-articles .post-thumbnail {
   margin: 0;
   margin-bottom: 20px;
-  
+
   a {
     border: none;
     display: block;
   }
-  
+
   img {
     margin: 0;
   }
@@ -2480,50 +2504,50 @@ img.pdf-icon {
 .post-link {
   border: none;
   display: block;
-  
+
   &:hover {
     box-shadow: none !important;
   }
 }
 
 .list-articles .entry-content {
-    
+
   .entry-meta {
     @include minor-text;
     color: #000;
     font-weight: bold;
     margin-bottom: 6px;
   }
-  
+
   .entry-date {
     margin-right: .5em;
   }
-  
+
   .post-categories {
     display: inline-block;
     list-style: none;
     margin: 0;
     padding: 0;
-    
+
     li {
       display: inline-block;
       margin: 0 .1em;
     }
   }
-  
+
   .teaser {
     font-size: 13px;
     height: 3.9em;
     overflow: hidden;
     position: relative;
-    
+
     &:after {
       content: "";
       background: transparent;
       height: 3.3em;
       position: absolute;
       top: auto; right: 0; bottom: 0; left: 0;
-      
+
       /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&0+0,0.8+100 */
       background: -moz-linear-gradient(top, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 100%); /* FF3.6-15 */
       background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,0.8) 100%); /* Chrome10-25,Safari5.1-6 */
@@ -2531,7 +2555,7 @@ img.pdf-icon {
       filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ccffffff',GradientType=0 ); /* IE6-9 */
 
     }
-    
+
     p {
       margin: 0;
     }
@@ -2545,11 +2569,11 @@ img.pdf-icon {
   color: #fff;
   margin: 2em 0;
   padding: .2em .5em;
-  
+
   p {
     @include minor-text;
   }
-  
+
   .label {
     font-weight: bold;
   }
@@ -2559,28 +2583,28 @@ img.pdf-icon {
 
 .comment-list {
   @include border-bottom-dots;
-  
+
   .comment {
     @include border-bottom-dots;
   }
-  
+
   .comment-body {
     margin-left: 0;
   }
-  
+
   .avatar {
     display: none;
   }
-  
+
 }
 
 .comment .comment-meta {
   @include minor-text;
-  
+
   .comment-author {
     font-size: 14px;
   }
-  
+
   .comment-metadata {
     font-size: 11px;
     letter-spacing: 0;
@@ -2591,7 +2615,7 @@ img.pdf-icon {
 .comment .reply {
   @include minor-text;
   margin-top: 10px;
-  
+
   .comment-reply-link {
     left: 2em;
     position: relative;
@@ -2605,13 +2629,13 @@ img.pdf-icon {
   font-size: 13px;
   line-height: 1.4em;
   margin: 20px 0;
-  
+
   .nav-previous {
     float: left;
     margin-bottom: 10px;
     padding-left: 1em;
     position: relative;
-    
+
     &:before {
       content: "‹";
       margin-right: .5em;
@@ -2619,12 +2643,12 @@ img.pdf-icon {
       top: -1px; right: auto; bottom: auto; left: 0;
     }
   }
-  
+
   .nav-next {
     float: right;
     padding-right: 1em;
     position: relative;
-    
+
     &:after {
       content: "›";
       margin-left: .5em;
@@ -2640,7 +2664,7 @@ img.pdf-icon {
   list-style: none;
   padding-left: 24px;
   position: relative;
-  
+
   &:before {
     content: "";
     border-left: 1px dotted #000;
@@ -2649,10 +2673,10 @@ img.pdf-icon {
     top: 2px; right: auto; bottom: 8px; left: 9px;
     width: 0;
   }
-  
+
   a {
     position: relative;
-    
+
       &:before {
       content: "";
       border-bottom: 1px dotted #000;
@@ -2660,13 +2684,13 @@ img.pdf-icon {
       top: 50%; right: auto; bottom: auto; left: -14px;
       width: 12px;
     }
-    
+
   }
 }
 
 .simple-sitemap-page .page_item_has_children {
   position: relative;
-  
+
 }
 .simple-sitemap-page .children-toggle {
     background: #fff;
@@ -2680,7 +2704,7 @@ img.pdf-icon {
     text-align: center;
     width: 14px;
     z-index: 1;
-  
+
   &:before {
     content: "–";
     display: inline-block;
@@ -2690,7 +2714,7 @@ img.pdf-icon {
     top: 0; right: 0; bottom: 0; left: 0;
     width: 12px;
   }
-  
+
   &.open:before {
     content: "+";
   }
@@ -2701,7 +2725,7 @@ img.pdf-icon {
   margin-left: 15px;
   padding-left: 15px;
   position: relative;
-  
+
   &:before {
     content: "";
     border-left: 1px dotted #000;
@@ -2717,48 +2741,48 @@ img.pdf-icon {
 ----------------------------------------- */
 
 /* --- News --- */
-  
+
 @mixin news-narrow-content {
-  
+
   .entry-header {
     width: 100%;
-    
+
     .entry-title {
       line-height: 1.4em;
       margin-bottom: 6px;
       overflow: hidden;
     }
   }
-  
+
   .entry-content {
     @include gradient-fade;
     float: right;
     line-height: 0;
     overflow: hidden;
     padding: 0;
-    
+
     &:after {
       height: 2.1em;
 
     }
-    
+
     .entry-meta {
       display: inline;
       margin-bottom: 0;
-      
+
       .entry-date {
         margin-bottom: 0;
       }
     }
-    
+
     .teaser {
       display: inline;
       line-height: 1;
-    
+
       &:after {
         display: none;
       }
-      
+
       p {
         display: inline;
         font-size: 12px;
@@ -2772,7 +2796,7 @@ img.pdf-icon {
 .list-articles.list-news {
   border-top: 1px solid #000;
   padding-top: 15px;
-  
+
   .sidebar & {
     border-top: 0;
     padding-top: 0;
@@ -2780,18 +2804,18 @@ img.pdf-icon {
 }
 
 .list-news {
-  
+
   .post {
     position: relative;
   }
-  
+
   .entry-date {
     @include minor-text;
     color: #000;
     font-weight: bold;
     margin-bottom: 6px;
   }
-  
+
   .category-label {
     @include txt-narrow;
     background: #000;
@@ -2804,74 +2828,74 @@ img.pdf-icon {
     top: 0; right: auto; bottom: auto; left: 0;
     text-transform: uppercase;
   }
-  
+
 }
-  
+
 /* Portal news with image on the left */
 
 .list-articles.news-portal {
   @include news-narrow-content;
-  
+
   .entry-content {
     float: none;
     max-height: 93px;
     width: 100%;
   }
-  
+
   .teaser p {
     font-size: 12px;
   }
-  
+
   .links {
     margin-top: 4px;
-    
+
     .link-action {
-      
+
       &:before {
         font-size: 11px;
         line-height: 18px;
         height: 18px;
         width: 18px;
       }
-      
+
       &:not(:last-child) {
         margin-right: 10px;
       }
     }
   }
 }
-  
+
 /* Portal news with image on top */
 
 .list-articles.news-portal-img-top {
   @include news-narrow-content;
-  
+
   .post-thumbnail {
     margin-bottom: 10px;
   }
-  
+
   .entry-content {
     float: none;
     max-height: 92px;
     width: 100%;
   }
-  
+
 }
 
 /* List sidebar */
 
 .list-news.list-news-sidebar {
   @include news-narrow-content;
-  
+
   border-top: none;
   max-width: 320px;
   padding-top: 0;
-  
+
   article.post {
     clear: right;
     overflow: hidden;
   }
-  
+
   .post-thumbnail {
     display: flex;
     justify-content: center;
@@ -2879,7 +2903,7 @@ img.pdf-icon {
     overflow: hidden;
     padding: 0;
     width: 36%;
-    
+
     a {
       display: block;
       height: inherit;
@@ -2890,63 +2914,63 @@ img.pdf-icon {
       width: auto;
     }
   }
-  
+
   .entry-header {
     width: 100%;
-    
+
     .entry-title {
       font-size: 12px;
       line-height: 1.4em;
       margin-bottom: 5px;
     }
   }
-  
+
   .entry-content {
     height: 86px;
     width: 60%;
-    
+
     &:after {
       height: 2.8em;
     }
-    
+
     .teaser p {
       font-size: 12px;
     }
-    
+
   }
 }
 
 .sidebar .list-articles.list-news-textonly {
-  
+
   .entry-title {
     font-size: 13px;
     line-height: 1.4em;
     margin-bottom: 5px;
   }
-  
+
   .entry-content {
     @include gradient-fade;
-    
+
     height: 3.9em;
     line-height: 0;
     overflow: hidden;
-    
+
     &:after {
       height: 2.8em;
     }
-  
+
     .entry-meta {
       display: inline;
       margin-bottom: 0;
     }
-    
+
     .teaser {
       display: inline;
-      
+
       &:after {
         display: none;
       }
-      
+
       p {
         display: inline;
         font-size: 12px;
@@ -2954,26 +2978,26 @@ img.pdf-icon {
       }
     }
   }
-  
+
 }
 
 /* --- Events --- */
 
 .list-events {
-  
+
   .event {
     @include clearfix;
     @include border-bottom-dots;
     position: relative;
   }
-  
+
   .event-title {
     font-size: 13px;
     margin-bottom: .3em;
     margin-top: 0;
     padding: 0;
   }
-  
+
   .event-dates {
     @include txt-narrow;
     background: #000;
@@ -2981,12 +3005,12 @@ img.pdf-icon {
     font-size: 12px;
     margin-bottom: 6px;
     padding: 0 6px;
-    
+
     p {
       display: inline-block;
       margin-bottom: 0;
     }
-    
+
     .date-end:before {
       content: "–";
       margin: 0 .25em;
@@ -2997,27 +3021,27 @@ img.pdf-icon {
 .event .event-meta {
   @include minor-text;
   margin-bottom: 4px;
-  
+
   p {
     display: inline;
     font-size: 12px;
     padding: 0;
-    
+
     &:empty {
       display: none;
     }
   }
-  
+
   .event-times {
     font-weight: bold;
-    
+
     & + .event-location {
       margin-left: .5em;
     }
   }
-  
+
   .time-start + .time-end {
-    
+
     &:before {
       content: "-";
       margin-right: .25em;
@@ -3028,7 +3052,7 @@ img.pdf-icon {
 .event .event-export {
   @include color-icon;
   border: 0;
-  
+
   &:before {
     @include icon;
     content: "\f271";
@@ -3038,7 +3062,7 @@ img.pdf-icon {
 }
 
 .event.has-teaser .event-content {
-  
+
   .teaser {
     @include gradient-fade;
     clear: both;
@@ -3046,7 +3070,7 @@ img.pdf-icon {
     max-height: 4em;
     overflow: hidden;
     padding: 0;
-    
+
     &:after {
       height: 72%;
     }
@@ -3055,11 +3079,11 @@ img.pdf-icon {
 
 .event .studying-calendar {
   margin-top: 10px;
-  
+
   a {
     border: 0;
     color: #fff;
-    
+
     &:before {
       @include icon;
       content: "\f073";
@@ -3069,7 +3093,7 @@ img.pdf-icon {
 }
 
 /* Colored date box */
-  
+
 .list-events .has-image .event-dates {
   @include color-background;
   position: relative;
@@ -3078,10 +3102,10 @@ img.pdf-icon {
 /* Events with featured image */
 
 .list-events .has-image {
-  
+
   .event-img {
     display: none;
-    
+
     img {
       margin: 0;
     }
@@ -3092,7 +3116,7 @@ img.pdf-icon {
 
 .list-events .event-extra {
   margin-top: 1em;
-  
+
   .speakers {
     font-size: 11px;
   }
@@ -3104,46 +3128,46 @@ img.pdf-icon {
   border: 0;
   padding: 0;
   position: relative;
-  
+
   a {
     opacity: 1;
-    
+
     &:hover {
       opacity: .8;
     }
   }
-  
+
   .cover-img {
     background: $primary-color;
     display: block;
     height: auto;
     margin: 0;
     width: 100%;
-    
+
     img {
       height: auto;
       vertical-align: top;
       width: 100%;
     }
   }
-  
+
   .event-dates {
     background: transparent !important;
     float: none;
     position: absolute;
     top: 10px; right: auto; bottom: auto; left: 10px;
   }
-  
+
   .event-content {
     color: #fff;
     float: none;
     position: absolute;
     top: auto; right: 10px; bottom: 10px; left: 10px;
   }
-  
+
   .event-title {
     color: #fff;
-    
+
     a {
       color: #fff;
       border-color: #fff;
@@ -3154,7 +3178,7 @@ img.pdf-icon {
 /* Sidebar */
 
 .sidebar .list-events {
-  
+
   .event-title {
     font-size: 12px;
   }
@@ -3163,19 +3187,19 @@ img.pdf-icon {
 /* Canceled event */
 
 .list-events .event-canceled.has-image {
-  
+
   .event-dates {
     background: rgba($light-grey, .8);
     color: rgba(0,0,0,.6);
-    
+
     p {
       color: rgba(0,0,0,.4);
-      
+
       &.date-end:after {
         border-color: rgba(0,0,0,.4);
       }
     }
-    
+
     .canceled {
       float: right;
     }
@@ -3188,16 +3212,16 @@ img.pdf-icon {
   border-bottom: 1px dotted #000;
   margin-bottom: 10px;
   padding-bottom: 10px;
-  
+
   .snippets-image {
     margin-bottom: 10px;
-    
+
     img {
       display: block;
       width: 100%;
     }
   }
-  
+
   .snippets-title h2 {
     font-family: Arial,Helvetica,Verdana,sans-serif;
     font-size: 13px;
@@ -3207,7 +3231,7 @@ img.pdf-icon {
     color: #000;
     text-transform: none;
   }
-  
+
   .snippets-subtitle p {
     font-weight: 600;
   }
@@ -3216,11 +3240,11 @@ img.pdf-icon {
 /* --- Feedzy --- */
 
 .feedzy-rss {
-  
+
   .rss_header h2 {
     font-size: 13px;
     margin-bottom: 1.5em;
-    
+
     .rss_description {
       display: block;
       font-family: Arial,Helvetica,Verdana,sans-serif;
@@ -3230,17 +3254,17 @@ img.pdf-icon {
       margin-top: .375em;
     }
   }
-  
+
   ul {
     margin: 0 0 20px;
   }
-  
+
   .rss_item {
     border-bottom: 1px dotted #000;
     list-style: none;
     margin: 0 0 15px !important;
     padding: 0 0 15px !important;
-    
+
     .rss_image {
       display: none;
     }
@@ -3251,28 +3275,28 @@ img.pdf-icon {
 
 .gridBox  .grid {
   margin: 0 0 4px;
-  
+
   .bg {
     background-size: 100% auto;
     background-repeat: no-repeat;
     display: block;
-    
+
     img {
       @include visuallyhidden;
     }
   }
-  
+
   h3 {
     padding: 0;
   }
-  
+
   h3 a {
     @include color-link;
     border-bottom: 0;
   }
-  
+
   &.large {
-    
+
     h3 {
       height: 54px;
     }
@@ -3295,31 +3319,31 @@ img.pdf-icon {
   margin: 0 4px 4px 0;
   position: relative;
   width: 160px;
-  
+
   &:nth-child(2n) {
     @include color-background-sec;
   }
-  
+
   &:hover {
     background: #000;
   }
-  
+
   .button-link {
     display: block;
     height: inherit;
     padding: 1px;
-    
+
     &:hover {
       background: black;
     }
   }
-  
+
   img {
     height: 90px;
     margin: 0 0 2px;
     width: 100%;
   }
-  
+
   .label {
     @include minor-text;
     border-bottom: 1px dotted #fff;
@@ -3330,11 +3354,11 @@ img.pdf-icon {
 }
 
 .smallButtonsBox {
-  
+
   .button-link {
     @extend .fa-icon;
     @extend .btn-icon;
-    
+
     &:before {
       //content: "\f054";
     }
@@ -3346,7 +3370,7 @@ img.pdf-icon {
 .infoscience_bullet {
   position: relative;
   top: -2px;
-  
+
   & + .infoscience_data * {
     clear: none;
   }
@@ -3384,15 +3408,15 @@ img.pdf-icon {
   margin-left: -0.3075em;
   margin-bottom: 30px;
   padding: 0;
-  
+
   img {
     margin: 0;
   }
-  
+
   p {
     font-size: 12px;
   }
-  
+
   h3 {
     border: 0;
     color: #fff;
@@ -3402,14 +3426,14 @@ img.pdf-icon {
     margin-top: 1.5em;
     text-transform: none;
   }
-  
+
   .media-ribbon {
-    
+
     p {
       font-size: 13px;
     }
   }
-  
+
   .box {
     margin-bottom: 0;
   }
@@ -3424,7 +3448,7 @@ img.pdf-icon {
 
 .layout-faculty .su-slider {
   height: 100%;
-  
+
   .su-slider-slides,
   .su-slider-slide,
   .su-slider-slide > a,
@@ -3448,7 +3472,7 @@ img.pdf-icon {
 
 .media-list.fac .media-ribbon {
   height: auto;
-  
+
   span > br {
     display: none;
   }
@@ -3474,17 +3498,17 @@ img.pdf-icon {
 ------------------------------------------------------------ */
 
 @media screen and (min-width: 30em) {
-  
+
   /*  ---------------------------------------
     04 HEADER
   ----------------------------------------- */
-  
+
   /* --- Site title --- */
-  
+
   .site-branding {
     padding: 1em 0 !important;
   }
-  
+
 }
 
 /*  -----------------------------------------------------------
@@ -3494,118 +3518,118 @@ img.pdf-icon {
 ------------------------------------------------------------ */
 
 @media screen and (min-width: 48em) {
-  
+
   /*  ---------------------------------------
     02 JAHIA IMPORTED CONTENT
   ----------------------------------------- */
-  
+
   .box-flat-panel {
     width: 324px;
   }
-  
+
   .entry-content .box {
     float: left;
     margin-bottom: 40px;
     padding-right: 2px;
     width: 50%;
-  
+
     &.panel {
       width: 100%;
     }
-    
+
     .box-flat-panel {
       width: 100%;
     }
-    
+
     &.last-col {
       padding-left: 2px;
       padding-right: 0;
     }
   }
-  
+
   .textBox {
     @include clearfix;
-    
+
     .box {
-      
+
       &:nth-of-type(2n+1) {
         //clear: left;
       }
     }
   }
-  
+
   .entry-content .right {
     margin-left: 25px;
     float: right;
   }
-  
+
   /* --- People boxes --- */
-  
+
   // Photo box
 
   .bottin .photo_box {
     width: 25% !important;
   }
-  
+
   /*  ---------------------------------------
     03 GLOBAL CONTENT & SITE STRUCTURE
   ----------------------------------------- */
-  
+
   .wrap {
     max-width: 1000px;
     padding-left: 3em;
     padding-right: 3em;
   }
-  
+
   #primary.col,
   #secondary.col {
     padding-left: 7px;
-  	padding-right: 8px; 
+  	padding-right: 8px;
   }
-  
+
   #secondary {
     font-size: 13px;
   }
-  
+
   /*  ---------------------------------------
     04 HEADER
   ----------------------------------------- */
-  
+
   /* --- EPFL Header --- */
-  
+
   .site-header.epfl .logo {
     margin-top: 6px;
   }
   .epflnav .nav-link {
     margin: 6px 0;
   }
-  
+
   /* --- Site logo --- */
 
   .custom-logo-link {
     margin-bottom: 20px;
-    
+
      img {
        max-width: none;
      }
   }
-  
+
   /* --- Site title --- */
-  
+
   .site-branding {
     padding: 24px 0 !important;
-    
+
     .has-header-image & {
       padding-top: 12px !important;
     }
   }
-  
+
   .custom-header {
     margin-bottom: 0 !important;
   }
-  
+
   /* --- Main navigation --- */
-  
+
   .menu-toggle,
 	.dropdown-toggle {
 		display: none;
@@ -3620,12 +3644,12 @@ img.pdf-icon {
 	.main-navigation > div > ul {
 		display: block;
 	}
-  
+
   .site-header .navigation-top {
     background: #fff;
     font-size: 13px;
     position: static;
-    
+
     nav {
       margin: 0;
     }
@@ -3633,14 +3657,14 @@ img.pdf-icon {
   .main-navigation {
     @include color-background;
   }
-  
+
   .main-navigation .menu {
     @include clearfix;
     background: transparent;
     border: 0;
     padding: 0;
   }
-  
+
   .main-navigation .menu > li {
     @include color-border;
     border-style: solid;
@@ -3651,20 +3675,20 @@ img.pdf-icon {
     margin: 0;
     padding: 0;
     vertical-align: top;
-    
+
     &:first-child {
       border-left-width: 0 !important;
     }
-    
+
     &:hover {
       border-color: #fff;
       border-width: 0 1px;
-      
+
       & > a {
         color: #fff;
       }
     }
-    
+
     & > a {
       @include color-background-btn;
       border: 0;
@@ -3683,29 +3707,29 @@ img.pdf-icon {
   .main-navigation .menu > li.current-menu-parent,
   .main-navigation .menu > li.current_page_ancestor {
     border-color: #fff;
-    
+
     & > a {
       background: #000;
       color: #fff;
     }
   }
-  
+
   .main-navigation li.link-home {
     text-indent: -3333px;
-    
+
     a {
       //background: #000;
       width: 30px;
-      
+
       &:before {
         position: relative;
         left: 3333px;
       }
     }
   }
-  
+
   /* --- Sub menu (dropdown) --- */
-  
+
   .main-navigation ul ul {
 		background: #fff;
 		border: 1px solid #bbb;
@@ -3715,49 +3739,49 @@ img.pdf-icon {
 		top: 100%;
 		z-index: 99999;
 	}
-  
+
   .main-navigation .sub-menu {
     border: 1px solid #000;
     border-top-width: 0;
     padding-top: 1px;
     padding-bottom: 0;
     width: 340px;
-    
+
     ul {
       width: auto;
     }
   }
-  
+
   .main-navigation .sub-menu li {
     background: #fff;
     border: 0;
     float: none;
-    
+
     &:hover {
       background: #fff;
     }
-    
+
     &.menu-item-has-children .icon {
       display: none;
     }
-    
+
     a {
       color: #000;
       line-height: 1.4em;
       margin: 0 1px 1px;
       padding: 2px 8px;
-      
+
       &:hover {
         background: $light-grey;
         border: 0;
       }
     }
   }
-  
+
   .main-navigation .menu li:hover .sub-menu {
     left: 0;
   }
-  
+
   .main-navigation .sub-menu li.focus > a:hover,
 	.main-navigation .sub-menu li:focus > a:hover,
 	.main-navigation .sub-menu li:hover > a:hover,
@@ -3765,34 +3789,34 @@ img.pdf-icon {
 	.main-navigation .sub-menu li a:focus {
   	color: #000;
 	}
-  
+
   .main-navigation .sub-menu .sub-menu {
     border: 0;
     left: 0;
     margin-left: 1.5em;
     position: relative;
-    
+
     &:before {
       content: "";
       border-left: 1px dotted $light-grey;
       position: absolute;
       top: 5px; right: auto; left: -1px; bottom: 5px;
     }
-    
+
     a {
       font-weight: 400;
     }
   }
-  
+
   /* --- Page tools --- */
-  
+
   .site-header .page-tools {
     background: transparent;
     position: relative;
   }
-  
+
   /* Breadcrumbs */
-  
+
   .page-tools .breadcrumb {
     @include clearfix;
     display: block;
@@ -3800,15 +3824,15 @@ img.pdf-icon {
     max-width: 80%;
     margin: 0;
     padding: 0;
-    
+
     li {
       font-size: 11px;
       margin-bottom: 0;
-      
+
       &.separator {
         display: none;
       }
-      
+
       &:after {
         content: "›";
         color: #a3a3a3;
@@ -3816,16 +3840,16 @@ img.pdf-icon {
       }
        &:last-child {
          margin-right: 0;
-         
+
          &:after {
            display: none;
          }
        }
     }
   }
-  
+
   /* Language switcher */
-  
+
   .page-tools .lang {
     @include clearfix;
     float: right;
@@ -3835,52 +3859,52 @@ img.pdf-icon {
     position: static;
     text-align: right;
   }
-  
+
   /*  ---------------------------------------
     05 FOOTER
   ----------------------------------------- */
-  
+
   .site-footer {
     font-size: 13px;
-    
+
     .footer-content {
       //border: 0;
       //padding-top: 0;
       padding-top: 15px;
     }
   }
-  
+
   .footer-content {
-    
+
     p {
       clear: none;
     }
-  
+
     .footer-nav {
       border: 0;
       float: left;
     }
-    
+
     .site-info {
       float: left;
       margin: 0;
       padding: 0;
       width: auto;
     }
-    
+
     .site-admin {
       float: right;
     }
   }
-  
+
   /*  ---------------------------------------
     07 PRIMARY CONTENT
   ----------------------------------------- */
-  
+
   /* --- Articles --- */
-  
+
   /* List */
-  
+
   .list-articles .entry-header {
     float: right;
     width: 70%;
@@ -3891,51 +3915,51 @@ img.pdf-icon {
     padding-right: 20px;
     width: 30%;
   }
-  
+
   .list-articles .entry-content {
     clear: right;
     padding-left: 30%;
-    
+
     & > * {
       clear: none;
     }
   }
-  
+
   /* --- Single article --- */
-  
+
   .nav-links {
     margin-top: 30px;
-    
+
     & > div {
       max-width: 49%;
     }
   }
-  
+
   /*  ---------------------------------------
       08 SHORTCODES
   ----------------------------------------- */
-  
+
   /* --- News --- */
-  
+
   /* List of articles with no picture */
-  
+
   .list-articles.list-news-textonly {
-    
+
     .entry-header {
       float: none;
       width: 100%;
     }
-    
+
     .entry-content {
       padding: 0;
     }
   }
-  
+
   /* List of articles with first article featured */
-  
+
   .list-articles.list-news-first-featured {
     @include news-narrow-content;
-    
+
     article.post {
       border: 0;
       clear: right;
@@ -3944,7 +3968,7 @@ img.pdf-icon {
       overflow: hidden;
       padding: 0;
       width: 50%;
-      
+
       .post-thumbnail {
         display: flex;
         justify-content: center;
@@ -3952,7 +3976,7 @@ img.pdf-icon {
         overflow: hidden;
         padding: 0;
         width: 36%;
-        
+
         a {
           display: block;
           height: inherit;
@@ -3963,26 +3987,26 @@ img.pdf-icon {
           width: auto;
         }
       }
-      
+
       .entry-header .entry-title {
         font-size: 11px;
       }
-      
+
       .entry-content {
         height: 88px;
         width: 60%;
-        
+
         &:after {
           height: 2.1em;
-    
+
         }
       }
-      
+
       &:first-of-type {
         float: left;
         height: auto;
         padding-right: 15px;
-        
+
         .post-thumbnail {
           float: none;
           margin-bottom: 6px;
@@ -3990,70 +4014,70 @@ img.pdf-icon {
           height: auto;
           width: 100%;
         }
-        
+
         .entry-header {
           float: none;
           width: 100%;
-          
+
           .entry-title {
             font-size: 13px;
           }
         }
-        
+
         .entry-content {
           float: none;
           padding: 0;
           height: 108px;
           width: 100%;
-          
+
           &:after {
             height: 3em;
           }
-          
+
           .teaser {
             height: 4.6em;
           }
         }
       }
     }
-    
+
   }
-  
+
   /* Portal news with image on the left */
-  
+
   .list-articles.news-portal {
-    
+
     .post-thumbnail {
       width: 50%;
     }
-    
+
     .entry-content {
       height: 104px;
       max-height: none;
       width: 50%
     }
-        
+
     .entry-header .entry-title {
       font-size: 12px;
     }
-    
+
     .links {
       float: right;
       width: 50%;
     }
   }
-  
+
   /* Portal news with image on top */
-  
+
   .list-articles.news-portal-img-top {
-    
+
     .post-thumbnail {
       float: none;
       margin-bottom: 6px;
       padding: 0;
       width: 100%;
     }
-    
+
     .entry-content {
       float: none;
       max-height: 92px;
@@ -4062,7 +4086,7 @@ img.pdf-icon {
   }
 
   /* --- Events --- */
-  
+
   .list-events .event-dates {
     background: transparent;
     color: #666;
@@ -4071,7 +4095,7 @@ img.pdf-icon {
     margin: 0 5px 0 0;
     padding: 0;
     width: 40px;
-    
+
     p {
       display: block;
       font-size: 13px;
@@ -4080,16 +4104,16 @@ img.pdf-icon {
       text-align: center;
       text-transform: uppercase;
       width: 100%;
-      
+
       &.date-end {
         margin-top: 8px;
         padding-top: 14px;
         position: relative;
-        
+
         &:before {
           display: none;
         }
-        
+
         &:after {
           content: "";
           border-top: 3px solid #666;
@@ -4097,7 +4121,7 @@ img.pdf-icon {
           top: 0; right: 7px; bottom: auto; left: 7px;
         }
       }
-      
+
       &:first-line {
         font-size: 1.5em;
         letter-spacing: .05em;
@@ -4112,37 +4136,37 @@ img.pdf-icon {
     //float: left;
     padding-left: 50px;
     width: 595px;
-    
+
     .sidebar & {
       width: 265px;
     }
   }
-  
+
   .list-events .event .event-content > .event-title {
     padding: 0;
     width: 100%;
   }
-  
+
   /* Colored date box */
-  
+
   .list-events .has-image .event-dates {
     height: 112px;
     margin: 0;
     padding: 5px 0;
     width: 40px;
-    
+
     p {
       color: #fff;
-      
+
       &.date-end:after {
         border-color: #fff;
         right: 9px; left: 9px;
       }
     }
   }
-  
+
   /* Events with featured image */
-  
+
   .list-events .has-image {
     .event-img {
       display: block;
@@ -4150,40 +4174,40 @@ img.pdf-icon {
       height: 112px;
       margin: 0 10px 0 1px;
       width: 112px;
-      
+
       a {
         display: block;
       }
     }
-    
+
     .event-content {
       padding-left: 0;
       width: 480px;
-      
+
       .sidebar & {
         width: 146px;
       }
     }
   }
-  
+
   .event.has-teaser.has-image .event-content {
     height: 112px;
     overflow: hidden;
   }
-  
+
   /* Events with extra content */
-  
+
   .list-events .event-extra {
     margin-top: .5em;
   }
-  
+
   .event.has-extra.has-image {
-    
+
     .event-content {
       float: left;
       width: 330px;
     }
-    
+
     .event-extra {
       float: right;
       height: 112px;
@@ -4191,55 +4215,55 @@ img.pdf-icon {
       overflow: hidden;
       padding: 0;
       width: 130px;
-      
+
       .speakers {
         padding: 0;
       }
     }
   }
-  
+
   /* Events with cover image */
 
   .list-events .event.has-cover-image {
-    
+
     .event-dates {
       height: auto;
       padding: 0;
       top: auto; bottom: 25px; left: 20px;
-      
+
       p {
         font-size: 1em;
       }
     }
-    
+
     .event-content {
       top: auto; right: 20px; bottom: 25px; left: 90px;
       width: auto;
-      
+
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
-      
+
       .event-title {
         float: left;
         font-size: 13px;
         vertical-align: bottom;
         width: 320px;
       }
-      
+
       .studying-calendar {
         float: right;
         padding: 0;
         vertical-align: bottom;
-        
+
         a {
           display: block;
-          
+
           &:before {
             font-size: 3.5em;
             vertical-align: bottom;
           }
-          
+
           .label {
             display: inline-block;
             font-weight: bold;
@@ -4250,9 +4274,9 @@ img.pdf-icon {
       }
     }
   }
-  
+
   /* Sidebar */
-  
+
   .sidebar {
     //.list-events .has-image .event-title,
     .list-events .has-image .event-content,
@@ -4260,18 +4284,18 @@ img.pdf-icon {
       float: left;
       width: 146px;
     }
-    
+
     .has-extra.has-image .event-extra {
       display: none;
     }
-    
+
   }
-  
-  
+
+
   /* Canceled event */
 
   .list-events .event-canceled.has-image {
-    
+
     .event-dates .canceled {
       background: $light-grey;
       padding: 5px 0 3px;
@@ -4281,39 +4305,39 @@ img.pdf-icon {
       width: 112px;
     }
   }
-  
+
   /* --- Snippets --- */
 
   .snippetsBox {
     @include clearfix;
     margin-bottom: 5px;
     padding-bottom: 5px;
-    
+
     .snippets-image {
       float: left;
       margin-bottom: 0;
       padding-right: 20px;
       width: 30%;
-      
+
       img {
         margin: 0;
       }
     }
-    
+
     .snippets-content {
       float: right;
       width: 70%;
     }
   }
-  
+
   /*  ---------------------------------------
       09 STATIC HOMEPAGES
   ----------------------------------------- */
-  
+
   .layout-faculty .panel-cell:empty {
     display: block;
   }
-  
+
 }
 
 /*  -----------------------------------------------------------
@@ -4323,11 +4347,11 @@ img.pdf-icon {
 ------------------------------------------------------------ */
 
 @media screen and ( min-width: 64em ) {
-  
+
   /*  ---------------------------------------
     03 GLOBAL CONTENT & SITE STRUCTURE
   ----------------------------------------- */
-  
+
   .wrap {
     margin-left: auto;
     margin-right: auto;
@@ -4336,16 +4360,16 @@ img.pdf-icon {
     //width: 976px;
     width: 980px;
   }
-  
+
   #primary,
   #secondary {
     float: left;
   }
-  
+
   #primary {
     margin-right: 4px;
     width: 652px;
-    
+
     &.page-fullwidth {
       width: 100%;
     }
@@ -4354,26 +4378,26 @@ img.pdf-icon {
     margin-top: -1px;
     width: 324px;
   }
-  
+
   /*  ---------------------------------------
     04 HEADER
   ----------------------------------------- */
-  
+
   /* --- Main navigation --- */
-  
+
   .navigation-top .wrap {
     padding: 0;
   }
-  
+
   /*  ---------------------------------------
     07 PRIMARY CONTENT
   ----------------------------------------- */
-  
+
   /* Page title & content */
-  
+
   .type-page > .entry-content {
     padding-right: 35px;
-    
+
     & > .newsBox,
     & > .peopleListBox,
     & > .eventsBox,
@@ -4381,12 +4405,12 @@ img.pdf-icon {
     & > .buttonsContainer {
       margin-right: -35px;
     }
-    
+
     .page-fullwidth & {
       padding-right: 0;
     }
   }
-  
+
   /*
   .entry-content {
     p,
@@ -4400,7 +4424,7 @@ img.pdf-icon {
     ol {
       padding-right: 30px;
     }
-    
+
     .colored-box,
     td {
       p,
@@ -4412,37 +4436,43 @@ img.pdf-icon {
       h6 {
         padding-right: 0;
       }
-    } 
+    }
   }
   */
-  
+
   /*  ---------------------------------------
       08 SHORTCODES
   ----------------------------------------- */
-  
+
   /* --- Big / small buttons --- */
 
   .bigButtonsBox {
-    
+
     .site &:empty {
       display: block;
     }
-    
+
     &:nth-child(4n) {
       @include color-background-quat;
       margin-right: 0;
     }
-    
+
     &:nth-child(2)
     &:nth-child(4n+2) {
       @include color-background-sec;
     }
-    
+
     &:nth-child(3),
     &:nth-child(4n+3) {
       @include color-background-ter;
     }
   }
-  
-  
+
+  /* --- People --- */
+
+  .peopleListBox {
+    width: auto;
+  }
+
+
 }

@@ -56,6 +56,9 @@ Usage:
     [--extra-config=<YAML_FILE>]
   jahia2wp.py update-plugins-many   <csv_file>                      [--debug | --quiet]
     [--force-plugin] [--force-options] [--plugin=<PLUGIN_NAME>|--strict-list]
+  jahia2wp.py update-plugins-inventory   <path>                     [--debug | --quiet]
+    [--force-plugin] [--force-options] [--plugin=<PLUGIN_NAME>|--strict-list]
+    [--extra-config=<YAML_FILE>]
   jahia2wp.py global-report <csv_file> [--output-dir=<OUTPUT_DIR>] [--use-cache] [--debug | --quiet]
     --root_wp_dest=</srv/../epfl> [--greedy] [--htaccess] [--context=<intra|inter|full>] [--dry_run]
 
@@ -518,7 +521,6 @@ def export(site, wp_site_url, unit_name_or_id, to_wordpress=False, clean_wordpre
                            'epfl-map',
                            'epfl-memento',
                            'epfl-news',
-                           # 'epfl',
                            'epfl-people',
                            'epfl-scheduler',
                            'EPFL-Content-Filter',
@@ -531,6 +533,7 @@ def export(site, wp_site_url, unit_name_or_id, to_wordpress=False, clean_wordpre
                            'epfl-video',
                            'epfl-google-forms',
                            'feedzy-rss-feeds',
+                           'cache-control',
                            'remote-content-shortcode',
                            'shortcode-ui',
                            'shortcode-ui-richtext',   # This one needs to come after the previous one
@@ -859,10 +862,13 @@ def backup_many(csv_file, **kwargs):
     print("\n{} websites will now be backuped...".format(len(validator.rows)))
     for index, row in enumerate(validator.rows):
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
-        WPBackup(
-            row["openshift_env"],
-            row["wp_site_url"]
-        ).backup()
+        try:
+            WPBackup(
+                row["openshift_env"],
+                row["wp_site_url"]
+            ).backup()
+        except:
+            logging.error("Site %s - Error %s",  row["wp_site_url"], sys.exc_info())
 
 
 @dispatch.on('backup-inventory')
@@ -873,12 +879,15 @@ def backup_inventory(path, **kwargs):
     for site_details in WPConfig.inventory(path):
 
         if site_details.valid == settings.WP_SITE_INSTALL_OK:
-            logging.info("Running backup for %s", site_details.url)
 
-            WPBackup(
-                WPSite.openshift_env_from_path(site_details.path),
-                site_details.url
-            ).backup()
+            logging.info("Running backup for %s", site_details.url)
+            try:
+                WPBackup(
+                    WPSite.openshift_env_from_path(site_details.path),
+                    site_details.url
+                ).backup()
+            except:
+                logging.error("Site %s - Error %s", site_details.url, sys.exc_info())
 
     logging.info("All backups done for path: %s", path)
 
@@ -890,11 +899,42 @@ def rotate_backup_inventory(path, dry_run=False, **kwargs):
 
         if site_details.valid == settings.WP_SITE_INSTALL_OK:
 
-            path = WPBackup(
-                WPSite.openshift_env_from_path(site_details.path),
-                site_details.url
-            ).path
+            try:
+                path = WPBackup(
+                    WPSite.openshift_env_from_path(site_details.path),
+                    site_details.url
+                ).path
 
+                # rotate full backups first
+                for pattern in ["*full.sql", "*full.tar"]:
+                    RotateBackups(
+                        FULL_BACKUP_RETENTION_THEME,
+                        dry_run=dry_run,
+                        include_list=[pattern]
+                    ).rotate_backups(path)
+                # rotate incremental backups
+                for pattern in ["*.list", "*inc.sql", "*inc.tar"]:
+                    RotateBackups(
+                        INCREMENTAL_BACKUP_RETENTION_THEME,
+                        dry_run=dry_run,
+                        include_list=[pattern]
+                    ).rotate_backups(path)
+
+            except:
+
+                logging.error("Site %s - Error %s", site_details.url, sys.exc_info())
+
+
+@dispatch.on('rotate-backup')
+def rotate_backup(csv_file, dry_run=False, **kwargs):
+
+    # CSV file validation
+    validator = _check_csv(csv_file)
+
+    for index, row in enumerate(validator.rows):
+
+        try:
+            path = WPBackup(row["openshift_env"], row["wp_site_url"]).path
             # rotate full backups first
             for pattern in ["*full.sql", "*full.tar"]:
                 RotateBackups(
@@ -910,29 +950,9 @@ def rotate_backup_inventory(path, dry_run=False, **kwargs):
                     include_list=[pattern]
                 ).rotate_backups(path)
 
+        except:
 
-@dispatch.on('rotate-backup')
-def rotate_backup(csv_file, dry_run=False, **kwargs):
-
-    # CSV file validation
-    validator = _check_csv(csv_file)
-
-    for index, row in enumerate(validator.rows):
-        path = WPBackup(row["openshift_env"], row["wp_site_url"]).path
-        # rotate full backups first
-        for pattern in ["*full.sql", "*full.tar"]:
-            RotateBackups(
-                FULL_BACKUP_RETENTION_THEME,
-                dry_run=dry_run,
-                include_list=[pattern]
-            ).rotate_backups(path)
-        # rotate incremental backups
-        for pattern in ["*.list", "*inc.sql", "*inc.tar"]:
-            RotateBackups(
-                INCREMENTAL_BACKUP_RETENTION_THEME,
-                dry_run=dry_run,
-                include_list=[pattern]
-            ).rotate_backups(path)
+            logging.error("Site %s - Error %s", row["wp_site_url"], sys.exc_info())
 
 
 @dispatch.on('shortcode-details')
@@ -1105,6 +1125,37 @@ def update_plugins(wp_env,
                                 strict_plugin_list=strict_list)
 
     print("Successfully updated WordPress plugin list at {}".format(wp_generator.wp_site.url))
+
+
+@dispatch.on('update-plugins-inventory')
+def update_plugins_inventory(path,
+                             plugin=None,
+                             force_plugin=False,
+                             force_options=False,
+                             strict_list=False,
+                             extra_config=None,
+                             **kwargs):
+
+    logging.info("Update plugins from inventory...")
+
+    for site_details in WPConfig.inventory(path):
+
+        if site_details.valid == settings.WP_SITE_INSTALL_OK:
+            logging.info("Updating plugins for %s", site_details.url)
+
+            all_params = {'openshift_env': WPSite.openshift_env_from_path(site_details.path),
+                          'wp_site_url': site_details.url}
+
+            # if we have extra configuration to load,
+            if extra_config is not None:
+                all_params = _add_extra_config(extra_config, all_params)
+
+            WPGenerator(all_params).update_plugins(only_one=plugin,
+                                                   force_plugin=force_plugin,
+                                                   force_options=force_options,
+                                                   strict_plugin_list=strict_list)
+
+    logging.info("All plugins updates done for path: %s", path)
 
 
 @dispatch.on('update-plugins-many')
