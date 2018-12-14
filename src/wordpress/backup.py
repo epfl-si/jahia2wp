@@ -151,7 +151,8 @@ class WPBackup:
         except WPException as err:
             logging.error("%s - WP backup failed: %s", repr(self.wp_site), err)
 
-        self.prometheus_monitoring(result, self.wp_site)
+        if Utils.get_mandatory_env("WP_ENV") in settings.PROMETHEUS_OPENSHIFT_ENV_LIST:
+            self.prometheus_monitoring(result, self.wp_site)
 
         return result
 
