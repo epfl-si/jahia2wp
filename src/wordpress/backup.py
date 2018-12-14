@@ -151,11 +151,11 @@ class WPBackup:
         except WPException as err:
             logging.error("%s - WP backup failed: %s", repr(self.wp_site), err)
 
-        self.prometheus_monitoring(result)
+        self.prometheus_monitoring(result, self.wp_site)
 
         return result
 
-    def prometheus_monitoring(self, backup_ok):
+    def prometheus_monitoring(self, backup_status, wp_site):
 
         def my_auth_handler(url, method, timeout, headers, data):
             username = Utils.get_mandatory_env("PROMETHEUS_PUSHGATEWAY_USERNAME")
@@ -163,13 +163,15 @@ class WPBackup:
             return basic_auth_handler(url, method, timeout, headers, data, username, password)
 
         registry = CollectorRegistry()
-        if backup_ok:
+        if backup_status:
             status = "backup OK"
         else:
             status = "backup KO"
 
-        g = Gauge('backup', status, registry=registry)
+        g = Gauge('backup_status', status, registry=registry)
         g.set_to_current_time()
 
         url = "https://os-wwp-metrics-pushgw.epfl.ch"
-        push_to_gateway(url, job='batchA', registry=registry, handler=my_auth_handler)
+
+        job = "OpenShift_env:{} Site:{}".format(wp_site.openshift_env, wp_site.name)
+        push_to_gateway(url, job=job, registry=registry, handler=my_auth_handler)
