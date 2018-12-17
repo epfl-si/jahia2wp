@@ -3,7 +3,7 @@
 /**
  * Plugin Name: EPFL xml
  * Description: process an XML file with an associated XSLT file
- * @version: 1.1
+ * @version: 1.2
  * @copyright: Copyright (c) 2018 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
@@ -28,29 +28,34 @@ function epfl_xml_debug( $var ) {
  */
 function epfl_xml_build_html( string $xml, string $xslt )
 {
-    try
+    // check that we have valid URLs
+    if (!filter_var($xml, FILTER_VALIDATE_URL) || !filter_var($xslt, FILTER_VALIDATE_URL))
     {
-        // check that we have valid URLs
-        if (!filter_var($xml, FILTER_VALIDATE_URL) || !filter_var($xslt, FILTER_VALIDATE_URL))
-        {
-          return "[epfl_xml error: invalid URLs]";
-        }
-
-        $xml_doc = new DOMDocument;
-        $xml_doc->load($xml);
-
-        $xslt_doc = new DOMDocument;
-        $xslt_doc->load($xslt);
-
-        $processor = new XSLTProcessor;
-        $processor->importStyleSheet($xslt_doc);
-
-        return $processor->transformToXML($xml_doc);
+      return "[epfl_xml error: invalid URLs]";
     }
-    catch (Exception $e)
+
+    $xml_doc = new DOMDocument;
+    if(!$xml_doc->load($xml))
     {
-        return "[epfl_xml error:" . $e->getMessage() . "]";
+        return "[epfl_xml error: invalid URL (".$xml.")]";
     }
+
+    $xslt_doc = new DOMDocument;
+    if(!$xslt_doc->load($xslt))
+    {
+        return "[epfl_xml error: invalid URL (".$xslt.")]";
+    }
+    error_log($xslt_doc->saveHTML());
+
+    $processor = new XSLTProcessor;
+    if(!$processor->importStyleSheet($xslt_doc))
+    {
+        return "[epfl_xml error: cannot import stylesheet from URL, maybe resources missing (".$xslt.")]";
+    }
+
+    $xml_output = $processor->transformToXML($xml_doc);
+
+    return ($xml_output===false)?"[epfl_xml error: error transforming to XML]":$xml_output;
 }
 
 /**
