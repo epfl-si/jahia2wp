@@ -47,3 +47,5 @@ plugins:
     config: !include pdfjs-viewer-shortcode/v1/config-plugin.yml
   - name: very-simple-meta-description
     config: !include very-simple-meta-description/v1/config-plugin.yml
+  - name: epfl-404
+    config: !include epfl-404/v1/config-plugin.yml
