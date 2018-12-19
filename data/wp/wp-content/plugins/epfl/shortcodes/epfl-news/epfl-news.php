@@ -103,14 +103,7 @@ function epfl_news_check_required_parameters($channel, $lang) {
         return FALSE;
     }
 
-    // check that the channel exists
-    $url = NEWS_API_URL . $channel;
-    $channel_response = Utils::get_items($url);
-    if(property_exists($channel_response, 'detail') && $channel_response->detail === "Not found.") {
-        return FALSE;
-    }
     return TRUE;
-
 }
 
 /**
@@ -159,6 +152,10 @@ function epfl_news_2018_process_shortcode($atts = [], $content = '', $tag = '') 
         );
 
         $actus = Utils::get_items($url);
+
+        if (property_exists($actus, 'detail') && $actus->detail === "Not found.") {
+            return Utils::render_user_msg("News shortcode: Please check required parameters");
+        }
 
         // if supported delegate the rendering to the theme
         if (has_action("epfl_news_action")) {
