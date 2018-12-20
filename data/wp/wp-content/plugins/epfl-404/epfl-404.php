@@ -14,7 +14,10 @@ class EPFL404
 {
     static $instance;
 
+    const DEFAULT_DAYS_TO_KEEP = 15;
+
     public $display_table = null;
+    public $nb_days_to_keep = self::DEFAULT_DAYS_TO_KEEP;
 
     // class constructor
 	public function __construct()
@@ -26,6 +29,9 @@ class EPFL404
 		
 		register_activation_hook(__FILE__, [$this, 'plugin_activate']);
         register_uninstall_hook( __FILE__, [__CLASS__, 'plugin_uninstall']);
+
+        /* Number of days to keep information */
+        $this->nb_days_to_keep = get_option('epfl-404:nb_days_to_keep', self::DEFAULT_DAYS_TO_KEEP);
 	}
 
 
@@ -67,6 +73,9 @@ class EPFL404
         EPFL404DB::log($_SERVER['REQUEST_URI'],
                        isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : NULL,
                        $_SERVER['REMOTE_ADDR']);
+
+        /* Cleaning old entries */
+        EPFL404DB::clean_old_entries($this->nb_days_to_keep);
     }
 
 
@@ -93,7 +102,7 @@ class EPFL404
 
         ?>
         <div class="wrap">
-            <h2>404 URLs List</h2>
+            <h2>404 List <small>(for last <?PHP echo $this->nb_days_to_keep; ?> days)</small></h2>
 
             <div id="poststuff">
                 <div id="post-body" class="metabox-holder columns-2">

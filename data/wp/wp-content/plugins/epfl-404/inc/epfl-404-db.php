@@ -2,6 +2,7 @@
 
 class EPFL404DB
 {
+    /* Table information/structure */
     const EPFL404_DB_TABLE              = 'epfl_404';
     const EPFL404_DB_FIELD_ID           = 'epfl_404_id';
     const EPFL404_DB_FIELD_URL          = 'epfl_404_url';
@@ -9,7 +10,9 @@ class EPFL404DB
     const EPFL404_DB_FIELD_SOURCE_IP    = 'epfl_404_source_ip';
     const EPFL404_DB_FIELD_DATE         = 'epfl_404_date';
 
-
+    /*
+     * Returns DB charset
+     */
     protected static function epfl_404_get_charset()
     {
         global $wpdb;
@@ -28,8 +31,10 @@ class EPFL404DB
         return $charset_collate;
     }
 
+
     /*
      * Prepare a SQL request value
+     * @param string $val
      */
     protected static function prepare_sql_value($val)
     {
@@ -76,6 +81,25 @@ class EPFL404DB
         if ( $wpdb->query( $sql ) === false )
         {
             throw new Exception( 'There was a database error uninstalling EPFL-404: ' . $wpdb->print_error() );
+        }
+    }
+
+
+    /*
+     * Cleans old records
+     * @param int $nb_days_to_keep
+     */
+    public static function clean_old_entries($nb_days_to_keep)
+    {
+        global $wpdb;
+
+        $sql = "DELETE FROM ".self::EPFL404_DB_TABLE.
+               " WHERE ".self::EPFL404_DB_FIELD_DATE."< DATE_SUB(NOW(), INTERVAL ".$nb_days_to_keep." DAY)";
+
+        if ( $wpdb->query( $sql ) === false )
+        {
+            /* We don't throw an exception this time, so website continue to works correctly, only 404 logging fails */
+            error_log("epfl-404: Error cleaning old 404 entries: ".$pwdb->print_error());
         }
     }
 
