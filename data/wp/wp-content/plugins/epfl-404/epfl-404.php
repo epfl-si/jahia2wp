@@ -90,7 +90,7 @@ class EPFL404
     {
         $hook = add_management_page( 'EPFL 404',
                                      'EPFL 404',
-                                     'administrator',
+                                     'manage_options',
                                      basename( __FILE__),
                                      [$this, 'render_404_list'] );
 
