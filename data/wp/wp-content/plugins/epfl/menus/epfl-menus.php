@@ -1298,7 +1298,7 @@ class MenuRESTController
         foreach (MenuMapEntry::all_in_current_language() as $entry) {
             $slug        = $entry->get_theme_location();
             $description = $entry->get_description();
-            if (substr($string, 0, 1) !== '_') {
+            if (substr($slug, 0, 1) !== '_') {
                 array_push($retval, array(
                     'slug'        => $slug,
                     'description' => $description
