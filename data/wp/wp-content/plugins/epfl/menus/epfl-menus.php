@@ -1296,10 +1296,14 @@ class MenuRESTController
     static function get_menus () {
         $retval = [];
         foreach (MenuMapEntry::all_in_current_language() as $entry) {
-            array_push($retval, array(
-                'slug' => $entry->get_theme_location(),
-                'description'    => $entry->get_description(),
-            ));
+            $slug        = $entry->get_theme_location();
+            $description = $entry->get_description();
+            if (substr($string, 0, 1) !== '_') {
+                array_push($retval, array(
+                    'slug'        => $slug,
+                    'description' => $description
+                ));
+            }
         }
         return $retval;
     }
