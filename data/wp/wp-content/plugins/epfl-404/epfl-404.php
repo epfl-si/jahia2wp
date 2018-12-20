@@ -14,10 +14,11 @@ class EPFL404
 {
     static $instance;
 
-    const DEFAULT_DAYS_TO_KEEP = 15;
+    const DAYS_TO_KEEP_DEFAULT = 15;
+    const NB_DAYS_TO_KEEP_OPTION = 'epfl-404:nb_days_to_keep';
 
     public $display_table = null;
-    public $nb_days_to_keep = self::DEFAULT_DAYS_TO_KEEP;
+    public $nb_days_to_keep = self::DAYS_TO_KEEP_DEFAULT;
 
     // class constructor
 	public function __construct()
@@ -31,7 +32,7 @@ class EPFL404
         register_uninstall_hook( __FILE__, [__CLASS__, 'plugin_uninstall']);
 
         /* Number of days to keep information */
-        $this->nb_days_to_keep = get_option('epfl-404:nb_days_to_keep', self::DEFAULT_DAYS_TO_KEEP);
+        $this->nb_days_to_keep = get_option(self::NB_DAYS_TO_KEEP_OPTION, self::DAYS_TO_KEEP_DEFAULT);
 	}
 
 
@@ -52,6 +53,9 @@ class EPFL404
     function plugin_activate()
     {
         EPFL404DB::init();
+
+        /* Add option with default value */
+        update_option(self::NB_DAYS_TO_KEEP_OPTION, self::DAYS_TO_KEEP_DEFAULT);
     }
 
     /*
