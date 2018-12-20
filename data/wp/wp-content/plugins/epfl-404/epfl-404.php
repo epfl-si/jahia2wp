@@ -27,9 +27,6 @@ class EPFL404
 		add_action( 'admin_menu', [$this, 'setup_admin_menu'] );
 
 		add_action( 'template_redirect', [$this, 'log_404_calls'] );
-		
-		register_activation_hook(__FILE__, [$this, 'plugin_activate']);
-        register_uninstall_hook( __FILE__, [__CLASS__, 'plugin_uninstall']);
 
         /* Number of days to keep information */
         $this->nb_days_to_keep = get_option(self::NB_DAYS_TO_KEEP_OPTION, self::DAYS_TO_KEEP_DEFAULT);
@@ -50,7 +47,7 @@ class EPFL404
     /*
      * To create DB tables at plugin activation
      */
-    function plugin_activate()
+    public static function plugin_activate()
     {
         EPFL404DB::init();
 
@@ -90,7 +87,7 @@ class EPFL404
     {
         $hook = add_management_page( 'EPFL 404',
                                      'EPFL 404',
-                                     'manage_options',
+                                     'administrator',
                                      basename( __FILE__),
                                      [$this, 'render_404_list'] );
 
@@ -153,7 +150,9 @@ add_action( 'plugins_loaded', function () {
 	EPFL404::get_instance();
 } );
 
-
+/* Activation and uninstall */
+register_activation_hook(__FILE__, ['EPFL404', 'plugin_activate']);
+register_uninstall_hook( __FILE__, ['EPFL404', 'plugin_uninstall']);
 
 
 
