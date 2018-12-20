@@ -67,7 +67,7 @@
     				<span class="copyright">&copy; EPFL <?php the_modified_date('Y'); ?></span>
   				</p>
   				<p class="site-admin">
-    				<a href="<?php echo wp_login_url(); ?>" title="<?php _e( 'Log into site admin', 'epfl' ); ?>" class="admin-link"><?php _e( 'Login', 'epfl' ); ?></a>
+    				<a href="<?php echo admin_url(); ?>" title="<?php _e( 'Log into site admin', 'epfl' ); ?>" class="admin-link"><?php _e( 'Login', 'epfl' ); ?></a>
   				</p>
   			</div><!-- .wrap -->
 			</div><!-- .footer-content -->
