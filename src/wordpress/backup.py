@@ -37,13 +37,15 @@ class WPBackup:
     # allow to override BACKUP_PATH in var env for travis (which uses a read-only system)
     BACKUP_PATH = Utils.get_optional_env("BACKUP_PATH", os.path.join(settings.DATA_PATH, 'backups'))
 
-    def __init__(self, openshift_env, wp_site_url, full=False):
+    def __init__(self, openshift_env, wp_site_url, full=False, dry_run=False):
         """
         Class constructor
 
         Argument keywords:
         openshift_env -- Name of OpenShift environment on which script is executed
         wp_site_url -- URL to Website to backup
+        full -- Full backup or Inc
+        dry_run -- backup simulation
         """
         # validate input
         validate_openshift_env(openshift_env)
@@ -76,6 +78,8 @@ class WPBackup:
         self.sqlfile = os.path.join(
                 self.path,
                 "_".join((self.timestamp, self.backup_pattern)) + ".sql")
+
+        self.dry_run = dry_run
 
     def get_daily_list(self):
         # shortcut if directory does not exist yet
@@ -112,8 +116,9 @@ class WPBackup:
         if not os.path.exists(self.wp_site.path):
             raise WPException("The WordPress site {} is not properly installed".format(repr(self.wp_site)))
 
-        if not Utils.generate_tar_file(self.tarfile, self.listfile, self.wp_site.path):
-            raise WPException("WP tar {} could not be created".format(self.tarfile))
+        if not self.dry_run:
+            if not Utils.generate_tar_file(self.tarfile, self.listfile, self.wp_site.path):
+                raise WPException("WP tar {} could not be created".format(self.tarfile))
 
         logging.debug("%s - WP tar %s is created", repr(self.wp_site), self.tarfile)
 
@@ -123,9 +128,11 @@ class WPBackup:
 
         raises WPException on failures
         """
-        command = "db export {} --path={}".format(self.sqlfile, self.wp_site.path)
-        if not self.wp_config.run_wp_cli(command):
-            raise WPException("WP DB dump {} could not be created".format(self.sqlfile))
+        if not self.dry_run:
+
+            command = "db export {} --path={}".format(self.sqlfile, self.wp_site.path)
+            if not self.wp_config.run_wp_cli(command):
+                raise WPException("WP DB dump {} could not be created".format(self.sqlfile))
 
         logging.debug("%s - WP db dump %s is created", repr(self.wp_site), self.sqlfile)
 
@@ -134,7 +141,8 @@ class WPBackup:
         Launch the backup
         """
         if not os.path.exists(self.path):
-            os.makedirs(self.path)
+            if not self.dry_run:
+                os.makedirs(self.path)
 
         logging.info("%s - Backuping into %s", repr(self.wp_site), self.path)
 
