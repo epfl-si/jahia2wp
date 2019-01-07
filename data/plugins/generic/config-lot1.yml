@@ -77,4 +77,5 @@ plugins:
     config: !include epfl-google-forms/v1/config-plugin.yml
   - name: cache-control
     config: !include cache-control/v1/config-plugin.yml
-
+  - name: epfl-404
+    config: !include epfl-404/v1/config-plugin.yml
