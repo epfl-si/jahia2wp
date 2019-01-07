@@ -37,7 +37,7 @@ Usage:
     [--output-dir=<OUTPUT_DIR> --admin-password=<PASSWORD>] [--use-cache]
     [--keep-extracted-files]
   jahia2wp.py backup-many           <csv_file>                      [--debug | --quiet]
-  jahia2wp.py backup-inventory      <path>                          [--debug | --quiet]
+  jahia2wp.py backup-inventory      <path>              [--dry-run] [--debug | --quiet]
   jahia2wp.py rotate-backup         <csv_file>          [--dry-run] [--debug | --quiet]
   jahia2wp.py rotate-backup-inventory   <path>          [--dry-run] [--debug | --quiet]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
@@ -873,8 +873,16 @@ def backup_many(csv_file, **kwargs):
 
 
 @dispatch.on('backup-inventory')
-def backup_inventory(path, **kwargs):
-
+def backup_inventory(path, dry_run=False, **kwargs):
+    """
+    Backup all WordPress instances found in a given path
+    :param path:
+    :param dry_run:
+    :param kwargs:
+    :return:
+    """
+    if dry_run:
+        logging.info("! DRY RUN !")
     logging.info("Backup from inventory...")
 
     for site_details in WPConfig.inventory(path):
@@ -885,7 +893,8 @@ def backup_inventory(path, **kwargs):
             try:
                 WPBackup(
                     WPSite.openshift_env_from_path(site_details.path),
-                    site_details.url
+                    site_details.url,
+                    dry_run=dry_run
                 ).backup()
             except:
                 logging.error("Site %s - Error %s", site_details.url, sys.exc_info())
@@ -895,6 +904,9 @@ def backup_inventory(path, **kwargs):
 
 @dispatch.on('rotate-backup-inventory')
 def rotate_backup_inventory(path, dry_run=False, **kwargs):
+
+    if dry_run:
+        logging.info("! DRY RUN !")
 
     for site_details in WPConfig.inventory(path):
 
@@ -928,6 +940,9 @@ def rotate_backup_inventory(path, dry_run=False, **kwargs):
 
 @dispatch.on('rotate-backup')
 def rotate_backup(csv_file, dry_run=False, **kwargs):
+
+    if dry_run:
+        logging.info("! DRY RUN !")
 
     # CSV file validation
     validator = _check_csv(csv_file)
