@@ -360,7 +360,7 @@ class WPGenerator:
         self.run_wp_cli(command)
 
         # We save the site category in DB
-        command = "option update {} '{}'".format(settings.OPTION_WP_SITE_CATEGORY,self._site_params['category'])
+        command = "option update {} '{}'".format(settings.OPTION_WP_SITE_CATEGORY, self._site_params['category'])
         self.run_wp_cli(command)
 
         # flag success by returning True
