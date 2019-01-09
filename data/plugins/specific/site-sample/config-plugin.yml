@@ -1,6 +1,0 @@
-tables:
-  options:
-  - autoload: 'yes'
-    option_id: 169
-    option_name: mo_saml_sp_base_url
-    option_value: https://site-url/site-sample
