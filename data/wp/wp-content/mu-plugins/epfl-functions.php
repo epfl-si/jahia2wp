@@ -3,23 +3,11 @@
  * Plugin Name: EPFL Functions
  * Plugin URI: 
  * Description: Must-use plugin for the EPFL website.
- * Version: 0.0.4.1
+ * Version: 0.0.5
  * Author: Aline Keller
  * Author URI: http://www.alinekeller.ch
  */
 
-/*
- * File Upload Security
- 
- * Sources: 
- * http://www.geekpress.fr/wordpress/astuce/suppression-accents-media-1903/
- * https://gist.github.com/herewithme/7704370
- 
- * See also Ticket #22363
- * https://core.trac.wordpress.org/ticket/22363
- * and #24661 - remove_accents is not removing combining accents
- * https://core.trac.wordpress.org/ticket/24661
-*/ 
 
 add_filter('robots_txt', 'get_robots_txt');
 
@@ -37,9 +25,22 @@ Disallow: /wp-admin/
     return $text;
 }
 
+/*
+ * File Upload Security
+
+ * Sources:
+ * http://www.geekpress.fr/wordpress/astuce/suppression-accents-media-1903/
+ * https://gist.github.com/herewithme/7704370
+
+ * See also Ticket #22363
+ * https://core.trac.wordpress.org/ticket/22363
+ * and #24661 - remove_accents is not removing combining accents
+ * https://core.trac.wordpress.org/ticket/24661
+*/
+
 add_filter( 'sanitize_file_name', 'remove_accents', 10, 1 );
 add_filter( 'sanitize_file_name_chars', 'sanitize_file_name_chars', 10, 1 );
- 
+
 function sanitize_file_name_chars( $special_chars = array() ) {
 	$special_chars = array_merge( array( '’', '‘', '“', '”', '«', '»', '‹', '›', '—', 'æ', 'œ', '€','é','à','ç','ä','ö','ü','ï','û','ô','è' ), $special_chars );
 	return $special_chars;
@@ -238,16 +239,118 @@ define('PLL_COOKIE', false);
     so it's impossible to switch to the other language
 */
 function http_status_change_to_non_cacheable($status, $location) {
-
-   /* We update header to avoid caching when using 302 redirect on local host */
+      /* We update header to avoid caching when using 302 redirect on local host */
    if($status==302 && strpos($location, $_SERVER['SERVER_NAME'])!==false)
    {
         header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
    }
-
    return $status;
 }
 add_filter( 'wp_redirect_status', 'http_status_change_to_non_cacheable', 10, 2);
 
 
+function allow_svg_in_tinymce( $init ) {
+    /* Code taken from here : https://gist.github.com/Kelderic/f092abf13d5373f245f90ab42e7f885d and
+    'script' tag has been removed for security reasons */
+
+	$svgElemList = array(
+		'a',
+		'altGlyph',
+		'altGlyphDef',
+		'altGlyphItem',
+		'animate',
+		'animateColor',
+		'animateMotion',
+		'animateTransform',
+		'circle',
+		'clipPath',
+		'color-profile',
+		'cursor',
+		'defs',
+		'desc',
+		'ellipse',
+		'feBlend',
+		'feColorMatrix',
+		'feComponentTransfer',
+		'feComposite',
+		'feConvolveMatrix',
+		'feDiffuseLighting',
+		'feDisplacementMap',
+		'deDistantLight',
+		'feFlood',
+		'feFuncA',
+		'feFuncB',
+		'feFuncG',
+		'feFuncR',
+		'feGaussianBlur',
+		'feImage',
+		'feMerge',
+		'feMergeNode',
+		'feMorphology',
+		'feOffset',
+		'fePointLight',
+		'feSpecularLighting',
+		'feSpotLight',
+		'feTile',
+		'feTurbulance',
+		'filter',
+		'font',
+		'font-face',
+		'font-face-format',
+		'font-face-name',
+		'font-face-src',
+		'font-face-url',
+		'foreignObject',
+		'g',
+		'glyph',
+		'glyphRef',
+		'hkern',
+		'image',
+		'line',
+		'lineGradient',
+		'marker',
+		'mask',
+		'metadata',
+		'missing-glyph',
+		'pmath',
+		'path',
+		'pattern',
+		'polygon',
+		'polyline',
+		'radialGradient',
+		'rect',
+		'set',
+		'stop',
+		'style',
+		'svg',
+		'switch',
+		'symbol',
+		'text',
+		'textPath',
+		'title',
+		'tref',
+		'tspan',
+		'use',
+		'view',
+        'vkern'
+	);
+
+	// extended_valid_elements is the list of elements that TinyMCE allows. This checks
+	// to make sure it exists, and then implodes the SVG element list and adds it. The
+	// format of each element is 'element[attributes]'. The array is imploded, and turns
+	// into something like '...svg[*],path[*]...'
+
+	if ( !isset( $init['extended_valid_elements'] ) ) {
+	    $init['extended_valid_elements'] = "";
+	}
+	else
+	{
+		$init['extended_valid_elements'] .= ",";
+	}
+	$init['extended_valid_elements'] .= implode('[*],',$svgElemList).'[*]';
+
+	// return value
+	return $init;
+}
+add_filter('tiny_mce_before_init', 'allow_svg_in_tinymce');
 ?>
