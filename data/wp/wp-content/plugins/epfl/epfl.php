@@ -30,7 +30,6 @@ require_once 'shortcodes/epfl-tableau/epfl-tableau.php';
 require_once 'shortcodes/epfl-google-forms/epfl-google-forms.php';
 require_once 'shortcodes/epfl-servicenow-search/epfl-servicenow-search.php';
 require_once 'menus/epfl-menus.php';
-require_once 'epfl-multisite.php';
 // Disabled due to 'epfl-intranet' plugin use
 //require_once 'preprod.php';
 
