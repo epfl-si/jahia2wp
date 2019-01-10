@@ -125,6 +125,29 @@ class WPGenerator:
         self.mysql_wp_user = Utils.generate_name(self.MYSQL_USER_NAME_LENGTH).lower()
         self.mysql_wp_password = Utils.generate_password(self.MYSQL_PASSWORD_LENGTH)
 
+        # Site category is not given
+        if 'category' not in self._site_params:
+
+            # We will use default value for category
+            category = settings.DEFAULT_WP_SITE_CATEGORY
+
+            # We try to get it from DB in case of website already exists
+            if self.wp_config.is_installed:
+                command = "option get {}".format(settings.OPTION_WP_SITE_CATEGORY)
+                site_category = self.run_wp_cli(command)
+
+                # If we found something in DB
+                if site_category:
+                    category = site_category
+                else:
+                    # Because we don't have info in DB, we add a default value
+                    command = "option update {} '{}'".format(settings.OPTION_WP_SITE_CATEGORY,
+                                                             settings.DEFAULT_WP_SITE_CATEGORY)
+                    self.run_wp_cli(command)
+
+            # We initialize value
+            self._site_params['category'] = category
+
     def __repr__(self):
         return repr(self.wp_site)
 
@@ -173,7 +196,7 @@ class WPGenerator:
         plugin_list = WPPluginList(settings.PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml',
                                    settings.PLUGINS_CONFIG_SPECIFIC_FOLDER, self._site_params)
 
-        return plugin_list.list_plugins(self.wp_site.name, with_config, for_plugin)
+        return plugin_list.list_plugins(with_config, for_plugin)
 
     def generate(self, deactivated_plugins=None):
         """
@@ -339,6 +362,10 @@ class WPGenerator:
         command = "option update show_avatars ''"
         self.run_wp_cli(command)
 
+        # We save the site category in DB
+        command = "option update {} '{}'".format(settings.OPTION_WP_SITE_CATEGORY, self._site_params['category'])
+        self.run_wp_cli(command)
+
         # flag success by returning True
         return True
 
@@ -469,8 +496,10 @@ class WPGenerator:
         plugin_list = WPPluginList(settings.PLUGINS_CONFIG_GENERIC_FOLDER, 'config-lot1.yml',
                                    settings.PLUGINS_CONFIG_SPECIFIC_FOLDER, self._site_params)
 
+        logging.info("%s - Plugins - Generating list for '%s' category", repr(self), self._site_params['category'])
+
         # Looping through plugins to install
-        for plugin_name, config_dict in plugin_list.plugins(self.wp_site.name).items():
+        for plugin_name, config_dict in plugin_list.plugins().items():
 
             # If a filter on plugin was given and it's not the current plugin, we skip
             if only_one is not None and only_one != plugin_name:
@@ -538,7 +567,7 @@ class WPGenerator:
                 installed_plugins += inactive_plugins.split("\n")
 
             # List coming from YAML file
-            defined_plugin_name_list = list(plugin_list.plugins(self.wp_site.name).keys())
+            defined_plugin_name_list = list(plugin_list.plugins().keys())
 
             for plugin_name in installed_plugins:
 
