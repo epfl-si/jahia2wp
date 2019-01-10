@@ -3,7 +3,7 @@
  * Plugin Name: EPFL lock plugin and theme install and configuration
  * Plugin URI: 
  * Description: Must-use plugin for the EPFL website.
- * Version: 0.0.2
+ * Version: 0.0.3
  * Author: wwp-admin@epfl.ch
  * */
 
@@ -88,10 +88,10 @@ function EPFL_remove_admin_submenus() {
    remove_submenu_page( 'options-general.php', 'mainwp_child_tab' );
    remove_submenu_page( 'options-general.php', 'epfl_accred' );
    remove_submenu_page( 'options-general.php', 'epfl_tequila' );
-   // Jonradio private site
-   remove_submenu_page( 'options-general.php', 'jr_ps_settings' );
    // WP Media folder
    remove_submenu_page( 'options-general.php', 'option-folder' );
+   // Cache-Control
+   remove_submenu_page( 'options-general.php', 'cache_control' );
 }
 
 

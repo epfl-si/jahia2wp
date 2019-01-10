@@ -16,6 +16,7 @@ VALID_LINE = {
         'theme': 'epfl',
         'theme_faculty': '',
         'unit_name': 'VPR',
+        'unit_id': '123',
         'updates_automatic': 'no',
         'wp_site_title': 'RSR',
         'wp_tagline': 'Recherche',
@@ -45,6 +46,7 @@ def test_validate():
     assert "invalid openshift_env" in errors[7].message
     assert "wp_site_url is not unique" in errors[8].message
     assert "invalid wp_site_url" in errors[9].message
+    assert "invalid unit_id" in errors[10].message
 
 
 def test_get_valid_rows():

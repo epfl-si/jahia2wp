@@ -90,15 +90,25 @@ class WPSite:
         # returns last folder if site as a folder defined
         return self.folder.split('/')[-1]
 
+    @staticmethod
+    def openshift_env_from_path(path):
+        """
+        Extract OpenShift environment from given path
+
+        :param path:
+        :return:
+        """
+        # extract openshift env
+        env_match = re.match("/srv/([^/]+)", path)
+        if env_match is None or not env_match.groups():
+            raise ValueError("given path '{}' should be included in a valid openshift_env".format(path))
+        return env_match.groups()[0]
+
     @classmethod
     def from_path(cls, path):
         given_path = os.path.abspath(path).rstrip('/')
 
-        # extract openshift env
-        env_match = re.match("/srv/([^/]+)", given_path)
-        if env_match is None or not env_match.groups():
-            raise ValueError("given path '{}' should be included in a valid openshift_env".format(given_path))
-        openshift_env = env_match.groups()[0]
+        openshift_env = WPSite.openshift_env_from_path(given_path)
 
         # validate given path
         if not os.path.isdir(given_path):

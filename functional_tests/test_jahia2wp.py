@@ -4,7 +4,7 @@ import shutil
 
 import pytest
 
-from settings import OPENSHIFT_ENV, SRC_DIR_PATH
+from settings import OPENSHIFT_ENV, SRC_DIR_PATH, WP_SITE_INSTALL_OK
 from utils import Utils
 from wordpress import WPUser, WPBackup
 from wordpress.generator import MockedWPGenerator
@@ -95,8 +95,8 @@ class TestCommandLine:
 
         expected_lines = [
             "path;valid;url;version;db_name;db_user;admins",
-            "/srv/{0}/{1}/htdocs/{2};ok;{3};{4};wp_".format(
-                OPENSHIFT_ENV, TEST_HOST, TEST_SITE, SITE_URL_SPECIFIC, version),
+            "/srv/{0}/{1}/htdocs/{2};{3};{4};{5};wp_".format(
+                OPENSHIFT_ENV, TEST_HOST, TEST_SITE, WP_SITE_INSTALL_OK, SITE_URL_SPECIFIC, version),
         ]
 
         output = Utils.run_command(

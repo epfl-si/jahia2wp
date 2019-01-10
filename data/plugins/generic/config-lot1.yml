@@ -15,8 +15,8 @@ plugins:
     config: !include tequila/v1/config-plugin.yml
   - name: accred
     config: !include accred/v1/config-plugin.yml
-#  - name: jonradio-private-site
-#    config: !include jonradio-private-site/v1/config-plugin.yml
+#  - name: epfl-intranet
+#    config: !include epfl-intranet/v1/config-plugin.yml
   - name: cache-control
     config: !include cache-control/v1/config-plugin.yml
   - name: varnish-http-purge
@@ -29,8 +29,8 @@ plugins:
     config: !include svg-support/v1/config-plugin.yml
   - name: feedzy-rss-feeds
     config: !include feedzy-rss-feeds/v1/config-plugin.yml
-  - name: enlighter
-    config: !include enlighter/v1/config-plugin.yml
+#  - name: enlighter
+#    config: !include enlighter/v1/config-plugin.yml
   - name: remote-content-shortcode
     config: !include remote-content-shortcode/v1/config-plugin.yml
   - name: shortcode-ui
@@ -45,3 +45,7 @@ plugins:
     config: !include wp-media-folder/v1/config-plugin.yml
   - name: pdfjs-viewer-shortcode
     config: !include pdfjs-viewer-shortcode/v1/config-plugin.yml
+  - name: very-simple-meta-description
+    config: !include very-simple-meta-description/v1/config-plugin.yml
+  - name: epfl-404
+    config: !include epfl-404/v1/config-plugin.yml

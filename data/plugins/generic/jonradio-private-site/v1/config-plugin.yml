@@ -1,8 +1,0 @@
-src: web
-activate: yes
-tables:
-  options:
-  - autoload: 'yes'
-    option_id: 225
-    option_name: jr_ps_settings
-    option_value: a:13:{s:12:"private_site";b:1;s:19:"reveal_registration";b:0;s:11:"wplogin_php";b:0;s:13:"override_omit";b:0;s:12:"custom_login";b:0;s:19:"custom_login_onsite";b:1;s:9:"excl_home";b:0;s:12:"specific_url";s:0:"";s:7:"landing";s:6:"return";s:9:"login_url";s:0:"";s:10:"check_role";b:1;s:8:"excl_url";a:0:{}s:15:"excl_url_prefix";a:0:{}}

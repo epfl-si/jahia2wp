@@ -3,7 +3,7 @@
  * Plugin Name: EPFL Functions
  * Plugin URI: 
  * Description: Must-use plugin for the EPFL website.
- * Version: 0.0.1
+ * Version: 0.0.4.1
  * Author: Aline Keller
  * Author URI: http://www.alinekeller.ch
  */
@@ -45,12 +45,33 @@ function sanitize_file_name_chars( $special_chars = array() ) {
 	return $special_chars;
 }
 
+
 /*--------------------------------------------------------------
-  
- # Content improvements
- 
+
+ # REST API
+
 --------------------------------------------------------------*/
- 
+
+/*
+ * Disable display list of users from /wp-json/wp/v2/users/
+ */
+add_filter( 'rest_endpoints', function( $endpoints ){
+        if ( isset( $endpoints['/wp/v2/users'] ) ) {
+                    unset( $endpoints['/wp/v2/users'] );
+                    }
+            if ( isset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] ) ) {
+                    unset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] );
+                    }
+            return $endpoints;
+});
+
+
+/*--------------------------------------------------------------
+
+ # Content improvements
+
+--------------------------------------------------------------*/
+
 /*
  * Remove empty <p> tags
  */
@@ -71,15 +92,15 @@ $content = preg_replace( array(
   '<$1$2>',
   '</$1',
   ), $content );
- 
+
 return preg_replace('#<p>(\s|&nbsp;)*+(<br\s*/*>)*(\s|&nbsp;)*</p>#i', '', $content);
 }
 
 
 /*--------------------------------------------------------------
-  
+
  # Gallery improvements
- 
+
 --------------------------------------------------------------*/
 
 /*
@@ -94,13 +115,13 @@ function add_title_attachment_link($link, $id = null) {
 }
 add_filter('wp_get_attachment_link', 'add_title_attachment_link', 10, 2);
 
-/* 
+/*
  * Link to large instead of full size images in galleries
  * http://oikos.org.uk/2011/09/tech-notes-using-resized-images-in-wordpress-galleries-and-lightboxes/
  */
 
 function oikos_get_attachment_link_filter( $content, $post_id, $size, $permalink ) {
- 
+
     // Only do this if we're getting the file URL
     if (! $permalink) {
         // This returns an array of (url, width, height)
@@ -111,24 +132,34 @@ function oikos_get_attachment_link_filter( $content, $post_id, $size, $permalink
         return $content;
     }
 }
- 
+
 add_filter('wp_get_attachment_link', 'oikos_get_attachment_link_filter', 10, 4);
 
 
 /*--------------------------------------------------------------
-  
+
  # Custom post types
- 
+
 --------------------------------------------------------------*/
 
 
 
+/*--------------------------------------------------------------
+
+ # File upload extension whitelist
+
+--------------------------------------------------------------*/
+function epfl_mimetypes($mime_types){
+    $mime_types['ppd'] = 'application/vnd.cups-ppd'; //Adding ppd extension
+    return $mime_types;
+}
+add_filter('upload_mimes', 'epfl_mimetypes', 1, 1);
 
 
 /*--------------------------------------------------------------
-  
+
  # Shortcodes
- 
+
 --------------------------------------------------------------*/
 
 /**
@@ -139,15 +170,15 @@ add_filter('wp_get_attachment_link', 'oikos_get_attachment_link_filter', 10, 4);
 
 // Désactive wpautop
 
-function remove_wpautop($content) { 
-  $content = do_shortcode( shortcode_unautop($content) ); 
+function remove_wpautop($content) {
+  $content = do_shortcode( shortcode_unautop($content) );
   $content = preg_replace( '#^<\/p>|^<br \/>|<p>$#', '', $content );
   return $content;
 }
- 
+
 // Publications
-   
-function content_publication_list( $atts, $content = null ) { 
+
+function content_publication_list( $atts, $content = null ) {
   $return = '<section class="publications clearfix">';
   $return .= do_shortcode($content);
   $return .= '</section>';
@@ -155,7 +186,7 @@ function content_publication_list( $atts, $content = null ) {
 }
 add_shortcode('list-publications', 'content_publication_list');
 
-function content_publication( $atts, $content = null ) { 
+function content_publication( $atts, $content = null ) {
   $return = '<article class="publication clearfix">';
   $return .= do_shortcode($content);
   $return .= '</article>';
@@ -163,7 +194,7 @@ function content_publication( $atts, $content = null ) {
 }
 add_shortcode('publication', 'content_publication');
 
-function links( $atts, $content = null ) { 
+function links( $atts, $content = null ) {
   $return = '<p class="links">';
   $return .= do_shortcode(remove_wpautop($content));
   $return .= '</p>';
@@ -171,7 +202,7 @@ function links( $atts, $content = null ) {
 }
 add_shortcode('links', 'links');
 
-function faq_item( $atts, $content = null ) { 
+function faq_item( $atts, $content = null ) {
   $a = shortcode_atts( array(
         'title' => 'Title',
     ), $atts );
@@ -182,12 +213,41 @@ function faq_item( $atts, $content = null ) {
 }
 add_shortcode('faq-item', 'faq_item');
 
-function colored_box( $atts, $content = null ) { 
+function colored_box( $atts, $content = null ) {
   $return = '<section class="colored-box">';
   $return .= do_shortcode($content);
   $return .= '</section>';
   return $return;
 }
 add_shortcode('colored-box', 'colored_box');
+
+
+/*--------------------------------------------------------------
+
+ # CloudFlare
+
+--------------------------------------------------------------*/
+
+/* CloudFlare doesn't like the Polylang cookie (or any cookie) */
+define('PLL_COOKIE', false);
+
+/*
+    If we have 302 redirection on local address, we transform them to 303 to avoid CloudFlare to cache
+    them. If we don't do this, we have issues to switch from one language to another (Polylang) because the
+    first time we visit the homepage, it does a 302 to default lang homepage and this request is cached in cloudflare
+    so it's impossible to switch to the other language
+*/
+function http_status_change_to_non_cacheable($status, $location) {
+
+   /* We update header to avoid caching when using 302 redirect on local host */
+   if($status==302 && strpos($location, $_SERVER['SERVER_NAME'])!==false)
+   {
+        header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+   }
+
+   return $status;
+}
+add_filter( 'wp_redirect_status', 'http_status_change_to_non_cacheable', 10, 2);
+
 
 ?>

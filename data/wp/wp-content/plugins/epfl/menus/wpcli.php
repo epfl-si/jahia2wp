@@ -15,6 +15,16 @@ use function EPFL\I18N\___;
 require_once(__DIR__ . '/epfl-menus.php');
 use \EPFL\Menus\ExternalMenuItem;
 
+add_filter('epfl_rest_rewrite_connect_to', function($hostport, $host, $port) {
+    // TODO: this is not a way to go through life, son
+    if ($hostport === "www.epfl.ch:443") {
+        return "httpd-www:8443";
+    } else {
+        return $hostport;
+    }
+}, 10, 3);
+
+
 class EPFLMenusCLICommand extends WP_CLI_Command
 {
     public static function hook () {
@@ -33,9 +43,9 @@ class EPFLMenusCLICommand extends WP_CLI_Command
         foreach ($all as $emi) {
             try {
                 $emi->refresh();
-                WP_CLI::log(sprintf(___('✓ %s', $emi)));
+                WP_CLI::log(sprintf(___('✓ %s'), $emi));
             } catch (\Throwable $t) {
-                WP_CLI::log(sprintf(___('\u001b[31m✗ %s\u001b[0m', $emi)));
+                WP_CLI::log(sprintf(___('\u001b[31m✗ %s\u001b[0m'), $emi));
             }
         }
         

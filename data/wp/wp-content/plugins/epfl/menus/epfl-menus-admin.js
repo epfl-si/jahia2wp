@@ -119,7 +119,7 @@ function updateOneRowDeferred ($, id, $tr) {
         function() { $tr.removeClass(allRowClasses).addClass('sync-success'); },
         function() { $tr.removeClass(allRowClasses).addClass('sync-failed'); });
 
-    window.EPFLMenus.post('refresh_by_id', {data: {id: id}})
+    window.EPFLMenus.post('refresh_and_resubscribe_by_id', {data: {id: id}})
         .then(
             function (response) {
                 if (response.status !== 'OK') {
@@ -129,7 +129,7 @@ function updateOneRowDeferred ($, id, $tr) {
                 }
             },
             function (error) {
-                console.log('POST refresh_by_id for ' + id + ': ', error);
+                console.log('POST refresh_and_resubscribe_by_id for ' + id + ': ', error);
                 spinner.progress.reject();
             });
     return spinner.progress;

@@ -11,7 +11,7 @@ Usage:
     [--output-dir=<OUTPUT_DIR>]
   jahia2wp.py parse                 <site>                          [--debug | --quiet]
     [--output-dir=<OUTPUT_DIR>] [--use-cache]
-  jahia2wp.py export     <site>  <wp_site_url> <unit_name>          [--debug | --quiet]
+  jahia2wp.py export     <site>  <wp_site_url> <unit_name_or_id>    [--debug | --quiet]
     [--to-wordpress] [--clean-wordpress] [--to-dictionary]
     [--admin-password=<PASSWORD>]
     [--output-dir=<OUTPUT_DIR>]
@@ -37,10 +37,17 @@ Usage:
     [--output-dir=<OUTPUT_DIR> --admin-password=<PASSWORD>] [--use-cache]
     [--keep-extracted-files]
   jahia2wp.py backup-many           <csv_file>                      [--debug | --quiet]
+  jahia2wp.py backup-inventory      <path>                          [--debug | --quiet]
   jahia2wp.py rotate-backup         <csv_file>          [--dry-run] [--debug | --quiet]
+  jahia2wp.py rotate-backup-inventory   <path>          [--dry-run] [--debug | --quiet]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
   jahia2wp.py fan-global-sitemap    <csv_file> <wp_path>            [--debug | --quiet]
   jahia2wp.py inventory             <path>                          [--debug | --quiet]
+  jahia2wp.py shortcode-list        <path> [--out-csv=<out_csv>]    [--debug | --quiet]
+  jahia2wp.py shortcode-details     <path> <shortcode>              [--debug | --quiet]
+    [--out-csv=<out_csv>]
+  jahia2wp.py shortcode-fix         <wp_env> <wp_url> [<shortcode_name>] [--debug | --quiet]
+  jahia2wp.py shortcode-fix-many    <csv_file> [<shortcode_name>]   [--debug | --quiet]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
     [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
@@ -49,6 +56,9 @@ Usage:
     [--extra-config=<YAML_FILE>]
   jahia2wp.py update-plugins-many   <csv_file>                      [--debug | --quiet]
     [--force-plugin] [--force-options] [--plugin=<PLUGIN_NAME>|--strict-list]
+  jahia2wp.py update-plugins-inventory   <path>                     [--debug | --quiet]
+    [--force-plugin] [--force-options] [--plugin=<PLUGIN_NAME>|--strict-list]
+    [--extra-config=<YAML_FILE>]
   jahia2wp.py global-report <csv_file> [--output-dir=<OUTPUT_DIR>] [--use-cache] [--debug | --quiet]
     --root_wp_dest=</srv/../epfl> [--greedy] [--htaccess] [--context=<intra|inter|full>] [--dry_run]
 
@@ -75,7 +85,7 @@ import sys
 import yaml
 from docopt import docopt
 from docopt_dispatch import dispatch
-from epflldap.ldap_search import get_unit_id
+from epflldap.ldap_search import get_unit_id, get_unit_name
 from ldap3.core.exceptions import LDAPSocketOpenError
 from rotate_backups import RotateBackups
 
@@ -93,6 +103,7 @@ from veritas.casters import cast_boolean
 from veritas.veritas import VeritasValidor
 from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExtractor
 from fan.fan_global_sitemap import FanGlobalSitemap
+from migration2018.shortcodes import Shortcodes
 
 
 def _check_site(wp_env, wp_url, **kwargs):
@@ -263,6 +274,7 @@ def _generate_csv_line(wp_generator):
     csv_columns['updates_automatic'] = wp_generator._site_params['updates_automatic']  # from csv (bool)
     csv_columns['langs'] = wp_generator._site_params['langs']  # from parser
     csv_columns['unit_name'] = wp_generator._site_params['unit_name']  # from csv
+    csv_columns['unit_id'] = wp_generator._site_params['unit_id']  # from csv
     csv_columns['comment'] = 'Migrated from Jahia to WP {}'.format(date.today())
 
     # Formatting values depending on their type/content
@@ -389,7 +401,7 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
 
 
 @dispatch.on('export')
-def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=False, to_dictionary=False,
+def export(site, wp_site_url, unit_name_or_id, to_wordpress=False, clean_wordpress=False, to_dictionary=False,
            admin_password=None, output_dir=None, theme=None, installs_locked=False, updates_automatic=False,
            openshift_env=None, use_cache=None, keep_extracted_files=False, features_flags=False, **kwargs):
     """
@@ -397,7 +409,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
 
     :param site: the name of the WordPress site
     :param wp_site_url: URL of WordPress site
-    :param unit_name: unit name of the WordPress site
+    :param unit_name_or_id: unit name or unit ID of the WordPress site
     :param to_wordpress: to migrate data
     :param clean_wordpress: to clean data
     :param admin_password: an admin password
@@ -442,14 +454,29 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
     else:
         wp_tagline = site.title
 
-    # fetch unit id from ldap
-    try:
-        logging.info("Fetching LDAP for the id of %s...", unit_name)
-        fetched_unit_id = get_unit_id(unit_name)
-        logging.info("LDAP Id found = %s...", fetched_unit_id)
-    except LDAPSocketOpenError:
-        logging.error("LDAP is not responding, aborting here...")
-        raise
+    if unit_name_or_id.isdigit():
+        unit_id = unit_name_or_id
+
+        # fetch unit name from ldap
+        try:
+            logging.info("Fetching LDAP for unit '%s' name...", unit_id)
+            unit_name = get_unit_name(unit_id)
+            logging.info("LDAP name found = %s...", unit_name)
+        except LDAPSocketOpenError:
+            logging.error("LDAP is not responding, aborting here...")
+            raise
+
+    else:  # We get unit name
+
+        unit_name = unit_name_or_id
+        # fetch unit id from ldap
+        try:
+            logging.info("Fetching LDAP for unit '%s' ID...", unit_name)
+            unit_id = get_unit_id(unit_name)
+            logging.info("LDAP ID found = %s...", unit_id)
+        except LDAPSocketOpenError:
+            logging.error("LDAP is not responding, aborting here...")
+            raise
 
     info = {
         # information from parser
@@ -467,7 +494,7 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
         'installs_locked': installs_locked,
 
         # determined information
-        'unit_id': fetched_unit_id,
+        'unit_id': unit_id,
         'from_export': True
     }
 
@@ -494,10 +521,10 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
                            'shortcode-ui-richtext',  # This one needs to come after the previous one
                            'simple-sitemap',
                            'svg-support',
-                           'enlighter',
                            'tinymce-advanced',
                            'varnish-http-purge',
                            'epfl',
+                           'epfl-404',
                            'epfl-infoscience',
                            'wp-media-folder',
                            'pdfjs-viewer-shortcode',
@@ -526,7 +553,11 @@ def export(site, wp_site_url, unit_name, to_wordpress=False, clean_wordpress=Fal
             # if activation fails it means the plugin is not installed
             wp_generator.install_basic_auth_plugin()
     else:
-        wp_generator.generate(deactivated_plugins)
+        # If returns false, it means there was an error
+        if not wp_generator.generate(deactivated_plugins):
+            # We just display line to add to CSV
+            _generate_csv_line(wp_generator)
+            return
 
         wp_generator.install_basic_auth_plugin()
 
@@ -650,7 +681,8 @@ def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None,
             export(
                 site=row['Jahia_zip'],
                 wp_site_url=row['wp_site_url'],
-                unit_name=row['unit_name'],
+                # We use unit_id as first option if exists even if we have unit_name because it doesn't change
+                unit_name_or_id=row['unit_id'] if 'unit_id' in row else row['unit_name'],
                 to_wordpress=True,
                 clean_wordpress=False,
                 output_dir=output_dir,
@@ -815,10 +847,56 @@ def backup_many(csv_file, **kwargs):
     print("\n{} websites will now be backuped...".format(len(validator.rows)))
     for index, row in enumerate(validator.rows):
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row)
-        WPBackup(
-            row["openshift_env"],
-            row["wp_site_url"]
-        ).backup()
+        try:
+            WPBackup(
+                row["openshift_env"],
+                row["wp_site_url"]
+            ).backup()
+        except:
+            logging.error("Site %s - Error %s",  row["wp_site_url"], sys.exc_info())
+
+
+@dispatch.on('backup-inventory')
+def backup_inventory(path, **kwargs):
+    logging.info("Backup from inventory...")
+    for site_details in WPConfig.inventory(path):
+        if site_details.valid == settings.WP_SITE_INSTALL_OK:
+            logging.info("Running backup for %s", site_details.url)
+            try:
+                WPBackup(
+                    WPSite.openshift_env_from_path(site_details.path),
+                    site_details.url
+                ).backup()
+            except:
+                logging.error("Site %s - Error %s", site_details.url, sys.exc_info())
+    logging.info("All backups done for path: %s", path)
+
+
+@dispatch.on('rotate-backup-inventory')
+def rotate_backup_inventory(path, dry_run=False, **kwargs):
+    for site_details in WPConfig.inventory(path):
+        if site_details.valid == settings.WP_SITE_INSTALL_OK:
+            try:
+                path = WPBackup(
+                    WPSite.openshift_env_from_path(site_details.path),
+                    site_details.url
+                ).path
+                # rotate full backups first
+                for pattern in ["*full.sql", "*full.tar"]:
+                    RotateBackups(
+                        FULL_BACKUP_RETENTION_THEME,
+                        dry_run=dry_run,
+                        include_list=[pattern]
+                    ).rotate_backups(path)
+                # rotate incremental backups
+                for pattern in ["*.list", "*inc.sql", "*inc.tar"]:
+                    RotateBackups(
+                        INCREMENTAL_BACKUP_RETENTION_THEME,
+                        dry_run=dry_run,
+                        include_list=[pattern]
+                    ).rotate_backups(path)
+            except:
+                logging.error("Site %s - Error %s", site_details.url, sys.exc_info())
 
 
 @dispatch.on('rotate-backup')
@@ -828,21 +906,95 @@ def rotate_backup(csv_file, dry_run=False, **kwargs):
     validator = _check_csv(csv_file)
 
     for index, row in enumerate(validator.rows):
-        path = WPBackup(row["openshift_env"], row["wp_site_url"]).path
-        # rotate full backups first
-        for pattern in ["*full.sql", "*full.tar"]:
-            RotateBackups(
-                FULL_BACKUP_RETENTION_THEME,
-                dry_run=dry_run,
-                include_list=[pattern]
-            ).rotate_backups(path)
-        # rotate incremental backups
-        for pattern in ["*.list", "*inc.sql", "*inc.tar"]:
-            RotateBackups(
-                INCREMENTAL_BACKUP_RETENTION_THEME,
-                dry_run=dry_run,
-                include_list=[pattern]
-            ).rotate_backups(path)
+        try:
+            path = WPBackup(row["openshift_env"], row["wp_site_url"]).path
+            # rotate full backups first
+            for pattern in ["*full.sql", "*full.tar"]:
+                RotateBackups(
+                    FULL_BACKUP_RETENTION_THEME,
+                    dry_run=dry_run,
+                    include_list=[pattern]
+                ).rotate_backups(path)
+            # rotate incremental backups
+            for pattern in ["*.list", "*inc.sql", "*inc.tar"]:
+                RotateBackups(
+                    INCREMENTAL_BACKUP_RETENTION_THEME,
+                    dry_run=dry_run,
+                    include_list=[pattern]
+                ).rotate_backups(path)
+        except:
+            logging.error("Site %s - Error %s", row["wp_site_url"], sys.exc_info())
+
+
+@dispatch.on('shortcode-details')
+def shortcode_details(path, shortcode, out_csv=None, **kwargs):
+    """
+    Go through websites present in 'path' and list all usages of a given shortcode
+    :param path: Path where to look for WP installs
+    :param shortcode: Shortcode to look for. It can be shortcodes separated with a comma
+    :param out_csv: CSV file to save result
+    :param kwargs:
+    :return:
+    """
+    logging.info("Listing used shortcodes in path %s...", path)
+    shortcodes = Shortcodes()
+    details = shortcodes.get_details(path, shortcode.split(","))
+    # If CSV output is requested
+    if out_csv:
+        with open(out_csv, 'w') as out:
+            # Adding one line for each couple "shortcode", "website"
+            for site_path, shortcode_call_list in details.items():
+                for shortcode_infos in shortcode_call_list:
+                    out.write('{};{};{}\n'.format(site_path,
+                                                  shortcode_infos['post_url'],
+                                                  shortcode_infos['shortcode_call']))
+        logging.info("Output can be found in %s", out_csv)
+    else:
+        print(details)
+    logging.info("Shortcodes details done!")
+
+
+@dispatch.on('shortcode-list')
+def shortcode_list(path, out_csv=None, **kwargs):
+    """
+    Go through websites present in 'path' and list all used shortcodes
+    :param path: Path where to look for WP installs
+    :param out_csv: CSV file to save result
+    :param kwargs:
+    :return:
+    """
+    logging.info("Listing used shortcodes in path %s...", path)
+    shortcodes = Shortcodes()
+    shortcodes.locate_existing(path)
+    print("# shortcodes found: {}".format(len(shortcodes.list.keys())))
+    # If CSV output is requested
+    if out_csv:
+        with open(out_csv, 'w') as out:
+            # Adding one line for each couple "shortcode", "website"
+            for shortcode, site_path_list in shortcodes.list.items():
+                for site_path in site_path_list:
+                    out.write("{};{}\n".format(shortcode, site_path))
+        logging.info("Output can be found in %s", out_csv)
+    else:
+        print(shortcodes.list)
+    logging.info("Shortcodes list done!")
+
+
+@dispatch.on('shortcode-fix')
+def shortcode_fix(wp_env, wp_url, shortcode_name=None, **kwargs):
+    shortcodes = Shortcodes()
+    report = shortcodes.fix_site(wp_env, wp_url, shortcode_name)
+    logging.info("Fix report:\n%s", str(report))
+
+
+@dispatch.on('shortcode-fix-many')
+def shortcode_fix_many(csv_file, shortcode_name=None, **kwargs):
+    rows = Utils.csv_filepath_to_dict(csv_file)
+    print("\nShortcode will now be fixed on websites...")
+    for index, row in enumerate(rows):
+        print("\nIndex #{}:\n---".format(index))
+        shortcode_fix(row['openshift_env'], row['wp_site_url'], shortcode_name)
+    logging.info("All shortcodes for all sites fixed !")
 
 
 @dispatch.on('inventory')
@@ -943,6 +1095,31 @@ def update_plugins_many(csv_file, plugin=None, force_plugin=False, force_options
                                         force_plugin=force_plugin,
                                         force_options=force_options,
                                         strict_plugin_list=strict_list)
+
+
+@dispatch.on('update-plugins-inventory')
+def update_plugins_inventory(path,
+                             plugin=None,
+                             force_plugin=False,
+                             force_options=False,
+                             strict_list=False,
+                             extra_config=None,
+                             **kwargs):
+
+    logging.info("Update plugins from inventory...")
+    for site_details in WPConfig.inventory(path):
+        if site_details.valid == settings.WP_SITE_INSTALL_OK:
+            logging.info("Updating plugins for %s", site_details.url)
+            all_params = {'openshift_env': WPSite.openshift_env_from_path(site_details.path),
+                          'wp_site_url': site_details.url}
+            # if we have extra configuration to load,
+            if extra_config is not None:
+                all_params = _add_extra_config(extra_config, all_params)
+            WPGenerator(all_params).update_plugins(only_one=plugin,
+                                                   force_plugin=force_plugin,
+                                                   force_options=force_options,
+                                                   strict_plugin_list=strict_list)
+    logging.info("All plugins updates done for path: %s", path)
 
 
 @dispatch.on('global-report')
