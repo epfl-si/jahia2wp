@@ -251,3 +251,8 @@ WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES = 5
 # Status for WordPress site installs
 WP_SITE_INSTALL_OK = 'OK'
 WP_SITE_INSTALL_KO = 'KO'
+
+# Option to store WP site category
+OPTION_WP_SITE_CATEGORY = 'epfl:site_category'
+# Default site category (correspond to generic plugin list)
+DEFAULT_WP_SITE_CATEGORY = 'GeneralPublic'
