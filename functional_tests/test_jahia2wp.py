@@ -64,7 +64,7 @@ class TestCommandLine:
                                  SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC)) == expected
 
     def test_list_plugins(self):
-        expected = "Plugin list for site '"
+        expected = "Plugin list for category '"
         assert Utils.run_command('python {} list-plugins {} {} --extra-config={}'.format(
                                  SCRIPT_FILE, OPENSHIFT_ENV, SITE_URL_SPECIFIC,
                                  EXTRA_CONFIG_YAML)).startswith(expected)

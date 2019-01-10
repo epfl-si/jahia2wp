@@ -26,7 +26,18 @@ def wp_plugin_list():
         settings.PLUGINS_CONFIG_GENERIC_FOLDER,
         'config-lot1.yml',
         settings.PLUGINS_CONFIG_SPECIFIC_FOLDER,
-        {'unit_name': UNIT_NAME})
+        {'unit_name': UNIT_NAME,
+         'category': settings.DEFAULT_WP_SITE_CATEGORY})
+
+
+@pytest.fixture(scope="module")
+def wp_plugin_list_category():
+    return WPPluginList(
+        settings.PLUGINS_CONFIG_GENERIC_FOLDER,
+        'config-lot1.yml',
+        settings.PLUGINS_CONFIG_SPECIFIC_FOLDER,
+        {'unit_name': UNIT_NAME,
+         'category': 'fun-category'})
 
 
 def test_yaml_include(wp_plugin_list):
@@ -54,10 +65,10 @@ class TestWPPluginList:
         for plugin_name in plugins_to_test:
             assert plugin_name in plugin_list
 
-    def test_specific_plugin_list(self, wp_plugin_list):
+    def test_category_plugin_list(self, wp_plugin_list_category):
         plugins_to_test = ['add-to-any', 'hello', 'redirection', 'akismet']
 
-        plugin_list = wp_plugin_list.plugins(TEST_SITE)
+        plugin_list = wp_plugin_list_category.plugins()
         assert len(plugin_list) == len(plugins_to_test)
         for plugin_name in plugins_to_test:
             assert plugin_name in plugin_list
