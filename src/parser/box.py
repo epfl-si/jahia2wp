@@ -1074,6 +1074,24 @@ class Box:
 
         snippets = snippet_list_list.getElementsByTagName("snippetList")
 
+        # Sorting needed
+        if sort_tag_name:
+
+            # we first loop through all elements to ensuire we have required sort information
+            for snippet in snippets:
+                sort_tags = snippet.getElementsByTagName(sort_tag_name)
+                if sort_tags:
+                    # It seems that, by default, it is the "jahia:value" value that is used for sorting
+                    sort_value = sort_tags[0].getAttribute("jahia:value")
+
+                # We don't have enough information to continue
+                if not sort_tags or not sort_value:
+                    logging.error("No sort tag (%s) found (or empty sort value found) for Snippets. Disabling sorting",
+                                  sort_tag_name)
+                    # We set to None to disable sorting
+                    sort_tag_name = None
+                    break
+
         for snippet in snippets:
             title = Utils.get_tag_attribute(snippet, "title", "jahia:value")
             subtitle = Utils.get_tag_attribute(snippet, "subtitle", "jahia:value")
@@ -1096,14 +1114,13 @@ class Box:
 
             # Sorting needed
             if sort_tag_name:
+                # We don't have to check if we have a correct value for "sort_tags" because we already did it while
+                # checking sorting information availability
                 sort_tags = snippet.getElementsByTagName(sort_tag_name)
-                if sort_tags:
-                    # It seems that, by default, it is the "jahia:value" value that is used for sorting
-                    sort_value = sort_tags[0].getAttribute("jahia:value")
 
-                # We don't have enough information to continue
-                if not sort_tags or not sort_value:
-                    raise Exception("No sort tag (%s) found (or empty sort value found)", sort_tag_name)
+                # It seems that, by default, it is the "jahia:value" value that is used for sorting
+                sort_value = sort_tags[0].getAttribute("jahia:value")
+
             else:
                 # No sorting needed, we generate an ID for the box
                 sort_value = len(snippet_boxes.boxes)
