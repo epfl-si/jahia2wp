@@ -17,8 +17,8 @@ Usage:
     [--output-dir=<OUTPUT_DIR>]
     [--installs-locked=<BOOLEAN> --updates-automatic=<BOOLEAN>]
     [--openshift-env=<OPENSHIFT_ENV> --theme=<THEME>]
-    [--use-cache] [--features-flags]
-    [--keep-extracted-files]
+    [--use-cache] [--features-flags] [--keep-extracted-files]
+    [--category=<SITE_CATEGORY>]
   jahia2wp.py clean                 <wp_env> <wp_url>               [--debug | --quiet]
     [--stop-on-errors]
     [--no-backup]
@@ -28,7 +28,7 @@ Usage:
     [--wp-title=<WP_TITLE> --wp-tagline=<WP_TAGLINE> --admin-password=<PASSWORD>]
     [--theme=<THEME> --theme-faculty=<THEME-FACULTY>]
     [--installs-locked=<BOOLEAN> --automatic-updates=<BOOLEAN>]
-    [--extra-config=<YAML_FILE>]
+    [--extra-config=<YAML_FILE>] [--category=<SITE_CATEGORY>]
   jahia2wp.py backup                <wp_env> <wp_url>      [--full] [--debug | --quiet]
   jahia2wp.py version               <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py admins                <wp_env> <wp_url>               [--debug | --quiet]
@@ -95,7 +95,8 @@ from exporter.dict_exporter import DictExporter
 from exporter.wp_exporter import WPExporter
 from parser.jahia_site import Site
 from settings import VERSION, FULL_BACKUP_RETENTION_THEME, INCREMENTAL_BACKUP_RETENTION_THEME, \
-    DEFAULT_THEME_NAME, BANNER_THEME_NAME, DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC
+    DEFAULT_THEME_NAME, BANNER_THEME_NAME, DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC, \
+    DEFAULT_WP_SITE_CATEGORY
 from tracer.tracer import Tracer
 from unzipper.unzip import unzip_one
 from utils import Utils
@@ -403,7 +404,8 @@ def parse(site, output_dir=None, use_cache=False, **kwargs):
 @dispatch.on('export')
 def export(site, wp_site_url, unit_name_or_id, to_wordpress=False, clean_wordpress=False, to_dictionary=False,
            admin_password=None, output_dir=None, theme=None, installs_locked=False, updates_automatic=False,
-           openshift_env=None, use_cache=None, keep_extracted_files=False, features_flags=False, **kwargs):
+           openshift_env=None, use_cache=None, keep_extracted_files=False, features_flags=False,
+           category=None, **kwargs):
     """
     Export the jahia content into a WordPress site.
 
@@ -420,6 +422,7 @@ def export(site, wp_site_url, unit_name_or_id, to_wordpress=False, clean_wordpre
     :param openshift_env: openshift_env environment (prod, int, gcharmier ...)
     :param keep_extracted_files: command to keep files extracted from jahia zip
     :param features_flags: Tell to clean page content or not
+    :param category: Site category which defines plugin list to install and configure
     """
 
     # Download, Unzip the jahia zip and parse the xml data
@@ -446,6 +449,10 @@ def export(site, wp_site_url, unit_name_or_id, to_wordpress=False, clean_wordpre
     if not theme:
         # Setting correct theme depending on parsing result
         theme = BANNER_THEME_NAME if default_language in site.banner else DEFAULT_THEME_NAME
+
+    # If nothing specified, we use default
+    if category is None:
+        category = DEFAULT_WP_SITE_CATEGORY
 
     # tagline
     if not site.title[default_language]:
@@ -492,6 +499,7 @@ def export(site, wp_site_url, unit_name_or_id, to_wordpress=False, clean_wordpre
         'theme': theme,
         'updates_automatic': updates_automatic,
         'installs_locked': installs_locked,
+        'category': category,
 
         # determined information
         'unit_id': unit_id,
@@ -693,7 +701,8 @@ def export_many(csv_file, output_dir=None, admin_password=None, use_cache=None,
                 admin_password=admin_password,
                 use_cache=use_cache,
                 keep_extracted_files=keep_extracted_files,
-                features_flags=features_flags
+                features_flags=features_flags,
+                category=row['category']
             )
         except (Exception, subprocess.CalledProcessError) as e:
             logging.error(str(e))
@@ -747,7 +756,7 @@ def clean_many(csv_file, **kwargs):
 @dispatch.on('generate')
 def generate(wp_env, wp_url,
              wp_title=None, wp_tagline=None, admin_password=None,
-             theme=None, theme_faculty=None,
+             theme=None, theme_faculty=None, category=None,
              installs_locked=None, updates_automatic=None,
              extra_config=None, **kwargs):
     """
@@ -767,12 +776,17 @@ def generate(wp_env, wp_url,
     else:
         updates_automatic = cast_boolean(updates_automatic)
 
+    # If nothing specified, we use default
+    if category is None:
+        category = DEFAULT_WP_SITE_CATEGORY
+
     # FIXME: When we will use 'unit_id' from CSV file, add parameter here OR dynamically get it from AD
     all_params = {'openshift_env': wp_env,
                   'wp_site_url': wp_url,
                   'theme': theme or DEFAULT_THEME_NAME,
                   'installs_locked': installs_locked,
-                  'updates_automatic': updates_automatic}
+                  'updates_automatic': updates_automatic,
+                  'category': category}
 
     # Adding parameters if given
     if theme_faculty is not None:

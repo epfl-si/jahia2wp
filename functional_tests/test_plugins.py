@@ -33,7 +33,18 @@ def wp_plugin_list():
         settings.PLUGINS_CONFIG_GENERIC_FOLDER,
         'config-lot1.yml',
         settings.PLUGINS_CONFIG_SPECIFIC_FOLDER,
-        {'unit_name': UNIT_NAME})
+        {'unit_name': UNIT_NAME,
+         'category': settings.DEFAULT_WP_SITE_CATEGORY})
+
+
+@pytest.fixture(scope="module")
+def wp_plugin_list_category():
+    return WPPluginList(
+        settings.PLUGINS_CONFIG_GENERIC_FOLDER,
+        'config-lot1.yml',
+        settings.PLUGINS_CONFIG_SPECIFIC_FOLDER,
+        {'unit_name': UNIT_NAME,
+         'category': 'fun-category'})
 
 
 @pytest.fixture(scope="class")
@@ -45,14 +56,15 @@ def wp_generator_generic():
                  'wp_site_title': "TEST",
                  'wp_tagline': "My Test",
                  'langs': 'en',
-                 'unit_name': UNIT_NAME})
+                 'unit_name': UNIT_NAME,
+                 'category': settings.DEFAULT_WP_SITE_CATEGORY})
     generator.clean()
     generator.generate()
     return generator
 
 
 @pytest.fixture(scope="class")
-def wp_generator_specific():
+def wp_generator_category():
     # To generate website with specific plugin list/configuration
     generator = MockedWPGenerator(
                 {'openshift_env': settings.OPENSHIFT_ENV,
@@ -60,7 +72,8 @@ def wp_generator_specific():
                  'wp_site_title': "TEST",
                  'wp_tagline': "My Test",
                  'langs': 'en',
-                 'unit_name': UNIT_NAME})
+                 'unit_name': UNIT_NAME,
+                 'category': 'fun-category'})
     generator.clean()
     generator.generate()
     return generator
@@ -82,7 +95,7 @@ class TestWPPluginConfig:
 
             assert wp_plugin_config.is_installed is installed
 
-    def test_valid_install_specific(self, wp_generator_specific, wp_plugin_list):
+    def test_valid_install_category(self, wp_generator_category, wp_plugin_list_category):
 
         # Plugins and if they have to be installed or not
         for plugin_name, installed in {
@@ -92,8 +105,8 @@ class TestWPPluginConfig:
             'akismet': False
         }.items():
 
-            plugin_config = wp_plugin_list.plugins(TEST_SITE)[plugin_name]
-            wp_plugin_config = WPPluginConfig(wp_generator_specific.wp_site, plugin_name, plugin_config)
+            plugin_config = wp_plugin_list_category.plugins()[plugin_name]
+            wp_plugin_config = WPPluginConfig(wp_generator_category.wp_site, plugin_name, plugin_config)
 
             assert wp_plugin_config.is_installed is installed
 
@@ -110,7 +123,7 @@ class TestWPPluginConfig:
 
             assert wp_plugin_config.is_activated is activated
 
-    def test_is_activated_specific(self, wp_generator_specific, wp_plugin_list):
+    def test_is_activated_category(self, wp_generator_category, wp_plugin_list_category):
 
         # plugins and if they have to be activated or not
         for plugin_name, activated in {
@@ -118,20 +131,20 @@ class TestWPPluginConfig:
             'redirection': True
         }.items():
 
-            plugin_config = wp_plugin_list.plugins(TEST_SITE)[plugin_name]
-            wp_plugin_config = WPPluginConfig(wp_generator_specific.wp_site, plugin_name, plugin_config)
+            plugin_config = wp_plugin_list_category.plugins()[plugin_name]
+            wp_plugin_config = WPPluginConfig(wp_generator_category.wp_site, plugin_name, plugin_config)
 
             assert wp_plugin_config.is_activated is activated
 
-    def test_mu_plugins_installed(self, wp_generator_specific):
-        assert os.path.exists(WPMuPluginConfig(wp_generator_specific.wp_site, "epfl-functions.php").path)
+    def test_mu_plugins_installed(self, wp_generator_category):
+        assert os.path.exists(WPMuPluginConfig(wp_generator_category.wp_site, "epfl-functions.php").path)
 
-    def test_valid_uninstall(self, wp_generator_specific, wp_plugin_list):
+    def test_valid_uninstall(self, wp_generator_category, wp_plugin_list_category):
 
         for plugin_name in ['add-to-any', 'redirection']:
 
-            plugin_config = wp_plugin_list.plugins(TEST_SITE)[plugin_name]
-            wp_plugin_config = WPPluginConfig(wp_generator_specific.wp_site, plugin_name, plugin_config)
+            plugin_config = wp_plugin_list_category.plugins()[plugin_name]
+            wp_plugin_config = WPPluginConfig(wp_generator_category.wp_site, plugin_name, plugin_config)
             wp_plugin_config.uninstall()
             assert wp_plugin_config.is_installed is False
 
@@ -153,10 +166,10 @@ class TestWPPluginConfigRestore:
         wp_config = WPConfig(wp_generator_generic.wp_site)
         assert wp_config.run_wp_cli("option get addtoany_options") == 'test'
 
-    def test_restore_specific_config(self, wp_generator_generic, wp_plugin_list):
+    def test_restore_category_config(self, wp_generator_generic, wp_plugin_list_category):
 
         # First, uninstall from WP installation
-        plugin_config = wp_plugin_list.plugins(TEST_SITE)['add-to-any']
+        plugin_config = wp_plugin_list_category.plugins()['add-to-any']
         wp_plugin_config = WPPluginConfig(wp_generator_generic.wp_site, 'add-to-any', plugin_config)
         wp_plugin_config.uninstall()
 
@@ -170,6 +183,6 @@ class TestWPPluginConfigRestore:
         assert wp_config.run_wp_cli("option get addtoany_dummy") == 'dummy'
 
 
-def test_teardown(wp_generator_generic, wp_generator_specific):
+def test_teardown(wp_generator_generic, wp_generator_category):
     wp_generator_generic.clean()
-    wp_generator_specific.clean()
+    wp_generator_category.clean()
