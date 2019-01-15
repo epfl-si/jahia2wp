@@ -1,4 +1,4 @@
-src: generic/polylang/v1/polylang.zip
+src: generic/polylang/polylang.zip
 activate: yes
 config_class: wordpress.plugins.custom.polylang.WPPolylangConfig
 config_custom:

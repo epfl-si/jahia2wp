@@ -124,17 +124,24 @@ class WPPluginList:
         else:  # No error, we return the value
             return self._site_params[node.value]
 
-    def __build_plugins_for_site(self, wp_site_id):
+    def __build_plugins_for_site(self):
         """ Build specific plugin configuration for website if exists
-
-        Keyword arguments:
-        wp_site_id -- Site for which we want the plugin list with configuration. This must be unique !
         """
 
-        site_specific_plugin_file = os.path.join(self._specific_config_path, wp_site_id, 'plugin-list.yml')
+        # If category is different from default one (default = generic plugin list), we take only generic plugins
+        if self._site_params['category'] == settings.DEFAULT_WP_SITE_CATEGORY:
+            return self._generic_plugins
 
-        # If no specific plugin list found for website,
-        if not os.path.exists(site_specific_plugin_file):
+        # Building path to site category plugin list
+        category_specific_plugin_file = os.path.join(self._specific_config_path,
+                                                     self._site_params['category'],
+                                                     'plugin-list.yml')
+
+        # If no specific plugin list found for category,
+        if not os.path.exists(category_specific_plugin_file):
+            logging.warning("%s - No specific plugins found for category '%s'",
+                            repr(self),
+                            self._site_params['category'])
             # Return default config
             return self._generic_plugins
 
@@ -142,16 +149,16 @@ class WPPluginList:
         specific_plugins = copy.deepcopy(self._generic_plugins)
 
         # Reading YAML file containing specific plugins
-        plugin_list = yaml.load(open(site_specific_plugin_file, 'r'))
+        plugin_list = yaml.load(open(category_specific_plugin_file, 'r'))
 
         # If nothing in file
         if plugin_list is None:
-            logging.error("%s - YAML file seems to be empty: %s", repr(self), site_specific_plugin_file)
+            logging.error("%s - YAML file seems to be empty: %s", repr(self), category_specific_plugin_file)
 
         # Check if exists
         if 'plugins' not in plugin_list:
             logging.error("%s - YAML format error. 'plugins' key not found in file: %s",
-                          repr(self), site_specific_plugin_file)
+                          repr(self), category_specific_plugin_file)
 
         # Going through directory containing specific plugin configuration for site 'site_name'
         for plugin_infos in plugin_list['plugins']:
@@ -167,20 +174,12 @@ class WPPluginList:
 
         return specific_plugins
 
-    def plugins(self, wp_site_id=None):
-        """ Return plugin list for all sites or for specific site
-
-        Keyword arguments:
-        wp_site_id -- Site for which we want the plugin list with configuration. This has to be unique
+    def plugins(self):
+        """ Return plugin list for site depending on category defined in self._site_params
         """
+        return self.__build_plugins_for_site()
 
-        # if no site, just return generic plugins
-        if wp_site_id is None:
-            return self._generic_plugins
-
-        return self.__build_plugins_for_site(wp_site_id)
-
-    def list_plugins(self, site_id, with_config=False, for_plugin=None):
+    def list_plugins(self, with_config=False, for_plugin=None):
         """
         List plugins (and configuration) for WP site
 
@@ -192,10 +191,10 @@ class WPPluginList:
         return
         String with plugin list.
         """
-        ret_str = "Plugin list for site '{}':\n".format(site_id)
+        ret_str = "Plugin list for category '{}':\n".format(self._site_params['category'])
 
         # Looping through plugins to display
-        for plugin_name, plugin_config in self.plugins(site_id).items():
+        for plugin_name, plugin_config in self.plugins().items():
 
             # If we have to display information for current plugin.
             # ---
