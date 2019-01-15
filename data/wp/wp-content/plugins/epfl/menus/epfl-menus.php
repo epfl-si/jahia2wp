@@ -1512,7 +1512,7 @@ class MenuItemController extends CustomPostTypeController
      */
     static function ajax_enumerate () {
         $transient_name = 'epfl-menus-all-external-item-ids';
-        if (false !== ($cached = get_transient($transient_name))) {
+        if ((!WP_DEBUG) && (false !== ($cached = get_transient($transient_name)))) {
             return $cached;
         }
 
