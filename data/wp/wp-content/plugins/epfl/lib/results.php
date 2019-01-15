@@ -2,6 +2,8 @@
 
 /**
  * OWM (Object-Whatever Mapper) for the "model" module and more.
+ *
+ * Provide mixins to work on result lists.
  */
 
 namespace EPFL\Results;
