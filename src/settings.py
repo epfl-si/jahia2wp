@@ -155,6 +155,8 @@ JAHIA2WP_VENT_TMP = Utils.get_optional_env("JAHIA2WP_VENT_TMP", "/tmp")
 MAIN_MENU = "Main"
 FOOTER_MENU = "footer_nav"
 
+PROMETHEUS_OPENSHIFT_ENV_LIST = ['www', 'subdomains']
+
 # Reserved terms in WordPress. Can not be used as slug for pages (for example).
 # https://codex.wordpress.org/Reserved_Terms
 WORDPRESS_RESERVED_TERMS = [
@@ -251,3 +253,8 @@ WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES = 5
 # Status for WordPress site installs
 WP_SITE_INSTALL_OK = 'OK'
 WP_SITE_INSTALL_KO = 'KO'
+
+# Option to store WP site category
+OPTION_WP_SITE_CATEGORY = 'epfl:site_category'
+# Default site category (correspond to generic plugin list)
+DEFAULT_WP_SITE_CATEGORY = 'GeneralPublic'
