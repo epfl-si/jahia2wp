@@ -54,15 +54,13 @@ Class InfoscienceMarcConverter
     */
     public static function parse_doi($record) {
         $dois = [];
-        $extern_type = '';
         // get the value and the identifier
         $fields_0247 = InfoscienceMarcConverter::parse_text($record, '024', '7', '', ['a', '2']);
 
         foreach ($fields_0247 as $field) {
-            # get the id name
+            # get the id name, the 0247_2
             if (sizeof($field) > 1) {
-                $id_name = $field[1];
-                if (strtolower($id_name) === 'doi')
+                if (strtolower($field[1]) === 'doi')
                 {
                     $dois[] = $field[0];
                 }
