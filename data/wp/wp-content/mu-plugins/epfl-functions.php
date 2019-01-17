@@ -3,7 +3,7 @@
  * Plugin Name: EPFL Functions
  * Plugin URI: 
  * Description: Must-use plugin for the EPFL website.
- * Version: 0.0.5
+ * Version: 0.0.6
  * Author: Aline Keller
  * Author URI: http://www.alinekeller.ch
  */
@@ -27,20 +27,20 @@ Disallow: /wp-admin/
 
 /*
  * File Upload Security
- 
- * Sources: 
+
+ * Sources:
  * http://www.geekpress.fr/wordpress/astuce/suppression-accents-media-1903/
  * https://gist.github.com/herewithme/7704370
- 
+
  * See also Ticket #22363
  * https://core.trac.wordpress.org/ticket/22363
  * and #24661 - remove_accents is not removing combining accents
  * https://core.trac.wordpress.org/ticket/24661
-*/ 
+*/
 
 add_filter( 'sanitize_file_name', 'remove_accents', 10, 1 );
 add_filter( 'sanitize_file_name_chars', 'sanitize_file_name_chars', 10, 1 );
- 
+
 function sanitize_file_name_chars( $special_chars = array() ) {
 	$special_chars = array_merge( array( '’', '‘', '“', '”', '«', '»', '‹', '›', '—', 'æ', 'œ', '€','é','à','ç','ä','ö','ü','ï','û','ô','è' ), $special_chars );
 	return $special_chars;
@@ -68,11 +68,11 @@ add_filter( 'rest_endpoints', function( $endpoints ){
 
 
 /*--------------------------------------------------------------
-  
+
  # Content improvements
- 
+
 --------------------------------------------------------------*/
- 
+
 /*
  * Remove empty <p> tags
  */
@@ -93,15 +93,15 @@ $content = preg_replace( array(
   '<$1$2>',
   '</$1',
   ), $content );
- 
+
 return preg_replace('#<p>(\s|&nbsp;)*+(<br\s*/*>)*(\s|&nbsp;)*</p>#i', '', $content);
 }
 
 
 /*--------------------------------------------------------------
-  
+
  # Gallery improvements
- 
+
 --------------------------------------------------------------*/
 
 /*
@@ -116,13 +116,13 @@ function add_title_attachment_link($link, $id = null) {
 }
 add_filter('wp_get_attachment_link', 'add_title_attachment_link', 10, 2);
 
-/* 
+/*
  * Link to large instead of full size images in galleries
  * http://oikos.org.uk/2011/09/tech-notes-using-resized-images-in-wordpress-galleries-and-lightboxes/
  */
 
 function oikos_get_attachment_link_filter( $content, $post_id, $size, $permalink ) {
- 
+
     // Only do this if we're getting the file URL
     if (! $permalink) {
         // This returns an array of (url, width, height)
@@ -133,14 +133,14 @@ function oikos_get_attachment_link_filter( $content, $post_id, $size, $permalink
         return $content;
     }
 }
- 
+
 add_filter('wp_get_attachment_link', 'oikos_get_attachment_link_filter', 10, 4);
 
 
 /*--------------------------------------------------------------
-  
+
  # Custom post types
- 
+
 --------------------------------------------------------------*/
 
 
@@ -158,9 +158,9 @@ add_filter('upload_mimes', 'epfl_mimetypes', 1, 1);
 
 
 /*--------------------------------------------------------------
-  
+
  # Shortcodes
- 
+
 --------------------------------------------------------------*/
 
 /**
@@ -171,15 +171,15 @@ add_filter('upload_mimes', 'epfl_mimetypes', 1, 1);
 
 // Désactive wpautop
 
-function remove_wpautop($content) { 
-  $content = do_shortcode( shortcode_unautop($content) ); 
+function remove_wpautop($content) {
+  $content = do_shortcode( shortcode_unautop($content) );
   $content = preg_replace( '#^<\/p>|^<br \/>|<p>$#', '', $content );
   return $content;
 }
- 
+
 // Publications
-   
-function content_publication_list( $atts, $content = null ) { 
+
+function content_publication_list( $atts, $content = null ) {
   $return = '<section class="publications clearfix">';
   $return .= do_shortcode($content);
   $return .= '</section>';
@@ -187,7 +187,7 @@ function content_publication_list( $atts, $content = null ) {
 }
 add_shortcode('list-publications', 'content_publication_list');
 
-function content_publication( $atts, $content = null ) { 
+function content_publication( $atts, $content = null ) {
   $return = '<article class="publication clearfix">';
   $return .= do_shortcode($content);
   $return .= '</article>';
@@ -195,7 +195,7 @@ function content_publication( $atts, $content = null ) {
 }
 add_shortcode('publication', 'content_publication');
 
-function links( $atts, $content = null ) { 
+function links( $atts, $content = null ) {
   $return = '<p class="links">';
   $return .= do_shortcode(remove_wpautop($content));
   $return .= '</p>';
@@ -203,7 +203,7 @@ function links( $atts, $content = null ) {
 }
 add_shortcode('links', 'links');
 
-function faq_item( $atts, $content = null ) { 
+function faq_item( $atts, $content = null ) {
   $a = shortcode_atts( array(
         'title' => 'Title',
     ), $atts );
@@ -214,7 +214,7 @@ function faq_item( $atts, $content = null ) {
 }
 add_shortcode('faq-item', 'faq_item');
 
-function colored_box( $atts, $content = null ) { 
+function colored_box( $atts, $content = null ) {
   $return = '<section class="colored-box">';
   $return .= do_shortcode($content);
   $return .= '</section>';
@@ -349,8 +349,99 @@ function allow_svg_in_tinymce( $init ) {
 	}
 	$init['extended_valid_elements'] .= implode('[*],',$svgElemList).'[*]';
 
+
 	// return value
 	return $init;
 }
 add_filter('tiny_mce_before_init', 'allow_svg_in_tinymce');
+
+
+/*
+    Add tags present in HTML styleguide (https://epfl-idevelop.github.io/elements/#/) to allow users to use them directly
+    in "Text Editor"
+*/
+function epfl_2018_add_allowed_tags($tags)
+{
+
+    /* We extend needed attributes */
+    $tags['button']['data-toggle'] = true;
+    $tags['button']['data-target'] = true;
+    $tags['button']['data-dismiss'] = true;
+    $tags['button']['data-content'] = true;
+    $tags['button']['aria-expanded'] = true;
+    $tags['button']['aria-controls'] = true;
+    $tags['button']['aria-label'] = true;
+    $tags['button']['aria-haspopup'] = true;
+    $tags['button']['aria-hidden'] = true;
+
+    $tags['span']['aria-hidden'] = true;
+    $tags['span']['aria-label'] = true;
+    $tags['span']['itemprop'] = true;
+    $tags['span']['content'] = true;
+
+    $tags['div']['aria-expanded'] = true;
+    $tags['div']['aria-labelledby'] = true;
+    $tags['div']['itemprop'] = true;
+    $tags['div']['itemscope'] = true;
+    $tags['div']['itemtype'] = true;
+
+    $tags['a']['data-toggle'] = true;
+    $tags['a']['aria-hidden'] = true;
+    $tags['a']['aria-controls'] = true;
+    $tags['a']['aria-selected'] = true;
+    $tags['a']['aria-label'] = true;
+    $tags['a']['aria-haspopup'] = true;
+    $tags['a']['aria-expanded'] = true;
+    $tags['a']['aria-describedby'] = true;
+    $tags['a']['tabindex'] = true;
+    $tags['a']['accesskey'] = true;
+    $tags['a']['itemprop'] = true;
+    $tags['a']['data-page-id'] = true;
+
+    $tags['table']['data-tablesaw-mode'] = true;
+
+    $tags['img']['aria-labelledby'] = true;
+
+    $tags['figure']['itemprop'] = true;
+    $tags['figure']['itemscope'] = true;
+    $tags['figure']['itemtype'] = true;
+
+    $tags['strong']['itemprop'] = true;
+
+    $tags['p']['itemprop'] = true;
+    $tags['p']['itemscope'] = true;
+    $tags['p']['itemtype'] = true;
+
+    $tags['nav']['aria-label'] = true;
+    $tags['nav']['aria-labelledby'] = true;
+    $tags['nav']['aria-describedby'] = true;
+
+    $tags['li']['aria-current'] = true;
+
+    $tags['ul']['aria-hidden'] = true;
+
+    /* Some tags are not present in WordPress 4.9.8 so we add them if necessary. Code is done to be compatible if
+    tags are added in a future WordPress version */
+
+    if(!array_key_exists('svg', $tags)) $tags['svg'] = [];
+    $tags['svg']['class'] = true;
+    $tags['svg']['aria-hidden'] = true;
+
+    if(!array_key_exists('use', $tags)) $tags['use'] = [];
+    $tags['use']['xlink:href'] = true;
+
+    if(!array_key_exists('time', $tags)) $tags['time'] = [];
+    $tags['time']['datetime'] = true;
+
+    if(!array_key_exists('source', $tags)) $tags['source'] = [];
+    $tags['source']['media'] = true;
+    $tags['source']['srcset'] = true;
+
+
+    if(!array_key_exists('picture', $tags)) $tags['picture'] = [];
+
+
+    return $tags;
+}
+add_filter('wp_kses_allowed_html', 'epfl_2018_add_allowed_tags');
 ?>
