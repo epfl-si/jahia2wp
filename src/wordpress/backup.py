@@ -159,7 +159,7 @@ class WPBackup:
         except WPException as err:
             logging.error("%s - WP backup failed: %s", repr(self.wp_site), err)
 
-        if Utils.get_mandatory_env("WP_ENV") in settings.PROMETHEUS_OPENSHIFT_ENV_LIST and \
+        if self.wp_site.openshift_env in settings.PROMETHEUS_OPENSHIFT_ENV_LIST and \
                 Utils.check_prometheus_environment_variables():
 
             self.prometheus_monitoring(result, self.wp_site)
@@ -175,9 +175,9 @@ class WPBackup:
 
         registry = CollectorRegistry()
         if backup_status:
-            status = 1
+            status = "1"
         else:
-            status = 0
+            status = "0"
 
         g = Gauge('backup_status', status, registry=registry)
         g.set_to_current_time()
