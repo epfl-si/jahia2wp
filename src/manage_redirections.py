@@ -6,7 +6,7 @@ Usage:
   manage_redirections.py copy-jahia-redirections-many <csv_file> [--debug | --quiet]
   manage_redirections.py update-redirections <source_site_url> <destination_site_url> [--debug | --quiet]
   manage_redirections.py update-redirections-many <csv_file> [--debug | --quiet]
-  manage_redirections.py archive-wp-site <source_site_url> [--debug | --quiet]
+  manage_redirections.py archive-wp-site <source_site_url> [--bak-file] [--debug | --quiet]
   manage_redirections.py archive-wp-site-many <csv_file> [--debug | --quiet]
   manage_redirections.py create-directory <csv_file> [--debug | --quiet]
   manage_redirections.py generate-301 <csv_file> <destination_site> [--debug | --quiet]
@@ -355,12 +355,8 @@ def archive_wp_site_many(csv_file, **kwargs):
         archive_site.wp_cli(remote_cmd)
 
 
-
-
-
-
 @dispatch.on('archive-wp-site')
-def archive_wp_site(source_site_url, **kwargs):
+def archive_wp_site(source_site_url, bak_file=False, **kwargs):
     """
     1. mv /srv/subdomains/dcsl.epfl.ch/htdocs /srv/sandox/archive-wp.epfl.ch/htdocs/dcsl
     2. mkdir /srv/subdomains/dcsl.epfl.ch/htdocs
@@ -375,7 +371,7 @@ def archive_wp_site(source_site_url, **kwargs):
     archive_site = SshRemoteSite(archive_site_url)
 
     # bak
-    htaccess_content = archive_site.get_htaccess_content(bak_file=True)
+    htaccess_content = archive_site.get_htaccess_content(bak_file)
 
     # Modify 2 lines to add site_name :
     # RewriteBase /dcsl/
@@ -389,6 +385,7 @@ def archive_wp_site(source_site_url, **kwargs):
         if "RewriteRule . /index.php" in line:
             line = line.replace("RewriteRule . /index.php", "RewriteRule . /{}/index.php".format(site_name))
         new_content += line + "\n"
+    print(new_content)
 
     # TODO uncomment this line below
     archive_site.write_htaccess_content(new_content)
@@ -400,6 +397,7 @@ def archive_wp_site(source_site_url, **kwargs):
     )
     # TODO uncomment this line below
     archive_site.wp_cli(remote_cmd)
+    print(remote_cmd)
 
 
 
