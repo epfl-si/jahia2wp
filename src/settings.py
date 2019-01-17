@@ -155,6 +155,8 @@ JAHIA2WP_VENT_TMP = Utils.get_optional_env("JAHIA2WP_VENT_TMP", "/tmp")
 MAIN_MENU = "Main"
 FOOTER_MENU = "footer_nav"
 
+PROMETHEUS_OPENSHIFT_ENV_LIST = ['www', 'subdomains']
+
 # Reserved terms in WordPress. Can not be used as slug for pages (for example).
 # https://codex.wordpress.org/Reserved_Terms
 WORDPRESS_RESERVED_TERMS = [

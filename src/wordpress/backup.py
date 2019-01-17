@@ -12,6 +12,9 @@ from veritas.validators import validate_openshift_env
 from utils import Utils
 import settings
 
+from prometheus_client import CollectorRegistry, Gauge, push_to_gateway
+from prometheus_client.exposition import basic_auth_handler
+
 
 class WPBackup:
     """
@@ -133,6 +136,8 @@ class WPBackup:
         """
         Launch the backup
         """
+        result = False
+
         if not os.path.exists(self.path):
             os.makedirs(self.path)
 
@@ -146,4 +151,30 @@ class WPBackup:
 
         except WPException as err:
             logging.error("%s - WP backup failed: %s", repr(self.wp_site), err)
-            return False
+
+        if Utils.get_mandatory_env("WP_ENV") in settings.PROMETHEUS_OPENSHIFT_ENV_LIST and \
+                Utils.check_prometheus_environment_variables():
+            self.prometheus_monitoring(result, self.wp_site)
+
+        return result
+
+        def prometheus_monitoring(self, backup_status, wp_site):
+
+            def my_auth_handler(url, method, timeout, headers, data):
+                username = Utils.get_mandatory_env("PROMETHEUS_PUSHGATEWAY_USERNAME")
+                password = Utils.get_mandatory_env("PROMETHEUS_PUSHGATEWAY_PASSWORD")
+                return basic_auth_handler(url, method, timeout, headers, data, username, password)
+
+            registry = CollectorRegistry()
+            if backup_status:
+                status = 1
+            else:
+                status = 0
+
+            g = Gauge('backup_status', status, registry=registry)
+            g.set_to_current_time()
+
+            url = "https://os-wwp-metrics-pushgw.epfl.ch"
+
+            job = "OpenShift_env:{} Site:{}".format(wp_site.openshift_env, wp_site.name)
+            push_to_gateway(url, job=job, registry=registry, handler=my_auth_handler)

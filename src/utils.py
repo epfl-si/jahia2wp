@@ -535,3 +535,12 @@ class Utils(object):
         query = parse.parse_qs(parse.urlsplit(url).query)
 
         return query[param][0] if param in query else ""
+
+    @staticmethod
+    def check_prometheus_environment_variables():
+        try:
+            Utils.get_mandatory_env("PROMETHEUS_PUSHGATEWAY_USERNAME")
+            Utils.get_mandatory_env("PROMETHEUS_PUSHGATEWAY_PASSWORD")
+            return True
+        except Exception:
+            return False
