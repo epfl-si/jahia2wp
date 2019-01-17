@@ -47,3 +47,5 @@ plugins:
     config: !include very-simple-meta-description/config-plugin.yml
   - name: epfl-404
     config: !include epfl-404/config-plugin.yml
+  - name: epfl-google-forms
+    config: !include epfl-google-forms/config-plugin.yml

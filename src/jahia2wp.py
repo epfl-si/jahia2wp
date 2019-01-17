@@ -533,6 +533,7 @@ def export(site, wp_site_url, unit_name_or_id, to_wordpress=False, clean_wordpre
                            'varnish-http-purge',
                            'epfl',
                            'epfl-404',
+                           'epfl-google-forms',
                            'epfl-infoscience',
                            'wp-media-folder',
                            'pdfjs-viewer-shortcode',
