@@ -1,0 +1,3 @@
+plugins:
+  - name: epfl-intranet
+    config: !include epfl-intranet/config-plugin.yml

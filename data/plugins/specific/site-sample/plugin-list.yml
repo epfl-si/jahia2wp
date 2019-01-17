@@ -1,3 +1,0 @@
-plugins:
-  - name: miniorange-saml-20-single-sign-on
-    config: !include config-plugin.yml

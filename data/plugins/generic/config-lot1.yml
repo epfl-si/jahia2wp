@@ -1,81 +1,81 @@
 plugins:
   - name: simple-sitemap
-    config: !include simple-sitemap/v1/config-plugin.yml
+    config: !include simple-sitemap/config-plugin.yml
   - name: tinymce-advanced
-    config: !include tinymce-advanced/v1/config-plugin.yml
+    config: !include tinymce-advanced/config-plugin.yml
   - name: akismet
     config: !include akismet/config-plugin.yml
   - name: hello
     config: !include hello/config-plugin.yml
   - name: polylang
-    config: !include polylang/v1/config-plugin.yml
+    config: !include polylang/config-plugin.yml
   - name: mainwp-child
-    config: !include mainwp-child/v1/config-plugin.yml
+    config: !include mainwp-child/config-plugin.yml
   - name: tequila
-    config: !include tequila/v1/config-plugin.yml
+    config: !include tequila/config-plugin.yml
   - name: accred
-    config: !include accred/v1/config-plugin.yml
+    config: !include accred/config-plugin.yml
   - name: coming-soon
-    config: !include coming-soon/v1/config-plugin.yml
+    config: !include coming-soon/config-plugin.yml
   - name: varnish-http-purge
-    config: !include varnish-http-purge/v1/config-plugin.yml
+    config: !include varnish-http-purge/config-plugin.yml
   - name: EPFL-settings
-    config: !include EPFL-settings/v1/config-plugin.yml
+    config: !include EPFL-settings/config-plugin.yml
   - name: EPFL-Share
-    config: !include EPFL-Share/v1/config-plugin.yml
+    config: !include EPFL-Share/config-plugin.yml
   - name: EPFL-Content-Filter
-    config: !include EPFL-Content-Filter/v1/config-plugin.yml
+    config: !include EPFL-Content-Filter/config-plugin.yml
   - name: svg-support
-    config: !include svg-support/v1/config-plugin.yml
+    config: !include svg-support/config-plugin.yml
   - name: shortcodes-ultimate
-    config: !include shortcodes-ultimate/v1/config-plugin.yml
+    config: !include shortcodes-ultimate/config-plugin.yml
   - name: feedzy-rss-feeds
-    config: !include feedzy-rss-feeds/v1/config-plugin.yml
+    config: !include feedzy-rss-feeds/config-plugin.yml
   - name: enlighter
-    config: !include enlighter/v1/config-plugin.yml
+    config: !include enlighter/config-plugin.yml
   - name: remote-content-shortcode
-    config: !include remote-content-shortcode/v1/config-plugin.yml
+    config: !include remote-content-shortcode/config-plugin.yml
   - name: shortcode-ui
-    config: !include shortcode-ui/v1/config-plugin.yml
+    config: !include shortcode-ui/config-plugin.yml
   - name: epfl-scheduler
-    config: !include epfl-scheduler/v1/config-plugin.yml
+    config: !include epfl-scheduler/config-plugin.yml
   - name: shortcode-ui-richtext
-    config: !include shortcode-ui-richtext/v1/config-plugin.yml
+    config: !include shortcode-ui-richtext/config-plugin.yml
   - name: epfl-news
-    config: !include epfl-news/v1/config-plugin.yml
+    config: !include epfl-news/config-plugin.yml
   - name: epfl-memento
-    config: !include epfl-memento/v1/config-plugin.yml
+    config: !include epfl-memento/config-plugin.yml
   - name: epfl-faq
-    config: !include epfl-faq/v1/config-plugin.yml
+    config: !include epfl-faq/config-plugin.yml
   - name: epfl-map
-    config: !include epfl-map/v1/config-plugin.yml
+    config: !include epfl-map/config-plugin.yml
   - name: epfl-buttons
-    config: !include epfl-buttons/v1/config-plugin.yml
+    config: !include epfl-buttons/config-plugin.yml
   - name: epfl-snippet
-    config: !include epfl-snippet/v1/config-plugin.yml
+    config: !include epfl-snippet/config-plugin.yml
   - name: epfl-toggle
-    config: !include epfl-toggle/v1/config-plugin.yml
+    config: !include epfl-toggle/config-plugin.yml
   - name: epfl-grid
-    config: !include epfl-grid/v1/config-plugin.yml
+    config: !include epfl-grid/config-plugin.yml
   - name: epfl-infoscience
-    config: !include epfl-infoscience/v1/config-plugin.yml
+    config: !include epfl-infoscience/config-plugin.yml
   - name: epfl-infoscience-search
-    config: !include epfl-infoscience-search/v1/config-plugin.yml
+    config: !include epfl-infoscience-search/config-plugin.yml
   - name: epfl-xml
-    config: !include epfl-xml/v1/config-plugin.yml
+    config: !include epfl-xml/config-plugin.yml
   - name: epfl-people
-    config: !include epfl-people/v1/config-plugin.yml
+    config: !include epfl-people/config-plugin.yml
   - name: epfl-twitter
-    config: !include epfl-twitter/v1/config-plugin.yml
+    config: !include epfl-twitter/config-plugin.yml
   - name: epfl-video
-    config: !include epfl-video/v1/config-plugin.yml
+    config: !include epfl-video/config-plugin.yml
   - name: pdfjs-viewer-shortcode
-    config: !include pdfjs-viewer-shortcode/v1/config-plugin.yml
+    config: !include pdfjs-viewer-shortcode/config-plugin.yml
   - name: epfl-tableau
-    config: !include epfl-tableau/v1/config-plugin.yml
+    config: !include epfl-tableau/config-plugin.yml
   - name: epfl-google-forms
-    config: !include epfl-google-forms/v1/config-plugin.yml
+    config: !include epfl-google-forms/config-plugin.yml
   - name: cache-control
-    config: !include cache-control/v1/config-plugin.yml
+    config: !include cache-control/config-plugin.yml
   - name: epfl-404
-    config: !include epfl-404/v1/config-plugin.yml
+    config: !include epfl-404/config-plugin.yml
