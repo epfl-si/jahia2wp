@@ -3,7 +3,7 @@
  * Plugin Name: EPFL Functions
  * Plugin URI: 
  * Description: Must-use plugin for the EPFL website.
- * Version: 0.0.5
+ * Version: 0.0.6
  * Author: Aline Keller
  * Author URI: http://www.alinekeller.ch
  */
@@ -320,6 +320,7 @@ function allow_svg_in_tinymce( $init ) {
 		'radialGradient',
 		'rect',
 		'set',
+		'source',
 		'stop',
 		'style',
 		'svg',
@@ -327,6 +328,7 @@ function allow_svg_in_tinymce( $init ) {
 		'symbol',
 		'text',
 		'textPath',
+		'time',
 		'title',
 		'tref',
 		'tspan',
@@ -349,8 +351,99 @@ function allow_svg_in_tinymce( $init ) {
 	}
 	$init['extended_valid_elements'] .= implode('[*],',$svgElemList).'[*]';
 
+
 	// return value
 	return $init;
 }
 add_filter('tiny_mce_before_init', 'allow_svg_in_tinymce');
+
+
+/*
+    Add tags present in HTML styleguide (https://epfl-idevelop.github.io/elements/#/) to allow users to use them directly
+    in "Text Editor"
+*/
+function epfl_2018_add_allowed_tags($tags)
+{
+
+    /* We extend needed attributes */
+    $tags['button']['data-toggle'] = true;
+    $tags['button']['data-target'] = true;
+    $tags['button']['data-dismiss'] = true;
+    $tags['button']['data-content'] = true;
+    $tags['button']['aria-expanded'] = true;
+    $tags['button']['aria-controls'] = true;
+    $tags['button']['aria-label'] = true;
+    $tags['button']['aria-haspopup'] = true;
+    $tags['button']['aria-hidden'] = true;
+
+    $tags['span']['aria-hidden'] = true;
+    $tags['span']['aria-label'] = true;
+    $tags['span']['itemprop'] = true;
+    $tags['span']['content'] = true;
+
+    $tags['div']['aria-expanded'] = true;
+    $tags['div']['aria-labelledby'] = true;
+    $tags['div']['itemprop'] = true;
+    $tags['div']['itemscope'] = true;
+    $tags['div']['itemtype'] = true;
+
+    $tags['a']['data-toggle'] = true;
+    $tags['a']['aria-hidden'] = true;
+    $tags['a']['aria-controls'] = true;
+    $tags['a']['aria-selected'] = true;
+    $tags['a']['aria-label'] = true;
+    $tags['a']['aria-haspopup'] = true;
+    $tags['a']['aria-expanded'] = true;
+    $tags['a']['aria-describedby'] = true;
+    $tags['a']['tabindex'] = true;
+    $tags['a']['accesskey'] = true;
+    $tags['a']['itemprop'] = true;
+    $tags['a']['data-page-id'] = true;
+
+    $tags['table']['data-tablesaw-mode'] = true;
+
+    $tags['img']['aria-labelledby'] = true;
+
+    $tags['figure']['itemprop'] = true;
+    $tags['figure']['itemscope'] = true;
+    $tags['figure']['itemtype'] = true;
+
+    $tags['strong']['itemprop'] = true;
+
+    $tags['p']['itemprop'] = true;
+    $tags['p']['itemscope'] = true;
+    $tags['p']['itemtype'] = true;
+
+    $tags['nav']['aria-label'] = true;
+    $tags['nav']['aria-labelledby'] = true;
+    $tags['nav']['aria-describedby'] = true;
+
+    $tags['li']['aria-current'] = true;
+
+    $tags['ul']['aria-hidden'] = true;
+
+    /* Some tags are not present in WordPress 4.9.8 so we add them if necessary. Code is done to be compatible if
+    tags are added in a future WordPress version */
+
+    if(!array_key_exists('svg', $tags)) $tags['svg'] = [];
+    $tags['svg']['class'] = true;
+    $tags['svg']['aria-hidden'] = true;
+
+    if(!array_key_exists('use', $tags)) $tags['use'] = [];
+    $tags['use']['xlink:href'] = true;
+
+    if(!array_key_exists('time', $tags)) $tags['time'] = [];
+    $tags['time']['datetime'] = true;
+
+    if(!array_key_exists('source', $tags)) $tags['source'] = [];
+    $tags['source']['media'] = true;
+    $tags['source']['srcset'] = true;
+
+
+    if(!array_key_exists('picture', $tags)) $tags['picture'] = [];
+
+
+    return $tags;
+}
+add_filter('wp_kses_allowed_html', 'epfl_2018_add_allowed_tags');
 ?>
