@@ -56,7 +56,6 @@ function get_target_url(){
 } 
 
 function epfl_share_process_shortcode( $atts, $content = null ) {
-
   // if supported delegate the rendering to the theme
   if (has_action("epfl_share_action")) {
     global $post;
