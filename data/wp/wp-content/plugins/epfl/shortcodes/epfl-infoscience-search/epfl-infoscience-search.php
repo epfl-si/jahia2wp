@@ -323,7 +323,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
             }
         } else {
             $error = new WP_Error( 'not found', 'The url passed is not found', $url );
-            return render_user_msg("Infoscience search shortcode: Please check the url");
+            return Utils::render_user_msg("Infoscience search shortcode: Please check the url");
         }
     } else {
         // Use cache

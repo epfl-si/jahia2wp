@@ -19,6 +19,12 @@ function epfl_google_forms_get_attribute($attribute, $from_code)
 
 function epfl_google_forms_process_shortcode( $atts, $content = null ) {
 
+    // if supported delegate the rendering to the theme
+    if (!has_action("epfl_google_forms_action"))
+    {
+        Utils::render_user_msg('You must activate the epfl theme');
+    }
+
     /*
     data contains thing like (encoded):
     <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeLZkqncWIvRbQvnn3K8yKUEn0Of8s-JTFZ3l94TWAIHnovJA/viewform?embedded=true" width="640" height="663" frameborder="0" marginheight="0" marginwidth="0">Chargement en cours...</iframe>
@@ -51,26 +57,17 @@ function epfl_google_forms_process_shortcode( $atts, $content = null ) {
         return Utils::render_user_msg(__("Incorrect dimensions found", "epfl"));
     }
 
-    // if supported delegate the rendering to the theme
-    if (has_action("epfl_google_forms_action")) {
+    ob_start();
 
-        ob_start();
+    try {
 
-        try {
+       do_action("epfl_google_forms_action", $src, $width, $height);
 
-           do_action("epfl_google_forms_action", $src, $width, $height);
+       return ob_get_contents();
 
-           return ob_get_contents();
+    } finally {
 
-        } finally {
-
-            ob_end_clean();
-        }
-
-    // otherwise the plugin does the rendering
-    } else {
-
-        return 'You must activate the epfl theme';
+        ob_end_clean();
     }
 
 }

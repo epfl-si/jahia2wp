@@ -18,6 +18,12 @@ require_once 'shortcake-config.php';
  */
 function epfl_cover_process_shortcode($atts = [], $content = '', $tag = '') {
 
+    // if supported delegate the rendering to the theme
+    if (!has_action("epfl_cover_action"))
+    {
+        Utils::render_user_msg('You must activate the epfl theme');
+    }
+
     // shortcode parameters
     $atts = shortcode_atts(array(
             'description' => '',
@@ -28,27 +34,20 @@ function epfl_cover_process_shortcode($atts = [], $content = '', $tag = '') {
     $description = wp_kses_post( $atts['description'] );
     $image       = sanitize_text_field( $atts['image'] );
 
-    // if supported delegate the rendering to the theme
-    if (has_action("epfl_cover_action")) {
+    ob_start();
 
-        ob_start();
+    try {
 
-        try {
+       do_action("epfl_cover_action", $image, $description);
 
-           do_action("epfl_cover_action", $image, $description);
+       return ob_get_contents();
 
-           return ob_get_contents();
+    } finally {
 
-        } finally {
-
-            ob_end_clean();
-        }
-
-    // otherwise the plugin does the rendering
-    } else {
-
-        return 'You must activate the epfl theme';
+        ob_end_clean();
     }
+
+
 }
 
 add_action( 'register_shortcode_ui', ['ShortCakeCoverConfig', 'config'] );

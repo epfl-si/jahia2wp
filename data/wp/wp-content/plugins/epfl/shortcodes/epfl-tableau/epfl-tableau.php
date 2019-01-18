@@ -12,6 +12,12 @@ require_once 'shortcake-config.php';
 
 function process_shortcode($atts) {
 
+    // if supported delegate the rendering to the theme
+    if (!has_action("epfl_tableau_action"))
+    {
+        Utils::render_user_msg('You must activate the epfl theme');
+    }
+
     $atts = shortcode_atts( array(
         'url' => '',
         'height'   => '',
@@ -57,18 +63,14 @@ function process_shortcode($atts) {
     $width = sanitize_text_field($width);
     $height = sanitize_text_field($height);
 
-    if (has_action("epfl_tableau_action")) {
-        ob_start();
-        try {
-           do_action("epfl_tableau_action", $url, $width, $height);
-           return ob_get_contents();
-        } finally {
-            ob_end_clean();
-        }
-    // otherwise the plugin does the rendering
-    } else {
-        return 'You must activate the epfl theme';
+    ob_start();
+    try {
+       do_action("epfl_tableau_action", $url, $width, $height);
+       return ob_get_contents();
+    } finally {
+        ob_end_clean();
     }
+
 }
 
 add_action( 'register_shortcode_ui', __NAMESPACE__ . '\ShortCake\config');
