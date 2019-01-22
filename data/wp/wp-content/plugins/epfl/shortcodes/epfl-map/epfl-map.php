@@ -32,6 +32,12 @@ function epfl_map_check_parameters( string $query, string $lang): bool
  */
 function epfl_map_process_shortcode( $attributes, string $content = null ): string
 {
+    // if supported delegate the rendering to the theme
+    if (!has_action("epfl_map_action"))
+    {
+        Utils::render_user_msg('You must activate the epfl theme');
+    }
+
     // get parameters
     $atts = shortcode_atts(array(
         'query'  => '',
@@ -52,27 +58,20 @@ function epfl_map_process_shortcode( $attributes, string $content = null ): stri
         return Utils::render_user_msg("Map shortcode: Please check required parameters");
     }
 
-    // if supported delegate the rendering to the theme
-    if (has_action("epfl_map_action")) {
+    ob_start();
 
-        ob_start();
+    try {
 
-        try {
+       do_action("epfl_map_action", $query, $lang);
 
-           do_action("epfl_map_action", $query, $lang);
+       return ob_get_contents();
 
-           return ob_get_contents();
+    } finally {
 
-        } finally {
-
-            ob_end_clean();
-        }
-
-    // otherwise the plugin does the rendering
-    } else {
-
-        return 'You must activate the epfl theme';
+        ob_end_clean();
     }
+
+
 }
 
 add_action( 'init', function() {

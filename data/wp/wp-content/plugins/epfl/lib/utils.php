@@ -83,7 +83,9 @@ Class Utils
 
         /* Building target host name with scheme */
         $target_host  = $url_details['scheme']."://".$url_details['host'];
-        if($url_details['port'] != "") $target_host .= ":".$url_details['port'];
+        if(array_key_exists('port', $url_details) && $url_details['port'] != "") $target_host .= ":".$url_details['port'];
+
+        $query = (array_key_exists('query', $url_details))?$url_details['query']:"";
 
         $adapter = new Prometheus\Storage\APC();
 
@@ -97,7 +99,7 @@ Class Utils
         $gauge->set($duration, [home_url( $wp->request ),
                                 $target_host,
                                 $url_details['path'],
-                                $url_details['query'],
+                                $query,
                                 floor(microtime(true)*1000)]);
 
     }

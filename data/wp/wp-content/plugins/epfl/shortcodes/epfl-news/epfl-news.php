@@ -115,69 +115,69 @@ function epfl_news_check_required_parameters($channel, $lang) {
  */
 function epfl_news_2018_process_shortcode($atts = [], $content = '', $tag = '') {
 
-        // shortcode parameters
-        $atts = shortcode_atts(array(
-                'channel'       => '',
-                'lang'          => '',
-                'template'      => '',
-                'nb_news'       => '',
-                'all_news_link' => '',
-                'category'      => '',
-                'themes'        => '',
-                'projects'      => '',
-        ), $atts, $tag);
+    // if supported delegate the rendering to the theme
+    if (!has_action("epfl_news_action"))
+    {
+        Utils::render_user_msg('You must activate the epfl theme');
+    }
 
-        // sanitize parameters
-        $channel       = sanitize_text_field( $atts['channel'] );
-        $lang          = sanitize_text_field( $atts['lang'] );
-        $template      = sanitize_text_field( $atts['template'] );
-        $all_news_link = sanitize_text_field( $atts['all_news_link']);
-        $nb_news       = sanitize_text_field( $atts['nb_news'] );
-        $category      = sanitize_text_field( $atts['category'] );
-        $themes        = sanitize_text_field( $atts['themes'] );
-        $projects      = sanitize_text_field( $atts['projects'] );
+    // shortcode parameters
+    $atts = shortcode_atts(array(
+            'channel'       => '',
+            'lang'          => '',
+            'template'      => '',
+            'nb_news'       => '',
+            'all_news_link' => '',
+            'category'      => '',
+            'themes'        => '',
+            'projects'      => '',
+    ), $atts, $tag);
 
-        if (epfl_news_check_required_parameters($channel, $lang) == FALSE) {
-            return Utils::render_user_msg("News shortcode: Please check required parameters");
-        }
+    // sanitize parameters
+    $channel       = sanitize_text_field( $atts['channel'] );
+    $lang          = sanitize_text_field( $atts['lang'] );
+    $template      = sanitize_text_field( $atts['template'] );
+    $all_news_link = sanitize_text_field( $atts['all_news_link']);
+    $nb_news       = sanitize_text_field( $atts['nb_news'] );
+    $category      = sanitize_text_field( $atts['category'] );
+    $themes        = sanitize_text_field( $atts['themes'] );
+    $projects      = sanitize_text_field( $atts['projects'] );
 
-        $url = epfl_news_build_api_url(
-            $channel,
-            $template,
-            $nb_news,
-            $lang,
-            $category,
-            $themes,
-            $projects
-        );
+    if (epfl_news_check_required_parameters($channel, $lang) == FALSE) {
+        return Utils::render_user_msg("News shortcode: Please check required parameters");
+    }
 
-        $actus = Utils::get_items($url);
+    $url = epfl_news_build_api_url(
+        $channel,
+        $template,
+        $nb_news,
+        $lang,
+        $category,
+        $themes,
+        $projects
+    );
 
-        if (property_exists($actus, 'detail') && $actus->detail === "Not found.") {
-            return Utils::render_user_msg("News shortcode: Please check required parameters");
-        }
+    $actus = Utils::get_items($url);
 
-        // if supported delegate the rendering to the theme
-        if (has_action("epfl_news_action")) {
+    if (property_exists($actus, 'detail') && $actus->detail === "Not found.") {
+        return Utils::render_user_msg("News shortcode: Please check required parameters");
+    }
 
-            ob_start();
 
-            try {
+    ob_start();
 
-               do_action("epfl_news_action", $actus, $template, $all_news_link);
+    try {
 
-               return ob_get_contents();
+       do_action("epfl_news_action", $actus, $template, $all_news_link);
 
-            } finally {
+       return ob_get_contents();
 
-                ob_end_clean();
-            }
+    } finally {
 
-        // otherwise the plugin does the rendering
-        } else {
+        ob_end_clean();
+    }
 
-            return 'You must activate the epfl theme';
-        }
+
     }
 
 add_action( 'register_shortcode_ui', ['ShortCakeNewsConfig', 'config'] );

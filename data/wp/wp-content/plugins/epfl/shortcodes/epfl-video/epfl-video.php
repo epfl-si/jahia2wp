@@ -72,6 +72,13 @@ function epfl_video_process_shortcode( $atts, $content = null ) {
   */
   if(preg_match('/(youtube\.com|youtu\.be)/', $url)===1 && preg_match('/\/embed\//', $url)===0)
   {
+
+    // if supported delegate the rendering to the theme
+    if (!has_action("epfl_video_action"))
+    {
+        Utils::render_user_msg('You must activate the epfl theme');
+    }
+
     /* Extracting query string */
     $query = parse_url($url, PHP_URL_QUERY);
 
@@ -130,10 +137,6 @@ function epfl_video_process_shortcode( $atts, $content = null ) {
     $url = "https://tube.switch.ch/embed/".$video_id;
   }
 
-
-  // if supported delegate the rendering to the theme
-  if (has_action("epfl_video_action")) {
-
     ob_start();
 
     try {
@@ -147,11 +150,6 @@ function epfl_video_process_shortcode( $atts, $content = null ) {
         ob_end_clean();
     }
 
-  // otherwise the plugin does the rendering
-  } else {
-
-      return 'You must activate the epfl theme';
-  }
 }
 
 add_action( 'register_shortcode_ui', ['ShortCakeVideoConfig', 'config'] );

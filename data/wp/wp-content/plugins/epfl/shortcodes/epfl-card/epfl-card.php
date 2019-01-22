@@ -17,6 +17,13 @@ require_once 'shortcake-config.php';
  * @param $tag: the name of shortcode. epfl_card in our case.
  */
 function epfl_card_process_shortcode($atts = [], $content = '', $tag = '') {
+
+    // if supported delegate the rendering to the theme
+    if (!has_action("epfl_card_action"))
+    {
+        return Utils::render_user_msg('You must activate the epfl theme');
+    }
+
     // sanitize parameters
     foreach($atts as $key => $value) {
         if (strpos($key, 'content') !== false)
@@ -33,27 +40,19 @@ function epfl_card_process_shortcode($atts = [], $content = '', $tag = '') {
         $atts['gray_wrapper'] = false;
     }
 
-    // if supported delegate the rendering to the theme
-    if (has_action("epfl_card_action")) {
+    ob_start();
 
-        ob_start();
+    try {
 
-        try {
+       do_action("epfl_card_action", $atts);
 
-           do_action("epfl_card_action", $atts);
+       return ob_get_contents();
 
-           return ob_get_contents();
+    } finally {
 
-        } finally {
-
-            ob_end_clean();
-        }
-
-    // otherwise the plugin does the rendering
-    } else {
-
-        return 'You must activate the epfl theme';
+        ob_end_clean();
     }
+
 }
 
 add_action( 'register_shortcode_ui', ['ShortCakeCardConfig', 'config'] );

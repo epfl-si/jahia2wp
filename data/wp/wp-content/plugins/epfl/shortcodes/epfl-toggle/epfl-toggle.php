@@ -11,6 +11,12 @@ require_once 'shortcake-config.php';
 
 function epfl_toggle_process_shortcode( $atts, $content = null ) {
 
+    // if supported delegate the rendering to the theme
+    if (!has_action("epfl_toggle_action"))
+    {
+        Utils::render_user_msg('You must activate the epfl theme');
+    }
+
   $atts = shortcode_atts( array(
     'title' => 'Title',
     'state' => 'open',
@@ -19,9 +25,6 @@ function epfl_toggle_process_shortcode( $atts, $content = null ) {
   // sanitize parameters
   $state  = sanitize_text_field( $atts['state'] );
   $title  = sanitize_text_field( $atts['title'] );
-
-  // if supported delegate the rendering to the theme
-  if (has_action("epfl_toggle_action")) {
 
     ob_start();
 
@@ -35,11 +38,6 @@ function epfl_toggle_process_shortcode( $atts, $content = null ) {
         ob_end_clean();
     }
 
-  // otherwise the plugin does the rendering
-  } else {
-
-      return 'You must activate the epfl theme';
-  }
 
 }
 

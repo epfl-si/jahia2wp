@@ -7,6 +7,14 @@ define('Epfl\SocialFeed\DEFAULT_HEIGHT', 450);
 define('Epfl\SocialFeed\DEFAULT_WIDTH', 374);
 
 function epfl_social_feed_process_shortcode($atts) {
+
+    // if supported delegate the rendering to the theme
+    if (!has_action("epfl_social_feed_action"))
+    {
+        Utils::render_user_msg('You must activate the epfl theme');
+    }
+
+
     // extract shortcode parameters
     $atts = shortcode_atts(array(
             'twitter_url'  => '',
@@ -21,19 +29,15 @@ function epfl_social_feed_process_shortcode($atts) {
     $atts['width'] = empty($atts['width']) ? DEFAULT_WIDTH : $atts['width'];
     $atts['twitter_limit'] = intval($atts['twitter_limit']) == 0 ? '' : $atts['twitter_limit'];
 
-    if (has_action("epfl_social_feed_action")) {
-        ob_start();
+    ob_start();
 
-        try {
-           do_action("epfl_social_feed_action", $atts);
-           return ob_get_contents();
-        } finally {
-          ob_end_clean();
-        }
-    // otherwise the plugin does the rendering
-    } else {
-        return 'You must activate the epfl theme';
+    try {
+       do_action("epfl_social_feed_action", $atts);
+       return ob_get_contents();
+    } finally {
+      ob_end_clean();
     }
+
 }
 
 add_action( 'register_shortcode_ui', __NAMESPACE__ . '\ShortCake\config' );

@@ -46,6 +46,14 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
        'columns' => '3',
     ), $attributes );
 
+
+  // if supported delegate the rendering to the theme
+  if(!has_action("epfl_people_action"))
+  {
+    return Utils::render_user_msg('You must activate the epfl theme');
+  }
+
+
    // sanitize the parameters
   $units    = sanitize_text_field( $attributes['units'] );
   $scipers  = sanitize_text_field( $attributes['scipers'] );
@@ -76,7 +84,13 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
   $items = Utils::get_items($url);
 
   if (false === $items) {
-    return;
+    return Utils::render_user_msg("People shortcode: Error retrieving items");
+  }
+
+  // If webservice returns an error
+  if(property_exists($items, 'Error'))
+  {
+    return Utils::render_user_msg("People shortcode: Webservice error: ".$items->Error->text);
   }
 
   // Create a persons list
@@ -94,9 +108,7 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
     $persons = epfl_people_sortArrayByArray($persons, $scipers);
   }
 
-  // if supported delegate the rendering to the theme
-  if (has_action("epfl_people_action"))
-  {
+
     ob_start();
 
     try
@@ -108,12 +120,8 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
     {
       ob_end_clean();
     }
-  }   
-  // otherwise the plugin does the rendering
-  else 
-  {
-    return 'You must activate the epfl theme';
-  }
+
+
 }
 
 // init action

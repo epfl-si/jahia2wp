@@ -129,6 +129,12 @@ function epfl_memento_check_required_parameters($memento, $lang)
  */
 function epfl_memento_2018_process_shortcode($atts = [], $content = '', $tag = '') {
 
+    // if supported delegate the rendering to the theme
+    if (!has_action("epfl_event_action"))
+    {
+        Utils::render_user_msg('You must activate the epfl theme');
+    }
+
     // extract shortcode parameters
     $atts = shortcode_atts(array(
             'memento'  => '',
@@ -164,27 +170,19 @@ function epfl_memento_2018_process_shortcode($atts = [], $content = '', $tag = '
     );
     $events = Utils::get_items($url);
 
-     // if supported delegate the rendering to the theme
-    if (has_action("epfl_event_action")) {
+    ob_start();
 
-        ob_start();
+    try {
 
-        try {
+       do_action("epfl_event_action", $events, $template, $memento);
 
-           do_action("epfl_event_action", $events, $template, $memento);
+       return ob_get_contents();
 
-           return ob_get_contents();
+    } finally {
 
-        } finally {
-
-            ob_end_clean();
-        }
-
-    // otherwise the plugin does the rendering
-    } else {
-
-        return 'You must activate the epfl theme';
+        ob_end_clean();
     }
+
 }
 
 add_action( 'init', function() {

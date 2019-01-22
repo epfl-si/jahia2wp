@@ -4,8 +4,11 @@ require_once 'shortcake-config.php';
 
 function epfl_links_group_process_shortcode($atts) {
 
-  // if supported delegate the rendering to the theme
-  if (has_action("epfl_links_group_action")) {
+    // if supported delegate the rendering to the theme
+    if (!has_action("epfl_links_group_action"))
+    {
+        Utils::render_user_msg('You must activate the epfl theme');
+    }
 
     ob_start();
 
@@ -20,11 +23,7 @@ function epfl_links_group_process_shortcode($atts) {
         ob_end_clean();
     }
 
-  // otherwise the plugin does the rendering
-  } else {
 
-      return 'You must activate the epfl theme';
-  }
 }
 
 add_action( 'register_shortcode_ui', ['ShortCakeLinksGroupConfig', 'config'] );
