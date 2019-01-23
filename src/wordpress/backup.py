@@ -77,7 +77,7 @@ class WPBackup:
         # set filenames
         self.tarfile = os.path.join(
                 self.path,
-                "_".join((self.timestamp, self.backup_pattern)) + ".tar")
+                "_".join((self.timestamp, self.backup_pattern)) + ".tar.gz")
         self.sqlfile = os.path.join(
                 self.path,
                 "_".join((self.timestamp, self.backup_pattern)) + ".sql")

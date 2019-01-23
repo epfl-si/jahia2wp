@@ -319,7 +319,10 @@ class Utils(object):
     @staticmethod
     def generate_tar_file(tar_file_path, tar_listed_inc_file_path, source_path):
         """
-        Generate a tar file from a WordPress installation.
+        Generate a tar file from a WordPress installation. If compression is needed, just add the appropriate
+        extension at the end, ex: file.tar.gz
+
+
         Doing a simple tar file backups everything in the folder and also in subfolders. This can be a problem in case
         of multiple WordPress installation in subfolders of folder we have to backup.
         To avoid to backup those WordPress installations, we'll first list files/folders to backup (using "find") and
@@ -343,12 +346,12 @@ class Utils(object):
         # which will be very useful when backuping multiple WordPress in a subfolder hierarchy
         cmd_all_others = 'find {0} -print | grep "{0}/wp-"'.format(source_path)
 
-        command = "{{ {} ; {}; }} | tar --create --no-check-device --file={} --listed-incremental={} -T -".format(
-            cmd_first_level_files,
-            cmd_all_others,
-            tar_file_path,
-            tar_listed_inc_file_path
-        )
+        # --auto-compress is used to automatically detect wished file compression depending on given file extension
+        command = "{{ {} ; {}; }} | tar --auto-compress --create --no-check-device --file={} " \
+                  "--listed-incremental={} -T -".format(cmd_first_level_files,
+                                                        cmd_all_others,
+                                                        tar_file_path,
+                                                        tar_listed_inc_file_path)
         return Utils.run_command(command)
 
     @staticmethod
