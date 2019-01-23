@@ -1512,8 +1512,12 @@ class MenuItemController extends CustomPostTypeController
      */
     static function ajax_enumerate () {
         $transient_name = 'epfl-menus-all-external-item-ids';
-        if ((!WP_DEBUG) && (false !== ($cached = get_transient($transient_name)))) {
-            return $cached;
+        if (false !== ($cached = get_transient($transient_name))) {
+            // don't fetch cached data if we are in debug mode
+            if (!defined('WP_DEBUG') || (!WP_DEBUG))
+            {
+                return $cached;
+            }
         }
 
         // The Varnish-side limit is 30 seconds, however the
