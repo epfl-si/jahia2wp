@@ -222,7 +222,13 @@ class MenuItemBag
             if (! $parent_id) {
                 $safe[] = $id;
             } elseif (! array_key_exists($parent_id, $this->items)) {
-                throw new TreeError("Parent of $id ($parent_id) unknown");
+                // Houston, we have an inconsistency. wp-admin should show it
+                // in menu editor. Until someone manualy fix it,
+                //  keep the item hidden
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    // debuggers may want to understand what is currently happening
+                    error_log("Menu tree error : Parent of $id ($parent_id) unknown; ignoring this entry and all the current children");
+                }
             } elseif (! array_key_exists($parent_id, $children)) {
                 $children[$parent_id] = array($id);
             } else {
