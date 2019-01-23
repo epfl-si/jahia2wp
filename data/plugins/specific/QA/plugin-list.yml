@@ -1,0 +1,3 @@
+plugins:
+  - name: EPFL-WP-Settings-Add_Jira_collector_to_page-master
+    config: !include EPFL-WP-Settings-Add_Jira_collector_to_page-master/config-plugin.yml
