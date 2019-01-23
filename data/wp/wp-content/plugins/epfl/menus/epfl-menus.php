@@ -1514,7 +1514,7 @@ class MenuItemController extends CustomPostTypeController
         $transient_name = 'epfl-menus-all-external-item-ids';
         if (false !== ($cached = get_transient($transient_name))) {
             // don't fetch cached data if we are in debug mode
-            if !(defined('WP_DEBUG') && (WP_DEBUG))
+            if (!(defined('WP_DEBUG') && (WP_DEBUG)))
             {
                 return $cached;
             }
