@@ -212,9 +212,11 @@ class MenuItemBag
     */
     private function _MUTATE_validate_and_toposort () {
         // Based on https://en.wikipedia.org/wiki/Topological_sorting#Kahn's_algorithm
-        $children = array();    // Adjacency list, keyed by parent ID
-        $safe     = array();    // List of nodes with no loops in their ancestry
-                                // (S in the Wikipedia algorithm)
+        $children        = array();    // Adjacency list, keyed by parent ID
+        $safe            = array();    // List of nodes with no loops in their ancestry
+                                       // (S in the Wikipedia algorithm)
+        $ids_to_ignore   = array();    // if we have a parent id without the data,
+                                       // ignore the full subtree
 
         foreach ($this->items as $item) {
             $id = $this->_get_id($item);
@@ -225,9 +227,17 @@ class MenuItemBag
                 // Houston, we have an inconsistency. wp-admin should show it
                 // in menu editor. Until someone manualy fix it,
                 //  keep the item hidden
+                $ids_to_ignore[] = $id;
                 if (defined('WP_DEBUG') && WP_DEBUG) {
                     // debuggers may want to understand what is currently happening
                     error_log("Menu tree error : Parent of $id ($parent_id) unknown; ignoring this entry and all the current children");
+                }
+            } elseif (in_array($parent_id, $ids_to_ignore)) {
+                // as the parent has an inconsistency, ignore all the children too
+                $ids_to_ignore[] = $id;
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    // debuggers may want to understand what is currently happening
+                    error_log("Menu tree error : Ignoring this entry $id as the parent $parent_id is currently ignored");
                 }
             } elseif (! array_key_exists($parent_id, $children)) {
                 $children[$parent_id] = array($id);
