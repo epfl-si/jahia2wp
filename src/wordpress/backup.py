@@ -77,7 +77,7 @@ class WPBackup:
         # set filenames
         self.tarfile = os.path.join(
                 self.path,
-                "_".join((self.timestamp, self.backup_pattern)) + ".tar")
+                "_".join((self.timestamp, self.backup_pattern)) + ".tar.gz")
         self.sqlfile = os.path.join(
                 self.path,
                 "_".join((self.timestamp, self.backup_pattern)) + ".sql")
@@ -145,17 +145,20 @@ class WPBackup:
         """
         result = False
 
-        if not os.path.exists(self.path):
-            if not self.dry_run:
-                os.makedirs(self.path)
-
-        logging.info("%s - Backuping into %s", repr(self.wp_site), self.path)
-
         try:
+
+            if not os.path.exists(self.path):
+                if not self.dry_run:
+                    os.makedirs(self.path)
+
+            logging.info("%s - Backuping into %s", repr(self.wp_site), self.path)
+
             self.generate_wp_files()
             self.generate_db_dump()
             logging.info("%s - %s WP backup is created", repr(self.wp_site), self.backup_pattern)
+
             result = True
+
         except WPException as err:
             logging.error("%s - WP backup failed: %s", repr(self.wp_site), err)
 
