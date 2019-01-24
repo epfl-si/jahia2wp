@@ -102,6 +102,17 @@ class WPConfig:
                 else:
                     yield WPResult(wp_config.wp_site.path, settings.WP_SITE_INSTALL_KO, "", "", "", "", "")
 
+    def wp_option_exists(self, option_name):
+        """
+        Tells if an option exists in WordPress. This check can be done before we execute WPCLI to retrieve option
+        value because if it doesn't exists, exit code will be 1 and an exception will be raised...
+
+        :param option_name: option to check
+        :return: True|False
+        """
+        command = "option list --search={} --format=csv --field=option_name".format(option_name)
+        return self.run_wp_cli(command) is not True
+
     def run_wp_cli(self, command, encoding=sys.getdefaultencoding(), pipe_input=None, extra_options=None):
         """
         Execute a WP-CLI command. The command doesn't have to start with 'wp '. It will be added automatically, and
