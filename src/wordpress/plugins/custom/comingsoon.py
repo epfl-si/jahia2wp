@@ -17,7 +17,7 @@ class WPComingSoonConfig(WPPluginConfig):
         option = json.loads(self.run_wp_cli('option get seed_csp4_settings_content --format=json'))
 
         # Setting options
-        option['logo'] = 'https://mediacom.epfl.ch/files/content/sites/mediacom/files/EPFL-Logo.jpg'
+        option['logo'] = 'https://www.epfl.ch/campus/services/wp-content/uploads/2018/12/EPFL-Logo-55mm-RVB.svg'
         option['headline'] = 'Something new is coming...'
         # Building WP-ADMIN URL from WP site URL.
         option['description'] = '&nbsp;<div class="footer-content"><nav class="footer-navigation" role="navigation"> \
