@@ -325,7 +325,7 @@ class MenuItemBag
                  $ancestor = $this->get_parent($ancestor))
             {
                 $ancestor_id = $this->_get_id($ancestor);
-                if ($ancestor_ids[$ancestor_id]) {
+                if (isset($ancestor_ids[$ancestor_id])){
                     throw new TreeLoopError($ancestor_ids);
                 } else {
                     $ancestor_ids[$ancestor_id] = 1;
