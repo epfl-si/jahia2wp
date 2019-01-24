@@ -128,22 +128,33 @@ class WPGenerator:
         # Site category is not given
         if 'category' not in self._site_params:
 
-            # We will use default value for category
-            category = settings.DEFAULT_WP_SITE_CATEGORY
-
             # We try to get it from DB in case of website already exists
             if self.wp_config.is_installed:
-                command = "option get {}".format(settings.OPTION_WP_SITE_CATEGORY)
-                site_category = self.run_wp_cli(command)
 
-                # If we found something in DB
-                if site_category:
-                    category = site_category
-                else:
-                    # Because we don't have info in DB, we add a default value
+                category = None
+
+                # If option exists in DB
+                if self.wp_config.wp_option_exists(settings.OPTION_WP_SITE_CATEGORY):
+
+                    command = "option get {}".format(settings.OPTION_WP_SITE_CATEGORY)
+                    site_category = self.run_wp_cli(command)
+
+                    # If option is not empty
+                    if site_category != "":
+                        category = site_category
+
+                # Because we don't have info in DB, we add a default value
+                if category is None:
+                    # We will use default value for category
+                    category = settings.DEFAULT_WP_SITE_CATEGORY
+
                     command = "option update {} '{}'".format(settings.OPTION_WP_SITE_CATEGORY,
                                                              settings.DEFAULT_WP_SITE_CATEGORY)
                     self.run_wp_cli(command)
+
+            else:  # WordPress is not installed
+                # We will use default value for category
+                category = settings.DEFAULT_WP_SITE_CATEGORY
 
             # We initialize value
             self._site_params['category'] = category
