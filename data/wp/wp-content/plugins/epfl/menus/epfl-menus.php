@@ -1406,6 +1406,7 @@ class MenuItemController extends CustomPostTypeController
 
         $thisclass = get_called_class();
         $thisclass::hook_meta_boxes();
+        add_filter('hidden_meta_boxes', array($thisclass, 'hidden_meta_box'), 10, 2);
 
         add_action('init', array($thisclass, 'register_post_type'));
 
@@ -1421,6 +1422,17 @@ class MenuItemController extends CustomPostTypeController
         static::hook_admin_list();
 
         static::_auto_fields_controller()->hook();
+    }
+    /**
+     * Show "External menus" screen options by default
+     */
+    static function hidden_meta_box($hidden, $screen) {
+        //make sure we are dealing with the correct screen
+        if ( ('nav-menus' == $screen->base) && ('nav-menus' == $screen->id) ){
+            $to_remove = array('add-post-type-epfl-external-menu');
+            $hidden = array_diff($hidden, $to_remove);
+        }
+        return $hidden;
     }
 
     static function hook_pubsub ($emi) {
