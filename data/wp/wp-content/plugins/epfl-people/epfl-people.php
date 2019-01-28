@@ -4,7 +4,7 @@
  * Plugin Name: EPFL People shortcode
  * Plugin URI: https://github.com/epfl-idevelop/EPFL-WP-SC-People
  * Description: provides a shortcode to display results from People
- * Version: 1.2
+ * Version: 1.3
  * Author: Emmanuel JAEP
  * Author URI: https://people.epfl.ch/emmanuel.jaep?lang=en
  * Contributors: LuluTchab, GregLeBarbar
@@ -54,7 +54,16 @@ function epfl_people_process_shortcode( $attributes, $content = null )
         if ( ( strcasecmp( parse_url( $url, PHP_URL_HOST ), 'people.epfl.ch' ) == 0 or strcasecmp( parse_url( $url, PHP_URL_HOST ), 'test-people.epfl.ch' ) == 0 ) && epfl_people_url_exists( $url ) ) {
 
             // Get the content of the page
+            $start = microtime(true);
             $response = wp_remote_get( $url );
+            $end = microtime(true);
+
+            // If there is some mechanism to log webservice call, we do it
+            if(has_action('epfl_log_webservice_call'))
+            {
+                do_action('epfl_log_webservice_call', $url, $end-$start);
+            }
+
             $page = wp_remote_retrieve_body( $response );
 
             // cache the result
