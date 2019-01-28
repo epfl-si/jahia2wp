@@ -2,13 +2,12 @@
 /**
  * Plugin Name: EPFL
  * Description: Provides many epfl shortcodes
- * @version: 1.13
+ * @version: 1.14
  * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
 require_once 'lib/utils.php';
 require_once 'lib/language.php';
-require_once 'lib/prometheus.php';
 require_once 'shortcodes/epfl-news/epfl-news.php';
 require_once 'shortcodes/epfl-memento/epfl-memento.php';
 require_once 'shortcodes/epfl-toggle/epfl-toggle.php';
