@@ -1,0 +1,6 @@
+<Files "metrics.php">
+    Require ip 172.16.0.0/12
+    Require ip ::1
+    Require ip 10.180.21.0/24
+    Require local
+</Files>
