@@ -2,7 +2,7 @@
 /**
  * Plugin Name: EPFL News shortcode
  * Description: provides a shortcode to display news feed
- * @version: 1.1
+ * @version: 1.2
  * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
