@@ -559,7 +559,9 @@ class Site:
 
                 # the tags that can contain boxes. Sidebar boxes that are in <extra> tags
                 # are parsed separately
-                tags = ["banner", "main", "col4", "col5" "col6", "col7", "col8"]
+                # Tags starting with "oneCol_*" are for special template like the one used for alice.epfl.ch
+                tags = ["banner", "main", "col4", "col5" "col6", "col7", "col8", "oneCol_left_links",
+                        "oneCol_down_links", "oneCol_up_links", "oneCol_right_links"]
 
                 for tag in tags:
                     self.add_boxes(xml_page=xml_page,
