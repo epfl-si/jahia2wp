@@ -14,5 +14,5 @@ OUTFILE=`echo "${SITES_ROOT_PATH}" | sed 's/\//_/g'`
 OUTFILE="/tmp/${OUTFILE}"
 
 echo -n "Extracting site list... "
-find ${SITES_ROOT_PATH} -name "wp-config.php" -printf '%h\n' > ${OUTFILE}
+find ${SITES_ROOT_PATH} -name "wp-config.php" -printf '%h\n' | sort > ${OUTFILE}
 echo "done (saved in ${OUTFILE}"
