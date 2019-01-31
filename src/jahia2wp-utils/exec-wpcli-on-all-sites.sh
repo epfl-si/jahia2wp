@@ -10,15 +10,17 @@ then
 fi
 
 
-SITES_ROOT_PATH=$1
 CMD_TO_EXEC=$2
-TMP_FILE="/tmp/inventory"
+SITES_ROOT_PATH=`echo ${1%/}`
 
+OUTFILE=`echo "${SITES_ROOT_PATH}" | sed 's/\//_/g'`
+OUTFILE="/tmp/${OUTFILE}"
 
-
-echo -n "Extracting site list... "
-find ${SITES_ROOT_PATH} -name "wp-config.php" -printf '%h\n' > ${TMP_FILE}
-echo "done"
+if [ ! -e ${OUTFILE} ]
+then
+	echo "Inventory file '${OUTFILE}' not found. Run inventory.sh before."
+	exit 1
+fi
 
 echo "Executing command on each site..."
 
@@ -27,4 +29,4 @@ do
   echo "${s}..."
   eval "${CMD_TO_EXEC} --path=$s"
 
-done < ${TMP_FILE}
+done < ${OUTFILE}
