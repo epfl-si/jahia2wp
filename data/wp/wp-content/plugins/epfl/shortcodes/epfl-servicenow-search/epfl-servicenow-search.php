@@ -8,14 +8,12 @@ function epfl_service_now_search_process_shortcode( $atts, $content = null ) {
 ob_start();
 
 ?>
-<div class="container-full p-lg-5">
-    <div class="container">
-        <form onsubmit="$('#snow-search').click()">
-           <input type="text" id="snow-keyword" size="30">
-           <span id="snow-search" class="dashicons dashicons-search" style="font-size:32px;cursor:pointer" onclick="window.open('https://support.epfl.ch/help?id=search&spa=1&q='+$('#snow-keyword').val(), '_blank');"></span>
-        </form>
-     </div>
-</div>
+
+<form onsubmit="$('#snow-search').click()">
+   <input type="text" id="snow-keyword" size="30">
+   <span id="snow-search" class="dashicons dashicons-search" style="font-size:32px;cursor:pointer" onclick="window.open('https://support.epfl.ch/help?id=search&spa=1&q='+$('#snow-keyword').val(), '_blank');"></span>
+</form>
+
 
 <?php
 
