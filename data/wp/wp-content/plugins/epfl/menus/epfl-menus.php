@@ -120,9 +120,10 @@ class MenuItemBag
      * - every parent of an item that is 'current' is 'current_item_parent'
      *
      * - every parent or ancestor of an item that is 'current' is
-         'current_item_ancestor'
+     *   'current_item_ancestor'
      *
-     * - every node that has children has class 'menu-item-has-children'
+     * - a node has class 'menu-item-has-children' if and only if
+     *   it has children
      */
     private function _MUTATE_fixup_current_attributes_and_classes() {
         $current_items = array();  // Plural 'coz why not?
@@ -158,6 +159,17 @@ class MenuItemBag
         foreach ($this->items as $item) {
             if (! ($parent_id = $this->_get_parent_id($item))) continue;
             $all_parents[$parent_id] = 1;
+        }
+
+        // Fix up 'menu-item-has-children' class or lack thereof
+        foreach ($this->items as $item) {
+            if ($classes = $this->items[$parent_id]->classes) {
+                $this->items[$parent_id]->classes = array_filter(
+                    $classes,
+                    function($class) {
+                        return $class != 'menu-item-has-children';
+                    });
+            }
         }
         foreach (array_keys($all_parents) as $parent_id) {
             $this->items[$parent_id]->classes[] = 'menu-item-has-children';
@@ -365,9 +377,11 @@ class MenuItemBag
      * @return A copy of $this without the ExternalMenuItem nodes
      */
     function trim_external () {
-        return $this->pluck(function($item) {
+        $retval = $this->pluck(function($item) {
             return ExternalMenuItem::looks_like($item);
-        })[0];
+        })[0]->copy();
+        $retval->_MUTATE_fixup_current_attributes_and_classes();
+        return $retval;
     }
 
     /**
