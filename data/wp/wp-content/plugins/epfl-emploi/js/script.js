@@ -1,11 +1,19 @@
-	/*******/
-	// TO SET BASED ON PAGE (language and position filter)
-	var lang = 2;
-	var exceptPositions = ["15050", "15060"];
-	/*******/
 
-	var defaultUrl = document.getElementById('EPFLEmploisDefaultUrl').value;
-    var searchPositionUrl = document.getElementById('EPFLEmploisSearchPositionUrl').value;
+	/* Parameters */
+	var lang = $('#EPFLEmploiLang').val();
+	var exceptPositions = $('#EPFLEmploiExceptPositions').val().split(",").map(function(e){return e.trim();});
+
+	/* URL */
+	var defaultUrl = $('#EPFLEmploiDefaultUrl').val();
+    var searchPositionUrl = $('#EPFLEmploiSearchPositionUrl').val();
+
+    /* Getting translations */
+    var transFunction = $('#EPFLEmploiTransFunction').val();
+    var transLocation = $('#EPFLEmploiTransLocation').val();
+    var transWorkRate = $('#EPFLEmploiTransWorkRate').val();
+    var transEmplTerm = $('#EPFLEmploiTransEmplTerm').val();
+
+    /***************************/
 
 	function onSelectionChanged() {
 	 var url = defaultUrl
@@ -35,7 +43,6 @@
 
 	function doSearch() {
 	var keywords = jQuery("#id_keywords").val().split(" ").join("+");
-	console.log(keywords);
 	}
 
 	function toggleExpand(elem) {
@@ -64,21 +71,11 @@
 
 
 
-	var titles = [];
-	titles[2] = {};
-	titles[3] = {};
-	   titles[2]["k15"] = {title: "Function", key: "searchPosition"};
-	   titles[2]["k1004"] = {title: "Location", key: "searchSkill1004"};
-	   titles[2]["k13"] = {title: "Work rate", key: "searchEmploymentType"};
-	titles[2]["k27"] = {title: "Term of employment", key: "searchContractType"};
-	/*titles[2]["k10"] = {title: "School / VP", key: "searchFunction"};*/
-
-
-	   titles[3]["k15"] = {title: "Fonction", key: "searchPosition"};
-	   titles[3]["k1004"] = {title: "Lieu de travail", key: "searchSkill1004"};
-	titles[3]["k13"] = {title: "Taux d'occupation", key: "searchEmploymentType"};
-	titles[3]["k27"] = {title: "Type de contrat", key: "searchContractType"};
-	/*titles[3]["k10"] = {title: "Faculté / VP", key: "searchFunction"};*/
+	var titles = {};
+		titles["k15"] = {title: transFunction, key: "searchPosition"};
+	   	titles["k1004"] = {title: transLocation, key: "searchSkill1004"};
+	   	titles["k13"] = {title: transWorkRate, key: "searchEmploymentType"};
+		titles["k27"] = {title: transEmplTerm, key: "searchContractType"};
 
 	                simpleAJAXLib = {
 	               init: function () {
@@ -123,13 +120,13 @@
 
 	                 var root = jQuery("#toggle-pane-0");
 	               var html = '';
-	                 for(var key in titles[lang]) {
-	                    html += '<div class="two-cols clearfix form filter-group"><h3 class="panel-header">'+titles[lang][key].title+'</h3><ul id="id_themes">';
+	                 for(var key in titles) {
+	                    html += '<div class="two-cols clearfix form filter-group"><h3 class="panel-header">'+titles[key].title+'</h3><ul id="id_themes">';
 
 	                               jQuery.each(array[key], function (index, value) {
 	                                                 let id = jQuery(value).find("id")[0].textContent;
 	                                                 let text = jQuery(value).find("text")[0].textContent;
-	                         html += '<li><label><input class="checkbox" key="'+titles[lang][key].key+'" onchange="onSelectionChanged()" type="checkbox" value="'+id+'"><span class="filter-item">'+text+'</span></label></li>';
+	                         html += '<li><label><input class="checkbox" key="'+titles[key].key+'" onchange="onSelectionChanged()" type="checkbox" value="'+id+'"><span class="filter-item">'+text+'</span></label></li>';
 	                     });
 
 	                     html += '</ul></div>';

@@ -12,15 +12,34 @@
 function epfl_emploi_process_shortcode( $atts, $content = null ) {
 
     $atts = shortcode_atts( array(
-        'url' => ''
+        'url' => '',
+        'except_positions' => '',
     ), $atts );
 
-    $url = $atts['url'];
+    $url                = $atts['url'];
+    $except_positions   = $atts['except_positions'];
 
     if($url == '')
     {
         return '<b><font color="red">Please provide an URL</font></b>';
     }
+
+    /* Lang to numeric id for JS code */
+    $lang_to_id = array('en' => 2, 'fr' => 3);
+
+    /* If Polylang installed */
+    if(function_exists('pll_current_language'))
+    {
+        $lang = pll_current_language();
+        /* Set in english if not in allowed languages */
+        if(!array_key_exists($lang, $lang_to_id)) $lang = 'en';
+
+    }
+    else /* Polylang not installed */
+    {
+        $lang = 'en';
+    }
+
 
     /* Including CSS file*/
     wp_enqueue_style( 'epfl_emploi_style', plugin_dir_url(__FILE__).'css/style.css' );
@@ -46,15 +65,31 @@ ob_start();
 
 ?>
 
-<div class="panel-content keywords-panel form"><input id="id_keywords" name="keywords" type="text" /><button class="themed search-button keywords-button" name="search" onclick="onSelectionChanged()"><span class="icon-search">&nbsp;</span></button></div>
+<div class="panel-content keywords-panel form"><input id="id_keywords" name="keywords" type="text" />
+<button class="themed search-button keywords-button" name="search" onclick="onSelectionChanged()"><span class="icon-search">&nbsp;</span></button></div>
 
 <div aria-expanded="true" aria-hidden="false" aria-labelledby="toggle-1" class="list-unstyled toggle-expanded" id="toggle-pane-0">&nbsp;</div>
 
 <div class="toolbar actu-advanced-search-toolbar ui-toolbar" data-widget="toolbar" role="toolbar">
-    <button class="toolbar-item" name="search" onclick="onSelectionChanged()" role="button" tabindex="0">Search</button>
-    <button class="toolbar-item right" onclick="reset()">Reset</button>
-    <input type="hidden" id="EPFLEmploisDefaultUrl" value="<?PHP echo $url; ?>">
-    <input type="hidden" id="EPFLEmploisSearchPositionUrl" value="<?PHP echo $url_search_position; ?>">
+    <button class="toolbar-item" name="search" onclick="onSelectionChanged()" role="button" tabindex="0"><?PHP echo __('Search', 'epfl-emploi'); ?></button>
+    <button class="toolbar-item right" onclick="reset()"><?PHP echo __('Reset', 'epfl-emploi'); ?></button>
+
+    <!-- URLs -->
+    <input type="hidden" id="EPFLEmploiDefaultUrl" value="<?PHP echo $url; ?>">
+    <input type="hidden" id="EPFLEmploiSearchPositionUrl" value="<?PHP echo $url_search_position; ?>">
+
+    <!-- Parameters -->
+    <input type="hidden" id="EPFLEmploiExceptPositions" value="<?PHP echo $except_positions; ?>">
+
+
+    <!-- Lang & Translations -->
+    <input type="hidden" id="EPFLEmploiLang" value="<?PHP echo $lang_to_id[$lang]; ?>">
+    <input type="hidden" id="EPFLEmploiTransFunction" value="<?PHP echo esc_attr__('Function', 'epfl-emploi'); ?>">
+    <input type="hidden" id="EPFLEmploiTransLocation" value="<?PHP echo esc_attr__('Location', 'epfl-emploi'); ?>">
+    <input type="hidden" id="EPFLEmploiTransWorkRate" value="<?PHP echo esc_attr__('Work Rate', 'epfl-emploi'); ?>">
+    <input type="hidden" id="EPFLEmploiTransEmplTerm" value="<?PHP echo esc_attr__('Term of employment', 'epfl-emploi'); ?>">
+
+
 </div>
 
 <div id="umantis_iframe">&nbsp;</div>
@@ -89,4 +124,9 @@ return ob_get_clean();
 add_action( 'init', function() {
   // define the shortcode
   add_shortcode('epfl_emploi', 'epfl_emploi_process_shortcode');
+});
+
+// Load .mo file for translation
+add_action( 'plugins_loaded', function () {
+    load_plugin_textdomain( 'epfl-emploi', FALSE, basename( plugin_dir_path( __FILE__ )) . '/languages/');
 });
