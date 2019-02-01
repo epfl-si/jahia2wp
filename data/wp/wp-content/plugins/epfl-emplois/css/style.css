@@ -9,9 +9,9 @@
 	padding-top: 10px;
 	}
 	#id_themes{
-  	columns: 2;
-  	-webkit-columns: 2;
-  	-moz-columns: 2;
+  	columns: 3;
+  	-webkit-columns: 3;
+  	-moz-columns: 3;
 	}
 	#id_keywords {
 	display: inline-block;
