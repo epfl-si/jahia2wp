@@ -4,6 +4,9 @@
  * Simple display of input field to do a search in ServiceNow (in a new tab)
  */
 function epfl_service_now_search_process_shortcode( $atts, $content = null ) {
+
+ob_start();
+
 ?>
 
 <form onsubmit="$('#snow-search').click()">
@@ -13,6 +16,8 @@ function epfl_service_now_search_process_shortcode( $atts, $content = null ) {
 
 
 <?php
+
+return ob_get_clean();
 }
 
 add_action( 'init', function() {
