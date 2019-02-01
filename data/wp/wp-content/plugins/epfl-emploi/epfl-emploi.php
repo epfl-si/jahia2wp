@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: EPFL Emplois
+ * Plugin Name: EPFL Emploi
  * Description: provides a shortcode to display job offers
  * Version: 1.0
  * Author: Lucien Chaboudez
@@ -23,9 +23,9 @@ function epfl_emploi_process_shortcode( $atts, $content = null ) {
     }
 
     /* Including CSS file*/
-    wp_enqueue_style( 'epfl_emplois_style', plugin_dir_url(__FILE__).'css/style.css' );
-    wp_enqueue_script( 'epfl_emplois_filter_array_emulate', plugin_dir_url(__FILE__).'js/prototype-filter-emulate.js' );
-    wp_enqueue_script( 'epfl_emplois_script', plugin_dir_url(__FILE__).'js/script.js' );
+    wp_enqueue_style( 'epfl_emploi_style', plugin_dir_url(__FILE__).'css/style.css' );
+    wp_enqueue_script( 'epfl_emploi_filter_array_emulate', plugin_dir_url(__FILE__).'js/prototype-filter-emulate.js' );
+    wp_enqueue_script( 'epfl_emploi_script', plugin_dir_url(__FILE__).'js/script.js' );
 
     /* We have to remove all URL parameters named 'searchPosition' to have 'searchPositionUrl' value for JS */
     $url_query = parse_url($url, PHP_URL_QUERY);
