@@ -1,0 +1,3 @@
+plugins:
+  - name: epfl-emplois
+    config: !include epfl-emplois/config-plugin.yml
