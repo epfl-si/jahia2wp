@@ -176,13 +176,13 @@ class Site {
 
     /**
      * Get a pod config value, or all config
-     * @return bool false if not found
+     * 
+     * Configuration file should be in www.epfl.ch/htdocs/epfl-wp-sites-config.ini
+     * 
+     * @return (String|bool) false if not found
      */
 
     static function get_pod_config ($key='') {
-        # find config, it should be in www.epfl.ch/epfl-wp-sites-config.ini
-        # if missing set default values
-
         list($htdocs_path, $under_htdocs) = static::_htdocs_split();
         $ini_path = $htdocs_path . '/epfl-wp-sites-config.ini';
 
