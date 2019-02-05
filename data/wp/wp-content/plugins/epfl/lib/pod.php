@@ -158,6 +158,13 @@ class Site {
             $this->htdocs_path, $this->path_under_htdocs);
     }
 
+    /**
+     * @return The 'menu_root_provider_url' entry in epfl-wp-sites-config.ini , or NULL if no such URL is configured.
+     */
+    function get_configured_root_menu_url () {
+        return $this->get_pod_config('menu_root_provider_url');
+    }
+
     static function _get_subsites_recursive ($htdocs_path, $path) {
         $retvals = array();
         foreach (scandir("$htdocs_path/$path") as $filename) {

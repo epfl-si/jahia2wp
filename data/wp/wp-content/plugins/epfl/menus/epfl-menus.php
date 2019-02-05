@@ -781,7 +781,7 @@ class Menu
 
     protected function _get_root_menu ($site, $mme) {
         # if we have configured top menu url, get it
-        $menu_root_provider_url = $site->get_pod_config('menu_root_provider_url');
+        $menu_root_provider_url = $site->get_configured_root_menu_url();
 
         # Let's fetch the remote external menus
         # TODO: move into the action of the "refresh" button
