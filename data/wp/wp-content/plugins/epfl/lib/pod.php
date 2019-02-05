@@ -173,4 +173,28 @@ class Site {
         }
         return $retvals;
     }
+
+    /**
+     * Get a pod config value, or all config
+     * @return bool false if not found
+     */
+
+    static function get_pod_config ($key='') {
+        # find config, it should be in www.epfl.ch/epfl-wp-sites-config.ini
+        # if missing set default values
+
+        list($htdocs_path, $under_htdocs) = static::_htdocs_split();
+        $ini_path = $htdocs_path . '/epfl-wp-sites-config.ini';
+
+        if (file_exists($ini_path)) {
+            $ini_array = parse_ini_file($ini_path);
+            if (!empty($key)) {
+                if (array_key_exists($key, $ini_array)){
+                    return $ini_array[$key];
+                }
+            } else {
+                return $ini_array;
+            }
+        }
+    }
 }
