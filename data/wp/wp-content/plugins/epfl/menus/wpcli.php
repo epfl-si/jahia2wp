@@ -52,6 +52,26 @@ class EPFLMenusCLICommand extends WP_CLI_Command
         }
         
     }
+
+    /**
+     * @example wp epfl-menus add_external_menu_item --menu-location-slug=top urn:epfl:labs "laboratoires"
+     */
+    public function add_external_menu_item ($args, $assoc_args) {
+        list($urn, $title) = $args;
+
+        $menu_location_slug = $assoc_args['menu-location-slug'];
+        if (!empty($menu_location_slug)) $menu_location_slug = "top";
+
+        # todo: check that params is format urn:epfl
+        WP_CLI::log(___('Add a new external menu item...'));
+
+        $external_menu_item = ExternalMenuItem::get_or_create($urn);
+        $external_menu_item->set_title($title);
+        $external_menu_item->meta()->set_remote_slug($menu_location_slug);
+        $external_menu_item->meta()->set_items_json('[]');
+
+        WP_CLI::log(sprintf(___('External menu item ID %d...'),$external_menu_item->ID));
+    }
 }
 
 EPFLMenusCLICommand::hook();
