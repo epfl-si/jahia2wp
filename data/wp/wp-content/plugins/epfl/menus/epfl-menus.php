@@ -397,6 +397,7 @@ class MenuItemBag
                 unset($item->url);  // Makes no sense to API consumers
 
                 $item->rest_url = $emi->get_rest_url();
+                $item->urn = $emi->get_urn();
             }
             return $item;
         });
@@ -737,10 +738,8 @@ class Menu
     function get_fully_stitched_tree ($mme) {
         $tree = $this->get_stitched_down_tree();
         if (! $mme->is_main()) return $tree;
-        if (Site::this_site()->is_root()) return $tree;
 
-        if (! $root_menu = $this->_get_root_menu($mme)) {
-            error_log("Unable to stitch up - Root menu not found for $mme");
+        if (! $root_menu = $this->_get_root_menu(Site::this_site(), $mme)) {
             return $tree;
         }
 
@@ -751,7 +750,7 @@ class Menu
         }
         $root_menu = $root_menu->pluck(
             function($item) use ($soa_slug, $site_url) {
-                return $item->$soa_slug === $site_url;
+                return property_exists($item, $soa_slug) && $item->$soa_slug === $site_url;
             })[0];
 
         // When stitching up, the graft point(s) are any and all
@@ -780,9 +779,26 @@ class Menu
         return $tree;
     }
 
-    protected function _get_root_menu ($mme) {
+    protected function _get_root_menu ($site, $mme) {
+        # if we have configured top menu url, get it
+        $menu_root_provider_url = $site->get_pod_config('menu_root_provider_url');
+
+        # Let's fetch the remote external menus
+        # TODO: move into the action of the "refresh" button
+        if ($menu_root_provider_url) {
+            ExternalMenuItem::load_from_wp_site_url($menu_root_provider_url);
+        }
+        
+        if(empty($menu_root_provider_url)) {
+            if ($site->is_root()) {
+                return;  // No root menu for ya
+            }
+            $menu_root_provider_url = Site::root()->get_path();
+            if (! $menu_root_provider_url) return;
+        }
+        
         $emi = ExternalMenuItem::find(array(
-               'site_url'       => Site::root()->get_path(),
+            'site_url'       => $menu_root_provider_url,
                'remote_slug'    => $mme->get_theme_location()
         ))
             ->first_preferred(array(
@@ -794,6 +810,7 @@ class Menu
     }
 
     /**
+     * Only called for the main ("top") menu
      * @param $item An item out of a @link MenuItemBag
      *
      * @return True iff $item designates us - That is, it came from
@@ -803,23 +820,32 @@ class Menu
      */
     protected function _corresponds ($item) {
         if (! ExternalMenuItem::looks_like($item)) return false;
-        $url = Site::this_site()->make_relative_url($item->rest_url);
-        if (! $url) return false;
 
-        // Works by parsing the ->rest_url, so there is coupling with
-        // MenuRESTController
+        # is an item with url or an urn ?
+        $urn = $item->urn;
+        $url = Site::this_site()->make_relative_url($item->rest_url);
+
         $matched = array();
-        if (! preg_match(
+        if (!empty($url) && preg_match(
             '#^/wp-json/(.*)/menus/(.*?)(?:\?lang=(.*))?$#',
             $url, $matched)) {
-            return false;
-        }
-
+            // Works by parsing the ->rest_url, so there is coupling with
+            // MenuRESTController
         $mme = MenuMapEntry::find(array('theme_location' => $matched[2]))
               ->first_preferred(array('language' => $matched[3]));
         if (! $mme) return false;
 
         return $this->equals($mme->get_menu());
+        } elseif (!empty($urn)) {
+            # Check if this item is the configured place
+            $menu_root_provider_self_urn = Site::this_site()->get_pod_config('menu_root_provider_self_urn');
+
+            if ($menu_root_provider_self_urn === $urn) {
+                return true;
+    }
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -1024,8 +1050,9 @@ class MenuMapEntry
  * with the "normal" menus.
  *
  * Instances are represented in the Wordpress database as posts
- * of custom post type "epfl-external-menu", keyed by the URL
- * of the REST API that provides their contents.
+ * of custom post type "epfl-external-menu".
+ * They can be keyed by either the URL of the REST API that provides their contents or
+ * an URN. The latter case is called an independent item; for such an item, submenus will never be fetched.
  */
 class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
 {
@@ -1034,7 +1061,7 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
     // For ->meta()->{get_,set_}foo():
     const META_ACCESSORS = array(
         // {get_,set_} suffix  => in-database post meta name ("-emi-" stands for "external menu item")
-        'rest_url'             => 'epfl-emi-rest-api-url',
+        'rest_url'             => 'epfl-emi-rest-api-url',  // a url or an urn (if this is an independent item, eg. urn:epfl:labs)
         'rest_subscribe_url'   => 'epfl-emi-rest-api-subscribe-url',
         'items_json'           => 'epfl-emi-remote-contents-json',
         'last_synced'          => 'epfl-emi-last-synced-epoch',
@@ -1072,12 +1099,26 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
 
     /**
      * @return The URL that this ExternalMenuItem obtains the remote
-     *         menu from (in JSON form)
+     *         menu from (in JSON form), or NULL if there is none (eg. labs)
      */
     function get_rest_url () {
         $url = $this->meta()->get_rest_url();
+
+        if ($this->get_urn()) return;
         $url = preg_replace('#^https://localhost:8443#', '', $url);  # XXX TMPHACK
         return $url;
+    }
+
+    /**
+     * Get the URN of this independent menu item, or NULL if this item is not independent
+     * 
+     * This shares the same data slot as @link get_rest_url.
+     */
+    function get_urn () {
+        $url = $this->meta()->get_rest_url();
+        if (preg_match('#^urn:#' , $url)) {
+            return $url;
+        }
     }
 
     /**
@@ -1204,8 +1245,7 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
     function refresh () {
         try {
             if (! ($get_url = $this->get_rest_url())) {
-                $this->error_log("doesn't look very external to me");
-                return;
+                return;  // independent hence immutable
             }
 
             $menu_contents = RESTClient::GET_JSON($get_url);
