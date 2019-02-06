@@ -47,6 +47,10 @@ services:
     environment:
       - WP_ENV=${WP_ENV}
     restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
 
   mgmt:
     labels:
