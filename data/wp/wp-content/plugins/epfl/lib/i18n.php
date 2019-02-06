@@ -28,3 +28,7 @@ function __n ($text, $plural, $number) {
 function esc_html___ ($text) {
     return esc_html__($text, TEXTDOMAIN);
 }
+
+function get_current_language () {
+    return function_exists('pll_current_language') ? pll_current_language() : NULL;
+}

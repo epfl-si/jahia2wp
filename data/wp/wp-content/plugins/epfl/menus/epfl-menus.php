@@ -47,6 +47,7 @@ require_once(dirname(__DIR__) . '/lib/i18n.php');
 use function EPFL\I18N\___;
 use function EPFL\I18N\__x;
 use function EPFL\I18N\__e;
+use function EPFL\I18N\get_current_language;
 
 require_once(dirname(__DIR__) . '/lib/this-plugin.php');
 use EPFL\ThisPlugin\Asset;
@@ -599,6 +600,14 @@ class Menu
         return new $thisclass($term_id);
     }
 
+    static function by_theme_location ($theme_location) {
+        $mme = MenuMapEntry::find(array('theme_location' => $theme_location))
+            ->first_preferred(array('language' => get_current_language()));
+        if (! $mme) return false;
+
+        return $mme->get_menu();
+    }
+
     private function __construct ($term_id) {
         if ($term_id > 0) {
             $this->term_id = $term_id;
@@ -739,7 +748,7 @@ class Menu
         $tree = $this->get_stitched_down_tree();
         if (! $mme->is_main()) return $tree;
 
-        if (! $root_menu = $this->_get_root_menu(Site::this_site(), $mme)) {
+        if (! $root_menu = $this->_get_root_menu(Site::this_site(), $mme->get_theme_location(), $mme->get_language())) {
             return $tree;
         }
 
@@ -779,16 +788,14 @@ class Menu
         return $tree;
     }
 
-    protected function _get_root_menu ($site, $mme) {
+    protected function _get_root_menu ($site, $theme_slug, $language=NULL) {
+        if (! $language) {
+            $language = get_current_language();
+        }
+
         # if we have configured top menu url, get it
         $menu_root_provider_url = $site->get_configured_root_menu_url();
 
-        # Let's fetch the remote external menus
-        # TODO: move into the action of the "refresh" button
-        if ($menu_root_provider_url) {
-            ExternalMenuItem::load_from_wp_site_url($menu_root_provider_url);
-        }
-        
         if(empty($menu_root_provider_url)) {
             if ($site->is_root()) {
                 return;  // No root menu for ya
@@ -799,14 +806,19 @@ class Menu
         
         $emi = ExternalMenuItem::find(array(
             'site_url'       => $menu_root_provider_url,
-               'remote_slug'    => $mme->get_theme_location()
+            'remote_slug'    => $theme_slug
         ))
             ->first_preferred(array(
-                'language' => $mme->get_language()));
+                'language' => $language));
 
         if (! $emi) return;
 
         return $emi->get_remote_menu();
+    }
+
+    public function has_root_menu ($theme_slug) {
+        error_log('get_root_menu' . var_export($this->_get_root_menu(Site::this_site(), $theme_slug), true));
+        return (boolean) $this->_get_root_menu(Site::this_site(), $theme_slug);
     }
 
     /**
@@ -979,8 +991,7 @@ class MenuMapEntry
         $thisclass = get_called_class();
 
         $registered = get_registered_nav_menus();
-        $lang = function_exists('pll_current_language') ?
-                pll_current_language()                  : NULL;
+        $lang = get_current_language();
 
         $all = array();
         // Polylang hooks into the 'theme_mod_nav_menu_locations'
@@ -1179,6 +1190,14 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
             }
         }
         return $instances;
+    }
+
+    static function load_from_config_file () {
+        $menu_root_provider_url = Site::this_site()->get_configured_root_menu_url();
+
+        if ($menu_root_provider_url) {
+            ExternalMenuItem::load_from_wp_site_url($menu_root_provider_url);
+        }
     }
 
     /**
@@ -1579,6 +1598,7 @@ class MenuItemController extends CustomPostTypeController
         set_time_limit(120);
 
         ExternalMenuItem::load_from_filesystem();
+        ExternalMenuItem::load_from_config_file();
         $value = array(
             'status' => 'OK',
             'external_menu_item_ids' => array_map(function($emi) {
@@ -1810,6 +1830,10 @@ class MenuFrontendController
         add_filter('wp_nav_menu_objects',
                    array(get_called_class(), 'filter_wp_nav_menu_objects'),
                    20, 2);
+
+        add_filter('epfl_root_menu_ready',
+                   array(get_called_class(), 'filter_epfl_root_menu_ready'),
+                   20, 2);
     }
 
     /**
@@ -1859,13 +1883,10 @@ class MenuFrontendController
     static function _guess_menu_entry_from_menu_term ($menu) {
         $menu_term_id = (int) (is_object($menu) ?
                                $menu->term_id   : $menu);
-        $current_lang = (
-            function_exists('pll_current_language')   ? 
-            pll_current_language()                    : NULL);
 
         return MenuMapEntry
             ::find(array('menu_term_id' => $menu_term_id))
-            ->first_preferred(array('language' => $current_lang));
+            ->first_preferred(array('language' => get_current_language()));
     }
 
     /**
@@ -1881,6 +1902,15 @@ class MenuFrontendController
         } else {
             return $items_orig;
         }
+    }
+
+    /**
+     * @return True iff the root menu is correctly stitched
+     */
+    public static function filter_epfl_root_menu_ready ($ready_orig, $theme_location) {
+        $menu = Menu::by_theme_location($theme_location);
+        error_log('filter_epfl_root_menu_ready' . var_export($menu, true));
+        return $menu && $menu->has_root_menu($theme_location);
     }
 
     private static function _is_being_called_by_theme ($function_name) {
