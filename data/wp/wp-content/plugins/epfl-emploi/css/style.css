@@ -1,0 +1,112 @@
+#personnel-administratif-et-technique,#postes-actuellement-pourvoir {
+	display: none;
+	}
+	.panel-content {
+	padding: .3075em 0
+	}
+	.panel-content.keywords-panel {
+	padding-right: 0;
+	padding-top: 10px;
+	}
+	#id_themes{
+  	columns: 3;
+  	-webkit-columns: 3;
+  	-moz-columns: 3;
+	}
+	#id_keywords {
+	display: inline-block;
+	width: 80%;
+	position: relative;
+	height: 25px;
+	vertical-align: baseline;
+	border: 1px solid #999;
+	background-color: #fff;
+	padding: 0;
+	}
+	.keywords-button {
+	position: relative;
+	margin-left: -30px;
+	display: inline-block;
+	padding: 0;
+	vertical-align: top;
+	background-color: #ae0010;
+	border: 1px solid #ae0010;
+	font-weight: 700;
+	color: #fff;
+	cursor: pointer;
+	width: 40px;
+	height: 27px;
+	}
+	.icon-search {
+	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4QsDDBYqupB5HQAAAUlJREFUOMuN0jFL1lEUBvDnahBkg1EUNbVHjg2CtDVI0CZIRHNELhEh6NIeuPUBdGloso8QNAQNDbUFDdIkiTakBr8G75/ue99e8oEL595zznPOfc5JKjCDBWziB37jPR7gMkomAdewbRTHjb2DOzV2JLfgXJLXSe7Wt5dJviU5TnIhyZMkV5PsJrlVSvnaV7/dVFrCNKaacwNfqv/DWBfYqs6Nmtz6hvMQR/r+k0wlWaz2TpKU8lerUspw/zj4sdQTnB0KZjI0/vM9wbtqz5wUGP9CkutV0CTZ6kW814g4jzLMvIp4CW+Hcf5LxFl8qgFHeIbFulSP8KYp8KrtriWZw+cmcBff6za2+InVSSQX8dw4trGCvXr/hRcjq92PF1dws3tbr8lwgPuYzv/QTWVtWCjsYzmnQUfyGIeV5DCnxUCCM1iugj79A11uxH6otW14AAAAAElFTkSuQmCC');
+	width: 24px;
+	height: 24px;
+	top: 5px;
+	left: 11px;
+	position: absolute;
+	background-repeat: no-repeat;
+	}
+	.keywords-button:hover {
+	background-color: #7b000b;
+	}
+	.form input[type=checkbox], .form input[type=radio] {
+	border: none;
+	vertical-align: middle;
+	}
+	.hashed-bg, .toolbar-emploi {
+	background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAADCAYAAABWKLW/AAAAHElEQVQIW2M8c+bMfxMTE0YGIAATIAASBHNgsgDbvwtnUZMwJQAAAABJRU5ErkJggg==) repeat 0 0;
+	}
+	.toolbar-item {
+	background: #ddd;
+	background: -moz-linear-gradient(top, #fff 0, #ddd 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #fff), color-stop(100%, #ddd));
+	background: -webkit-linear-gradient(top, #fff 0, #ddd 100%);
+	background: -o-linear-gradient(top, #fff 0, #ddd 100%);
+	background: -ms-linear-gradient(top, #fff 0, #ddd 100%);
+	background: linear-gradient(to bottom, #fff 0, #ddd 100%);
+	display: inline-block;
+	padding: .3075em .615em;
+	border: 1px solid #999;
+	height: auto;
+	font: italic .85em/1.2em Georgia, "Times New Roman", Times, serif;
+	letter-spacing: .07em;
+	vertical-align: middle;
+	color:#000;
+	}
+	.toolbar-item.form-input, .toolbar-item.form-select {
+	padding: 0;
+	border: none
+	}
+	.toolbar-item.form-input:hover, .toolbar-item.form-select:hover {
+	color: #fff
+	}
+	.toolbar-item.form-input input, .toolbar-item.form-input select, .toolbar-item.form-select input, .toolbar-item.form-select select {
+	font: inherit
+	}
+	.toolbar-item.form-select select:focus {
+	background-color: #000;
+	color: #fff
+	}
+	.toolbar-item-active, .toolbar-item:focus, .toolbar-item:hover {
+	border-color: #000;
+	background: #000;
+	color: #fff
+	}
+	.toolbar-item-active, .toolbar-item-active:hover {
+	cursor: default
+	}
+	.toolbar-item-disabled, .toolbar-item-disabled:focus, .toolbar-item-disabled:hover, .toolbar-item[aria-disabled=true], .toolbar-item[aria-disabled=true]:focus, .toolbar-item[aria-disabled=true]:hover {
+	background: #fff;
+	background: rgba(255, 255, 255, .6);
+	border-color: #999;
+	color: #999;
+	cursor: not-allowed;
+	opacity: 1
+	}
+	.filter-group {
+	margin-bottom: 20px;
+	}
+	.filter-item {
+	font-size: 11px;
+	padding-left: 5px;
+	}
