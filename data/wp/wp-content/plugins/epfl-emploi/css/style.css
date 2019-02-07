@@ -53,7 +53,7 @@
 	border: none;
 	vertical-align: middle;
 	}
-	.hashed-bg, .toolbar {
+	.hashed-bg, .toolbar-emploi {
 	background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAADCAYAAABWKLW/AAAAHElEQVQIW2M8c+bMfxMTE0YGIAATIAASBHNgsgDbvwtnUZMwJQAAAABJRU5ErkJggg==) repeat 0 0;
 	}
 	.toolbar-item {
