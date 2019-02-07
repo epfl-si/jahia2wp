@@ -817,7 +817,6 @@ class Menu
     }
 
     public function has_root_menu ($theme_slug) {
-        error_log('get_root_menu' . var_export($this->_get_root_menu(Site::this_site(), $theme_slug), true));
         return (boolean) $this->_get_root_menu(Site::this_site(), $theme_slug);
     }
 
@@ -1909,7 +1908,6 @@ class MenuFrontendController
      */
     public static function filter_epfl_root_menu_ready ($ready_orig, $theme_location) {
         $menu = Menu::by_theme_location($theme_location);
-        error_log('filter_epfl_root_menu_ready' . var_export($menu, true));
         return $menu && $menu->has_root_menu($theme_location);
     }
 
