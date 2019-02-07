@@ -70,7 +70,7 @@ ob_start();
 
 <div aria-expanded="true" aria-hidden="false" aria-labelledby="toggle-1" class="list-unstyled toggle-expanded" id="toggle-pane-0">&nbsp;</div>
 
-<div class="toolbar actu-advanced-search-toolbar ui-toolbar" data-widget="toolbar" role="toolbar">
+<div class="toolbar-emploi actu-advanced-search-toolbar ui-toolbar" data-widget="toolbar" role="toolbar">
     <button class="toolbar-item" name="search" onclick="onSelectionChanged()" role="button" tabindex="0"><?PHP echo __('Search', 'epfl-emploi'); ?></button>
     <button class="toolbar-item right" onclick="reset()"><?PHP echo __('Reset', 'epfl-emploi'); ?></button>
 
