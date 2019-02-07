@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2018-11-13 11:00+0100\n"
-"PO-Revision-Date: 2018-11-13 11:01+0100\n"
+"POT-Creation-Date: 2019-02-07 16:47+0100\n"
+"PO-Revision-Date: 2019-02-07 16:47+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -24,26 +24,30 @@ msgstr "Réglages intranet"
 msgid "EPFL Intranet"
 msgstr "EPFL Intranet"
 
-#: epfl-intranet.php:99
+#: epfl-intranet.php:113
 msgid "Website access needs Tequila/Gaspar authentication"
 msgstr "Le site web nécessite une authentification Tequila/Gaspar"
 
-#: epfl-intranet.php:103
+#: epfl-intranet.php:117
 #, php-format
 msgid "Website access is restricted to following group(s): %s"
 msgstr "L'accès au site web est restreint au(x) groupe(s) suivant(s): %s"
 
-#: epfl-intranet.php:210 epfl-intranet.php:222
+#: epfl-intranet.php:122
+msgid "Configuration page"
+msgstr "Page de configuration"
+
+#: epfl-intranet.php:227 epfl-intranet.php:239
 msgid "Impossible to update .htaccess file"
 msgstr "Impossible de mettre à jour le fichier .htaccess"
 
-#: epfl-intranet.php:283
+#: epfl-intranet.php:300
 msgid ""
 "Cannot activate plugin!<br>EPFL-Accred plugin is not installed/activated"
 msgstr ""
 "Activation impossible!<br>Le plugin EPFL-Accred n'est pas installé/activé"
 
-#: epfl-intranet.php:297
+#: epfl-intranet.php:314
 msgid ""
 "Cannot activate plugin!<br>This is not 'vpsi' version of EPFL-Accred plugin "
 "which is installed"
@@ -51,7 +55,7 @@ msgstr ""
 "Activation impossible!<br>Ce n'est pas la version vpsi du plugin EPFL-Accred "
 "qui est installée"
 
-#: epfl-intranet.php:317
+#: epfl-intranet.php:334
 #, php-format
 msgid ""
 "Cannot activate plugin!<br>EPFL-Accred 'vpsi' plugin version must be at "
@@ -60,35 +64,35 @@ msgstr ""
 "Activation impossible!<br>La version du plugin EPFL-Accred vpsi doit être %s "
 "au minimum (version %s installée)"
 
-#: epfl-intranet.php:336
+#: epfl-intranet.php:353
 msgid "About"
 msgstr "À propos"
 
-#: epfl-intranet.php:337
+#: epfl-intranet.php:354
 msgid "Settings"
 msgstr "Paramètres"
 
-#: epfl-intranet.php:351
+#: epfl-intranet.php:368
 msgid "Protect website access"
 msgstr "Protéger l'accès au site"
 
-#: epfl-intranet.php:354
+#: epfl-intranet.php:371
 msgid "No"
 msgstr "Non"
 
-#: epfl-intranet.php:354
+#: epfl-intranet.php:371
 msgid "Yes"
 msgstr "Oui"
 
-#: epfl-intranet.php:356
+#: epfl-intranet.php:373
 msgid "If \"Yes\", authentication is necessary to access website."
 msgstr "Si \"Oui\", une authentification est nécessaire pour accéder au site."
 
-#: epfl-intranet.php:369
+#: epfl-intranet.php:386
 msgid "Restrict access to group(s)"
 msgstr "Restreindre l'accès au(x) groupe(s)"
 
-#: epfl-intranet.php:372
+#: epfl-intranet.php:389
 msgid ""
 "If field is left empty, only an authentication will be requested.<br>Several "
 "groups can be entered, just separated with a comma."
@@ -97,7 +101,7 @@ msgstr ""
 "<br>Plusieurs groupes peuvent être entrés, il suffit de les séparer par des "
 "virgules."
 
-#: epfl-intranet.php:381
+#: epfl-intranet.php:398
 msgid ""
 "Needs <a href=\"https://github.com/epfl-sti/wordpress.plugin.accred/tree/vpsi"
 "\">EPFL-Accred</a> (VPSI version) plugin\n"
