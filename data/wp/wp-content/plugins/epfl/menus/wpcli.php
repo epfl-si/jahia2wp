@@ -19,6 +19,8 @@ add_filter('epfl_rest_rewrite_connect_to', function($hostport, $host, $port) {
     // TODO: this is not a way to go through life, son
     if ($hostport === "www.epfl.ch:443") {
         return "httpd-www:8443";
+    } elseif ($hostport === "jahia2wp-httpd:443") {
+        return "jahia2wp-httpd:8443";
     } else {
         return $hostport;
     }
@@ -37,6 +39,11 @@ class EPFLMenusCLICommand extends WP_CLI_Command
         WP_CLI::log(sprintf(___('... Success, found %d local menus'),
                             count($local)));
 
+        WP_CLI::log(___('Enumerating menus in config file...'));
+        $local = ExternalMenuItem::load_from_config_file();
+        WP_CLI::log(sprintf(___('... Success, found %d site-configured menus'),
+                            count($local)));
+
         $all = ExternalMenuItem::all();
         WP_CLI::log(sprintf(___('Refreshing %d instances...'),
                             count($all)));
@@ -49,6 +56,26 @@ class EPFLMenusCLICommand extends WP_CLI_Command
             }
         }
         
+    }
+
+    /**
+     * @example wp epfl-menus add_external_menu_item --menu-location-slug=top urn:epfl:labs "laboratoires"
+     */
+    public function add_external_menu_item ($args, $assoc_args) {
+        list($urn, $title) = $args;
+
+        $menu_location_slug = $assoc_args['menu-location-slug'];
+        if (!empty($menu_location_slug)) $menu_location_slug = "top";
+
+        # todo: check that params is format urn:epfl
+        WP_CLI::log(___('Add a new external menu item...'));
+
+        $external_menu_item = ExternalMenuItem::get_or_create($urn);
+        $external_menu_item->set_title($title);
+        $external_menu_item->meta()->set_remote_slug($menu_location_slug);
+        $external_menu_item->meta()->set_items_json('[]');
+
+        WP_CLI::log(sprintf(___('External menu item ID %d...'),$external_menu_item->ID));
     }
 }
 

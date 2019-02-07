@@ -215,6 +215,18 @@ abstract class Post
         return pll_set_post_language($this->ID, $newlang);
     }
 
+    public function get_title () {
+        return $this->wp_post()->post_title;
+    }
+
+    public function set_title ($title) {
+        wp_update_post([
+            'ID' => $this->ID,
+            'post_title' =>  $title
+            ]
+        );
+    }
+
     function error_log ($msg) {
         error_log(get_called_class() . "::get($this->ID): " . $msg);
     }

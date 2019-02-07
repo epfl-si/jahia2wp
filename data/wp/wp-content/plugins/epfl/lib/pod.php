@@ -158,6 +158,13 @@ class Site {
             $this->htdocs_path, $this->path_under_htdocs);
     }
 
+    /**
+     * @return The 'menu_root_provider_url' entry in epfl-wp-sites-config.ini , or NULL if no such URL is configured.
+     */
+    function get_configured_root_menu_url () {
+        return $this->get_pod_config('menu_root_provider_url');
+    }
+
     static function _get_subsites_recursive ($htdocs_path, $path) {
         $retvals = array();
         foreach (scandir("$htdocs_path/$path") as $filename) {
@@ -172,5 +179,29 @@ class Site {
             }
         }
         return $retvals;
+    }
+
+    /**
+     * Get a pod config value, or all config
+     * 
+     * Configuration file should be in www.epfl.ch/htdocs/epfl-wp-sites-config.ini
+     * 
+     * @return (String|bool) false if not found
+     */
+
+    static function get_pod_config ($key='') {
+        list($htdocs_path, $under_htdocs) = static::_htdocs_split();
+        $ini_path = $htdocs_path . '/epfl-wp-sites-config.ini';
+
+        if (file_exists($ini_path)) {
+            $ini_array = parse_ini_file($ini_path);
+            if (!empty($key)) {
+                if (array_key_exists($key, $ini_array)){
+                    return $ini_array[$key];
+                }
+            } else {
+                return $ini_array;
+            }
+        }
     }
 }
