@@ -2,7 +2,7 @@
 /**
  * Plugin Name: EPFL Emploi
  * Description: provides a shortcode to display job offers
- * Version: 1.0
+ * Version: 1.1
  * Author: Lucien Chaboudez
  * Contributors:
  * License: Copyright (c) 2019 Ecole Polytechnique Federale de Lausanne, Switzerland
@@ -93,28 +93,6 @@ ob_start();
 </div>
 
 <div id="umantis_iframe">&nbsp;</div>
-<script>
-
-		jQuery(document).ready(function() {
-	           var time = new Date().getTime();
-			var if_height, src = '<?PHP echo $url; ?>&t='+time,
-			iframe = jQuery( '<iframe src="' + src + '" name="' + document.location.href + '" width="652" height="500" frameborder="0" scrolling="no" id="job-board" ><script>setInterval(function() {window.top.postMessage(document.body.scrollHeight, "*");}, 500); <\/script><\/iframe>' ).appendTo( '#umantis_iframe' );
-
-                        window.addEventListener('message', function(e) {
-
-				var h = Number( e.data.replace( /.*if_height=(\d+)(?:&|$)/, '$1' ) );
-
-				if (!isNaN( h ) && h > 0 && h !== if_height) {
-					/* Height has changed, update the iframe */
-					if_height = h;
-					iframe.height(h);
-				}
-
-                        } , false);
-
-		});
-</script>
-
 
 <?php
 
