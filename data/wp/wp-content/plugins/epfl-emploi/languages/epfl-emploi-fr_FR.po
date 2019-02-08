@@ -1,0 +1,53 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: epfl-infoscience\n"
+"POT-Creation-Date: 2019-02-01 13:19+0100\n"
+"PO-Revision-Date: 2019-02-01 13:19+0100\n"
+"Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.7.1\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-KeywordsList: __;esc_html__;esc_attr__\n"
+"X-Poedit-SearchPath-0: epfl-emploi.php\n"
+
+#: epfl-emploi.php:74
+msgid "Search"
+msgstr "Rechercher"
+
+#: epfl-emploi.php:75
+msgid "Reset"
+msgstr "Réinitialiser"
+
+#: epfl-emploi.php:87
+msgid "Function"
+msgstr "Fonction"
+
+#: epfl-emploi.php:88
+msgid "Location"
+msgstr "Lieu de travail"
+
+#: epfl-emploi.php:89
+msgid "Work Rate"
+msgstr "Taux d'occupation"
+
+#: epfl-emploi.php:90
+msgid "Term of employment"
+msgstr "Type de contrat"
+
+#~ msgid "How to get an infoscience URL to insert publications? %sRead this documentation%s"
+#~ msgstr "Comment obtenir une URL d'infoscience permettant d'insérer une liste de publications ? %sVoir la documentation%s"
+
+#~ msgid "Enter infoscience URL"
+#~ msgstr "Saisir l'URL d'infoscience"
+
+#, fuzzy
+#~ msgid "Infoscience"
+#~ msgstr "Infoscience"
+
+#~ msgid "Add Infoscience shortcode"
+#~ msgstr "Ajouter un shortcode infoscience"
