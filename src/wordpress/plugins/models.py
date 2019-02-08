@@ -3,7 +3,6 @@ from collections import OrderedDict
 import os
 import zipfile
 import logging
-import copy
 import yaml
 import settings
 import shutil
