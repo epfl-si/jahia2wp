@@ -60,7 +60,7 @@ class TestWPPluginList:
     def test_generic_plugin_list(self, wp_plugin_list):
         plugins_to_test = ['add-to-any', 'hello', 'akismet']
 
-        plugin_list = list(wp_plugin_list.plugins.keys())
+        plugin_list = wp_plugin_list.plugins
         assert len(plugin_list) == len(plugins_to_test)
         for plugin_name in plugins_to_test:
             assert plugin_name in plugin_list
@@ -68,7 +68,7 @@ class TestWPPluginList:
     def test_category_plugin_list(self, wp_plugin_list_category):
         plugins_to_test = ['add-to-any', 'hello', 'redirection', 'akismet']
 
-        plugin_list = list(wp_plugin_list_category.plugins.keys())
+        plugin_list = wp_plugin_list_category.plugins
         assert len(plugin_list) == len(plugins_to_test)
         for plugin_name in plugins_to_test:
             assert plugin_name in plugin_list
