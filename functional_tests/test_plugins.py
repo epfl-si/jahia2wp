@@ -90,7 +90,7 @@ class TestWPPluginConfig:
             'akismet': True
         }.items():
 
-            plugin_config = wp_plugin_list.plugins()[plugin_name]
+            plugin_config = wp_plugin_list.plugins[plugin_name]
             wp_plugin_config = WPPluginConfig(wp_generator_generic.wp_site, plugin_name, plugin_config)
 
             assert wp_plugin_config.is_installed is installed
@@ -105,7 +105,7 @@ class TestWPPluginConfig:
             'akismet': False
         }.items():
 
-            plugin_config = wp_plugin_list_category.plugins()[plugin_name]
+            plugin_config = wp_plugin_list_category.plugins[plugin_name]
             wp_plugin_config = WPPluginConfig(wp_generator_category.wp_site, plugin_name, plugin_config)
 
             assert wp_plugin_config.is_installed is installed
@@ -118,7 +118,7 @@ class TestWPPluginConfig:
             'akismet': False
         }.items():
 
-            plugin_config = wp_plugin_list.plugins()[plugin_name]
+            plugin_config = wp_plugin_list.plugins[plugin_name]
             wp_plugin_config = WPPluginConfig(wp_generator_generic.wp_site, plugin_name, plugin_config)
 
             assert wp_plugin_config.is_activated is activated
@@ -131,7 +131,7 @@ class TestWPPluginConfig:
             'redirection': True
         }.items():
 
-            plugin_config = wp_plugin_list_category.plugins()[plugin_name]
+            plugin_config = wp_plugin_list_category.plugins[plugin_name]
             wp_plugin_config = WPPluginConfig(wp_generator_category.wp_site, plugin_name, plugin_config)
 
             assert wp_plugin_config.is_activated is activated
@@ -143,7 +143,7 @@ class TestWPPluginConfig:
 
         for plugin_name in ['add-to-any', 'redirection']:
 
-            plugin_config = wp_plugin_list_category.plugins()[plugin_name]
+            plugin_config = wp_plugin_list_category.plugins[plugin_name]
             wp_plugin_config = WPPluginConfig(wp_generator_category.wp_site, plugin_name, plugin_config)
             wp_plugin_config.uninstall()
             assert wp_plugin_config.is_installed is False
@@ -154,7 +154,7 @@ class TestWPPluginConfigRestore:
     def test_restore_generic_config(self, wp_generator_generic, wp_plugin_list):
 
         # First, uninstall from WP installation
-        plugin_config = wp_plugin_list.plugins()['add-to-any']
+        plugin_config = wp_plugin_list.plugins['add-to-any']
         wp_plugin_config = WPPluginConfig(wp_generator_generic.wp_site, 'add-to-any', plugin_config)
         wp_plugin_config.uninstall()
 
@@ -169,7 +169,7 @@ class TestWPPluginConfigRestore:
     def test_restore_category_config(self, wp_generator_generic, wp_plugin_list_category):
 
         # First, uninstall from WP installation
-        plugin_config = wp_plugin_list_category.plugins()['add-to-any']
+        plugin_config = wp_plugin_list_category.plugins['add-to-any']
         wp_plugin_config = WPPluginConfig(wp_generator_generic.wp_site, 'add-to-any', plugin_config)
         wp_plugin_config.uninstall()
 
