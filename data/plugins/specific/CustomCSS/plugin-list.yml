@@ -1,0 +1,3 @@
+plugins:
+  - name: simple-custom-css
+    config: !include simple-custom-css/config-plugin.yml
