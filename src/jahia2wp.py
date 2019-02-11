@@ -316,7 +316,7 @@ def download_many(csv_file, output_dir=None, **kwargs):
     for index, row in enumerate(rows):
         print("\nIndex #{}:\n---".format(index))
         try:
-            download(site=row['Jahia_zip'])
+            download(site=row['Jahia_zip'], zip_path=output_dir)
         except Exception:
             with open(tracer_path, 'a', newline='\n') as tracer:
                 tracer.write(
