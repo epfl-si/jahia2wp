@@ -507,7 +507,7 @@ class WPGenerator:
         logging.info("%s - Plugins - Generating list for '%s' category", repr(self), self._site_params['category'])
 
         # Looping through plugins to install
-        for plugin_name, config_dict in plugin_list.plugins().items():
+        for plugin_name, config_dict in plugin_list.plugins.items():
 
             # If a filter on plugin was given and it's not the current plugin, we skip
             if only_one is not None and only_one != plugin_name:
@@ -575,7 +575,7 @@ class WPGenerator:
                 installed_plugins += inactive_plugins.split("\n")
 
             # List coming from YAML file
-            defined_plugin_name_list = list(plugin_list.plugins().keys())
+            defined_plugin_name_list = list(plugin_list.plugins.keys())
 
             for plugin_name in installed_plugins:
 
