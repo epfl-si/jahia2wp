@@ -2,7 +2,7 @@
 /**
  * Plugin Name: EPFL Emploi
  * Description: provides a shortcode to display job offers
- * Version: 1.1
+ * Version: 1.2
  * Author: Lucien Chaboudez
  * Contributors:
  * License: Copyright (c) 2019 Ecole Polytechnique Federale de Lausanne, Switzerland
@@ -16,7 +16,8 @@ function epfl_emploi_process_shortcode( $atts, $content = null ) {
         'except_positions' => '',
     ), $atts );
 
-    $url                = $atts['url'];
+    /* We transform &amp; to & (and also others encoded things) to have a clean URL to work with*/
+    $url                = htmlspecialchars_decode($atts['url']);
     $except_positions   = $atts['except_positions'];
 
     if($url == '')
@@ -51,6 +52,16 @@ function epfl_emploi_process_shortcode( $atts, $content = null ) {
 
     parse_str($url_query, $parameters);
 
+    /* We start by handling 't' (time) parameter '*/
+    if(array_key_exists('t', $parameters))
+    {
+       unset($parameters['t']);
+    }
+    /* we add a time parameter */
+    $parameters['t'] = time();
+
+    $url_query_with_time = http_build_query($parameters);
+
     if(array_key_exists('searchPosition', $parameters))
     {
        unset($parameters['searchPosition']);
@@ -59,6 +70,8 @@ function epfl_emploi_process_shortcode( $atts, $content = null ) {
     $new_url_query = http_build_query($parameters);
     /* We replace query in original url to have 'searchPositionUrl' value for JS */
     $url_search_position = str_replace($url_query, $new_url_query, $url);
+    /* We replace query in originla URL to add a time */
+    $url = str_replace($url_query, $url_query_with_time, $url);
 
 
 ob_start();
