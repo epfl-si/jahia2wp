@@ -88,13 +88,15 @@ class EPFL404DB
     /*
      * Cleans old records
      * @param int $nb_days_to_keep
+     * @param int $nb_entries_to_keep
      */
-    public static function clean_old_entries($nb_days_to_keep)
+    public static function clean_old_entries($nb_days_to_keep, $nb_entries_to_keep)
     {
         global $wpdb;
 
         $sql = "DELETE FROM ".self::EPFL404_DB_TABLE.
-               " WHERE ".self::EPFL404_DB_FIELD_DATE."< DATE_SUB(NOW(), INTERVAL ".$nb_days_to_keep." DAY)";
+               " WHERE ".self::EPFL404_DB_FIELD_DATE."< DATE_SUB(NOW(), INTERVAL ".$nb_days_to_keep." DAY)".
+               " OR ".self::EPFL404_DB_FIELD_ID."< (MAX(".self::EPFL404_DB_FIELD_ID.")-".$nb_entries_to_keep.")"" ;
 
         if ( $wpdb->query( $sql ) === false )
         {
