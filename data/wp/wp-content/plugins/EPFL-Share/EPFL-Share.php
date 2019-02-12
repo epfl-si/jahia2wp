@@ -2,7 +2,7 @@
 /*
 Plugin Name: EPFL-Share
 Description: Provide share button for EPFL websites
-Version: 0.1
+Version: 0.2
 Author: <a href="Mailto:wwp-admin@epfl.ch">wwp-admin@epfl.ch</a>
 */
 
@@ -24,7 +24,6 @@ class EPFLShare
     'facebook' => '<li class="%li_class%"><i style="%style%" alt="Facebook" Title="Facebook" class="EPFLShare EPFLShareFacebookBackground" onclick=\'EPFLSharePopup("https://www.facebook.com/sharer/sharer.php?u=%encoded_post_url%")\'><ss style="%inner_style%" class="EPFLShareSvg EPFLShareFacebookSvg"></ss></i></li>',
     'twitter' => '<li class="%li_class%"><i style="%style%" alt="Twitter" Title="Twitter" class="EPFLShare EPFLShareTwitterBackground" onclick=\'EPFLSharePopup("http://twitter.com/intent/tweet?text=%post_title%&url=%encoded_post_url%&hashtags=epfl,epflcampus")\'><ss style="%inner_style%" class="EPFLShareSvg EPFLShareTwitterSvg"></ss></i></li>',
     'linkedin' => '<li class="%li_class%"><i style="%style%" alt="LinkedIn" Title="LinkedIn" class="EPFLShare EPFLShareLinkedinBackground" onclick=\'EPFLSharePopup("http://www.linkedin.com/shareArticle?mini=true&url=%encoded_post_url%&title=%post_title%")\'><ss style="%inner_style%" class="EPFLShareSvg EPFLShareLinkedinSvg"></ss></i></li>',
-    'google_plus' => '<li class="%li_class%"><i style="%style%" alt="Google+" Title="Google+" class="EPFLShare EPFLShareGoogleplusBackground" onclick=\'EPFLSharePopup("https://plus.google.com/share?url=%encoded_post_url%")\'><ss style="%inner_style%" class="EPFLShareSvg EPFLShareGoogleplusSvg"></ss></i></li>',
     'email' => '<li class="%li_class%"><i style="%style%" alt="Email" Title="Email" class="EPFLShare EPFLShareEmailBackground" onclick="window.location.href = \'mailto:?subject=\' + decodeURIComponent(\'%post_title%\' ).replace(\'&\', \'%26\') + \'&body=\' + decodeURIComponent(\'%encoded_post_url%\' )"><ss style="display:block" class="EPFLShareSvg EPFLShareEmailSvg"></ss></i></li>'
   );
 
