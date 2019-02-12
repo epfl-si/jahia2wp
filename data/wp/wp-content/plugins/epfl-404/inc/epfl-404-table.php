@@ -92,10 +92,10 @@ class EPFL404Table extends WP_List_Table
     {
         $columns = [
             'cb'      => '<input type="checkbox" />',
-            EPFL404DB::EPFL404_DB_FIELD_URL         => 'URL',
-            EPFL404DB::EPFL404_DB_FIELD_REFERER     => 'Referer',
-            EPFL404DB::EPFL404_DB_FIELD_SOURCE_IP   => 'IP',
-            EPFL404DB::EPFL404_DB_FIELD_DATE        => 'Date'
+            EPFL404DB::EPFL404_DB_FIELD_URL             => 'URL',
+            EPFL404DB::EPFL404_DB_FIELD_REFERER         => 'Referer',
+            EPFL404DB::EPFL404_QUERY_FIELD_NB_OCCUR     => '# occurences',
+            EPFL404DB::EPFL404_QUERY_FIELD_LAST_OCCUR   => 'Last occurence'
         ];
 
         return $columns;
@@ -110,10 +110,10 @@ class EPFL404Table extends WP_List_Table
     public function get_sortable_columns()
     {
         $sortable_columns = array(
-            EPFL404DB::EPFL404_DB_FIELD_URL         => array( EPFL404DB::EPFL404_DB_FIELD_URL, true ),
-            EPFL404DB::EPFL404_DB_FIELD_REFERER     => array( EPFL404DB::EPFL404_DB_FIELD_REFERER, false ),
-            EPFL404DB::EPFL404_DB_FIELD_SOURCE_IP   => array( EPFL404DB::EPFL404_DB_FIELD_SOURCE_IP, false ),
-            EPFL404DB::EPFL404_DB_FIELD_DATE        => array( EPFL404DB::EPFL404_DB_FIELD_DATE, false ),
+            EPFL404DB::EPFL404_DB_FIELD_URL             => array( EPFL404DB::EPFL404_DB_FIELD_URL, true ),
+            EPFL404DB::EPFL404_DB_FIELD_REFERER         => array( EPFL404DB::EPFL404_DB_FIELD_REFERER, false ),
+            EPFL404DB::EPFL404_QUERY_FIELD_NB_OCCUR     => array( EPFL404DB::EPFL404_QUERY_FIELD_NB_OCCUR, false ),
+            EPFL404DB::EPFL404_QUERY_FIELD_LAST_OCCUR   => array( EPFL404DB::EPFL404_QUERY_FIELD_LAST_OCCUR, false ),
         );
 
       return $sortable_columns;
