@@ -55,8 +55,9 @@ class EPFL404
     {
         EPFL404DB::init();
 
-        /* Add option with default value */
+        /* Add options with default value */
         update_option(self::NB_DAYS_TO_KEEP_OPTION, self::DAYS_TO_KEEP_DEFAULT);
+        update_option(self::NB_ENTRIES_TO_KEEP_OPTION, self::NB_ENTRIES_TO_KEEP_DEFAULT);
     }
 
     /*
@@ -91,7 +92,7 @@ class EPFL404
     {
         $hook = add_management_page( 'EPFL 404',
                                      'EPFL 404',
-                                     'administrator',
+                                     'editor',
                                      basename( __FILE__),
                                      [$this, 'render_404_list'] );
 
