@@ -150,7 +150,7 @@ class EPFL404DB
 
       global $wpdb;
 
-      $sql = "SELECT * FROM ".self::EPFL404_DB_TABLE;
+      $sql = "SELECT *, COUNT(CONCAT(".self::EPFL404_DB_FIELD_URL.",".self::EPFL404_DB_FIELD_REFERER.")) AS 'nb' FROM ".self::EPFL404_DB_TABLE;
 
       if ( ! empty( $_REQUEST['orderby'] ) ) {
         $sql .= ' ORDER BY ' . esc_sql( $_REQUEST['orderby'] );
