@@ -896,14 +896,14 @@ def rotate_backup_inventory(path, dry_run=False, **kwargs):
                     site_details.url
                 ).path
                 # rotate full backups first
-                for pattern in ["*full.sql", "*full.tar"]:
+                for pattern in ["*full.sql", "*full.tar", "*full.tar.gz"]:
                     RotateBackups(
                         FULL_BACKUP_RETENTION_THEME,
                         dry_run=dry_run,
                         include_list=[pattern]
                     ).rotate_backups(path)
                 # rotate incremental backups
-                for pattern in ["*.list", "*inc.sql", "*inc.tar"]:
+                for pattern in ["*.list", "*inc.sql", "*inc.tar", "*inc.tar.gz"]:
                     RotateBackups(
                         INCREMENTAL_BACKUP_RETENTION_THEME,
                         dry_run=dry_run,
@@ -923,14 +923,14 @@ def rotate_backup(csv_file, dry_run=False, **kwargs):
         try:
             path = WPBackup(row["openshift_env"], row["wp_site_url"]).path
             # rotate full backups first
-            for pattern in ["*full.sql", "*full.tar"]:
+            for pattern in ["*full.sql", "*full.tar", "*full.tar.gz"]:
                 RotateBackups(
                     FULL_BACKUP_RETENTION_THEME,
                     dry_run=dry_run,
                     include_list=[pattern]
                 ).rotate_backups(path)
             # rotate incremental backups
-            for pattern in ["*.list", "*inc.sql", "*inc.tar"]:
+            for pattern in ["*.list", "*inc.sql", "*inc.tar", "*inc.tar.gz"]:
                 RotateBackups(
                     INCREMENTAL_BACKUP_RETENTION_THEME,
                     dry_run=dry_run,
