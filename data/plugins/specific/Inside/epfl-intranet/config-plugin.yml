@@ -5,7 +5,7 @@ tables:
   - autoload: 'yes'
     option_id: 300
     option_name: plugin:epfl_accred:subscriber_group
-    option_value: ''
+    option_value: '*'
   - autoload: 'yes'
     option_id: 301
     option_name: plugin:epfl_intranet:restrict_to_groups
@@ -13,5 +13,5 @@ tables:
   - autoload: 'yes'
     option_id: 302
     option_name: plugin:epfl_intranet:enabled
-    option_value: '0'
+    option_value: '1'
 
