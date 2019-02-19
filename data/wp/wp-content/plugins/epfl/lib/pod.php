@@ -149,6 +149,14 @@ class Site {
         return $this->equals($this->root());
     }
 
+    /**
+     * The main root Site is the one at the root of the filesystem and
+     * has not a configurated root menu.
+     */
+    function is_main_root () {
+        return $this->is_root() && empty($this->get_configured_root_menu_url());
+    }
+
     function get_subsites () {
         if (! $this->htdocs_path) {
             throw new \Error("Sorry, ->get_subsites() only works on ::this_site() for now");
