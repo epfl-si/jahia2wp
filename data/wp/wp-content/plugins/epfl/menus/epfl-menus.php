@@ -1907,6 +1907,11 @@ class MenuFrontendController
      * @return True iff the root menu is correctly stitched
      */
     public static function filter_epfl_root_menu_ready ($ready_orig, $theme_location) {
+        # main root site is always correct, as this is the main ref.
+        if (Site::this_site()->is_main_root()) {
+            return true;
+        }
+        
         $menu = Menu::by_theme_location($theme_location);
         return $menu && $menu->has_root_menu($theme_location);
     }
