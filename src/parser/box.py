@@ -16,6 +16,7 @@ class Box:
 
     # WP box types
     TYPE_TEXT = "text"
+    TYPE_ONE_COL_CONTAINER = "oneColContainer"
     TYPE_COLORED_TEXT = "coloredText"
     TYPE_PEOPLE_LIST = "peopleList"
     TYPE_INFOSCIENCE = "infoscience"
@@ -60,7 +61,8 @@ class Box:
         "epfl:syntaxHighlightBox": TYPE_SYNTAX_HIGHLIGHT,
         "epfl:keyVisualBox": TYPE_KEY_VISUAL,
         "epfl:mapBox": TYPE_MAP,
-        "epfl:gridBox": TYPE_GRID
+        "epfl:gridBox": TYPE_GRID,
+        "epfl:oneColContainer": TYPE_ONE_COL_CONTAINER
     }
 
     UPDATE_LANG = "UPDATE_LANG_BY_EXPORTER"
@@ -138,7 +140,7 @@ class Box:
         self.set_sort_infos(element)
 
         # text
-        if self.TYPE_TEXT == self.type or self.TYPE_COLORED_TEXT == self.type:
+        if self.type in [self.TYPE_TEXT, self.TYPE_COLORED_TEXT, self.TYPE_ONE_COL_CONTAINER]:
             self.set_box_text(element, multibox)
         # people list
         elif self.TYPE_PEOPLE_LIST == self.type:

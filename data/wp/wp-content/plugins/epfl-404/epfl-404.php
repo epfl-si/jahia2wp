@@ -2,7 +2,7 @@
 /**
  * Plugin Name: EPFL-404
  * Description: To log 404 pages
- * @version: 0.1
+ * @version: 0.3
  * @copyright: Copyright (c) 2018 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
@@ -15,7 +15,9 @@ class EPFL404
     static $instance;
 
     const DAYS_TO_KEEP_DEFAULT = 15;
+    const NB_ENTRIES_TO_KEEP_DEFAULT = 1000;
     const NB_DAYS_TO_KEEP_OPTION = 'epfl-404:nb_days_to_keep';
+    const NB_ENTRIES_TO_KEEP_OPTION = 'epfl-404:nb_entries_to_keep';
 
     public $display_table = null;
     public $nb_days_to_keep = self::DAYS_TO_KEEP_DEFAULT;
@@ -28,8 +30,10 @@ class EPFL404
 
 		add_action( 'template_redirect', [$this, 'log_404_calls'] );
 
-        /* Number of days to keep information */
+        /* To avoid to fill database with information, we set limits */
         $this->nb_days_to_keep = get_option(self::NB_DAYS_TO_KEEP_OPTION, self::DAYS_TO_KEEP_DEFAULT);
+        $this->nb_entries_to_keep = get_option(self::NB_ENTRIES_TO_KEEP_OPTION, self::NB_ENTRIES_TO_KEEP_DEFAULT);
+
 	}
 
 
@@ -51,8 +55,9 @@ class EPFL404
     {
         EPFL404DB::init();
 
-        /* Add option with default value */
+        /* Add options with default value */
         update_option(self::NB_DAYS_TO_KEEP_OPTION, self::DAYS_TO_KEEP_DEFAULT);
+        update_option(self::NB_ENTRIES_TO_KEEP_OPTION, self::NB_ENTRIES_TO_KEEP_DEFAULT);
     }
 
     /*
@@ -76,7 +81,7 @@ class EPFL404
                        $_SERVER['REMOTE_ADDR']);
 
         /* Cleaning old entries */
-        EPFL404DB::clean_old_entries($this->nb_days_to_keep);
+        EPFL404DB::clean_old_entries($this->nb_days_to_keep, $this->nb_entries_to_keep);
     }
 
 
@@ -87,7 +92,7 @@ class EPFL404
     {
         $hook = add_management_page( 'EPFL 404',
                                      'EPFL 404',
-                                     'administrator',
+                                     'manage_options',
                                      basename( __FILE__),
                                      [$this, 'render_404_list'] );
 

@@ -2,7 +2,7 @@
 /*
  * Plugin Name: EPFL Intranet
  * Description: Use EPFL Accred to allow website access only to specific group(s) or just force to be authenticated
- * Version:     0.11
+ * Version:     0.12
  * Author:      Lucien Chaboudez
  * Author URI:  mailto:lucien.chaboudez@epfl.ch
  */
@@ -117,6 +117,9 @@ class Settings extends \EPFL\SettingsBase
                     $restrict_message = sprintf(___("Website access is restricted to following group(s): %s"),
                                             $restricted_to_groups);
                 }
+
+                /* Adding link to configuration page */
+                $restrict_message .= ' - <a href="'.admin_url().'options-general.php?page=epfl_intranet">'. ___("Configuration page").'</a>';
 
 
                 echo '<div class="notice notice-info">'.

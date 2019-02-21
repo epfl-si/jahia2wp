@@ -316,7 +316,7 @@ def download_many(csv_file, output_dir=None, **kwargs):
     for index, row in enumerate(rows):
         print("\nIndex #{}:\n---".format(index))
         try:
-            download(site=row['Jahia_zip'])
+            download(site=row['Jahia_zip'], zip_path=output_dir)
         except Exception:
             with open(tracer_path, 'a', newline='\n') as tracer:
                 tracer.write(
@@ -539,6 +539,7 @@ def export(site, wp_site_url, unit_name_or_id, to_wordpress=False, clean_wordpre
                            'epfl-xml',
                            'epfl-video',
                            'epfl-404',
+                           'epfl-stats',
                            'epfl-google-forms',
                            'feedzy-rss-feeds',
                            'cache-control',
@@ -932,18 +933,20 @@ def rotate_backup_inventory(path, dry_run=False, **kwargs):
                 ).path
 
                 # rotate full backups first
-                for pattern in ["*full.sql", "*full.tar"]:
+                for pattern in [["*full.sql"], ["*full.tar", "*full.tar.gz"]]:
+
                     RotateBackups(
                         FULL_BACKUP_RETENTION_THEME,
                         dry_run=dry_run,
-                        include_list=[pattern]
+                        include_list=pattern
                     ).rotate_backups(path)
                 # rotate incremental backups
-                for pattern in ["*.list", "*inc.sql", "*inc.tar"]:
+                for pattern in [["*.list"], ["*inc.sql"], ["*inc.tar", "*inc.tar.gz"]]:
+
                     RotateBackups(
                         INCREMENTAL_BACKUP_RETENTION_THEME,
                         dry_run=dry_run,
-                        include_list=[pattern]
+                        include_list=pattern
                     ).rotate_backups(path)
 
             except:
@@ -965,18 +968,20 @@ def rotate_backup(csv_file, dry_run=False, **kwargs):
         try:
             path = WPBackup(row["openshift_env"], row["wp_site_url"]).path
             # rotate full backups first
-            for pattern in ["*full.sql", "*full.tar"]:
+            for pattern in [["*full.sql"], ["*full.tar", "*.full.tar.gz"]]:
+
                 RotateBackups(
                     FULL_BACKUP_RETENTION_THEME,
                     dry_run=dry_run,
-                    include_list=[pattern]
+                    include_list=pattern
                 ).rotate_backups(path)
             # rotate incremental backups
-            for pattern in ["*.list", "*inc.sql", "*inc.tar"]:
+            for pattern in [["*.list"], ["*inc.sql"], ["*inc.tar", "*inc.tar.gz"]]:
+
                 RotateBackups(
                     INCREMENTAL_BACKUP_RETENTION_THEME,
                     dry_run=dry_run,
-                    include_list=[pattern]
+                    include_list=pattern
                 ).rotate_backups(path)
 
         except:

@@ -10,6 +10,11 @@ class EPFL404DB
     const EPFL404_DB_FIELD_SOURCE_IP    = 'epfl_404_source_ip';
     const EPFL404_DB_FIELD_DATE         = 'epfl_404_date';
 
+    /* Temporary request fields */
+    const EPFL404_QUERY_FIELD_URL_AND_REFERER = 'epfl_404_urlref';
+    const EPFL404_QUERY_FIELD_NB_OCCUR        = 'epfl_404_nb_occur';
+    const EPFL404_QUERY_FIELD_LAST_OCCUR      = 'epfl_404_last_occur';
+
     /*
      * Returns DB charset
      */
@@ -88,18 +93,34 @@ class EPFL404DB
     /*
      * Cleans old records
      * @param int $nb_days_to_keep
+     * @param int $nb_entries_to_keep
      */
-    public static function clean_old_entries($nb_days_to_keep)
+    public static function clean_old_entries($nb_days_to_keep, $nb_entries_to_keep)
     {
         global $wpdb;
 
+        /* We start by getting max ID to reuse it in delete request. We could use another way to do, for example
+         by using a subquery with "LIMIT" to select IDs to keep and delete oll the others but MariaDB doesn't
+         allows "LIMIT" in subqueries... */
+        $sql = "SELECT MAX(".self::EPFL404_DB_FIELD_ID.") AS 'max' FROM ".self::EPFL404_DB_TABLE;
+
+        if ( ($result = $wpdb->get_results( $sql )) === false )
+        {
+
+            /* We don't throw an exception this time, so website continue to works correctly, only 404 logging fails */
+            error_log("epfl-404: Error getting max id: ".$wpdb->print_error());
+            return;
+        }
+
+
         $sql = "DELETE FROM ".self::EPFL404_DB_TABLE.
-               " WHERE ".self::EPFL404_DB_FIELD_DATE."< DATE_SUB(NOW(), INTERVAL ".$nb_days_to_keep." DAY)";
+               " WHERE ".self::EPFL404_DB_FIELD_DATE."< DATE_SUB(NOW(), INTERVAL ".$nb_days_to_keep." DAY)".
+               " OR ".self::EPFL404_DB_FIELD_ID."<= (".$result[0]->max."-".$nb_entries_to_keep.")" ;
 
         if ( $wpdb->query( $sql ) === false )
         {
             /* We don't throw an exception this time, so website continue to works correctly, only 404 logging fails */
-            error_log("epfl-404: Error cleaning old 404 entries: ".$pwdb->print_error());
+            error_log("epfl-404: Error cleaning old 404 entries: ".$wpdb->print_error());
         }
     }
 
@@ -143,12 +164,19 @@ class EPFL404DB
      *
      * @return mixed
      */
-    public static function get_log( $per_page = 5, $page_number = 1 )
+    public static function get_log( $per_page = 10, $page_number = 1 )
     {
 
       global $wpdb;
 
-      $sql = "SELECT * FROM ".self::EPFL404_DB_TABLE;
+      /* First request */
+      $sql = "SELECT *, CONCAT(".self::EPFL404_DB_FIELD_URL.", IFNULL(".self::EPFL404_DB_FIELD_REFERER.",'-')) AS '".self::EPFL404_QUERY_FIELD_URL_AND_REFERER."' FROM ".self::EPFL404_DB_TABLE;
+
+      /* We add a surrounding request to have request count and last occurence */
+      $sql = "SELECT *, COUNT(".self::EPFL404_QUERY_FIELD_URL_AND_REFERER.")AS '".self::EPFL404_QUERY_FIELD_NB_OCCUR."', ".
+             "MAX(".self::EPFL404_DB_FIELD_DATE.") AS '".self::EPFL404_QUERY_FIELD_LAST_OCCUR."' FROM (". $sql .") AS t_tmp ".
+             "GROUP BY ".self::EPFL404_QUERY_FIELD_URL_AND_REFERER;
+
 
       if ( ! empty( $_REQUEST['orderby'] ) ) {
         $sql .= ' ORDER BY ' . esc_sql( $_REQUEST['orderby'] );
@@ -167,16 +195,26 @@ class EPFL404DB
 
 
     /**
-     * Delete a 404 log record.
+     * Delete a 404 log record. In fact we will get an ID from a record and because all records are displayed
+       group by URL/referer combination, we will recover URL and referer for givent ID and then delete all
+       rows with same URL/referer combination
      *
-     * @param int $id 404 log ID
+     * @param int $id entry ID to delete.
      */
     public static function delete_log_entry( $id )
     {
       global $wpdb;
 
+      $sql = "SELECT * FROM ".self::EPFL404_DB_TABLE." WHERE ".self::EPFL404_DB_FIELD_ID."='".$id."'";
 
-      $wpdb->delete(self::EPFL404_DB_TABLE, [ self::EPFL404_DB_FIELD_ID => $id ], [ '%d' ]);
+      $result = $wpdb->get_results( $sql, 'ARRAY_A' );
+
+      if(sizeof($result)>0)
+      {
+        /* Data deletion */
+        $wpdb->delete(self::EPFL404_DB_TABLE, [ self::EPFL404_DB_FIELD_URL => $result[0][self::EPFL404_DB_FIELD_URL],
+                                                self::EPFL404_DB_FIELD_REFERER => $result[0][self::EPFL404_DB_FIELD_REFERER] ]);
+      }
     }
 
 
