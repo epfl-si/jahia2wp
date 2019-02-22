@@ -138,8 +138,6 @@ class WPUser:
     WP_PASSWORD_LENGTH = 32
 
     def __init__(self, username, email, password=None, display_name=None, role=None):
-        # validate input
-        validate_gaspar_username(username)
 
         self.username = username
         self.email = email
