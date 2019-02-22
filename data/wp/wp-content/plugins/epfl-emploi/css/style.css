@@ -24,6 +24,9 @@
 		list-style-type: none;
 		line-height:17px;
 	}
+	button.right{
+		float:right;
+	}
 	#id_keywords {
 	display: inline-block;
 	width: 80%;
