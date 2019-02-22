@@ -145,11 +145,17 @@ simpleAJAXLib.init();
 /**** Displays Job list ****/
 var time = new Date().getTime();
 var if_height, src = defaultUrl+'&t='+time,
-emploiFrame = jQuery( '<iframe src="' + src + '" name="' + document.location.href + '" width="652" height="500" frameborder="0" scrolling="no" id="job-board" ><script>setInterval(function() {window.top.postMessage(document.body.scrollHeight, "*");}, 500); <\/script><\/iframe>' ).appendTo( '#umantis_iframe' );
+    /* We dynamically create the iframe and we set current page URL as 'name' attribute to allow JavaScript code inside iframe (hosted on another website) to send information
+     * to this page. This information contains height of HTML content displayed in the iframe and will help us to resize the iframe to fit its content. */
+emploiFrame = jQuery( '<iframe src="' + src + '" name="' + document.location.href + '" width="652" height="500" frameborder="0" scrolling="no" id="job-board" ><\/iframe>' ).appendTo( '#umantis_iframe' );
 
+/*
+* We add a listener to receive messages sent by iframe containing job offer list. Messages tells the iframe's content height
+* and has format : if_height=<height_in_pixels>
+* This will be used to resize iframe (if size has changed). */
 window.addEventListener('message', function(e)
 {
-
+    /* Extracting height from received message */
     var h = Number( e.data.replace( /.*if_height=(\d+)(?:&|$)/, '$1' ) );
 
     if (!isNaN( h ) && h > 0 && h !== if_height)
