@@ -2,7 +2,7 @@
 /**
  * Plugin Name: EPFL Emploi
  * Description: provides a shortcode to display job offers
- * Version: 1.2
+ * Version: 1.3
  * Author: Lucien Chaboudez
  * Contributors:
  * License: Copyright (c) 2019 Ecole Polytechnique Federale de Lausanne, Switzerland
@@ -60,7 +60,6 @@ function epfl_emploi_process_shortcode( $atts, $content = null ) {
     $new_url_query = http_build_query($parameters);
     /* We replace query in original url to have 'searchPositionUrl' value for JS */
     $url_search_position = str_replace($url_query, $new_url_query, $url);
-
 
 ob_start();
 
