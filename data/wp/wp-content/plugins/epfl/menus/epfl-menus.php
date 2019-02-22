@@ -77,7 +77,7 @@ class TreeLoopError extends TreeError {
  */
 class MenuItemBag
 {
-    function __construct ($items) {
+    function __construct ($items, $hide_tree_problems=false) {
         if (! is_array($items)) {
             throw new \Error('Bad argument: ' . var_export($items, true));
         }
@@ -85,7 +85,7 @@ class MenuItemBag
         foreach ($items as $item) {
             $this->_MUTATE_add_item($item);
         }
-        $this->_MUTATE_validate_and_toposort();
+        $this->_MUTATE_validate_and_toposort($hide_tree_problems);
     }
 
     static function coerce ($what) {
@@ -209,8 +209,11 @@ class MenuItemBag
     *  - All ->_get_parent_id's are 0 or within the graph
     *
     *  - There are no ancestry loops
+    *
+    * @param boolean $hide_tree_problems Set to true if you want to ignore the
+    *        problematic descendants, without throwing an error
     */
-    private function _MUTATE_validate_and_toposort () {
+    private function _MUTATE_validate_and_toposort (bool $hide_tree_problems) {
         // Based on https://en.wikipedia.org/wiki/Topological_sorting#Kahn's_algorithm
         $children        = array();    // Adjacency list, keyed by parent ID
         $safe            = array();    // List of nodes with no loops in their ancestry
@@ -227,6 +230,10 @@ class MenuItemBag
                 // Houston, we have an inconsistency. wp-admin should show it
                 // in menu editor. Until someone manualy fix it,
                 //  keep the item hidden
+                if (!$hide_tree_problems) {
+                    throw new TreeError("Parent of $id ($parent_id) unknown");
+                }
+
                 $ids_to_ignore[] = $id;
                 if (defined('WP_DEBUG') && WP_DEBUG) {
                     // debuggers may want to understand what is currently happening
