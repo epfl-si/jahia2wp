@@ -139,7 +139,6 @@ class WPUser:
 
     def __init__(self, username, email, password=None, display_name=None, role=None):
 
-
         self.username = username
         self.email = email
         self.password = password
