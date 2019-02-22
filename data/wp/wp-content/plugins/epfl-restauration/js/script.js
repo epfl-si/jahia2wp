@@ -1,7 +1,9 @@
 var if_height,
     restauration_iframe = jQuery('#epfl-restauration');
 
-
+/*
+* We add a listener to receive messages sent by iframe containing menu list. Messages tells the iframe's content height.
+* This will be used to resize iframe (if size has changed) */
 window.addEventListener('message', function(e)
 {
 
