@@ -23,8 +23,8 @@ function epfl_restauration_process_shortcode( $atts, $content = null ) {
 
     /* Prod */
     $url = 'https://menus.epfl.ch/cgi-bin/getMenus?'. $params;
-    /* Test */
-    $url = 'https://test-menus.epfl.ch/cgi-bin/getMenus?'. $params;
+    /* uncomment following line to access test environment */
+    //$url = 'https://test-menus.epfl.ch/cgi-bin/getMenus?'. $params;
 
 
     /* Adding JavaScript */
@@ -35,7 +35,7 @@ ob_start();
      code in iframe content to know where to send a message to tell iframe's height. This information will be used by
      JavaScript code in 'js/script.js' to resize iframe */
 ?>
-<iframe src="<?PHP echo $url; ?>" name="<?PHP echo home_url( $wp->request ); ?>" height="500" width="100%" scrolling="no" id="epfl-restauration">
+<iframe src="<?PHP echo $url; ?>" name="<?PHP echo home_url( $wp->request ); ?>" frameborder="0" height="500" width="100%" scrolling="no" id="epfl-restauration">
 </iframe>
 
 <?php
