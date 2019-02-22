@@ -1,0 +1,3 @@
+plugins:
+  - name: epfl-restauration
+    config: !include epfl-restauration/config-plugin.yml
