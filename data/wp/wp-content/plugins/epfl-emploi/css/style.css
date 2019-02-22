@@ -8,10 +8,24 @@
 	padding-right: 0;
 	padding-top: 10px;
 	}
+	.panel-header {
+		border-bottom: 1px solid #000;
+		text-transform: uppercase;
+		font-size: 1.4em;
+		line-height: 1.2em;
+	}
 	#id_themes{
   	columns: 3;
   	-webkit-columns: 3;
   	-moz-columns: 3;
+	}
+	#id_themes li{
+		list-style-position: outside;
+		list-style-type: none;
+		line-height:17px;
+	}
+	button.right{
+		float:right;
 	}
 	#id_keywords {
 	display: inline-block;
