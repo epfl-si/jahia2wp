@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2019-02-25 11:16+0100\n"
-"PO-Revision-Date: 2019-02-25 11:19+0100\n"
+"POT-Creation-Date: 2019-02-25 12:53+0100\n"
+"PO-Revision-Date: 2019-02-25 12:53+0100\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -433,11 +433,11 @@ msgstr "Fonction"
 
 #: epfl-people/shortcake-config.php:47
 msgid ""
-"You can enter a function to filter persons. <br />The keyword must be in "
-"french. Example: professeur or enseignement"
+"You can enter a function to filter persons. The keyword must be in french. "
+"Example: professeur or enseignement"
 msgstr ""
-"Vous pouvez saisir une fonction afin de filtrer les personnes. <br />Le mot-"
-"clé doit être en français. Exemple: professeur ou enseignement"
+"Vous pouvez saisir une fonction afin de filtrer les personnes. Le mot-clé "
+"doit être en français. Exemple: professeur ou enseignement"
 
 #: epfl-quote/shortcake-config.php:12 epfl-quote/shortcake-config.php:16
 msgid "Quote"
