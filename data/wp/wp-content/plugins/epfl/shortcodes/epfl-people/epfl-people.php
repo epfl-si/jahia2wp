@@ -41,9 +41,10 @@ function epfl_people_sortArrayByArray($data,$orderArray) {
 function epfl_people_2018_process_shortcode( $attributes, $content = null )
 {
   $attributes = shortcode_atts( array(
-       'units'   => '',
-       'scipers' => '',
-       'columns' => '3',
+       'units'    => '',
+       'scipers'  => '',
+       'function' => '',
+       'columns'  => '3',
     ), $attributes );
 
 
@@ -53,10 +54,10 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
     return Utils::render_user_msg('You must activate the epfl theme');
   }
 
-
-   // sanitize the parameters
+  // sanitize the parameters
   $units    = sanitize_text_field( $attributes['units'] );
   $scipers  = sanitize_text_field( $attributes['scipers'] );
+  $function = sanitize_text_field( $attributes['function']);
   $columns  = sanitize_text_field( $attributes['columns'] );
 
   if ($columns !== 'list') {
@@ -68,6 +69,9 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
   }
 
   ("" !== $units) ? $parameter['units'] = $units : $parameter['scipers'] = $scipers;
+  if ("" !== $function) {
+    $parameter['position'] = $function;
+  }
 
   if (function_exists('pll_current_language')) {
     $current_language = pll_current_language();
@@ -77,9 +81,9 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
   }
 
   // the web service we use to retrieve the data
-  $url = "https://people.epfl.ch/cgi-bin/wsgetpeople/";
+  $url = "https://test-people.epfl.ch/cgi-bin/wsgetpeople/";
   $url = add_query_arg($parameter, $url);
-
+  
   // retrieve the data in JSON
   $items = Utils::get_items($url);
 
@@ -107,21 +111,18 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
     $scipers =  array_map('intval', explode(',', $parameter['scipers']));
     $persons = epfl_people_sortArrayByArray($persons, $scipers);
   }
+  
+  ob_start();
 
-
-    ob_start();
-
-    try
-    {
-      do_action_ref_array("epfl_people_action", [$persons, $columns]);
-      return ob_get_contents();
-    }
-    finally
-    {
-      ob_end_clean();
-    }
-
-
+  try
+  {
+    do_action_ref_array("epfl_people_action", [$persons, $columns]);
+    return ob_get_contents();
+  }
+  finally
+  {
+    ob_end_clean();
+  }
 }
 
 // init action
