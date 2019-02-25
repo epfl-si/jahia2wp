@@ -1887,6 +1887,33 @@ class MenuFrontendController
             ::find(array('menu_term_id' => $menu_term_id))
             ->first_preferred(array('language' => get_current_language()));
     }
+    /**
+     * Add information on item that the walkers may need.
+     * Like if a custom entry has external-menu children
+     */
+    static function enhance_nav_menu_items_datas
+        ($items_orig, $menu, $args)
+    {
+        # when we get a custom link check if it has an external-menu child.
+        # this means we have to identify the Custom link as a custom link for
+        # the External Menu item
+        foreach ($items_orig as $key => $item) {
+            if ($item->object === 'custom') {
+                # try to find External menu item in the descendancy
+                foreach ($items_orig as $sub_item) {
+                    if ($sub_item->menu_item_parent === strval($item->ID)) {
+                        if ($emi = ExternalMenuItem::get($sub_item)) {
+                            # set the info into the parent that he may be a link for external menu
+                            $items_orig[$key]->epfl_has_external_menu_child = true;
+                            continue 2;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $items_orig;
+    }
 
     /**
      * Change the return value of @link wp_get_nav_menu_items to the
@@ -1896,6 +1923,7 @@ class MenuFrontendController
     static function filter_wp_nav_menu_items_for_theme
         ($items_orig, $menu, $args)
     {
+        $items_orig = static::enhance_nav_menu_items_datas($items_orig, $menu, $args);
         if (static::_is_being_called_by_theme('wp_get_nav_menu_items')) {
             return static::stitch_menu($items_orig, $menu);
         } else {
@@ -1907,6 +1935,11 @@ class MenuFrontendController
      * @return True iff the root menu is correctly stitched
      */
     public static function filter_epfl_root_menu_ready ($ready_orig, $theme_location) {
+        # always pretend to be ready in debug mode
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            return true;
+        }
+
         # main root site is always correct, as this is the main ref.
         if (Site::this_site()->is_main_root()) {
             return true;
