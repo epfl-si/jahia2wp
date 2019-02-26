@@ -74,7 +74,7 @@ class Site {
             throw new \Error('Unable to find htdocs in ' . $abspath);
         }
         $htdocs = $matched[1];
-        $below_htdocs = preg_replace('#^/#', '', 
+        $below_htdocs = preg_replace('#^/#', '',
                                      preg_replace('#/$#', '', $matched[2]));
         return array($htdocs, $below_htdocs);
     }
@@ -191,17 +191,15 @@ class Site {
 
     /**
      * Get a pod config value, or all config
-     * 
+     *
      * Configuration file should be in www.epfl.ch/htdocs/epfl-wp-sites-config.ini
-     * 
+     *
      * @return (String|bool) false if not found
      */
 
     static function get_pod_config ($key='') {
-        list($htdocs_path, $under_htdocs) = static::_htdocs_split();
-        $ini_path = $htdocs_path . '/epfl-wp-sites-config.ini';
-
-        if (file_exists($ini_path)) {
+        $ini_path = static::_get_wp_site_config_path();
+        if ($ini_path) {
             $ini_array = parse_ini_file($ini_path);
             if (!empty($key)) {
                 if (array_key_exists($key, $ini_array)){
@@ -211,5 +209,29 @@ class Site {
                 return $ini_array;
             }
         }
+    }
+
+    static $_wp_site_config_path_cache = FALSE;
+    static function _get_wp_site_config_path () {
+        if (FALSE === static::$_wp_site_config_path_cache) {
+            [ $htdocs, $my_subdirs ] = static::_htdocs_split();
+
+            for(
+              $path_components = explode('/', $my_subdirs);
+              count($path_components);
+              array_pop($path_components))
+            {
+                $try_path = $htdocs . "/" . implode("/", $path_components) . "/epfl-wp-sites-config.ini";
+                if (file_exists($try_path)) {
+                    static::$_wp_site_config_path_cache = $try_path;
+                    break;
+                }
+            }
+            if (FALSE === static::$_wp_site_config_path_cache) {
+              static::$_wp_site_config_path_cache = NULL;
+            }
+        }
+
+        return static::$_wp_site_config_path_cache;
     }
 }

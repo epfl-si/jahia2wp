@@ -376,11 +376,26 @@ class MenuItemBag
 
     /**
      * @return A copy of $this without the ExternalMenuItem nodes
+     *
+     * Parent nodes of ExternalMenuItem nodes are decorated with
+     * an additional attribute 'epfl_external_menu_children_count'
+     * counting the elements so removed. WordPress attributes and
+     * CSS classes that encode parent-child relationships are also
+     * updated.
      */
     function trim_external () {
-        $retval = $this->pluck(function($item) {
+        list($retval, $emis) = $this->pluck(function($item) {
             return ExternalMenuItem::looks_like($item);
-        })[0]->copy();
+        });
+        foreach ($emis as $emi) {
+          $parent_id = $emi->menu_item_parent;
+          if (! $parent_id) continue;
+          $parent = $retval->find($parent_id);
+          if (! property_exists($parent, "epfl_external_menu_children_count")) {
+            $parent->epfl_external_menu_children_count = 0;
+          }
+          $parent->epfl_external_menu_children_count++;
+        }
         $retval->_MUTATE_fixup_current_attributes_and_classes();
         return $retval;
     }
@@ -773,7 +788,7 @@ class Menu
                          })
             as $graft_point)
         {
-            $tree = $tree->reverse_graft($graft_point, $root_menu);
+            $tree = $tree->annotate_roots(array($soa_slug => $site_url))->reverse_graft($graft_point, $root_menu);
             $grafted_count++;
         }
 
