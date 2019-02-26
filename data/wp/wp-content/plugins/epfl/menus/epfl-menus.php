@@ -232,12 +232,12 @@ class MenuItemBag
                 //  keep the item hidden
                 if (!$hide_tree_problems) {
                     throw new TreeError("Parent of $id ($parent_id) unknown");
-                }
-
-                $ids_to_ignore[] = $id;
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    // debuggers may want to understand what is currently happening
-                    error_log("Menu tree error : Parent of $id ($parent_id) unknown; ignoring this entry and all the current children");
+                } else {
+                    $ids_to_ignore[] = $id;
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        // debuggers may want to understand what is currently happening
+                        error_log("Menu tree error : Parent of $id ($parent_id) unknown; ignoring this entry and all the current children");
+                    }
                 }
             } elseif (in_array($parent_id, $ids_to_ignore)) {
                 // as the parent has an inconsistency, ignore all the children too
