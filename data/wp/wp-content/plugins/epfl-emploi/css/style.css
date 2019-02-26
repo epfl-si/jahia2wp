@@ -11,18 +11,21 @@
 	.panel-header {
 		border-bottom: 1px solid #000;
 		text-transform: uppercase;
-		font-size: 1.4em;
+		font-size: 1.2em;
 		line-height: 1.2em;
 	}
 	#id_themes{
-  	columns: 3;
-  	-webkit-columns: 3;
-  	-moz-columns: 3;
+		padding-left: 20px;
+		margin-bottom:10px;
+  		columns: 3;
+  		-webkit-columns: 3;
+  		-moz-columns: 3;
 	}
 	#id_themes li{
 		list-style-position: outside;
 		list-style-type: none;
-		line-height:17px;
+		line-height:13px;
+		white-space: nowrap;
 	}
 	button.right{
 		float:right;
