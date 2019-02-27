@@ -3,7 +3,7 @@
  * Plugin Name: EPFL Functions
  * Plugin URI: 
  * Description: Must-use plugin for the EPFL website.
- * Version: 0.0.6
+ * Version: 0.0.7
  * Author: Aline Keller
  * Author URI: http://www.alinekeller.ch
  */
@@ -151,7 +151,13 @@ add_filter('wp_get_attachment_link', 'oikos_get_attachment_link_filter', 10, 4);
 
 --------------------------------------------------------------*/
 function epfl_mimetypes($mime_types){
+
+    /* Extensions and Mimes types can be found here:
+    https://www.lifewire.com/mime-types-by-content-type-3469108
+    */
+
     $mime_types['ppd'] = 'application/vnd.cups-ppd'; //Adding ppd extension
+    $mime_types['tex'] = 'application/x-tex'; //Adding tex extension
     return $mime_types;
 }
 add_filter('upload_mimes', 'epfl_mimetypes', 1, 1);
