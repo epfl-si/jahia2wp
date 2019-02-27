@@ -1,3 +1,8 @@
+.search-filters {
+	float:left;
+	margin: 0px 20px 0px; 20px;
+}
+
 .panel-content {
 	padding: .3075em 0
 }
@@ -15,9 +20,9 @@
 #id_themes{
 	padding-left: 20px;
 	margin-bottom:3px;
-	columns: 3;
-	-webkit-columns: 3;
-	-moz-columns: 3;
+	columns: 1;
+	-webkit-columns: 1;
+	-moz-columns: 1;
 }
 #id_themes li{
 	list-style-position: outside;
@@ -30,7 +35,7 @@ button.right{
 }
 #id_keywords {
 	display: inline-block;
-	width: 80%;
+	width: 90%;
 	position: relative;
 	height: 25px;
 	vertical-align: baseline;

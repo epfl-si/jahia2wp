@@ -2,7 +2,7 @@
 /**
  * Plugin Name: EPFL Emploi
  * Description: provides a shortcode to display job offers
- * Version: 1.3
+ * Version: 1.4
  * Author: Lucien Chaboudez
  * Contributors:
  * License: Copyright (c) 2019 Ecole Polytechnique Federale de Lausanne, Switzerland
@@ -64,35 +64,44 @@ function epfl_emploi_process_shortcode( $atts, $content = null ) {
 ob_start();
 
 ?>
+<div class="container">
 
-<div class="panel-content keywords-panel form"><input id="id_keywords" name="keywords" type="text" />
-<button class="themed search-button keywords-button" name="search" onclick="onSelectionChanged()"><span class="icon-search">&nbsp;</span></button></div>
+    <div class="search-filters">
 
-<div aria-expanded="true" aria-hidden="false" aria-labelledby="toggle-1" class="list-unstyled toggle-expanded" id="toggle-pane-0">&nbsp;</div>
+        <div class="panel-content keywords-panel form">
+            <input id="id_keywords" name="keywords" type="text" />
+            <button class="themed search-button keywords-button" name="search" onclick="onSelectionChanged()">
+                <span class="icon-search">&nbsp;</span>
+            </button>
+        </div>
 
-<div class="toolbar-emploi actu-advanced-search-toolbar ui-toolbar" data-widget="toolbar" role="toolbar">
-    <button class="toolbar-item" name="search" onclick="onSelectionChanged()" role="button" tabindex="0"><?PHP echo __('Search', 'epfl-emploi'); ?></button>
-    <button class="toolbar-item right" onclick="reset()"><?PHP echo __('Reset', 'epfl-emploi'); ?></button>
+        <div aria-expanded="true" aria-hidden="false" aria-labelledby="toggle-1" class="list-unstyled toggle-expanded" id="toggle-pane-0">&nbsp;</div>
 
-    <!-- URLs -->
-    <input type="hidden" id="EPFLEmploiDefaultUrl" value="<?PHP echo $url; ?>">
-    <input type="hidden" id="EPFLEmploiSearchPositionUrl" value="<?PHP echo $url_search_position; ?>">
+        <div class="toolbar-emploi actu-advanced-search-toolbar ui-toolbar" data-widget="toolbar" role="toolbar">
+            <button class="toolbar-item" name="search" onclick="onSelectionChanged()" role="button" tabindex="0"><?PHP echo __('Search', 'epfl-emploi'); ?></button>
+            <button class="toolbar-item right" onclick="reset()"><?PHP echo __('Reset', 'epfl-emploi'); ?></button>
 
-    <!-- Parameters -->
-    <input type="hidden" id="EPFLEmploiExceptPositions" value="<?PHP echo $except_positions; ?>">
+            <!-- URLs -->
+            <input type="hidden" id="EPFLEmploiDefaultUrl" value="<?PHP echo $url; ?>">
+            <input type="hidden" id="EPFLEmploiSearchPositionUrl" value="<?PHP echo $url_search_position; ?>">
+
+            <!-- Parameters -->
+            <input type="hidden" id="EPFLEmploiExceptPositions" value="<?PHP echo $except_positions; ?>">
 
 
-    <!-- Lang & Translations -->
-    <input type="hidden" id="EPFLEmploiLang" value="<?PHP echo $lang_to_id[$lang]; ?>">
-    <input type="hidden" id="EPFLEmploiTransFunction" value="<?PHP echo esc_attr__('Function', 'epfl-emploi'); ?>">
-    <input type="hidden" id="EPFLEmploiTransLocation" value="<?PHP echo esc_attr__('Location', 'epfl-emploi'); ?>">
-    <input type="hidden" id="EPFLEmploiTransWorkRate" value="<?PHP echo esc_attr__('Work Rate', 'epfl-emploi'); ?>">
-    <input type="hidden" id="EPFLEmploiTransEmplTerm" value="<?PHP echo esc_attr__('Term of employment', 'epfl-emploi'); ?>">
+            <!-- Lang & Translations -->
+            <input type="hidden" id="EPFLEmploiLang" value="<?PHP echo $lang_to_id[$lang]; ?>">
+            <input type="hidden" id="EPFLEmploiTransFunction" value="<?PHP echo esc_attr__('Function', 'epfl-emploi'); ?>">
+            <input type="hidden" id="EPFLEmploiTransLocation" value="<?PHP echo esc_attr__('Location', 'epfl-emploi'); ?>">
+            <input type="hidden" id="EPFLEmploiTransWorkRate" value="<?PHP echo esc_attr__('Work Rate', 'epfl-emploi'); ?>">
+            <input type="hidden" id="EPFLEmploiTransEmplTerm" value="<?PHP echo esc_attr__('Term of employment', 'epfl-emploi'); ?>">
+        </div>
 
+    </div>
+
+    <div id="umantis_iframe">&nbsp;</div>
 
 </div>
-
-<div id="umantis_iframe">&nbsp;</div>
 
 <?php
 
