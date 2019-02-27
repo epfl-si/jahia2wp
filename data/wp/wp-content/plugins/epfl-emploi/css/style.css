@@ -13,8 +13,8 @@
 .panel-header {
 	border-bottom: 1px solid #000;
 	text-transform: uppercase;
-	font-size: 1.2em;
-	line-height: 1.2em;
+	font-size: 1.0em;
+	line-height: 1.3em;
 	margin-bottom: 6px;
 }
 #id_themes{
