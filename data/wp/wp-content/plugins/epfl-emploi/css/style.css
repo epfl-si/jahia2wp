@@ -1,3 +1,4 @@
+
 .panel-content {
 	padding: .3075em 0
 }
@@ -8,16 +9,13 @@
 .panel-header {
 	border-bottom: 1px solid #000;
 	text-transform: uppercase;
-	font-size: 1.2em;
-	line-height: 1.2em;
+	font-size: 1.0em;
+	line-height: 1.3em;
 	margin-bottom: 6px;
 }
 #id_themes{
 	padding-left: 20px;
 	margin-bottom:3px;
-	columns: 3;
-	-webkit-columns: 3;
-	-moz-columns: 3;
 }
 #id_themes li{
 	list-style-position: outside;
@@ -30,7 +28,7 @@ button.right{
 }
 #id_keywords {
 	display: inline-block;
-	width: 80%;
+	width: 90%;
 	position: relative;
 	height: 25px;
 	vertical-align: baseline;
