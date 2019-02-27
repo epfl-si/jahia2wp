@@ -29,7 +29,7 @@ function epfl_restauration_process_shortcode( $atts, $content = null ) {
         /* Prod */
         $url = 'https://menus.epfl.ch/cgi-bin/getHoraire?'. $params;
         /* uncomment following line to access test environment */
-        $url = 'https://test-menus.epfl.ch/cgi-bin/getHoraire?'. $params;
+        //$url = 'https://test-menus.epfl.ch/cgi-bin/getHoraire?'. $params;
 
         $response = wp_remote_get($url);
 
@@ -43,7 +43,7 @@ function epfl_restauration_process_shortcode( $atts, $content = null ) {
         /* Prod */
         $url = 'https://menus.epfl.ch/cgi-bin/getMenus?'. $params;
         /* uncomment following line to access test environment */
-        $url = 'https://test-menus.epfl.ch/cgi-bin/getMenus?'. $params;
+        //$url = 'https://test-menus.epfl.ch/cgi-bin/getMenus?'. $params;
 
         /* Adding JavaScript */
         wp_enqueue_script( 'epfl_restauration_script', plugin_dir_url(__FILE__).'js/script.js' );
