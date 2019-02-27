@@ -2,7 +2,7 @@
 /**
  * Plugin Name: EPFL Emploi
  * Description: provides a shortcode to display job offers
- * Version: 1.4
+ * Version: 1.3
  * Author: Lucien Chaboudez
  * Contributors:
  * License: Copyright (c) 2019 Ecole Polytechnique Federale de Lausanne, Switzerland
@@ -14,11 +14,14 @@ function epfl_emploi_process_shortcode( $atts, $content = null ) {
     $atts = shortcode_atts( array(
         'url' => '',
         'except_positions' => '',
+        // to choose filter display location. "left" is default (for 2018) and we can select "top"
+        'filter_pos' => 'left',
     ), $atts );
 
     /* We transform &amp; to & (and also others encoded things) to have a clean URL to work with*/
     $url                = htmlspecialchars_decode($atts['url']);
-    $except_positions   = $atts['except_positions'];
+    $except_positions   = sanitize_text_field($atts['except_positions']);
+    $filter_pos         = sanitize_text_field($atts['filter_pos']);
 
     if($url == '')
     {
@@ -44,6 +47,17 @@ function epfl_emploi_process_shortcode( $atts, $content = null ) {
 
     /* Including CSS file*/
     wp_enqueue_style( 'epfl_emploi_style', plugin_dir_url(__FILE__).'css/style.css' );
+
+    if($filter_pos == 'left')
+    {
+        wp_enqueue_style( 'epfl_emploi_filter_style', plugin_dir_url(__FILE__).'css/style-filter-left.css' );
+    }
+    else
+    {
+        wp_enqueue_style( 'epfl_emploi_filter_style', plugin_dir_url(__FILE__).'css/style-filter-top.css' );
+    }
+
+    /* Including Script */
     wp_enqueue_script( 'epfl_emploi_filter_array_emulate', plugin_dir_url(__FILE__).'js/prototype-filter-emulate.js' );
     wp_enqueue_script( 'epfl_emploi_script', plugin_dir_url(__FILE__).'js/script.js' );
 
@@ -61,12 +75,16 @@ function epfl_emploi_process_shortcode( $atts, $content = null ) {
     /* We replace query in original url to have 'searchPositionUrl' value for JS */
     $url_search_position = str_replace($url_query, $new_url_query, $url);
 
-ob_start();
+    ob_start();
 
+    /* If filters must appears on the left, */
+    if($filter_pos=='left')
+    {
 ?>
 <div class="container">
 
     <div class="search-filters">
+<?PHP } ?>
 
         <div class="panel-content keywords-panel form">
             <input id="id_keywords" name="keywords" type="text" />
@@ -97,13 +115,24 @@ ob_start();
             <input type="hidden" id="EPFLEmploiTransEmplTerm" value="<?PHP echo esc_attr__('Term of employment', 'epfl-emploi'); ?>">
         </div>
 
+<?PHP
+/* If filters must appears on the left, */
+    if($filter_pos=='left')
+    {
+?>
     </div>
+<?PHP } ?>
 
     <div id="umantis_iframe">&nbsp;</div>
 
+<?PHP
+/* If filters must appears on the left, */
+    if($filter_pos=='left')
+    {
+?>
 </div>
 
-<?php
+<?php }
 
 return ob_get_clean();
 }

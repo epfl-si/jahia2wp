@@ -1,7 +1,3 @@
-.search-filters {
-	float:left;
-	margin: 0px 20px 0px; 20px;
-}
 
 .panel-content {
 	padding: .3075em 0
@@ -20,9 +16,6 @@
 #id_themes{
 	padding-left: 20px;
 	margin-bottom:3px;
-	columns: 1;
-	-webkit-columns: 1;
-	-moz-columns: 1;
 }
 #id_themes li{
 	list-style-position: outside;
