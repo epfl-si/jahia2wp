@@ -57,6 +57,7 @@ function EPFL_settings_register_settings() {
    register_setting( 'EPFL_settings_options_group', 'WPLANG' );
    register_setting( 'EPFL_settings_options_group', 'epfl:custom_breadcrumb', 'validate_breadcrumb');
    register_setting( 'EPFL_settings_options_group', 'epfl:custom_tags', 'validate_tags');
+   register_setting( 'EPFL_settings_options_group', 'epfl:custom_tags_provider_url');
 }
 add_action( 'admin_init', 'EPFL_settings_register_settings' );
 
@@ -110,7 +111,13 @@ function EPFL_settings_options_page()
     <tr>
       <th scope="row"><label for="epfl:custom_tags"><?php echo __ ("Custom Tags", 'EPFL-settings');?></label></th>
       <td><input type="text" id="epfl:custom_tags" name="epfl:custom_tags" value="<?php echo get_option('epfl:custom_tags'); ?>" />
-      <p class="description" id="tagline-description"><?php echo __ ("All tag's link go to the main tag search page. Format Tag1;Tag2;Tag3 (Example : School;Innovation;W3C", 'EPFL-settings');?></p>
+      <p class="description" id="tagline-description"><?php echo __ ("Tags are shown in the breadcrumb. Format: Tag1;Tag2;Tag3 (Example : School;Innovation;W3C", 'EPFL-settings');?></p>
+      </td>
+    </tr>
+    <tr>
+      <th scope="row"><label for="epfl:custom_tags_provider_url"><?php echo __ ("Custom Tags provider Url", 'EPFL-settings');?></label></th>
+      <td><input type="text" id="epfl:custom_tags_provider_url" name="epfl:custom_tags_provider_url" value="<?php echo get_option('epfl:custom_tags_provider_url'); ?>" />
+      <p class="description" id="tagline-description"><?php echo __ ("All tag's link will go to this site. Ex. https://wp-veritas.epfl.ch", 'EPFL-settings');?></p>
       </td>
     </tr>
   </table>
