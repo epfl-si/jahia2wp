@@ -18,6 +18,34 @@ function epfl_jahia_redirect_debug( $var ) {
     print "</pre>";
 }
 
+
+/*
+    GOAL : Go through given redirection list to see if redirection to trashed pages are commented.
+            Commenting redirection of trashed pages wasn't initially done in this plugin so this
+            function is just here to have a correct state for all redirections before starting
+            to handle pages trashed and untrashed.
+
+    IN   : $redirect_list   -> Array with redirections present in .htaccess file
+
+    RET  : Updated redirection list.
+*/
+function jahia_redirection_comment_trashed_pages($redirect_list)
+{
+
+    /* Looping through redirections to update if necessary */
+    for($i=0; $i<sizeof($redirect_list); $i++)
+    {
+        /* If current entry is trashed and is not commented */
+        if(preg_match('/^[^#](.*)__trashed\/$/', $redirect_list[$i])===1)
+        {
+            /* We comment it */
+            $redirect_list[$i] = '#'.$redirect_list[$i];
+        }
+    }
+
+    return $redirect_list;
+}
+
 /*
     GOAL : Update .htaccess redirection file
 
@@ -32,16 +60,18 @@ function epfl_jahia_redirect_debug( $var ) {
 */
 function update_jahia_redirections($post_id, $post_after, $post_before){
 
-
-    /* If permalink is still the same */
-    if($post_before->post_name == $post_after->post_name) return;
-
     $htaccess = get_home_path().".htaccess";
 
     $redirect_list = extract_from_markers( $htaccess, JAHIA_REDIRECT_MARKER);
 
     /* If no redirection in .htaccess file, */
     if(sizeof($redirect_list)==0) return;
+
+    /* We first comment redirections on trashed pages if any */
+    $redirect_list = jahia_redirection_comment_trashed_pages($redirect_list);
+
+    /* If permalink is still the same */
+    if($post_before->post_name == $post_after->post_name) return;
 
     /* Looping through redirections to update if necessary */
     for($i=0; $i<sizeof($redirect_list); $i++)
