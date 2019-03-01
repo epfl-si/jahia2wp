@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Jahia redirection updater
  * Description: Update Jahia redirection (if any) in .htaccess file when a page permalink is updated
- * @version: 1.0
+ * @version: 1.1
  * @copyright: Copyright (c) 2019 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
@@ -32,6 +32,7 @@ function epfl_jahia_redirect_debug( $var ) {
 */
 function update_jahia_redirections($post_id, $post_after, $post_before){
 
+
     /* If permalink is still the same */
     if($post_before->post_name == $post_after->post_name) return;
 
@@ -45,7 +46,24 @@ function update_jahia_redirections($post_id, $post_after, $post_before){
     /* Looping through redirections to update if necessary */
     for($i=0; $i<sizeof($redirect_list); $i++)
     {
-        $redirect_list[$i] = preg_replace('/\/'.$post_before->post_name.'\/$/', "/".$post_after->post_name."/", $redirect_list[$i]);
+        /* If current entry matches */
+        if(preg_match('/\/'.$post_before->post_name.'\/$/', $redirect_list[$i])===1)
+        {
+            /* If page was put in trash, */
+            if($post_after->post_status == 'trash')
+            {
+                /* We remove redirect to page because now in the trash... */
+                unset($redirect_list[$i]);
+            }
+            else /* Page was just renamed */
+            {
+                $redirect_list[$i] = preg_replace('/\/'.$post_before->post_name.'\/$/', "/".$post_after->post_name."/", $redirect_list[$i]);
+            }
+
+            /* We can exit the loop because we found page slug and it is unique so continue looking is useless */
+            break;
+        }
+
     }
 
     /* .htaccess update */
