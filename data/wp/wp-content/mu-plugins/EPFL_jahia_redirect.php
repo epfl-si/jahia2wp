@@ -49,15 +49,27 @@ function update_jahia_redirections($post_id, $post_after, $post_before){
         /* If current entry matches */
         if(preg_match('/\/'.$post_before->post_name.'\/$/', $redirect_list[$i])===1)
         {
-            /* If page was put in trash, */
-            if($post_after->post_status == 'trash')
+            /* We update slug */
+            $redirect_list[$i] = preg_replace('/\/'.$post_before->post_name.'\/$/', "/".$post_after->post_name."/", $redirect_list[$i]);
+
+            /* If page is now in trash, */
+            if($post_before->post_status != 'trash' && $post_after->post_status == 'trash')
             {
-                /* We remove redirect to page because now in the trash... */
-                unset($redirect_list[$i]);
+                /* We comment the line so redirection won't be done on trashed page but information will still
+                be available in .htaccess in case we restore the page from trash */
+                if($redirect_list[$i][0] != '#')
+                {
+                    $redirect_list[$i] = '#'.$redirect_list[$i];
+                }
             }
-            else /* Page was just renamed */
+            /* If page was restored from trash */
+            else if($post_before->post_status == 'trash' && $post_after->post_status != 'trash')
             {
-                $redirect_list[$i] = preg_replace('/\/'.$post_before->post_name.'\/$/', "/".$post_after->post_name."/", $redirect_list[$i]);
+                /* If line is commented, we remove comment */
+                if($redirect_list[$i][0] == '#')
+                {
+                    $redirect_list[$i] = substr($redirect_list[$i],1);
+                }
             }
 
             /* We can exit the loop because we found page slug and it is unique so continue looking is useless */
