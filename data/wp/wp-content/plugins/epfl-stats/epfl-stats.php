@@ -2,7 +2,7 @@
 /**
  * Plugin Name: EPFL-Stats
  * Description: Provide a filter to allow others plugins to log duration of their external call to webservices
- * @version: 1.0
+ * @version: 1.1
  * @copyright: Copyright (c) 2019 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
@@ -18,6 +18,7 @@ use Prometheus\CollectorRegistry;
 */
 function epfl_stats_perf($url, $duration)
 {
+
 
     global $wp;
 
@@ -44,7 +45,7 @@ function epfl_stats_perf($url, $duration)
                             $query,
                             floor(microtime(true)*1000)]);
 
-    error_log('logging URL $url\n');
+    error_log("logging URL $url = (".($duration*1000)." ms)");
 
 }
 
