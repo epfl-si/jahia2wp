@@ -7,7 +7,7 @@
  * Text Domain: EPFL-settings
  */
 
-
+ 
 function EPFL_settings_load_plugin_textdomain() {
   // wp-content/plugins/plugin-name/languages/EPFL-settings-fr_FR.mo
   load_plugin_textdomain( 'EPFL-settings', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
@@ -61,6 +61,34 @@ function EPFL_settings_register_settings() {
 }
 add_action( 'admin_init', 'EPFL_settings_register_settings' );
 
+/**
+ * If we don't have any custom tags in db, fetch it trough our sites repository
+ * 
+ * @return list of tags in the format "Tag1,Tag2,Tag3"
+ */
+function epfl_fetch_site_tags () {
+  # how to fetch site name ? acronym, tag or what ?
+  # going for site url
+  $site_url = get_site_url();
+
+  if ( WP_DEBUG || false === ( $tags = get_transient( 'epfl_custom_tags' ) ) ) {
+    // this code runs when there is no valid transient set
+
+    # fetched from admin setttings
+    $custom_tags_provider_url = get_option('epfl:custom_tags_provider_url');
+
+    $url = $custom_tags_provider_url . '/api/sites/tags?site_url=' . rawurlencode($site_url);
+    $tags = Utils::get_items($url);
+
+    if ($tags) {
+      set_transient( 'epfl_custom_tags', $tags, 4 * HOUR_IN_SECONDS );
+      # persist into options too, as a fallback
+      update_option('epfl:custom_tags', $tags);
+    }
+  }
+
+  return $tags;
+}
 
 //add menu EPFL settings under settings menu
 function EPFL_settings_register_options_page() {
@@ -111,7 +139,7 @@ function EPFL_settings_options_page()
     <tr>
       <th scope="row"><label for="epfl:custom_tags"><?php echo __ ("Custom Tags", 'EPFL-settings');?></label></th>
       <td><input type="text" id="epfl:custom_tags" name="epfl:custom_tags" value="<?php echo get_option('epfl:custom_tags'); ?>" />
-      <p class="description" id="tagline-description"><?php echo __ ("Tags are shown in the breadcrumb. Format: Tag1;Tag2;Tag3 (Example : School;Innovation;W3C", 'EPFL-settings');?></p>
+      <p class="description" id="tagline-description"><?php echo __ ("Tags are displayed in the breadcrumb. This values may be overrided by the tag repository at some point. Format: Tag1,Tag2,Tag3 (Example : School,Innovation,W3C", 'EPFL-settings');?></p>
       </td>
     </tr>
     <tr>
