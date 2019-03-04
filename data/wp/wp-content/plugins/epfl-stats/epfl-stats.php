@@ -19,6 +19,7 @@ use Prometheus\CollectorRegistry;
 function epfl_stats_perf($url, $duration)
 {
 
+
     global $wp;
 
     $url_details = parse_url($url);
@@ -44,7 +45,7 @@ function epfl_stats_perf($url, $duration)
                             $query,
                             floor(microtime(true)*1000)]);
 
-    error_log('logging URL $url\n');
+    error_log("logging URL $url = (".($duration*1000)." ms)");
 
 }
 
