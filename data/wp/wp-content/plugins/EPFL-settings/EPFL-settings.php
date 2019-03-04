@@ -32,23 +32,6 @@ function validate_breadcrumb($input) {
     return $input;
 }
 
-function validate_tags($input) {
-  $tags_option_format = "/^(.*;?)*$/";
-  $matched = preg_match($tags_option_format, $input);
-
-  if ($matched !== 1 && $input !== '') {
-      $error_message = __ ('Incorrect tags', 'EPFL-settings');
-      add_settings_error(
-          'epfl:custom_tags',
-          'validationError',
-          $error_message,
-          'error');
-  }
-  // Delete cache entry to force reload of tags when option is updated
-  delete_transient('base_tags');
-  return $input;
-}
-  
 function EPFL_settings_register_settings() {
    add_option( 'EPFL_settings_option_name', 'This is my option value.');
    register_setting( 'EPFL_settings_options_group', 'EPFL_settings_option_name', 'EPFL_settings_callback' );
@@ -70,20 +53,24 @@ function epfl_fetch_site_tags () {
   # how to fetch site name ? acronym, tag or what ?
   # going for site url
   $site_url = get_site_url();
+  $tags = NULL;
 
-  if ( WP_DEBUG || false === ( $tags = get_transient( 'epfl_custom_tags' ) ) ) {
+  if ( (defined('WP_DEBUG') && WP_DEBUG) || false === ( $tags = get_transient( 'epfl_custom_tags' ) ) ) {
     // this code runs when there is no valid transient set
+    $url = 'wp-veritas.epfl.ch/api/sites/tags?site_url=' . rawurlencode($site_url);
 
-    # fetched from admin setttings
-    $custom_tags_provider_url = get_option('epfl:custom_tags_provider_url');
-
-    $url = $custom_tags_provider_url . '/api/sites/tags?site_url=' . rawurlencode($site_url);
+    # tags should be [(tag, url), ...]
     $tags = Utils::get_items($url);
 
     if ($tags) {
       set_transient( 'epfl_custom_tags', $tags, 4 * HOUR_IN_SECONDS );
       # persist into options too, as a fallback
       update_option('epfl:custom_tags', $tags);
+    } else {
+      # no tags from remote server ? try to fetch the one in the local option)
+      if (false === ( $tags = get_option('epfl:custom_tags') ) ) {
+        return NULL;
+      }
     }
   }
 
@@ -134,18 +121,6 @@ function EPFL_settings_options_page()
       <th scope="row"><label for="epfl:custom_breadcrumb"><?php echo __ ("Custom Breadcrumb", 'EPFL-settings');?></label></th>
       <td><input type="text" id="epfl:custom_breadcrumb" name="epfl:custom_breadcrumb" value="<?php echo get_option('epfl:custom_breadcrumb'); ?>" />
       <p class="description" id="tagline-description"><?php echo __ ("Format [label|url]>[label|url]>[label|url] (Example : [EPFL|www.epfl.ch]>[ENAC|www.enac.ch])", 'EPFL-settings');?></p>
-      </td>
-    </tr>
-    <tr>
-      <th scope="row"><label for="epfl:custom_tags"><?php echo __ ("Custom Tags", 'EPFL-settings');?></label></th>
-      <td><input type="text" id="epfl:custom_tags" name="epfl:custom_tags" value="<?php echo get_option('epfl:custom_tags'); ?>" />
-      <p class="description" id="tagline-description"><?php echo __ ("Tags are displayed in the breadcrumb. This values may be overrided by the tag repository at some point. Format: Tag1,Tag2,Tag3 (Example : School,Innovation,W3C", 'EPFL-settings');?></p>
-      </td>
-    </tr>
-    <tr>
-      <th scope="row"><label for="epfl:custom_tags_provider_url"><?php echo __ ("Custom Tags provider Url", 'EPFL-settings');?></label></th>
-      <td><input type="text" id="epfl:custom_tags_provider_url" name="epfl:custom_tags_provider_url" value="<?php echo get_option('epfl:custom_tags_provider_url'); ?>" />
-      <p class="description" id="tagline-description"><?php echo __ ("All tag's link will go to this site. Ex. https://wp-veritas.epfl.ch", 'EPFL-settings');?></p>
       </td>
     </tr>
   </table>
