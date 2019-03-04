@@ -218,7 +218,7 @@ class Site {
 
             for(
               $path_components = explode('/', $my_subdirs);
-              count($path_components);
+              ;
               array_pop($path_components))
             {
                 $try_path = $htdocs . "/" . implode("/", $path_components) . "/epfl-wp-sites-config.ini";
@@ -226,6 +226,7 @@ class Site {
                     static::$_wp_site_config_path_cache = $try_path;
                     break;
                 }
+                if (!count($path_components)) break;
             }
             if (FALSE === static::$_wp_site_config_path_cache) {
               static::$_wp_site_config_path_cache = NULL;
