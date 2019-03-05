@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: EPFL Quota
- * Description: Limits quota usage for medias
+ * Description: Allows to set quota for medias
  * Version: 0.1
  * Author: Lucien Chaboudez
  * Contributors:
