@@ -57,10 +57,22 @@ function epfl_fetch_site_tags () {
 
   if ( (defined('WP_DEBUG') && WP_DEBUG) || false === ( $tags = get_transient( 'epfl_custom_tags' ) ) ) {
     // this code runs when there is no valid transient set
-    $url = 'wp-veritas.epfl.ch/api/sites/tags?site_url=' . rawurlencode($site_url);
+    // get the id of this site
+    $url_site_to_id = 'https://wp-veritas.epfl.ch/api/sites?site_url=' . rawurlencode($site_url);
+    $site = Utils::get_items($url_site_to_id);
 
-    # tags should be [(tag, url), ...]
-    $tags = Utils::get_items($url);
+    #VERIFY_THIS:
+    $site_id = $site[0]->id;
+
+    # transform tags to [(tag, url), ...]
+    $tags = Utils::get_items($site_id);
+
+    $tags_and_urls = [];
+
+    #VERIFY_THIS:
+    foreach ($tags as $tag) {
+      $tags_and_urls[] = [$tag->name, $tag->url];
+    }
 
     if ($tags) {
       set_transient( 'epfl_custom_tags', $tags, 4 * HOUR_IN_SECONDS );
