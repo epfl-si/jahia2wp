@@ -318,7 +318,7 @@ class _RESTRequestBase
              * another one. In that case, the Host: header will still
              * be sent as if from the original query.
              */
-            $hostport_filtered = apply_filters("epfl_rest_rewrite_connect_to", $hostport, $host, $port);
+            $hostport_filtered = apply_filters("epfl_rest_rewrite_connect_to", $hostport, $this->url, $host, $port);
 
             $exploded = explode(':', $hostport_filtered);
             $this->_connect_to = (object) array(
@@ -464,17 +464,19 @@ class _RESTRequestSocketFireAndForget extends _RESTRequestBase {
     }
 }
 
-if (php_sapi_name() !== 'cli') {
-    add_filter('epfl_rest_rewrite_connect_to', function($hostport, $host, $port) {
-        $myhostport = Site::my_hostport();
-        if ($hostport === $myhostport ||
-            $hostport === "$myhostport:443") {
-            return "localhost:8443";
+add_filter('epfl_rest_rewrite_connect_to', function($hostport, $url) {
+    if ($hostport === "www.epfl.ch:443") {
+        if (preg_match('/labs', $url)) {
+            return "httpd-labs:8443";
         } else {
-            return $hostport;
+            return "httpd-www:8443";
         }
-    }, 10, 3);
-}
+    } elseif ($hostport === "jahia2wp-httpd:443") {
+        return "jahia2wp-httpd:8443";
+    } else {
+        return $hostport;
+    }
+}, 10, 2);
 
 
 /**
