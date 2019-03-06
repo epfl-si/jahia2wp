@@ -68,7 +68,7 @@ class EPFLQuota
         /* Preparing query to get all attachments */
         $query_attachments = array(
             'post_type'      => 'attachment',
-            'posts_per_page' => - 1,
+            'posts_per_page' => -1,
             );
 
         /* Listing all attachmenets */
@@ -276,6 +276,9 @@ add_action( 'plugins_loaded', function () {
     add_filter('add_attachment', [$instance, 'after_upload'], 0, 1);
     add_filter('delete_attachment', [$instance, 'delete_attachment'], 0, 1);
     add_action( 'admin_notices', [$instance, 'display_current_size_usage'] );
+
+    /* Loads translations */
+    load_plugin_textdomain( 'epfl-quota', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
 } );
 
 /* If manual init/update process has been triggered,
