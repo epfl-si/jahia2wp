@@ -30,14 +30,21 @@ Class ShortCakePeopleConfig
             'label'         => '<h3>' . esc_html__('Units', 'epfl') . '</h3>',
             'attr'          => 'units',
             'type'          => 'text',
-            'description'   => 'You can enter many units separated by a comma',
+            'description'   => esc_html__('You can enter many units separated by a comma', 'epfl'),
           ),
           array
           (
             'label'         => '<h3>' . esc_html__('Scipers', 'epfl') . '</h3>',
             'attr'          => 'scipers',
             'type'          => 'text',
-            'description'   => 'You can enter many scipers separated by a comma',
+            'description'   => esc_html__('You can enter many scipers separated by a comma', 'epfl'),
+          ),
+          array
+          (
+            'label'         => '<h3>' . esc_html__('Function', 'epfl') . '</h3>',
+            'attr'          => 'function',
+            'type'          => 'text',
+            'description'   => esc_html__('You can enter a function to filter persons. The keyword must be in french. Example: professeur or enseignement', 'epfl'),
           ),
           array(
             'label'         => '<h3>' . esc_html__('Select a template', 'epfl') . '</h3>',

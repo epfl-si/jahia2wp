@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2018-11-13 13:39+0100\n"
-"PO-Revision-Date: 2018-11-13 13:39+0100\n"
+"POT-Creation-Date: 2019-02-25 12:53+0100\n"
+"PO-Revision-Date: 2019-02-25 12:53+0100\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -16,33 +16,37 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: epfl-infoscience-search\n"
 
-#: epfl-card/shortcake-config.php:10 epfl-card/shortcake-config.php:48
+#: epfl-card/shortcake-config.php:10 epfl-contact/shortcake-config.php:16
+msgid "Wrap with a gray border"
+msgstr "Entourer d'un cadre gris"
+
+#: epfl-card/shortcake-config.php:18 epfl-card/shortcake-config.php:57
 msgid "Card"
 msgstr "Carte"
 
-#: epfl-card/shortcake-config.php:10 epfl-links-group/shortcake-config.php:24
+#: epfl-card/shortcake-config.php:18 epfl-links-group/shortcake-config.php:24
 msgid "Title"
 msgstr "Titre"
 
-#: epfl-card/shortcake-config.php:16
+#: epfl-card/shortcake-config.php:24
 msgid "Link"
 msgstr "Lien"
 
-#: epfl-card/shortcake-config.php:22
+#: epfl-card/shortcake-config.php:30
 msgid "Image"
 msgstr "Image"
 
-#: epfl-card/shortcake-config.php:29
+#: epfl-card/shortcake-config.php:34 epfl-cover/shortcake-config.php:26
+msgid "Recommended image size: 1920x1080"
+msgstr "Taille recommandée de l'image: 1920x1080"
+
+#: epfl-card/shortcake-config.php:38
 msgid "Text"
 msgstr "Texte"
 
 #: epfl-contact/shortcake-config.php:11
 msgid "Text introducing the contact informations (optional)"
 msgstr "Texte d'introduction (optionnel)"
-
-#: epfl-contact/shortcake-config.php:16
-msgid "Wrap with a gray border"
-msgstr "Entourer d'un cadre gris"
 
 #: epfl-contact/shortcake-config.php:23
 msgid "Timetable"
@@ -60,7 +64,7 @@ msgstr "Divers"
 msgid "What map information do you want to display?"
 msgstr "Lieu pour la carte"
 
-#: epfl-contact/shortcake-config.php:55 epfl-map/epfl-map.php:94
+#: epfl-contact/shortcake-config.php:55 epfl-map/epfl-map.php:100
 msgid "A room for example"
 msgstr "Par exemple une salle"
 
@@ -80,19 +84,15 @@ msgstr "Description de cover"
 msgid "Cover image"
 msgstr "Image de Cover"
 
-#: epfl-cover/shortcake-config.php:26
-msgid "Recommended image size: 1920x1080"
-msgstr "Taille recommandée de l'image: 1920x1080"
-
-#: epfl-google-forms/epfl-google-forms.php:40
+#: epfl-google-forms/epfl-google-forms.php:46
 msgid "Error extracting parameters"
 msgstr "Erreur dans l'extraction des paramètres"
 
-#: epfl-google-forms/epfl-google-forms.php:46
+#: epfl-google-forms/epfl-google-forms.php:52
 msgid "Incorrect URL found"
 msgstr "URL incorrecte trouvée"
 
-#: epfl-google-forms/epfl-google-forms.php:51
+#: epfl-google-forms/epfl-google-forms.php:57
 msgid "Incorrect dimensions found"
 msgstr "Dimensions incorrectes trouvées"
 
@@ -129,31 +129,23 @@ msgstr "L'URL du lien"
 msgid "Links group"
 msgstr "Groupe de liens"
 
-#: epfl-map/epfl-map.php:77 epfl-memento/shortcake-config.php:56
+#: epfl-map/epfl-map.php:83 epfl-memento/shortcake-config.php:56
 #: epfl-news/shortcake-config.php:35
 msgid "English"
 msgstr "Anglais"
 
-#: epfl-map/epfl-map.php:78 epfl-memento/shortcake-config.php:57
+#: epfl-map/epfl-map.php:84 epfl-memento/shortcake-config.php:57
 #: epfl-news/shortcake-config.php:36
 msgid "French"
 msgstr "Français"
 
-#: epfl-map/epfl-map.php:86
+#: epfl-map/epfl-map.php:92
 msgid "EPFL Map"
 msgstr "Plan EPFL"
 
-#: epfl-map/epfl-map.php:90
+#: epfl-map/epfl-map.php:96
 msgid "What information do you want to display?"
 msgstr "Quelle information voulez vous afficher?"
-
-#: epfl-map/epfl-map.php:97
-msgid "Language"
-msgstr "Langue"
-
-#: epfl-map/epfl-map.php:101
-msgid "Language used to render map result"
-msgstr "Langue utilisée pour afficher le plan"
 
 #: epfl-memento/shortcake-config.php:46
 msgid "Template slider with the first highlighted event"
@@ -239,7 +231,7 @@ msgid "Select your memento"
 msgstr "Sélectionner votre mémento"
 
 #: epfl-memento/shortcake-config.php:119 epfl-news/shortcake-config.php:122
-#: epfl-people/shortcake-config.php:43
+#: epfl-people/shortcake-config.php:50
 msgid "Select a template"
 msgstr "Sélectionner un template"
 
@@ -423,9 +415,29 @@ msgstr "En liste"
 msgid "Units"
 msgstr "Unité"
 
+#: epfl-people/shortcake-config.php:33
+msgid "You can enter many units separated by a comma"
+msgstr "Vous pouvez saisir des unités séparés par une virgule"
+
 #: epfl-people/shortcake-config.php:37
 msgid "Scipers"
 msgstr "Scipers"
+
+#: epfl-people/shortcake-config.php:40
+msgid "You can enter many scipers separated by a comma"
+msgstr "Vous pouvez saisir des scipers séparés par une virgule"
+
+#: epfl-people/shortcake-config.php:44
+msgid "Function"
+msgstr "Fonction"
+
+#: epfl-people/shortcake-config.php:47
+msgid ""
+"You can enter a function to filter persons. The keyword must be in french. "
+"Example: professeur or enseignement"
+msgstr ""
+"Vous pouvez saisir une fonction afin de filtrer les personnes. Le mot-clé "
+"doit être en français. Exemple: professeur ou enseignement"
 
 #: epfl-quote/shortcake-config.php:12 epfl-quote/shortcake-config.php:16
 msgid "Quote"
@@ -591,7 +603,7 @@ msgstr ""
 msgid "Toggle content"
 msgstr "Le contenu de l'accordéon"
 
-#: epfl-video/epfl-video.php:60
+#: epfl-video/epfl-video.php:65
 msgid "EPFL-Video: Error getting final URL"
 msgstr "EPFL-Video: Erreur de récupération de l'URL finale"
 
@@ -610,6 +622,12 @@ msgstr "L'URL du XML"
 #: epfl-xml/epfl-xml.php:85
 msgid "XSLT URL"
 msgstr "L'URL du XSLT"
+
+#~ msgid "Language"
+#~ msgstr "Langue"
+
+#~ msgid "Language used to render map result"
+#~ msgstr "Langue utilisée pour afficher le plan"
 
 #~ msgid "column"
 #~ msgstr "colonne"
