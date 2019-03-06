@@ -263,7 +263,6 @@ add_action( 'plugins_loaded', function () {
     add_action( 'admin_notices', [$instance, 'display_current_size_usage'] );
 } );
 
-error_log(var_export(is_admin(), true));
 /* If manual init/update process has been triggered,
  NOTE: this can be done by adding "epflquotainitupdate" as GET parameter in an URL */
 if(array_key_exists('epflquotainitupdate', $_GET))
