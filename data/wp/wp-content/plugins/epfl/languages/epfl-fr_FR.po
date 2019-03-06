@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2019-02-25 12:53+0100\n"
-"PO-Revision-Date: 2019-02-25 12:53+0100\n"
+"POT-Creation-Date: 2019-03-06 14:11+0100\n"
+"PO-Revision-Date: 2019-03-06 14:11+0100\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -231,7 +231,7 @@ msgid "Select your memento"
 msgstr "Sélectionner votre mémento"
 
 #: epfl-memento/shortcake-config.php:119 epfl-news/shortcake-config.php:122
-#: epfl-people/shortcake-config.php:50
+#: epfl-people/shortcake-config.php:59
 msgid "Select a template"
 msgstr "Sélectionner un template"
 
@@ -399,45 +399,47 @@ msgstr ""
 "Voulez vous filtrer les actualités par thèmes? Veuillez sélectionner un ou "
 "plusieurs thèmes."
 
-#: epfl-people/shortcake-config.php:11
+#: epfl-people/shortcake-config.php:12
+#, php-format
+msgid ""
+"You can enter a function to filter persons. The keyword must be in french. "
+"Example: professeur or enseignement.%s %sMore information%s"
+msgstr ""
+"Vous pouvez saisir une fonction afin de filtrer les personnes. Le mot-clé "
+"doit être en français. Exemple: professeur ou enseignement.%s %sPlus "
+"d'information%s"
+
+#: epfl-people/shortcake-config.php:20
 msgid "As card, one column"
 msgstr "En cartes, sur une colonne"
 
-#: epfl-people/shortcake-config.php:12
+#: epfl-people/shortcake-config.php:21
 msgid "As card, multiple columns"
 msgstr "En cartes, sur plusieurs colonnes"
 
-#: epfl-people/shortcake-config.php:13
+#: epfl-people/shortcake-config.php:22
 msgid "As list"
 msgstr "En liste"
 
-#: epfl-people/shortcake-config.php:30
+#: epfl-people/shortcake-config.php:39
 msgid "Units"
 msgstr "Unité"
 
-#: epfl-people/shortcake-config.php:33
+#: epfl-people/shortcake-config.php:42
 msgid "You can enter many units separated by a comma"
 msgstr "Vous pouvez saisir des unités séparés par une virgule"
 
-#: epfl-people/shortcake-config.php:37
+#: epfl-people/shortcake-config.php:46
 msgid "Scipers"
 msgstr "Scipers"
 
-#: epfl-people/shortcake-config.php:40
+#: epfl-people/shortcake-config.php:49
 msgid "You can enter many scipers separated by a comma"
 msgstr "Vous pouvez saisir des scipers séparés par une virgule"
 
-#: epfl-people/shortcake-config.php:44
+#: epfl-people/shortcake-config.php:53
 msgid "Function"
 msgstr "Fonction"
-
-#: epfl-people/shortcake-config.php:47
-msgid ""
-"You can enter a function to filter persons. The keyword must be in french. "
-"Example: professeur or enseignement"
-msgstr ""
-"Vous pouvez saisir une fonction afin de filtrer les personnes. Le mot-clé "
-"doit être en français. Exemple: professeur ou enseignement"
 
 #: epfl-quote/shortcake-config.php:12 epfl-quote/shortcake-config.php:16
 msgid "Quote"
