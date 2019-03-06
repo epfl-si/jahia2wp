@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 from epflldap.ldap_search import get_username, get_email
 
 from django.core.validators import ValidationError
-from veritas.validators import validate_string, validate_openshift_env, validate_gaspar_username
+from veritas.validators import validate_string, validate_openshift_env
 
 from utils import Utils
 
@@ -138,8 +138,6 @@ class WPUser:
     WP_PASSWORD_LENGTH = 32
 
     def __init__(self, username, email, password=None, display_name=None, role=None):
-        # validate input
-        validate_gaspar_username(username)
 
         self.username = username
         self.email = email
