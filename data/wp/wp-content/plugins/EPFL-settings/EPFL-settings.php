@@ -7,7 +7,6 @@
  * Text Domain: EPFL-settings
  */
 
- 
 function EPFL_settings_load_plugin_textdomain() {
   // wp-content/plugins/plugin-name/languages/EPFL-settings-fr_FR.mo
   load_plugin_textdomain( 'EPFL-settings', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
@@ -39,8 +38,6 @@ function EPFL_settings_register_settings() {
    register_setting( 'EPFL_settings_options_group', 'blogdescription' );
    register_setting( 'EPFL_settings_options_group', 'WPLANG' );
    register_setting( 'EPFL_settings_options_group', 'epfl:custom_breadcrumb', 'validate_breadcrumb');
-   register_setting( 'EPFL_settings_options_group', 'epfl:custom_tags', 'validate_tags');
-   register_setting( 'EPFL_settings_options_group', 'epfl:custom_tags_provider_url');
 }
 add_action( 'admin_init', 'EPFL_settings_register_settings' );
 
