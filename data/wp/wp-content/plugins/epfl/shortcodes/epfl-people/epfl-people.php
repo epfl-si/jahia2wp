@@ -70,21 +70,9 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
 
   ("" !== $units) ? $parameter['units'] = $units : $parameter['scipers'] = $scipers;
 
-  if ("" !== $function) {    
-    if (strpos($function, ",") !== false) {
-      $functions = explode(",", $function);
-      $result = "";
-      foreach ($functions as $function) {
-        if ($result === "") {
-          $result = $function;
-        } else {
-          $result = $result . '+or+' . $function;
-        }
-      }
-      $parameter['position'] = $result;
-    } else {
-      $parameter['position'] = $function;
-    }
+  if ("" !== $function) { 
+    $function = str_replace(",", "+or+", $function);
+    $parameter['position'] = $function;
   }
 
   if (function_exists('pll_current_language')) {
