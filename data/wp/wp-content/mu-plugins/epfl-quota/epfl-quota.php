@@ -20,7 +20,7 @@ class EPFLQuota
     const CURRENT_DATA_VERSION = 1;
 
     /* For development purpose */
-    const DEBUG = true;
+    const DEBUG = false;
 
 
     /*
@@ -193,8 +193,23 @@ class EPFLQuota
 
         $this->debug("Updating used size after deletion- old = ".$current_usage[self::OPTION_USAGE_USED]." MB");
 
-        /* We update using "real" disk usage */
+        /* We get current usage on disk */
         $used_infos = EPFLQuota::get_usage_on_disk();
+
+        /* Because file hasn't been deleted yet, we have to remove informations from stats */
+        $used_infos[self::OPTION_USAGE_NB_FILES] -= 1;
+
+        /* If there's no file anymore */
+        if($used_infos[self::OPTION_USAGE_NB_FILES] == 0)
+        {
+            /* We set usage to 0 instead of substracting removed file size, to avoid rounding problems */
+            $used_infos[self::OPTION_USAGE_USED] = 0;
+        }
+        else
+        {
+            $used_infos[self::OPTION_USAGE_USED] -= filesize(get_attached_file($attachment_id))/1024/1024;
+        }
+
         $current_usage[self::OPTION_USAGE_USED]     = $used_infos[self::OPTION_USAGE_USED];
         $current_usage[self::OPTION_USAGE_NB_FILES] = $used_infos[self::OPTION_USAGE_NB_FILES];
         $this->debug("Updating used size after deletion - new = ".$current_usage[self::OPTION_USAGE_USED]." MB (calculated from real disk usage)");
