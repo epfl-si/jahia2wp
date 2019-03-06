@@ -96,24 +96,34 @@ class WPMuPluginConfig(WPConfig):
 
     PLUGINS_PATH = os.path.join('wp-content', 'mu-plugins')
 
-    def __init__(self, wp_site, plugin_name):
+    def __init__(self, wp_site, plugin_name, plugin_folder=None):
         """
         Constructor
 
         Keyword arguments:
         wp_site -- Instance of class WPSite
-        plugin_name -- Plugin name
+        plugin_name -- Plugin file name
+        plugin_folder -- Folder containing plugin files (if exists, 'plugin_name' is probably just a loader for
+                         files in folder)
         """
         super(WPMuPluginConfig, self).__init__(wp_site)
+        self.plugin_folder = plugin_folder
         self.name = plugin_name
 
         # set full path, down to file
         self.path = os.path.join(self.dir_path, plugin_name)
 
+
     def install(self):
         # copy files from jahia2wp/data/wp/wp-content/mu-plugins into domain/htdocs/folder/wp-content/mu-plugins
         src_path = os.path.sep.join([settings.WP_FILES_PATH, self.PLUGINS_PATH, self.name])
         shutil.copyfile(src_path, self.path)
+
+        # If we also have a folder to copy
+        if self.plugin_folder:
+            src_path = os.path.sep.join([settings.WP_FILES_PATH, self.PLUGINS_PATH, self.plugin_folder])
+            target_path = os.path.join(self.dir_path, self.plugin_folder)
+            shutil.copytree(src_path, target_path)
 
         logging.debug("%s - Plugins - %s: Copied file from %s to %s",
                       repr(self.wp_site),
