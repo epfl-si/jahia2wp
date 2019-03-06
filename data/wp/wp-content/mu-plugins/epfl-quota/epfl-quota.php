@@ -1,13 +1,4 @@
 <?php
-/**
- * Plugin Name: EPFL Quota
- * Description: Allows to set quota for medias
- * Version: 0.1
- * Author: Lucien Chaboudez
- * Contributors:
- * License: Copyright (c) 2019 Ecole Polytechnique Federale de Lausanne, Switzerland
- **/
-
 
 class EPFLQuota
 {
@@ -95,15 +86,12 @@ class EPFLQuota
 
 
     /*
-        Called when plugin is activated. It does the following :
+        Initialize or update plugin infos in database. Add option if doesn't exists or update it if exists.
         - Get size used on disk by medias
         - Initialize plugin options if doesn't exists
         - Update plugin options (used size) if exists
-
-        This means that, to update used size on disk (if we think there's an error), we just have to
-        deactivate and activate plugin and it's done.
     */
-    public static function plugin_activate()
+    public static function init_update()
     {
         $used_infos = EPFLQuota::get_usage_on_disk();
 
@@ -223,7 +211,7 @@ class EPFLQuota
     {
         if( !($current = get_option(self::OPTION_USAGE)))
         {
-            EPFLQuota::plugin_activate();
+            EPFLQuota::init_update();
             $current = get_option(self::OPTION_USAGE);
         }
 
@@ -275,7 +263,12 @@ add_action( 'plugins_loaded', function () {
     add_action( 'admin_notices', [$instance, 'display_current_size_usage'] );
 } );
 
-/* Activation */
-register_activation_hook(__FILE__, ['EPFLQuota' ,'plugin_activate']);
+error_log(var_export(is_admin(), true));
+/* If manual init/update process has been triggered,
+ NOTE: this can be done by adding "epflquotainitupdate" as GET parameter in an URL */
+if(array_key_exists('epflquotainitupdate', $_GET))
+{
 
+    EPFLQuota::init_update();
+}
 
