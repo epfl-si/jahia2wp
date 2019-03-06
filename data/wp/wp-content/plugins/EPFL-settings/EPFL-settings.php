@@ -55,29 +55,32 @@ function epfl_fetch_site_tags () {
   if ( (defined('WP_DEBUG') && WP_DEBUG) || false === ( $tags = get_transient( 'epfl_custom_tags' ) ) ) {
     // this code runs when there is no valid transient set
     // get the id of this site
-    $url_site_to_id = 'https://wp-veritas.epfl.ch/api/sites?site_url=' . rawurlencode($site_url);
+    $tag_provider_url = 'https://wp-veritas.epfl.ch/api';
+    $tags_and_urls = []; // [[tag, url], ...]
+    $site = [];
+
+    $url_site_to_id = $tag_provider_url . '/sites?site_url=' . rawurlencode($site_url);
     $site = Utils::get_items($url_site_to_id);
 
     #VERIFY_THIS:
-    $site_id = $site[0]->id;
+    if (!empty($site)) {
+      $site_id = $site[0]->id;
+      $site_tags_url = $tag_provider_url . '/sites/' . $site_id . '/tags';
+      $tags = Utils::get_items($site_tags_url);
 
-    # transform tags to [(tag, url), ...]
-    $tags = Utils::get_items($site_id);
-
-    $tags_and_urls = [];
-
-    #VERIFY_THIS:
-    foreach ($tags as $tag) {
-      $tags_and_urls[] = [$tag->name, $tag->url];
+      #VERIFY_THIS:
+      foreach ($tags as $tag) {
+        $tags_and_urls[] = [$tag->name, $tag->url];
+      }
     }
 
-    if ($tags) {
-      set_transient( 'epfl_custom_tags', $tags, 4 * HOUR_IN_SECONDS );
+    if ($tags_and_urls) {
+      set_transient( 'epfl_custom_tags', $tags_and_urls, 4 * HOUR_IN_SECONDS );
       # persist into options too, as a fallback
-      update_option('epfl:custom_tags', $tags);
+      update_option('epfl:custom_tags', $tags_and_urls);
     } else {
       # no tags from remote server ? try to fetch the one in the local option)
-      if (false === ( $tags = get_option('epfl:custom_tags') ) ) {
+      if (false === ( $tags_and_urls = get_option('epfl:custom_tags') ) ) {
         return NULL;
       }
     }
