@@ -81,5 +81,3 @@ plugins:
     config: !include epfl-404/config-plugin.yml
   - name: epfl-stats
     config: !include epfl-stats/config-plugin.yml
-  - name: epfl-quota
-    config: !include epfl-quota/config-plugin.yml
