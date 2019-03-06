@@ -113,7 +113,6 @@ class WPMuPluginConfig(WPConfig):
         # set full path, down to file
         self.path = os.path.join(self.dir_path, plugin_name)
 
-
     def install(self):
         # copy files from jahia2wp/data/wp/wp-content/mu-plugins into domain/htdocs/folder/wp-content/mu-plugins
         src_path = os.path.sep.join([settings.WP_FILES_PATH, self.PLUGINS_PATH, self.name])
