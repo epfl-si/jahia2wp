@@ -19,6 +19,12 @@ var transEmplTerm = jQuery('#EPFLEmploiTransEmplTerm').val();
 
 /***************************/
 
+jQuery(document).keyup(function(event) {
+    if (event.keyCode === 13) {
+        jQuery('button[name="search"]').click();
+    }
+});
+
 function onSelectionChanged() {
     var url = defaultUrl
     var query = jQuery('input:checkbox:checked').map(function () {
