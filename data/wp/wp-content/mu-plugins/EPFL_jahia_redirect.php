@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Jahia redirection updater
  * Description: Update Jahia redirection (if any) in .htaccess file when a page permalink is updated
- * @version: 1.1
+ * @version: 1.2
  * @copyright: Copyright (c) 2019 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
@@ -59,6 +59,9 @@ function jahia_redirection_comment_trashed_pages($redirect_list)
     https://developer.wordpress.org/reference/functions/extract_from_markers/
 */
 function update_jahia_redirections($post_id, $post_after, $post_before){
+
+    /* If function doesn't exists, it means it can be a REST request so we don't do anything */
+    if(!function_exists('get_home_path')) return;
 
     $htaccess = get_home_path().".htaccess";
 
