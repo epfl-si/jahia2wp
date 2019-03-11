@@ -73,7 +73,14 @@ Class ShortCakeMementoConfig
             array('value' => '10', 'label' => esc_html__('Sporting events', 'epfl')),
             array('value' => '12', 'label' => esc_html__('Thesis defenses', 'epfl')),
         );
+    }
 
+    private static function get_period_options() 
+    {
+        return array(
+            array('value' => 'upcoming', 'label' => esc_html__('Upcoming events', 'epfl')),
+            array('value' => 'past', 'label' => esc_html__('Past events', 'epfl')),
+        );
     }
 
     private static function get_memento_description()
@@ -130,6 +137,14 @@ Class ShortCakeMementoConfig
                        'options'       => ShortCakeMementoConfig::get_lang_options(),
                        'description'   => esc_html__('The language used to render events results', 'epfl'),
                        'value'         => 'en',
+                   ),
+                   array(
+                        'label'        => '<h3>' . esc_html__('Select a period', 'epfl') . '</h3>',
+                        'attr'         => 'period',
+                        'type'         => 'radio',
+                        'options'      => ShortCakeMementoConfig::get_period_options(),
+                        'description'  => esc_html__('Do you want upcoming events or past events ?', 'epfl'),
+                        'value'        => 'upcoming',
                    ),
                    array(
                        'label'         => '<h3>' . esc_html__('Filter events by category', 'epfl') . '</h3>',
