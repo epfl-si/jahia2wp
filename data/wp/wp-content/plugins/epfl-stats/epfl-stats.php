@@ -33,7 +33,7 @@ function epfl_stats_webservice_call_duration($url, $duration)
     $registry = new CollectorRegistry($adapter);
 
     $counter = $registry->registerCounter('wp',
-                                      'epfl_shortcode_duration_ms',
+                                      'epfl_shortcode_duration_milliseconds',
                                       'How long we spent waiting for Web services overall, in milliseconds',
                                        ['src', 'target_host', 'target_path', 'target_query']);
 
