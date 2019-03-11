@@ -153,6 +153,9 @@ function epfl_memento_2018_process_shortcode($atts = [], $content = '', $tag = '
     $keyword  = sanitize_text_field( $atts['keyword'] );
     $period   = sanitize_text_field( $atts['period'] );
 
+    // With the new theme we display only upcoming events
+    $period   = 'upcoming';
+
     if (epfl_memento_check_required_parameters($memento, $lang) == FALSE) {
         return Utils::render_user_msg("Memento shortcode: Please check required parameters");
     }
@@ -166,9 +169,11 @@ function epfl_memento_2018_process_shortcode($atts = [], $content = '', $tag = '
         $period
     );
     $events = Utils::get_items($url);
+
     ob_start();
 
     try {
+
        do_action("epfl_event_action", $events, $template, $memento);
 
        return ob_get_contents();
