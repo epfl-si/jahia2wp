@@ -2,7 +2,7 @@
 /**
  * Plugin Name: EPFL-Stats
  * Description: Provide a filter to allow others plugins to log duration of their external call to webservices
- * @version: 1.1
+ * @version: 1.2
  * @copyright: Copyright (c) 2019 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
@@ -14,12 +14,10 @@ use Prometheus\CollectorRegistry;
     Save a webservice call duration including source page and timestamp on which call occurs
 
     @param $url         -> Webservice URL call
-    @param $duration    -> webservice call duration (microsec)
+    @param $duration    -> webservice call duration (seconds with microseconds)
 */
-function epfl_stats_perf($url, $duration)
+function epfl_stats_webservice_call_duration($url, $duration)
 {
-
-
     global $wp;
 
     $url_details = parse_url($url);
@@ -34,20 +32,52 @@ function epfl_stats_perf($url, $duration)
 
     $registry = new CollectorRegistry($adapter);
 
-    $gauge = $registry->registerGauge('wp',
-                                      'epfl_shortcode_duration_second',
-                                      'How long a web service request takes',
-                                       ['src', 'target_host', 'target_path', 'target_query', 'timestamp']);
-    /* Timestamp is given in millisec (C2C prerequisite) */
-    $gauge->set($duration, [home_url( $wp->request ),
-                            $target_host,
-                            $url_details['path'],
-                            $query,
-                            floor(microtime(true)*1000)]);
+    $counter = $registry->registerCounter('wp',
+                                      'epfl_shortcode_duration_ms',
+                                      'How long we spent waiting for Web services overall, in milliseconds',
+                                       ['src', 'target_host', 'target_path', 'target_query']);
 
-    error_log("logging URL $url = (".($duration*1000)." ms)");
-
+    $counter->incBy(floor($duration*1000), [home_url( $wp->request ),
+                                            $target_host,
+                                            $url_details['path'],
+                                            $query]);
 }
-
 // We register a new action so others plugins can use it to log webservice call duration
-add_action('epfl_log_webservice_call', 'epfl_stats_perf', 10, 2);
+add_action('epfl_stats_webservice_call_duration', 'epfl_stats_webservice_call_duration', 10, 2);
+
+
+/*
+    Save count of nb medias, size usage and quota size
+
+    @param $used_bytes  -> Nb bytes used by medias on disk
+    @param $quota_bytes -> Quota size in bytes
+    @param $nb_files    -> Number of medias
+*/
+function epfl_stats_media_size_and_count($used_bytes, $quota_bytes, $nb_files)
+{
+    global $wp;
+
+    $adapter = new Prometheus\Storage\APC();
+
+    $registry = new CollectorRegistry($adapter);
+
+    /* Size information */
+    $size_gauge = $registry->registerGauge('wp',
+                                           'epfl_media_size_bytes',
+                                           'Used (and max) space for medias',
+                                           ['site', 'type']);
+
+    $size_gauge->set($used_bytes, [home_url( $wp->request ), "used"]);
+    $size_gauge->set($quota_bytes, [home_url( $wp->request ), "quota"]);
+
+
+    /* Media count */
+    $count_gauge = $registry->registerGauge('wp',
+                                           'epfl_media_nb_files',
+                                           'Media count on website',
+                                           ['site', 'type']);
+
+    $count_gauge->set($nb_files, [home_url( $wp->request ), "used"]);
+}
+// We register a new action so others plugins can use it to log webservice call duration
+add_action('epfl_stats_media_size_and_count', 'epfl_stats_media_size_and_count', 10, 3);
