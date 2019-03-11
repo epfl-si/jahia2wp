@@ -113,7 +113,7 @@ class EPFLQuota
             $current_usage[self::OPTION_USAGE_USED]     = $used_infos[self::OPTION_USAGE_USED];
             $current_usage[self::OPTION_USAGE_NB_FILES] = $used_infos[self::OPTION_USAGE_NB_FILES];
 
-            update_option(self::OPTION_USAGE, $current_usage);
+            EPFLQuota::set_current_usage($current_usage);
         }
     }
 
@@ -173,7 +173,7 @@ class EPFLQuota
         $current_usage[self::OPTION_USAGE_NB_FILES] += 1;
         $this->debug("Updating used size after upload - new = ".$current_usage[self::OPTION_USAGE_USED]." MB");
 
-        update_option(self::OPTION_USAGE, $current_usage);
+        EPFLQuota::set_current_usage($current_usage);
     }
 
 
@@ -214,12 +214,12 @@ class EPFLQuota
         $current_usage[self::OPTION_USAGE_NB_FILES] = $used_infos[self::OPTION_USAGE_NB_FILES];
         $this->debug("Updating used size after deletion - new = ".$current_usage[self::OPTION_USAGE_USED]." MB (calculated from real disk usage)");
 
-        update_option(self::OPTION_USAGE, $current_usage);
+        EPFLQuota::set_current_usage($current_usage);
     }
 
 
     /*
-        Returns sizes information stored in database. If  information doesn't exists in database, we call plugin
+        Returns sizes information stored in database. If information doesn't exists in database, we call plugin
         activation function which will create the option with correct values.
     */
     protected function get_current_usage()
@@ -235,9 +235,25 @@ class EPFLQuota
 
 
     /*
+        Save usage information in database.
+        IN  : $current_usage  -> array with information
+    */
+    public static function set_current_usage($current_usage)
+    {
+        /* Update option in database */
+        update_option(self::OPTION_USAGE, $current_usage);
+        /* Update gauge information for stats (we transform sizes to have bytes instead of MB) */
+        do_action('epfl_stats_media_size_and_count',
+                  $current_usage[self::OPTION_USAGE_USED]*1024*1024,
+                  $current_usage[self::OPTION_USAGE_LIMIT]*1024*1024,
+                  $current_usage[self::OPTION_USAGE_NB_FILES]);
+    }
+
+
+    /*
         Adds a notice on 'upload' admin page to tell user which size is used by medias.
     */
-    function display_current_size_usage()
+    public function display_current_size_usage()
     {
         if(get_current_screen()->id == 'upload')
         {

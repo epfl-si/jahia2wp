@@ -4,7 +4,7 @@
  * Plugin Name: EPFL Infoscience shortcode
  * Plugin URI: https://github.com/jaepetto/EPFL-SC-Infoscience
  * Description: provides a shortcode to dispay results from Infoscience
- * Version: 1.3
+ * Version: 1.4
  * Author: Emmanuel JAEP
  * Author URI: https://people.epfl.ch/emmanuel.jaep?lang=en
  * Contributors: LuluTchab, GregLeBarbar
@@ -46,11 +46,9 @@ function epfl_infoscience_process_shortcode( $attributes, $content = null )
             $response = wp_remote_get( $url );
             $end = microtime(true);
 
-            // If there is some mechanism to log webservice call, we do it
-            if(has_action('epfl_log_webservice_call'))
-            {
-                do_action('epfl_log_webservice_call', $url, $end-$start);
-            }
+            // Logging webservice call time
+            do_action('epfl_stats_webservice_call_duration', $url, $end-$start);
+
 
             $page = wp_remote_retrieve_body( $response );
 
