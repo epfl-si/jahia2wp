@@ -37,8 +37,6 @@ plugins:
     config: !include shortcode-ui-richtext/config-plugin.yml
   - name: epfl
     config: !include epfl/config-plugin.yml
-  - name: epfl-infoscience
-    config: !include epfl-infoscience/config-plugin.yml
   - name: wp-media-folder
     config: !include wp-media-folder/config-plugin.yml
   - name: pdfjs-viewer-shortcode
