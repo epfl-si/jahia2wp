@@ -127,4 +127,5 @@ config-debugger:
 	@echo "Copying SSH key..."
 	@docker cp ~/.ssh/id_rsa.pub  $(_mgmt_container):/var/www/.ssh/authorized_keys
 	@docker exec -it $(_mgmt_container) /bin/chmod 644 /var/www/.ssh/authorized_keys
+	@docker exec -it $(_mgmt_container) /bin/chown www-data:www-data /var/www/.ssh/authorized_keys
 
