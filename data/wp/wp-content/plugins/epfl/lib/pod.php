@@ -67,8 +67,8 @@ class Site {
         return is_file("$path/wp-config.php");
     }
 
-    static private function _htdocs_split ($abspath = NULL) {
-        if ($abspath === NULL) { $abspath = ABSPATH; }
+    static private function _htdocs_split () {
+        $abspath = ABSPATH;
         $abspath = preg_replace('#/+#', '/', $abspath);
         if (! preg_match('#(^.*/htdocs)(/.*|)$#', $abspath, $matched)) {
             throw new \Error('Unable to find htdocs in ' . $abspath);
