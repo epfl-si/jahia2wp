@@ -9,7 +9,7 @@
 .panel-header {
 	text-transform: uppercase;
 	font-size: .73em;
-	color: #707070;
+	color: #000000;
 	line-height: 1.3em;
 	margin-bottom: 6px;
 }
@@ -81,11 +81,12 @@ button.right{
 	display: inline-block;
 	padding: .3075em .615em;
 	border: 1px solid #999;
-	height: auto;
+	height: 30px;
 	font: italic .85em/1.2em Georgia, "Times New Roman", Times, serif;
 	letter-spacing: .07em;
-	vertical-align: middle;
+	vertical-align: top;
 	color:#000;
+        font-size: 12.5px;
 }
 .toolbar-item.form-input, .toolbar-item.form-select {
 	padding: 0;
@@ -102,8 +103,8 @@ button.right{
 	color: #fff
 }
 .toolbar-item-active, .toolbar-item:focus, .toolbar-item:hover {
-	border-color: #000;
-	background: #000;
+	border-color: #ae0010;
+	background: #ae0010;
 	color: #fff
 }
 .toolbar-item-active, .toolbar-item-active:hover {
@@ -123,7 +124,7 @@ button.right{
 .filter-item {
 	padding-left: 5px;
 	font-size: .73em;
-	color: #707070;
+	color: #000000;
 }
 
 h1 {
