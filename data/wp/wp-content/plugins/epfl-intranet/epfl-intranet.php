@@ -290,7 +290,7 @@ class Settings extends \EPFL\SettingsBase
     {
         $accred_min_version = 0.11;
         $accred_plugin_relative_path = 'accred/EPFL-Accred.php';
-        $accred_plugin_full_path = ABSPATH. 'wp-content/plugins/'. $accred_plugin_relative_path;
+        $accred_plugin_full_path = WP_CONTENT_DIR . '/plugins/'. $accred_plugin_relative_path;
 
         /* Accred Plugin missing */
         if(!is_plugin_active($accred_plugin_relative_path))
