@@ -295,13 +295,15 @@ add_action( 'plugins_loaded', function () {
 
     /* Loads translations */
     load_plugin_textdomain( 'epfl-quota', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
+
+    /* If manual init/update process has been triggered,
+     NOTE: this can be done by adding "epflquotainitupdate" as GET parameter in an URL */
+    if(array_key_exists('epflquotainitupdate', $_GET))
+    {
+
+        EPFLQuota::init_update();
+    }
 } );
 
-/* If manual init/update process has been triggered,
- NOTE: this can be done by adding "epflquotainitupdate" as GET parameter in an URL */
-if(array_key_exists('epflquotainitupdate', $_GET))
-{
 
-    EPFLQuota::init_update();
-}
 
