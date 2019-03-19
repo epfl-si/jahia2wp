@@ -7,11 +7,11 @@
 	padding-top: 10px;
 }
 .panel-header {
-	text-transform: uppercase;
-	font-size: .73em;
+	font-size: .85em;
 	color: #000000;
 	line-height: 1.3em;
 	margin-bottom: 6px;
+        font-family: Calibri,Candara,Segoe,Segoe UI,Optima,Arial,sans-serif !important;
 }
 #id_themes{
 	padding-left: 20px;
@@ -124,8 +124,9 @@ button.right{
 }
 .filter-item {
 	padding-left: 5px;
-	font-size: .73em;
+	font-size: .80em;
 	color: #000000;
+        font-family: Calibri,Candara,Segoe,Segoe UI,Optima,Arial,sans-serif !important;
 }
 
 h1 {
