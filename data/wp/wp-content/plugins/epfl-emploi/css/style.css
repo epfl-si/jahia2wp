@@ -43,8 +43,8 @@ button.right{
 	display: inline-block;
 	padding: 0;
 	vertical-align: top;
-	background-color: #ae0010;
-	border: 1px solid #ae0010;
+	background-color: #ff0000;
+	border: 1px solid #ff0000;
 	font-weight: 700;
 	color: #fff;
 	cursor: pointer;
@@ -62,6 +62,7 @@ button.right{
 }
 .keywords-button:hover {
 	background-color: #7b000b;
+        border: #7b000b;
 }
 .form input[type=checkbox], .form input[type=radio] {
 	border: none;
@@ -82,7 +83,7 @@ button.right{
 	padding: .3075em .615em;
 	border: 1px solid #999;
 	height: 30px;
-	font: italic .85em/1.2em Georgia, "Times New Roman", Times, serif;
+	font: italic .75em/1.2em Calibri,Candara,Segoe,Segoe UI,Optima,Arial,sans-serif !important;;
 	letter-spacing: .07em;
 	vertical-align: top;
 	color:#000;
@@ -103,8 +104,8 @@ button.right{
 	color: #fff
 }
 .toolbar-item-active, .toolbar-item:focus, .toolbar-item:hover {
-	border-color: #ae0010;
-	background: #ae0010;
+	border-color: #ff0000;
+	background: #ff0000;
 	color: #fff
 }
 .toolbar-item-active, .toolbar-item-active:hover {
