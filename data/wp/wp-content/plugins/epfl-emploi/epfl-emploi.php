@@ -2,7 +2,7 @@
 /**
  * Plugin Name: EPFL Emploi
  * Description: provides a shortcode to display job offers
- * Version: 1.6
+ * Version: 1.7
  * Author: Lucien Chaboudez
  * Contributors:
  * License: Copyright (c) 2019 Ecole Polytechnique Federale de Lausanne, Switzerland
