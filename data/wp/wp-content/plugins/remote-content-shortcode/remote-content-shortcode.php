@@ -4,7 +4,7 @@ Plugin Name: Remote Content Shortcode
 Plugin URI: http://www.doublesharp.com
 Description: Embed remote content with a shortcode
 Author: Justin Silver
-Version: 1.4.2
+Version: 1.4.3
 Author URI: http://doublesharp.com
 License: GPL2
 */
@@ -23,6 +23,41 @@ class RemoteContentShortcode {
 			self::$instance->add_shortcode();
 		}
 	}
+
+    // Parse response to extract headers (as associative array) and response.
+	private function extract_header_and_response($header_size, &$headers, &$response){
+
+        // Extracting headers and response because everything is concatenated
+        $header_str = substr($response, 0, $header_size);
+        $response = substr($response, $header_size);
+
+        // We put all header info in an associative array
+        $headers = array();
+        foreach (explode("\n", $header_str) as $header)
+        {
+            if (preg_match('/^([^:]+):(.*)$/', trim($header), $output)!==1) continue;
+            $headers[$output[1]] = trim($output[2]);
+        }
+	}
+
+
+    // Returns encoding present in header (or default encoding if not present)
+	private function get_encoding($headers)
+	{
+	    // Encoding used by default when nothing is specified in header
+	    $default_encoding = "ISO-8859-1";
+
+        // In normal cases, this index should be present in header but we test just in case...
+	    if(!array_key_exists('Content-Type', $headers)) return $default_encoding;
+
+	    if(preg_match('/charset=(.*)/i', $headers['Content-Type'], $output)==1)
+	    {
+	        return $output[1];
+	    }
+	    // If not specified in header, we return default one
+	    return $default_encoding;
+	}
+
 
 	public function add_shortcode(){
 		add_shortcode( 'remote_content', array( &$this, 'remote_content_shortcode' ) );
@@ -43,7 +78,7 @@ class RemoteContentShortcode {
 			}
 		}
 
-		$atts = shortcode_atts( 
+		$atts = shortcode_atts(
 			array(
 				'userpwd' => false,
 				'method' => 'GET',
@@ -58,7 +93,7 @@ class RemoteContentShortcode {
 				'strip_tags' => false,
 				'cache' => true,
 				'cache_ttl' => 3600,
-			), 
+			),
 			$atts
 		);
 
@@ -85,14 +120,14 @@ class RemoteContentShortcode {
 
 			// Check if IP is in the EPFL range
 			$host = parse_url($url, PHP_URL_HOST);
-    		$ip = gethostbyname($host); 
+    		$ip = gethostbyname($host);
 			$ip_regex = "/^128\.17(8|9)/";
 			if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
 				$ip_regex = "/^2001:620:618:/";
 			}
 			if (preg_match( $ip_regex, $ip ) !== 1) {
 				return '<h3 style="color:red;">URL ' . $url . ' is outside of EPFL</h3>';
-			} 
+			}
 
 			// change ampersands back since WP will encode them between the visual/text editor
 			if ( strpos( $url, '&amp;' ) !== false ) {
@@ -139,7 +174,7 @@ class RemoteContentShortcode {
 				} elseif ( defined( $userpwd ) ) {
 					// if the userpwd is a constant, use that
 					$userpwd = constant( $userpwd );
-				} 
+				}
 				/* lastly assume the userpwd is plaintext, this is not safe as it will be
 				 displayed in the browser if this plugin is disabled */
 			}
@@ -154,10 +189,12 @@ class RemoteContentShortcode {
 			curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
 			// (don't) verify host ssl cert
 			curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, $ssl_verifyhost );
-			// (don't) verify peer ssl cert	
+			// (don't) verify peer ssl cert
 			curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, $ssl_verifypeer );
 			// Allow URLs to be redirected (301) on another address
 			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+			// To also have header information to have charset used to encode page
+			curl_setopt($ch, CURLOPT_HEADER, 1);
 			// send a user:password
 			if ( ! empty( $userpwd ) ) {
 				curl_setopt( $ch, CURLOPT_USERPWD, $userpwd );
@@ -173,14 +210,34 @@ class RemoteContentShortcode {
 			// fetch remote contents
 			if ( false === ( $response = curl_exec( $ch ) ) )	{
 				// if we get an error, use that
-				$error = curl_error( $ch );						
+				$error = curl_error( $ch );
 			}
+
+			// Getting header size for later
+			if($response) $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
 			// close the resource
 			curl_close( $ch );
 
 			if ( $response ){
+
+                // Extracting response and headers (as array)
+                $headers = array();
+                $this->extract_header_and_response($header_size, $headers, $response);
+
+                echo strlen($response);
+
+                $response_encoding = $this->get_encoding($headers);
+
+                // If response is not encoded using UTF-8
+                if(strtolower($response_encoding) != "utf-8")
+                {
+                    echo "reencoding from ", $response_encoding. " to UTF-8";
+                    // we re-encode it to have UTF-8
+                    $response = mb_convert_encoding($response, "UTF-8", $response_encoding);
+                }
+
 				if ( $selector || $remove ){
-					// include phpQuery	
+					// include phpQuery
 					include_once( 'inc/phpQuery.php' );
 					// filter the content
 					$response = apply_filters( 'remote_content_shortcode_phpQuery', $response, $url, $selector, $remove );
@@ -209,6 +266,9 @@ class RemoteContentShortcode {
 				if ( $is_htmlentities ) {
 					$response = htmlentities( $response );
 				}
+
+
+
 			} else {
 				// send back the error unmodified so we can debug
 				$response = $error;
