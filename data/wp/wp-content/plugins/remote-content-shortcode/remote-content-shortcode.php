@@ -224,16 +224,19 @@ class RemoteContentShortcode {
                 $headers = array();
                 $this->extract_header_and_response($header_size, $headers, $response);
 
-                echo strlen($response);
-
-                $response_encoding = $this->get_encoding($headers);
-
-                // If response is not encoded using UTF-8
-                if(strtolower($response_encoding) != "utf-8")
+                // We ensure that function exists otherwise, if we have to re-encode, this will leads to a
+                // 500 Internal Server error. To have this function, package "mbstring" must be installed
+                if(function_exists('mb_convert_encoding'))
                 {
-                    echo "reencoding from ", $response_encoding. " to UTF-8";
-                    // we re-encode it to have UTF-8
-                    $response = mb_convert_encoding($response, "UTF-8", $response_encoding);
+
+                    $response_encoding = $this->get_encoding($headers);
+
+                    // If response is not encoded using UTF-8
+                    if(strtolower($response_encoding) != "utf-8")
+                    {
+                        // we re-encode it to have UTF-8
+                        $response = mb_convert_encoding($response, "UTF-8", $response_encoding);
+                    }
                 }
 
 				if ( $selector || $remove ){
