@@ -1,2 +1,2 @@
-src: generic/epfl-infoscience-search/epfl-infoscience-search.zip
+src: ../wp/wp-content/plugins/epfl-infoscience-search
 activate: yes

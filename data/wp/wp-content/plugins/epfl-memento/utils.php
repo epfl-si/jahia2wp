@@ -21,10 +21,7 @@ Class EventUtils
         $end = microtime(true);
 
         // If there is some mechanism to log webservice call, we do it
-        if(has_action('epfl_log_webservice_call'))
-        {
-            do_action('epfl_log_webservice_call', $url, $end-$start);
-        }
+        do_action('epfl_stats_webservice_call_duration', $url, $end-$start);
 
         if (is_array($response)) {
             $header = $response['headers']; // array of http header lines

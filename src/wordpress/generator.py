@@ -449,6 +449,7 @@ class WPGenerator:
         WPMuPluginConfig(self.wp_site, "EPFL_custom_editor_menu.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL_jahia_redirect.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL_quota_loader.php", plugin_folder="epfl-quota").install()
+        WPMuPluginConfig(self.wp_site, "EPFL_stats_loader.php", plugin_folder="epfl-stats").install()
 
         if self.wp_config.installs_locked:
             WPMuPluginConfig(self.wp_site, "EPFL_installs_locked.php").install()
