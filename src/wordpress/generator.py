@@ -461,6 +461,10 @@ class WPGenerator:
         else:
             WPMuPluginConfig(self.wp_site, "EPFL_disable_updates_automatic.php").install()
 
+        # Handling site category
+        if self._site_params['category'] != 'Unmanaged':
+            WPMuPluginConfig(self.wp_site, "EPFL_disable_comments.php").install()
+
     def enable_updates_automatic_if_allowed(self):
         if self.wp_config.updates_automatic:
             WPMuPluginConfig(self.wp_site, "EPFL_enable_updates_automatic.php").install()
