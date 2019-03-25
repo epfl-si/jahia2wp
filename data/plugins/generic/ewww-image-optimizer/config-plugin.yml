@@ -3,58 +3,70 @@ activate: yes
 tables:
   options:
   - autoload: 'yes'
-    option_id: 346
+    option_id: 354
+    option_name: exactdn_all_the_things
+    option_value: ''
+  - autoload: 'yes'
+    option_id: 355
     option_name: exactdn_lossy
     option_value: ''
   - autoload: 'yes'
-    option_id: 360
-    option_name: ewww_image_optimizer_enable_help_notice
-    option_value: '1'
-  - autoload: 'yes'
-    option_id: 363
+    option_id: 371
     option_name: ewww_image_optimizer_tracking_notice
     option_value: '1'
   - autoload: 'yes'
-    option_id: 366
+    option_id: 374
+    option_name: ewww_image_optimizer_enable_help_notice
+    option_value: '1'
+  - autoload: 'yes'
+    option_id: 377
     option_name: ewww_image_optimizer_cloud_key
     option_value: ''
   - autoload: 'yes'
-    option_id: 367
+    option_id: 378
     option_name: ewww_image_optimizer_jpg_quality
-    option_value: '84'
+    option_value: ''
   - autoload: 'yes'
-    option_id: 368
+    option_id: 379
+    option_name: ewww_image_optimizer_include_media_paths
+    option_value: '1'
+  - autoload: 'yes'
+    option_id: 380
     option_name: ewww_image_optimizer_aux_paths
     option_value: ''
   - autoload: 'yes'
-    option_id: 369
+    option_id: 381
     option_name: ewww_image_optimizer_exclude_paths
     option_value: ''
   - autoload: 'yes'
-    option_id: 370
+    option_id: 382
     option_name: ewww_image_optimizer_allow_tracking
     option_value: ''
   - autoload: 'yes'
-    option_id: 371
+    option_id: 383
     option_name: ewww_image_optimizer_maxmediawidth
-    option_value: '0'
+    option_value: '2048'
   - autoload: 'yes'
-    option_id: 372
+    option_id: 384
     option_name: ewww_image_optimizer_maxmediaheight
-    option_value: '0'
+    option_value: '2048'
   - autoload: 'yes'
-    option_id: 373
+    option_id: 385
+    option_name: ewww_image_optimizer_resize_existing
+    option_value: '1'
+  - autoload: 'yes'
+    option_id: 386
     option_name: ewww_image_optimizer_disable_resizes
     option_value: ''
   - autoload: 'yes'
-    option_id: 374
+    option_id: 387
     option_name: ewww_image_optimizer_disable_resizes_opt
     option_value: ''
   - autoload: 'yes'
-    option_id: 375
+    option_id: 388
     option_name: ewww_image_optimizer_jpg_background
     option_value: ''
   - autoload: 'yes'
-    option_id: 376
+    option_id: 389
     option_name: ewww_image_optimizer_webp_paths
     option_value: ''
