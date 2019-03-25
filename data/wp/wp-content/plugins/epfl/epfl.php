@@ -67,14 +67,14 @@ function epfl_fetch_site_tags () {
       if ($site === false) { # wp-veritas is not responding, get the local option and
                              # set a transient, so we dont refresh everytime
         $tags_and_urls_from_option = get_option('epfl:custom_tags');
-        set_transient( 'epfl_custom_tags', [], $cache_timeout );
-
         if ($tags_and_urls_from_option === false) {
           # no option set ?
+          set_transient( 'epfl_custom_tags', [], $cache_timeout );
           return NULL;
+        } else {
+            set_transient( 'epfl_custom_tags', $tags_and_urls_from_option, $cache_timeout );
+            return $tags_and_urls_from_option;
         }
-
-        return $tags_and_urls_from_option;
       } else {
         # wp-veritas is responding; from the site id, get the tags
         if (!empty($site)) {
@@ -95,11 +95,14 @@ function epfl_fetch_site_tags () {
             return $tags;
           } else {
             # nothing for this site ? time to remove local entry
+            set_transient( 'epfl_custom_tags', [], $cache_timeout );
             delete_option('epfl:custom_tags');
             return NULL;
           }
         }
       }
+    } else {
+        return $tags;
     }
   }
 
