@@ -43,4 +43,62 @@ function epfl_load_plugin_textdomain() {
 }
 add_action( 'plugins_loaded', 'epfl_load_plugin_textdomain' );
 
+/**
+ * Load tags for this instance, from the "Source de vérité" app.
+ *
+ * @return list of tags
+ *
+ */
+function epfl_fetch_site_tags () {
+    $site_url = get_site_url();
+    $tags = NULL;
+
+    if ( (defined('WP_DEBUG') && WP_DEBUG) || false === ( $tags = get_transient( 'epfl_custom_tags' ) ) ) {
+      // this code runs when there is no valid transient set
+
+      $tag_provider_url = 'https://wp-veritas.epfl.ch/api/v1';
+      $site = [];
+
+      // first, fetch for the id of this site
+      $site_url = 'https://4hands.epfl.ch'; # REMOVETHIS
+      $url_site_to_id = $tag_provider_url . '/sites?site_url=' . rawurlencode($site_url);
+      $site = Utils::get_items($url_site_to_id);
+
+      if ($site === false) { # wp-veritas is not responding, get the local option
+        $tags_and_urls_from_option = get_option('epfl:custom_tags');
+
+        if ($tags_and_urls_from_option === false) {
+          # no option set ?
+          return NULL;
+        }
+
+        return $tags_and_urls_from_option;
+      } else {
+        # wp-veritas is responding; from the site id, get the tags
+        if (!empty($site)) {
+          # Todo : order by type, 1. faculté 2. institut 3. cluster
+          # from greg -> data are ordered already in API
+
+          $tags_and_urls = []; // [[tag, url], ...]
+          #$site_id = $site[0]->_id;
+          #$site_tags_url = $tag_provider_url . '/sites/' . $site_id . '/tags'; // get tags for the site
+          #$tags = Utils::get_items($site_tags_url);
+          $tags = $site->tags;
+
+          if (!empty($tags)) {
+            # all goods, we have data !
+            set_transient( 'epfl_custom_tags', $tags, 4 * HOUR_IN_SECONDS );
+            # persist into options too, as a fallback if wp_veritas is no more online
+            update_option('epfl:custom_tags', $tags);
+            return $tags;
+          } else {
+            # nothing for this site ? time to remove local entry
+            delete_option('epfl:custom_tags');
+            return NULL;
+          }
+        }
+      }
+    }
+  }
+
 ?>

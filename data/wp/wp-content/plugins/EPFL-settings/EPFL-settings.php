@@ -41,54 +41,6 @@ function EPFL_settings_register_settings() {
 }
 add_action( 'admin_init', 'EPFL_settings_register_settings' );
 
-/**
- * If we don't have any custom tags in db, fetch it trough our sites repository
- * 
- * @return list of tags in the format "Tag1,Tag2,Tag3"
- */
-function epfl_fetch_site_tags () {
-  # how to fetch site name ? acronym, tag or what ?
-  # going for site url
-  $site_url = get_site_url();
-  $tags = NULL;
-
-  if ( (defined('WP_DEBUG') && WP_DEBUG) || false === ( $tags = get_transient( 'epfl_custom_tags' ) ) ) {
-    // this code runs when there is no valid transient set
-    // get the id of this site
-    $tag_provider_url = 'https://wp-veritas.epfl.ch/api';
-    $tags_and_urls = []; // [[tag, url], ...]
-    $site = [];
-
-    $url_site_to_id = $tag_provider_url . '/sites?site_url=' . rawurlencode($site_url);
-    $site = Utils::get_items($url_site_to_id);
-
-    #VERIFY_THIS:
-    if (!empty($site)) {
-      $site_id = $site[0]->id;
-      $site_tags_url = $tag_provider_url . '/sites/' . $site_id . '/tags';
-      $tags = Utils::get_items($site_tags_url);
-
-      #VERIFY_THIS:
-      foreach ($tags as $tag) {
-        $tags_and_urls[] = [$tag->name, $tag->url];
-      }
-    }
-
-    if ($tags_and_urls) {
-      set_transient( 'epfl_custom_tags', $tags_and_urls, 4 * HOUR_IN_SECONDS );
-      # persist into options too, as a fallback
-      update_option('epfl:custom_tags', $tags_and_urls);
-    } else {
-      # no tags from remote server ? try to fetch the one in the local option)
-      if (false === ( $tags_and_urls = get_option('epfl:custom_tags') ) ) {
-        return NULL;
-      }
-    }
-  }
-
-  return $tags;
-}
-
 //add menu EPFL settings under settings menu
 function EPFL_settings_register_options_page() {
   add_options_page('EPFL settings', 'EPFL settings', 'manage_options', 'EPFL_settings', 'EPFL_settings_options_page');
