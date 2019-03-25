@@ -2,7 +2,7 @@
 /**
  * Plugin Name: EPFL
  * Description: Provides many epfl shortcodes
- * @version: 1.18
+ * @version: 1.18a
  * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
@@ -52,6 +52,7 @@ add_action( 'plugins_loaded', 'epfl_load_plugin_textdomain' );
 function epfl_fetch_site_tags () {
     $site_url = get_site_url();
     $tags = NULL;
+    $cache_timeout = 4 * HOUR_IN_SECONDS;
 
     if ( (defined('WP_DEBUG') && WP_DEBUG) || false === ( $tags = get_transient( 'epfl_custom_tags' ) ) ) {
       // this code runs when there is no valid transient set
@@ -63,8 +64,10 @@ function epfl_fetch_site_tags () {
       $url_site_to_id = $tag_provider_url . '/sites?site_url=' . rawurlencode($site_url);
       $site = Utils::get_items($url_site_to_id);
 
-      if ($site === false) { # wp-veritas is not responding, get the local option
+      if ($site === false) { # wp-veritas is not responding, get the local option and
+                             # set a transient, so we dont refresh everytime
         $tags_and_urls_from_option = get_option('epfl:custom_tags');
+        set_transient( 'epfl_custom_tags', [], $cache_timeout );
 
         if ($tags_and_urls_from_option === false) {
           # no option set ?
@@ -86,7 +89,7 @@ function epfl_fetch_site_tags () {
 
           if (!empty($tags)) {
             # all goods, we have data !
-            set_transient( 'epfl_custom_tags', $tags, 4 * HOUR_IN_SECONDS );
+            set_transient( 'epfl_custom_tags', $tags, $cache_timeout );
             # persist into options too, as a fallback if wp_veritas is no more online
             update_option('epfl:custom_tags', $tags);
             return $tags;
