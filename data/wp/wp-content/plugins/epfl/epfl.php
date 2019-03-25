@@ -60,7 +60,6 @@ function epfl_fetch_site_tags () {
       $site = [];
 
       // first, fetch for the id of this site
-      $site_url = 'https://4hands.epfl.ch'; # REMOVETHIS
       $url_site_to_id = $tag_provider_url . '/sites?site_url=' . rawurlencode($site_url);
       $site = Utils::get_items($url_site_to_id);
 
