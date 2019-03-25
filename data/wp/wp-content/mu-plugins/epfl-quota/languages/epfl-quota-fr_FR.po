@@ -1,0 +1,32 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2019-03-06 13:02+0100\n"
+"PO-Revision-Date: 2019-03-06 13:03+0100\n"
+"Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.7.1\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-KeywordsList: __;esc_html__\n"
+"X-Poedit-SearchPath-0: epfl-quota.php\n"
+
+#: epfl-quota.php:150
+#, php-format
+msgid "You reached the limit of %s MB quota"
+msgstr "Vous avez atteint la limite de %s MB de quota"
+
+#: epfl-quota.php:251
+#, php-format
+msgid "You are using %s MB for medias"
+msgstr "Vous utilisez %s MB pour les médias"
+
+#: epfl-quota.php:256
+#, php-format
+msgid "You are using %s MB of %s MB quota (%s %%)"
+msgstr "Vous utilisez %s MB des %s MB de quota (%s %%)"
+

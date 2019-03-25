@@ -48,7 +48,7 @@ class Site {
                 return new $thisclass($under_htdocs);
             }
             if (! count($path_components)) {
-                throw new \Error('Unable to find root site from ' . ABSPATH);
+                throw new \Error('Unable to find root site from ' . WP_CONTENT_DIR);
             }
         }
     }
@@ -67,15 +67,21 @@ class Site {
         return is_file("$path/wp-config.php");
     }
 
-    static private function _htdocs_split ($abspath = NULL) {
-        if ($abspath === NULL) { $abspath = ABSPATH; }
-        $abspath = preg_replace('#/+#', '/', $abspath);
-        if (! preg_match('#(^.*/htdocs)(/.*|)$#', $abspath, $matched)) {
-            throw new \Error('Unable to find htdocs in ' . $abspath);
+    /**
+     * @return A list of two elements, where the first is the absolute path
+     *         to the htdocs directory and the second is the relative path
+     *         from the htdocs directory to the directory containing
+     *         wp-config.php
+     */
+    static private function _htdocs_split () {
+        $wp_content_dir = preg_replace('#/+#', '/', WP_CONTENT_DIR);
+        if (! preg_match('#(^.*/htdocs)(/.*|)$#', $wp_content_dir, $matched)) {
+            throw new \Error('Unable to find htdocs in ' . $wp_content_dir);
         }
         $htdocs = $matched[1];
         $below_htdocs = preg_replace('#^/#', '',
-                                     preg_replace('#/$#', '', $matched[2]));
+                                     preg_replace('#/wp-content/?$#', '',
+                                                  $matched[2]));
         return array($htdocs, $below_htdocs);
     }
 
@@ -218,7 +224,7 @@ class Site {
 
             for(
               $path_components = explode('/', $my_subdirs);
-              count($path_components);
+              ;
               array_pop($path_components))
             {
                 $try_path = $htdocs . "/" . implode("/", $path_components) . "/epfl-wp-sites-config.ini";
@@ -226,6 +232,7 @@ class Site {
                     static::$_wp_site_config_path_cache = $try_path;
                     break;
                 }
+                if (!count($path_components)) break;
             }
             if (FALSE === static::$_wp_site_config_path_cache) {
               static::$_wp_site_config_path_cache = NULL;

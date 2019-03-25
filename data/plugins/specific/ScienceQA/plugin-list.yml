@@ -1,0 +1,3 @@
+plugins:
+  - name: epfl-scienceqa
+    config: !include epfl-scienceqa/config-plugin.yml
