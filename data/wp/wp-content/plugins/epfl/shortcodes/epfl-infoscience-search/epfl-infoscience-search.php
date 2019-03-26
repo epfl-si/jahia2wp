@@ -231,7 +231,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     $debug_template = $attributes['debug_template'];
     unset($attributes['debug_template']);
 
-    if (array_key_exists('url', $attributes) && !empty(attributes['url'])) {
+    if (array_key_exists('url', $attributes) && !empty($attributes['url'])) {
         # we are in the "direct url provided" mode
         $url = htmlspecialchars_decode($attributes['url']);
         $parts = parse_url($url);
