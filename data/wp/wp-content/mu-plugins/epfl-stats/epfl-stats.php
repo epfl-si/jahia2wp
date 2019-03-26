@@ -12,6 +12,10 @@ use Prometheus\CollectorRegistry;
 */
 function epfl_stats_webservice_call_duration($url, $duration)
 {
+    /* If we are in CLI mode, it's useless to update in APC because it's the APC for mgmt container and not httpd
+    container */
+    if(php_sapi_name()=='cli') return;
+
     global $wp;
 
     $url_details = parse_url($url);
@@ -49,6 +53,10 @@ add_action('epfl_stats_webservice_call_duration', 'epfl_stats_webservice_call_du
 */
 function epfl_stats_media_size_and_count($used_bytes, $quota_bytes, $nb_files)
 {
+    /* If we are in CLI mode, it's useless to update in APC because it's the APC for mgmt container and not httpd
+    container */
+    if(php_sapi_name()=='cli') return;
+
     global $wp;
 
     $adapter = new Prometheus\Storage\APC();
