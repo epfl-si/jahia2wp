@@ -3,7 +3,7 @@
  * Plugin Name: EPFL lock plugin and theme install and configuration
  * Plugin URI: 
  * Description: Must-use plugin for the EPFL website.
- * Version: 0.0.3
+ * Version: 0.0.4
  * Author: wwp-admin@epfl.ch
  * */
 
@@ -90,6 +90,10 @@ function EPFL_remove_admin_submenus() {
    remove_submenu_page( 'options-general.php', 'epfl_tequila' );
    remove_submenu_page( 'options-general.php', 'option-folder' );
    remove_submenu_page( 'options-general.php', 'cache_control' );
+   remove_submenu_page( 'options-general.php', 'ewww-image-optimizer/ewww-image-optimizer.php' );
+   remove_submenu_page( 'upload.php', 'ewww-image-optimizer-dynamic-debug' );
+   remove_submenu_page( 'upload.php', 'ewww-image-optimizer-queue-debug' );
+   remove_submenu_page( 'upload.php', 'ewww-image-optimizer-bulk' );
 }
 
 
