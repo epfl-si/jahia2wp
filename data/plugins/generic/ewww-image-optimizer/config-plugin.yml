@@ -70,3 +70,7 @@ tables:
     option_id: 389
     option_name: ewww_image_optimizer_webp_paths
     option_value: ''
+  - autoload: 'no'
+    option_id: 360
+    option_name: ewww_image_optimizer_dismiss_media_notice
+    option_value: '1'
