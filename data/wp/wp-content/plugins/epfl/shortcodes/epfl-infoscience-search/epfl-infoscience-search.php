@@ -4,7 +4,7 @@
  * Plugin Name: EPFL Infoscience search shortcode
  * Plugin URI: https://github.com/epfl-idevelop/jahia2wp
  * Description: provides a shortcode to search and dispay results from Infoscience
- * Version: 1.6
+ * Version: 1.7
  * Author: Julien Delasoie
  * Author URI: https://people.epfl.ch/julien.delasoie?lang=en
  * Contributors: 
@@ -155,7 +155,9 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     $atts = array_change_key_case((array)$provided_attributes, CASE_LOWER);
 
     $infoscience_search_managed_attributes = array(
-        # Content
+        # Content 1
+        'url' => '',
+        # or Content 2
         'pattern' => '',
         'field' => 'any',  # "any", "author", "title", "year", "unit", "collection", "journal", "summary", "keyword", "issn", "doi"
         'limit' => 1000,  # 10,25,50,100,250,500,1000
@@ -229,7 +231,22 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     $debug_template = $attributes['debug_template'];
     unset($attributes['debug_template']);
 
-    $url = epfl_infoscience_search_generate_url_from_attrs($attributes+$unmanaged_attributes);
+    if (array_key_exists('url', $attributes) && !empty(attributes['url'])) {
+        # we are in the "direct url provided" mode
+        $url = htmlspecialchars_decode($attributes['url']);
+        $parts = parse_url($url);
+        $query = proper_parse_str($parts['query']);
+
+        # override values
+        # set the given url to the good format
+        $query['of'] = 'xm';
+
+        $query = http_build_query($query, null, '&');
+        $url = preg_replace('/%5B(?:[0-9]|[1-9][0-9]+)%5D=/', '=', $query);
+        $url = INFOSCIENCE_SEARCH_URL . urldecode($url);
+    } else {
+        $url = epfl_infoscience_search_generate_url_from_attrs($attributes+$unmanaged_attributes);
+    }
 
     $cache_define_by = [
         'url' => $url,
