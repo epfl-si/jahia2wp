@@ -28,7 +28,15 @@ class EPFLQuota
     */
     public function __construct()
     {
-        /* Nothing to do here */
+        /* Add different filters */
+        add_filter('wp_handle_upload_prefilter', [$this, 'check_upload_allowed'] );
+        add_filter('add_attachment', [$this, 'after_upload'], 0, 1);
+        add_filter('delete_attachment', [$this, 'delete_attachment'], 0, 1);
+        add_action( 'admin_notices', [$this, 'display_current_size_usage'] );
+
+        /* Loads translations */
+        load_plugin_textdomain( 'epfl-quota', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
+
     }
 
 
@@ -93,16 +101,17 @@ class EPFLQuota
     */
     public static function init_update()
     {
+
         $used_infos = EPFLQuota::get_usage_on_disk();
 
         /* If option is not in database, */
         if(!($current_usage = get_option(self::OPTION_USAGE)))
         {
-            /* We add it */
-            add_option(self::OPTION_USAGE, [self::OPTION_USAGE_VERSION  => self::CURRENT_DATA_VERSION,
-                                            self::OPTION_USAGE_USED     => $used_infos[self::OPTION_USAGE_USED],
-                                            self::OPTION_USAGE_NB_FILES => $used_infos[self::OPTION_USAGE_NB_FILES],
-                                            self::OPTION_USAGE_LIMIT    => self::DEFAULT_LIMIT]);
+            /* We create data to add it to db */
+            $current_usage = [self::OPTION_USAGE_VERSION  => self::CURRENT_DATA_VERSION,
+                              self::OPTION_USAGE_USED     => $used_infos[self::OPTION_USAGE_USED],
+                              self::OPTION_USAGE_NB_FILES => $used_infos[self::OPTION_USAGE_NB_FILES],
+                              self::OPTION_USAGE_LIMIT    => self::DEFAULT_LIMIT];
         }
         else /* Option exists in DB */
         {
@@ -112,9 +121,11 @@ class EPFLQuota
             /* We update used size */
             $current_usage[self::OPTION_USAGE_USED]     = $used_infos[self::OPTION_USAGE_USED];
             $current_usage[self::OPTION_USAGE_NB_FILES] = $used_infos[self::OPTION_USAGE_NB_FILES];
-
-            EPFLQuota::set_current_usage($current_usage);
         }
+
+        /* Setting information in DB */
+        EPFLQuota::set_current_usage($current_usage);
+
     }
 
 
@@ -241,8 +252,17 @@ class EPFLQuota
     */
     public static function set_current_usage($current_usage)
     {
-        /* Update option in database */
-        update_option(self::OPTION_USAGE, $current_usage);
+        /* If option doesn't exists */
+        if(!get_option(self::OPTION_USAGE))
+        {
+            /* We add it */
+            add_option(self::OPTION_USAGE, $current_usage);
+        }
+        else
+        {
+            /* Update option in database */
+            update_option(self::OPTION_USAGE, $current_usage);
+        }
 
         /* Update gauge information for stats (we transform sizes to have bytes instead of MB) */
         do_action('epfl_stats_media_size_and_count',
@@ -288,24 +308,14 @@ class EPFLQuota
 
 add_action( 'plugins_loaded', function () {
 	$instance = EPFLQuota::get_instance();
-
-    /* Add different filters */
-	add_filter('wp_handle_upload_prefilter', [$instance, 'check_upload_allowed'] );
-    add_filter('add_attachment', [$instance, 'after_upload'], 0, 1);
-    add_filter('delete_attachment', [$instance, 'delete_attachment'], 0, 1);
-    add_action( 'admin_notices', [$instance, 'display_current_size_usage'] );
-
-    /* Loads translations */
-    load_plugin_textdomain( 'epfl-quota', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
+} );
 
 
+add_action('init', function () {
     /* If manual init/update process has been triggered,
      NOTE: this can be done by adding "epflquotainitupdate" as GET parameter in an URL */
     if(array_key_exists('epflquotainitupdate', $_GET))
     {
-
         EPFLQuota::init_update();
     }
-} );
-
-
+});
