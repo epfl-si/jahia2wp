@@ -46,7 +46,8 @@ function epfl_infoscience_process_shortcode( $attributes, $content = null )
             $response = wp_remote_get( $url );
             $end = microtime(true);
 
-            // Logging webservice call time
+            // This action is documented in
+            // plugins/epfl/shortcodes/epfl-infoscience-search/epfl-infoscience-search.php
             do_action('epfl_stats_webservice_call_duration', $url, $end-$start);
 
 
