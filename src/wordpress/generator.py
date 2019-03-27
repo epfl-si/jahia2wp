@@ -447,7 +447,6 @@ class WPGenerator:
         # TODO: add those plugins into the general list of plugins (with the class WPMuPluginConfig)
         WPMuPluginConfig(self.wp_site, "epfl-functions.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL_custom_editor_menu.php").install()
-        WPMuPluginConfig(self.wp_site, "EPFL_jahia_redirect.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL_quota_loader.php", plugin_folder="epfl-quota").install()
         WPMuPluginConfig(self.wp_site, "EPFL_stats_loader.php", plugin_folder="epfl-stats").install()
 
@@ -464,6 +463,7 @@ class WPGenerator:
         # Handling site category
         if self._site_params['category'] != 'Unmanaged':
             WPMuPluginConfig(self.wp_site, "EPFL_disable_comments.php").install()
+            WPMuPluginConfig(self.wp_site, "EPFL_jahia_redirect.php").install()
 
     def enable_updates_automatic_if_allowed(self):
         if self.wp_config.updates_automatic:
