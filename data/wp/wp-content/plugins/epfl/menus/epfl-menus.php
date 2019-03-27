@@ -717,7 +717,7 @@ class Menu
             }
         }
 
-        return new MenuItemBag($items);
+        return new MenuItemBag($items, /* $hide_tree_problems = */ true);
     }
 
     private const SOA_SLUG = 'epfl_soa';
