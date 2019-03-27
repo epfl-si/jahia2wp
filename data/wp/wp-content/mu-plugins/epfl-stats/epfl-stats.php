@@ -30,15 +30,28 @@ function epfl_stats_webservice_call_duration($url, $duration)
 
     $registry = new CollectorRegistry($adapter);
 
+    /* To count time we spend waiting for web services (will disappear in a near future) */
     $counter = $registry->registerCounter('wp',
                                       'epfl_shortcode_duration_milliseconds',
-                                      'How long we spent waiting for Web services overall, in milliseconds',
+                                      'How long we spend waiting for Web services overall, in milliseconds',
                                        ['src', 'target_host', 'target_path', 'target_query']);
 
     $counter->incBy(floor($duration*1000), [home_url( $wp->request ),
                                             $target_host,
                                             $url_details['path'],
                                             $query]);
+
+    /* To count number of calls to web services */
+    $counter = $registry->registerCounter('wp',
+                                      'epfl_shortcode_ws_call_total',
+                                      'Number of Web service call',
+                                       ['src', 'target_host', 'target_path', 'target_query']);
+
+    $counter->inc([home_url( $wp->request ),
+                  $target_host,
+                  $url_details['path'],
+                  $query]);
+
 }
 // We register a new action so others plugins can use it to log webservice call duration
 add_action('epfl_stats_webservice_call_duration', 'epfl_stats_webservice_call_duration', 10, 2);
