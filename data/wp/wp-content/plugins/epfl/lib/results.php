@@ -87,8 +87,10 @@ class InMemoryResultSet implements ResultSet
         $preferred = $this->find($criteria_array)->all();
         if (count($preferred)) {
             return $preferred[0];
-        } else {
+        } else if (count($this->results)) {
             return $this->results[0];
+        } else {
+            return NULL;
         }
     }
 }
