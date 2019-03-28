@@ -3,7 +3,7 @@
 * Plugin Name: EPFL Disable Comments
 * Plugin URI:
 * Description: Must-use plugin to disable comments
-* Version: 0.1
+* Version: 0.2
 * Author: Lucien Chaboudez (https://people.epfl.ch/lucien.chaboudez)
  */
 
@@ -59,7 +59,10 @@ function epfl_dis_com_on_all( $open, $post_id ) {
 }
 add_filter( 'comments_open', 'epfl_dis_com_on_all', 10 , 2 );
 
+function epfl_dis_com_deregister_script()
+{
+    wp_deregister_script( 'comment-reply' );
+}
+add_filter('wp_enqueue_scripts', 'epfl_dis_com_deregister_script');
 
-
-wp_deregister_script( 'comment-reply' );
 remove_action( 'wp_head', 'feed_links_extra', 3 );
