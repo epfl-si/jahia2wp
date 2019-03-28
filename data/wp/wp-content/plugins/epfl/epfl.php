@@ -44,13 +44,20 @@ function epfl_load_plugin_textdomain() {
 add_action( 'plugins_loaded', 'epfl_load_plugin_textdomain' );
 
 /**
- * Load tags for this instance, from the "Source de vérité" app.
+ * Load tags if we are in the labs instance.
+ * Tags are provided from the "Source de vérité" app.
  *
  * @return list of tags
  *
  */
 function epfl_fetch_site_tags () {
     $site_url = get_site_url();
+
+    # only for labs, stop it for others
+    if (preg_match('#https://www\.epfl\.ch/labs/.*#', $site_url) !== 1) {
+      return;
+    }
+
     $tags = NULL;
     $cache_timeout = 4 * HOUR_IN_SECONDS;
 
@@ -70,7 +77,7 @@ function epfl_fetch_site_tags () {
         if ($tags_and_urls_from_option === false) {
           # no option set ?
           set_transient( 'epfl_custom_tags', [], $cache_timeout );
-          return NULL;
+          return;
         } else {
             set_transient( 'epfl_custom_tags', $tags_and_urls_from_option, $cache_timeout );
             return $tags_and_urls_from_option;
@@ -78,13 +85,7 @@ function epfl_fetch_site_tags () {
       } else {
         # wp-veritas is responding; from the site id, get the tags
         if (!empty($site)) {
-          # Todo : order by type, 1. faculté 2. institut 3. cluster
-          # from greg -> data are ordered already in API
-
           $tags_and_urls = []; // [[tag, url], ...]
-          #$site_id = $site[0]->_id;
-          #$site_tags_url = $tag_provider_url . '/sites/' . $site_id . '/tags'; // get tags for the site
-          #$tags = Utils::get_items($site_tags_url);
           $tags = $site->tags;
 
           if (!empty($tags)) {
@@ -97,7 +98,7 @@ function epfl_fetch_site_tags () {
             # nothing for this site ? time to remove local entry
             set_transient( 'epfl_custom_tags', [], $cache_timeout );
             delete_option('epfl:custom_tags');
-            return NULL;
+            return;
           }
         }
       }
