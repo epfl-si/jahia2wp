@@ -1,5 +1,7 @@
 src: web
 activate: yes
+# In normal case, plugin installs some binaries when we visit its admin config page but because it was hidden from users, install never occurs so we use a separate script to do it
+post_install_script: generic/ewww-image-optimizer/post-install.sh
 tables:
   options:
   - autoload: 'yes'

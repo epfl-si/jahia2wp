@@ -1,6 +1,7 @@
 import os
 import shutil
 import logging
+import subprocess
 
 import settings
 from wordpress import WPConfig
@@ -57,6 +58,11 @@ class WPPluginConfig(WPConfig):
         # If we used a ZIP and it was generated 'on the fly', we do some cleaning
         if self.config.zip_path is not None and self.config.zipped_on_the_fly:
             os.remove(self.config.zip_path)
+
+        # If there is a post install script
+        if self.config.post_install_script:
+            # We execute the post install script and give him the path to WP installation
+            subprocess.call([self.config.post_install_script, self.wp_site.path])
 
     def uninstall(self):
         self.run_wp_cli('plugin deactivate {}'.format(self.name))
