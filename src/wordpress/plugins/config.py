@@ -65,7 +65,6 @@ class WPPluginConfig(WPConfig):
             # We execute the post install script and give him the path to WP installation
             subprocess.call([self.config.post_install_script, self.wp_site.path])
 
-
     def uninstall(self):
         self.run_wp_cli('plugin deactivate {}'.format(self.name))
         self.run_wp_cli('plugin uninstall {}'.format(self.name))
