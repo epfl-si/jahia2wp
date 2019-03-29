@@ -262,6 +262,28 @@ class WPPluginConfigInfos:
             # Add try catch if exception ?
             self.tables = plugin_config['tables']
 
+        # If there's a post install script to execute
+        if 'post_install_script' in plugin_config:
+            # Creating full path to install script
+            self.post_install_script = os.path.join(settings.PLUGINS_CONFIG_BASE_FOLDER,
+                                                    plugin_config['post_install_script'])
+            # Checking if script exists
+            if not os.path.isfile(self.post_install_script):
+                error_message = "Post install script for '{}' not found ({})".format(
+                              self.plugin_name,
+                              self.post_install_script)
+                logging.error(error_message)
+                raise Exception(error_message)
+
+            # If post install script is not executable, there will be a problem later...
+            if not os.access(self.post_install_script, os.X_OK):
+                error_message = "Post install script is not executable ({})".format(self.post_install_script)
+                logging.error(error_message)
+                raise Exception(error_message)
+
+        else:
+            self.post_install_script = None
+
         # defining if we have to use a dedicated configuration class for plugin
         self.config_class = plugin_config.get('config_class', settings.WP_DEFAULT_PLUGIN_CONFIG)
 
