@@ -72,6 +72,12 @@ Class ShortCakeMementoConfig
             array('value' => '9', 'label' => esc_html__('Cultural events', 'epfl')),
             array('value' => '10', 'label' => esc_html__('Sporting events', 'epfl')),
             array('value' => '12', 'label' => esc_html__('Thesis defenses', 'epfl')),
+            array('value' => '13', 'label' => esc_html__('Academic Calendar', 'epfl')),
+            array('value' => '15', 'label' => esc_html__('Internal trainings', 'epfl')),
+            array('value' => '16', 'label' => esc_html__('Call for proposal', 'epfl')),
+            array('value' => '17', 'label' => esc_html__('Deadline', 'epfl')),
+            array('value' => '18', 'label' => esc_html__('Sciences Activities for Youth', 'epfl')),
+            array('value' => '19', 'label' => esc_html__('Public Science Events', 'epfl')),
         );
     }
 

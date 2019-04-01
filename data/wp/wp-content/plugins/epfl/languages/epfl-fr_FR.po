@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2019-03-12 10:12+0100\n"
-"PO-Revision-Date: 2019-03-12 10:13+0100\n"
+"POT-Creation-Date: 2019-03-28 11:15+0100\n"
+"PO-Revision-Date: 2019-03-28 11:15+0100\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -208,15 +208,39 @@ msgstr "Manifestations sportives"
 msgid "Thesis defenses"
 msgstr "Soutenances de thèses"
 
-#: epfl-memento/shortcake-config.php:81
+#: epfl-memento/shortcake-config.php:75
+msgid "Academic Calendar"
+msgstr "Calendrier académique"
+
+#: epfl-memento/shortcake-config.php:76
+msgid "Internal trainings"
+msgstr "Formations internes"
+
+#: epfl-memento/shortcake-config.php:77
+msgid "Call for proposal"
+msgstr "Appel à proposition"
+
+#: epfl-memento/shortcake-config.php:78
+msgid "Deadline"
+msgstr "Echéance"
+
+#: epfl-memento/shortcake-config.php:79
+msgid "Sciences Activities for Youth"
+msgstr "Activités scientifiques pour les jeunes"
+
+#: epfl-memento/shortcake-config.php:80
+msgid "Public Science Events"
+msgstr "Évènements scientifiques grand public"
+
+#: epfl-memento/shortcake-config.php:87
 msgid "Upcoming events"
 msgstr "Événements à venir"
 
-#: epfl-memento/shortcake-config.php:82
+#: epfl-memento/shortcake-config.php:88
 msgid "Past events"
 msgstr "Événements passés"
 
-#: epfl-memento/shortcake-config.php:89
+#: epfl-memento/shortcake-config.php:95
 #, php-format
 msgid ""
 "Please select your memento.%sThe events come from the application %smemento."
@@ -226,7 +250,7 @@ msgstr ""
 "l'application %smemento.epfl.ch%s.%sSi vous n'avez pas de mémento, merci "
 "d'envoyer une demande à %s"
 
-#: epfl-memento/shortcake-config.php:103 epfl-news/shortcake-config.php:97
+#: epfl-memento/shortcake-config.php:109 epfl-news/shortcake-config.php:97
 #, php-format
 msgid ""
 "Do you need more information about templates? %sRead this documentation%s"
@@ -234,46 +258,46 @@ msgstr ""
 "Avez vous besoin de plus d'information à propos des templates? %sMerci de "
 "lire la documentation%s"
 
-#: epfl-memento/shortcake-config.php:119
+#: epfl-memento/shortcake-config.php:125
 msgid "Select your memento"
 msgstr "Sélectionner votre mémento"
 
-#: epfl-memento/shortcake-config.php:126 epfl-news/shortcake-config.php:122
+#: epfl-memento/shortcake-config.php:132 epfl-news/shortcake-config.php:122
 #: epfl-people/shortcake-config.php:59
 msgid "Select a template"
 msgstr "Sélectionner un template"
 
-#: epfl-memento/shortcake-config.php:134 epfl-news/shortcake-config.php:142
+#: epfl-memento/shortcake-config.php:140 epfl-news/shortcake-config.php:142
 msgid "Select a language"
 msgstr "Sélectionner une langue"
 
-#: epfl-memento/shortcake-config.php:138
+#: epfl-memento/shortcake-config.php:144
 msgid "The language used to render events results"
 msgstr "La langue utilisée pour afficher les événements"
 
-#: epfl-memento/shortcake-config.php:142
+#: epfl-memento/shortcake-config.php:148
 msgid "Select a period"
 msgstr "Sélectionner une période"
 
-#: epfl-memento/shortcake-config.php:146
+#: epfl-memento/shortcake-config.php:152
 msgid "Do you want upcoming events or past events ?"
 msgstr "Voulez vous les événements à venir ou les événements passés ?"
 
-#: epfl-memento/shortcake-config.php:150
+#: epfl-memento/shortcake-config.php:156
 msgid "Filter events by category"
 msgstr "Filtrer les événements par catégorie"
 
-#: epfl-memento/shortcake-config.php:154
+#: epfl-memento/shortcake-config.php:160
 msgid "Do you want filter events by category? Please select a category."
 msgstr ""
 "Voulez vous filtrer les événements par catégorie ? Merci de sélectionner une "
 "catégorie."
 
-#: epfl-memento/shortcake-config.php:157
+#: epfl-memento/shortcake-config.php:163
 msgid "Filter events by keyword"
 msgstr "Filtrer les événements par mot clé"
 
-#: epfl-memento/shortcake-config.php:160
+#: epfl-memento/shortcake-config.php:166
 msgid "Do you want filter events by keyword? Please type a keyword."
 msgstr ""
 "Voulez vous filtrer les événements par mot clé ? Merci de renseigner un mot "

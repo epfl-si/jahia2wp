@@ -77,7 +77,7 @@ class TreeLoopError extends TreeError {
  */
 class MenuItemBag
 {
-    function __construct ($items) {
+    function __construct ($items, $hide_tree_problems=false) {
         if (! is_array($items)) {
             throw new \Error('Bad argument: ' . var_export($items, true));
         }
@@ -85,7 +85,7 @@ class MenuItemBag
         foreach ($items as $item) {
             $this->_MUTATE_add_item($item);
         }
-        $this->_MUTATE_validate_and_toposort();
+        $this->_MUTATE_validate_and_toposort($hide_tree_problems);
     }
 
     static function coerce ($what) {
@@ -209,12 +209,17 @@ class MenuItemBag
     *  - All ->_get_parent_id's are 0 or within the graph
     *
     *  - There are no ancestry loops
+    *
+    * @param boolean $hide_tree_problems Set to true if you want to ignore the
+    *        problematic descendants, without throwing an error
     */
-    private function _MUTATE_validate_and_toposort () {
+    private function _MUTATE_validate_and_toposort (bool $hide_tree_problems) {
         // Based on https://en.wikipedia.org/wiki/Topological_sorting#Kahn's_algorithm
-        $children = array();    // Adjacency list, keyed by parent ID
-        $safe     = array();    // List of nodes with no loops in their ancestry
-                                // (S in the Wikipedia algorithm)
+        $children        = array();    // Adjacency list, keyed by parent ID
+        $safe            = array();    // List of nodes with no loops in their ancestry
+                                       // (S in the Wikipedia algorithm)
+        $ids_to_ignore   = array();    // if we have a parent id without the data,
+                                       // ignore the full subtree
 
         foreach ($this->items as $item) {
             $id = $this->_get_id($item);
@@ -222,7 +227,25 @@ class MenuItemBag
             if (! $parent_id) {
                 $safe[] = $id;
             } elseif (! array_key_exists($parent_id, $this->items)) {
-                throw new TreeError("Parent of $id ($parent_id) unknown");
+                // Houston, we have an inconsistency. wp-admin should show it
+                // in menu editor. Until someone manualy fix it,
+                //  keep the item hidden
+                if (!$hide_tree_problems) {
+                    throw new TreeError("Parent of $id ($parent_id) unknown");
+                } else {
+                    $ids_to_ignore[] = $id;
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        // debuggers may want to understand what is currently happening
+                        error_log("Menu tree error : Parent of $id ($parent_id) unknown; ignoring this entry and all the current children");
+                    }
+                }
+            } elseif (in_array($parent_id, $ids_to_ignore)) {
+                // as the parent has an inconsistency, ignore all the children too
+                $ids_to_ignore[] = $id;
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    // debuggers may want to understand what is currently happening
+                    error_log("Menu tree error : Ignoring this entry $id as the parent $parent_id is currently ignored");
+                }
             } elseif (! array_key_exists($parent_id, $children)) {
                 $children[$parent_id] = array($id);
             } else {
@@ -694,7 +717,7 @@ class Menu
             }
         }
 
-        return new MenuItemBag($items);
+        return new MenuItemBag($items, /* $hide_tree_problems = */ true);
     }
 
     private const SOA_SLUG = 'epfl_soa';
@@ -1039,7 +1062,7 @@ class MenuMapEntry
         $poly_nav_menus = $poly_options['nav_menus'][get_stylesheet()];
         if ($poly_nav_menus) {
             foreach ($poly_nav_menus as $theme_location => $menus) {
-                if (! $registered[$theme_location]) continue;
+                if (! array_key_exists($theme_location, $registered)) continue;
                 foreach ($menus as $lang => $term_id) {
                     if (! $term_id) continue;
                     $all[] = new $thisclass(

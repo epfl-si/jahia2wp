@@ -1,10 +1,4 @@
 <?PHP
-/**
- * Plugin Name: EPFL-Stats
- * Description: Provide a filter to allow others plugins to log duration of their external call to webservices
- * @version: 1.2
- * @copyright: Copyright (c) 2019 Ecole Polytechnique Federale de Lausanne, Switzerland
- */
 
 require_once 'lib/prometheus.php';
 
@@ -18,6 +12,10 @@ use Prometheus\CollectorRegistry;
 */
 function epfl_stats_webservice_call_duration($url, $duration)
 {
+    /* If we are in CLI mode, it's useless to update in APC because it's the APC for mgmt container and not httpd
+    container */
+    if(php_sapi_name()=='cli') return;
+
     global $wp;
 
     $url_details = parse_url($url);
@@ -32,15 +30,28 @@ function epfl_stats_webservice_call_duration($url, $duration)
 
     $registry = new CollectorRegistry($adapter);
 
+    /* To count time we spend waiting for web services (will disappear in a near future) */
     $counter = $registry->registerCounter('wp',
                                       'epfl_shortcode_duration_milliseconds',
-                                      'How long we spent waiting for Web services overall, in milliseconds',
+                                      'How long we spend waiting for Web services overall, in milliseconds',
                                        ['src', 'target_host', 'target_path', 'target_query']);
 
     $counter->incBy(floor($duration*1000), [home_url( $wp->request ),
                                             $target_host,
                                             $url_details['path'],
                                             $query]);
+
+    /* To count number of calls to web services */
+    $counter = $registry->registerCounter('wp',
+                                      'epfl_shortcode_ws_call_total',
+                                      'Number of Web service call',
+                                       ['src', 'target_host', 'target_path', 'target_query']);
+
+    $counter->inc([home_url( $wp->request ),
+                  $target_host,
+                  $url_details['path'],
+                  $query]);
+
 }
 // We register a new action so others plugins can use it to log webservice call duration
 add_action('epfl_stats_webservice_call_duration', 'epfl_stats_webservice_call_duration', 10, 2);
@@ -55,6 +66,10 @@ add_action('epfl_stats_webservice_call_duration', 'epfl_stats_webservice_call_du
 */
 function epfl_stats_media_size_and_count($used_bytes, $quota_bytes, $nb_files)
 {
+    /* If we are in CLI mode, it's useless to update in APC because it's the APC for mgmt container and not httpd
+    container */
+    if(php_sapi_name()=='cli') return;
+
     global $wp;
 
     $adapter = new Prometheus\Storage\APC();
