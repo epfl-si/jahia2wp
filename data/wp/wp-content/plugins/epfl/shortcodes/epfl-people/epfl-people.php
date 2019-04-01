@@ -68,7 +68,13 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
     return Utils::render_user_msg("People shortcode: Please check required parameters");
   }
 
-  ("" !== $units) ? $parameter['units'] = $units : $parameter['scipers'] = $scipers;
+  if ("" !== $units) { 
+    $parameter['units'] = $units;
+    $from = 'units';
+  } else {
+    $parameter['scipers'] = $scipers;
+    $from = 'scipers';
+  } 
 
   if ("" !== $function) { 
     $function = str_replace(",", "+or+", $function);
@@ -118,7 +124,7 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
 
   try
   {
-    do_action_ref_array("epfl_people_action", [$persons, $columns]);
+    do_action_ref_array("epfl_people_action", [$persons, $columns, $from]);
     return ob_get_contents();
   }
   finally
