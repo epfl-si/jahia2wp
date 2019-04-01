@@ -53,11 +53,6 @@ add_action( 'plugins_loaded', 'epfl_load_plugin_textdomain' );
 function epfl_fetch_site_tags () {
     $site_url = get_site_url();
 
-    # only for labs, stop it for others
-    if (preg_match('#https://www\.epfl\.ch/labs/.*#', $site_url) !== 1) {
-      return;
-    }
-
     $tags = NULL;
     $cache_timeout = 4 * HOUR_IN_SECONDS;
 
