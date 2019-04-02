@@ -43,6 +43,19 @@ function epfl_load_plugin_textdomain() {
 }
 add_action( 'plugins_loaded', 'epfl_load_plugin_textdomain' );
 
+function epfl_fetch_site_tags_order_cmp($a, $b) {
+  $order = ['faculty', 'institute', 'field-of-research'];
+
+  $a = array_search($a->type, $order);
+  $b = array_search($b->type, $order);
+
+  if ($a == $b) {
+    return 0;
+  }
+
+  return ($a > $b) ? 1 : -1;
+}
+
 /**
  * Load tags if we are in the labs instance.
  * Tags are provided from the "Source de vérité" app.
@@ -52,7 +65,6 @@ add_action( 'plugins_loaded', 'epfl_load_plugin_textdomain' );
  */
 function epfl_fetch_site_tags () {
     $site_url = get_site_url();
-
     $tags = NULL;
     $cache_timeout = 4 * HOUR_IN_SECONDS;
 
@@ -63,11 +75,13 @@ function epfl_fetch_site_tags () {
       $site = [];
 
       // first, fetch for the id of this site
+      $site_url = rtrim($site_url, '/');
       $url_site_to_id = $tag_provider_url . '/sites?site_url=' . rawurlencode($site_url);
       $site = Utils::get_items($url_site_to_id);
 
-      if ($site === false) { # wp-veritas is not responding, get the local option and
-                             # set a transient, so we dont refresh everytime
+      if ($site === false && !(defined('WP_DEBUG') && WP_DEBUG)) {
+        # wp-veritas is not responding, get the local option and
+        # set a transient, so we dont refresh everytime
         $tags_and_urls_from_option = get_option('epfl:custom_tags');
         if ($tags_and_urls_from_option === false) {
           # no option set ?
@@ -85,12 +99,16 @@ function epfl_fetch_site_tags () {
 
           if (!empty($tags)) {
             # all goods, we have data !
-            set_transient( 'epfl_custom_tags', $tags, $cache_timeout );
+
+            # order it
+            usort($tags, epfl_fetch_site_tags_order_cmp);
+
+            set_transient( 'epfl_custom_tags', $tags, $cache_timeout);
             # persist into options too, as a fallback if wp_veritas is no more online
             update_option('epfl:custom_tags', $tags);
             return $tags;
           } else {
-            # nothing for this site ? time to remove local entry
+            # nothing for this site ? time to remove local entries
             set_transient( 'epfl_custom_tags', [], $cache_timeout );
             delete_option('epfl:custom_tags');
             return;
