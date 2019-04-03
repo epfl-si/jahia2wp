@@ -43,3 +43,14 @@ add_action( 'init', function() {
     // define the shortcode
    add_shortcode('epfl_labs_search', __NAMESPACE__ . '\process_shortcode');
 });
+
+/**
+ * Do the actual search, when the user submitted is query
+ */
+function process_search($text) {
+    $url = LABS_INFO_PROVIDER_URL . 'sites?text=' . $text;
+    error_log($url);
+    $sites = \Utils::get_items($url);
+    return $sites;
+}
+add_action('epfl_labs_search_action_callback', __NAMESPACE__ . '\process_search', 10, 1);
