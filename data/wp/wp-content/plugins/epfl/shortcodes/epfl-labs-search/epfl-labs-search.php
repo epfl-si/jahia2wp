@@ -53,4 +53,5 @@ function process_search($text) {
     $sites = \Utils::get_items($url);
     return $sites;
 }
-add_action('epfl_labs_search_action_callback', __NAMESPACE__ . '\process_search', 10, 1);
+
+add_filter('epfl_labs_search_action_callback', __NAMESPACE__ . '\process_search', 10, 1);
