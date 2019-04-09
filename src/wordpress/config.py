@@ -220,7 +220,10 @@ class WPConfig:
             # reformat output from wp cli
             self._config_infos = {}
             for infos in Utils.csv_string_to_dict(raw_infos):
-                self._config_infos[infos['key']] = infos['value']
+                if 'key' in infos:  # wp-cli version <= 1.4
+                    self._config_infos[infos['key']] = infos['value']
+                else:
+                    self._config_infos[infos['name']] = infos['value']
 
             logging.debug("%s - config => %s", repr(self.wp_site), self._config_infos)
 
