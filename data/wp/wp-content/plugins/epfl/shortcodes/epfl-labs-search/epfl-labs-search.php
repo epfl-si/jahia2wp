@@ -48,12 +48,22 @@ add_action( 'init', function() {
  * Do the actual search, when the user submitted is query
  */
 function process_search($text, $predefined_tags) {
-    $url = LABS_INFO_PROVIDER_URL . 'sites?text=' . $text;
-    if (!empty($predefined_tags)) {
-        foreach($predefined_tags as $tag) {
-            $url .= '&tags=' . $tag;
+    if (empty($text) and empty($predefined_tags)) {
+        $url = LABS_INFO_PROVIDER_URL . 'sites?tagged=true';
+    } else {
+        $url = LABS_INFO_PROVIDER_URL . 'sites?';
+
+        if (!empty($text)){
+            $url .= "text=" . $text;
+        }
+
+        if (!empty($predefined_tags)) {
+            foreach($predefined_tags as $tag) {
+                $url .= '&tags=' . $tag;
+            }
         }
     }
+
     $sites = \Utils::get_items($url);
     return $sites;
 }
