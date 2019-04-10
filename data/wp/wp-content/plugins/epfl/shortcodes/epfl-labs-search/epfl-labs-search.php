@@ -24,8 +24,11 @@ function process_shortcode($atts) {
     ), $atts );
 
     // sanitize what we get
-    $predefined_tags = explode( ';', sanitize_text_field($atts['tags']));
-
+    if ($atts['tags'] !== '') {
+        $predefined_tags = explode( ';', sanitize_text_field($atts['tags']));
+    } else {
+        $predefined_tags = [];
+    }
 
     ob_start();
     try {
