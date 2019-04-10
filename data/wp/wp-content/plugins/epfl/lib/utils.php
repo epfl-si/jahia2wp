@@ -50,7 +50,8 @@ Class Utils
         $response = wp_remote_get($url);
         $end = microtime(true);
 
-        // Logging call
+        // This action is documented in
+        // plugins/epfl/shortcodes/epfl-infoscience-search/epfl-infoscience-search.php
         do_action('epfl_stats_webservice_call_duration', $url, $end-$start);
 
 

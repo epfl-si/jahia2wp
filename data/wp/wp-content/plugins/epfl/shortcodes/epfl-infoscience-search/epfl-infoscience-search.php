@@ -289,7 +289,15 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
             $response = wp_remote_get( $url );
             $end = microtime(true);
 
-            // logging call
+            /**
+             * Fires whenever an external Web service is being queried during
+             * the rendering of a page.
+             *
+             * @param string $channel The URL or other identifier of the
+             *                        Web service being queried
+             * @param float $time_in_microseconds The amount of time spent
+             *                        waiting for the Web service
+             */
             do_action('epfl_stats_webservice_call_duration', $url, $end-$start);
 
 
