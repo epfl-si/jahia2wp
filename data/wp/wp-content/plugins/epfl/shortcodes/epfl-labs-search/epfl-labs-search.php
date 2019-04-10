@@ -8,7 +8,8 @@
 
 namespace Epfl\Labs_Search_Plugin;
 
-define("LABS_INFO_PROVIDER_URL", "https://wp-veritas.epfl.ch/api/v1/");
+#define("LABS_INFO_PROVIDER_URL", "https://wp-veritas.epfl.ch/api/v1/");
+define("LABS_INFO_PROVIDER_URL", "http://192.168.250.1:3000/api/v1/");
 
 function process_shortcode($atts) {
 
@@ -19,20 +20,16 @@ function process_shortcode($atts) {
     }
 
     $atts = shortcode_atts( array(
-        'faculty' => '',
-        'institute'   => '',
-        'field_of_research'   => '',
+        'tags' => '',
     ), $atts );
 
     // sanitize what we get
-    $faculty = sanitize_text_field($atts['faculty']);
-    $institute = sanitize_text_field($atts['institute']);
-    $clusters = sanitize_text_field($atts['field_of_research']);
+    $predefined_tags = explode( ';', sanitize_text_field($atts['tags']));
 
 
     ob_start();
     try {
-       do_action("epfl_labs_search_action");
+       do_action("epfl_labs_search_action", $predefined_tags);
        return ob_get_contents();
     } finally {
         ob_end_clean();
@@ -47,11 +44,15 @@ add_action( 'init', function() {
 /**
  * Do the actual search, when the user submitted is query
  */
-function process_search($text) {
+function process_search($text, $predefined_tags) {
     $url = LABS_INFO_PROVIDER_URL . 'sites?text=' . $text;
-    error_log($url);
+    if (!empty($predefined_tags)) {
+        foreach($predefined_tags as $tag) {
+            $url .= '&tags=' . $tag;
+        }
+    }
     $sites = \Utils::get_items($url);
     return $sites;
 }
 
-add_filter('epfl_labs_search_action_callback', __NAMESPACE__ . '\process_search', 10, 1);
+add_filter('epfl_labs_search_action_callback', __NAMESPACE__ . '\process_search', 10, 2);
