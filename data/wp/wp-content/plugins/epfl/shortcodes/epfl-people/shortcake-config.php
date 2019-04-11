@@ -23,6 +23,32 @@ Class ShortCakePeopleConfig
       );
   }
 
+  private static function get_doctoral_programs()
+  {
+    return array(
+        array('value' => 'EDAM', 'label' => esc_html__('EDAM', 'epfl')),
+        array('value' => 'EDAR', 'label' => esc_html__('EDAR', 'epfl')),
+        array('value' => 'EDBB', 'label' => esc_html__('EDBB', 'epfl')),
+        array('value' => 'EDCB', 'label' => esc_html__('EDCB', 'epfl')),
+        array('value' => 'EDCE', 'label' => esc_html__('EDCE', 'epfl')),
+        array('value' => 'EDCH', 'label' => esc_html__('EDCH', 'epfl')),
+        array('value' => 'EDDH', 'label' => esc_html__('EDDH', 'epfl')),
+        array('value' => 'EDEE', 'label' => esc_html__('EDEE', 'epfl')),
+        array('value' => 'EDEY', 'label' => esc_html__('EDEY', 'epfl')),
+        array('value' => 'EDFI', 'label' => esc_html__('EDFI', 'epfl')),
+        array('value' => 'EDIC', 'label' => esc_html__('EDIC', 'epfl')),
+        array('value' => 'EDMA', 'label' => esc_html__('EDMA', 'epfl')),
+        array('value' => 'EDME', 'label' => esc_html__('EDME', 'epfl')),
+        array('value' => 'EDMS', 'label' => esc_html__('EDMS', 'epfl')),
+        array('value' => 'EDMT', 'label' => esc_html__('EDMT', 'epfl')),
+        array('value' => 'EDMX', 'label' => esc_html__('EDMX', 'epfl')),
+        array('value' => 'EDNE', 'label' => esc_html__('EDNE', 'epfl')),
+        array('value' => 'EDPO', 'label' => esc_html__('EDPO', 'epfl')),
+        array('value' => 'EDPY', 'label' => esc_html__('EDPY', 'epfl')),
+        array('value' => 'EDRS', 'label' => esc_html__('EDRS', 'epfl')),
+    );
+  }
+
   public static function config()
   {
     shortcode_ui_register_for_shortcode
@@ -47,6 +73,15 @@ Class ShortCakePeopleConfig
             'attr'          => 'scipers',
             'type'          => 'text',
             'description'   => esc_html__('You can enter many scipers separated by a comma', 'epfl'),
+          ),
+          array
+          (
+            'label'         => '<h3>' . esc_html__('Doctoral programs', 'epfl') . '</h3>',
+            'attr'          => 'doctoral_program',
+            'type'          => 'radio',
+            'options'       => ShortCakePeopleConfig::get_doctoral_programs(),
+            'description'   => esc_html__('You should choose the acronym for doctoral programs', 'epfl'),
+            value           => 'EDAM',
           ),
           array
           (
