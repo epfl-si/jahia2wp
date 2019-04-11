@@ -8,8 +8,7 @@
 
 namespace Epfl\Labs_Search_Plugin;
 
-#define("LABS_INFO_PROVIDER_URL", "https://wp-veritas.epfl.ch/api/v1/");
-define("LABS_INFO_PROVIDER_URL", "http://192.168.250.1:3000/api/v1/");
+define("LABS_INFO_PROVIDER_URL", "https://wp-veritas.epfl.ch/api/v1/");
 
 function process_shortcode($atts) {
 
