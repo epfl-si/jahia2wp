@@ -29,9 +29,22 @@ function process_shortcode($atts) {
         $predefined_tags = [];
     }
 
+    # by default get all sites
+    $url = LABS_INFO_PROVIDER_URL . 'sites?tagged=true';
+
+    if (!empty($predefined_tags)) {
+        $url = LABS_INFO_PROVIDER_URL . 'sites?';
+
+        foreach($predefined_tags as $tag) {
+            $url .= '&tags=' . $tag;
+        }
+    }
+
+    $sites = \Utils::get_items($url);    
+
     ob_start();
     try {
-       do_action("epfl_labs_search_action", $predefined_tags);
+       do_action("epfl_labs_search_action", $sites, $predefined_tags);
        return ob_get_contents();
     } finally {
         ob_end_clean();
@@ -42,29 +55,3 @@ add_action( 'init', function() {
     // define the shortcode
    add_shortcode('epfl_labs_search', __NAMESPACE__ . '\process_shortcode');
 });
-
-/**
- * Do the actual search, when the user submitted is query
- */
-function process_search($text, $predefined_tags) {
-    if (empty($text) and empty($predefined_tags)) {
-        $url = LABS_INFO_PROVIDER_URL . 'sites?tagged=true';
-    } else {
-        $url = LABS_INFO_PROVIDER_URL . 'sites?';
-
-        if (!empty($text)){
-            $url .= "text=" . $text;
-        }
-
-        if (!empty($predefined_tags)) {
-            foreach($predefined_tags as $tag) {
-                $url .= '&tags=' . $tag;
-            }
-        }
-    }
-
-    $sites = \Utils::get_items($url);
-    return $sites;
-}
-
-add_filter('epfl_labs_search_action_callback', __NAMESPACE__ . '\process_search', 10, 2);
