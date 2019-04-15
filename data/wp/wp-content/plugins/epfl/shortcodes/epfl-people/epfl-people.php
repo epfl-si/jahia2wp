@@ -65,7 +65,7 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
     $columns = (is_numeric($columns) && intval($columns) <= 3 && intval($columns) >= 1) ? $columns : 3;
   }
 
-  if ("" === $units and "" === $scipers and "" === doctoral_program) {
+  if ("" === $units && "" === $scipers && "" === $doctoral_program) {
     return Utils::render_user_msg("People shortcode: Please check required parameters");
   }
 
