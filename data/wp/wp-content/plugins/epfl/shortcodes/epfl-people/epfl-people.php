@@ -121,9 +121,10 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
     $persons[] = $item;
   }
 
-  if ("" !== $units) {
+  if ("" !== $units || "" !== $doctoral_program) {
     // Sort persons list alphabetically when units
     usort($persons, 'epfl_people_person_compare');
+
   } else {
     // Respect given order when sciper
     $scipers =  array_map('intval', explode(',', $parameter['scipers']));
