@@ -19,32 +19,19 @@ function process_shortcode($atts) {
     }
 
     $atts = shortcode_atts( array(
-        'tags' => '',
+        'faculty' => '',
     ), $atts );
 
     // sanitize what we get
-    if ($atts['tags'] !== '') {
-        $predefined_tags = explode( ';', sanitize_text_field($atts['tags']));
-    } else {
-        $predefined_tags = [];
-    }
+    $faculty = sanitize_text_field($atts["faculty"]);
 
-    # by default get all sites
+    # by default get all sites with at least a tag
     $url = LABS_INFO_PROVIDER_URL . 'sites?tagged=true';
-
-    if (!empty($predefined_tags)) {
-        $url = LABS_INFO_PROVIDER_URL . 'sites?';
-
-        foreach($predefined_tags as $tag) {
-            $url .= '&tags=' . $tag;
-        }
-    }
-
     $sites = \Utils::get_items($url);    
 
     ob_start();
     try {
-       do_action("epfl_labs_search_action", $sites, $predefined_tags);
+       do_action("epfl_labs_search_action", $sites, $faculty);
        return ob_get_contents();
     } finally {
         ob_end_clean();
