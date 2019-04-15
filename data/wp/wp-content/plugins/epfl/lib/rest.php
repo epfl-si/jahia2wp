@@ -466,7 +466,7 @@ class _RESTRequestSocketFireAndForget extends _RESTRequestBase {
 
 add_filter('epfl_rest_rewrite_connect_to', function($hostport, $url) {
     if ($hostport === "www.epfl.ch:443") {
-        if (preg_match('/labs', $url)) {
+        if (preg_match('#/labs#', $url)) {
             return "httpd-labs:8443";
         } else {
             return "httpd-www:8443";
