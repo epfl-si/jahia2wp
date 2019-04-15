@@ -94,12 +94,6 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
 
   // the web service we use to retrieve the data
   $url = "https://people.epfl.ch/cgi-bin/wsgetpeople/";
-
-  // A SUPPRIMER dès que https://test-people.epfl.ch/cgi-bin/wsgetpeople?progcode=EDAR fonctionne
-  if ("" !== $doctoral_program) {
-    $url = "https://people.epfl.ch/cgi-bin/wsgetpeople-progdoc/";
-  }
-
   $url = add_query_arg($parameter, $url);
   
   // retrieve the data in JSON
