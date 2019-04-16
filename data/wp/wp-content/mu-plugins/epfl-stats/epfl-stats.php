@@ -69,7 +69,8 @@ function epfl_stats_webservice_call_duration($url, $duration)
                        "targetpath"     => $url_details['path'],
                        "targetquery"    => $query,
                        "responsetime"   => floor($duration*1000));
-    $log_json = json_encode($log_array);
+
+    apache_note('epfl_php_ws_call_notes', json_encode($log_array));
 
 }
 // We register a new action so others plugins can use it to log webservice call duration
