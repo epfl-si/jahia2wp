@@ -20,10 +20,12 @@ function process_shortcode($atts) {
 
     $atts = shortcode_atts( array(
         'faculty' => '',
+        'institute' => ''
     ), $atts );
 
     // sanitize what we get
     $faculty = sanitize_text_field($atts["faculty"]);
+    $institute = sanitize_text_field($atts["institute"]);
 
     # by default get all sites with at least a tag
     $url = LABS_INFO_PROVIDER_URL . 'sites?tagged=true';
@@ -31,7 +33,7 @@ function process_shortcode($atts) {
 
     ob_start();
     try {
-       do_action("epfl_labs_search_action", $sites, $faculty);
+       do_action("epfl_labs_search_action", $sites, $faculty, $institute);
        return ob_get_contents();
     } finally {
         ob_end_clean();
