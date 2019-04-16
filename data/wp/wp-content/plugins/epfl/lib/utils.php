@@ -44,7 +44,7 @@ Class Utils
      * @param cache_time_sec : Nb of sec during which we have to cache information in transient
      * @return decoded JSON data
      */
-    public static function get_items(string $url, $cache_time_sec=60) {
+    public static function get_items(string $url, $cache_time_sec=300) {
 
 
         /* Caching mechanism is only used when :
