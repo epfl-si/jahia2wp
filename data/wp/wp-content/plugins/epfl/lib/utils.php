@@ -48,8 +48,8 @@ Class Utils
 
 
         /* Caching mechanism is only used when :
-         - No user is logged.
-         - A user is logged in and he is in admin panel
+         - No user is logged in
+         - A user is logged in AND he is in admin panel
          - cache time is greater than 0
          */
         if((!is_user_logged_in() || (is_user_logged_in() && is_admin())) && $cache_time_sec > 0)
