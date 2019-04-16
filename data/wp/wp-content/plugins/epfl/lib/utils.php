@@ -44,11 +44,15 @@ Class Utils
      * @param cache_time_sec : Nb of sec during which we have to cache information in transient
      * @return decoded JSON data
      */
-    public static function get_items(string $url, $cache_time_sec=300) {
+    public static function get_items(string $url, $cache_time_sec=60) {
 
-        /* If caching has to be used (user is not logged in) and URL can be cached in transient,
-           we have a look to see if we have something already cached */
-        if(!is_user_logged_in() && $cache_time_sec > 0)
+
+        /* Caching mechanism is only used when :
+         - No user is logged.
+         - A user is logged in and he is in admin panel
+         - cache time is greater than 0
+         */
+        if((!is_user_logged_in() || (is_user_logged_in() && is_admin())) && $cache_time_sec > 0)
         {
             /* Generating unique transient ID. We cannot directly use URL (and replace some characters) because we are
             limited to 172 characters for transient identifiers (https://codex.wordpress.org/Transients_API) */
