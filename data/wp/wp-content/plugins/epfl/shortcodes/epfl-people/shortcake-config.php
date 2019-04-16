@@ -50,6 +50,13 @@ Class ShortCakePeopleConfig
           ),
           array
           (
+            'label'         => '<h3>' . esc_html__('Doctoral programs', 'epfl') . '</h3>',
+            'attr'          => 'doctoral_program',
+            'type'          => 'text',
+            'description'   => esc_html__('Example: EDAM', 'epfl'),
+          ),
+          array
+          (
             'label'         => '<h3>' . esc_html__('Function', 'epfl') . '</h3>',
             'attr'          => 'function',
             'type'          => 'text',
