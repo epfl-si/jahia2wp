@@ -24,33 +24,52 @@ function epfl_stats_webservice_call_duration($url, $duration)
     $target_host  = $url_details['scheme']."://".$url_details['host'];
     if(array_key_exists('port', $url_details) && $url_details['port'] != "") $target_host .= ":".$url_details['port'];
 
+    /* Extracting infos */
+    $src = home_url( $wp->request );
     $query = (array_key_exists('query', $url_details))?$url_details['query']:"";
 
     $adapter = new Prometheus\Storage\APC();
 
     $registry = new CollectorRegistry($adapter);
 
+
+
     /* To count time we spend waiting for web services (will disappear in a near future) */
     $counter = $registry->registerCounter('wp',
-                                      'epfl_shortcode_duration_milliseconds',
-                                      'How long we spend waiting for Web services overall, in milliseconds',
-                                       ['src', 'target_host', 'target_path', 'target_query']);
+                                          'epfl_shortcode_duration_milliseconds',
+                                          'How long we spend waiting for Web services overall, in milliseconds',
+                                          ['src', 'target_host', 'target_path', 'target_query']);
 
-    $counter->incBy(floor($duration*1000), [home_url( $wp->request ),
+    $counter->incBy(floor($duration*1000), [$src,
                                             $target_host,
                                             $url_details['path'],
                                             $query]);
 
     /* To count number of calls to web services */
     $counter = $registry->registerCounter('wp',
-                                      'epfl_shortcode_ws_call_total',
-                                      'Number of Web service call',
-                                       ['src', 'target_host', 'target_path', 'target_query']);
+                                          'epfl_shortcode_ws_call_total',
+                                          'Number of Web service call',
+                                          ['src', 'target_host', 'target_path', 'target_query']);
 
-    $counter->inc([home_url( $wp->request ),
+    $counter->inc([$src,
                   $target_host,
                   $url_details['path'],
                   $query]);
+
+    /* JSON logging */
+
+    /* Generating date/time in correct format: yyyy-MM-dd'T'HH:mm:ss.SSSZZ (ex: 2019-03-27T12:46:14.078Z ) */
+    $time_generated = date("Y-m-d\TH:i:s.v\Z");
+    $log_array = array("@timegenerated" => $time_generated,
+                       "priority"       => "INFO",
+                       "verb"           => "GET",
+                       "code"           => "200",
+                       "src"            => $src,
+                       "targethost"     => $target_host,
+                       "targetpath"     => $url_details['path'],
+                       "targetquery"    => $query,
+                       "responsetime"   => floor($duration*1000));
+    $log_json = json_encode($log_array);
 
 }
 // We register a new action so others plugins can use it to log webservice call duration
