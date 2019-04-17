@@ -80,6 +80,8 @@ class WPThemeConfig(WPConfig):
             zipObj.extractall(path=self.base_path)
 
         # clean the extracted mess, aka correct folders and remove unused one
-        shutil.move(os.path.join(self.base_path, zip_base_name, 'wp-theme-2018'), os.path.join(self.base_path, 'wp-theme-2018'))
-        shutil.move(os.path.join(self.base_path, zip_base_name, 'wp-theme-light'), os.path.join(self.base_path, 'wp-theme-light'))
+        shutil.move(os.path.join(self.base_path, zip_base_name, 'wp-theme-2018'),
+                    os.path.join(self.base_path, 'wp-theme-2018'))
+        shutil.move(os.path.join(self.base_path, zip_base_name, 'wp-theme-light'),
+                    os.path.join(self.base_path, 'wp-theme-light'))
         shutil.rmtree(os.path.join(self.base_path, zip_base_name))
