@@ -71,8 +71,8 @@ class WPThemeConfig(WPConfig):
         """
         Install and activate 2018 theme
         """
-        zip_url = "https://github.com/epfl-idevelop/wp-theme-2018/archive/wp-theme-light.zip"
-        zip_base_name = 'wp-theme-2018-wp-theme-light/'
+        zip_url = "https://github.com/epfl-idevelop/wp-theme-2018/archive/master.zip"
+        zip_base_name = 'wp-theme-2018-master/'
 
         # unzip in memor
         resp = urlopen(zip_url)
