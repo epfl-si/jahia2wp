@@ -345,6 +345,8 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
             return Utils::render_user_msg("Infoscience search shortcode: Please check the url");
         }
     } else {
+        // To tell we're using the cache
+        do_action('epfl_stats_webservice_call_duration', $url, 0, true);
         // Use cache
         return $page;
     }        

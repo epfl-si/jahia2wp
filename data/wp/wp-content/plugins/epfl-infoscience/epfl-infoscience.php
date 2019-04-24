@@ -67,6 +67,9 @@ function epfl_infoscience_process_shortcode( $attributes, $content = null )
 
         }
     } else {
+
+        // we tell we're using the cache
+        do_action('epfl_stats_webservice_call_duration', $url, 0, true);
         // Use cache
         return $result;
     }
