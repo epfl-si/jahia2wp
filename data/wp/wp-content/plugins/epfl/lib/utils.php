@@ -40,11 +40,31 @@ Class Utils
 
     /**
      * Call API
-     * @param url  : the fetchable url
-     * @param args : array('timeout' => 10), see https://codex.wordpress.org/Function_Reference/wp_remote_get
+     * @param url            : the fetchable url
+     * @param cache_time_sec : Nb of sec during which we have to cache information in transient
      * @return decoded JSON data
      */
-    public static function get_items(string $url) {
+    public static function get_items(string $url, $cache_time_sec=300) {
+
+
+        /* Caching mechanism is only used when :
+         - No user is logged in
+         - A user is logged in AND he is in admin panel
+         - cache time is greater than 0
+         */
+        if((!is_user_logged_in() || (is_user_logged_in() && is_admin())) && $cache_time_sec > 0)
+        {
+            /* Generating unique transient ID. We cannot directly use URL (and replace some characters) because we are
+            limited to 172 characters for transient identifiers (https://codex.wordpress.org/Transients_API) */
+            $transient_id = 'epfl_'.md5($url);
+
+            /* If we have an URL call result in DB, */
+            if ( false !== ( $data = get_transient($transient_id) ) )
+            {
+                 /* We return result */
+                 return json_decode($data);
+            }
+        }
 
         $start = microtime(true);
         $response = wp_remote_get($url);
@@ -64,6 +84,15 @@ Class Utils
                 error_log("Webservice " . $url . " doesn't seem to be returning JSON");
                 return False;
             } else {
+
+                /* If we have to store result in a transient,
+                (this time, we don't check if user is logged in or not so futur calls from unlogged users will
+                use cache directly)*/
+                if($cache_time_sec > 0)
+                {
+                    set_transient($transient_id, $data, $cache_time_sec);
+                }
+
                 return json_decode($data);
             }
         }

@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl\n"
-"POT-Creation-Date: 2019-03-28 11:15+0100\n"
-"PO-Revision-Date: 2019-03-28 11:15+0100\n"
+"POT-Creation-Date: 2019-04-15 10:19+0200\n"
+"PO-Revision-Date: 2019-04-15 10:20+0200\n"
 "Last-Translator: Charmier Grégory <gregory.charmier@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -263,7 +263,7 @@ msgid "Select your memento"
 msgstr "Sélectionner votre mémento"
 
 #: epfl-memento/shortcake-config.php:132 epfl-news/shortcake-config.php:122
-#: epfl-people/shortcake-config.php:59
+#: epfl-people/shortcake-config.php:66
 msgid "Select a template"
 msgstr "Sélectionner un template"
 
@@ -478,6 +478,14 @@ msgid "You can enter many scipers separated by a comma"
 msgstr "Vous pouvez saisir des scipers séparés par une virgule"
 
 #: epfl-people/shortcake-config.php:53
+msgid "Doctoral programs"
+msgstr "Programmes doctoraux"
+
+#: epfl-people/shortcake-config.php:56
+msgid "Example: EDAM"
+msgstr "Exemple: EDAM"
+
+#: epfl-people/shortcake-config.php:60
 msgid "Function"
 msgstr "Fonction"
 

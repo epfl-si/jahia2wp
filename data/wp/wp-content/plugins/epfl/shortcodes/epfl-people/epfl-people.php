@@ -41,12 +41,12 @@ function epfl_people_sortArrayByArray($data,$orderArray) {
 function epfl_people_2018_process_shortcode( $attributes, $content = null )
 {
   $attributes = shortcode_atts( array(
-       'units'    => '',
-       'scipers'  => '',
-       'function' => '',
-       'columns'  => '3',
+       'units'            => '',
+       'scipers'          => '',
+       'doctoral_program' => '',
+       'function'         => '',
+       'columns'          => '3',
     ), $attributes );
-
 
   // if supported delegate the rendering to the theme
   if(!has_action("epfl_people_action"))
@@ -55,26 +55,30 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
   }
 
   // sanitize the parameters
-  $units    = sanitize_text_field( $attributes['units'] );
-  $scipers  = sanitize_text_field( $attributes['scipers'] );
-  $function = sanitize_text_field( $attributes['function']);
-  $columns  = sanitize_text_field( $attributes['columns'] );
+  $units            = sanitize_text_field( $attributes['units'] );
+  $scipers          = sanitize_text_field( $attributes['scipers'] );
+  $doctoral_program = sanitize_text_field( $attributes['doctoral_program'] );
+  $function         = sanitize_text_field( $attributes['function']);
+  $columns          = sanitize_text_field( $attributes['columns'] );
 
   if ($columns !== 'list') {
     $columns = (is_numeric($columns) && intval($columns) <= 3 && intval($columns) >= 1) ? $columns : 3;
   }
 
-  if ("" === $units and "" === $scipers) {
+  if ("" === $units && "" === $scipers && "" === $doctoral_program) {
     return Utils::render_user_msg("People shortcode: Please check required parameters");
   }
 
   if ("" !== $units) { 
     $parameter['units'] = $units;
     $from = 'units';
-  } else {
+  } else if ("" !== $scipers) {
     $parameter['scipers'] = $scipers;
     $from = 'scipers';
-  } 
+  } else {
+    $parameter['progcode'] = $doctoral_program;
+    $from = 'doctoral_program';
+  }
 
   if ("" !== $function) { 
     $function = str_replace(",", "+or+", $function);
@@ -111,9 +115,10 @@ function epfl_people_2018_process_shortcode( $attributes, $content = null )
     $persons[] = $item;
   }
 
-  if ("" !== $units) {
+  if ("" !== $units || "" !== $doctoral_program) {
     // Sort persons list alphabetically when units
     usort($persons, 'epfl_people_person_compare');
+
   } else {
     // Respect given order when sciper
     $scipers =  array_map('intval', explode(',', $parameter['scipers']));
