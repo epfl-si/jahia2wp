@@ -7,10 +7,12 @@ use Prometheus\CollectorRegistry;
 /*
     Save a webservice call duration including source page and timestamp on which call occurs
 
-    @param $url         -> Webservice URL call
-    @param $duration    -> webservice call duration (seconds with microseconds)
+    @param $url             -> Webservice URL call
+    @param $duration        -> webservice call duration (seconds with microseconds)
+    @param $in_local_cache  -> TRUE|FALSE to tell if info was retrieved from local cache (transient) or not.
+                                If TRUE, we set $duration to 0.
 */
-function epfl_stats_webservice_call_duration($url, $duration)
+function epfl_stats_webservice_call_duration($url, $duration, $in_local_cache=false)
 {
     /* If we are in CLI mode, it's useless to update in APC because it's the APC for mgmt container and not httpd
     container */
@@ -29,11 +31,12 @@ function epfl_stats_webservice_call_duration($url, $duration)
                        "priority"       => "INFO",
                        "verb"           => "GET",
                        "code"           => "200",
+                       "localcache"     => ($in_local_cache) ? "hit" : "miss",
                        "src"            => home_url( $wp->request ),
                        "targethost"     => $target_host,
                        "targetpath"     => $url_details['path'],
                        "targetquery"    => (array_key_exists('query', $url_details)) ? $url_details['query'] : "",
-                       "responsetime"   => floor($duration*1000));
+                       "responsetime"   => ($in_local_cache) ? 0 : floor($duration*1000));
 
     $log_file = '/webservices/logs/ws_call_log.'.gethostname().'.'.date("Ymd");
     /* We write in file only if we can open it */
