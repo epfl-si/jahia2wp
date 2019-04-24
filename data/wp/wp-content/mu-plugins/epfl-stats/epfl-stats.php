@@ -28,34 +28,6 @@ function epfl_stats_webservice_call_duration($url, $duration)
     $src = home_url( $wp->request );
     $query = (array_key_exists('query', $url_details))?$url_details['query']:"";
 
-    $adapter = new Prometheus\Storage\APC();
-
-    $registry = new CollectorRegistry($adapter);
-
-
-
-    /* To count time we spend waiting for web services (will disappear in a near future) */
-    $counter = $registry->registerCounter('wp',
-                                          'epfl_shortcode_duration_milliseconds',
-                                          'How long we spend waiting for Web services overall, in milliseconds',
-                                          ['src', 'target_host', 'target_path', 'target_query']);
-
-    $counter->incBy(floor($duration*1000), [$src,
-                                            $target_host,
-                                            $url_details['path'],
-                                            $query]);
-
-    /* To count number of calls to web services */
-    $counter = $registry->registerCounter('wp',
-                                          'epfl_shortcode_ws_call_total',
-                                          'Number of Web service call',
-                                          ['src', 'target_host', 'target_path', 'target_query']);
-
-    $counter->inc([$src,
-                  $target_host,
-                  $url_details['path'],
-                  $query]);
-
     /* JSON logging */
 
     /* Generating date/time in correct format: yyyy-MM-dd'T'HH:mm:ss.SSSZZ (ex: 2019-03-27T12:46:14.078Z ) */
@@ -71,10 +43,12 @@ function epfl_stats_webservice_call_duration($url, $duration)
                        "responsetime"   => floor($duration*1000));
 
     $log_file = '/webservices/logs/ws_call_log.'.gethostname().'.'.date("Ymd");
-    $h = fopen($log_file, 'a');
-    fwrite($h, json_encode($log_array)."\n");
-    fflush($h);
-    fclose($h);
+    /* We write in file only if we can open it */
+    if(($h = fopen($log_file, 'a'))!==false)
+    {
+        fwrite($h, json_encode($log_array)."\n");
+        fclose($h);
+    }
 
 }
 // We register a new action so others plugins can use it to log webservice call duration
