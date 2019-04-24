@@ -24,21 +24,15 @@ function epfl_stats_webservice_call_duration($url, $duration)
     $target_host  = $url_details['scheme']."://".$url_details['host'];
     if(array_key_exists('port', $url_details) && $url_details['port'] != "") $target_host .= ":".$url_details['port'];
 
-    /* Extracting infos */
-    $src = home_url( $wp->request );
-    $query = (array_key_exists('query', $url_details))?$url_details['query']:"";
-
-    /* JSON logging */
-
     /* Generating date/time in correct format: yyyy-MM-dd'T'HH:mm:ss.SSSZZ (ex: 2019-03-27T12:46:14.078Z ) */
     $log_array = array("@timegenerated" => date("Y-m-d\TH:i:s.v\Z"),
                        "priority"       => "INFO",
                        "verb"           => "GET",
                        "code"           => "200",
-                       "src"            => $src,
+                       "src"            => home_url( $wp->request ),
                        "targethost"     => $target_host,
                        "targetpath"     => $url_details['path'],
-                       "targetquery"    => $query,
+                       "targetquery"    => (array_key_exists('query', $url_details)) ? $url_details['query'] : "",
                        "responsetime"   => floor($duration*1000));
 
     $log_file = '/webservices/logs/ws_call_log.'.gethostname().'.'.date("Ymd");
