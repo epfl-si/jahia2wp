@@ -31,8 +31,7 @@ function epfl_stats_webservice_call_duration($url, $duration)
     /* JSON logging */
 
     /* Generating date/time in correct format: yyyy-MM-dd'T'HH:mm:ss.SSSZZ (ex: 2019-03-27T12:46:14.078Z ) */
-    $time_generated = date("Y-m-d\TH:i:s.v\Z");
-    $log_array = array("@timegenerated" => $time_generated,
+    $log_array = array("@timegenerated" => date("Y-m-d\TH:i:s.v\Z"),
                        "priority"       => "INFO",
                        "verb"           => "GET",
                        "code"           => "200",
