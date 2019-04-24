@@ -48,7 +48,7 @@ function epfl_stats_webservice_call_duration($url, $duration, $in_local_cache=fa
 
 }
 // We register a new action so others plugins can use it to log webservice call duration
-add_action('epfl_stats_webservice_call_duration', 'epfl_stats_webservice_call_duration', 10, 2);
+add_action('epfl_stats_webservice_call_duration', 'epfl_stats_webservice_call_duration', 10, 3);
 
 
 /*
