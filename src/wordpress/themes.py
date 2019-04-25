@@ -32,6 +32,8 @@ class WPThemeConfig(WPConfig):
             self.name = 'wp-theme-2018'
         elif theme_name == 'epfl-light':
             self.name = 'wp-theme-light'
+        else:
+            self.name = theme_name
 
         self.faculty = theme_faculty
         self.base_path = os.path.sep.join([self.wp_site.path, self.THEMES_PATH])

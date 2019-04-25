@@ -4,7 +4,7 @@
  * Plugin Name: EPFL Infoscience shortcode
  * Plugin URI: https://github.com/jaepetto/EPFL-SC-Infoscience
  * Description: provides a shortcode to dispay results from Infoscience
- * Version: 1.4
+ * Version: 1.5
  * Author: Emmanuel JAEP
  * Author URI: https://people.epfl.ch/emmanuel.jaep?lang=en
  * Contributors: LuluTchab, GregLeBarbar
@@ -67,6 +67,9 @@ function epfl_infoscience_process_shortcode( $attributes, $content = null )
 
         }
     } else {
+
+        // we tell we're using the cache
+        do_action('epfl_stats_webservice_call_duration', $url, 0, true);
         // Use cache
         return $result;
     }

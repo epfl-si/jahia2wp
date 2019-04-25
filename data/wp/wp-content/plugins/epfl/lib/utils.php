@@ -61,8 +61,10 @@ Class Utils
             /* If we have an URL call result in DB, */
             if ( false !== ( $data = get_transient($transient_id) ) )
             {
-                 /* We return result */
-                 return json_decode($data);
+                /* We tell result has been recovered from transient cache  */
+                do_action('epfl_stats_webservice_call_duration', $url, 0, true);
+                /* We return result */
+                return json_decode($data);
             }
         }
 
