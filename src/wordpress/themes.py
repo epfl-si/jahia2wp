@@ -27,6 +27,7 @@ class WPThemeConfig(WPConfig):
         super(WPThemeConfig, self).__init__(wp_site)
 
         # convert theme name
+        self.name = ''
         if theme_name == 'epfl':
             self.name = 'wp-theme-2018'
         elif theme_name == 'epfl-light':
