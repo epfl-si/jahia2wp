@@ -197,16 +197,15 @@ Class InfoscienceSearchShortCakeConfig
             array(
                 'label' => __('Infoscience search', 'epfl-infoscience-search'),
                 'listItemImage' => '<img src="' . plugins_url( 'img/infoscience-loupe.svg', __FILE__ ) . '" >',
-                'attrs'         => array(
-                    array(
-                        'title'         => __('A direct infoscience URL', 'epfl-infoscience-search'),
-                        'attr'          => 'url',
-                        'type'          => 'epfl-text',
-                        'description'   => '',
-                        'meta'        => array(
+                'inner_content' => array(
+                        'label'        => '<h2>' . __('A direct infoscience URL', 'epfl-infoscience-search') . '</h2>',
+                        'type'         => 'text',
+                        'encode'       => 'true',
+                        'meta'         => array(
                             'placeholder' => esc_html__('a https://infoscience.epfl.ch/search?... url:', 'epfl-infoscience-search'),
-                        ),
+                                ),
                     ),
+                'attrs'         => array(
                     # Content
                     array(
                         'title'         => __('Or, search for', 'epfl-infoscience-search'),
