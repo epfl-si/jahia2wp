@@ -227,7 +227,6 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     $url = null;
 
     if ($content) {
-        error_log('$content : '. var_export($content, true));
         $url = $content;
         $url = str_replace("<p>","", $url);
         $url = str_replace("</p>","", $url);
@@ -246,16 +245,22 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
             return Utils::render_user_msg("Infoscience search shortcode: Please check the url");
         }
 
-        $matches = [];
-        preg_match("/&+of=/",$url,$matches);
-        if ($matches) {
-            $format = 'xm';
-            $replace = 'of=$format$1';
-            $url = preg_replace("/of=[^&]+(.*)/", $replace, $url);
-        } else {
-            $format = '&of=xm';
-            $url .= $format;
+        $parts = parse_url($url);
+        $query = proper_parse_str($parts['query']);
+
+        # override values
+        # set the given url to the good format
+        $query['of'] = 'xm';
+
+        # set default if not already set :
+        if (!array_key_exists('rg', $query)) {
+            $query['rg'] = 1000;
         }
+
+        # use encoded &amp; here, it helps when provided urls are overencoded
+        $query = http_build_query($query, null, '&amp;');
+        $url = preg_replace('/%5B(?:[0-9]|[1-9][0-9]+)%5D=/', '=', $query);
+        $url = INFOSCIENCE_SEARCH_URL . urldecode($url);
     } else {
         # no direct url were provided, build the custom one ourself
         $url = epfl_infoscience_search_generate_url_from_attrs($attributes+$unmanaged_attributes);
