@@ -3,7 +3,7 @@
 /**
  * Plugin Name: EPFL Memento shortcode
  * Description: provides a shortcode to display events feed
- * @version: 1.5
+ * @version: 1.6
  * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
  *
  * Text Domain: epfl-memento
