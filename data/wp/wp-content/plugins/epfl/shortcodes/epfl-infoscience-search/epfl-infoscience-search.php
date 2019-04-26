@@ -233,7 +233,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         $url = str_replace("\n","", $url);
         $url = html_entity_decode($url);
     } elseif (array_key_exists('url', $attributes) && !empty($attributes['url'])) {
-        # we are in the "direct url provided" mode
+        # we are in the "direct url provided" mode, from the attribut
         $url = htmlspecialchars_decode($attributes['url']);
     }
 
@@ -257,8 +257,21 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
             $query['rg'] = 1000;
         }
 
+        if (!array_key_exists('sf', $query)) {
+            $query['sf'] = 'year';
+        }
+
+        if (!array_key_exists('so', $query)) {
+            if ($atts['sort'] === 'asc') {
+                $query['so'] = 'a';
+            } else {
+                $query['so'] = 'd';
+            }
+        }
+
         # use encoded &amp; here, it helps when provided urls are overencoded
         $query = http_build_query($query, null, '&amp;');
+        # from foo[1]=bar1&foo[2]=bar2 to foo[]=bar&foo[]=bar2
         $url = preg_replace('/%5B(?:[0-9]|[1-9][0-9]+)%5D=/', '=', $query);
         $url = INFOSCIENCE_SEARCH_URL . urldecode($url);
     } else {
