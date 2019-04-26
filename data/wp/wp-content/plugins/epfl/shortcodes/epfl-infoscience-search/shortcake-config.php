@@ -173,7 +173,7 @@ Class InfoscienceSearchShortCakeConfig
     }
 
     public static function load_epfl_infoscience_search_wp_admin_js($hook) {
-        wp_enqueue_script( 'epfl-infoscience-search-shortcake-javascript', plugin_dir_url( __FILE__ ) . 'js/epfl-infoscience-search-shortcake.js', array( 'shortcode-ui' ) );
+        wp_enqueue_script( 'epfl-infoscience-search-shortcake-javascript', plugin_dir_url( __FILE__ ) . 'js/epfl-infoscience-search-shortcake.js', 1.1, array( 'shortcode-ui' ) );
     }    
 
     public static function config() 

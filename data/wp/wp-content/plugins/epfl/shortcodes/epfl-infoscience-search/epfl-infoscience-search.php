@@ -230,6 +230,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         $url = $content;
         $url = str_replace("<p>","", $url);
         $url = str_replace("</p>","", $url);
+        $url = str_replace("<br />","", $url);
         $url = str_replace("\n","", $url);
         $url = html_entity_decode($url);
     } elseif (array_key_exists('url', $attributes) && !empty($attributes['url'])) {
@@ -269,10 +270,13 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
             }
         }
 
-        # use encoded &amp; here, it helps when provided urls are overencoded
-        $query = http_build_query($query, null, '&amp;');
+        #DECIDE:
+        # We may use http_build_query($query, null, '&amp;'); when provided urls are overencoded
+        $query = http_build_query($query, null);
+        
         # from foo[1]=bar1&foo[2]=bar2 to foo[]=bar&foo[]=bar2
         $url = preg_replace('/%5B(?:[0-9]|[1-9][0-9]+)%5D=/', '=', $query);
+        
         $url = INFOSCIENCE_SEARCH_URL . urldecode($url);
     } else {
         # no direct url were provided, build the custom one ourself
