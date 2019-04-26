@@ -14,9 +14,9 @@ Class InfoscienceSearchShortCakeConfig
             array('value' => 'unit', 'label' => esc_html__('Unit', 'epfl-infoscience-search')),
             array('value' => 'collection', 'label' => esc_html__('Collection', 'epfl-infoscience-search')),
             array('value' => 'journal', 'label' => esc_html__('Journal', 'epfl-infoscience-search')),
-            array('value' => 'summary', 'label' => esc_html__('Summary', 'epfl-infoscience-search')),
+            array('value' => 'publisher', 'label' => esc_html__('Publisher', 'epfl-infoscience-search')),
+            array('value' => 'abstract', 'label' => esc_html__('Abstract', 'epfl-infoscience-search')),
             array('value' => 'keyword', 'label' => esc_html__('Keyword', 'epfl-infoscience-search')),
-            array('value' => 'issn', 'label' => esc_html__('ISSN', 'epfl-infoscience-search')),
             array('value' => 'doi', 'label' => esc_html__('DOI', 'epfl-infoscience-search')),
         );
     }
