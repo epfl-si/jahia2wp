@@ -255,7 +255,12 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
 
         # set default if not already set :
         if (!array_key_exists('rg', $query) || empty($query['rg'])) {
-            $query['rg'] = 1000;
+            $query['rg'] = '1000';
+        }
+
+        #empty or not, the limit attribute has the last word
+        if (!empty($atts['limit'])) {
+            $query['rg'] = $atts['limit'];
         }
 
         if (!array_key_exists('sf', $query) || empty($query['sf'])) {
@@ -270,8 +275,8 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
             }
         }
 
-        #DECIDE:
         # We may use http_build_query($query, null, '&amp;'); when provided urls are overencoded
+        # looks fine at the moment
         $query = http_build_query($query, null);
         
         # from foo[1]=bar1&foo[2]=bar2 to foo[]=bar&foo[]=bar2

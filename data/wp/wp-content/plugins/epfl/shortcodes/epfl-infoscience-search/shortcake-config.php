@@ -270,7 +270,6 @@ Class InfoscienceSearchShortCakeConfig
                             'placeholder' => 'Search key',
                         ),
                     ),
-
                     # Presentation
                     array(
                         'title'         => esc_html__('Style', 'epfl-infoscience-search'),
@@ -280,6 +279,14 @@ Class InfoscienceSearchShortCakeConfig
                         'options'       => InfoscienceSearchShortCakeConfig::get_format_options(),
                         'description'   => __('Detail level for a publication', 'epfl-infoscience-search'),
                         'value'         => 'short',
+                    ),
+                    array(
+                        'label'         => esc_html__('Limit'),
+                        'attr'          => 'limit',
+                        'type'          => 'epfl-text',
+                        'meta'        => array(
+                            'placeholder' => '1000',
+                        ),
                     ),
                     array(
                         'label'         => esc_html__('Summary', 'epfl-infoscience-search'),
