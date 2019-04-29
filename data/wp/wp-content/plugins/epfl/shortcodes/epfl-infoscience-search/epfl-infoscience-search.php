@@ -254,15 +254,15 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         $query['of'] = 'xm';
 
         # set default if not already set :
-        if (!array_key_exists('rg', $query)) {
+        if (!array_key_exists('rg', $query) || empty($query['rg'])) {
             $query['rg'] = 1000;
         }
 
-        if (!array_key_exists('sf', $query)) {
+        if (!array_key_exists('sf', $query) || empty($query['sf'])) {
             $query['sf'] = 'year';
         }
 
-        if (!array_key_exists('so', $query)) {
+        if (!array_key_exists('so', $query) || empty($query['so'])) {
             if ($atts['sort'] === 'asc') {
                 $query['so'] = 'a';
             } else {
