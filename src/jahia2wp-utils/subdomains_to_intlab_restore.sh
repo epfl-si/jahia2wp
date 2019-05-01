@@ -1,6 +1,6 @@
 #!/bin/sh
 
-Quel est le nom du site ?
+echo "Quel est le nom du site ?"
 read -r site
 
 if [ ${#site} != 0 ]
