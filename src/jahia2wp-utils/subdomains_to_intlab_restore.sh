@@ -1,6 +1,6 @@
 #!/bin/sh
 
-Quel est le nom du site ?
+echo "Quel est le nom du site ?"
 read -r site
 
 if [ ${#site} != 0 ]
@@ -27,13 +27,10 @@ then
 	#Suppression de l'importation des backups
 	rm -rf /tmp/lab-import/_srv_subdomains_$site.epfl.ch_htdocs
 
-
-
-
 	#Changement de .htaccess
 	sed -i "s|RewriteBase /|RewriteBase /labs/$site|g" /srv/int/migration-wp.epfl.ch/htdocs/labs/$site/.htaccess
 
-sed -i "s|RewriteRule . /index.php|RewriteRule . /labs/$site/index.php|g" /srv/int/migration-wp.epfl.ch/htdocs/labs/$site/.htaccess
+	sed -i "s|RewriteRule . /index.php|RewriteRule . /labs/$site/index.php|g" /srv/int/migration-wp.epfl.ch/htdocs/labs/$site/.htaccess
 
 	#Mettre a jour les URL du site
 	wp --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site/ search-replace $site.epfl.ch migration-wp.epfl.ch/labs/$site --skip-columns=guid
@@ -49,7 +46,6 @@ sed -i "s|RewriteRule . /index.php|RewriteRule . /labs/$site/index.php|g" /srv/i
 	(cd /srv/int/migration-wp.epfl.ch/htdocs/labs/$site/wp-content/themes
 	python /tmp/theme_2018/theme_2018.py theme_2018 https://github.com/epfl-idevelop/wp-theme-2018/tree/dev/wp-theme-2018)
 
-	
 	#Activer le theme 2018
 	wp theme activate wp-theme-2018 --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site
 
