@@ -50,8 +50,18 @@ define("INFOSCIENCE_SEARCH_URL", "https://infoscience.epfl.ch/search?");
         return sanitize_text_field($value);
     };
 
+    $sanitize_pattern_field = function($value) {
+        # find if we have an encoded value, and decode it
+        # this code allow retro-compatibility,
+        # as encoding value was not done before
+        if (preg_match('/%[0-9a-f]{2}/i', $value)) {
+            $value = urldecode($value);
+        }
+        return sanitize_text_field($value);
+    };
+
     $map = array(
-        'pattern' => ['p1', $sanitize_text_field],
+        'pattern' => ['p1', $sanitize_pattern_field],
         'field' => ['f1', $convert_fields],
         'limit' => ['rg', function($value) {
             return ($value === '') ? '1000' : $value;
@@ -60,10 +70,10 @@ define("INFOSCIENCE_SEARCH_URL", "https://infoscience.epfl.ch/search?");
             return ($value === 'asc') ? 'a' : 'd';
         }],
         'collection' => ['c', $sanitize_text_field],
-        'pattern2' => ['p2', $sanitize_text_field],
+        'pattern2' => ['p2', $sanitize_pattern_field],
         'field2' => ['f2', $convert_fields],
         'operator2' => ['op1', $convert_operators],
-        'pattern3' => ['p3', $sanitize_text_field],
+        'pattern3' => ['p3', $sanitize_pattern_field],
         'field3' => ['f3', $convert_fields],
         'operator3' => ['op2', $convert_operators],
     );

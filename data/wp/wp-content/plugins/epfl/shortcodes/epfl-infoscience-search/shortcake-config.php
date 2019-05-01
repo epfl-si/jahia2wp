@@ -211,6 +211,7 @@ Class InfoscienceSearchShortCakeConfig
                         'title'         => __('Or, search for', 'epfl-infoscience-search'),
                         'attr'          => 'pattern',
                         'type'          => 'epfl-text',
+                        'encode'        => 'true',
                         'description'   => $pattern_description,
                         'meta'        => array(
                             'placeholder' => esc_html__('Search records for:'),
@@ -248,6 +249,7 @@ Class InfoscienceSearchShortCakeConfig
                     array(
                         'attr'          => 'pattern2',
                         'type'          => 'epfl-text',
+                        'encode'        => 'true',
                         'meta'        => array(
                             'placeholder' => 'Search key',
                         ),  
@@ -266,6 +268,7 @@ Class InfoscienceSearchShortCakeConfig
                     array(
                         'attr'          => 'pattern3',
                         'type'          => 'epfl-text',
+                        'encode'        => 'true',
                         'meta'        => array(
                             'placeholder' => 'Search key',
                         ),
