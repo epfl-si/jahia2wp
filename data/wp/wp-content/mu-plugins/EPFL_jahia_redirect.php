@@ -2,9 +2,10 @@
 /**
  * Plugin Name: Jahia redirection updater
  * Description: Update Jahia redirection (if any) in .htaccess file when a page permalink is updated
- * @version: 1.2
+ * @version: 1.3
  * @copyright: Copyright (c) 2019 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
+
 
 define('JAHIA_REDIRECT_MARKER', 'Jahia-Page-Redirect');
 
@@ -62,6 +63,13 @@ function update_jahia_redirections($post_id, $post_after, $post_before){
 
     /* If function doesn't exists, it means it can be a REST request so we don't do anything */
     if(!function_exists('get_home_path')) return;
+
+    /* Function 'extract_from_markers' seems to now be unavailable in Gutenberg when calling 'post_updated' filter.
+     So if it doesn't exists, workaround is to include file in which it is contained. */
+    if(!function_exists('extract_from_markers'))
+    {
+        require_once(ABSPATH. 'wp-admin/includes/misc.php');
+    }
 
     $htaccess = get_home_path().".htaccess";
 
