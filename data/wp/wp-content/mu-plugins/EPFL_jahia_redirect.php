@@ -64,8 +64,10 @@ function update_jahia_redirections($post_id, $post_after, $post_before){
     /* If function doesn't exists, it means it can be a REST request so we don't do anything */
     if(!function_exists('get_home_path')) return;
 
-    /* Function 'extract_from_markers' seems to now be unavailable in Gutenberg when calling 'post_updated' filter.
-     So if it doesn't exists, workaround is to include file in which it is contained. */
+    /* Function 'extract_from_markers' is not available anymore in Gutenberg when calling 'post_updated' filter.
+    But this happens only if we have 'MainWP Child' plugin enabled... otherwise, it works... don't understand why
+
+    So if it doesn't exists, workaround is to include file in which it is contained. */
     if(!function_exists('extract_from_markers'))
     {
         require_once(ABSPATH. 'wp-admin/includes/misc.php');
