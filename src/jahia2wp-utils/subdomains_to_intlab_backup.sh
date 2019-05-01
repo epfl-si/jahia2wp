@@ -14,7 +14,7 @@ then
 	python ../jahia2wp.py backup subdomains https://$site.epfl.ch
 	echo "fin backup : " $site
 
-	scp -r -P 32222 -o StrictHostKeyChecking=no /backups/temp/_srv_subdomains_$site.epfl.ch_htdocs www-data@test-ssh-wwp.epfl.ch:/tmp/lab-import/
+	scp -r -P 32222 -o StrictHostKeyChecking=no /backups/temp/_srv_subdomains_$site.epfl.ch_htdocs www-data@test-ssh-wwp.epfl.ch:/tmp/lab-import/_srv_subdomains_$site.epfl.ch_htdocs
 
 	rm -rf /backups/temp/_srv_subdomains_$site.epfl.ch_htdocs
 
