@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl-infoscience\n"
-"POT-Creation-Date: 2019-03-26 15:37+0100\n"
-"PO-Revision-Date: 2019-03-26 15:40+0100\n"
+"POT-Creation-Date: 2019-04-26 14:05+0200\n"
+"PO-Revision-Date: 2019-04-26 14:06+0200\n"
 "Last-Translator: Delasoie Julien <julien.delasoie@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -143,17 +143,17 @@ msgstr "Collection"
 msgid "Journal"
 msgstr "Journal"
 
-#: shortcake-config.php:17 shortcake-config.php:286
-msgid "Summary"
-msgstr "Résumé"
+#: shortcake-config.php:17
+msgid "Publisher"
+msgstr "Éditeur"
 
 #: shortcake-config.php:18
-msgid "Keyword"
-msgstr "Mot-clé"
+msgid "Abstract"
+msgstr "Résumé"
 
 #: shortcake-config.php:19
-msgid "ISSN"
-msgstr "ISSN"
+msgid "Keyword"
+msgstr "Mot-clé"
 
 #: shortcake-config.php:20
 msgid "DOI"
@@ -216,61 +216,68 @@ msgstr "Afficher la vignette"
 msgid "Infoscience search"
 msgstr "Recherche Infoscience"
 
-#: shortcake-config.php:202
+#: shortcake-config.php:201
 msgid "A direct infoscience URL"
 msgstr "Un lien direct Infoscience"
 
-#: shortcake-config.php:207
+#: shortcake-config.php:205
 msgid "a https://infoscience.epfl.ch/search?... url:"
 msgstr "lien de type https://infoscience.epfl.ch/search?..."
 
-#: shortcake-config.php:212
+#: shortcake-config.php:211
 msgid "Or, search for"
 msgstr "Ou, rechercher avec :"
 
-#: shortcake-config.php:217
+#: shortcake-config.php:216
 msgid "Search records for:"
 msgstr "Recherche des publications sur :"
 
-#: shortcake-config.php:221
+#: shortcake-config.php:220
 msgid "Field restriction"
 msgstr "Restriction sur un champ"
 
-#: shortcake-config.php:237
+#: shortcake-config.php:236
 msgid "Additional search keys"
 msgstr "Recherche additionnelle"
 
-#: shortcake-config.php:238
+#: shortcake-config.php:237
 msgid "Second search text"
 msgstr "Deuxième recherche"
 
-#: shortcake-config.php:257
+#: shortcake-config.php:256
 msgid "Third search text"
 msgstr "Troisième recherche"
 
-#: shortcake-config.php:277
+#: shortcake-config.php:276
 msgid "Style"
 msgstr "Style"
 
-#: shortcake-config.php:278
+#: shortcake-config.php:277
 msgid "Format"
 msgstr "Format"
 
-#: shortcake-config.php:282
+#: shortcake-config.php:281
 msgid "Detail level for a publication"
 msgstr "Niveau de détail d'une publication"
 
-#: shortcake-config.php:293
+#: shortcake-config.php:285
+msgid "Summary"
+msgstr "Résumé"
+
+#: shortcake-config.php:292
 msgid "Thumbnail"
 msgstr "Vignette"
 
-#: shortcake-config.php:300
+#: shortcake-config.php:299
 msgid "Sort"
 msgstr "Tri"
 
-#: shortcake-config.php:307 shortcake-config.php:313
+#: shortcake-config.php:306 shortcake-config.php:312
 msgid "Group by"
 msgstr "Groupement"
+
+#~ msgid "ISSN"
+#~ msgstr "ISSN"
 
 #~ msgid "Search for"
 #~ msgstr "Recherche"

@@ -4,7 +4,7 @@
  * Plugin Name: EPFL Infoscience search shortcode
  * Plugin URI: https://github.com/epfl-idevelop/jahia2wp
  * Description: provides a shortcode to search and dispay results from Infoscience
- * Version: 1.7
+ * Version: 1.8
  * Author: Julien Delasoie
  * Author URI: https://people.epfl.ch/julien.delasoie?lang=en
  * Contributors: 
@@ -21,19 +21,6 @@ require_once 'group_by.php';
 require_once 'mathjax-config.php';
 
 define("INFOSCIENCE_SEARCH_URL", "https://infoscience.epfl.ch/search?");
-
-function epfl_infoscience_search_url_exists( $url )
-{
-    $handle = curl_init( $url );
-    curl_setopt($handle, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
-
-    $response = curl_exec( $handle );
-    $httpCode = curl_getinfo( $handle, CURLINFO_HTTP_CODE );
-    curl_close($handle);
-
-    return ( $httpCode >= 200 && $httpCode <= 400 );
-}
 
  /**
   * From any attributes, set them as url parameters for Infoscience
@@ -63,8 +50,18 @@ function epfl_infoscience_search_url_exists( $url )
         return sanitize_text_field($value);
     };
 
+    $sanitize_pattern_field = function($value) {
+        # find if we have an encoded value, and decode it
+        # this code allow retro-compatibility,
+        # as encoding value was not done before
+        if (preg_match('/%[0-9a-f]{2}/i', $value)) {
+            $value = urldecode($value);
+        }
+        return sanitize_text_field($value);
+    };
+
     $map = array(
-        'pattern' => ['p1', $sanitize_text_field],
+        'pattern' => ['p1', $sanitize_pattern_field],
         'field' => ['f1', $convert_fields],
         'limit' => ['rg', function($value) {
             return ($value === '') ? '1000' : $value;
@@ -73,10 +70,10 @@ function epfl_infoscience_search_url_exists( $url )
             return ($value === 'asc') ? 'a' : 'd';
         }],
         'collection' => ['c', $sanitize_text_field],
-        'pattern2' => ['p2', $sanitize_text_field],
+        'pattern2' => ['p2', $sanitize_pattern_field],
         'field2' => ['f2', $convert_fields],
         'operator2' => ['op1', $convert_operators],
-        'pattern3' => ['p3', $sanitize_text_field],
+        'pattern3' => ['p3', $sanitize_pattern_field],
         'field3' => ['f3', $convert_fields],
         'operator3' => ['op2', $convert_operators],
     );
@@ -231,20 +228,75 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     $debug_template = $attributes['debug_template'];
     unset($attributes['debug_template']);
 
-    if (array_key_exists('url', $attributes) && !empty($attributes['url'])) {
-        # we are in the "direct url provided" mode
+    /**
+    * Url priority :
+    * 1. inner content
+    * 2. url attribute
+    * 3. with all the attributes, we built a custom one
+    */
+    $url = null;
+
+    if ($content) {
+        $url = $content;
+        $url = str_replace("<p>","", $url);
+        $url = str_replace("</p>","", $url);
+        $url = str_replace("<br />","", $url);
+        $url = str_replace("\n","", $url);
+        $url = str_replace("’","'", $url);
+        $url = html_entity_decode($url);
+    } elseif (array_key_exists('url', $attributes) && !empty($attributes['url'])) {
+        # we are in the "direct url provided" mode, from the attribut
         $url = htmlspecialchars_decode($attributes['url']);
+    }
+
+    if ($url) {
+        $url = trim($url);
+        # assert it is an infoscience one : 
+        if (preg_match('#^https?://infoscience.epfl.ch/#i', $url) !== 1) {
+            $error = new WP_Error( 'not found', 'The url passed is not an Infoscience url', $url );
+            return Utils::render_user_msg("Infoscience search shortcode: Please check the url");
+        }
+
         $parts = parse_url($url);
         $query = proper_parse_str($parts['query']);
 
         # override values
         # set the given url to the good format
         $query['of'] = 'xm';
+        $query['as'] = '1';
 
-        $query = http_build_query($query, null, '&');
+        # set default if not already set :
+        if (!array_key_exists('rg', $query) || empty($query['rg'])) {
+            $query['rg'] = '1000';
+        }
+
+        #empty or not, the limit attribute has the last word
+        if (!empty($atts['limit'])) {
+            $query['rg'] = $atts['limit'];
+        }
+
+        if (!array_key_exists('sf', $query) || empty($query['sf'])) {
+            $query['sf'] = 'year';
+        }
+
+        if (!array_key_exists('so', $query) || empty($query['so'])) {
+            if ($atts['sort'] === 'asc') {
+                $query['so'] = 'a';
+            } else {
+                $query['so'] = 'd';
+            }
+        }
+
+        # We may use http_build_query($query, null, '&amp;'); when provided urls are overencoded
+        # looks fine at the moment
+        $query = http_build_query($query, null);
+        
+        # from foo[1]=bar1&foo[2]=bar2 to foo[]=bar&foo[]=bar2
         $url = preg_replace('/%5B(?:[0-9]|[1-9][0-9]+)%5D=/', '=', $query);
+        
         $url = INFOSCIENCE_SEARCH_URL . urldecode($url);
     } else {
+        # no direct url were provided, build the custom one ourself
         $url = epfl_infoscience_search_generate_url_from_attrs($attributes+$unmanaged_attributes);
     }
 
@@ -283,66 +335,59 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     
     # not in cache ?
     if ($page === false || $debug_data || $debug_template){
-        if (epfl_infoscience_search_url_exists( $url ) ) {
+        $start = microtime(true);
+        $response = wp_remote_get( $url );
+        $end = microtime(true);
 
-            $start = microtime(true);
-            $response = wp_remote_get( $url );
-            $end = microtime(true);
+        // logging call
+        do_action('epfl_stats_webservice_call_duration', $url, $end-$start);
 
-            // logging call
-            do_action('epfl_stats_webservice_call_duration', $url, $end-$start);
+        if ( is_wp_error( $response ) ) {
+            $error_message = $response->get_error_message();
+            echo "Something went wrong: $error_message";
+            } else {
+            $marc_xml = wp_remote_retrieve_body( $response );
 
+            $publications = InfoscienceMarcConverter::convert_marc_to_array($marc_xml);
 
-            if ( is_wp_error( $response ) ) {
-                $error_message = $response->get_error_message();
-                echo "Something went wrong: $error_message";
-             } else {
-                $marc_xml = wp_remote_retrieve_body( $response );
+            $grouped_by_publications = InfoscienceGroupBy::do_group_by($publications, $group_by, $group_by2, $attributes['sort']);
 
-                $publications = InfoscienceMarcConverter::convert_marc_to_array($marc_xml);
-
-                $grouped_by_publications = InfoscienceGroupBy::do_group_by($publications, $group_by, $group_by2, $attributes['sort']);
-
-                if ($debug_data) {
-                    $page = RawInfoscienceRender::render($grouped_by_publications, $url);
-                    return $page;
-                }
-
-                # try to load render from 2018 theme if available
-                if (has_filter("epfl_infoscience_search_action")) {
-                    $page = apply_filters("epfl_infoscience_search_action", $grouped_by_publications,
-                                                                $url,
-                                                                $format,
-                                                                $summary,
-                                                                $thumbnail,
-                                                                $debug_template);
-                } else {
-                    # use the self renderer
-                    $page = ClassesInfoscienceRender::render($grouped_by_publications,
-                                                             $url,
-                                                             $format,
-                                                             $summary,
-                                                             $thumbnail,
-                                                             $debug_template);
-                }
-
-                // wrap the page, and add config as html comment
-                $html_verbose_comments = '<!-- epfl_infoscience_search params : ' . var_export($before_unset_attributes, true) .  ' //-->';
-                $html_verbose_comments .= '<!-- epfl_infoscience_search built url :'. var_export($url, true) . ' //-->';
-
-                $page = '<div class="infoscienceBox container no-tex2jax_process">' . $html_verbose_comments . $page . '</div>';
-
-                $page .= epfl_infoscience_search_get_mathjax_config();
-
-                // cache the result
-                wp_cache_set( $cache_key, $page, 'epfl_infoscience_search' );
-
-                // return the page
+            if ($debug_data) {
+                $page = RawInfoscienceRender::render($grouped_by_publications, $url);
                 return $page;
             }
-        } else {
-            $error = new WP_Error( 'not found', 'The url passed is not found', $url );
-            return Utils::render_user_msg("Infoscience search shortcode: Please check the url");
+
+            # try to load render from 2018 theme if available
+            if (has_filter("epfl_infoscience_search_action")) {
+                $page = apply_filters("epfl_infoscience_search_action", $grouped_by_publications,
+                                                            $url,
+                                                            $format,
+                                                            $summary,
+                                                            $thumbnail,
+                                                            $debug_template);
+            } else {
+                # use the self renderer
+                $page = ClassesInfoscienceRender::render($grouped_by_publications,
+                                                            $url,
+                                                            $format,
+                                                            $summary,
+                                                            $thumbnail,
+                                                            $debug_template);
+            }
+
+            // wrap the page, and add config as html comment
+            $html_verbose_comments = '<!-- epfl_infoscience_search params : ' . var_export($before_unset_attributes, true) .  ' //-->';
+            $html_verbose_comments .= '<!-- epfl_infoscience_search used url :'. var_export($url, true) . ' //-->';
+
+            $page = '<div class="infoscienceBox container no-tex2jax_process">' . $html_verbose_comments . $page . '</div>';
+
+            $page .= epfl_infoscience_search_get_mathjax_config();
+
+            // cache the result
+            wp_cache_set( $cache_key, $page, 'epfl_infoscience_search' );
+
+            // return the page
+            return $page;
         }
     } else {
         // To tell we're using the cache

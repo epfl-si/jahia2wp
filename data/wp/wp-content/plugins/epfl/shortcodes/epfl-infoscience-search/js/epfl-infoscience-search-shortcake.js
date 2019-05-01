@@ -81,6 +81,8 @@ jQuery( document ).ready( function( $ ) {
         wp.shortcake.hooks.addAction( 'shortcode-ui.render_edit', function(shortcodeModel) {
             // are we in an infoscience shortcake ?
             if ($(".shortcode-ui-edit-epfl_infoscience_search")[0]){
+                // fix Tinymce being applied on #inner_content
+                $("#inner_content").attr("id", "inner_pas_content");
                 // Set group by
                 set_group_by_dynamic();
 
@@ -95,6 +97,8 @@ jQuery( document ).ready( function( $ ) {
         } );
         wp.shortcake.hooks.addAction( 'shortcode-ui.render_new', function() {
             if ($(".shortcode-ui-edit-epfl_infoscience_search")[0]){
+                // fix Tinymce being applied on #inner_content
+                $("#inner_content").attr("id", "inner_pas_content");
                 set_group_by_dynamic();
 
                 var group_by = $("select[name='group_by']");
