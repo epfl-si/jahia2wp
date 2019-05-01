@@ -263,6 +263,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         # override values
         # set the given url to the good format
         $query['of'] = 'xm';
+        $query['as'] = '1';
 
         # set default if not already set :
         if (!array_key_exists('rg', $query) || empty($query['rg'])) {
