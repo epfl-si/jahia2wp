@@ -232,6 +232,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         $url = str_replace("</p>","", $url);
         $url = str_replace("<br />","", $url);
         $url = str_replace("\n","", $url);
+        $url = str_replace("’","'", $url);
         $url = html_entity_decode($url);
     } elseif (array_key_exists('url', $attributes) && !empty($attributes['url'])) {
         # we are in the "direct url provided" mode, from the attribut
