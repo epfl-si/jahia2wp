@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# Check parameters
-
-
-
-
 OUTFILE="/tmp/_srv_unm"
 
 if [ -e ${OUTFILE} ]
