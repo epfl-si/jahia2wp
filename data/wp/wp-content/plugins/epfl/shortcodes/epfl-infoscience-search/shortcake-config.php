@@ -14,9 +14,9 @@ Class InfoscienceSearchShortCakeConfig
             array('value' => 'unit', 'label' => esc_html__('Unit', 'epfl-infoscience-search')),
             array('value' => 'collection', 'label' => esc_html__('Collection', 'epfl-infoscience-search')),
             array('value' => 'journal', 'label' => esc_html__('Journal', 'epfl-infoscience-search')),
-            array('value' => 'summary', 'label' => esc_html__('Summary', 'epfl-infoscience-search')),
+            array('value' => 'publisher', 'label' => esc_html__('Publisher', 'epfl-infoscience-search')),
+            array('value' => 'abstract', 'label' => esc_html__('Abstract', 'epfl-infoscience-search')),
             array('value' => 'keyword', 'label' => esc_html__('Keyword', 'epfl-infoscience-search')),
-            array('value' => 'issn', 'label' => esc_html__('ISSN', 'epfl-infoscience-search')),
             array('value' => 'doi', 'label' => esc_html__('DOI', 'epfl-infoscience-search')),
         );
     }
@@ -173,7 +173,7 @@ Class InfoscienceSearchShortCakeConfig
     }
 
     public static function load_epfl_infoscience_search_wp_admin_js($hook) {
-        wp_enqueue_script( 'epfl-infoscience-search-shortcake-javascript', plugin_dir_url( __FILE__ ) . 'js/epfl-infoscience-search-shortcake.js', array( 'shortcode-ui' ) );
+        wp_enqueue_script( 'epfl-infoscience-search-shortcake-javascript', plugin_dir_url( __FILE__ ) . 'js/epfl-infoscience-search-shortcake.js', 1.1, array( 'shortcode-ui' ) );
     }    
 
     public static function config() 
@@ -197,21 +197,21 @@ Class InfoscienceSearchShortCakeConfig
             array(
                 'label' => __('Infoscience search', 'epfl-infoscience-search'),
                 'listItemImage' => '<img src="' . plugins_url( 'img/infoscience-loupe.svg', __FILE__ ) . '" >',
-                'attrs'         => array(
-                    array(
-                        'title'         => __('A direct infoscience URL', 'epfl-infoscience-search'),
-                        'attr'          => 'url',
-                        'type'          => 'epfl-text',
-                        'description'   => '',
-                        'meta'        => array(
+                'inner_content' => array(
+                        'label'        => '<h2>' . __('A direct infoscience URL', 'epfl-infoscience-search') . '</h2>',
+                        'type'         => 'text',
+                        'encode'       => 'true',
+                        'meta'         => array(
                             'placeholder' => esc_html__('a https://infoscience.epfl.ch/search?... url:', 'epfl-infoscience-search'),
-                        ),
+                                ),
                     ),
+                'attrs'         => array(
                     # Content
                     array(
                         'title'         => __('Or, search for', 'epfl-infoscience-search'),
                         'attr'          => 'pattern',
                         'type'          => 'epfl-text',
+                        'encode'        => 'true',
                         'description'   => $pattern_description,
                         'meta'        => array(
                             'placeholder' => esc_html__('Search records for:'),
@@ -249,6 +249,7 @@ Class InfoscienceSearchShortCakeConfig
                     array(
                         'attr'          => 'pattern2',
                         'type'          => 'epfl-text',
+                        'encode'        => 'true',
                         'meta'        => array(
                             'placeholder' => 'Search key',
                         ),  
@@ -267,11 +268,11 @@ Class InfoscienceSearchShortCakeConfig
                     array(
                         'attr'          => 'pattern3',
                         'type'          => 'epfl-text',
+                        'encode'        => 'true',
                         'meta'        => array(
                             'placeholder' => 'Search key',
                         ),
                     ),
-
                     # Presentation
                     array(
                         'title'         => esc_html__('Style', 'epfl-infoscience-search'),
@@ -281,6 +282,14 @@ Class InfoscienceSearchShortCakeConfig
                         'options'       => InfoscienceSearchShortCakeConfig::get_format_options(),
                         'description'   => __('Detail level for a publication', 'epfl-infoscience-search'),
                         'value'         => 'short',
+                    ),
+                    array(
+                        'label'         => esc_html__('Limit'),
+                        'attr'          => 'limit',
+                        'type'          => 'epfl-text',
+                        'meta'        => array(
+                            'placeholder' => '1000',
+                        ),
                     ),
                     array(
                         'label'         => esc_html__('Summary', 'epfl-infoscience-search'),
