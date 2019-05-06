@@ -64,9 +64,6 @@ vars: check-env
 	@echo '  JAHIA_PASSWORD=${JAHIA_PASSWORD}'
 	@echo '  JAHIA_HOST=${JAHIA_HOST}'
 
-pull: check-env
-	docker-compose pull
-
 up: check-env
 	@WP_ENV=${WP_ENV} \
 		MYSQL_DB_HOST=${MYSQL_DB_HOST} \
