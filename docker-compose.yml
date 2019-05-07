@@ -18,11 +18,6 @@ services:
       volumes:
       - /sessions
 
-  wp-base:
-    # We use build info available in another cloned repository : https://github.com/epfl-idevelop/wp-ops/
-    # TODO: Read domq's comment on PR https://github.com/epfl-idevelop/jahia2wp/pull/800 and determine what can be done
-    build: ../wp-ops/docker/wp-base
-
   httpd:
     container_name: jahia2wp-httpd
     # We use build info available in another cloned repository : https://github.com/epfl-idevelop/wp-ops/
@@ -30,6 +25,7 @@ services:
     build: ../wp-ops/docker/httpd
     labels:
       ch.epfl.jahia2wp.httpd.env: ${WP_ENV}
+    image: epflidevelop/wp-ops-httpd
     volumes:
       - ./volumes/srv:/srv
     links:
@@ -39,12 +35,11 @@ services:
     ports:
       - "${WP_PORT_HTTP}:8080"
       - "${WP_PORT_HTTPS}:8443"
-    depends_on:
-      - wp-base
 
   mgmt:
     labels:
       ch.epfl.jahia2wp.mgmt.env: ${WP_ENV}
+    image: epflidevelop/wp-ops-mgmt
     # We use build info available in another cloned repository : https://github.com/epfl-idevelop/wp-ops/
     # TODO: Read domq's comment on PR https://github.com/epfl-idevelop/jahia2wp/pull/800 and determine what can be done
     build: ../wp-ops/docker/mgmt
@@ -66,5 +61,3 @@ services:
       - .env:/srv/${WP_ENV}/jahia2wp/.env
     ports:
       - "${WP_PORT_SSHD}:22"
-    depends_on:
-      - wp-base
