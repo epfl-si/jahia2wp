@@ -64,7 +64,11 @@ vars: check-env
 	@echo '  JAHIA_PASSWORD=${JAHIA_PASSWORD}'
 	@echo '  JAHIA_HOST=${JAHIA_HOST}'
 
-up: check-env
+build: check-env
+	docker build -t epflidevelop/os-wp-base ../wp-ops/docker/wp-base
+	docker-compose build
+
+up: build
 	@WP_ENV=${WP_ENV} \
 		MYSQL_DB_HOST=${MYSQL_DB_HOST} \
 		MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
