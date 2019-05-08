@@ -471,8 +471,10 @@ add_filter('epfl_rest_rewrite_connect_to', function($hostport, $url) {
         } else {
             return "httpd-www:8443";
         }
-    } elseif ($hostport === "jahia2wp-httpd:443") {
+    } elseif ($hostport === "jahia2wp-httpd:443") {  # "Old" jahia2wp dev env
         return "jahia2wp-httpd:8443";
+    } elseif ($hostport === "wp-httpd:443") {        # wp-dev
+        return "wp-httpd:8443";
     } else {
         return $hostport;
     }
