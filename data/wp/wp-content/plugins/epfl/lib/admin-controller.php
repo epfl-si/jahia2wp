@@ -19,6 +19,8 @@ if (! defined('ABSPATH')) {
  * be shown after the browser navigates to another page. Errors are
  * per-user and per-page (as materialized by the $slug argument
  * to @link publish and subscribe)
+ *
+ * This is a "pure static" class; no instances are ever constructed.
  */
 
 class TransientError
@@ -33,7 +35,7 @@ class TransientError
      *              i.e. a logged-in user won't see someone else's errors
      *              even if they are published with the same $slug.
      */
-    function publish ($slug, $error) {
+    static function publish ($slug, $error) {
         $transient_key = static::_privatify_slug($slug);
         $errors = get_transient($transient_key);
         if (! $errors) {
@@ -51,7 +53,7 @@ class TransientError
      * Add slag to $slug so that our transients are private per user,
      * and don't collide with other Wordpress transients.
      */
-    function _privatify_slug ($slug) {
+    static function _privatify_slug ($slug) {
         $me = get_current_user_id();
         return "epfl:TransientError:$me:$slug";
     }
@@ -70,7 +72,7 @@ class TransientError
      * @param $render_callback The render function to pass the errors to.
      *                         Defaults to @link render
      */
-    function subscribe ($slug, $render_callback = NULL) {
+    static function subscribe ($slug, $render_callback = NULL) {
         $thisclass = get_called_class();
         if (! $render_callback) {
             $render_callback = array($thisclass, 'render');
@@ -88,7 +90,7 @@ class TransientError
         }
     }
 
-    private function _do_fetch_and_render ($slug, $render_callback) {
+    private static function _do_fetch_and_render ($slug, $render_callback) {
         $transient_key = static::_privatify_slug($slug);
         if ($errors = get_transient($transient_key)) {
             foreach ($errors as $error) {
@@ -104,7 +106,7 @@ class TransientError
      * @param $error Either a string, or an array with keys 'level'
      * and 'msg'.
      */
-    function render ($error) {
+    static function render ($error) {
         if (! is_array($error)) {
             $error = array(
                 'level' => 'error',
