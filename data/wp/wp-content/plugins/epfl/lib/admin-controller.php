@@ -209,7 +209,7 @@ abstract class CustomPostTypeController extends Controller
      * By default, the class method "render_${slug}_column" will be called
      * to render the contents of the column.
      *
-     * @return an instance of @link _CustomPostTypeControllerColumn
+     * @return _CustomPostTypeControllerColumn
      */
     static function column ($slug) {
         if (! static::$_columns[$slug]) {
