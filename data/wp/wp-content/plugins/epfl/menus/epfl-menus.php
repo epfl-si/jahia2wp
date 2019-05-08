@@ -1305,7 +1305,7 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
                 return;  // independent hence immutable
             }
 
-            $menu_contents = RESTClient::GET_JSON($get_url);
+            $menu_contents = @RESTClient::GET_JSON($get_url);
             $this->set_remote_menu($menu_contents->items);
 
             $this->meta()->set_last_synced(time());

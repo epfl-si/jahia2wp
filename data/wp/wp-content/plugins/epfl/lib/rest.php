@@ -234,6 +234,13 @@ class RESTClient
         return $this;  // Chainable
     }
 
+    /**
+     * Retrieve and return a JSON datastructure using an HTTP GET request.
+     *
+     * This function may be called both as an instance method or
+     * a class method. Prepend "@" to a static call to get rid of
+     * the PHP notice.
+     */
     function GET_JSON ($url) {
         if (! isset($this)) {
             return (new static())->GET_JSON($url);
@@ -243,6 +250,13 @@ class RESTClient
         return HALJSON::decode((new _RESTRequestCurl($url, 'GET'))->execute());
     }
 
+    /**
+     * POST $data as JSON, await and return the answer (decoded from JSON)
+     *
+     * This function may be called both as an instance method or
+     * a class method. Prepend "@" to a static call to get rid of
+     * the PHP notice.
+     */
     function POST_JSON ($url, $data) {
         if (! isset($this)) {
             return (new static())->POST_JSON($url, $data);
@@ -255,6 +269,10 @@ class RESTClient
     /**
      * Like @link POST_JSON, but "fire and forget" i.e. do not wait
      * for a response.
+     *
+     * This function may be called both as an instance method or
+     * a class method. Prepend "@" to a static call to get rid of
+     * the PHP notice.
      */
     function POST_JSON_ff ($url, $data) {
         if (! isset($this)) {
