@@ -193,8 +193,8 @@ class MenuItemBag
         $copy = $this->copy();
         foreach ($copy->items as $id => &$item) {
             foreach ($attributes as $k) {
-                if ($src_items[$id]->$k) {
-                    $item->$k = $src_items[$id]->$k;
+                if ($v = @$src_items[$id]->$k) {
+                    $item->$k = $v;
                 }
             }
         }
@@ -367,7 +367,7 @@ class MenuItemBag
                 } else {
                     $ancestor_ids[$ancestor_id] = 1;
                 }
-                if ($pruned[$ancestor_id]) continue 2;
+                if (array_key_exists($ancestor_id, $pruned)) continue 2;
             }
             $remaining[] = $rc;
         }
@@ -444,7 +444,7 @@ class MenuItemBag
     }
 
     function get_parent ($item) {
-        return $this->items[$this->_get_parent_id($item)];
+        return @$this->items[$this->_get_parent_id($item)];
     }
 
     private function _get_id ($item) {
@@ -477,7 +477,7 @@ class MenuItemBag
     }
 
     private function _is_current ($item) {
-        return $item->current;
+        return @$item->current;
     }
 
     private function _MUTATE_reset_current_ancestry_status ($item) {
