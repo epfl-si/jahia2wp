@@ -581,7 +581,7 @@ class MenuItemBag
             $orig_id        = $this->_get_id       ($item);
             $orig_parent_id = $this->_get_parent_id($item);
             foreach (array($orig_id, $orig_parent_id) as $old_id) {
-                if ($old_id and ! $translation_table[$old_id]) {
+                if ($old_id and ! array_key_exists($old_id, $translation_table)) {
                     $translation_table[$old_id] = $next_id--;
                 }
             }
