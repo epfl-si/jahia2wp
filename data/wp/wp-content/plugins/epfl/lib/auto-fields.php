@@ -154,7 +154,7 @@ class AutoFieldsController {
         foreach (AutoFields::of($this->model_class)->get() as $key) {
             echo "<tr><td>$key</td>\n";
             // All meta keys are single-valued
-            $value = $meta[$key][0];
+            $value = array_key_exists($key, $meta) ? $meta[$key][0] : NULL;
             if (preg_match('/^.*-(.*?)$/', $key, $matched)
                 and method_exists($this, $method = ("render_meta_field_td_" .
                                                     $matched[1])))

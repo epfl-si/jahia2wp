@@ -300,7 +300,7 @@ class _RESTRequestBase
     }
 
     protected function _get_connect_to () {
-        if (! $this->_connect_to) {
+        if (! isset($this->_connect_to)) {
             $host = parse_url($this->url, PHP_URL_HOST);
             $port = parse_url($this->url, PHP_URL_PORT);
             if (! $port) {
@@ -372,7 +372,7 @@ class _RESTRequestCurl extends _RESTRequestBase {
         }
         curl_setopt($ch, CURLOPT_HTTPHEADER, $curl_headers);
 
-        if ($this->body) {
+        if (isset($this->body)) {
             curl_setopt($ch, CURLOPT_POSTFIELDS, $this->body);
         }
 

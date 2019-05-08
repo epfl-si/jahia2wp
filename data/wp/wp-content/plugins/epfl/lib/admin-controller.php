@@ -219,7 +219,7 @@ abstract class CustomPostTypeController extends Controller
         return $_columns[$slug];
     }
 
-    function get_post_type ()
+    static function get_post_type ()
     {
         $model_class = static::get_model_class();
         return $model_class::get_post_type();
@@ -552,9 +552,8 @@ class _CustomPostTypeControllerColumn
 
     function _filter_manage_sortable_columns ($columns)
     {
-        if ($this->sort_opts) {
-            $columns[$this->slug] = $this->slug;
-        }
+        if (! property_exists($this, 'sort_opts')) return;
+        $columns[$this->slug] = $this->slug;
         return $columns;
     }
 

@@ -71,7 +71,7 @@ class SubscribeController
 
     static private $subs = array();
     private static function by_slug ($slug) {
-        if (! static::$subs[$slug]) {
+        if (! array_key_exists($slug, static::$subs)) {
             static::$subs[$slug] = new SubscribeController($slug);
         }
         return static::$subs[$slug];
