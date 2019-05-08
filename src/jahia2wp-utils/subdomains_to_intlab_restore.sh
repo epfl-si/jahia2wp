@@ -49,13 +49,13 @@ then
 	#Activer le theme 2018
 	wp theme activate wp-theme-2018 --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site
 
-
 	#Suppression de theme_2018.py
 	rm -r /tmp/theme_2018
 	
 	#Desintallations des plugins 2010
 	wp plugin uninstall --deactivate --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site enlighter
 	wp plugin uninstall --deactivate --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site EPFL-FAQ
+	wp plugin uninstall --deactivate --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site epfl-faq
 	wp plugin uninstall --deactivate --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site epfl-google-forms
 	wp plugin uninstall --deactivate --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site epfl-grid
 	wp plugin uninstall --deactivate --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site epfl-infoscience
@@ -83,5 +83,31 @@ then
 	#Fix plugins 2010 -> 2018
 	/srv/int/venv/bin/python /srv/int/jahia2wp/src/jahia2wp.py shortcode-fix int https://migration-wp.epfl.ch/labs/$site/ 
 
+	#Mettre le resultat de la requete SQL dans un fichier .txt
+        wp db query 'SELECT ID, post_date, post_content, post_title, post_name, post_status FROM wp_posts WHERE post_content like "%[epfl_infoscience %" and post_type="page" and post_status = "publish"' --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/${site} > /tmp/contenu_des_pages_${site}.txt
+        
+	#Savoir quelles sont les pages qui contiennent l'ancien plugin infoscience
+        myfile="/tmp/contenu_des_pages_${site}.txt"
+        while IFS=$'\t' read -r -a myArray
+        do
+        	html=${myArray[2]}
+		pos=`echo $html | grep -bo "epfl_infoscience"| sed 's/:.*$//'`		
+		
+		if [ -z "$pos" ]
+                then
+                        echo ""
+                else
+			poss=( $pos )
+               		nbr=${#poss[@]}
+
+                	for (( i=0; i<$nbr; i++ ))
+                	do
+				echo ${myArray[0]} ${myArray[4]} ${html:${poss[i]}:80}
+                	done
+                fi
+        done < "$myfile"
+	
+	#Supprimer le fichier .txt
+	rm -r /tmp/contenu_des_pages_${site}.txt	
 fi
 
