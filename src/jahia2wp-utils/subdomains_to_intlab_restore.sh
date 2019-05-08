@@ -27,13 +27,10 @@ then
 	#Suppression de l'importation des backups
 	rm -rf /tmp/lab-import/_srv_subdomains_$site.epfl.ch_htdocs
 
-
-
-
 	#Changement de .htaccess
 	sed -i "s|RewriteBase /|RewriteBase /labs/$site|g" /srv/int/migration-wp.epfl.ch/htdocs/labs/$site/.htaccess
 
-sed -i "s|RewriteRule . /index.php|RewriteRule . /labs/$site/index.php|g" /srv/int/migration-wp.epfl.ch/htdocs/labs/$site/.htaccess
+	sed -i "s|RewriteRule . /index.php|RewriteRule . /labs/$site/index.php|g" /srv/int/migration-wp.epfl.ch/htdocs/labs/$site/.htaccess
 
 	#Mettre a jour les URL du site
 	wp --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site/ search-replace $site.epfl.ch migration-wp.epfl.ch/labs/$site --skip-columns=guid
@@ -49,10 +46,8 @@ sed -i "s|RewriteRule . /index.php|RewriteRule . /labs/$site/index.php|g" /srv/i
 	(cd /srv/int/migration-wp.epfl.ch/htdocs/labs/$site/wp-content/themes
 	python /tmp/theme_2018/theme_2018.py theme_2018 https://github.com/epfl-idevelop/wp-theme-2018/tree/dev/wp-theme-2018)
 
-	
 	#Activer le theme 2018
 	wp theme activate wp-theme-2018 --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site
-
 
 	#Suppression de theme_2018.py
 	rm -r /tmp/theme_2018
@@ -60,6 +55,7 @@ sed -i "s|RewriteRule . /index.php|RewriteRule . /labs/$site/index.php|g" /srv/i
 	#Desintallations des plugins 2010
 	wp plugin uninstall --deactivate --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site enlighter
 	wp plugin uninstall --deactivate --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site EPFL-FAQ
+	wp plugin uninstall --deactivate --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site epfl-faq
 	wp plugin uninstall --deactivate --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site epfl-google-forms
 	wp plugin uninstall --deactivate --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site epfl-grid
 	wp plugin uninstall --deactivate --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site epfl-infoscience
@@ -87,5 +83,31 @@ sed -i "s|RewriteRule . /index.php|RewriteRule . /labs/$site/index.php|g" /srv/i
 	#Fix plugins 2010 -> 2018
 	/srv/int/venv/bin/python /srv/int/jahia2wp/src/jahia2wp.py shortcode-fix int https://migration-wp.epfl.ch/labs/$site/ 
 
+	#Mettre le resultat de la requete SQL dans un fichier .txt
+        wp db query 'SELECT ID, post_date, post_content, post_title, post_name, post_status FROM wp_posts WHERE post_content like "%[epfl_infoscience %" and post_type="page" and post_status = "publish"' --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/${site} > /tmp/contenu_des_pages_${site}.txt
+        
+	#Savoir quelles sont les pages qui contiennent infoscience
+        myfile="/tmp/contenu_des_pages_${site}.txt"
+        while IFS=$'\t' read -r -a myArray
+        do
+               	html=${myArray[2]}
+		pos=`echo $html | grep -bo "epfl_infoscience"| sed 's/:.*$//'`
+
+		if [ -z "$pos" ]
+                then
+                        echo ""
+                else
+			poss=( $pos )
+               		nbr=${#poss[@]}
+
+                	for (( i=0; i<$nbr; i++ ))
+                	do
+				echo ${myArray[0]} ${myArray[4]} ${html:${poss[i]}:80}
+                	done
+                fi
+        done < "$myfile"
+
+        #Supprimer le fichier .txt
+	rm -r /tmp/contenu_des_pages_${site}.txt
 fi
 
