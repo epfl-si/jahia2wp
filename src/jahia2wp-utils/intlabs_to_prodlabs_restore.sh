@@ -17,7 +17,6 @@ then
 
 	#Search and replace du site en int vers prod
 	wp search-replace migration-wp.epfl.ch/labs/${site} www.epfl.ch/labs/${site} --path=/srv/labs/www.epfl.ch/htdocs/labs/${site} --skip-columns=guid	
-	
 	#Supprimer les fichiers temporaires de backup sur la prod
 	rm /tmp/${site}.sql
 	rm /tmp/${site}.tar.gz
@@ -32,7 +31,11 @@ then
 	
 	#Activer tous les plugins
 	wp plugin activate --all --path=/srv/labs/www.epfl.ch/htdocs/labs/${site}
-
+	
+	#Optimisation les medias du site
+        wp ewwwio optimize all --noprompt --path=/srv/labs/www.epfl.ch/htdocs/labs/${site}
+        wp media regenerate --only-missing --yes --path=/srv/labs/www.epfl.ch/htdocs/labs/${site}
+		
 	#Mettre l'ancien site dans le sandbox
 	#Deplacer les fichiers du site
 	mv /srv/subdomains/${site}.epfl.ch/htdocs /srv/sandbox/archive-wp.epfl.ch/htdocs/${site}
