@@ -458,7 +458,7 @@ class _RESTRequestSocketFireAndForget extends _RESTRequestBase {
         }
 
         $host = parse_url($this->url, PHP_URL_HOST);
-        if ($port = parse_url($this->$url, PHP_URL_PORT)) {
+        if ($port = parse_url($this->url, PHP_URL_PORT)) {
             $hostheader = "$host:$port";
         } else {
             $hostheader = "$host";
