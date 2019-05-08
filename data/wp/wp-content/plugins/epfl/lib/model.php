@@ -341,10 +341,11 @@ class _PostMeta {
      * currently writing to.
      */
     function _update_meta_auto_fields () {
-        if ($this->_meta_auto_fields_done) return;
+        if (isset($this->_meta_auto_fields_done)) return;
         require_once(__DIR__ . '/auto-fields.php');
         \EPFL\AutoFields\AutoFields::of($this->_owner_class)->append(
             array_values($this->_meta_accessors));
+        $this->_meta_auto_fields_done = TRUE;
     }
 }
 
