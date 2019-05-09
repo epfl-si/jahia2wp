@@ -66,6 +66,7 @@ then
 	wp plugin uninstall --deactivate --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site epfl-people
 	wp plugin uninstall --deactivate --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site epfl-scheduler
 	wp plugin uninstall --deactivate --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site EPFL-Snippet
+	wp plugin uninstall --deactivate --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site epfl-snippet
 	wp plugin uninstall --deactivate --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site epfl-tableau
 	wp plugin uninstall --deactivate --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site epfl-toggle
 	wp plugin uninstall --deactivate --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site epfl-twitter
