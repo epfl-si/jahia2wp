@@ -552,8 +552,9 @@ class _CustomPostTypeControllerColumn
 
     function _filter_manage_sortable_columns ($columns)
     {
-        if (! property_exists($this, 'sort_opts')) return;
-        $columns[$this->slug] = $this->slug;
+        if (isset($this->sort_ops)) {
+            $columns[$this->slug] = $this->slug;
+        }
         return $columns;
     }
 
