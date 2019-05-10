@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "Quel est le nom du site ?"
 read -r site
@@ -47,7 +47,7 @@ then
 	python /tmp/theme_2018/theme_2018.py theme_2018 https://github.com/epfl-idevelop/wp-theme-2018/tree/dev/wp-theme-2018)
 
 	#Activer le theme 2018
-	wp theme activate wp-theme-2018 --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site
+	wp theme activate theme_2018 --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site
 
 	#Suppression de theme_2018.py
 	rm -r /tmp/theme_2018
