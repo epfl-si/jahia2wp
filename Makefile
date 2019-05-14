@@ -64,10 +64,11 @@ vars: check-env
 	@echo '  JAHIA_PASSWORD=${JAHIA_PASSWORD}'
 	@echo '  JAHIA_HOST=${JAHIA_HOST}'
 
-pull: check-env
-	docker-compose pull
+build: check-env
+	docker build -t epflidevelop/os-wp-base ../wp-ops/docker/wp-base
+	docker-compose build
 
-up: check-env
+up: build
 	@WP_ENV=${WP_ENV} \
 		MYSQL_DB_HOST=${MYSQL_DB_HOST} \
 		MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
@@ -118,7 +119,7 @@ disconnect-OS:
 	@oc logout
 
 new-route: connect-OS
-	@bin/new-route.sh -s httpd-$(WP_ENV) -h $(site) | oc -n wwp create -f - 
+	@bin/new-route.sh -s httpd-$(WP_ENV) -h $(site) | oc -n wwp create -f -
 
 delete-route: connect-OS
 	@oc delete route httpd-$${site%%.*}
@@ -128,4 +129,3 @@ config-debugger:
 	@docker cp ~/.ssh/id_rsa.pub  $(_mgmt_container):/var/www/.ssh/authorized_keys
 	@docker exec -it $(_mgmt_container) /bin/chmod 644 /var/www/.ssh/authorized_keys
 	@docker exec -it $(_mgmt_container) /bin/chown www-data:www-data /var/www/.ssh/authorized_keys
-
