@@ -44,10 +44,10 @@ then
 	chmod +x theme_2018.py)
 
 	(cd /srv/int/migration-wp.epfl.ch/htdocs/labs/$site/wp-content/themes
-	python /tmp/theme_2018/theme_2018.py theme_2018 https://github.com/epfl-idevelop/wp-theme-2018/tree/dev/wp-theme-2018)
+	python /tmp/theme_2018/theme_2018.py wp-theme-2018 https://github.com/epfl-idevelop/wp-theme-2018/tree/dev/wp-theme-2018)
 
 	#Activer le theme 2018
-	wp theme activate theme_2018 --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site
+	wp theme activate wp-theme-2018 --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site
 
 	#Suppression de theme_2018.py
 	rm -r /tmp/theme_2018
