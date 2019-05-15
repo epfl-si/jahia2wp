@@ -138,6 +138,7 @@ class MenuItemBag
         $current_ancestors = array();
         foreach ($current_items as $item) {
             $current_parent_id = $this->_get_parent_id($item);
+            if (! $current_parent_id) continue;
             if (! ($current_parent = $this->items[$current_parent_id])) continue;
             $this->_MUTATE_make_parent_of_current($current_parent);
 
@@ -192,8 +193,8 @@ class MenuItemBag
         $copy = $this->copy();
         foreach ($copy->items as $id => &$item) {
             foreach ($attributes as $k) {
-                if ($src_items[$id]->$k) {
-                    $item->$k = $src_items[$id]->$k;
+                if ($v = @$src_items[$id]->$k) {
+                    $item->$k = $v;
                 }
             }
         }
@@ -366,7 +367,7 @@ class MenuItemBag
                 } else {
                     $ancestor_ids[$ancestor_id] = 1;
                 }
-                if ($pruned[$ancestor_id]) continue 2;
+                if (array_key_exists($ancestor_id, $pruned)) continue 2;
             }
             $remaining[] = $rc;
         }
@@ -443,7 +444,7 @@ class MenuItemBag
     }
 
     function get_parent ($item) {
-        return $this->items[$this->_get_parent_id($item)];
+        return @$this->items[$this->_get_parent_id($item)];
     }
 
     private function _get_id ($item) {
@@ -476,7 +477,7 @@ class MenuItemBag
     }
 
     private function _is_current ($item) {
-        return $item->current;
+        return @$item->current;
     }
 
     private function _MUTATE_reset_current_ancestry_status ($item) {
@@ -581,7 +582,7 @@ class MenuItemBag
             $orig_id        = $this->_get_id       ($item);
             $orig_parent_id = $this->_get_parent_id($item);
             foreach (array($orig_id, $orig_parent_id) as $old_id) {
-                if ($old_id and ! $translation_table[$old_id]) {
+                if ($old_id and ! array_key_exists($old_id, $translation_table)) {
                     $translation_table[$old_id] = $next_id--;
                 }
             }
@@ -662,7 +663,7 @@ class Menu
         $all = array();
         foreach (MenuMapEntry::all() as $entry) {
             $menu = $entry->get_menu();
-            if (! $all[$menu->get_term_id()]) {
+            if (! array_key_exists($menu->get_term_id(), $all)) {
                 $all[$menu->get_term_id()] = $menu;
             }
         }
@@ -1036,7 +1037,7 @@ class MenuMapEntry
         // current language.
         foreach (get_nav_menu_locations() as $theme_location => $term_id) {
             if (! $term_id) continue;
-            if (! $registered[$theme_location]) continue;
+            if (! array_key_exists($theme_location, $registered)) continue;
             $all[] = new $thisclass(
                 $term_id, $theme_location,
                 /* $description = */ $registered[$theme_location],
@@ -1304,7 +1305,7 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
                 return;  // independent hence immutable
             }
 
-            $menu_contents = RESTClient::GET_JSON($get_url);
+            $menu_contents = @RESTClient::GET_JSON($get_url);
             $this->set_remote_menu($menu_contents->items);
 
             $this->meta()->set_last_synced(time());
@@ -1460,7 +1461,7 @@ class MenuRESTController
     static private $pubs = array();
     static private function _get_publish_controller ($menu) {
         $term_id = $menu->get_term_id();
-        if (! static::$pubs[$term_id]) {
+        if (! array_key_exists($term_id, static::$pubs)) {
             static::$pubs[$term_id] = new PublishController(
                 static::_get_subscribe_uri($menu));
         }
@@ -1733,17 +1734,18 @@ class MenuItemController extends CustomPostTypeController
 
     static function render_date_column ($emi) {
         $ss = $emi->get_sync_status();
+        $echoed_something = FALSE;
         if ($ss->failing_since) {
             printf('<span class="epfl-menus-sync-failing">%s</span>',
                    sprintf(___('Failing for %s'),
                            human_time_diff($ss->failing_since)));
-            $echoed_something = 1;
+            $echoed_something = TRUE;
         }
         if ($ss->last_success) {
             if ($echoed_something) { echo '<br/>'; }
             printf('Last sync success: %s ago',
                    human_time_diff($ss->last_success));
-            $echoed_something = 1;
+            $echoed_something = TRUE;
         }
         if (! $echoed_something) {
             echo ___('Never synced yet');
@@ -1784,7 +1786,7 @@ class _MenusJSApp
         (new Asset("menus/epfl-menus-admin.css"))->enqueue_style();
         add_action('admin_print_footer_scripts', function() {
             $screen = array('base' => get_current_screen()->base);
-            if ($_REQUEST['post_type']) {
+            if (array_key_exists('post_type', $_REQUEST)) {
                 $screen['post_type'] = $_REQUEST['post_type'];
             }
             echo "\n<script>\n";
@@ -1820,7 +1822,7 @@ window.wp.translations = {
  */
 class MenuEditorController
 {
-    function hook () {
+    static function hook () {
         add_action('admin_enqueue_scripts', function() {
             if (get_current_screen()->base === 'nav-menus') {
                 _MenusJSApp::load();
@@ -1921,7 +1923,7 @@ class MenuFrontendController
         $menu_term_id = (int) (is_object($menu) ?
                                $menu->term_id   : $menu);
 
-        return MenuMapEntry
+        return @MenuMapEntry
             ::find(array('menu_term_id' => $menu_term_id))
             ->first_preferred(array('language' => get_current_language()));
     }

@@ -71,7 +71,7 @@ class SubscribeController
 
     static private $subs = array();
     private static function by_slug ($slug) {
-        if (! static::$subs[$slug]) {
+        if (! array_key_exists($slug, static::$subs)) {
             static::$subs[$slug] = new SubscribeController($slug);
         }
         return static::$subs[$slug];
@@ -168,7 +168,7 @@ class SubscribeController
             $sub->get_entrypoint_uri());
 
         try {
-            RESTClient::POST_JSON(
+            @RESTClient::POST_JSON(
                 $remote_url,
                 array(
                     "subscriber_id" => $this->_get_subscriber_id(),
@@ -496,9 +496,9 @@ class _Subscriber extends WPDBModel
         // it would save.
         try {
             if ($is_sync) {
-                RESTClient::POST_JSON($url, $payload);
+                @RESTClient::POST_JSON($url, $payload);
             } else {
-                RESTClient::POST_JSON_ff($url, $payload);
+                @RESTClient::POST_JSON_ff($url, $payload);
             }
             $this->mark_success();
         } catch (RESTClientError $e) {

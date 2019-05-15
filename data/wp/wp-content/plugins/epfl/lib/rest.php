@@ -234,6 +234,13 @@ class RESTClient
         return $this;  // Chainable
     }
 
+    /**
+     * Retrieve and return a JSON datastructure using an HTTP GET request.
+     *
+     * This function may be called both as an instance method or
+     * a class method. Prepend "@" to a static call to get rid of
+     * the PHP notice.
+     */
     function GET_JSON ($url) {
         if (! isset($this)) {
             return (new static())->GET_JSON($url);
@@ -243,6 +250,13 @@ class RESTClient
         return HALJSON::decode((new _RESTRequestCurl($url, 'GET'))->execute());
     }
 
+    /**
+     * POST $data as JSON, await and return the answer (decoded from JSON)
+     *
+     * This function may be called both as an instance method or
+     * a class method. Prepend "@" to a static call to get rid of
+     * the PHP notice.
+     */
     function POST_JSON ($url, $data) {
         if (! isset($this)) {
             return (new static())->POST_JSON($url, $data);
@@ -255,6 +269,10 @@ class RESTClient
     /**
      * Like @link POST_JSON, but "fire and forget" i.e. do not wait
      * for a response.
+     *
+     * This function may be called both as an instance method or
+     * a class method. Prepend "@" to a static call to get rid of
+     * the PHP notice.
      */
     function POST_JSON_ff ($url, $data) {
         if (! isset($this)) {
@@ -300,7 +318,7 @@ class _RESTRequestBase
     }
 
     protected function _get_connect_to () {
-        if (! $this->_connect_to) {
+        if (! isset($this->_connect_to)) {
             $host = parse_url($this->url, PHP_URL_HOST);
             $port = parse_url($this->url, PHP_URL_PORT);
             if (! $port) {
@@ -372,7 +390,7 @@ class _RESTRequestCurl extends _RESTRequestBase {
         }
         curl_setopt($ch, CURLOPT_HTTPHEADER, $curl_headers);
 
-        if ($this->body) {
+        if (isset($this->body)) {
             curl_setopt($ch, CURLOPT_POSTFIELDS, $this->body);
         }
 
@@ -440,7 +458,7 @@ class _RESTRequestSocketFireAndForget extends _RESTRequestBase {
         }
 
         $host = parse_url($this->url, PHP_URL_HOST);
-        if ($port = parse_url($this->$url, PHP_URL_PORT)) {
+        if ($port = parse_url($this->url, PHP_URL_PORT)) {
             $hostheader = "$host:$port";
         } else {
             $hostheader = "$host";
@@ -471,8 +489,10 @@ add_filter('epfl_rest_rewrite_connect_to', function($hostport, $url) {
         } else {
             return "httpd-www:8443";
         }
-    } elseif ($hostport === "jahia2wp-httpd:443") {
+    } elseif ($hostport === "jahia2wp-httpd:443") {  # "Old" jahia2wp dev env
         return "jahia2wp-httpd:8443";
+    } elseif ($hostport === "wp-httpd:443") {        # wp-dev
+        return "wp-httpd:8443";
     } else {
         return $hostport;
     }

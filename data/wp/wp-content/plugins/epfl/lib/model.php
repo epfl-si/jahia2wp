@@ -177,7 +177,7 @@ abstract class Post
      * handle that explicitly as well.)
      */
     function meta () {
-        if (! $this->_meta) {
+        if (! isset($this->_meta)) {
             $this->_meta = new _PostMeta(get_called_class(), $this->ID);
         }
         return $this->_meta;
@@ -341,10 +341,11 @@ class _PostMeta {
      * currently writing to.
      */
     function _update_meta_auto_fields () {
-        if ($this->_meta_auto_fields_done) return;
+        if (isset($this->_meta_auto_fields_done)) return;
         require_once(__DIR__ . '/auto-fields.php');
         \EPFL\AutoFields\AutoFields::of($this->_owner_class)->append(
             array_values($this->_meta_accessors));
+        $this->_meta_auto_fields_done = TRUE;
     }
 }
 
@@ -543,7 +544,7 @@ class _WPQueryBuilder
 
     function by_meta ($meta_array)
     {
-        if (! $this->query["meta_query"]) {
+        if (! array_key_exists("meta_query", $this->query)) {
             $this->query["meta_query"] = array('relation' => 'AND');
         }
 
