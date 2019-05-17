@@ -54,9 +54,11 @@ then
 	wp search-replace ${site}.epfl.ch archive-wp.epfl.ch/${site} --path=/srv/sandbox/archive-wp.epfl.ch/htdocs/${site}
 
 	#Activer le coming soon et changer le texte du coming soon
-	wp option patch update seed_csp4_settings_content status 1 --path=/srv/sandbox/archive-wp.epfl.ch/htdocs/${site}
-	wp option patch update seed_csp4_settings_content headline "Archive "${site} --path=/srv/sandbox/archive-wp.epfl.ch/htdocs/${site}
-		
+        cp activation_coming-soon_archive /tmp/activation_coming-soon_archive_${site}
+        sed -i "s|sitename|${site}|g" /tmp/activation_coming-soon_archive_${site}
+        wp option update seed_csp4_settings_content --format=json --path=/srv/sandbox/archive-wp.epfl.ch/htdocs/${site} < /tmp/activation_coming-soon_archive_${site}
+        rm /tmp/activation_coming-soon_archive_${site}	
+	
 	#Supprimer le plugin mainwp child
 	wp plugin deactivate mainwp-child --path=/srv/sandbox/archive-wp.epfl.ch/htdocs/${site}
 	wp plugin delete mainwp-child --path=/srv/sandbox/archive-wp.epfl.ch/htdocs/${site}
