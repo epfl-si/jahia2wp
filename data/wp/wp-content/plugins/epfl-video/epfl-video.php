@@ -3,7 +3,7 @@
 /**
  * Plugin Name: EPFL Video
  * Description: provides a shortcode to display video from YouTube and SwitchTube
- * @version: 1.3
+ * @version: 1.4
  * @copyright: Copyright (c) 2018 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
@@ -11,6 +11,18 @@ require_once 'shortcake-config.php';
 
 function epfl_video_get_final_video_url($url)
 {
+
+    /* Generating unique transient ID. We cannot directly use URL (and replace some characters) because we are
+    limited to 172 characters for transient identifiers (https://codex.wordpress.org/Transients_API) */
+    $transient_id = 'epfl_'.md5($url);
+
+    /* If we have an URL call result in DB, */
+    if ( false !== ( $data = get_transient($transient_id) ) )
+    {
+        /* We return result */
+        return $data;
+    }
+
     $ch = curl_init();
     // the url to request
     curl_setopt( $ch, CURLOPT_URL, $url );
@@ -36,6 +48,9 @@ function epfl_video_get_final_video_url($url)
     }
     // close the resource
     curl_close( $ch );
+
+    /* Caching result for 1 week because it won't change a lot  */
+    set_transient($transient_id, $res, 3600*24*7);
 
     return $res;
 }
