@@ -645,13 +645,21 @@ class WPGenerator:
             for dir_path in settings.WP_DIRS:
                 path = os.path.join(self.wp_site.path, dir_path)
                 if os.path.exists(path):
-                    shutil.rmtree(path)
+                    # Directory removal is different if it is symlinked
+                    if os.path.islink(path):
+                        os.unlink(path)
+                    else:
+                        shutil.rmtree(path)
 
             # clean files
             for file_path in settings.WP_FILES:
                 path = os.path.join(self.wp_site.path, file_path)
                 if os.path.exists(path):
-                    os.remove(path)
+                    # File removal is different if it is symlinked
+                    if os.path.islink(path):
+                        os.unlink(path)
+                    else:
+                        os.remove(path)
 
         # handle case where no wp_config found
         except (ValueError, subprocess.CalledProcessError) as err:
