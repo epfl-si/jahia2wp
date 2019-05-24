@@ -659,8 +659,8 @@ class WPGenerator:
             for file_path in settings.WP_FILES:
                 path = os.path.join(self.wp_site.path, file_path)
                 if os.path.exists(path):
-                    
-                    # Directory removal is different if it is symlinked
+
+                    # file removal is different if it is symlinked
                     if os.path.islink(path):
                         os.unlink(path)
                     else:
