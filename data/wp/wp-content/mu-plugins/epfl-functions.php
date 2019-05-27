@@ -3,7 +3,7 @@
  * Plugin Name: EPFL Functions
  * Plugin URI: 
  * Description: Must-use plugin for the EPFL website.
- * Version: 0.0.7
+ * Version: 0.0.8
  * Author: Aline Keller
  * Author URI: http://www.alinekeller.ch
  */
@@ -452,4 +452,19 @@ function epfl_2018_add_allowed_tags($tags)
     return $tags;
 }
 add_filter('wp_kses_allowed_html', 'epfl_2018_add_allowed_tags');
+
+
+/* Deregister all styles which are not necessary for visitor pages
+    https://www.wpbeginner.com/wp-tutorials/how-wordpress-plugins-affect-your-sites-load-time/
+*/
+function epfl_deregister_visitor_styles()
+{
+    if(!is_admin())
+    {
+        wp_deregister_style( 'varnish_http_purge-css' );
+        wp_deregister_style( 'wpmf-material-design-iconic-font.min-css' );
+    }
+}
+add_action( 'wp_print_styles', 'epfl_deregister_visitor_styles', 100 );
+
 ?>
