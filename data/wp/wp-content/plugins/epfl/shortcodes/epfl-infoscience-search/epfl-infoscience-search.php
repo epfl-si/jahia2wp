@@ -260,30 +260,37 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         $parts = parse_url($url);
         $query = proper_parse_str($parts['query']);
 
+        #
         # override values
+
         # set the given url to the good format
         $query['of'] = 'xm';
-        $query['as'] = '1';
 
-        # set default if not already set :
-        if (!array_key_exists('rg', $query) || empty($query['rg'])) {
-            $query['rg'] = '1000';
-        }
+        # when it is a basket, dont touch the args, only the of one :
+        if (!array_key_exists('bskid', $query) || empty($query['bskid'])) {
 
-        #empty or not, the limit attribute has the last word
-        if (!empty($atts['limit'])) {
-            $query['rg'] = $atts['limit'];
-        }
+            $query['as'] = '1';
 
-        if (!array_key_exists('sf', $query) || empty($query['sf'])) {
-            $query['sf'] = 'year';
-        }
+            # set default if not already set :
+            if (!array_key_exists('rg', $query) || empty($query['rg'])) {
+                $query['rg'] = '1000';
+            }
 
-        if (!array_key_exists('so', $query) || empty($query['so'])) {
-            if ($atts['sort'] === 'asc') {
-                $query['so'] = 'a';
-            } else {
-                $query['so'] = 'd';
+            #empty or not, the limit attribute has the last word
+            if (!empty($atts['limit'])) {
+                $query['rg'] = $atts['limit'];
+            }
+
+            if (!array_key_exists('sf', $query) || empty($query['sf'])) {
+                $query['sf'] = 'year';
+            }
+
+            if (!array_key_exists('so', $query) || empty($query['so'])) {
+                if ($atts['sort'] === 'asc') {
+                    $query['so'] = 'a';
+                } else {
+                    $query['so'] = 'd';
+                }
             }
         }
 
