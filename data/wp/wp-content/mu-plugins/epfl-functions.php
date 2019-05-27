@@ -235,8 +235,12 @@ add_shortcode('colored-box', 'colored_box');
 
 --------------------------------------------------------------*/
 
-/* CloudFlare doesn't like the Polylang cookie (or any cookie) */
-define('PLL_COOKIE', false);
+/* CloudFlare doesn't like the Polylang cookie (or any cookie);
+ * however, we still want the homepage to use it (and bypass all
+ * caches). */
+if (site_url() != "https://www.epfl.ch") {
+    define('PLL_COOKIE', false);
+}
 
 /*
     If we have 302 redirection on local address, we transform them to 303 to avoid CloudFlare to cache
