@@ -3,7 +3,7 @@
  * Plugin Name: EPFL Functions
  * Plugin URI: 
  * Description: Must-use plugin for the EPFL website.
- * Version: 0.0.7
+ * Version: 0.0.8
  * Author: Aline Keller
  * Author URI: http://www.alinekeller.ch
  */
@@ -452,4 +452,24 @@ function epfl_2018_add_allowed_tags($tags)
     return $tags;
 }
 add_filter('wp_kses_allowed_html', 'epfl_2018_add_allowed_tags');
+
+/*
+    Deregister all styles which are not necessary for visitor pages
+    Based on information found here (section "Disable Plugin Stylesheets in WordPress"):
+    https://www.wpbeginner.com/wp-tutorials/how-wordpress-plugins-affect-your-sites-load-time/
+    But there's a mistake in the procedure. The CSS ids cannot be used directly to do the job, you have
+    to remove the "-css" at the end because it is automatically added by WordPress but the initial
+    name used to register style. And to deregister, you have to use the name used to register it
+*/
+function epfl_deregister_visitor_styles()
+{
+    if(!is_admin())
+    {
+        wp_dequeue_style( 'varnish_http_purge' );
+        wp_deregister_style( 'varnish_http_purge' );
+        wp_dequeue_style( 'wpmf-material-design-iconic-font.min' );
+        wp_deregister_style( 'wpmf-material-design-iconic-font.min' );
+    }
+}
+add_action( 'wp_enqueue_scripts', 'epfl_deregister_visitor_styles', 100 );
 ?>
