@@ -4,7 +4,7 @@
  * Plugin Name: EPFL Infoscience search shortcode
  * Plugin URI: https://github.com/epfl-idevelop/jahia2wp
  * Description: provides a shortcode to search and dispay results from Infoscience
- * Version: 1.8
+ * Version: 1.9
  * Author: Julien Delasoie
  * Author URI: https://people.epfl.ch/julien.delasoie?lang=en
  * Contributors: 
