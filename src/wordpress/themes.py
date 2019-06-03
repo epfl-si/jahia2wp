@@ -1,9 +1,12 @@
 import os
 import settings
+import logging
 import shutil
+import zipfile
 from io import BytesIO
 from zipfile import ZipFile
 from urllib.request import urlopen
+from utils import Utils
 
 from .config import WPConfig
 
@@ -73,18 +76,52 @@ class WPThemeConfig(WPConfig):
     def install(self, force_reinstall=False):
         """
         Install and activate 2018 theme
+
+        To do this, we download archive from GitHub (where theme last version is located), we extract it and then
+        we create a new ZIP file per theme we want to install and we finally use WP-CLI command to install from
+        created ZIP files.
+        In the past, we use to just copy the extracted themes files to the correct location but we lose the possibility
+        to symlink it if it exists in WordPress image. WP-CLI has been modified to handle theme installation and create
+        symlink if needed so we need to use WP-CLI command to install themes to make this work.
+        But this code will still work, even if we don't have a modified WP-CLI version.
         """
         zip_url = "https://github.com/epfl-idevelop/wp-theme-2018/archive/master.zip"
         zip_base_name = 'wp-theme-2018-master/'
 
-        # unzip in memor
+        logging.debug("Downloading themes package...")
+        # unzip in memory
         resp = urlopen(zip_url)
         with ZipFile(BytesIO(resp.read())) as zipObj:
             zipObj.extractall(path=self.base_path)
 
-        # clean the extracted mess, aka correct folders and remove unused one
-        shutil.move(os.path.join(self.base_path, zip_base_name, 'wp-theme-2018'),
-                    os.path.join(self.base_path, 'wp-theme-2018'))
-        shutil.move(os.path.join(self.base_path, zip_base_name, 'wp-theme-light'),
-                    os.path.join(self.base_path, 'wp-theme-light'))
+        # Get current working directory to come back here after compress operation.
+        initial_working_dir = os.getcwd()
+
+        # Going into theme parent directory to have only theme folder in ZIP file (otherwise, we have full path
+        # to theme directory...)
+        os.chdir(os.path.join(self.base_path, zip_base_name))
+
+        for theme_name in ['wp-theme-2018', 'wp-theme-light']:
+
+            logging.debug("Installing theme %s...", theme_name)
+
+            # Generating ZIP file name
+            zip_name = "{}.{}.zip".format(theme_name, Utils.generate_name(10))
+            # We put zip file in the same directory as all extracted files
+            zip_full_path = os.path.join(self.base_path, zip_name)
+            theme_zip = zipfile.ZipFile(zip_full_path, 'w', zipfile.ZIP_DEFLATED)
+
+            for root, dirs, files in os.walk(theme_name):
+                for file in files:
+                    theme_zip.write(os.path.join(root, file))
+
+            theme_zip.close()
+
+            force_option = "--force" if force_reinstall else ""
+            command = "theme install {} {} ".format(force_option, zip_full_path)
+            self.run_wp_cli(command)
+
+        os.chdir(initial_working_dir)
+
+        # clean the extracted mess and generated zip files, aka correct folders and remove unused one
         shutil.rmtree(os.path.join(self.base_path, zip_base_name))
