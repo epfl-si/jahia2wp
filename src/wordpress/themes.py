@@ -121,7 +121,10 @@ class WPThemeConfig(WPConfig):
             command = "theme install {} {} ".format(force_option, zip_full_path)
             self.run_wp_cli(command)
 
+            # Cleaning ZIP file
+            os.remove(zip_full_path)
+
         os.chdir(initial_working_dir)
 
-        # clean the extracted mess and generated zip files, aka correct folders and remove unused one
+        # clean the extracted mess, aka correct folders and remove unused one
         shutil.rmtree(os.path.join(self.base_path, zip_base_name))
