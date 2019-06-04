@@ -1079,7 +1079,7 @@ def shortcode_fix_many(csv_file, shortcode_name=None, **kwargs):
 
 
 @dispatch.on('inventory')
-def inventory(path, skip_users=False **kwargs):
+def inventory(path, skip_users=False, **kwargs):
     logging.info("Building inventory...")
     print(";".join(['path', 'valid', 'url', 'version', 'db_name', 'db_user', 'admins']))
     for site_details in WPConfig.inventory(path, skip_users):
