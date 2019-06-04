@@ -276,8 +276,9 @@ class WPConfig:
 
             # fetch all values
             raw_infos = self.run_wp_cli('user list --format=csv')
+            # If no user found, we initialise an empty list
             if not raw_infos:
-                raise ValueError("Could not get list of users for {}".format(self.wp_site.path))
+                raw_infos = []
 
             # reformat output from wp cli
             self._user_infos = {}
