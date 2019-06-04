@@ -899,7 +899,7 @@ def backup_inventory(path, dry_run=False, **kwargs):
         logging.info("! DRY RUN !")
     logging.info("Backup from inventory...")
 
-    for site_details in WPConfig.inventory(path, include_users=False):
+    for site_details in WPConfig.inventory(path, skip_users=True):
 
         if site_details.valid == settings.WP_SITE_INSTALL_OK:
 
