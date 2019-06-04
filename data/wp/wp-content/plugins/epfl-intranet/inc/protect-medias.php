@@ -1,7 +1,9 @@
 <?PHP
+    /* We have to define this to avoid any problems coming from WordPress website being symlinked */
+    if ( ! defined( 'ABSPATH' ) )
+	    define( 'ABSPATH', dirname( __FILE__ ) . '/../../../../' );
+
     require_once('../../../../wp-load.php');
-
-
 
     if (!is_user_logged_in())
     {
