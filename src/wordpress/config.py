@@ -113,7 +113,12 @@ class WPConfig:
         command = "option list --search={} --format=csv --field=option_name".format(option_name)
         return self.run_wp_cli(command) is not True
 
-    def run_wp_cli(self, command, encoding=sys.getdefaultencoding(), pipe_input=None, extra_options=None):
+    def run_wp_cli(self,
+                   command,
+                   encoding=sys.getdefaultencoding(),
+                   pipe_input=None,
+                   extra_options=None,
+                   no_retries=False):
         """
         Execute a WP-CLI command. The command doesn't have to start with 'wp '. It will be added automatically, and
         it's the same for --path option.
@@ -123,6 +128,7 @@ class WPConfig:
         encoding -- encoding to use
         pipe_input -- Elements to give to the command using a pipe (ex: echo "elem" | wp command ...)
         extra_options -- display json in standard input. This json is used by wpcli commands
+        no_retries -- if True, won't retry the command if it fails
         """
         cmd = ""
 
@@ -140,11 +146,14 @@ class WPConfig:
         if pipe_input:
             cmd += "'"
 
-        for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
+        # Defining max retries
+        max_tries = 1 if no_retries else settings.WP_CLI_AND_API_NB_TRIES
+
+        for try_no in range(max_tries):
             try:
                 return Utils.run_command(cmd, encoding=encoding)
             except Exception as e:
-                if try_no < settings.WP_CLI_AND_API_NB_TRIES-1:
+                if not no_retries and try_no < settings.WP_CLI_AND_API_NB_TRIES-1:
                     logging.error("Run WPCLI error. Retry %s in %s sec...",
                                   try_no+1,
                                   settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
@@ -174,7 +183,7 @@ class WPConfig:
         """
         if not self.is_installed:
             return False
-        return self.run_wp_cli('core is-installed')
+        return self.run_wp_cli('core is-installed', no_retries=True)
 
     @property
     def is_install_valid(self):
