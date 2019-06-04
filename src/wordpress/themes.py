@@ -1,9 +1,10 @@
 import os
 import shutil
-
+import zipfile
 import settings
 
 from .config import WPConfig
+from utils import Utils
 
 
 class WPThemeConfig(WPConfig):
@@ -43,27 +44,50 @@ class WPThemeConfig(WPConfig):
         command_output = self.run_wp_cli(command)
         return False if command_output is True else self.name in command_output
 
-    @classmethod
-    def install_all(cls, wp_site):
+    def install_all(self):
         """
         Install all themes
-
-        Argument keywords:
-        wp_site -- Instance of class WPSite
         """
+        # Directory creation if not exists
+        if not os.path.exists(settings.THEME_ZIP_PATH):
+            os.makedirs(settings.THEME_ZIP_PATH)
+
         # Generate path to source themes folder
-        src_theme_path = os.path.sep.join([settings.WP_FILES_PATH, cls.THEMES_PATH])
+        src_theme_path = os.path.sep.join([settings.WP_FILES_PATH, self.THEMES_PATH])
+
+        # Get current working directory to come back here after compress operation.
+        initial_working_dir = os.getcwd()
+
+        # Going into theme parent directory to have only theme folder in ZIP file (otherwise, we have full path
+        # to theme directory...)
+        os.chdir(src_theme_path)
 
         # Looping through folder elements
         for theme_folder in os.listdir(src_theme_path):
-            # Generate path to current element
-            current_theme_path = os.path.join(src_theme_path, theme_folder)
-            # If current element is a directory, it is a theme
-            if os.path.isdir(current_theme_path):
 
-                # Copy current theme files into wp-content/themes
-                shutil.copytree(current_theme_path,
-                                os.path.sep.join([wp_site.path, cls.THEMES_PATH, theme_folder]))
+            # If it's not a theme directory, we skip it
+            if not os.path.isdir(theme_folder):
+                continue
+
+            # Generating ZIP file name
+            zip_name = "{}.{}.zip".format(theme_folder, Utils.generate_name(10))
+            # We put zip file in the same directory as all extracted files
+            zip_full_path = os.path.join(settings.THEME_ZIP_PATH, zip_name)
+            theme_zip = zipfile.ZipFile(zip_full_path, 'w', zipfile.ZIP_DEFLATED)
+
+            for root, dirs, files in os.walk(theme_folder):
+                for file in files:
+                    theme_zip.write(os.path.join(root, file))
+
+            theme_zip.close()
+
+            command = "theme install {} ".format(zip_full_path)
+            self.run_wp_cli(command)
+
+            # Cleaning ZIP file
+            os.remove(zip_full_path)
+
+        os.chdir(initial_working_dir)
 
     def activate(self):
         """
