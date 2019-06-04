@@ -53,12 +53,14 @@ class WPConfig:
         return "config {0} for {1}".format(installed_string, repr(self.wp_site))
 
     @classmethod
-    def inventory(cls, path):
+    def inventory(cls, path, skip_users=False):
         """
         Parse path and do an inventory of existing websites.
 
         Argument keywords:
         path -- Path where to look for installed WordPress websites
+        skip_users -- to tell if we need to list users. If there's no need to have users, activate this,
+                        you'll spare ~1 sec per website.
         """
         # helper function to filter out directories which are part or WP install
         def keep_wp_sites(dir_name):
@@ -86,7 +88,7 @@ class WPConfig:
                     if wp_site is None:
                         continue
                 except:
-                    logging.error("Cannot extract WPSite from path '%s' - Error %s", from_path, sys.exc_info())
+                    logging.error("Cannot extract WPSite from path '%s' - Error %s", given_path, sys.exc_info())
                     continue
                 wp_config = cls(wp_site)
                 if wp_config.is_config_valid:
@@ -97,7 +99,7 @@ class WPConfig:
                         wp_config.wp_version,
                         wp_config.db_name,
                         wp_config.db_user,
-                        ",".join([wp_user.username for wp_user in wp_config.admins]),
+                        "" if skip_users else ",".join([wp_user.username for wp_user in wp_config.admins]),
                     )
                 else:
                     yield WPResult(wp_config.wp_site.path, settings.WP_SITE_INSTALL_KO, "", "", "", "", "")
@@ -113,7 +115,12 @@ class WPConfig:
         command = "option list --search={} --format=csv --field=option_name".format(option_name)
         return self.run_wp_cli(command) is not True
 
-    def run_wp_cli(self, command, encoding=sys.getdefaultencoding(), pipe_input=None, extra_options=None):
+    def run_wp_cli(self,
+                   command,
+                   encoding=sys.getdefaultencoding(),
+                   pipe_input=None,
+                   extra_options=None,
+                   no_retries=False):
         """
         Execute a WP-CLI command. The command doesn't have to start with 'wp '. It will be added automatically, and
         it's the same for --path option.
@@ -123,6 +130,7 @@ class WPConfig:
         encoding -- encoding to use
         pipe_input -- Elements to give to the command using a pipe (ex: echo "elem" | wp command ...)
         extra_options -- display json in standard input. This json is used by wpcli commands
+        no_retries -- if True, won't retry the command if it fails
         """
         cmd = ""
 
@@ -140,11 +148,14 @@ class WPConfig:
         if pipe_input:
             cmd += "'"
 
-        for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
+        # Defining max retries
+        max_tries = 1 if no_retries else settings.WP_CLI_AND_API_NB_TRIES
+
+        for try_no in range(max_tries):
             try:
                 return Utils.run_command(cmd, encoding=encoding)
             except Exception as e:
-                if try_no < settings.WP_CLI_AND_API_NB_TRIES-1:
+                if not no_retries and try_no < settings.WP_CLI_AND_API_NB_TRIES-1:
                     logging.error("Run WPCLI error. Retry %s in %s sec...",
                                   try_no+1,
                                   settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
@@ -174,7 +185,7 @@ class WPConfig:
         """
         if not self.is_installed:
             return False
-        return self.run_wp_cli('core is-installed')
+        return self.run_wp_cli('core is-installed', no_retries=True)
 
     @property
     def is_install_valid(self):
@@ -276,9 +287,7 @@ class WPConfig:
 
             # fetch all values
             raw_infos = self.run_wp_cli('user list --format=csv')
-            if not raw_infos:
-                raise ValueError("Could not get list of users for {}".format(self.wp_site.path))
-
+            
             # reformat output from wp cli
             self._user_infos = {}
             for user_infos in Utils.csv_string_to_dict(raw_infos):
