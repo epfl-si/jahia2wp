@@ -5,6 +5,9 @@ read -p "Quel est l'url du site? " url
 #Deplacer les fichiers du site
 mv /srv/subdomains/${site}.epfl.ch/htdocs /srv/sandbox/archive-wp.epfl.ch/htdocs/${site}
 
+#Modifier le fichier wp-config.php
+sed -i "s/subdomains\/${site}.epfl.ch\/htdocs\//sandbox\/archive-wp.epfl.ch\/htdocs\/${site}/" wp-config.php
+
 #Editer le fichier .htacess dans subdomains
 mkdir /srv/subdomains/${site}.epfl.ch/htdocs
 echo "# BEGIN WordPress-Redirects-After-Ventilation" > /srv/subdomains/${site}.epfl.ch/htdocs/.htaccess
