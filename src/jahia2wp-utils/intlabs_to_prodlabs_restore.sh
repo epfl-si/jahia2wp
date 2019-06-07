@@ -41,7 +41,7 @@ then
 	mv /srv/subdomains/${site}.epfl.ch/htdocs /srv/sandbox/archive-wp.epfl.ch/htdocs/${site}
 
 	#Modifier le fichier wp-config.php
-	sed -i "s/subdomains\/${site}.epfl.ch\/htdocs\//sandbox\/archive-wp.epfl.ch\/htdocs\/${site}/" wp-config.php
+	sed -i "s/subdomains\/${site}.epfl.ch\/htdocs\//sandbox\/archive-wp.epfl.ch\/htdocs\/${site}/" /srv/sandbox/archive-wp.epfl.ch/htdocs/${site}/wp-config.php
 
 	#Editer le fichier .htacess dans subdomains
 	mkdir /srv/subdomains/${site}.epfl.ch/htdocs
