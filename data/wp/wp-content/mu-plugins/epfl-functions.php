@@ -238,7 +238,8 @@ add_shortcode('colored-box', 'colored_box');
 /* CloudFlare doesn't like the Polylang cookie (or any cookie);
  * however, we still want the homepage to use it (and bypass all
  * caches). */
-if (site_url() != "https://www.epfl.ch") {
+$current_url = $_SERVER["SCRIPT_URL"];
+if ($current_url != "/") {
     define('PLL_COOKIE', false);
 }
 
