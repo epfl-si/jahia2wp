@@ -554,9 +554,16 @@ class WPGenerator:
                     else:
                         logging.info("%s - Plugins - %s: Already installed!", repr(self), plugin_name)
 
-                # By default, after installation, plugin is deactivated. So if it has to stay deactivated,
-                # we skip the "change state" process
+                # We activate plugin to be able to configure it
+                plugin_config.set_state(forced_state=True)
+
+                # Configure plugin
+                plugin_config.configure(force=force_options)
+
+                # Here, plugin is activated because it was needed to configure it. So if it has to be deactivated,
+                # we skip the "change state" process and force deactivation
                 if deactivated_plugins and plugin_name in deactivated_plugins:
+                    plugin_config.set_state(forced_state=False)
                     logging.info("%s - Plugins - %s: Deactivated state forced...", repr(self), plugin_name)
 
                 else:
@@ -567,9 +574,6 @@ class WPGenerator:
                         logging.info("%s - Plugins - %s: Activated!", repr(self), plugin_name)
                     else:
                         logging.info("%s - Plugins - %s: Deactivated!", repr(self), plugin_name)
-
-                # Configure plugin
-                plugin_config.configure(force=force_options)
 
         if strict_plugin_list:
             installed_plugins = []
