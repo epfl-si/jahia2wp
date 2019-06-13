@@ -47,3 +47,5 @@ plugins:
     config: !include epfl-404/config-plugin.yml
   - name: ewww-image-optimizer
     config: !include ewww-image-optimizer/config-plugin.yml
+  - name: coming-soon
+    config: !include coming-soon/config-plugin.yml
