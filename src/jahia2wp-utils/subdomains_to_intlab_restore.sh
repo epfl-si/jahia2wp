@@ -83,7 +83,7 @@ then
 	wp plugin activate --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site wp-media-folder
 
 	#Activer automatiquement le coming soon
-	cp activation_coming-soon_copie_qa_18.json /tmp/activation_coming-soon_copie_qa_18_${site}
+	cp /srv/int/jahia2wp/src/jahia2wp-util/activation_coming-soon_copie_qa_18.json /tmp/activation_coming-soon_copie_qa_18_${site}
 	sed -i "s|sitename|${site}|g" /tmp/activation_coming-soon_copie_qa_18_${site}
 	wp option update seed_csp4_settings_content --format=json --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/${site} < /tmp/activation_coming-soon_copie_qa_18_${site}
 	rm /tmp/activation_coming-soon_copie_qa_18_${site}
