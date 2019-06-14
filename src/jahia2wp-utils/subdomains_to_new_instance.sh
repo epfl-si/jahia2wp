@@ -83,6 +83,12 @@ then
 	wp plugin activate epfl --path=/srv/www/www.epfl.ch/htdocs/${dest}
 	wp plugin activate wp-media-folder --path=/srv/www/www.epfl.ch/htdocs/${dest}
 	
+	#Activer automatiquement le coming soon
+	cp activation_coming-soon_copie_new_instance_prod_18.json /tmp/activation_coming-soon_copie_new_instance_prod_18_${site}
+	sed -i "s|destname|${dest}|g" /tmp/activation_coming-soon_copie_new_instance_prod_18_${site}
+	wp option update seed_csp4_settings_content --format=json --path=/srv/www/www.epfl.ch/htdocs/${dest} < /tmp/activation_coming-soon_copie_new_instance_prod_18_${site}
+	rm /tmp/activation_coming-soon_copie_new_instance_prod_18_${site}
+
 	#Mettre les configurations du plugin wp-media-folder
 	python /srv/www/jahia2wp/src/jahia2wp.py update-plugins www https://www.epfl.ch/${dest} --plugin=wp-media-folder --extra-config=/srv/www/jahia2wp/functional_tests/extra.yaml --force-options
 
