@@ -71,7 +71,7 @@ class TestWpUploadTest:
         # 'verify=False' is to ignore SSL certificate error because we are accessing using HTTPS but without
         # any valid certificate \o/
         page_login = session.post(link, login_data, verify=False)
-        assert page_login.status_code is 200
+        assert page_login.status_code == 200
 
         # check that the user is correctly logged in (i.e. his name shows up correctly on the page
         logging.debug("Checking that the user is correctly logged in")
@@ -113,7 +113,7 @@ class TestWpUploadTest:
                 data=upload_data,
                 files=files
             )
-        assert upload_result.status_code is 200
+        assert upload_result.status_code == 200
 
         # checks if the image has really been uploaded
         logging.debug("Cross cjecking that the image was really uploaded")
@@ -123,14 +123,14 @@ class TestWpUploadTest:
             filename=unique_file_name)
         print(image_url)
         image_page = session.get(image_url)
-        assert image_page.status_code is 200
+        assert image_page.status_code == 200
 
         # cleanup up the mess
         logging.debug("Starting cleanup the uploaded file")
         upload_management_page_url = "{base_path}/wp-admin/upload.php?mode=list".format(
             base_path=lcbase_path)
         upload_management_page = session.get(upload_management_page_url)
-        assert upload_management_page.status_code is 200
+        assert upload_management_page.status_code == 200
         soup = BeautifulSoup(upload_management_page.content, 'lxml')
 
         # get list of filenames
@@ -146,7 +146,7 @@ class TestWpUploadTest:
 
                 logging.debug("Deleting the file")
                 delete_media_result = session.get(delete_link)
-                assert delete_media_result.status_code is 200
+                assert delete_media_result.status_code == 200
 
         # checks if the image has really been cleaned
         logging.debug("Cross checking that the file has been correctly deleted")
