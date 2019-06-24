@@ -32,6 +32,9 @@ then
 	#Activer tous les plugins
 	wp plugin activate --all --path=/srv/labs/www.epfl.ch/htdocs/labs/${site}
 	
+	#Desactiver le coming-soon
+	wp plugin deactivate coming-soon --path=/srv/labs/www.epfl.ch/htdocs/labs/${site}	
+
 	#Optimisation les medias du site
         wp ewwwio optimize all --noprompt --path=/srv/labs/www.epfl.ch/htdocs/labs/${site}
         wp media regenerate --only-missing --yes --path=/srv/labs/www.epfl.ch/htdocs/labs/${site}
