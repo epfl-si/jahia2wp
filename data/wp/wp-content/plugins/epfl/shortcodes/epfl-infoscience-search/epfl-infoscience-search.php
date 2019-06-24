@@ -257,6 +257,16 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
             return Utils::render_user_msg("Infoscience search shortcode: Please check the url");
         }
 
+        $recid_matches = [];
+        preg_match('#^https?://infoscience.epfl.ch/record/(\d+)/?#i', $url, $recid_matches);
+
+        if (count($recid_matches) >= 2) {
+            # this is direct record url
+            # transform it to a recid search
+            $recid = $recid_matches[1];
+            $url = "https://infoscience.epfl.ch/search?p=recid:'" . $recid . "'";
+        }
+
         $parts = parse_url($url);
         $query = proper_parse_str($parts['query']);
 
