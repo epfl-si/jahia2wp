@@ -3,8 +3,8 @@
 require_once 'utils.php';
 
 Class InfoscienceSearchShortCakeConfig
-{   
-    private static function get_field_options() 
+{
+    private static function get_field_options()
     {
         return array (
             array('value' => 'any', 'label' => esc_html__('Any field', 'epfl-infoscience-search')),
@@ -18,19 +18,6 @@ Class InfoscienceSearchShortCakeConfig
             array('value' => 'abstract', 'label' => esc_html__('Abstract', 'epfl-infoscience-search')),
             array('value' => 'keyword', 'label' => esc_html__('Keyword', 'epfl-infoscience-search')),
             array('value' => 'doi', 'label' => esc_html__('DOI', 'epfl-infoscience-search')),
-        );
-    }
-
-    private static function get_limit_options() 
-    {
-        return array (
-            array('value' => '10', 'label' => '10'),
-            array('value' => '25', 'label' => '25'), 
-            array('value' => '50', 'label' => '50'),
-            array('value' => '100', 'label' => '100'),
-            array('value' => '250', 'label' => '250'),
-            array('value' => '500', 'label' => '500'),
-            array('value' => '1000', 'label' => '1000'),
         );
     }
 
@@ -50,7 +37,7 @@ Class InfoscienceSearchShortCakeConfig
        );
     }
 
-    private static function get_format_options() 
+    private static function get_format_options()
     {
         return array (
             array('value' => 'short', 'label' => esc_html__('Short', 'epfl-infoscience-search')),
@@ -58,23 +45,23 @@ Class InfoscienceSearchShortCakeConfig
        );
     }
 
-    private static function get_summary_options() 
+    private static function get_summary_options()
     {
         return array (
             array('value' => 'false', 'label' => esc_html__('Hide', 'epfl-infoscience-search')),
             array('value' => 'true', 'label' => esc_html__('Show', 'epfl-infoscience-search')),
        );
-    }    
+    }
 
-    private static function get_thumbnail_options() 
+    private static function get_thumbnail_options()
     {
         return array (
             array('value' => 'false', 'label' => esc_html__('Hide', 'epfl-infoscience-search')),
             array('value' => 'true', 'label' => esc_html__('Show', 'epfl-infoscience-search')),
        );
-    }    
+    }
 
-    private static function get_group_by_options() 
+    private static function get_group_by_options()
     {
         return array (
             array('value' => '', 'label' => ''),
@@ -103,7 +90,7 @@ Class InfoscienceSearchShortCakeConfig
         ?>
     <script type="text/html" id="tmpl-epfl-shortcode-ui-field">
         <# if (data.title) { #>
-            <# if ( 'true' == data.is_toggle ){ #> 
+            <# if ( 'true' == data.is_toggle ){ #>
                 <h3 class="infoscience_search_toggle_header"><a href="#">[-] {{ data.title }}</a></h3>
             <# } else { #>
                 <h2>{{ data.title }}</h2>
@@ -120,7 +107,7 @@ Class InfoscienceSearchShortCakeConfig
 
     <script type="text/html" id="tmpl-epfl-shortcode-ui-field-checkbox">
         <# if (data.title) { #>
-            <# if ( 'true' == data.is_toggle ){ #> 
+            <# if ( 'true' == data.is_toggle ){ #>
                 <h3 class="infoscience_search_toggle_header"><a href="#">[-] {{ data.title }}</a></h3>
             <# } else { #>
                 <h2>{{ data.title }}</h2>
@@ -136,7 +123,7 @@ Class InfoscienceSearchShortCakeConfig
 
     <script type="text/html" id="tmpl-epfl-shortcode-ui-field-select">
         <# if (data.title) { #>
-            <# if ( 'true' == data.is_toggle ){ #> 
+            <# if ( 'true' == data.is_toggle ){ #>
                 <h3 class="infoscience_search_toggle_header"><a href="#">[-] {{ data.title }}</a></h3>
             <# } else { #>
                 <h2>{{ data.title }}</h2>
@@ -163,25 +150,25 @@ Class InfoscienceSearchShortCakeConfig
 			<p class="description">{{{ data.description }}}</p>
 		<# } #>
 	</div>
-    </script>  
+    </script>
         <?php
         //@formatter:on
     }
-    
+
     public static function load_epfl_infoscience_search_wp_admin_style($hook) {
         wp_enqueue_style('epfl-infoscience-search-shortcake-style.css', plugins_url('css/epfl-infoscience-search-shortcake-style.css', __FILE__));
     }
 
     public static function load_epfl_infoscience_search_wp_admin_js($hook) {
         wp_enqueue_script( 'epfl-infoscience-search-shortcake-javascript', plugin_dir_url( __FILE__ ) . 'js/epfl-infoscience-search-shortcake.js', 1.1, array( 'shortcode-ui' ) );
-    }    
+    }
 
-    public static function config() 
+    public static function config()
     {
         # add custom epfl style
         add_action( 'enqueue_shortcode_ui', array('InfoscienceSearchShortCakeConfig', 'load_epfl_infoscience_search_wp_admin_js'));
         add_action( 'admin_enqueue_scripts', ['InfoscienceSearchShortCakeConfig', 'load_epfl_infoscience_search_wp_admin_style'], 99);
-        add_action( 'print_shortcode_ui_templates', array('InfoscienceSearchShortCakeConfig', 'shortcode_ui_epfl_field_template'));      
+        add_action( 'print_shortcode_ui_templates', array('InfoscienceSearchShortCakeConfig', 'shortcode_ui_epfl_field_template'));
 
         $documentation_url = "https://infoscience.epfl.ch/help/search-tips?ln=en";
 
@@ -230,7 +217,7 @@ Class InfoscienceSearchShortCakeConfig
                         'type'          => 'epfl-text',
                         'meta'        => array(
                             'placeholder' => 'Infoscience/Research',
-                        ),                            
+                        ),
                     ),*/
                     # Advanced content, dynamically hidden with javascript
                     array(
@@ -252,7 +239,7 @@ Class InfoscienceSearchShortCakeConfig
                         'encode'        => 'true',
                         'meta'        => array(
                             'placeholder' => 'Search key',
-                        ),  
+                        ),
                     ),
                     array(
                         'label'         => esc_html__('Third search text'),
@@ -264,7 +251,7 @@ Class InfoscienceSearchShortCakeConfig
                         'attr'          => 'field3',
                         'type'          => 'epfl-select',
                         'options'       => InfoscienceSearchShortCakeConfig::get_field_options(),
-                    ),                        
+                    ),
                     array(
                         'attr'          => 'pattern3',
                         'type'          => 'epfl-text',
@@ -288,7 +275,7 @@ Class InfoscienceSearchShortCakeConfig
                         'attr'          => 'limit',
                         'type'          => 'epfl-text',
                         'meta'        => array(
-                            'placeholder' => '1000',
+                            'placeholder' => '100',
                         ),
                     ),
                     array(
@@ -297,7 +284,7 @@ Class InfoscienceSearchShortCakeConfig
                         'type'          => 'radio',
                         'options'       => InfoscienceSearchShortCakeConfig::get_summary_options(),
                         'value' => 'false',
-                    ),                        
+                    ),
                     array(
                         'label'         => esc_html__('Thumbnail', 'epfl-infoscience-search'),
                         'attr'          => 'thumbnail',
@@ -311,7 +298,7 @@ Class InfoscienceSearchShortCakeConfig
                         'type'          => 'radio',
                         'options'       => InfoscienceSearchShortCakeConfig::get_sort_options(),
                         'value'         => 'desc',
-                    ),                        
+                    ),
                     array(
                         'label'         => esc_html__('Group by', 'epfl-infoscience-search') . ' (1)',
                         'attr'          => 'group_by',
