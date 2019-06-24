@@ -7,12 +7,12 @@
  * Version: 1.9
  * Author: Julien Delasoie
  * Author URI: https://people.epfl.ch/julien.delasoie?lang=en
- * Contributors: 
+ * Contributors:
  * License: Copyright (c) 2018 Ecole Polytechnique Federale de Lausanne, Switzerland
 */
 
 set_include_path(get_include_path() . PATH_SEPARATOR . dirname( __FILE__) . '/lib');
- 
+
 require_once 'utils.php';
 require_once 'shortcake-config.php';
 require_once 'render.php';
@@ -64,7 +64,7 @@ define("INFOSCIENCE_SEARCH_URL", "https://infoscience.epfl.ch/search?");
         'pattern' => ['p1', $sanitize_pattern_field],
         'field' => ['f1', $convert_fields],
         'limit' => ['rg', function($value) {
-            return ($value === '') ? '1000' : $value;
+            return ($value === '') ? '100' : $value;
         }],
         'sort' => ['so', function($value) {
             return ($value === 'asc') ? 'a' : 'd';
@@ -108,7 +108,7 @@ function epfl_infoscience_search_generate_url_from_attrs($attrs) {
     $url = INFOSCIENCE_SEARCH_URL;
 
     $default_parameters = array(
-        'as' => '1',  # advanced search 
+        'as' => '1',  # advanced search
         'ln' => 'en',  #TODO: dynamic language
         'of' => 'xm',  # template format
         'sf' => 'year', # year sorting
@@ -157,7 +157,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         # or Content 2
         'pattern' => '',
         'field' => 'any',  # "any", "author", "title", "year", "unit", "collection", "journal", "summary", "keyword", "issn", "doi"
-        'limit' => 1000,  # 10,25,50,100,250,500,1000
+        'limit' => 100,
         'sort' => 'desc',  # "asc", "desc"
         # Advanced content
         'collection' => '',
@@ -169,7 +169,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         'operator3' => 'and',  # "and", "or", "and_not"
         # Presentation
         'format' => 'short',  # "short", "detailed"
-        'summary' => 'false', 
+        'summary' => 'false',
         'thumbnail' => "false",  # "true", "false"
         'group_by' => '', # "", "year", "doctype"
         'group_by2' => '', # "", "year", "doctype"
@@ -195,16 +195,16 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
 
     $attributes['group_by'] = InfoscienceGroupBy::sanitize_group_by($attributes['group_by']);
     $attributes['group_by2'] = InfoscienceGroupBy::sanitize_group_by($attributes['group_by2']);
-        
+
     $attributes['debug'] = strtolower($attributes['debug']) === 'true' ? true : false;
     $attributes['debug_data'] = strtolower($attributes['debug_data']) === 'true' ? true : false;
     $attributes['debug_template'] = strtolower($attributes['debug_template']) === 'true' ? true : false;
-    
+
     # Unset element unused in url, with backup first
     $before_unset_attributes = $attributes;
 
     $format = $attributes['format'];
-    unset($attributes['format']);    
+    unset($attributes['format']);
 
     $summary = $attributes['summary'];
     unset($attributes['summary']);
@@ -251,7 +251,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
 
     if ($url) {
         $url = trim($url);
-        # assert it is an infoscience one : 
+        # assert it is an infoscience one :
         if (preg_match('#^https?://infoscience.epfl.ch/#i', $url) !== 1) {
             $error = new WP_Error( 'not found', 'The url passed is not an Infoscience url', $url );
             return Utils::render_user_msg("Infoscience search shortcode: Please check the url");
@@ -283,7 +283,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
 
             # set default if not already set :
             if (!array_key_exists('rg', $query) || empty($query['rg'])) {
-                $query['rg'] = '1000';
+                $query['rg'] = '100';
             }
 
             #empty or not, the limit attribute has the last word
@@ -307,10 +307,10 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         # We may use http_build_query($query, null, '&amp;'); when provided urls are overencoded
         # looks fine at the moment
         $query = http_build_query($query, null);
-        
+
         # from foo[1]=bar1&foo[2]=bar2 to foo[]=bar&foo[]=bar2
         $url = preg_replace('/%5B(?:[0-9]|[1-9][0-9]+)%5D=/', '=', $query);
-        
+
         $url = INFOSCIENCE_SEARCH_URL . urldecode($url);
     } else {
         # no direct url were provided, build the custom one ourself
@@ -332,7 +332,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         # fetch language
         # if you can, use the method
         # use function EPFL\Language\get_current_or_default_language;
-        
+
         $default_lang = 'en';
         $allowed_langs = array('en', 'fr');
         $language = $default_lang;
@@ -349,7 +349,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     $cache_key = md5(serialize($cache_define_by));
 
     $page = wp_cache_get( $cache_key, 'epfl_infoscience_search');
-    
+
     # not in cache ?
     if ($page === false || $debug_data || $debug_template){
         $start = microtime(true);
@@ -411,7 +411,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         do_action('epfl_stats_webservice_call_duration', $url, 0, true);
         // Use cache
         return $page;
-    }        
+    }
  }
 
 // Load .mo file for translation
