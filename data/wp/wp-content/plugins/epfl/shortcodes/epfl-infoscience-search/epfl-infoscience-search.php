@@ -348,12 +348,12 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
 
     $cache_key = md5(serialize($cache_define_by));
 
-    $page = wp_cache_get( $cache_key, 'epfl_infoscience_search');
+    $page = get_transient($cache_key);
 
     # not in cache ?
     if ($page === false || $debug_data || $debug_template){
         $start = microtime(true);
-        $response = wp_remote_get( $url );
+        $response = wp_remote_get( $url, ['timeout' => 20] );
         $end = microtime(true);
 
         // logging call
@@ -409,7 +409,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
             $page .= epfl_infoscience_search_get_mathjax_config();
 
             // cache the result
-            wp_cache_set( $cache_key, $page, 'epfl_infoscience_search' );
+            set_transient($cache_key, $page, 4*HOUR_IN_SECONDS);
 
             // return the page
             return $page;
