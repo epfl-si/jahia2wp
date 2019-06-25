@@ -351,7 +351,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
     $page = get_transient($cache_key);
 
     # not in cache ?
-    if ($page === false || $debug_data || $debug_template){
+    if ($page === false || $debug_data || $debug_template || is_admin()) {
         $start = microtime(true);
         $response = wp_remote_get( $url, ['timeout' => 20] );
         $end = microtime(true);
