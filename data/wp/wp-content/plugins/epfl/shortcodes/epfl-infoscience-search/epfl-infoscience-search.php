@@ -360,9 +360,17 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         do_action('epfl_stats_webservice_call_duration', $url, $end-$start);
 
         if ( is_wp_error( $response ) ) {
-            $error_message = $response->get_error_message();
-            echo "Something went wrong: $error_message";
-            } else {
+            if ($response->errors) {
+                # error is an external cause
+                if (array_key_exists("http_request_failed", $response->errors)) {
+                    $error_message = "infoscience.epfl.ch may currently be down or the results you are trying to fetch are too big;";
+                    $error_message .= " Please try again later or set a more precise search with a limit.";
+                } else {
+                    $error_message = $response->get_error_message();
+                }
+                echo "Error: $error_message";
+            }
+        } else {
             $marc_xml = wp_remote_retrieve_body( $response );
 
             $publications = InfoscienceMarcConverter::convert_marc_to_array($marc_xml);
