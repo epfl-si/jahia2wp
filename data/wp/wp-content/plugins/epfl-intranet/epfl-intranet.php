@@ -2,7 +2,7 @@
 /*
  * Plugin Name: EPFL Intranet
  * Description: Use EPFL Accred to allow website access only to specific group(s) or just force to be authenticated
- * Version:     0.14
+ * Version:     0.15
  * Author:      Lucien Chaboudez
  * Author URI:  mailto:lucien.chaboudez@epfl.ch
  */
@@ -185,10 +185,12 @@ class Settings extends \EPFL\SettingsBase
    */
    function update_htaccess($insertion, $at_beginning=false)
    {
+
       /* In the past, we were using get_home_path() func to have path to .htaccess file. BUT, with WordPress symlinking
       funcionality, get_home_path() returns path to WordPress images files = /wp/
       So, to fix this, we access .htaccess file using a relative path from current file. */
       $filename = dirname(__FILE__).'/../../../.htaccess';
+
       $marker = 'EPFL-Intranet';
 
       return insert_with_markers($filename, $marker, $insertion);
@@ -204,11 +206,15 @@ class Settings extends \EPFL\SettingsBase
         /* Website protection is enabled */
         if($enabled == '1')
         {
+            /* Defining value to return in case of error in prerequisites/other. We just let it as it is...
+             If it's already activated, we let it activated (with current settings) to avoid any security issue.
+             If it's not activated, we don't activate it (because of errors) */
+            $enabled_in_case_of_error = trim($this->get('enabled'));
 
             /* If prerequisite are not met, */
             if(!$this->check_prerequisites())
             {
-                $enabled = '0';
+                $enabled = $enabled_in_case_of_error;
 
             }
             else
@@ -228,7 +234,7 @@ class Settings extends \EPFL\SettingsBase
                                   'empty',
                                   ___("Impossible to update .htaccess file"),
                                   'error');
-                  $enabled = '0';
+                  $enabled = $enabled_in_case_of_error;
                }
              }
         }
@@ -292,7 +298,7 @@ class Settings extends \EPFL\SettingsBase
     {
         $accred_min_version = 0.11;
         $accred_plugin_relative_path = 'accred/EPFL-Accred.php';
-        $accred_plugin_full_path = WP_CONTENT_DIR . '/plugins/'. $accred_plugin_relative_path;
+        $accred_plugin_full_path = dirname(__FILE__). '/../'. $accred_plugin_relative_path;
 
         /* Accred Plugin missing */
         if(!is_plugin_active($accred_plugin_relative_path))
