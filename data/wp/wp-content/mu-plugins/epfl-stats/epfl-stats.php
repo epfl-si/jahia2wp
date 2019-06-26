@@ -38,7 +38,7 @@ function epfl_stats_webservice_call_duration($url, $duration, $in_local_cache=fa
                        "targetquery"    => (array_key_exists('query', $url_details)) ? $url_details['query'] : "",
                        "responsetime"   => ($in_local_cache) ? 0 : floor($duration*1000));
 
-    $log_file = '/webservices/logs/ws_call_log.'.gethostname().'.'.date("Ymd");
+    $log_file = '/call_logs/ws_call_log.'.gethostname().'.log';
     /* We write in file only if we can open it */
     if(($h = fopen($log_file, 'a'))!==false)
     {
