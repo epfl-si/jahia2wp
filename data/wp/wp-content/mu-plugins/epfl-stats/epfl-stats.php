@@ -52,7 +52,7 @@ add_action('epfl_stats_webservice_call_duration', 'epfl_stats_webservice_call_du
 
 
 /*
-    Save a webservice call duration including source page and timestamp on which call occurs
+    Save a generic duration for an action belonging to a given category
 
     @param $category        -> stat category (ex: menu, ...)
     @param $action          -> action in category (ex sync-menu, rebuild-menu, ...)
