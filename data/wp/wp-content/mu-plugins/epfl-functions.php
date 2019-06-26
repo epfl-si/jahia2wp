@@ -3,7 +3,7 @@
  * Plugin Name: EPFL Functions
  * Plugin URI: 
  * Description: Must-use plugin for the EPFL website.
- * Version: 0.0.9
+ * Version: 0.0.10
  * Author: Aline Keller
  * Author URI: http://www.alinekeller.ch
  */
@@ -238,7 +238,7 @@ add_shortcode('colored-box', 'colored_box');
 /* CloudFlare doesn't like the Polylang cookie (or any cookie);
  * however, we still want the homepage to use it (and bypass all
  * caches). */
-$current_url = $_SERVER["SCRIPT_URL"];
+$current_url = array_key_exists('SCRIPT_URL', $_SERVER)? $_SERVER["SCRIPT_URL"] : "" ;
 if ($current_url != "/") {
     define('PLL_COOKIE', false);
 }
