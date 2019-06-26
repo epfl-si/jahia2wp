@@ -348,21 +348,29 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
 
     $cache_key = md5(serialize($cache_define_by));
 
-    $page = wp_cache_get( $cache_key, 'epfl_infoscience_search');
+    $page = get_transient($cache_key);
 
     # not in cache ?
-    if ($page === false || $debug_data || $debug_template){
+    if ($page === false || $debug_data || $debug_template || is_admin()) {
         $start = microtime(true);
-        $response = wp_remote_get( $url );
+        $response = wp_remote_get( $url, ['timeout' => 20] );
         $end = microtime(true);
 
         // logging call
         do_action('epfl_stats_webservice_call_duration', $url, $end-$start);
 
         if ( is_wp_error( $response ) ) {
-            $error_message = $response->get_error_message();
-            echo "Something went wrong: $error_message";
-            } else {
+            if ($response->errors) {
+                # error is an external cause
+                if (array_key_exists("http_request_failed", $response->errors)) {
+                    $error_message = "infoscience.epfl.ch may currently be down or the results you are trying to fetch are too big;";
+                    $error_message .= " Please try again later or set a more precise search with a limit.";
+                } else {
+                    $error_message = $response->get_error_message();
+                }
+                echo "Error: $error_message";
+            }
+        } else {
             $marc_xml = wp_remote_retrieve_body( $response );
 
             $publications = InfoscienceMarcConverter::convert_marc_to_array($marc_xml);
@@ -401,7 +409,7 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
             $page .= epfl_infoscience_search_get_mathjax_config();
 
             // cache the result
-            wp_cache_set( $cache_key, $page, 'epfl_infoscience_search' );
+            set_transient($cache_key, $page, 4*HOUR_IN_SECONDS);
 
             // return the page
             return $page;
