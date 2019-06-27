@@ -38,7 +38,7 @@ function epfl_stats_webservice_call_duration($url, $duration, $in_local_cache=fa
                        "targetquery"    => (array_key_exists('query', $url_details)) ? $url_details['query'] : "",
                        "responsetime"   => ($in_local_cache) ? 0 : floor($duration*1000));
 
-    $log_file = '/webservices/logs/ws_call_log.'.gethostname().'.'.date("Ymd");
+    $log_file = '/call_logs/ws_call_log.'.gethostname().'.log';
     /* We write in file only if we can open it */
     if(($h = fopen($log_file, 'a'))!==false)
     {
@@ -49,6 +49,44 @@ function epfl_stats_webservice_call_duration($url, $duration, $in_local_cache=fa
 }
 // We register a new action so others plugins can use it to log webservice call duration
 add_action('epfl_stats_webservice_call_duration', 'epfl_stats_webservice_call_duration', 10, 3);
+
+
+/*
+    Save a generic duration for an action belonging to a given category
+
+    @param $category        -> stat category (ex: menu, ...)
+    @param $action          -> action in category (ex sync-menu, rebuild-menu, ...)
+    @param $duration        -> execution duration (seconds with microseconds)
+    @param $in_local_cache  -> TRUE|FALSE to tell if info was retrieved from local cache (transient) or not.
+                                If TRUE, we set $duration to 0.
+*/
+function epfl_stats_generic_duration($category, $action, $duration, $in_local_cache=false)
+{
+    /* If we are in CLI mode, it's useless to update in APC because it's the APC for mgmt container and not httpd
+    container */
+    if(php_sapi_name()=='cli') return;
+
+    global $wp;
+
+    /* Generating date/time in correct format: yyyy-MM-dd'T'HH:mm:ss.SSSZZ (ex: 2019-03-27T12:46:14.078Z ) */
+    $log_array = array("@timegenerated" => date("Y-m-d\TH:i:s.v\Z"),
+                       "localcache"     => ($in_local_cache) ? "hit" : "miss",
+                       "src"            => home_url( $wp->request ),
+                       "category"       => $category,
+                       "action"         => $action,
+                       "responsetime"   => ($in_local_cache) ? 0 : floor($duration*1000));
+
+    $log_file = '/call_logs/gen_call_log.'.gethostname().'.log';
+    /* We write in file only if we can open it */
+    if(($h = fopen($log_file, 'a'))!==false)
+    {
+        fwrite($h, json_encode($log_array)."\n");
+        fclose($h);
+    }
+
+}
+// We register a new action so others plugins can use it to log a generic duration for an action belonging to a category
+add_action('epfl_stats_generic_duration', 'epfl_stats_generic_duration', 10, 4);
 
 
 /*
