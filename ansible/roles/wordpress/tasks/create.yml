@@ -1,0 +1,26 @@
+# Create a WordPress site out of thin air
+
+- assert:
+    that:
+      - inventory_hostname in wp_destructive
+      - (wp_destructive[inventory_hostname] == "wipe") or (not _wp_config_php_stat.stat.exists)
+
+- include_vars: jahia2wp-vars.yml
+
+- name: Create auxiliary YAML file for "jahia2wp.py generate"
+  when: wp_restore_from == 'generate'
+  copy:
+    content: |
+      langs: en,fr
+      unit_name: {{wp_unit_name}}
+      unit_id: {{wp_unit_id}}
+    dest: "{{ ansible_remote_tmp }}/{{ inventory_hostname }}-generate.yaml"
+  register: jahia2wp_generate_yaml_tmp
+
+- name: jahia2wp.py generate
+  when: wp_restore_from == 'generate'
+  shell: "{{ jahia2wp_shell }} generate {{ wp_env }} {{ jahia2wp_url }} --extra-config={{ jahia2wp_generate_yaml_tmp.dest }}"
+  environment: "{{ jahia2wp_env }}"
+
+- include: generate-quick.yml
+  when: wp_restore_from != 'generate'

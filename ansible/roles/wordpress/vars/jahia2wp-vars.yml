@@ -1,0 +1,29 @@
+# file: roles/wordpress/vars/jahia2wp-vars.yml
+#
+# See main.yml in the same directory for required variables (used in
+# the definitions below)
+
+# The directories where the jahia2wp.py tool resides
+jahia2wp_dir: "/srv/{{ wp_env }}/jahia2wp"
+
+# The environment variables required by the jahia2wp Python script
+jahia2wp_env:
+  WP_ENV: "{{wp_env}}"
+  WP_VERSION: latest
+  PYTHONPATH: "/srv/{{ wp_env }}/jahia2wp/src"
+  # Required by jahia2wp generate and generate-many (lest we get
+  # the wrong set of plugins)
+  PLUGINS_CONFIG_BASE_PATH: ../data/plugins
+  # Required by jahia2wp migrate-urls
+  PYTHONIOENCODING: "utf-8"
+  # Control where jahia2wp migrate-urls puts its temp files
+  JAHIA2WP_VENT_TMP: "{{ansible_remote_tmp}}"
+
+# The site URL that jahia2wp expects on its command line
+jahia2wp_url: "{{ wp_base_url }}"
+
+# The things that one should send to the shell prior to running any
+# jahia2wp command. Use like so:
+#
+# shell: {{ jahia2wp_shell }} generate --foo=bar ...
+jahia2wp_shell: set -e; . {{ jahia2wp_dir }}/.env; export MYSQL_DB_HOST MYSQL_SUPER_USER MYSQL_SUPER_PASSWORD WP_ADMIN_USER WP_ADMIN_EMAIL; cd {{ jahia2wp_dir }}/src; {{ ansible_python_interpreter }} ./jahia2wp.py

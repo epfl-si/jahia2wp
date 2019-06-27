@@ -1,0 +1,7 @@
+# -*- mode: yaml; -*-
+#
+# Variables that only apply to Wordpresses in group "charte-wordpresses"
+ansible_host: test-ssh-wwp.epfl.ch
+ansible_port: 32222
+wp_hostname: migration-wp.epfl.ch
+wp_env: int

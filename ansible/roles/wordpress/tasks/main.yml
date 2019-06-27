@@ -1,0 +1,33 @@
+# file: roles/wordpress/tasks/main.yml
+#
+# What to do to install and configure a WordPress instance
+#
+# Variables:: (in addition to those defined or documented in
+#              ../vars/*.yml)
+
+- name: Check whether WordPress is already installed
+  stat:
+    path: "{{ wp_path_config_php }}"
+  register: _wp_config_php_stat
+
+
+- name: "Create or restore (if requested)"
+  include: '{{ "create-or-restore.yml" if play_create_or_restore is defined else "noop.yml" }}'
+
+- name: "Dump (if requested)"
+  include: '{{ "dump.yml" if (play_dump is defined) and (dump_local_dir is defined) else "noop.yml" }}'
+
+- name: "Undump WXR (if requested)"
+  include: '{{ "undump.yml" if (play_undump is defined) and (undump_local_dir is defined) else "noop.yml" }}'
+
+## Debug scaffolding #########################################
+# - name: Save facts (for debug)
+#   local_action:
+#     module: copy
+#     content: "{{vars['ansible_facts'] | to_nice_json}}"
+#     dest: facts-{{inventory_hostname}}.json
+# - name: Save all variables (for debug)
+#   local_action:
+#     module: copy
+#     content: "{{vars | to_nice_json}}"
+#     dest: vars-{{inventory_hostname}}.json
