@@ -27,4 +27,12 @@ add_filter( 'auto_update_theme', '__return_false' );
 // disable transalations updates
 add_filter( 'auto_update_translation', '__return_false' );
 
+// disable plugin update cues
+add_filter('user_has_cap', 'epfl_cannot_update_plugins', 10, 3);
+
+function epfl_cannot_update_plugins ($allcaps, $caps, $args) {
+    unset($allcaps['update_plugins']);
+    return $allcaps;
+}
+
 ?>
