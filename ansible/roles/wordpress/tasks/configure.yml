@@ -1,0 +1,15 @@
+# Set a sane configuration for this WordPress instance
+
+- assert:
+    that:
+      - inventory_hostname in wp_destructive
+      - wp_destructive[inventory_hostname] != "none"
+
+- name: Check whether ping_sites is set
+  command: "{{ wp_cli_command }} option get ping_sites"
+  changed_when: false
+  register: _wp_config_ping_sites
+
+- name: Unset ping_sites
+  command: "{{ wp_cli_command }} option set ping_sites ''"
+  when: "_wp_config_ping_sites.stdout != ''"

@@ -1,0 +1,24 @@
+# Ensure that WordPress is in a known good state, restoring it
+# from backup (or ex nihilo) if appropriate
+
+- set_fact:
+    play_wp_delete: '{{inventory_hostname in wp_destructive and wp_destructive[inventory_hostname] == "wipe"}}'
+    play_wp_create: '{{ (not _wp_config_php_stat.stat.exists) or ((inventory_hostname in wp_destructive) and (wp_destructive[inventory_hostname] == "wipe")) }}'
+    play_wp_configure: '{{inventory_hostname in wp_destructive and wp_destructive[inventory_hostname] != "none"}}'
+    play_wp_restore: '{{ (inventory_hostname in wp_destructive) and (wp_destructive[inventory_hostname] is search("^(data|wipe)")) and (wp_restore_from is search("^backup")) }}'
+
+- name: Delete (if requested)
+  include_tasks: '{{ "delete.yml" if play_wp_delete else "noop.yml" }}'
+
+- name: (Re)create (if requested)
+  include_tasks: '{{ "create.yml" if play_wp_create else "noop.yml" }}'
+
+- name: Restore (if requested)
+  include_tasks: '{{ "restore.yml" if play_wp_restore else "noop.yml" }}'
+
+- name: Configure (if requested)
+  include_tasks: '{{ "configure.yml" if play_wp_configure else "noop.yml" }}'
+
+- name: Check whether WordPress is working
+  command: wp --path={{ wp_dir }} eval '1;'
+  changed_when: false

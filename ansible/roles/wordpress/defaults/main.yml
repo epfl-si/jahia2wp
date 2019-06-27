@@ -1,0 +1,78 @@
+# file: roles/wordpress/defaults/main.yml
+#
+# The variables that the role relies on, and that the user is supposed
+# to pass either
+#
+# - through per-host variables (in hosts/wordpress-instances),
+#
+# - through per-group variables (in hosts/group_vars/*),
+#
+# - or on the command line using -e / --extra-vars.
+#
+# (unless of course there is a default value defined below - That's
+# what the "defaults" part of defaults/main.yml is for)
+
+########################################################################
+# Host variables
+########################################################################
+# - wp_env: The name of the top-level directory (under the /srv of the
+#            Openshift instance) where the server root resides
+#
+# - wp_hostname: The HTTP host name (fully qualified domain name) this
+#                  WordPress is served under
+#
+# - wp_path: The path relative to the htdocs directory where the WordPress
+#            instance is installed
+
+wp_path: "{{ inventory_hostname }}"
+
+#
+# - wp_unit_name: The unit name (used by jahia2wp.py generate); defaults
+#                 to being equal to wp_unit_id
+
+wp_unit_name: "{{ wp_unit_id }}"   # Default value
+
+#
+# - wp_unit_id: The unit ID (used by jahia2wp.py generate)
+#
+########################################################################
+# Variables from the command line
+########################################################################
+#
+#
+# - wp_destructive: A map from WordPress names (out of the inventory
+#                   files or scripts) to a keyword among "none" (the
+#                   default), "config", "wipe", "data-and-code" or
+#                   "data-only" indicating the level of destructive
+#                   access requested for this WordPress instance.
+#                   "wipe" means to completely and unconditionally
+#                   delete everything; "data-and-code" and "data-only"
+#                   allows restores (depending on the setting of
+#                   wp_restore_from, below) of the corresponding
+#                   assets. "config" means only enforce simple
+#                   configuration changes, such as setting up strict
+#                   permissions and disabling unused services. "none"
+#                   means do no harm, yet doesn't preclude
+#                   always-harmless mutations such as creating a WP
+#                   site that did not yet exist.
+#
+#                   💡 You probably want to use the JSON-accepting
+#                   form of -e for this. Be sure to use double quotes
+#                   — Single quotes are *not* valid to escape JSON
+#                   strings. Here is a correct example in bash:
+#
+#                      -e '{"wp_destructive": {"some-hapless-wordpress": "wipe"}}'
+
+wp_destructive: {}   # Default value
+
+#
+# - wp_restore_from: One of "generate" (the default), "backup-prod",
+#                      or "none" to skip the restore process
+#                      altogether and leave the destroyed /
+#                      nonexistent WordPresses in whatever state they
+#                      are currently in.
+
+wp_restore_from: 'generate'
+
+# - dump_local_dir: The directory where ../tasks/dump.yml should
+#                   dump the WXR (XML) files

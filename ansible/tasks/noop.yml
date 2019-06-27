@@ -1,0 +1,5 @@
+# Make it so that nothing *appears* to happen when nothing *is*
+# happening.
+#
+# See https://github.com/ansible/ansible/issues/34281#issuecomment-375157219
+# for the general idea.
