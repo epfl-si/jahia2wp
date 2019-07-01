@@ -19,6 +19,7 @@ require_once 'render.php';
 require_once 'marc_converter.php';
 require_once 'group_by.php';
 require_once 'mathjax-config.php';
+require_once(ABSPATH . 'wp-admin/includes/screen.php');
 
 define("INFOSCIENCE_SEARCH_URL", "https://infoscience.epfl.ch/search?");
 
@@ -346,15 +347,16 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
 
     $cache_key = md5(serialize($cache_define_by));
 
-    if (is_admin()){
+    # check if we are here for some cache invalidation
+    if (is_admin() && current_user_can( 'edit_pages' )) {
         # invalidate the cache if we are editing the page
-        delete_transient( $cache_key );
+        delete_transient($cache_key);
     }
 
     $page = get_transient($cache_key);
 
     # not in cache ?
-    if ($page === false || $debug_data || $debug_template || is_admin()) {
+    if ($page === false || $debug_data || $debug_template) {
         $start = microtime(true);
         $response = wp_remote_get( $url, ['timeout' => 20] );
         $end = microtime(true);
