@@ -3,7 +3,8 @@
     if ( ! defined( 'ABSPATH' ) )
 	    define( 'ABSPATH', dirname( __FILE__ ) . '/../../../../' );
 
-    require_once('../../../../wp-load.php');
+    // TODO: maybe we want to shoot the above two lines.
+    require_once(dirname($_SERVER["SCRIPT_FILENAME"]) . '../../../../wp-load.php');
 
     if (!is_user_logged_in())
     {
