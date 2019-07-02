@@ -7,7 +7,9 @@
         /* We use SCRIPT_FILENAME instead of __FILE__ because the first one is the full path from "real" website and
          not from WordPress image. Then we remove last directories to have a full path (without any ../..) to build
          ABSPATH. If we use /../../ to build ABSPATH, this will be a mix between an absolute path and a relative path
-         and PHP will interpret relative path from WordPress image so it won't point to wanted directory */
+         and PHP will interpret relative path from WordPress image so it won't point to wanted directory.
+         We also can't use WP_CONTENT_DIR to know where we are because "wp-config.php" is not loaded before current
+         script is called (this is a standalone script)*/
 	    define( 'ABSPATH',str_replace("wp-content/plugins/epfl-intranet/inc", "", dirname($_SERVER["SCRIPT_FILENAME"]) ));
 
     require_once(ABSPATH . 'wp-load.php');
