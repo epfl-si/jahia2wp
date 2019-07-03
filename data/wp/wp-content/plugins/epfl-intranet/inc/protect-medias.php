@@ -2,7 +2,9 @@
 
     /* We have to define this to avoid any problems coming from WordPress website being symlinked. If we let
      wp-load.php do the job, it will build ABSPATH with /wp/ and this will leads to an error when we will use
-     wp_upload_dir() function because it will return upload directory in WordPress image */
+     wp_upload_dir() function because it will return upload directory in WordPress image
+
+     TODO: Fixme better if possible*/
     if ( ! defined( 'ABSPATH' ) )
         /* We use SCRIPT_FILENAME instead of __FILE__ because the first one is the full path from "real" website and
          not from WordPress image. Then we remove last directories to have a full path (without any ../..) to build
