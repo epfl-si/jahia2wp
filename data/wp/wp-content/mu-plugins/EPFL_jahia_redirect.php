@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Jahia redirection updater
  * Description: Update Jahia redirection (if any) in .htaccess file when a page permalink is updated
- * @version: 1.4
+ * @version: 1.5
  * @copyright: Copyright (c) 2019 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
@@ -75,8 +75,9 @@ function update_jahia_redirections($post_id, $post_after, $post_before){
 
     /* In the past, we were using get_home_path() func to have path to .htaccess file. BUT, with WordPress symlinking
       funcionality, get_home_path() returns path to WordPress images files = /wp/
-      So, to fix this, we access .htaccess file using a relative path from current file. */
-    $htaccess = dirname(__FILE__).'/../../.htaccess';
+      So, to fix this, we access .htaccess file using WP_CONTENT_DIR which is defined in wp-config.php file. We just
+       have to remove 'wp-content'  */
+    $htaccess = str_replace("wp-content", ".htaccess", WP_CONTENT_DIR);
 
     $redirect_list = extract_from_markers( $htaccess, JAHIA_REDIRECT_MARKER);
 

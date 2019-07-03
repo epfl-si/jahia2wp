@@ -2,7 +2,7 @@
 /*
  * Plugin Name: EPFL Intranet
  * Description: Use EPFL Accred to allow website access only to specific group(s) or just force to be authenticated
- * Version:     0.15
+ * Version:     0.16
  * Author:      Lucien Chaboudez
  * Author URI:  mailto:lucien.chaboudez@epfl.ch
  */
@@ -187,9 +187,10 @@ class Settings extends \EPFL\SettingsBase
    {
 
       /* In the past, we were using get_home_path() func to have path to .htaccess file. BUT, with WordPress symlinking
-      funcionality, get_home_path() returns path to WordPress images files = /wp/
-      So, to fix this, we access .htaccess file using a relative path from current file. */
-      $filename = dirname(__FILE__).'/../../../.htaccess';
+      functionality, get_home_path() returns path to WordPress images files = /wp/
+      So, to fix this, we access .htaccess file using WP_CONTENT_DIR which is defined in wp-config.php file. We just
+       have to remove 'wp-content' '*/
+      $filename = str_replace("wp-content", ".htaccess", WP_CONTENT_DIR);
 
       $marker = 'EPFL-Intranet';
 
