@@ -1,9 +1,4 @@
 <?PHP
-
-    /* We have to define this to avoid any problems coming from WordPress website being symlinked. If we let
-     wp-load.php do the job, it will build ABSPATH with /wp/ and this will leads to an error when we will use
-     wp_upload_dir() function because it will return upload directory in WordPress image */
-
     require_once(dirname($_SERVER["SCRIPT_FILENAME"], 5) . '/wp-load.php');
 
     if (!is_user_logged_in())
