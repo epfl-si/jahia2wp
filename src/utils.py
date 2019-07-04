@@ -328,8 +328,8 @@ class Utils(object):
         To avoid to backup those WordPress installations, we'll first list files/folders to backup (using "find") and
         we take care to exclude/include exactly the files/folders we want.
         Two commands are used :
-        - list files at root level (excluding the ones starting with "wp-")
-        - list all element (files/(sub)folders) starting (at root level) with "wp-".
+        - list files at root level (not starting with "wp")
+        - list all (sub)folders)/files/symlinks starting (at root level) with "wp-".
         The output of those 2 commands is concaneted and given as input to "tar" command so we have the exact list
         of files to backup.
 
@@ -339,12 +339,12 @@ class Utils(object):
         source_path -- path to infos to put in TAR file
         """
 
-        # To list root FILES not starting with "wp-"
-        cmd_first_level_files = 'find {0} -maxdepth 1 -type f -print | grep -v "{0}/wp-"'.format(source_path)
+        # To list root FILES and not starting with "wp"
+        cmd_first_level_files = 'find {0} -maxdepth 1 -type f -print | egrep -v "^{0}/wp"'.format(source_path)
 
-        # To list all files/dirs starting with "<tar_file_path>/wp-" (this will exclude non-WordPress subfolder,
+        # To list all files/dirs/symlinks starting with "<tar_file_path>/wp" (this will exclude non-WordPress subfolder,
         # which will be very useful when backuping multiple WordPress in a subfolder hierarchy
-        cmd_all_others = 'find {0} -print | grep "{0}/wp-"'.format(source_path)
+        cmd_all_others = 'find {0} -print | egrep "^{0}/wp"'.format(source_path)
 
         # --auto-compress is used to automatically detect wished file compression depending on given file extension
         command = "{{ {} ; {}; }} | tar --auto-compress --create --no-check-device --file={} " \
