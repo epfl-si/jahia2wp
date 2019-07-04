@@ -8,7 +8,7 @@
 function execCmd
 {
     # Exécution de la commande
-    $1
+    eval "$1"
 
     # Si une erreur est survenue
     if [ `echo $?` != "0" ]
