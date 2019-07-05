@@ -24,7 +24,8 @@
   changed_when: false
 
 - name: Install wordpress-importer
-  command: "{{ wp_cli_command }} plugin install --activate wordpress-importer"
+  command: "{{ wp_cli_command }} plugin list"
+# command: "{{ wp_cli_command }} plugin install --activate wordpress-importer"
   when: "'wp-importer' not in wp_plugin_list.stdout"
 
 - copy:
