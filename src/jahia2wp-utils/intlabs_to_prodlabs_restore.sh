@@ -59,7 +59,7 @@ then
 	#Editer le fichier .htacess dans subdomains
 	mkdir /srv/subdomains/${site}.epfl.ch/htdocs
 	echo "# BEGIN WordPress-Redirects-After-Ventilation" > /srv/subdomains/${site}.epfl.ch/htdocs/.htaccess
-	echo RewriteRule ^(.*)$ https://www.epfl.ch/labs/${site}/\$1 [L,QSA,R=301] >> /srv/subdomains/${site}.epfl.ch/htdocs/.htaccess
+	echo "RewriteRule ^(.*)$ https://www.epfl.ch/labs/${site}/\$1 [L,QSA,R=301]" >> /srv/subdomains/${site}.epfl.ch/htdocs/.htaccess
 	echo "# END WordPress-Redirects-After-Ventilation" >> /srv/subdomains/${site}.epfl.ch/htdocs/.htaccess
 
 	#Editer le fichier .htacess dans sandbox

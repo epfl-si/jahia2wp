@@ -17,9 +17,9 @@ execCmd "sed -i \"s/subdomains\/${site}.epfl.ch\/htdocs\//sandbox\/archive-wp.ep
 
 #Editer le fichier .htacess dans subdomains
 mkdir /srv/subdomains/${site}.epfl.ch/htdocs
-execCmd "echo \"# BEGIN WordPress-Redirects-After-Ventilation\" > /srv/subdomains/${site}.epfl.ch/htdocs/.htaccess"
-execCmd "echo \"RewriteRule ^(.*)$ ${url} [L,QSA,R=301]\" >> /srv/subdomains/${site}.epfl.ch/htdocs/.htaccess"
-execCmd "echo \"# END WordPress-Redirects-After-Ventilation\" >> /srv/subdomains/${site}.epfl.ch/htdocs/.htaccess"
+echo "# BEGIN WordPress-Redirects-After-Ventilation" > /srv/subdomains/${site}.epfl.ch/htdocs/.htaccess
+echo "RewriteRule ^(.*)$ ${url} [L,QSA,R=301]" >> /srv/subdomains/${site}.epfl.ch/htdocs/.htaccess
+echo "# END WordPress-Redirects-After-Ventilation" >> /srv/subdomains/${site}.epfl.ch/htdocs/.htaccess
 
 #Editer le fichier .htacess dans sandbox
 execCmd "sed -i \"s|RewriteBase /|RewriteBase /${site}/|g\" /srv/sandbox/archive-wp.epfl.ch/htdocs/${site}/.htaccess"
