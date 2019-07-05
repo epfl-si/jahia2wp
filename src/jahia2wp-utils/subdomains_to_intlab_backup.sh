@@ -1,4 +1,10 @@
-#!/bin/sh
+#!/bin/bash
+
+# Recherche du chemin jusqu'au dossier courant
+CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+ # Inclusion des fonctions génériques
+source ${CURRENT_DIR}/functions.sh
 
 echo "Quel est le nom du site?"
 read -r site
@@ -11,10 +17,10 @@ then
 	BACKUP_PATH=/backups/temp
 
 	echo "backup en cours..."
-	python ../jahia2wp.py backup subdomains https://$site.epfl.ch
+	execCmd "python ../jahia2wp.py backup subdomains https://$site.epfl.ch"
 	echo "fin backup : " $site
 
-	scp -r -P 32222 -o StrictHostKeyChecking=no /backups/temp/_srv_subdomains_$site.epfl.ch_htdocs www-data@test-ssh-wwp.epfl.ch:/tmp/_srv_subdomains_$site.epfl.ch_htdocs
+	execCmd  "scp -r -P 32222 -o StrictHostKeyChecking=no /backups/temp/_srv_subdomains_$site.epfl.ch_htdocs www-data@test-ssh-wwp.epfl.ch:/tmp/_srv_subdomains_$site.epfl.ch_htdocs"
 
 	rm -rf /backups/temp/_srv_subdomains_$site.epfl.ch_htdocs
 
