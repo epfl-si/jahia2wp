@@ -10,7 +10,7 @@ TODAY=$((`date +%Y%m%d`))
 if [ ${#destination} != 0 ] || [ ${#site} != 0 ]
 then
 	#Copier le site de subdomains vers www
-	cp -r -f /srv/subdomains/${site}.epfl.ch/htdocs/. /srv/www/www.epfl.ch/htdocs/${dest}
+	execCmd "cp -r /srv/subdomains/${site}.epfl.ch/htdocs/. /srv/www/www.epfl.ch/htdocs/${dest}"	
 	
 	#Exporter la base de donnees du site en subdomains
 	wp db export /backups/_srv_subdomains_${site}.epfl.ch_htdocs/${TODAY}.sql --path=/srv/subdomains/${site}.epfl.ch/htdocs/
