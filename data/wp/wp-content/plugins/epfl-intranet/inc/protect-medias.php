@@ -1,16 +1,12 @@
 <?PHP
-    /* We have to define this to avoid any problems coming from WordPress website being symlinked */
-    if ( ! defined( 'ABSPATH' ) )
-	    define( 'ABSPATH', dirname( __FILE__ ) . '/../../../../' );
-
-    require_once('../../../../wp-load.php');
+    require_once(dirname($_SERVER["SCRIPT_FILENAME"], 5) . '/wp-load.php');
 
     if (!is_user_logged_in())
     {
        $upload_dir = wp_upload_dir();
-       echo $upload_dir['baseurl'] . '/' . $_GET[ 'file' ];
        wp_redirect( wp_login_url( $upload_dir['baseurl'] . '/' . $_GET[ 'file' ]));
        exit();
+
     }
 
     list($basedir) = array_values(array_intersect_key(wp_upload_dir(), array('basedir' => 1)))+array(NULL);

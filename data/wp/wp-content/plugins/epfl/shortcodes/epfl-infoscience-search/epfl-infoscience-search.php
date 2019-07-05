@@ -4,7 +4,7 @@
  * Plugin Name: EPFL Infoscience search shortcode
  * Plugin URI: https://github.com/epfl-idevelop/jahia2wp
  * Description: provides a shortcode to search and dispay results from Infoscience
- * Version: 1.9
+ * Version: 1.10
  * Author: Julien Delasoie
  * Author URI: https://people.epfl.ch/julien.delasoie?lang=en
  * Contributors:
@@ -19,6 +19,7 @@ require_once 'render.php';
 require_once 'marc_converter.php';
 require_once 'group_by.php';
 require_once 'mathjax-config.php';
+require_once(ABSPATH . 'wp-admin/includes/screen.php');
 
 define("INFOSCIENCE_SEARCH_URL", "https://infoscience.epfl.ch/search?");
 
@@ -327,31 +328,35 @@ function epfl_infoscience_search_process_shortcode($provided_attributes = [], $c
         'sort' => $attributes['sort'],
     ];
 
-    # add language to cache definer if a group_by doctype is used
-    if ($group_by === 'doctype' || ($group_by === 'year' && $group_by2 === 'doctype')) {
-        # fetch language
-        # if you can, use the method
-        # use function EPFL\Language\get_current_or_default_language;
+    # fetch language
+    # if you can, use the method
+    # use function EPFL\Language\get_current_or_default_language;
 
-        $default_lang = 'en';
-        $allowed_langs = array('en', 'fr');
-        $language = $default_lang;
-        /* If Polylang installed */
-        if(function_exists('pll_current_language'))
-        {
-            $current_lang = pll_current_language('slug');
-            // Check if current lang is supported. If not, use default lang
-            $language = (in_array($current_lang, $allowed_langs)) ? $current_lang : $default_lang;
-        }
-        $cache_define_by['language'] = $language;
+    $default_lang = 'en';
+    $allowed_langs = array('en', 'fr');
+    $language = $default_lang;
+    /* If Polylang installed */
+    if(function_exists('pll_current_language'))
+    {
+        $current_lang = pll_current_language('slug');
+        // Check if current lang is supported. If not, use default lang
+        $language = (in_array($current_lang, $allowed_langs)) ? $current_lang : $default_lang;
     }
 
+    $cache_define_by['language'] = $language;
+
     $cache_key = md5(serialize($cache_define_by));
+
+    # check if we are here for some cache invalidation
+    if (is_admin() && current_user_can( 'edit_pages' )) {
+        # invalidate the cache if we are editing the page
+        delete_transient($cache_key);
+    }
 
     $page = get_transient($cache_key);
 
     # not in cache ?
-    if ($page === false || $debug_data || $debug_template || is_admin()) {
+    if ($page === false || $debug_data || $debug_template) {
         $start = microtime(true);
         $response = wp_remote_get( $url, ['timeout' => 20] );
         $end = microtime(true);

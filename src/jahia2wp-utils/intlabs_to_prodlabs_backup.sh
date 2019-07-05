@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Recherche du chemin jusqu'au dossier courant
+CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+ # Inclusion des fonctions génériques
+source ${CURRENT_DIR}/functions.sh
+
 echo "Quel est le nom du site?"
 read -r site
 
@@ -40,22 +46,22 @@ then
 
 	#Mettre l'entete dans le csv
 	echo "wp_site_url,wp_tagline,wp_site_title,site_type,openshift_env,category,theme,theme_faculty,status,installs_locked,updates_automatic,langs,unit_name,unit_id," > ${site}.csv
-
+	
 	#Mettre les donnees dans le csv
 	echo "https://www.epfl.ch/labs/"$site","\"$blogdescription\"","$blogname",wordpress,labs,GeneralPublic,epfl,,yes,yes,yes,"\"$langues\"","$unit","$unit_id"," >> ${site}.csv
-
+	
 	#Copier le fichier labs_to_prod dans labs
-	scp -P 32222 -o StrictHostKeyChecking=no /srv/int/jahia2wp/src/jahia2wp-utils/${site}.csv www-data@ssh-wwp.epfl.ch:/tmp/${site}.csv
+	execCmd "scp -P 32222 -o StrictHostKeyChecking=no /srv/int/jahia2wp/src/jahia2wp-utils/${site}.csv www-data@ssh-wwp.epfl.ch:/tmp/${site}.csv"
 				
 	#Exporter la base de données du site
-	wp db export /tmp/${site}.sql --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/${site}
+	execCmd "wp db export /tmp/${site}.sql --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/${site}"
 
 	#Compresser les medias et .htaccess
-	tar -czf /tmp/${site}.tar.gz -C /srv/int/migration-wp.epfl.ch/htdocs/labs/${site}/wp-content/ uploads
+	execCmd "tar -czf /tmp/${site}.tar.gz -C /srv/int/migration-wp.epfl.ch/htdocs/labs/${site}/wp-content/ uploads"
 	
 	#Copier la db et le tar dans LABS
-	scp -P 32222 -o StrictHostKeyChecking=no /tmp/${site}.sql www-data@ssh-wwp.epfl.ch:/tmp/
-	scp -P 32222 -o StrictHostKeyChecking=no /tmp/${site}.tar.gz www-data@ssh-wwp.epfl.ch:/tmp/
+	execCmd "scp -P 32222 -o StrictHostKeyChecking=no /tmp/${site}.sql www-data@ssh-wwp.epfl.ch:/tmp/"
+	execCmd "scp -P 32222 -o StrictHostKeyChecking=no /tmp/${site}.tar.gz www-data@ssh-wwp.epfl.ch:/tmp/"
 		
 	#Nettoyage des fichiers temporaires
 	rm -rf /tmp/${site}.sql
