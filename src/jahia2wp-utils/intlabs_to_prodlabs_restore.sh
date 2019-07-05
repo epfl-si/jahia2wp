@@ -46,12 +46,12 @@ then
 	execCmd "wp plugin deactivate coming-soon --path=/srv/labs/www.epfl.ch/htdocs/labs/${site}"
 
 	#Optimisation les medias du site
-    execCmd "wp ewwwio optimize all --noprompt --path=/srv/labs/www.epfl.ch/htdocs/labs/${site}"
-    execCmd "wp media regenerate --only-missing --yes --path=/srv/labs/www.epfl.ch/htdocs/labs/${site}"
+    	execCmd "wp ewwwio optimize all --noprompt --path=/srv/labs/www.epfl.ch/htdocs/labs/${site}"
+    	execCmd "wp media regenerate --only-missing --yes --path=/srv/labs/www.epfl.ch/htdocs/labs/${site}"
 		
 	#Mettre l'ancien site dans le sandbox
 	#Deplacer les fichiers du site
-	mv /srv/subdomains/${site}.epfl.ch/htdocs /srv/sandbox/archive-wp.epfl.ch/htdocs/${site}
+	execCmd "mv /srv/subdomains/${site}.epfl.ch/htdocs /srv/sandbox/archive-wp.epfl.ch/htdocs/${site}"
 
 	#Modifier le fichier wp-config.php
 	sed -i "s/subdomains\/${site}.epfl.ch\/htdocs\//sandbox\/archive-wp.epfl.ch\/htdocs\/${site}/" /srv/sandbox/archive-wp.epfl.ch/htdocs/${site}/wp-config.php
@@ -59,7 +59,7 @@ then
 	#Editer le fichier .htacess dans subdomains
 	mkdir /srv/subdomains/${site}.epfl.ch/htdocs
 	echo "# BEGIN WordPress-Redirects-After-Ventilation" > /srv/subdomains/${site}.epfl.ch/htdocs/.htaccess
-	echo "RewriteRule ^(.*)$ https://www.epfl.ch/labs/${site}/\$1 [L,QSA,R=301]" >> /srv/subdomains/${site}.epfl.ch/htdocs/.htaccess
+	echo RewriteRule ^(.*)$ https://www.epfl.ch/labs/${site}/\$1 [L,QSA,R=301] >> /srv/subdomains/${site}.epfl.ch/htdocs/.htaccess
 	echo "# END WordPress-Redirects-After-Ventilation" >> /srv/subdomains/${site}.epfl.ch/htdocs/.htaccess
 
 	#Editer le fichier .htacess dans sandbox
@@ -70,10 +70,10 @@ then
 	execCmd "wp search-replace ${site}.epfl.ch archive-wp.epfl.ch/${site} --path=/srv/sandbox/archive-wp.epfl.ch/htdocs/${site}"
 
 	#Activer le coming soon et changer le texte du coming soon
-    cp activation_coming-soon_archive /tmp/activation_coming-soon_archive_${site}
-    sed -i "s|sitename|${site}|g" /tmp/activation_coming-soon_archive_${site}
-    execCmd "wp option update seed_csp4_settings_content --format=json --path=/srv/sandbox/archive-wp.epfl.ch/htdocs/${site} < /tmp/activation_coming-soon_archive_${site}"
-    rm /tmp/activation_coming-soon_archive_${site}
+   	cp activation_coming-soon_archive /tmp/activation_coming-soon_archive_${site}
+    	sed -i "s|sitename|${site}|g" /tmp/activation_coming-soon_archive_${site}
+    	execCmd "wp option update seed_csp4_settings_content --format=json --path=/srv/sandbox/archive-wp.epfl.ch/htdocs/${site} < /tmp/activation_coming-soon_archive_${site}"
+    	rm /tmp/activation_coming-soon_archive_${site}
 	
 	#Supprimer le plugin mainwp child
 	execCmd "wp plugin deactivate mainwp-child --path=/srv/sandbox/archive-wp.epfl.ch/htdocs/${site}"
