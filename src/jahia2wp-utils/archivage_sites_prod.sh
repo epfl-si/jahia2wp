@@ -35,7 +35,7 @@ execCmd "wp option update seed_csp4_settings_content --format=json --path=/srv/s
 rm /tmp/activation_coming-soon_archive_${site}
 
 #Mettre les configurations du plugin coming-soon
-execCmd "python ../jahia2wp.py update-plugins subdomains https://archive-wp.epfl.ch/${site} --plugin=coming-soon --extra-config=/srv/www/jahia2wp/functional_tests/extra.yaml --force-options"
+execCmd "python ../jahia2wp.py update-plugins sandbox https://archive-wp.epfl.ch/${site} --plugin=coming-soon --extra-config=/srv/www/jahia2wp/functional_tests/extra.yaml --force-options"
 
 #Supprimer le plugin mainwp child
 wp plugin deactivate mainwp-child --path=/srv/sandbox/archive-wp.epfl.ch/htdocs/${site}
