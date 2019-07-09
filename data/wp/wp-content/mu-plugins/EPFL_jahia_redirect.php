@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Jahia redirection updater
  * Description: Update Jahia redirection (if any) in .htaccess file when a page permalink is updated
- * @version: 1.5
+ * @version: 1.6
  * @copyright: Copyright (c) 2019 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
@@ -96,8 +96,22 @@ function update_jahia_redirections($post_id, $post_after, $post_before){
         /* If current entry matches */
         if(preg_match('/\/'.$post_before->post_name.'\/$/', $redirect_list[$i])===1)
         {
-            /* We update slug */
-            $redirect_list[$i] = preg_replace('/\/'.$post_before->post_name.'\/$/', "/".$post_after->post_name."/", $redirect_list[$i]);
+            
+            /* We create new .htaccess line */
+             $new_line = preg_replace('/\/'.$post_before->post_name.'\/$/', "/".$post_after->post_name."/", $redirect_list[$i]);
+
+             list($redirect, $code, $source, $target) = explode(" ", $new_line);
+             /* if source and target are the same (we have to add / at the end of source because it doesn't finish with / like $target do) */
+             if($source."/" == $target) 
+             {
+                /* We comment line because if we let it, we will have an infinite loop*/
+                $redirect_list[$i] = '#'.$redirect_list[$i]. 
+                                     ' # Target has changed and became same as source so this line was commented, just to keep a trace of what happened';
+             }
+             else
+             {
+                $redirect_list[$i] = $new_line;
+             }
 
             /* If page is now in trash, */
             if($post_before->post_status != 'trash' && $post_after->post_status == 'trash')
@@ -119,8 +133,6 @@ function update_jahia_redirections($post_id, $post_after, $post_before){
                 }
             }
 
-            /* We can exit the loop because we found page slug and it is unique so continue looking is useless */
-            break;
         }
 
     }
