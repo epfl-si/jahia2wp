@@ -1,0 +1,16 @@
+The following filters are available for manipulating the response:
+
+* cache_control_cachedirective
+  The actual Cache-Control header as set by this plugin. An empty value makes
+  the request non-cacheable. Any other value must meet the requirements for a
+  cache-directive response header as defined in:
+  https://tools.ietf.org/html/rfc7234#section-5.2
+  https://tools.ietf.org/html/rfc7234#section-5.2.2 
+
+* cache_control_nocacheables
+  Boolean determining whether the current request is a cacheable or not. FALSE
+  means it’s cacheable, TRUE means it’s not.
+
+
+By the by, the Cache Control for WordPress project welcomes your patches.
+

@@ -1,4 +1,4 @@
-src: web
+src: ../wp/wp-content/plugins/cache-control
 activate: yes
 tables:
   options:
