@@ -82,8 +82,15 @@ class WPConfig:
             dir_names = sorted(dir_names)
             for dir_name in dir_names:
                 logging.debug('checking %s/%s', parent_path, dir_name)
+
                 try:
                     from_path = os.path.join(parent_path, dir_name)
+
+                    # We may have 'wp' symlink inside WordPress installation, we don't have to follow it.
+                    if os.path.islink(from_path):
+                        logging.debug("path %s is symlink, skipping", from_path)
+                        continue
+
                     wp_site = WPSite.from_path(from_path)
                     if wp_site is None:
                         continue
