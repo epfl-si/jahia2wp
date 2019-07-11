@@ -1,0 +1,3 @@
+plugins:
+  - name: EPFL-Library-Plugins
+    config: !include EPFL-Library-Plugins/config-plugin.yml
