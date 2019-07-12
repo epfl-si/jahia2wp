@@ -27,12 +27,12 @@ Class InfoscienceMarcConverter
     * urls => icon, fulltext
     */
     public static function parse_files($record, $field) {
-        $file_urls  = InfoscienceMarcConverter::parse_all($record, '856', '4', '', ['u']);
-
+        $file_urls  = InfoscienceMarcConverter::parse_text($record, '856', '4', '', ['u', 'z']);
         $sorted_urls = [];
 
-        foreach($file_urls as $url){
-            $url = $url->getData();
+        foreach($file_urls as $url_and_type) {
+            $url = $url_and_type[0];
+            $type = $url_and_type[1];
 
             $url = preg_replace("(^https?://)", "//", $url);
 
@@ -41,14 +41,14 @@ Class InfoscienceMarcConverter
             } else {
                 $matches = [];
                 preg_match('/(\.png|\.jpg|\.jpeg|\.gif)$/', $url, $matches);
-                if ($matches) {
+                if ($matches && $type == 'THUMBNAIL') {
                     $sorted_urls['icon'][] = $url;
                 }
             }
         }
         return $sorted_urls;
     }
-    
+
     /**
     * Parse external ids and filter to get only DOIs
     */
@@ -82,7 +82,7 @@ Class InfoscienceMarcConverter
 
         return $url;
     }
-    
+
     /**
     * Parse a specified entry. Provide multiple subfields with name to have a key value return
     */
@@ -90,7 +90,7 @@ Class InfoscienceMarcConverter
          if (!$subfields[0]){
             return [$record->getField($field)->getData()];
          }
-        
+
          $fields = $record->getFields($field);
          $value = [];
          $sub_values_mode = false;
@@ -120,9 +120,9 @@ Class InfoscienceMarcConverter
                 }
             }
         }
-        return $value; 
+        return $value;
     }
-    
+
     public static function parse_authors($record, $field, $ind1, $ind2, $subfields) {
         $build_search_url = function ($full_name) {
             $full_name = str_replace(' ', '+', $full_name);
@@ -144,7 +144,7 @@ Class InfoscienceMarcConverter
                     }
 
                     $fname = trim($fname);
-                    
+
                     if (strpos($fname, '-') !== false) {
                         $sname = explode('-', $fname);
 
@@ -154,8 +154,8 @@ Class InfoscienceMarcConverter
 
                         if (mb_strlen($sname[0]) > 1 || mb_strlen($sname[1]) > 1) {
                             $initname .= "-";
-                        } 
-                        
+                        }
+
                         if (mb_strlen($sname[1]) > 1) {
                             $initname .= mb_substr($sname[1], 0, 1) . ". ";
                         }
@@ -224,7 +224,7 @@ Class InfoscienceMarcConverter
                 }
             }
         }
-        
+
         return $authors;
     }
 
@@ -236,17 +236,17 @@ Class InfoscienceMarcConverter
         $record_array = [];
 
         $record_array['record_id'] = InfoscienceMarcConverter::parse_text($record, '001', '', '', ['']);
-        
+
         # SPEC: how we show it ?
         $record_array['patent'] = InfoscienceMarcConverter::parse_text($record, '013', '', '',['a', 'c'], ['number', 'state']);
 
         $record_array['isbn'] = InfoscienceMarcConverter::parse_text($record, '020', '', '', ['a']);
-        
+
         # SPEC: don't get doi if patents, as 0247_a has the TTO id too
         $record_array['doi'] = InfoscienceMarcConverter::parse_doi($record);
 
         $record_array['title'] = InfoscienceMarcConverter::parse_text($record, '245', '', '', ['a']);
-        
+
         $record_array['publication_location'] = InfoscienceMarcConverter::parse_text($record, '260', '', '', ['a']);
         $record_array['publication_institution'] = InfoscienceMarcConverter::parse_text($record, '260', '', '', ['b']);
         $record_array['publication_date'] = InfoscienceMarcConverter::parse_text($record, '269', '', '', ['a']);
@@ -255,7 +255,7 @@ Class InfoscienceMarcConverter
         /* if needed, uncomment this generic datas
         $record_array['description'] = InfoscienceMarcConverter::parse_all($record, '300');
         */
-        
+
         /* if needed, uncomment this generic datas
         $record_array['subjects'] = InfoscienceMarcConverter::parse_all($record, ['600', '610', '611', '630', '648', '650',
             '651', '653', '654', '655', '656', '657', '658', '662', '690',
@@ -263,13 +263,13 @@ Class InfoscienceMarcConverter
         */
 
         $record_array['doctype'] = InfoscienceMarcConverter::parse_text($record, '336', '', '', ['a']);
-        
+
         $record_array['summary'] = InfoscienceMarcConverter::parse_text($record, '520', '', '', ['a']);
-        
+
         $record_array['author'] = InfoscienceMarcConverter::parse_authors($record, '700', '', '', ['a']);
 
         $record_array['corporate_name'] = InfoscienceMarcConverter::parse_text($record, '710', '', '', ['a']);
-        
+
         $record_array['conference'] = InfoscienceMarcConverter::parse_text($record, '711', '', '', ['a', 'c', 'd'], ['name', 'location', 'date']);
         if (empty($record_array['conference'])) {
             $record_array['conference'] = InfoscienceMarcConverter::parse_text($record, '711', '2', '', ['a', 'c', 'd'], ['name', 'location', 'date']);
@@ -306,7 +306,7 @@ Class InfoscienceMarcConverter
      */
     public static function convert_marc_to_array($marc_xml) {
         $publications = [];
-        
+
         $marc_source = new File_MARCXML($marc_xml, File_MARC::SOURCE_STRING);
 
         while ($marc_record = $marc_source->next()) {
