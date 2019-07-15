@@ -32,7 +32,11 @@ Class InfoscienceMarcConverter
 
         foreach($file_urls as $url_and_type) {
             $url = $url_and_type[0];
-            $type = $url_and_type[1];
+            $type = null;
+
+            if (count($url_and_type) > 1) {
+                $type = $url_and_type[1];
+            }
 
             $url = preg_replace("(^https?://)", "//", $url);
 
