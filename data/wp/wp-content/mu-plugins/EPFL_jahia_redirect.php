@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Jahia redirection updater
  * Description: Update Jahia redirection (if any) in .htaccess file when a page permalink is updated
- * @version: 1.7
+ * @version: 1.8
  * @copyright: Copyright (c) 2019 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
@@ -64,19 +64,11 @@ function jahia_redirection_get_page_full_slug($page)
         $page_slug = $page->post_name . '/'. $page_slug;
     }
     
-    /* Getting WP installation subfolder (if any), ex: marvel */
-    $site_folder_path = preg_replace('/(^https?:\/\/.*\/)|(\/$)/U', '', get_option('siteurl'));
-
-    /* WP is installed in a subfolder */
-    if($site_folder_path != "")
-    {
-        /* we need to build a "full" path, ex: /marvel */
-        $site_folder_path = '/'.$site_folder_path;
-    }
+    $parsed = parse_url(get_option('siteurl'));
 
     /* Generating relative path to page from root folder, ex: /marvel/avengers/thor
     This is the new path to access the page */
-    return $site_folder_path.'/'.$page_slug;
+    return $parsed['path'].'/'.$page_slug;
 }
 
 
