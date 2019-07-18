@@ -1,0 +1,184 @@
+
+
+*** PARSING CSV AND INSERTING DATA TO DB ***
+
+... file ok ! 
+
+inserting course data, csv row 2 :BA2 - Enjeux mondiaux: alimentation A
+inserting course data, csv row 3 :BA2 - Enjeux mondiaux: alimentation B
+inserting course data, csv row 4 :BA2 - Enjeux mondiaux: climat A
+inserting course data, csv row 5 :BA2 - Enjeux mondiaux: climat B
+inserting course data, csv row 6 :BA2 - Enjeux mondiaux: communication A
+inserting course data, csv row 7 :BA2 - Enjeux mondiaux: communication B
+inserting course data, csv row 8 :BA2 - Enjeux mondiaux: énergie A
+inserting course data, csv row 9 :BA2 - Enjeux mondiaux: énergie B
+inserting course data, csv row 10 :BA2 - Enjeux mondiaux: mobilité A
+inserting course data, csv row 11 :BA2 - Enjeux mondiaux: mobilité B
+inserting course data, csv row 12 :BA2 - Enjeux mondiaux: santé A
+inserting course data, csv row 13 :BA2 - Enjeux mondiaux: santé B
+inserting course data, csv row 14 :BA3 - Science, technologie et société A
+inserting course data, csv row 15 :BA3 - Enjeux politiques contemporains A
+inserting course data, csv row 16 :BA3 - Pratiques artistiques A
+inserting course data, csv row 17 :BA3 - Histoire de l'Asie contemporaine A
+inserting course data, csv row 18 :BA3 - Médias, communication et culture
+inserting course data, csv row 19 :BA3 - Design graphique I
+inserting course data, csv row 20 :BA3 - Design industriel I
+inserting course data, csv row 21 :BA3 - Ethique sociale et politique A
+inserting course data, csv row 22 :BA3 - État et droits humains
+inserting course data, csv row 23 :BA3 - Psychologie cognitive A
+inserting course data, csv row 24 :BA3 - Méditerranée: grands textes et mythes fondateurs A
+inserting course data, csv row 25 :BA3 - Philosophie des sciences A
+inserting course data, csv row 26 :BA3 - Psychologie sociale A
+inserting course data, csv row 27 :BA3 - Travail et organisations
+inserting course data, csv row 28 :BA3 - Histoire des énergies et des transports A
+inserting course data, csv row 29 :BA3 - Histoire et théorie du cinéma
+inserting course data, csv row 30 :BA3 - Science et littérature A
+inserting course data, csv row 31 :BA3 - Musicologie et histoire de la musique A
+inserting course data, csv row 32 :BA3 - Economie et innovation
+inserting course data, csv row 33 :BA3 - Iran contemporain
+inserting course data, csv row 34 :BA3 - Histoire des relations internationales
+inserting course data, csv row 35 :BA3 - Cerveau, esprit et société
+inserting course data, csv row 36 :BA3 - Anthropologie de l'Asie orientale
+inserting course data, csv row 37 :BA3 - Sciences, raison et foi I
+inserting course data, csv row 38 :BA3 - Coopération et développement
+inserting course data, csv row 39 :BA4 - Musicologie et histoire de la musique B
+inserting course data, csv row 40 :BA4 - Design graphique II
+inserting course data, csv row 41 :BA4 - Design industriel II
+inserting course data, csv row 42 :BA4 - Développement durable A
+inserting course data, csv row 43 :BA4 - Études musicales B
+inserting course data, csv row 44 :BA4 - Science, technologie et société B
+inserting course data, csv row 45 :BA4 - Le genre et ses représentations
+inserting course data, csv row 46 :BA4 - Droit des affaires
+inserting course data, csv row 47 :BA4 - Méditerranée: grands textes et mythes fondateurs B
+inserting course data, csv row 48 :BA4 - Philosophie des sciences B
+inserting course data, csv row 49 :BA4 - Psychologie sociale B
+inserting course data, csv row 50 :BA4 - Enjeux politiques contemporains B
+inserting course data, csv row 51 :BA4 - Science et littérature B
+inserting course data, csv row 52 :BA4 - Santé, population et société
+inserting course data, csv row 53 :BA4 - Afrique contemporaine
+inserting course data, csv row 54 :BA4 - Chine contemporaine
+inserting course data, csv row 55 :BA4 - Histoire des médias
+inserting course data, csv row 56 :BA4 - Savoirs, connaissances, croyances I
+inserting course data, csv row 57 :BA4 - Histoire et théorie de la photographie
+inserting course data, csv row 58 :BA4 - Ethique sociale et politique B
+inserting course data, csv row 59 :BA4 - Musical improvisation, invention and creativity
+inserting course data, csv row 60 :BA4 - Histoire et humanités digitales
+inserting course data, csv row 61 :BA4 - Comportement humain et sciences économiques
+inserting course data, csv row 62 :BA4 - Pratiques artistiques B
+inserting course data, csv row 63 :BA5 - Science et littérature C
+inserting course data, csv row 64 :BA5 - Pratiques artistiques C
+inserting course data, csv row 65 :BA5 - Economie de la Chine
+inserting course data, csv row 66 :BA5 - Médias sociaux, culture et société
+inserting course data, csv row 67 :BA5 - Design graphique III
+inserting course data, csv row 68 :BA5 - Design industriel III
+inserting course data, csv row 69 :BA5 - Histoire de l'image
+inserting course data, csv row 70 :BA5 - Musicologie et histoire de la musique C
+inserting course data, csv row 71 :BA5 - Méditerranée: grands textes et mythes fondateurs C
+inserting course data, csv row 72 :BA5 - Physique et philosophie au XXe siècle
+inserting course data, csv row 73 :BA5 - Psychologie sociale C
+inserting course data, csv row 74 :BA5 - Professions et carrières
+inserting course data, csv row 75 :BA5 - Ethique de la recherche scientifique
+inserting course data, csv row 76 :BA5 - Histoire des énergies et des transports B
+inserting course data, csv row 77 :BA5 - Gestion des ressources humaines
+inserting course data, csv row 78 :BA5 - Entrepreneurship
+inserting course data, csv row 79 :BA5 - Introduction au droit de la propriété intellectuelle
+inserting course data, csv row 80 :BA5 - Science, technologie et société C
+inserting course data, csv row 81 :BA5 - Japon contemporain A
+inserting course data, csv row 82 :BA5 - Sciences de la mémoire
+inserting course data, csv row 83 :BA5 - Gouvernance des risques
+inserting course data, csv row 84 :BA5 - Sport, dopage et sciences
+inserting course data, csv row 85 :BA5 - Créativité et design participatif
+inserting course data, csv row 86 :BA5 - Anthropologie de l'urbain
+inserting course data, csv row 87 :BA5 - Savoirs, connaissances, croyances II
+inserting course data, csv row 88 :BA5 - The ethics of robots
+inserting course data, csv row 89 :BA6 - Psychologie des émotions
+inserting course data, csv row 90 :BA6 - Droit de la recherche technologique
+inserting course data, csv row 91 :BA6 - Histoire de l'art contemporain
+inserting course data, csv row 92 :BA6 - Pratiques artistiques D
+inserting course data, csv row 93 :BA6 - Chine: une nouvelle puissance globale?
+inserting course data, csv row 94 :BA6 - Histoire de l'Asie contemporaine B
+inserting course data, csv row 95 :BA6 - Design graphique IV
+inserting course data, csv row 96 :BA6 - Design industriel IV
+inserting course data, csv row 97 :BA6 - Études musicales D
+inserting course data, csv row 98 :BA6 - Science, technologie et société D
+inserting course data, csv row 99 :BA6 - Discriminations et marché du travail
+inserting course data, csv row 100 :BA6 - Médias et société
+inserting course data, csv row 101 :BA6 - Méditerranée: grands textes et mythes fondateurs D
+inserting course data, csv row 102 :BA6 - Histoire de la pensée économique
+inserting course data, csv row 103 :BA6 - Psychologie sociale D
+inserting course data, csv row 104 :BA6 - Science et littérature D
+inserting course data, csv row 105 :BA6 - Dynamiques de groupe dans les organisations
+inserting course data, csv row 106 :BA6 - L'art brut
+inserting course data, csv row 107 :BA6 - Ethique de l'environnement
+inserting course data, csv row 108 :BA6 - Introduction to sustainable entrepreneurship
+inserting course data, csv row 109 :BA6 - Musicologie et histoire de la musique D
+inserting course data, csv row 110 :BA6 - Sciences, raison et foi II
+inserting course data, csv row 111 :BA6 - Encountering latin America
+inserting course data, csv row 112 :BA6 - Humanités digitales
+inserting course data, csv row 113 :BA6 - Histoire contemporaine de la Suisse
+inserting course data, csv row 114 :BA6 - Prototypage
+inserting course data, csv row 115 :BA6 - Le jeu vidéo: média natif du numérique
+inserting course data, csv row 116 :BA6 - Histoire des sciences et des techniques
+inserting course data, csv row 117 :MA1 - Pratiques artistiques I
+inserting course data, csv row 118 :MA1 - Experimental cognitive psychology I
+inserting course data, csv row 119 :MA1 - Culture médiatique I
+inserting course data, csv row 120 :MA1 - Musique, politique, société I
+inserting course data, csv row 121 :MA1 - Design graphique V
+inserting course data, csv row 122 :MA1 - Design industriel V
+inserting course data, csv row 123 :MA1 - Images de la nature I
+inserting course data, csv row 124 :MA1 - Droit et technique I
+inserting course data, csv row 125 :MA1 - Enjeux éthiques de l'ingénieur I
+inserting course data, csv row 126 :MA1 - Hommes/machines I
+inserting course data, csv row 127 :MA1 - Philosophical perspectives on the exact sciences I
+inserting course data, csv row 128 :MA1 - Histoire de l'image I
+inserting course data, csv row 129 :MA1 - Mythes de la Méditerranée ancienne I
+inserting course data, csv row 130 :MA1 - Psychologie sociale I
+inserting course data, csv row 131 :MA1 - Understanding modern Switzerland I
+inserting course data, csv row 132 :MA1 - Science, technologie et société I
+inserting course data, csv row 133 :MA1 - Philosophy of life sciences I
+inserting course data, csv row 134 :MA1 - How people learn I
+inserting course data, csv row 135 :MA1 - Chine: la renaissance d'une grande puissance I
+inserting course data, csv row 136 :MA1 - Gestion des organisations I
+inserting course data, csv row 137 :MA1 - Sciences et religions I
+inserting course data, csv row 138 :MA1 - La recherche dans tous ses états I
+inserting course data, csv row 139 :MA1 - Humanités digitales I
+inserting course data, csv row 140 :MA1 - Global perspectives, local realities I
+inserting course data, csv row 141 :MA1 - Création collective: arts-impro & ingénierie I
+inserting course data, csv row 142 :MA1 - Contemporary Japan I
+inserting course data, csv row 143 :MA1 - Governing global migration I
+inserting course data, csv row 144 :MA1 - Patrimoine, numérisation et projet collaboratif I
+inserting course data, csv row 145 :MA1 - Economic growth and sustainability I
+inserting course data, csv row 146 :MA2 - Culture médiatique II
+inserting course data, csv row 147 :MA2 - Design graphique VI
+inserting course data, csv row 148 :MA2 - Design industriel VI
+inserting course data, csv row 149 :MA2 - Droit et technique II
+inserting course data, csv row 150 :MA2 - Études musicales II
+inserting course data, csv row 151 :MA2 - Psychologie sociale II
+inserting course data, csv row 152 :MA2 - Science, technologie et société II
+inserting course data, csv row 153 :MA2 - Philosophy of life sciences II
+inserting course data, csv row 154 :MA2 - How people learn II
+inserting course data, csv row 155 :MA2 - Chine: la renaissance d'une grande puissance II
+inserting course data, csv row 156 :MA2 - Création collective: arts-impro & ingénierie II
+inserting course data, csv row 157 :MA2 - Contemporary Japan II
+inserting course data, csv row 158 :MA2 - Governing global migration II
+inserting course data, csv row 159 :MA2 - Sciences et religions II
+inserting course data, csv row 160 :MA2 - Pratiques artistiques II
+inserting course data, csv row 161 :MA2 - Mythes de la Méditerranée ancienne II
+inserting course data, csv row 162 :MA2 - Philosophical perspectives on the exact sciences II
+inserting course data, csv row 163 :MA2 - La recherche dans tous ses états II
+inserting course data, csv row 164 :MA2 - Humanités digitales II
+inserting course data, csv row 165 :MA2 - Experimental cognitive psychology II
+inserting course data, csv row 166 :MA2 - Musique, politique, société II
+inserting course data, csv row 167 :MA2 - Enjeux éthiques de l'ingénieur II
+inserting course data, csv row 168 :MA2 - Global perspectives, local realities II
+inserting course data, csv row 169 :MA2 - Gestion des organisations II
+inserting course data, csv row 170 :MA2 - Hommes/machines II
+inserting course data, csv row 171 :MA2 - Images de la nature II
+inserting course data, csv row 172 :MA2 - Understanding modern Switzerland II
+inserting course data, csv row 173 :MA2 - Histoire de l'image II
+inserting course data, csv row 174 :MA2 - Patrimoine, numérisation et projet collaboratif II
+inserting course data, csv row 175 :MA2 - Economic growth and sustainability II
+
+
+*** END PARSING CSV --> SUCCESSFULL !! ***
+

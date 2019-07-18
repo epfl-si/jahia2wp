@@ -1,0 +1,37 @@
+*************************************************
+** EPFL Courses Search Engine Wordpress plugin **
+*************************************************
+
+** CSV file requirements **
+
+The CSV file to update plugin data must be a comma separated CSV file ',' with UTF-8 encoding.
+
+First line must contains headers.
+
+Column are defined like below :
+
+1. CODE --> course code ( eg. 'HUM-427(a)' )
+2. SEMESTER --> the semester code in the defined list {BA2,BA3,BA4,BA5,BA6,MA1,MA2}
+3. TITLE --> the general course title
+4. TITLE_FR --> the course title in French
+5. TITLE_EN --> the course title in English
+6. RESUME_FR--> the course resume in French with double-quotted text delimiter 
+5. RESUME_EN --> the course resume in English with double-quotted text delimiter 
+6. PROFESSORS --> course professor(s) : multiple professors are separated by a pipe '|' 
+	and contain 3 informations 'sciper:firstname:lastname' ( eg. '123456:John:Doe|654321:Freddy:Kruger' )
+7. KEYWORDS --> the course keywords : multiple keywords are sepearated by a pipe '|'
+8. POLYPERSPECTIVES --> the course POLY-perspectives IDs, separated by a pipe '|', 
+	with IDs corresponding to {1=Interdisciplinary,2=Global,3=Citizen and 3=Creative}
+
+If KEYWORDS and POLYPERSPECTIVES are not used, columns need to be blanks.
+
+Encoding : UTF-8
+
+Example :
+
+----------- myFile.csv ----------------------------------------------------------------------------------------
+CODE,SEMESTER,TITLE,TITLE_FR,TITLE_EN,RESUME_FR,RESUME_EN,PROFESSORS,KEYWORDS,POLYPERSPECTIVES
+HUM-999,My title,My title fr,"My title en, My resume fr","My resume en",123456:John:Doe|654321:Freddy:Kruger,BIG DATA|DESIGN|HISTORY,1|3
+...
+---------------------------------------------------------------------------------------------------------------
+
