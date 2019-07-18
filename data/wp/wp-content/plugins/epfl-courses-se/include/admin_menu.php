@@ -84,8 +84,10 @@ function updateFromCSV($csv_path)
 
 
 
-function display_admin_menu() {
-?>
+function get_admin_menu_div() {
+
+ob_start(); ?>
+
 <div class="wrap">
 <h1>EPFL Courses Search Engine - Administration</h1>
 
@@ -194,4 +196,10 @@ CODE,SEMESTER,TITLE,TITLE_FR,TITLE_EN,RESUME_FR,RESUME_EN,PROFESSORS,KEYWORDS,PO
 
 </div>
 
-<?php } ?>
+<?php 
+
+	$admin_menu_div = ob_get_contents();
+	
+	ob_end_clean();
+	
+	return $admin_menu_div;} ?>

@@ -67,14 +67,14 @@ add_action( 'admin_init', 'epflcse_settings_init' );
 
 // mt_toplevel_page() displays the page content for the plugin Toplevel menu
 function load_admin_menu_page() {
-    echo display_admin_menu();
+    echo get_admin_menu_div();
 }
 
-/************ COURSES SEARCH ENGINE PAGE ********************/
-function load_courses_se(){
-	echo display_courses_se();
-}
-add_shortcode( 'epfl-courses-se', 'load_courses_se' );
+// /************ COURSES SEARCH ENGINE PAGE ********************/
+// function load_courses_se(){
+// 	echo display_courses_se();
+// }
+add_shortcode( 'epfl-courses-se', 'get_courses_se_div');//load_courses_se' );
 
 /************ load .mo file for translation ********************/
 function epflcse_load_plugin_textdomain() {

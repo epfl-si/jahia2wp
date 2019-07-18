@@ -8,9 +8,11 @@ Author: CAPE - Ludovic Bonivento
 */
 $PLUGIN_ROOT_URL = plugin_dir_url(__DIR__);
 
-function display_courses_se() {
-?>
+function get_courses_se_div() {
 
+	
+	ob_start(); ?>
+	
 	<div class="container-full" style="padding:0px 50px;">
                 
         <script type="text/javascript">      
@@ -347,6 +349,12 @@ function display_courses_se() {
 		</div>
 	</div>
 	
-<?php ;
+<?php 
+	
+	$courses_se_div = ob_get_contents();
+	
+	ob_end_clean();
+	
+	return $courses_se_div;
 }
 ?>
