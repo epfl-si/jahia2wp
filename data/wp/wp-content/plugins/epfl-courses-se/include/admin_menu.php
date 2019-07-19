@@ -60,25 +60,25 @@ function updateFromISA()
 	
 	$result = updateCoursesFromISAByYearSection($years,$section,$csv_path);
 	
-	if($result=='ok'){
-		echo '<div id="message" class="updated fade"><p>Data updated ! <a href="'.plugin_dir_url(__DIR__).'csv/update_data.log" target="_blank">log file</a></p></div>';
+	if($result===true){
+		echo '<div id="message" class="updated fade"><p>Data updated !</p></div>';
 	}else{
-		echo '<div id="message" class="updated fade"><p>Error during update ! <a href="'.plugin_dir_url(__DIR__).'csv/update_data.log" target="_blank">log file</a></p></div>';
+		echo '<div id="message" class="updated fade"><p>Error during update !'.$result.'</p></div>';
 	}
 }
 
 
 
-function updateFromCSV($csv_path)
+function updateFromCSV($courses_array)
 {
 
-	$result = updateCoursesFromCSV($csv_path);
+	$result = parseCoursesArray($courses_array);
 	
-	if($result=='ok'){
-		echo '<div id="message" class="updated fade"><p>Data updated ! <a href="'.plugin_dir_url(__DIR__).'csv/update_data.log" target="_blank">log file</a></p></div>';
+	if($result===true){
+		echo '<div id="message" class="updated fade"><p>Data updated !</p></div>';
 	}else{
-		echo '<div id="message" class="updated fade"><p>'.$result.'Error during update ! <a href="'.plugin_dir_url(__DIR__).'csv/update_data.log" target="_blank">log file</a></p></div>';
-	}  
+		echo '<div id="message" class="updated fade"><p>Error during update !'.$result.'</p></div>';
+	}
 	
 }
 
@@ -116,21 +116,30 @@ if (isset($_POST['updateISA_button']) && check_admin_referer('updateISA_button_c
 	
 }
 if(isset($_POST["updateFromCSV_button"]) && check_admin_referer('updateFromCSV_button_clicked')) {
-    $target_file = plugin_dir_path(__DIR__)."csv/courses_data.csv";//".basename($_FILES["csvFile"]["name"]);
-    
-    //copy old file 
-    copy($target_file,plugin_dir_path(__DIR__)."csv/old_courses_data.csv");
-    
-    if (move_uploaded_file($_FILES["csvFile"]["tmp_name"], $target_file)) {
-        updateFromCSV(plugin_dir_path(__DIR__)."csv/");
-    } else {
-        echo "Sorry, there was an error uploading your file.";
-    }
+    $csv_array=array();
+    $tmpName = $_FILES['csvFile']['tmp_name'];
+    if (($file = fopen($tmpName, "r")) !== FALSE) {
+ 		while (($course = fgetcsv($file, 1000, ",")) !== FALSE) {
+ 			
+				array_push($csv_array, $course);
+		}
+	}
+
+	updateFromCSV($csv_array);
+
 }
 
 if(isset($_POST["initKeywordsPolyperspectivesSemestersData_button"]) && check_admin_referer('initKPSData_button_clicked')) {
-echo "start";
-    initKeywordsPolyperspectivesSemesters();
+    $result = initKeywordsPolyperspectivesSemesters();
+    if($result===true){
+		echo '<div id="message" class="updated fade"><p>Init done !</p></div>';
+	}else{
+		echo '<div id="message" class="updated fade"><p>Error during init !'.$result.'</p></div>';
+	}
+}
+
+if(isset($_POST["downloadCSV_button"]) && check_admin_referer('downloadCSV_button_clicked')) {
+	downloadCoursesDataCSV();
 }
 
 echo '<div style="border:1px solid lightgrey;padding:10px;">';
@@ -155,11 +164,12 @@ echo '<a href="'.plugin_dir_url(__DIR__).'csv/update_data.log" target="_blank">l
 echo '</div>';
 
 
-echo '<form action="'.plugin_dir_url(__DIR__).'csv/courses_data.csv" method="get">';
-echo '<input type="hidden" value="true" name="downloadCSV_button" />';
+echo '<form action="admin.php?page=epflcse-admin" method="post" enctype="multipart/form-data">';
+wp_nonce_field('downloadCSV_button_clicked');
+//echo '<form action="'.plugin_dir_url(__DIR__).'csv/courses_data.csv" method="get">';
+echo '<input type="hidden" value="true" name="downloadCSV_button"/>';
 submit_button('Download CSV data file');
 echo '</form>';
-
 echo '</div>';
 
 echo '<div style="border:1px solid lightgrey;padding:10px;">';
@@ -187,7 +197,7 @@ echo '</div>';
 <li>RESUME_EN --&gt; the course resume in English with double-quotted text delimiter</li>
 <li>PROFESSORS --&gt; course professor(s) : multiple professors are separated by a pipe '|'</li>
 <li>and contain 3 informations 'sciper:firstname:lastname' ( eg. '123456:John:Doe|654321:Freddy:Kruger' ) KEYWORDS --&gt; the course keywords : multiple keywords are sepearated by a pipe '|'</li>
-<li>POLYPERSPECTIVES --&gt; the course POLY-perspectives IDs, separated by a pipe '|', with IDs corresponding to {1=Interdisciplinary,2=Global,3=Citizen and 3=Creative}</li>
+<li>POLYPERSPECTIVES --&gt; the course POLY-perspectives Names, separated by a pipe '|'{Interdisciplinary,Global,Citizen,Creative}</li>
 </ol>
 <p>If KEYWORDS and POLYPERSPECTIVES are not used, columns need to be blank.</p>
 <p>Example :</p>

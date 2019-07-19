@@ -82,6 +82,29 @@ function epflcse_load_plugin_textdomain() {
 }
 add_action( 'plugins_loaded', 'epflcse_load_plugin_textdomain' );
 
+/************ csv function ******************************/
+if (isset($_POST["downloadCSV_button"])){//(isset($_GET['page']) && $_GET['page'] === 'my_csv_download') {
+    // Just setting some headers for our download
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Cache-Control: private", false);
+    header("Content-Type: application/octet-stream");
+    header("Content-Disposition: attachment; filename=courses_data_".date("Y-m-d_H-i",time()).".csv");
+    header("Content-Transfer-Encoding: binary");
+    $data = getCoursesDataCSVArray();
+
+    $outstream = fopen("php://output", "w");
+
+    foreach($data as $row) {
+		fputcsv($outstream, $row);
+	}
+
+    fclose($outstream);
+    exit;
+}
+
+
 /************ Activation and uninstall ********************/
 register_activation_hook(__FILE__, 'plugin_activate');
 register_uninstall_hook( __FILE__, 'plugin_uninstall');

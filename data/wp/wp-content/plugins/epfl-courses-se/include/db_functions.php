@@ -11,45 +11,42 @@ function clearCoursesData(){
 
 	if ( $wpdb->query( $sql ) === false )
 	{
-		throw new Exception( 'There was a database error when clearing Courses Data (function clearCoursesData): ' . $wpdb->print_error()  ."\n" . $sql );
+		return 'There was a database error when clearing Courses Data (function clearCoursesData): ' . $wpdb->print_error()  ."\n" . $sql;
 	}
 	
 	$sql = "DELETE FROM epfl_courses_se_course_polyperspective;";
 	
 	if ( $wpdb->query( $sql ) === false )
 	{
-		throw new Exception( 'There was a database error when clearing Courses Data (function clearCoursesData): ' . $wpdb->print_error()  ."\n" . $sql );
+		return 'There was a database error when clearing Courses Data (function clearCoursesData): ' . $wpdb->print_error()  ."\n" . $sql;
 	}
 	
 	$sql = "DELETE FROM epfl_courses_se_course_keyword;";
 	
 	if ( $wpdb->query( $sql ) === false )
 	{
-		throw new Exception( 'There was a database error when clearing Courses Data (function clearCoursesData): ' . $wpdb->print_error()  ."\n" . $sql );
+		return 'There was a database error when clearing Courses Data (function clearCoursesData): ' . $wpdb->print_error()  ."\n" . $sql;
 	}
 	
 	$sql = "DELETE FROM epfl_courses_se_teacher;";
 	
 	if ( $wpdb->query( $sql ) === false )
 	{
-		throw new Exception( 'There was a database error when clearing Courses Data (function clearCoursesData): ' . $wpdb->print_error()  ."\n" . $sql );
+		return 'There was a database error when clearing Courses Data (function clearCoursesData): ' . $wpdb->print_error()  ."\n" . $sql;
 	}
 	
 	$sql = "DELETE FROM epfl_courses_se_course;";
 	
 	if ( $wpdb->query( $sql ) === false )
 	{
-		throw new Exception( 'There was a database error when clearing Courses Data (function clearCoursesData): ' . $wpdb->print_error()  ."\n" . $sql );
+		return 'There was a database error when clearing Courses Data (function clearCoursesData): ' . $wpdb->print_error()  ."\n" . $sql;
 	}
     
-    return 'ok';
+    return true;
 }
 
 function addCourseData($course){
 	
-	//Header template from functions.php
-	//'CODE','SEMESTER','TITLE','LANGUAGE','TITLE_FR','TITLE_EN','RESUME_FR','RESUME_EN','PROFESSORS','CREDITS','KEYWORDS','POLYPERSPECTIVES'
-
 	$course_code = $course[0];
 	
 	global $wpdb;
@@ -57,7 +54,7 @@ function addCourseData($course){
 		
 	//insert into course
 	$sql = "INSERT INTO epfl_courses_se_course (`code`,`semester_code`,`title`,`language`,`title_fr`,`title_en`,`resume_fr`,`resume_en`,`credits`,`lecture_period`,`exercice_period`,`project_period`,`tp_period`,`labo_period`,`exam_info`) VALUES('";
-			
+	
 	$countFields = count($course);
 	for ($c=0; $c < 8; $c++) {
 		
@@ -66,7 +63,7 @@ function addCourseData($course){
 		}
         $sql .= str_replace("'","''",$course[$c]);
     }
-    
+
     $sql.= "'";
     
     for ($c=9; $c < 16; $c++) {
@@ -81,7 +78,7 @@ function addCourseData($course){
 
     if ( $wpdb->query( $sql ) === false )
 	{
-		throw new Exception( 'There was a database error when inserting Courses Data (function addCourseData): ' . $wpdb->print_error() ."\n" . $sql);
+		return 'There was a database error when inserting Courses Data (function addCourseData): ' . $wpdb->print_error() ."\n" . $sql;
 	}
     //insert into teacher
     if(!empty($course[8])){
@@ -95,13 +92,13 @@ function addCourseData($course){
 			if($wpdb->last_error)
 			{
 				echo $wpdb->print_error();
-				throw new Exception( 'There was a database error when select teacher Data (function addCourseData): ' . $wpdb->print_error()  ."\n" . $sql);
+				return 'There was a database error when select teacher Data (function addCourseData): ' . $wpdb->print_error()  ."\n" . $sql;
 			}
 			if(count($teacher_db)==0){
 				$sql = "INSERT INTO epfl_courses_se_teacher (`sciper`,`firstname`,`lastname`) VALUES(".$teacher_data[0].",'".$teacher_data[1]."','".$teacher_data[2]."');";
 					if ( $wpdb->query( $sql ) === false )
 				{
-					throw new Exception( 'There was a database error when inserting teacher Data (function addCourseData): ' . $wpdb->print_error()  ."\n" . $sql);
+					return 'There was a database error when inserting teacher Data (function addCourseData): ' . $wpdb->print_error()  ."\n" . $sql;
 				}
 			}
 			array_push($teachers_scipers,$teacher_data[0]);
@@ -113,7 +110,7 @@ function addCourseData($course){
 			if ( $wpdb->query( $sql ) === false )
 			{
 				
-				throw new Exception( 'There was a database error when inserting course_teacher Data (function addCourseData): ' . $wpdb->print_error()  ."\n" . $sql);
+				return 'There was a database error when inserting course_teacher Data (function addCourseData): ' . $wpdb->print_error()  ."\n" . $sql;
 			}
 		}
 	}
@@ -128,7 +125,7 @@ function addCourseData($course){
 				
 				if ( $wpdb->query( $sql ) === false )
 				{
-					throw new Exception( 'There was a database error when inserting course_keyword Data (function addCourseData): ' . $wpdb->print_error()  ."\n" . $sql);
+					return 'There was a database error when inserting course_keyword Data (function addCourseData): ' . $wpdb->print_error()  ."\n" . $sql;
 				}
 			}
 		}
@@ -159,12 +156,12 @@ function addCourseData($course){
 			
 			if ( $wpdb->query( $sql ) === false )
 			{
-				throw new Exception( 'There was a database error when inserting course_polyperspective Data (function addCourseData): ' . $wpdb->print_error() ."\n" . $sql );
+				return 'There was a database error when inserting course_polyperspective Data (function addCourseData): ' . $wpdb->print_error() ."\n" . $sql;
 			}
 		}
 	}
 	$wpdb->query('SET foreign_key_checks = 1;');
-	return 'ok';
+	return true;
 }
 
 function replaceSpecialChars($str) {
@@ -172,8 +169,6 @@ function replaceSpecialChars($str) {
   $b = array('A', 'A', 'A', 'A', 'A', 'A', 'AE', 'C', 'E', 'E', 'E', 'E', 'I', 'I', 'I', 'I', 'D', 'N', 'O', 'O', 'O', 'O', 'O', 'O', 'U', 'U', 'U', 'U', 'Y', 's', 'a', 'a', 'a', 'a', 'a', 'a', 'ae', 'c', 'e', 'e', 'e', 'e', 'i', 'i', 'i', 'i', 'n', 'o', 'o', 'o', 'o', 'o', 'o', 'u', 'u', 'u', 'u', 'y', 'y', 'A', 'a', 'A', 'a', 'A', 'a', 'C', 'c', 'C', 'c', 'C', 'c', 'C', 'c', 'D', 'd', 'D', 'd', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'G', 'g', 'G', 'g', 'G', 'g', 'G', 'g', 'H', 'h', 'H', 'h', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', 'IJ', 'ij', 'J', 'j', 'K', 'k', 'L', 'l', 'L', 'l', 'L', 'l', 'L', 'l', 'l', 'l', 'N', 'n', 'N', 'n', 'N', 'n', 'n', 'O', 'o', 'O', 'o', 'O', 'o', 'OE', 'oe', 'R', 'r', 'R', 'r', 'R', 'r', 'S', 's', 'S', 's', 'S', 's', 'S', 's', 'T', 't', 'T', 't', 'T', 't', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'W', 'w', 'Y', 'y', 'Y', 'Z', 'z', 'Z', 'z', 'Z', 'z', 's', 'f', 'O', 'o', 'U', 'u', 'A', 'a', 'I', 'i', 'O', 'o', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'A', 'a', 'AE', 'ae', 'O', 'o', 'Α', 'α', 'Ε', 'ε', 'Ο', 'ο', 'Ω', 'ω', 'Ι', 'ι', 'ι', 'ι', 'Υ', 'υ', 'υ', 'υ', 'Η', 'η', '', '', '-','-','','');
   return str_replace($a, $b, $str);
 }
-
-
 
 function getTeachers(){
 	
@@ -537,6 +532,9 @@ function getCloudKeywords(){
     wp_die();
 }
 
+add_action('wp_ajax_getCloudKeywords','getCloudKeywords');
+add_action('wp_ajax_nopriv_getCloudKeywords','getCloudKeywords');
+
 function initKeywordsPolyperspectivesSemestersData(){
 	global $wpdb;
 	
@@ -545,21 +543,21 @@ function initKeywordsPolyperspectivesSemestersData(){
 
 	if ( $wpdb->query( $sql ) === false )
 	{
-		throw new Exception( 'There was a database error when deleting keywords (function initKeywordsPolyperspectivesSemestersData): ' . $wpdb->print_error()  ."\n" . $sql );
+		return 'There was a database error when deleting keywords (function initKeywordsPolyperspectivesSemestersData): ' . $wpdb->print_error()  ."\n" . $sql;
 	}
 	
 	$sql = "DELETE FROM epfl_courses_se_polyperspective;";
 
 	if ( $wpdb->query( $sql ) === false )
 	{
-		throw new Exception( 'There was a database error when deleting polyperspectives (function initKeywordsPolyperspectivesSemestersData): ' . $wpdb->print_error()  ."\n" . $sql );
+		return 'There was a database error when deleting polyperspectives (function initKeywordsPolyperspectivesSemestersData): ' . $wpdb->print_error()  ."\n" . $sql;
 	}
 	
 	$sql = "DELETE FROM epfl_courses_se_semester;";
 
 	if ( $wpdb->query( $sql ) === false )
 	{
-		throw new Exception( 'There was a database error when deleting semesters (function initKeywordsPolyperspectivesSemestersData): ' . $wpdb->print_error()  ."\n" . $sql );
+		return 'There was a database error when deleting semesters (function initKeywordsPolyperspectivesSemestersData): ' . $wpdb->print_error()  ."\n" . $sql;
 	}
 	
 	//KEYWORDS
@@ -567,7 +565,7 @@ function initKeywordsPolyperspectivesSemestersData(){
 	
 	if ( $wpdb->query( $sql ) === false )
 	{
-		throw new Exception( 'There was a database error when inserting Keywords Data (function initKeywordsPolyperspectivesSemestersData): ' . $wpdb->print_error() ."\n" . $sql);
+		return 'There was a database error when inserting Keywords Data (function initKeywordsPolyperspectivesSemestersData): ' . $wpdb->print_error() ."\n" . $sql;
 	}
 	
 	//POLYPERSPECTIVES
@@ -575,7 +573,7 @@ function initKeywordsPolyperspectivesSemestersData(){
 	
 	if ( $wpdb->query( $sql ) === false )
 	{
-		throw new Exception( 'There was a database error when inserting Polyperspectives Data (function initKeywordsPolyperspectivesSemestersData): ' . $wpdb->print_error() ."\n" . $sql);
+		return 'There was a database error when inserting Polyperspectives Data (function initKeywordsPolyperspectivesSemestersData): ' . $wpdb->print_error() ."\n" . $sql;
 	}
 	
 	//SEMESTERS
@@ -583,11 +581,19 @@ function initKeywordsPolyperspectivesSemestersData(){
 	
 	if ( $wpdb->query( $sql ) === false )
 	{
-		throw new Exception( 'There was a database error when inserting Semesters Data (function initKeywordsPolyperspectivesSemestersData): ' . $wpdb->print_error() ."\n" . $sql);
+		return 'There was a database error when inserting Semesters Data (function initKeywordsPolyperspectivesSemestersData): ' . $wpdb->print_error() ."\n" . $sql;
 	}
 }
 
-add_action('wp_ajax_getCloudKeywords','getCloudKeywords');
-add_action('wp_ajax_nopriv_getCloudKeywords','getCloudKeywords');
+function getAllCourses(){
+	
+	global $wpdb;
+	
+	$sql = "SELECT * FROM epfl_courses_se_course";
+	return $wpdb->get_results($sql);
+	
+	wp_die(); 
+    
+}
 
 ?>
