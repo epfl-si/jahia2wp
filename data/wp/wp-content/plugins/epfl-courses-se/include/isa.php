@@ -78,8 +78,9 @@ Class IsaRequest {
                 $data = json_decode($t->getBody(), true);
                 break;
         }
-        if (empty($data))
+        if (empty($data)){
             return null;
+		}
         else
             return $data;
     }

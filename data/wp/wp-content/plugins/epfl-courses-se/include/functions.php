@@ -3,44 +3,18 @@
 require_once('xml_functions.php');
 require_once('db_functions.php');
 
-/*
-$csv_file = "../csv/courses_data.csv";
-
-//Update courses from ISA and create csv data file
-updateCoursesByYearSection('2018-2019','SHS',$csv_file);
-#print_r(getTeachers());
-*/
-
 function updateCoursesFromISAByYearSection($year, $section,$csv_path){
 	
 	/* CREATE CSV FILE WITH COURSES DATA */
 	
 	$courses_array=array();
 	
-	//Init csv file with data
-// 	$file = fopen($csv_path."courses_data.csv",'w') or die('Could not create csv file --> '.$csv_path."courses_data.csv");
-	
-	//Create log file
-	//$log = fopen($csv_path."update_data.log",'w') or die ('Could not create log file --> '.$csv_path."update_data.log");
-	
-	
 	//Get Course plan by year and section
 	$courses = getPlansBamaYearSectionArray($year, $section);
-	
-// 	$csv_line = array('CODE','SEMESTER','TITLE','LANGUAGE','TITLE_FR','TITLE_EN','RESUME_FR','RESUME_EN','PROFESSORS','CREDITS','LECTURE_PERIOD','EXERCICE_PERIOD','PROJECT_PERIOD','TP_PERIOD','LABO_PERIOD','EXAM_INFO','KEYWORDS','POLYPERSPECTIVES');
-// 	fputcsv($file,$csv_line);
-	
-	//Add courses to csv
-// 	fwrite($log,"******** GETTING COURSES FROM ISA -> CSV *********\n\n");
-// 	fwrite($log,"Year : ".$year."\n");
-// 	fwrite($log,"Section : ".$section."\n");
-// 	fwrite($log,"csv_file : ".$csv_path."courses_data.csv\n\n");
 	
 	foreach($courses as $course){
 	
 		$course_array = array();
-		
-// 		fwrite($log,$course[1]." - ".$course[2]."\n");
 				
 		array_push($course_array,$course[1],$course[0],$course[2]);
 		
@@ -104,50 +78,37 @@ function updateCoursesFromISAByYearSection($year, $section,$csv_path){
 			
 			//Get course keywords from database if exist
 			$keywordsDB = getCourseKeywords($course[1]);
-			$keywords = array();
-			$keyword4csv = "";
-// 			fwrite($log,"KEYWORDS FOR ".$course[1]." - ".$course[2]." :");
+ 			$keywords = "";
 			foreach($keywordsDB as $keyword){
-				$keyword4csv .= $keyword->keyword."|";
-				array_push($keywords,$keyword->keyword);
-// 				fwrite($log,$keyword->keyword.",");
+				$keywords .= $keyword->keyword_en."|";
 			}
-// 			fwrite($log,"\n");
 			//Remove last sep char |
 			if(!empty($keyword4csv)){
-				$keyword4csv = substr($keyword4csv, 0, -1);
+				$keywords = substr($keywords, 0, -1);
 			}	
-			$course['keywords'] = $keywords;
-			array_push($course_array,$keyword4csv);
+			array_push($course_array,$keywords);
 			
 			//Get course polyperspectives from database if exist
 			$polyperspectivesDB = getCoursePolyperspectives($course[1]);
-			$polyperspectives = array();
-			$polyperspective4csv = "";
+			$polyperspectives = "";
 			foreach($polyperspectivesDB as $polyperspective){
-				$polyperspective4csv .= $polyperspective['name']."|";
+				$polyperspectives .= $polyperspective['name']."|";
 			}
 			#Remove last sep char |
 			if(!empty($polyperspective4csv)){
-				$polyperspective4csv = substr($polyperspective4csv, 0, -1);
-			}
-			$course['polyperspectives'] = $polyperspectives;		
-			array_push($course_array,$polyperspective4csv);
+				$polyperspectives = substr($polyperspectives, 0, -1);
+			}		
+			array_push($course_array,$polyperspectives);
 			
 			//Add course to array
 			array_push($courses_array,$course_array);
 		}else{
-			throw new Exception( 'COURSE BOOK IS MISSING : '.$course[1].' - '.$course[2] );
+			echo 'COURSE BOOK IS MISSING : '.$course[1].' - '.$course[2];
 		}
 				
 	}
 		
-	$result = $courses_array($courses_array);
-	
-// 	if($result=='ok'){
-// 		fwrite($log, "\n\n******** END IMPORT FROM ISA --> SUCCESSFULL !! *********\n\n");
-// 	}
-// 	fclose($log);
+	$result = parseCoursesArray($courses_array);
 		
 	return $result;
 	

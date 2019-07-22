@@ -195,14 +195,22 @@ echo '</div>';
 <li>TITLE_EN --&gt; the course title in English</li>
 <li>RESUME_FR--&gt; the course resume in French with double-quotted text delimiter</li>
 <li>RESUME_EN --&gt; the course resume in English with double-quotted text delimiter</li>
-<li>PROFESSORS --&gt; course professor(s) : multiple professors are separated by a pipe '|'</li>
-<li>and contain 3 informations 'sciper:firstname:lastname' ( eg. '123456:John:Doe|654321:Freddy:Kruger' ) KEYWORDS --&gt; the course keywords : multiple keywords are sepearated by a pipe '|'</li>
+<li>PROFESSORS --&gt; course professor(s) : multiple professors are separated by a pipe '|'
+and contain 3 informations 'sciper:firstname:lastname' ( eg. '123456:John:Doe|654321:Freddy:Kruger' ) KEYWORDS --&gt; the course keywords : multiple keywords are sepearated by a pipe '|'</li>
+<li>CREDITS --&gt; the course credits or coefficient</li>
+<li>LECTURE_PERIOD --&gt; the course lecture periods</li>
+<li>EXERCICE_PERIOD --&gt; the course exercice periods</li>
+<li>PROJECT_PERIOD --&gt; the course project periods</li>
+<li>TP_PERIOD --&gt; the course tp periods</li>
+<li>LABO_PERIOD --&gt; the course labo periods</li>
+<li>EXAM_INFO --&gt; the course exam type {'semester'=during the semester, 'writter'=written during exam session, 'oral'}</li>
 <li>POLYPERSPECTIVES --&gt; the course POLY-perspectives Names, separated by a pipe '|'{Interdisciplinary,Global,Citizen,Creative}</li>
 </ol>
 <p>If KEYWORDS and POLYPERSPECTIVES are not used, columns need to be blank.</p>
 <p>Example :</p>
 <p><span style="font-family: 'andale mono', times; font-size: xx-small;" data-mce-mark="1">-------------------------------------------------------------- myFile.csv ---------------------------------------------------------------- <br />
-CODE,SEMESTER,TITLE,TITLE_FR,TITLE_EN,RESUME_FR,RESUME_EN,PROFESSORS,KEYWORDS,POLYPERSPECTIVES<br />HUM-999,My title,My title fr,"My title en, My resume fr","My resume en",123456:John:Doe|654321:Freddy:Kruger,BIG DATA|DESIGN|HISTORY,1|3<br />...<br /> ------------------------------------------------------------------------------------------------------------------------------------------</span></p>
+CODE,SEMESTER,TITLE,TITLE_FR,TITLE_EN,RESUME_FR,RESUME_EN,PROFESSORS,CREDITS,LECTURE_PERIOD,EXERCICE_PERIOD,PROJECT_PERIOD,TP_PERIOD,LABO_PERIOD,EXAM_INFO,KEYWORDS,POLYPERSPECTIVES<br />HUM-999,My title,My title fr,"My title en, My resume fr","My resume en",123456:John:Doe|654321:Freddy:Kruger,2,2,2,,,,semester,BIG DATA|DESIGN|HISTORY,Interdisciplinary|Creative
+...<br />...<br /> ------------------------------------------------------------------------------------------------------------------------------------------</span></p>
 
 </div>
 
