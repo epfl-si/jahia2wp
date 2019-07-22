@@ -73,7 +73,7 @@ class WPThemeConfig(WPConfig):
         else:
             return self.run_wp_cli('option add epfl:theme_faculty {}'.format(self.faculty))
 
-    def install(self, force_reinstall=False):
+    def install(self, force_reinstall=False, no_symlink=False):
         """
         Install and activate 2018 theme
 
@@ -101,6 +101,9 @@ class WPThemeConfig(WPConfig):
         # to theme directory...)
         os.chdir(os.path.join(self.base_path, zip_base_name))
 
+        force_option = "--force" if force_reinstall else ""
+        no_symlink_option = "--nosymlink" if no_symlink else ""
+
         for theme_name in ['wp-theme-2018', 'wp-theme-light']:
 
             logging.debug("Installing theme %s...", theme_name)
@@ -117,8 +120,7 @@ class WPThemeConfig(WPConfig):
 
             theme_zip.close()
 
-            force_option = "--force" if force_reinstall else ""
-            command = "theme install {} {} ".format(force_option, zip_full_path)
+            command = "theme install {} {} {} ".format(force_option, no_symlink_option, zip_full_path)
             self.run_wp_cli(command)
 
             # Cleaning ZIP file

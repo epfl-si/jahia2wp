@@ -29,10 +29,12 @@ Usage:
     [--theme=<THEME> --theme-faculty=<THEME-FACULTY>]
     [--installs-locked=<BOOLEAN> --automatic-updates=<BOOLEAN>]
     [--extra-config=<YAML_FILE>] [--category=<SITE_CATEGORY>]
+    [--nosymlink]
   jahia2wp.py backup                <wp_env> <wp_url>      [--full] [--debug | --quiet]
   jahia2wp.py version               <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py admins                <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py generate-many         <csv_file>                      [--debug | --quiet]
+    [--nosymlink]
   jahia2wp.py export-many           <csv_file>                      [--debug | --quiet]
     [--output-dir=<OUTPUT_DIR> --admin-password=<PASSWORD>] [--use-cache]
     [--keep-extracted-files]
@@ -54,11 +56,14 @@ Usage:
   jahia2wp.py update-plugins        <wp_env> <wp_url>               [--debug | --quiet]
     [--force-plugin] [--force-options] [--plugin=<PLUGIN_NAME>|--strict-list]
     [--extra-config=<YAML_FILE>]
+    [--nosymlink]
   jahia2wp.py update-plugins-many   <csv_file>                      [--debug | --quiet]
-    [--force-plugin] [--force-options] [--plugin=<PLUGIN_NAME>|--strict-list]
+    [--force-plugin] [--force-options] [--plugin=<PLUGIN_NAME>|--strict-list] 
+    [--nosymlink]
   jahia2wp.py update-plugins-inventory   <path>                     [--debug | --quiet]
     [--force-plugin] [--force-options] [--plugin=<PLUGIN_NAME>|--strict-list]
     [--extra-config=<YAML_FILE>]
+    [--nosymlink]
   jahia2wp.py global-report <csv_file> [--output-dir=<OUTPUT_DIR>] [--use-cache] [--debug | --quiet]
     --root_wp_dest=</srv/../epfl> [--greedy] [--htaccess] [--context=<intra|inter|full>] [--dry_run]
 
@@ -758,7 +763,7 @@ def generate(wp_env, wp_url,
              wp_title=None, wp_tagline=None, admin_password=None,
              theme=None, theme_faculty=None, category=None,
              installs_locked=None, updates_automatic=None,
-             extra_config=None, **kwargs):
+             extra_config=None, nosymlink=None, **kwargs):
     """
     This command may need more params if reference to them are done in YAML file. In this case, you'll see an
     error explaining which params are needed and how they can be added to command line
@@ -804,7 +809,7 @@ def generate(wp_env, wp_url,
 
     wp_generator = WPGenerator(all_params, admin_password=admin_password)
 
-    if not wp_generator.generate():
+    if not wp_generator.generate(no_symlink=nosymlink):
         raise Exception("Generation failed. More info above")
 
     print("Successfully created new WordPress site at {}".format(wp_generator.wp_site.url))
@@ -836,7 +841,7 @@ def admins(wp_env, wp_url, **kwargs):
 
 
 @dispatch.on('generate-many')
-def generate_many(csv_file, **kwargs):
+def generate_many(csv_file, nosymlink=None, **kwargs):
 
     # CSV file validation
     validator = _check_csv(csv_file)
@@ -848,7 +853,7 @@ def generate_many(csv_file, **kwargs):
         # CSV file is utf-8 so we encode correctly the string to avoid errors during logging.debug display
         row_bytes = repr(row).encode('utf-8')
         logging.debug("%s - row %s: %s", row["wp_site_url"], index, row_bytes)
-        WPGenerator(row).generate()
+        WPGenerator(row).generate(no_symlink=nosymlink)
 
 
 @dispatch.on('backup-many')
@@ -1077,6 +1082,7 @@ def update_plugins(wp_env,
                    force_options=False,
                    strict_list=False,
                    extra_config=None,
+                   nosymlink=False,
                    **kwargs):
 
     _check_site(wp_env, wp_url, **kwargs)
@@ -1093,13 +1099,20 @@ def update_plugins(wp_env,
     wp_generator.update_plugins(only_one=plugin,
                                 force_plugin=force_plugin,
                                 force_options=force_options,
-                                strict_plugin_list=strict_list)
+                                strict_plugin_list=strict_list,
+                                no_symlink=nosymlink)
 
     print("Successfully updated WordPress plugin list at {}".format(wp_generator.wp_site.url))
 
 
 @dispatch.on('update-plugins-many')
-def update_plugins_many(csv_file, plugin=None, force_plugin=False, force_options=False, strict_list=False, **kwargs):
+def update_plugins_many(csv_file, 
+                        plugin=None, 
+                        force_plugin=False, 
+                        force_options=False, 
+                        strict_list=False, 
+                        nosymlink=False,
+                        **kwargs):
 
     # CSV file validation
     validator = _check_csv(csv_file)
@@ -1112,7 +1125,8 @@ def update_plugins_many(csv_file, plugin=None, force_plugin=False, force_options
         WPGenerator(row).update_plugins(only_one=plugin,
                                         force_plugin=force_plugin,
                                         force_options=force_options,
-                                        strict_plugin_list=strict_list)
+                                        strict_plugin_list=strict_list,
+                                        no_symlink=nosymlink)
 
 
 @dispatch.on('update-plugins-inventory')
@@ -1122,6 +1136,7 @@ def update_plugins_inventory(path,
                              force_options=False,
                              strict_list=False,
                              extra_config=None,
+                             nosymlink=False,
                              **kwargs):
 
     logging.info("Update plugins from inventory...")
@@ -1136,7 +1151,9 @@ def update_plugins_inventory(path,
             WPGenerator(all_params).update_plugins(only_one=plugin,
                                                    force_plugin=force_plugin,
                                                    force_options=force_options,
-                                                   strict_plugin_list=strict_list)
+                                                   strict_plugin_list=strict_list,
+                                                   no_symlink=nosymlink)
+
     logging.info("All plugins updates done for path: %s", path)
 
 

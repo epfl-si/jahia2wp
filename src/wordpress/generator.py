@@ -209,7 +209,7 @@ class WPGenerator:
 
         return plugin_list.list_plugins(with_config, for_plugin)
 
-    def generate(self, deactivated_plugins=None):
+    def generate(self, deactivated_plugins=None, no_symlink=False):
         """
         Generate a complete and fully working WordPress website
 
@@ -228,7 +228,7 @@ class WPGenerator:
 
         # download, config and install WP
         logging.info("%s - Downloading WP...", repr(self))
-        if not self.install_wp():
+        if not self.install_wp(no_symlink):
             logging.error("%s - could not install WP", repr(self))
             return False
 
@@ -237,7 +237,7 @@ class WPGenerator:
 
         # install and activate 2018 theme
         theme = WPThemeConfig(self.wp_site, self._site_params['theme'], self._site_params['theme_faculty'])
-        theme.install()
+        theme.install(no_symlink=no_symlink)
 
         logging.info("%s - Activating theme '%s'...", repr(self), self._site_params['theme'])
         if not theme.activate():
@@ -247,7 +247,7 @@ class WPGenerator:
         # install, activate and config mu-plugins
         # must be done before plugins if automatic updates are disabled
         logging.info("%s - Installing mu-plugins...", repr(self))
-        self.generate_mu_plugins()
+        self.generate_mu_plugins(no_symlink=no_symlink)
 
         # delete all widgets, inactive themes and demo posts
         # self.delete_widgets() #  there is no sidebar widget in the 2018 theme
@@ -258,7 +258,7 @@ class WPGenerator:
         logging.info("%s - Installing plugins...", repr(self))
         if deactivated_plugins:
             logging.info("%s - %s plugins have to stay deactivated...", repr(self), len(deactivated_plugins))
-        self.generate_plugins(deactivated_plugins=deactivated_plugins)
+        self.generate_plugins(deactivated_plugins=deactivated_plugins, no_symlink=no_symlink)
 
         # flag success
         return True
@@ -293,9 +293,12 @@ class WPGenerator:
         # flag success by returning True
         return True
 
-    def install_wp(self):
+    def install_wp(self, no_symlink=False):
         """
         Execute WordPress installation
+
+        Keyword arguments
+        no_symlink - to say if we can create symlinks or not
         """
         # install WordPress
         if not self.run_wp_cli("core download --version={}".format(self.wp_site.WP_VERSION)):
@@ -316,11 +319,13 @@ class WPGenerator:
             logging.error("%s - could not create config", repr(self))
             return False
 
+        no_symlink_option = "--nosymlink" if no_symlink else ""
+
         # fill out first form in install process (setting admin user and permissions)
         command = "--allow-root core install --url={0.url} --title='{0.wp_site_title}'" \
             " --admin_user={1.username} --admin_password='{1.password}'"\
-            " --admin_email='{1.email}'"
-        if not self.run_wp_cli(command.format(self.wp_site, self.wp_admin), encoding="utf-8"):
+            " --admin_email='{1.email}' {2}"
+        if not self.run_wp_cli(command.format(self.wp_site, self.wp_admin, no_symlink_option), encoding="utf-8"):
             logging.error("%s - could not setup WP site", repr(self))
             return False
 
@@ -446,32 +451,32 @@ class WPGenerator:
         cmd = "post list --post_type=page --fields=ID --format=csv"
         return len(self.run_wp_cli(cmd).split("\n")[1:])
 
-    def generate_mu_plugins(self):
+    def generate_mu_plugins(self, no_symlink=False):
         # TODO: add those plugins into the general list of plugins (with the class WPMuPluginConfig)
-        WPMuPluginConfig(self.wp_site, "epfl-functions.php").install()
-        WPMuPluginConfig(self.wp_site, "EPFL_custom_editor_menu.php").install()
-        WPMuPluginConfig(self.wp_site, "EPFL_google_analytics_hook.php").install()
-        WPMuPluginConfig(self.wp_site, "EPFL_quota_loader.php", plugin_folder="epfl-quota").install()
-        WPMuPluginConfig(self.wp_site, "EPFL_stats_loader.php", plugin_folder="epfl-stats").install()
+        WPMuPluginConfig(self.wp_site, "epfl-functions.php").install(no_symlink=no_symlink)
+        WPMuPluginConfig(self.wp_site, "EPFL_custom_editor_menu.php").install(no_symlink=no_symlink)
+        WPMuPluginConfig(self.wp_site, "EPFL_google_analytics_hook.php").install(no_symlink=no_symlink)
+        WPMuPluginConfig(self.wp_site, "EPFL_quota_loader.php", plugin_folder="epfl-quota").install(no_symlink=no_symlink)
+        WPMuPluginConfig(self.wp_site, "EPFL_stats_loader.php", plugin_folder="epfl-stats").install(no_symlink=no_symlink)
 
         if self.wp_config.installs_locked:
-            WPMuPluginConfig(self.wp_site, "EPFL_installs_locked.php").install()
+            WPMuPluginConfig(self.wp_site, "EPFL_installs_locked.php").install(no_symlink=no_symlink)
 
         # If the site is created from a jahia export, the automatic update is disabled and will be re-enabled
         # after the export process is done.
         if self.wp_config.updates_automatic and not self.wp_config.from_export:
-            WPMuPluginConfig(self.wp_site, "EPFL_enable_updates_automatic.php").install()
+            WPMuPluginConfig(self.wp_site, "EPFL_enable_updates_automatic.php").install(no_symlink=no_symlink)
         else:
-            WPMuPluginConfig(self.wp_site, "EPFL_disable_updates_automatic.php").install()
+            WPMuPluginConfig(self.wp_site, "EPFL_disable_updates_automatic.php").install(no_symlink=no_symlink)
 
         # Handling site category
         if self._site_params['category'] != 'Unmanaged':
-            WPMuPluginConfig(self.wp_site, "EPFL_disable_comments.php").install()
-            WPMuPluginConfig(self.wp_site, "EPFL_jahia_redirect.php").install()
+            WPMuPluginConfig(self.wp_site, "EPFL_disable_comments.php").install(no_symlink=no_symlink)
+            WPMuPluginConfig(self.wp_site, "EPFL_jahia_redirect.php").install(no_symlink=no_symlink)
 
     def enable_updates_automatic_if_allowed(self):
         if self.wp_config.updates_automatic:
-            WPMuPluginConfig(self.wp_site, "EPFL_enable_updates_automatic.php").install()
+            WPMuPluginConfig(self.wp_site, "EPFL_enable_updates_automatic.php").install(no_symlink=no_symlink)
             # We also uninstall the plugin which disable auto-updates otherwise we will have both...
             WPMuPluginConfig(self.wp_site, "EPFL_disable_updates_automatic.php").uninstall()
 
@@ -481,6 +486,7 @@ class WPGenerator:
                          force_options=True,
                          strict_plugin_list=True,
                          deactivated_plugins=None,
+                         no_symlink=False,
                          **kwargs):
         """
         Get plugin list for WP site and do appropriate actions on them
@@ -506,6 +512,7 @@ class WPGenerator:
         :param strict_plugin_list: True|False
                             - if True, all plugin not present in YAML file will be uninstalled
         :param deactivated_plugins: List of plugins to let in 'deactivated' state after installation.
+        :param no_symlink: To tell if we can use symlinked plugin (if available) or not
         """
         logging.warning("%s - Add parameter for 'batch file' (YAML)", repr(self))
         # Batch config file (config-lot1.yml) needs to be replaced by something clean as soon as we have "batch"
@@ -549,7 +556,7 @@ class WPGenerator:
 
                     # If not installed or if we have to force update,
                     if not plugin_config.is_installed or force_plugin:
-                        plugin_config.install(force_plugin)
+                        plugin_config.install(force_reinstall=force_plugin, no_symlink=no_symlink)
                         logging.info("%s - Plugins - %s: Installed!", repr(self), plugin_name)
                     else:
                         logging.info("%s - Plugins - %s: Already installed!", repr(self), plugin_name)
@@ -596,7 +603,7 @@ class WPGenerator:
                     logging.info("%s - Plugins - %s: Don't have to be here, uninstalling!", repr(self), plugin_name)
                     self.run_wp_cli("plugin uninstall --deactivate {}".format(plugin_name))
 
-    def update_plugins(self, only_one=None, force_plugin=False, force_options=False, strict_plugin_list=False):
+    def update_plugins(self, only_one=None, force_plugin=False, force_options=False, strict_plugin_list=False, no_symlink=False):
         """
         Update plugin list:
         - Install missing plugins
@@ -618,6 +625,8 @@ class WPGenerator:
                               - New plugin options will be added and existing ones will be overwritten
         :param strict_plugin_list: True|False
                             - if True, all plugin not present in YAML file will be uninstalled
+        :param no_symlink: True|False
+                            - if True, plugins won't be symlinked    
         """
         # check we have a clean place first
         if not self.wp_config.is_installed:
@@ -627,7 +636,8 @@ class WPGenerator:
         self.generate_plugins(only_one=only_one,
                               force_plugin=force_plugin,
                               force_options=force_options,
-                              strict_plugin_list=strict_plugin_list)
+                              strict_plugin_list=strict_plugin_list,
+                              no_symlink=no_symlink)
         return True
 
     def clean(self):

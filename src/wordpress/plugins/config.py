@@ -45,13 +45,15 @@ class WPPluginConfig(WPConfig):
         command_output = self.run_wp_cli(command)
         return False if command_output is True else self.name in command_output
 
-    def install(self, force_reinstall=False):
+    def install(self, force_reinstall=False, no_symlink=False):
         if self.config.zip_path is not None:
             param = self.config.zip_path
         else:
             param = self.name
         force_option = "--force" if force_reinstall else ""
-        command = "plugin install {} {} ".format(force_option, param)
+        no_symlink_option = "--nosymlink" if no_symlink else ""
+
+        command = "plugin install {} {} {}".format(force_option, no_symlink_option, param)
         self.run_wp_cli(command)
 
         # If we used a ZIP and it was generated 'on the fly', we do some cleaning
@@ -113,10 +115,12 @@ class WPMuPluginConfig(WPConfig):
         # set full path, down to file
         self.path = os.path.join(self.dir_path, plugin_name)
 
-    def install(self):
+    def install(self, no_symlink=False):
         src_path = os.path.sep.join([settings.WP_FILES_PATH, self.PLUGINS_PATH, self.name])
 
         folder_param = ""
+
+        no_symlink_option = "--nosymlink" if no_symlink else ""
 
         # If we also have a folder to copy
         if self.plugin_folder:
@@ -127,7 +131,7 @@ class WPMuPluginConfig(WPConfig):
         # Generating MU-plugin install command.
         # This command is not standard in WP-CLI, following package as to be installed :
         # https://github.com/epfl-idevelop/wp-cli
-        self.run_wp_cli("mu-plugin install {} {}".format(src_path, folder_param))
+        self.run_wp_cli("mu-plugin install {} {} {}".format(src_path, folder_param, no_symlink_option))
 
         logging.debug("%s - MU-Plugins - %s: Installed", repr(self.wp_site), self.name)
 
