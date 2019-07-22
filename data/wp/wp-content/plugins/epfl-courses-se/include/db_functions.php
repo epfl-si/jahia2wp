@@ -506,7 +506,8 @@ function getKeywords(){
 	$keywordsArray = array();
 	
 	foreach($keywords as $keyword){
-		array_push($keywordsArray,$keyword->keyword_en." - ".$keyword->keyword_fr);
+		array_push($keywordsArray,$keyword->keyword_fr);
+		array_push($keywordsArray,$keyword->keyword_en);
 	}
 	
 	echo json_encode($keywordsArray);  
