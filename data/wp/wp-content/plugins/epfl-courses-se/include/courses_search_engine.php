@@ -294,7 +294,7 @@ function get_courses_se_div() {
 						aria-controls="filter-polyperspectives"
 					>
 						<?php echo __('Polyperspectives', 'epfl-courses-se') ?>
-						<a style="font-size:1.8ex;font-weight:normal;" href="https://www.epfl.ch/schools/cdh/fr/la-vision-du-cdh-poly-perspective/"><?php echo __('About', 'epfl-courses-se') ?></a>
+						<a style="font-size:1.8ex;font-weight:normal;" href="<?php if(pll_current_language()=='fr') echo 'https://www.epfl.ch/schools/cdh/fr/la-vision-du-cdh-poly-perspective/'; else echo 'https://www.epfl.ch/schools/cdh/cdhs-vision/' ?>"><?php echo __('About', 'epfl-courses-se') ?></a>
 					</button>
                     <div class="collapse collapse-item collapse-item-desktop" id="filter-polyperspectives">
                     </div>

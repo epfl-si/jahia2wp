@@ -214,8 +214,14 @@ function getCoursesDataCSVArray(){
 
 function initKeywordsPolyperspectivesSemesters(){
 
-	clearCoursesData();
-	initKeywordsPolyperspectivesSemestersData();
+	$result = clearCoursesData();
+	if($result!=true){
+		return $result;
+	}	
+	
+	$result = initKeywordsPolyperspectivesSemestersData();
+	
+	return $result;
 
 }
 

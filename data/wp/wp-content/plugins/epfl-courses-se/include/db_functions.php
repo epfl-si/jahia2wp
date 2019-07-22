@@ -600,6 +600,8 @@ function initKeywordsPolyperspectivesSemestersData(){
 	{
 		return 'There was a database error when inserting Semesters Data (function initKeywordsPolyperspectivesSemestersData): ' . $wpdb->print_error() ."\n" . $sql;
 	}
+	
+	return true;
 }
 
 function getAllCourses(){

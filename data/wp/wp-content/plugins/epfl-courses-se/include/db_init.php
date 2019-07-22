@@ -26,7 +26,7 @@ class EPFLCOURSESSEDB
 				
 		if ( $wpdb->query( $sql ) === false )
 		{
-			throw new Exception( 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error() );
+			return 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error();
 		}
 
 		$sql = "CREATE TABLE IF NOT EXISTS `epfl_courses_se_polyperspective` (".
@@ -37,7 +37,7 @@ class EPFLCOURSESSEDB
 				
 		if ( $wpdb->query( $sql ) === false )
 		{
-			throw new Exception( 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error() );
+			return 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error();
 		}
 
 		$sql = "CREATE TABLE IF NOT EXISTS `epfl_courses_se_semester` (".
@@ -48,7 +48,7 @@ class EPFLCOURSESSEDB
 				
 		if ( $wpdb->query( $sql ) === false )
 		{
-			throw new Exception( 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error() );
+			return 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error();
 		}
 
 		$sql = "CREATE TABLE IF NOT EXISTS `epfl_courses_se_teacher` (".
@@ -60,7 +60,7 @@ class EPFLCOURSESSEDB
 				
 		if ( $wpdb->query( $sql ) === false )
 		{
-			throw new Exception( 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error() );
+			return 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error();
 		}		
 		
         $sql = "CREATE TABLE IF NOT EXISTS `epfl_courses_se_course` (".
@@ -85,7 +85,7 @@ class EPFLCOURSESSEDB
         
         if ( $wpdb->query( $sql ) === false )
         {
-            throw new Exception( 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error() );
+            return 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error();
         }
 
 		$sql = "CREATE TABLE IF NOT EXISTS `epfl_courses_se_course_keyword` (".
@@ -98,7 +98,7 @@ class EPFLCOURSESSEDB
         
         if ( $wpdb->query( $sql ) === false )
         {
-            throw new Exception( 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error() );
+            return 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error();
         }
 
 		$sql = "CREATE TABLE IF NOT EXISTS `epfl_courses_se_course_polyperspective` (".
@@ -111,7 +111,7 @@ class EPFLCOURSESSEDB
 				
 		if ( $wpdb->query( $sql ) === false )
 		{
-			throw new Exception( 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error() );
+			return 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error();
 		}
 
 		$sql = "CREATE TABLE IF NOT EXISTS `epfl_courses_se_course_teacher` (".
@@ -124,8 +124,10 @@ class EPFLCOURSESSEDB
 				
 		if ( $wpdb->query( $sql ) === false )
 		{
-			throw new Exception( 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error() );
+			return 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error();
 		}
+		
+		return true;
 
 		
     }
@@ -141,56 +143,56 @@ class EPFLCOURSESSEDB
 				
 		if ( $wpdb->query( $sql ) === false )
 		{
-			throw new Exception( 'There was a database error uninstalling EPFL-COURSES_SE: ' . $wpdb->print_error() );
+			return 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error();
 		}
 		
 		$sql = "DROP TABLE IF EXISTS `epfl_courses_se_course_keyword`;";
 				
 		if ( $wpdb->query( $sql ) === false )
 		{
-			throw new Exception( 'There was a database error uninstalling EPFL-COURSES_SE: ' . $wpdb->print_error() );
+			return 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error();
 		}
 		
 		$sql = "DROP TABLE IF EXISTS `epfl_courses_se_course_teacher`;";
 				
 		if ( $wpdb->query( $sql ) === false )
 		{
-			throw new Exception( 'There was a database error uninstalling EPFL-COURSES_SE: ' . $wpdb->print_error() );
+			return 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error();
 		}
 		
 		$sql = "DROP TABLE IF EXISTS `epfl_courses_se_course`;";
 				
 		if ( $wpdb->query( $sql ) === false )
 		{
-			throw new Exception( 'There was a database error uninstalling EPFL-COURSES_SE: ' . $wpdb->print_error() );
+			return 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error();
 		}
 		
 		$sql = "DROP TABLE IF EXISTS `epfl_courses_se_teacher`;";
 				
 		if ( $wpdb->query( $sql ) === false )
 		{
-			throw new Exception( 'There was a database error uninstalling EPFL-COURSES_SE: ' . $wpdb->print_error() );
+			return 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error();
 		}
 
 		$sql = "DROP TABLE IF EXISTS `epfl_courses_se_semester`;";
 				
 		if ( $wpdb->query( $sql ) === false )
 		{
-			throw new Exception( 'There was a database error uninstalling EPFL-COURSES_SE: ' . $wpdb->print_error() );
+			return 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error();
 		}
 		
 		$sql = "DROP TABLE IF EXISTS `epfl_courses_se_polyperspective`;";
 				
 		if ( $wpdb->query( $sql ) === false )
 		{
-			throw new Exception( 'There was a database error uninstalling EPFL-COURSES_SE: ' . $wpdb->print_error() );
+			return 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error();
 		}
 		
 		$sql = "DROP TABLE IF EXISTS `epfl_courses_se_keyword`;";
 				
 		if ( $wpdb->query( $sql ) === false )
 		{
-			throw new Exception( 'There was a database error uninstalling EPFL-COURSES_SE: ' . $wpdb->print_error() );
+			return 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error();
 		}
 	
     }
