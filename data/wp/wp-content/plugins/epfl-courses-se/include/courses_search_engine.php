@@ -20,7 +20,7 @@ function get_courses_se_div() {
         
 			var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
             
-            setInterval(updateCloud, 10000);
+            setInterval(updateCloud, 25000);
             
             var selectedSemesters = [];
             var selectedPolyperspectives = [];
@@ -169,9 +169,9 @@ function get_courses_se_div() {
                     selectedLanguages=[];
                     filters=[];
                     jQuery("input.custom-control-input").each(function(){
-                        if(jQuery(this).prop('disabled')!=true)
+                    if(jQuery(this).prop('checked')==true)
                         {
-                          jQuery(this).attr('checked',false);
+                          jQuery(this).prop('checked',false);
                         }
                     });
                     
@@ -294,6 +294,7 @@ function get_courses_se_div() {
 						aria-controls="filter-polyperspectives"
 					>
 						<?php echo __('Polyperspectives', 'epfl-courses-se') ?>
+						<a style="font-size:1.8ex;font-weight:normal;" href="https://www.epfl.ch/schools/cdh/fr/la-vision-du-cdh-poly-perspective/"><?php echo __('About', 'epfl-courses-se') ?></a>
 					</button>
                     <div class="collapse collapse-item collapse-item-desktop" id="filter-polyperspectives">
                     </div>

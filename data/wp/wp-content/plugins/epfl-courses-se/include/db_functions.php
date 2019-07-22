@@ -499,7 +499,7 @@ function getKeywords(){
 	$keywordsArray = array();
 	
 	foreach($keywords as $keyword){
-		array_push($keywordsArray,$keyword->keyword_en);
+		array_push($keywordsArray,$keyword->keyword_en." - ".$keyword->keyword_fr);
 	}
 	
 	echo json_encode($keywordsArray);  
@@ -512,11 +512,20 @@ add_action('wp_ajax_nopriv_getKeywords','getKeywords');
 function getCloudKeywords(){
     global $wpdb;
     
-    $sql = "SELECT k.keyword_en keyword, count(ck.keyword_id) count
-            FROM epfl_courses_se_course_keyword ck
-            INNER JOIN epfl_courses_se_keyword k ON k.id = ck.keyword_id
-            GROUP BY ck.keyword_id
-            ORDER BY count(ck.keyword_id) desc";
+    $sql = "SELECT * FROM 
+				(SELECT k.keyword_en keyword, count(ck.keyword_id) count
+						FROM epfl_courses_se_course_keyword ck
+						INNER JOIN epfl_courses_se_keyword k ON k.id = ck.keyword_id
+						GROUP BY ck.keyword_id
+						ORDER BY count(ck.keyword_id) desc ) as ken
+			UNION
+			SELECT * FROM 
+				(SELECT k.keyword_fr keyword, count(ck.keyword_id) count
+						FROM epfl_courses_se_course_keyword ck
+						INNER JOIN epfl_courses_se_keyword k ON k.id = ck.keyword_id
+						GROUP BY ck.keyword_id
+						ORDER BY count(ck.keyword_id) desc ) as kfr
+			ORDER BY count desc, keyword asc";
     $cloudKeywords = $wpdb->get_results($sql);
     
     $cloudKeywordsArray = array();

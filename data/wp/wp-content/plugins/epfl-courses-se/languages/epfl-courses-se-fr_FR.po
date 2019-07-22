@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl_courses_se\n"
-"POT-Creation-Date: 2019-07-18 08:42+0200\n"
-"PO-Revision-Date: 2019-07-18 08:42+0200\n"
+"POT-Creation-Date: 2019-07-22 11:59+0200\n"
+"PO-Revision-Date: 2019-07-22 11:59+0200\n"
 "Last-Translator: Ludovic Bonivento <ludovic.bonivento@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -16,83 +16,87 @@ msgstr ""
 "X-Poedit-SearchPath-0: include/courses_search_engine.php\n"
 "X-Poedit-SearchPath-1: include/db_functions.php\n"
 
-#: include/courses_search_engine.php:253
+#: include/courses_search_engine.php:254
 msgid "Filters"
 msgstr "Filtres"
 
-#: include/courses_search_engine.php:264
+#: include/courses_search_engine.php:265
 msgid "Semesters"
 msgstr "Semestres"
 
-#: include/courses_search_engine.php:276
+#: include/courses_search_engine.php:277
 msgid "Keywords"
 msgstr "Mots-clés"
 
-#: include/courses_search_engine.php:295
+#: include/courses_search_engine.php:296
 msgid "Polyperspectives"
 msgstr "Polyperspectives"
 
-#: include/courses_search_engine.php:307
+#: include/courses_search_engine.php:297
+msgid "About"
+msgstr "À propos"
+
+#: include/courses_search_engine.php:309
 msgid "Teachers"
 msgstr "Enseignants"
 
-#: include/courses_search_engine.php:326
+#: include/courses_search_engine.php:328
 msgid "Languages"
 msgstr "Langue"
 
-#: include/db_functions.php:328
+#: include/db_functions.php:323
 msgid "Courses"
 msgstr "Cours"
 
-#: include/db_functions.php:331
+#: include/db_functions.php:326
 msgid "l=Lecture, e=Exercice, p=Project"
 msgstr "c=Cours, e=Exercice, p=Projet"
 
-#: include/db_functions.php:332
+#: include/db_functions.php:327
 msgid "Fall"
 msgstr "Automne"
 
-#: include/db_functions.php:333
+#: include/db_functions.php:328
 msgid "Winter"
 msgstr "Hiver"
 
-#: include/db_functions.php:334
+#: include/db_functions.php:329
 msgid "Spring"
 msgstr "Printemps"
 
-#: include/db_functions.php:335
+#: include/db_functions.php:330
 msgid "Summer"
 msgstr "Été"
 
-#: include/db_functions.php:339
+#: include/db_functions.php:334
 msgid "Code"
 msgstr "Code"
 
-#: include/db_functions.php:340
+#: include/db_functions.php:335
 msgid "Semester"
 msgstr "Semestre"
 
-#: include/db_functions.php:341
+#: include/db_functions.php:336
 msgid "Lecturers"
 msgstr "Enseignants"
 
-#: include/db_functions.php:342
+#: include/db_functions.php:337
 msgid "l"
 msgstr "c"
 
-#: include/db_functions.php:343
+#: include/db_functions.php:338
 msgid "e"
 msgstr "e"
 
-#: include/db_functions.php:344
+#: include/db_functions.php:339
 msgid "p"
 msgstr "p"
 
-#: include/db_functions.php:345
+#: include/db_functions.php:340
 msgid "Exam"
 msgstr "Examen"
 
-#: include/db_functions.php:346
+#: include/db_functions.php:341
 msgid "Credits/Coefficient"
 msgstr "Credits/Coefficient"
 
