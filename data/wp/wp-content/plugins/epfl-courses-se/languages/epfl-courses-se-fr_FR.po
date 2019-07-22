@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: epfl_courses_se\n"
 "POT-Creation-Date: 2019-07-22 11:59+0200\n"
-"PO-Revision-Date: 2019-07-22 11:59+0200\n"
+"PO-Revision-Date: 2019-07-22 14:56+0200\n"
 "Last-Translator: Ludovic Bonivento <ludovic.bonivento@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -42,7 +42,7 @@ msgstr "Enseignants"
 
 #: include/courses_search_engine.php:328
 msgid "Languages"
-msgstr "Langue"
+msgstr "Langues"
 
 #: include/db_functions.php:323
 msgid "Courses"
