@@ -351,13 +351,20 @@ function getFilteredCourses($semesters = null,$polyperspectives = null,$keywords
             $htmlTeachers = $htmlTeachers . $teacher->firstname . " " . $teacher->lastname;
         }
         
+        $title = $course->title_fr;
         $resume = $course->resume_fr;
+        $language = $course->language;
         
         if($course->language=='EN'){
 		    $resume = $course->resume_en;
+		    $title = $course->title_en;
         }else if($course->language=='FR-EN'){
-			$resume .= "<br/><br/>".$course->resume_en;
+			$resume .= "<br/><br/>".$course->resume_fr;
+			$language = 'FR';
         }
+        
+        if(empty($title)) $title = $course->title;
+        
         $examPeriod = 'summer';
 		$coursePeriod = 'spring';
         if($course->semester_code=='BA3' || $course->semester_code=='BA5' || $course->semester_code=='MA1'){
@@ -365,9 +372,9 @@ function getFilteredCourses($semesters = null,$polyperspectives = null,$keywords
             $coursePeriod = 'fall';
         }
         
-        $courseBookHL = "<a target='_blank' href='https://edu.epfl.ch/coursebook/". strtolower($course->language) ."/";
-        $courseBookHL = $courseBookHL . replaceSpecialChars(strtolower($course->title)) . "-" . strtoupper(str_replace('(','-',str_replace(')','',$course->code)));
-        $courseBookHL = $courseBookHL."'>".$course->title."</a>";
+        $courseBookHL = "<a target='_blank' href='https://edu.epfl.ch/coursebook/". strtolower($language) ."/";
+        $courseBookHL = $courseBookHL . replaceSpecialChars(strtolower($title)) . "-" . strtoupper(str_replace('(','-',str_replace(')','',$course->code)));
+        $courseBookHL = $courseBookHL."'>".$title."</a>";
         
         
         $langImgPath = plugin_dir_url(__DIR__)."/images/".strtolower($course->language)."16_icon.png";
