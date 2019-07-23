@@ -1,0 +1,3 @@
+plugins:
+  - name: epfl-courses-se
+    config: !include epfl-courses-se/config-plugin.yml
