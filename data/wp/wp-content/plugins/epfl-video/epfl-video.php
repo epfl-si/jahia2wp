@@ -14,7 +14,7 @@ function epfl_video_get_final_video_url($url)
 
     /* Generating unique transient ID. We cannot directly use URL (and replace some characters) because we are
     limited to 172 characters for transient identifiers (https://codex.wordpress.org/Transients_API) */
-    $transient_id = 'epfl_'.md5($url);
+    $transient_id = 'epfl_final_video_url_'.md5($url);
 
     /* If we have an URL call result in DB, */
     if ( false !== ( $data = get_transient($transient_id) ) )
