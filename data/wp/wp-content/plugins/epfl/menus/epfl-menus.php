@@ -1637,10 +1637,10 @@ class MenuItemController extends CustomPostTypeController
             // Poor man's thread join in PHP
             $join_deadline_seconds = 15;
             for($i = 0; $i < $join_deadline_seconds; $i++) {
-                wp_cache_flush();
-                $cached = get_transient($transient_name);
-                if ($cached !== "WAITING") {
-                    return $cached;
+                wp_cache_flush();  // Transients are cached in RAM by default
+                $transient = get_transient($transient_name);
+                if ($transient !== "WAITING") {
+                    return $transient;
                 } else {
                     sleep(1);
                 }
