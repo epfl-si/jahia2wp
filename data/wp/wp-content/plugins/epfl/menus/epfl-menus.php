@@ -1621,16 +1621,38 @@ class MenuItemController extends CustomPostTypeController
     /**
      * Invoked first by the wp-admin refresh button
      */
-    static function ajax_enumerate () {
-        $transient_name = 'epfl-menus-all-external-item-ids';
-        if (false !== ($cached = get_transient($transient_name))) {
-            // don't fetch cached data if we are in debug mode
-            if (!(defined('WP_DEBUG') && (WP_DEBUG)))
-            {
-                return $cached;
-            }
+    static function ajax_enumerate ($opts = array()) {
+        if (! array_key_exists("retryToken", $opts)) {
+            throw new \Error("Old client code no longer supported");
         }
 
+        if (! ($retryToken = $opts["retryToken"])) {
+            $freshRetryToken = substr(md5(microtime()), 0, 5);
+            return array('retryToken' => $freshRetryToken);
+        }
+
+        $transient_name = "epfl-menus-all-external-item-ids-$retryToken";
+
+        if (false !== get_transient($transient_name)) {
+            // Poor man's thread join in PHP
+            $join_deadline_seconds = 15;
+            for($i = 0; $i < $join_deadline_seconds; $i++) {
+                wp_cache_flush();  // Transients are cached in RAM by default
+                $transient = get_transient($transient_name);
+                if ($transient !== "WAITING") {
+                    return $transient;
+                } else {
+                    sleep(1);
+                }
+            }
+            error_log(get_called_class() . "::ajax_enumerate(): " .
+                      "timed out joining computation $retryToken " .
+                      "after $join_deadline_seconds seconds");
+            http_response_code(504);
+            die();
+        }
+
+        set_transient($transient_name, "WAITING", 300);
         // The Varnish-side limit is 30 seconds, however the
         // client-side AJAX app is prepared to deal with 504's
         set_time_limit(120);
