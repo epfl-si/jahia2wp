@@ -31,26 +31,48 @@ function onRefreshButton ($, $button) {
     $button.spinner = new Spinner($);
     $button.append($button.spinner.$spinner);
 
-    window.EPFLMenus.post('enumerate')
+    window.EPFLMenus.post('enumerate', { data: { retryToken: null} })
         .then(function(response) {
-            var ids = response.external_menu_item_ids;
-            if (ids) {
-                return updateRowsDeferred($, ids);
-            } else {
-                console.log('AJAX ERROR:', response);
-                throw new Error(response.status);
-            }
-        })
-        .then(function() {$button.spinner.progress.resolve(); },
-              function(err) {
-                  $button.spinner.progress.reject();
-                  if (err.status === 504) {
-                      $button.spinner.$spinner.removeClass().addClass('ajax-timeout');
-                      $button.append('<p class="tooltip-error">Timeout in the server</p>');
-                  } else {
-                      $button.append('<p class="tooltip-error">Server-side error</p>');
-                  }
-              });
+          return enumerateRetry(response);
+        }).then(
+            function(response) {
+                var ids = response.external_menu_item_ids;
+                if (ids) {
+                    $button.spinner.progress.resolve();
+                    return updateRowsDeferred($, ids);
+                } else {
+                    console.log('AJAX ERROR:', response);
+                    throw new Error(response.status);
+                }
+            },
+            function(err) {
+                $button.spinner.progress.reject();
+                if (err.status === 504) {
+                    $button.spinner.$spinner.removeClass().addClass('ajax-timeout');
+                    $button.append('<p class="tooltip-error">Timeout in the server</p>');
+                } else {
+                    $button.append('<p class="tooltip-error">Server-side error</p>');
+                }
+
+            });
+
+    function enumerateRetry(response) {
+        if (! response.hasOwnProperty('retryToken')) {
+            return response;
+        }
+        return window.EPFLMenus.post(
+            'enumerate',
+            {data: {retryToken: response.retryToken}})
+            .then(
+                enumerateRetry,
+                function(err) {
+                    if (err.status === 504) {
+                        return enumerateRetry(response);
+                    } else {
+                        throw new Error(response.status);
+                    }
+                });
+    }
 }
 
 /**
