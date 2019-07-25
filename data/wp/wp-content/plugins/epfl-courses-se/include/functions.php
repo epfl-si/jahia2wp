@@ -2,6 +2,7 @@
 
 require_once('xml_functions.php');
 require_once('db_functions.php');
+require_once('db_init.php');
 
 function updateCoursesFromISAByYearSection($year, $section,$csv_path){
 	
@@ -92,7 +93,7 @@ function updateCoursesFromISAByYearSection($year, $section,$csv_path){
 			$polyperspectivesDB = getCoursePolyperspectives($course[1]);
 			$polyperspectives = "";
 			foreach($polyperspectivesDB as $polyperspective){
-				$polyperspectives .= $polyperspective['name']."|";
+				$polyperspectives .= $polyperspective->name_en."|";
 			}
 			#Remove last sep char |
 			if(!empty($polyperspective4csv)){
@@ -223,6 +224,23 @@ function initKeywordsPolyperspectivesSemesters(){
 	
 	return $result;
 
+}
+
+function updateDB(){
+
+	$result = EPFLCOURSESSEDB::dropAll();
+	if($result!=true){
+		return $result;
+	}	
+		
+	$result = EPFLCOURSESSEDB::init();
+	if($result!=true){
+		return $result;
+	}	
+	
+	$result = initKeywordsPolyperspectivesSemestersData();
+	
+	return $result;
 }
 
 ?>

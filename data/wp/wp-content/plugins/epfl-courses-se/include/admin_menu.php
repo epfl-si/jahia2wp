@@ -107,10 +107,6 @@ ob_start(); ?>
 // Check whether the button has been pressed AND also check the nonce
 if (isset($_POST['updateISA_button']) && check_admin_referer('updateISA_button_clicked')) {
 	
-	//copy old file 
-	$target_file = plugin_dir_path(__DIR__)."csv/courses_data.csv";
-    copy($target_file,plugin_dir_path(__DIR__)."csv/old_courses_data.csv");
-        
 	//Update courses from ISA and create csv data file
 	updateFromISA();
 	
@@ -135,6 +131,15 @@ if(isset($_POST["initKeywordsPolyperspectivesSemestersData_button"]) && check_ad
 		echo '<div id="message" class="updated fade"><p>Init done !</p></div>';
 	}else{
 		echo '<div id="message" class="updated fade"><p>Error during init !'.$result.'</p></div>';
+	}
+}
+
+if(isset($_POST["updateDB_button"]) && check_admin_referer('updateDB_button_clicked')) {
+    $result = updateDB();
+    if($result===true){
+		echo '<div id="message" class="updated fade"><p>DB updated !</p></div>';
+	}else{
+		echo '<div id="message" class="updated fade"><p>Error during DB update !'.$result.'</p></div>';
 	}
 }
 
@@ -173,11 +178,20 @@ echo '</form>';
 echo '</div>';
 
 echo '<div style="border:1px solid lightgrey;padding:10px;">';
-echo '<h4>Reset DB (This will delete courses data and init Keywords, Polyperspectives and Semesters Data !)</h4>';
+echo '<h4>Reset DB data (This will delete courses data and init Keywords, Polyperspectives and Semesters Data !)</h4>';
 echo '<form action="admin.php?page=epflcse-admin" method="post">';
 wp_nonce_field('initKPSData_button_clicked');
 echo '<input type="hidden" value="true" name="initKeywordsPolyperspectivesSemestersData_button" />';
-submit_button('Start init !');
+submit_button('Start reset !');
+echo '</form>';
+echo '</div>';
+
+echo '<div style="border:1px solid lightgrey;padding:10px;">';
+echo '<h4>Update DB (This will delete all and recreate DB structure and init Keywords, Polyperspectives and Semesters Data !)</h4>';
+echo '<form action="admin.php?page=epflcse-admin" method="post">';
+wp_nonce_field('updateDB_button_clicked');
+echo '<input type="hidden" value="true" name="updateDB_button" />';
+submit_button('Start update !');
 echo '</form>';
 echo '</div>';
 
