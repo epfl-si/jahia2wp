@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epfl_courses_se\n"
-"POT-Creation-Date: 2019-07-22 11:59+0200\n"
-"PO-Revision-Date: 2019-07-22 14:56+0200\n"
+"POT-Creation-Date: 2019-07-23 11:54+0200\n"
+"PO-Revision-Date: 2019-07-23 11:59+0200\n"
 "Last-Translator: Ludovic Bonivento <ludovic.bonivento@epfl.ch>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -44,61 +44,65 @@ msgstr "Enseignants"
 msgid "Languages"
 msgstr "Langues"
 
-#: include/db_functions.php:323
+#: include/db_functions.php:326
 msgid "Courses"
 msgstr "Cours"
 
-#: include/db_functions.php:326
+#: include/db_functions.php:329
 msgid "l=Lecture, e=Exercice, p=Project"
 msgstr "c=Cours, e=Exercice, p=Projet"
 
-#: include/db_functions.php:327
+#: include/db_functions.php:330
 msgid "Fall"
 msgstr "Automne"
 
-#: include/db_functions.php:328
+#: include/db_functions.php:331
 msgid "Winter"
 msgstr "Hiver"
 
-#: include/db_functions.php:329
+#: include/db_functions.php:332
 msgid "Spring"
 msgstr "Printemps"
 
-#: include/db_functions.php:330
+#: include/db_functions.php:333
 msgid "Summer"
 msgstr "Été"
 
-#: include/db_functions.php:334
+#: include/db_functions.php:337
 msgid "Code"
 msgstr "Code"
 
-#: include/db_functions.php:335
+#: include/db_functions.php:338
 msgid "Semester"
 msgstr "Semestre"
 
-#: include/db_functions.php:336
+#: include/db_functions.php:339
 msgid "Lecturers"
 msgstr "Enseignants"
 
-#: include/db_functions.php:337
+#: include/db_functions.php:340
 msgid "l"
 msgstr "c"
 
-#: include/db_functions.php:338
+#: include/db_functions.php:341
 msgid "e"
 msgstr "e"
 
-#: include/db_functions.php:339
+#: include/db_functions.php:342
 msgid "p"
 msgstr "p"
 
-#: include/db_functions.php:340
+#: include/db_functions.php:343
 msgid "Exam"
 msgstr "Examen"
 
-#: include/db_functions.php:341
+#: include/db_functions.php:344
 msgid "Credits/Coefficient"
 msgstr "Credits/Coefficient"
+
+#: include/db_functions.php:390
+msgid "During the semester"
+msgstr "Durant le semestre"
 
 #~ msgid "Science Q&A"
 #~ msgstr "Question de Science"

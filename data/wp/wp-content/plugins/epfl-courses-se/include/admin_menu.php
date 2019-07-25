@@ -107,10 +107,6 @@ ob_start(); ?>
 // Check whether the button has been pressed AND also check the nonce
 if (isset($_POST['updateISA_button']) && check_admin_referer('updateISA_button_clicked')) {
 	
-	//copy old file 
-	$target_file = plugin_dir_path(__DIR__)."csv/courses_data.csv";
-    copy($target_file,plugin_dir_path(__DIR__)."csv/old_courses_data.csv");
-        
 	//Update courses from ISA and create csv data file
 	updateFromISA();
 	

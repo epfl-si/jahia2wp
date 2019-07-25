@@ -37,19 +37,18 @@ function parseXMLPlansBamaYearSection($data) {
 			
 			if (!empty($course_code)){
 						
+				$course_lecture = '';
+				$course_exercice = '';
+				$course_project = '';
+				$course_tp = '';
+				$course_labo = '';
+				$course_exam = '';
+
 				# parse classes (lecture, exercice, project and exam)
-				foreach($course->getElementsByTagName('classes') as $class){
+				foreach($course->getElementsByTagName('classes')->item(0)->getElementsByTagName('class') as $class){
 				
-					$study_type = $class->getElementsByTagName('code')->item(0)->nodeValue;
-					$period_type = $class->getElementsByTagName('code')->item(0)->nodeValue;
+					$study_type = $class->getElementsByTagName('studyType')->item(0)->getElementsByTagName('code')->item(0)->nodeValue;
 					$nb_period = $class->getElementsByTagName('noPeriods')->item(0)->nodeValue;
-					
-					$course_lecture = '';
-					$course_exercice = '';
-					$course_project = '';
-					$course_tp = '';
-					$course_labo = '';
-					$course_exam = '';
 					
 					switch ($study_type){
 						case 'LIP_COURS':
@@ -77,10 +76,10 @@ function parseXMLPlansBamaYearSection($data) {
 							$course_tp = $nb_period;
 							break;
 					}
-					
-					array_push($courses, array($semester, $course_code, $course_title,$course_credit,$course_lecture,$course_exercice,$course_project,$course_tp,$course_labo,$course_exam));
 			
 				}
+				
+				array_push($courses, array($semester, $course_code, $course_title,$course_credit,$course_lecture,$course_exercice,$course_project,$course_tp,$course_labo,$course_exam));
 			}
 		}
 	}
@@ -138,15 +137,24 @@ function parseXMLCourseBook($data) {
 				# course resumes
 				$course['resumes'] = array();
 				$paragraphs = $dom->getElementsByTagName('paragraphs')->item(0);
+				$resume_fr = "";
+				$resume_en = "";
 				foreach ($paragraphs->getElementsByTagName('paragraph') as $paragraph) {
-					#$resume_data = array();
 					if ($paragraph->getElementsByTagName('type')->item(0)->getAttribute('code') == 'RUBRIQUE_RESUME') {
 						$lang = $paragraph->getElementsByTagName('lang')->item(0)->nodeValue;
-						$content = $paragraph->getElementsByTagName('content')->item(0)->nodeValue;
-						$course['resumes'][$lang] = $content;
+						if($lang == 'fr'){
+							$content_fr = $paragraph->getElementsByTagName('content')->item(0)->nodeValue;
+						}else{
+							$content_en = $paragraph->getElementsByTagName('content')->item(0)->nodeValue;
+						}
+							
+						
 						
 					}
 				}
+				
+				$course['resumes']['fr'] = $content_fr;
+				$course['resumes']['en'] = $content_en;
 				
 				# course professors
 				$course['professors'] = array();

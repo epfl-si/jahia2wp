@@ -92,7 +92,7 @@ function updateCoursesFromISAByYearSection($year, $section,$csv_path){
 			$polyperspectivesDB = getCoursePolyperspectives($course[1]);
 			$polyperspectives = "";
 			foreach($polyperspectivesDB as $polyperspective){
-				$polyperspectives .= $polyperspective['name']."|";
+				$polyperspectives .= $polyperspective->name_en."|";
 			}
 			#Remove last sep char |
 			if(!empty($polyperspective4csv)){
