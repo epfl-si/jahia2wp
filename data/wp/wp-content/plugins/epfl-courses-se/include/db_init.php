@@ -194,6 +194,8 @@ class EPFLCOURSESSEDB
 		{
 			return 'There was a database error installing EPFL-COURSES_SE: ' . $wpdb->print_error();
 		}
+		
+		return true;
 	
     }
 }
