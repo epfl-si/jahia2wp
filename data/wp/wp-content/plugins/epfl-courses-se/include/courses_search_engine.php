@@ -18,7 +18,7 @@ function get_courses_se_div() {
         <script type="text/javascript">      
         
         
-			var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
+			var ajaxurl = "<?php echo plugin_dir_url(__DIR__); ?>request.php";
             
             setInterval(updateCloud, 25000);
             
@@ -45,7 +45,7 @@ function get_courses_se_div() {
                 
                 
                 jQuery.ajax({
-                    url: ajaxurl,
+                    url: "<?php echo plugin_dir_url(__DIR__); ?>request.php",//ajaxurl,
                     type: "POST",
                     dataType: "json",
                     data: {action:'getTeachers'},

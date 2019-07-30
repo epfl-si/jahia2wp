@@ -191,8 +191,16 @@ function getTeachers(){
     
 }
 
-add_action('wp_ajax_getTeachers','getTeachers');
-add_action('wp_ajax_nopriv_getTeachers','getTeachers');
+// add_action('wp_ajax_getTeachers','getTeachers');
+// add_action('wp_ajax_nopriv_getTeachers','getTeachers');
+
+//For logged in users
+add_action('epfl_courses_se_ajax_getTeachers', 'getTeachers');
+ 
+//For logged out users
+add_action('epfl_courses_se_ajax_nopriv_getTeachers', 'getTeachers');
+
+
 
 function getCourseTeachers($courseCode){
 
@@ -206,8 +214,8 @@ function getCourseTeachers($courseCode){
 	wp_die(); 
 }
 
-add_action('wp_ajax_getCourseTeachers','getCourseTeachers');
-add_action('wp_ajax_nopriv_getCourseTeacherss','getCourseTeachers');
+// add_action('epfl_courses_se_ajax_getCourseTeachers','getCourseTeachers');
+// add_action('epfl_courses_se_ajax_nopriv_getCourseTeacherss','getCourseTeachers');
 
 function getCourseKeywords($course_code){
 
@@ -220,8 +228,8 @@ function getCourseKeywords($course_code){
 
 }
 
-add_action('wp_ajax_getCourseKeywords','getCourseKeywords');
-add_action('wp_ajax_nopriv_getCourseKeywords','getCourseKeywords');
+// add_action('epfl_courses_se_ajax_getCourseKeywords','getCourseKeywords');
+// add_action('epfl_courses_se_ajax_nopriv_getCourseKeywords','getCourseKeywords');
 
 function getCoursePolyperspectives($course_code){
 
@@ -236,8 +244,8 @@ function getCoursePolyperspectives($course_code){
 
 }
 
-add_action('wp_ajax_getCoursePolyperspectives','getCoursePolyperspectives');
-add_action('wp_ajax_nopriv_getCoursePolyperspectives','getCoursePolyperspectives');
+// add_action('epfl_courses_se_ajax_getCoursePolyperspectives','getCoursePolyperspectives');
+// add_action('epfl_courses_se_ajax_nopriv_getCoursePolyperspectives','getCoursePolyperspectives');
 
 function getFilteredCourses($semesters = null,$polyperspectives = null,$keywords = null,$teachers = null,$languages = null){
 
@@ -423,8 +431,8 @@ function getFilteredCourses($semesters = null,$polyperspectives = null,$keywords
  	wp_die();
 }
 
-add_action('wp_ajax_getFilteredCourses','getFilteredCourses');
-add_action('wp_ajax_nopriv_getFilteredCourses','getFilteredCourses');
+add_action('epfl_courses_se_ajax_getFilteredCourses','getFilteredCourses');
+add_action('epfl_courses_se_ajax_nopriv_getFilteredCourses','getFilteredCourses');
 
 function getPolyperspectives($language = null){
 	
@@ -468,8 +476,8 @@ function getPolyperspectives($language = null){
     
 }
 
-add_action('wp_ajax_getPolyperspectives','getPolyperspectives');
-add_action('wp_ajax_nopriv_getPolyperspectives','getPolyperspectives');
+add_action('epfl_courses_se_ajax_getPolyperspectives','getPolyperspectives');
+add_action('epfl_courses_se_ajax_nopriv_getPolyperspectives','getPolyperspectives');
 
 function getSemesters(){
 
@@ -505,8 +513,8 @@ function getSemesters(){
     
 }
 
-add_action('wp_ajax_getSemesters','getSemesters');
-add_action('wp_ajax_nopriv_getSemesters','getSemesters');
+add_action('epfl_courses_se_ajax_getSemesters','getSemesters');
+add_action('epfl_courses_se_ajax_nopriv_getSemesters','getSemesters');
 
 function getKeywords(){
 	
@@ -526,8 +534,8 @@ function getKeywords(){
 	wp_die(); 
 }
 
-add_action('wp_ajax_getKeywords','getKeywords');
-add_action('wp_ajax_nopriv_getKeywords','getKeywords');
+add_action('epfl_courses_se_ajax_getKeywords','getKeywords');
+add_action('epfl_courses_se_ajax_nopriv_getKeywords','getKeywords');
 
 function getCloudKeywords(){
     global $wpdb;
@@ -561,8 +569,8 @@ function getCloudKeywords(){
     wp_die();
 }
 
-add_action('wp_ajax_getCloudKeywords','getCloudKeywords');
-add_action('wp_ajax_nopriv_getCloudKeywords','getCloudKeywords');
+add_action('epfl_courses_se_ajax_getCloudKeywords','getCloudKeywords');
+add_action('epfl_courses_se_ajax_nopriv_getCloudKeywords','getCloudKeywords');
 
 function initKeywordsPolyperspectivesSemestersData(){
 	global $wpdb;
