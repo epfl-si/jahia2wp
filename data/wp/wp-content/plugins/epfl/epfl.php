@@ -29,6 +29,7 @@ require_once 'shortcodes/epfl-tableau/epfl-tableau.php';
 require_once 'shortcodes/epfl-google-forms/epfl-google-forms.php';
 require_once 'shortcodes/epfl-servicenow-search/epfl-servicenow-search.php';
 require_once 'shortcodes/epfl-labs-search/epfl-labs-search.php';
+require_once 'shortcodes/epfl-polylex-search/epfl-polylex-search.php';
 require_once 'shortcodes/epfl-study-plan/epfl-study-plan.php';
 require_once 'shortcodes/epfl-magistrale/epfl-magistrale.php';
 require_once 'menus/epfl-menus.php';
