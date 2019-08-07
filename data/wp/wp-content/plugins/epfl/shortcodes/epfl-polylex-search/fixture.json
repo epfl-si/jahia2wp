@@ -42,13 +42,6 @@
                 "firstName": "françoise",
                 "urlFr": "https://people.epfl.ch/francoise.chardonnens",
                 "urlEn": "https://people.epfl.ch/francoise.chardonnens?lang=fr"
-            },
-            {
-                "_id": "itK7rtczN6NwC6kQz",
-                "lastName": "smith",
-                "firstName": "john",
-                "urlFr": "https://people.epfl.ch/francoise.chardonnens",
-                "urlEn": "https://people.epfl.ch/francoise.chardonnens?lang=fr"
             }
         ]
     },
@@ -98,8 +91,8 @@
             },
             {
                 "_id": "itK7rtczN6NwC6kQz",
-                "lastName": "smith",
-                "firstName": "john",
+                "lastName": "Nelson",
+                "firstName": "Maxwell",
                 "urlFr": "https://people.epfl.ch/francoise.chardonnens",
                 "urlEn": "https://people.epfl.ch/francoise.chardonnens?lang=fr"
             }
