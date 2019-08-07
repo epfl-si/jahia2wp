@@ -8,7 +8,13 @@
 
 namespace Epfl\Polylex_Search_Plugin;
 
-define("LEX_INFO_PROVIDER_URL", "https://wp-veritas.epfl.ch/api/v1/");
+define("LEX_INFO_PROVIDER_URL", "https://wp-polylex.epfl.ch/api/v1/lexs");
+
+function get_fixtures() {
+    $string = file_get_contents(__DIR__  ."/fixture.json");
+    $json_a=json_decode($string);
+    return $json_a;
+}
 
 function process_shortcode($atts) {
 
@@ -29,11 +35,13 @@ function process_shortcode($atts) {
 
     # by default get all sites with at least a tag
     $url = LEX_INFO_PROVIDER_URL . 'sites?tagged=true';
-    $lexes = \Utils::get_items($url);
+    # TODO:
+    #$lexes = \Utils::get_items($url);
+    $lexes = get_fixtures();
 
     ob_start();
     try {
-       do_action("epfl_lex_search_action", $lexes, $category, $subcategory);
+       do_action("epfl_lexes_search_action", $lexes, $category, $subcategory);
        return ob_get_contents();
     } finally {
         ob_end_clean();

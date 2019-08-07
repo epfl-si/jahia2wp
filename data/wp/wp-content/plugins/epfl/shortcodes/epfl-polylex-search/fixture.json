@@ -1,0 +1,109 @@
+[
+    {
+        "_id": "5LRAv2ub59WSkH4MN",
+        "lex": "1.0.1",
+        "titleFr": "Loi fédérale sur les écoles polytechniques fédérales (Loi sur les EPF)",
+        "titleEn": "Federal Act of 4 October 1991 on the Federal Institutes of Technology (FIT Act)",
+        "urlFr": "http://www.admin.ch/ch/f/rs/c414_110.html",
+        "urlEn": "http://www.admin.ch/opc/en/classified-compilation/19910256/index.html",
+        "descriptionFr": "La loi sur les EPF fixe tant les missions que l’organisation et l’autonomie des différentes Institutions du Domaine des EPF. Elle fonde notamment l’existence des 4 corps à savoir le corps enseignant les assistants-doctorants et collaborateurs scientifiques les étudiants et le corps administratif et technique.",
+        "descriptionEn": "The FIT Act determines the missions and organisation and hence the autonomy of the different institutions of the EPF Domain. It establishes in particular the existence of the four bodies namely teaching staff doctoral assistants and scientific staff students and administrative and technical staff.",
+        "publicationDateFr": "4 octobre 1991",
+        "publicationDateEn": "4 October 1991",
+        "category": "Gouvenance",
+        "subcategory": "Domaine des EPF",
+        "authors": [
+            {
+                "_id": "itK7rtczN6NwC6kQz",
+                "lastName": "chardonnens",
+                "firstName": "françoise",
+                "urlFr": "https://people.epfl.ch/francoise.chardonnens",
+                "urlEn": "https://people.epfl.ch/francoise.chardonnens?lang=fr"
+            }
+        ]
+    },
+    {
+        "_id": "vhvxEfLxhc5G4QkzG",
+        "lex": "1.0.2",
+        "titleFr": "Ordonnance sur le domaine des Ecoles polytechniques fédérales",
+        "titleEn": "Ordonnance sur le domaine des Ecoles polytechniques fédérales",
+        "urlFr": "http://www.admin.ch/ch/f/rs/c414_110_3.html",
+        "urlEn": "http://www.admin.ch/ch/f/rs/c414_110_3.html",
+        "descriptionFr": "Cette ordonnance règle les détails d’application en lien direct avec la Loi sur les EPF.",
+        "descriptionEn": "This ordinance determines the details concerning application directly linked with the FIT Act.",
+        "publicationDateFr": "19 novembre 2003",
+        "publicationDateEn": "19 November 2003",
+        "category": "Gouvernance",
+        "subcategory": "Domaine des EPF",
+        "authors": [
+            {
+                "_id": "itK7rtczN6NwC6kQz",
+                "lastName": "chardonnens",
+                "firstName": "françoise",
+                "urlFr": "https://people.epfl.ch/francoise.chardonnens",
+                "urlEn": "https://people.epfl.ch/francoise.chardonnens?lang=fr"
+            },
+            {
+                "_id": "itK7rtczN6NwC6kQz",
+                "lastName": "smith",
+                "firstName": "john",
+                "urlFr": "https://people.epfl.ch/francoise.chardonnens",
+                "urlEn": "https://people.epfl.ch/francoise.chardonnens?lang=fr"
+            }
+        ]
+    },
+    {
+        "_id": "M8pKbSiW5raA7C2Gi",
+        "lex": "1.0.3",
+        "titleFr": "Ordonnance du CEPF sur les EPF de Zurich et Lausanne",
+        "titleEn": "Ordinance of the ETH Board on the EPFs (Zurich and Lausanne)",
+        "urlFr": "http://www.admin.ch/ch/f/rs/c414_110_37.html",
+        "urlEn": "http://www.admin.ch/ch/f/rs/c414_110_37.html",
+        "descriptionFr": "Cette ordonnance règle le mandat et les règles d’organisation de l’EPFZ et de l’EPFL en lien direct avec la Loi sur les EPF.",
+        "descriptionEn": "This ordinance determines the mandate and rules concerning the organisation of the EPFZ and EPFL directly linked with the FIT Act.",
+        "publicationDateFr": "13 novembre 2003",
+        "publicationDateEn": "13 November 2003",
+        "category": "Gouvernance",
+        "subcategory": "Domaine des EPF",
+        "authors": [
+            {
+                "_id": "itK7rtczN6NwC6kQz",
+                "lastName": "chardonnens",
+                "firstName": "françoise",
+                "urlFr": "https://people.epfl.ch/francoise.chardonnens",
+                "urlEn": "https://people.epfl.ch/francoise.chardonnens?lang=fr"
+            }
+        ]
+    },
+    {
+        "_id": "ZN9x7W3cNvddG3P2i",
+        "lex": "1.1.1",
+        "titleFr": "Ordonnance sur l’organisation de l’EPFL",
+        "titleEn": "Ordinance on the organisation of the EPFL",
+        "urlFr": "https://polylex.epfl.ch/wp-content/uploads/2019/01/1.1.1_o_organisation_EPFL_fr.pdf",
+        "urlEn": "https://polylex.epfl.ch/wp-content/uploads/2019/01/1.1.1_o_organisation_EPFL_an.pdf",
+        "descriptionFr": "Cette ordonnance définit la structure de l’Ecole polytechnique fédérale de Lausanne (EPFL) l’organisation et les compétences décisionnelles de sa Direction de ses facultés de ses collèges et de ses organes centraux. Pour une vue synoptique du périmètre de l’EPFL cliquez ici.",
+        "descriptionEn": "This ordinance defines the structure of the Ecole polytechnique féd��rale de Lausanne (EPFL) the organisation and decision-making powers of its Direction Schools Colleges and central services. For a synoptic view of the EPFL perimeter click here.",
+        "publicationDateFr": "1er mars 2004 état au 11 avril 2019",
+        "publicationDateEn": "1st March 2004 Status as at 11th April 2019",
+        "category": "Gouvernance",
+        "subcategory": "Organisation",
+        "authors": [
+            {
+                "_id": "itK7rtczN6NwC6kQz",
+                "lastName": "chardonnens",
+                "firstName": "françoise",
+                "urlFr": "https://people.epfl.ch/francoise.chardonnens",
+                "urlEn": "https://people.epfl.ch/francoise.chardonnens?lang=fr"
+            },
+            {
+                "_id": "itK7rtczN6NwC6kQz",
+                "lastName": "smith",
+                "firstName": "john",
+                "urlFr": "https://people.epfl.ch/francoise.chardonnens",
+                "urlEn": "https://people.epfl.ch/francoise.chardonnens?lang=fr"
+            }
+        ]
+    }
+
+]
