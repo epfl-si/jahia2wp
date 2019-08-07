@@ -44,7 +44,7 @@ Class Utils
      * @param cache_time_sec : Nb of sec during which we have to cache information in transient
      * @return decoded JSON data
      */
-    public static function get_items(string $url, $cache_time_sec=300) {
+    public static function get_items(string $url, $cache_time_sec=300, $timeout=5) {
 
 
         /* Caching mechanism is only used when :
@@ -69,7 +69,7 @@ Class Utils
         }
 
         $start = microtime(true);
-        $response = wp_remote_get($url);
+        $response = wp_remote_get($url, array( 'timeout' => $timeout ));
         $end = microtime(true);
 
         // Logging call
