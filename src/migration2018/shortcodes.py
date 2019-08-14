@@ -145,7 +145,7 @@ class Shortcodes():
                         if site_details.path not in self.list[shortcode]:
                             self.list[shortcode].append(site_details.path)
 
-    def __update_report(self, shortcode_name):
+    def _update_report(self, shortcode_name):
         # Building report
         if shortcode_name not in self.report:
             self.report[shortcode_name] = 0
@@ -285,7 +285,7 @@ class Shortcodes():
 
         return content
 
-    def __get_attribute(self, shortcode_call, attr_name):
+    def _get_attribute(self, shortcode_call, attr_name):
         """
         Return attribute value (or None if not found) for a given shortcode call
         :param shortcode_call: String with shortcode call: [my_shortcode attr="1"]
@@ -323,7 +323,7 @@ class Shortcodes():
 
         return matching_reg.sub(']{}[/'.format(new_content), shortcode_call)
 
-    def __get_all_shortcode_calls(self, content, shortcode_name, with_content=False):
+    def _get_all_shortcode_calls(self, content, shortcode_name, with_content=False):
         """
         Look for all calls for a given shortcode in given content
         :param content: String in which to look for shortcode calls
@@ -360,7 +360,7 @@ class Shortcodes():
 
         content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
 
-        self.__update_report(old_shortcode)
+        self._update_report(old_shortcode)
         return content
 
     def _fix_su_vimeo(self, content):
@@ -398,14 +398,14 @@ class Shortcodes():
         new_shortcode = 'epfl_people_2018'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, old_shortcode)
+        calls = self._get_all_shortcode_calls(content, old_shortcode)
 
         for call in calls:
             # We generate new shortcode from scratch
             new_call = '[{}]'.format(new_shortcode)
 
             # Extracing URL in which parameters we are looking for are
-            api_url = self.__get_attribute(call, 'url')
+            api_url = self._get_attribute(call, 'url')
 
             # Trying to find a 'scipers' parameter
             scipers = Utils.get_parameter_from_url(api_url, 'scipers')
@@ -421,7 +421,7 @@ class Shortcodes():
 
             # Replacing in global content
             content = content.replace(call, new_call)
-            self.__update_report(old_shortcode)
+            self._update_report(old_shortcode)
 
         return content
 
@@ -436,7 +436,7 @@ class Shortcodes():
         new_shortcode = 'epfl_news_2018'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, old_shortcode)
+        calls = self._get_all_shortcode_calls(content, old_shortcode)
 
         nb_news_from_template = {'4': '3',
                                  '8': '5',
@@ -450,7 +450,7 @@ class Shortcodes():
         for call in calls:
             new_call = '[{}]'.format(new_shortcode)
 
-            template = self.__get_attribute(call, 'template')
+            template = self._get_attribute(call, 'template')
 
             # New template is always the same
             new_call = self.__add_attribute(new_call, new_shortcode, 'template', '1')
@@ -465,7 +465,7 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, new_call)
 
-            self.__update_report(old_shortcode)
+            self._update_report(old_shortcode)
 
         return content
 
@@ -480,14 +480,14 @@ class Shortcodes():
         new_shortcode = 'gallery'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, old_shortcode)
+        calls = self._get_all_shortcode_calls(content, old_shortcode)
 
         for call in calls:
             # We generate new shortcode from scratch
             new_call = '[{}]'.format(new_shortcode)
 
             # SOURCE -> IDS
-            source = self.__get_attribute(call, 'source')
+            source = self._get_attribute(call, 'source')
 
             # If not images, it is not supported, we skip it
             if not source.startswith('media:'):
@@ -500,7 +500,7 @@ class Shortcodes():
                 new_call = self.__add_attribute(new_call, new_shortcode, 'ids', ids)
 
                 # LINK
-                link = self.__get_attribute(call, 'link')
+                link = self._get_attribute(call, 'link')
                 # 'image' is for su_slider, su_custom_gallery and su_carousel
                 # 'lightbox' is for su_custom_gallery and su_carousel
                 if link == 'image' or link == 'lightbox':
@@ -520,7 +520,7 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, new_call)
 
-            self.__update_report(old_shortcode)
+            self._update_report(old_shortcode)
 
         return content
 
@@ -557,13 +557,13 @@ class Shortcodes():
         new_shortcode = 'epfl_toggle'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, old_shortcode, with_content=True)
+        calls = self._get_all_shortcode_calls(content, old_shortcode, with_content=True)
 
         for call in calls:
             # getting future toggle content
             toggle_content = self.__get_content(call)
 
-            title = self.__get_attribute(call, 'more_text')
+            title = self._get_attribute(call, 'more_text')
 
             # We generate new shortcode from scratch
             new_call = '[{0} title="{1}" state="close"]{2}[/{0}]'.format(new_shortcode, title, toggle_content)
@@ -571,7 +571,7 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, new_call)
 
-            self.__update_report(old_shortcode)
+            self._update_report(old_shortcode)
 
         return content
 
@@ -601,7 +601,7 @@ class Shortcodes():
         old_shortcode = 'su_accordion'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, old_shortcode, with_content=True)
+        calls = self._get_all_shortcode_calls(content, old_shortcode, with_content=True)
 
         for call in calls:
             # getting future toggle content
@@ -610,7 +610,7 @@ class Shortcodes():
             # Replacing in global content. In fact, we just remove surrounding shortcode
             content = content.replace(call, toggle_content)
 
-            self.__update_report(old_shortcode)
+            self._update_report(old_shortcode)
 
         return content
 
@@ -625,14 +625,14 @@ class Shortcodes():
         new_shortcode = 'epfl_toggle'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, old_shortcode, with_content=True)
+        calls = self._get_all_shortcode_calls(content, old_shortcode, with_content=True)
 
         for call in calls:
             # getting future toggle content
             toggle_content = self.__get_content(call)
 
-            title = self.__get_attribute(call, 'title')
-            is_open = self.__get_attribute(call, 'open')
+            title = self._get_attribute(call, 'title')
+            is_open = self._get_attribute(call, 'open')
 
             state = 'close' if not is_open or is_open == 'no' else 'open'
 
@@ -642,7 +642,7 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, new_call)
 
-            self.__update_report(old_shortcode)
+            self._update_report(old_shortcode)
 
         return content
 
@@ -654,12 +654,12 @@ class Shortcodes():
         :return:
         """
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, old_shortcode, with_content=True)
+        calls = self._get_all_shortcode_calls(content, old_shortcode, with_content=True)
 
         for call in calls:
             text = self.__get_content(call)
-            url = self.__get_attribute(call, 'url')
-            target = self.__get_attribute(call, 'target')
+            url = self._get_attribute(call, 'url')
+            target = self._get_attribute(call, 'target')
 
             html = ''
 
@@ -676,7 +676,7 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, html)
 
-            self.__update_report(old_shortcode)
+            self._update_report(old_shortcode)
 
         return content
 
@@ -707,7 +707,7 @@ class Shortcodes():
         shortcode_name = 'su_divider'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, shortcode_name)
+        calls = self._get_all_shortcode_calls(content, shortcode_name)
 
         for call in calls:
             html = '<hr class="bold">'
@@ -715,7 +715,7 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, html)
 
-            self.__update_report(shortcode_name)
+            self._update_report(shortcode_name)
 
         return content
 
@@ -727,7 +727,7 @@ class Shortcodes():
         shortcode_name = 'su_row'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
+        calls = self._get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
 
@@ -738,7 +738,7 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, html)
 
-            self.__update_report(shortcode_name)
+            self._update_report(shortcode_name)
 
         return content
 
@@ -750,7 +750,7 @@ class Shortcodes():
         shortcode_name = 'su_column'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
+        calls = self._get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
             col_content = self.__get_content(call)
@@ -760,7 +760,7 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, html)
 
-            self.__update_report(shortcode_name)
+            self._update_report(shortcode_name)
 
         return content
 
@@ -774,20 +774,20 @@ class Shortcodes():
         new_shortcode = 'epfl_card'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, old_shortcode, with_content=True)
+        calls = self._get_all_shortcode_calls(content, old_shortcode, with_content=True)
 
         for call in calls:
 
             box_content = self.__get_content(call)
 
-            title = self.__get_attribute(call, 'title')
+            title = self._get_attribute(call, 'title')
 
             new_call = '[{0} title1="{1}"]{2}[/{0}]'.format(new_shortcode, title, box_content)
 
             # Replacing in global content
             content = content.replace(call, new_call)
 
-            self.__update_report(old_shortcode)
+            self._update_report(old_shortcode)
 
         return content
 
@@ -801,16 +801,16 @@ class Shortcodes():
         new_shortcode = 'epfl_card'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, old_shortcode, with_content=True)
+        calls = self._get_all_shortcode_calls(content, old_shortcode, with_content=True)
 
         for call in calls:
 
             # urlencode content
             box_content = quote_plus(self.__get_content(call))
 
-            title = self.__get_attribute(call, 'title')
-            link = self.__get_attribute(call, 'url')
-            image = self.__get_attribute(call, 'image')
+            title = self._get_attribute(call, 'title')
+            link = self._get_attribute(call, 'url')
+            image = self._get_attribute(call, 'image')
 
             new_call = '[{0} content1="{1}" title1="{2}" link1="{3}" image1="{4}" /]'.format(
                 new_shortcode,
@@ -823,7 +823,7 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, new_call)
 
-            self.__update_report(old_shortcode)
+            self._update_report(old_shortcode)
 
         return content
 
@@ -838,11 +838,11 @@ class Shortcodes():
         shortcode_name = 'su_quote'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
+        calls = self._get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
             philosophical_thing = self.__get_content(call)
-            great_person_who_said_this = self.__get_attribute(call, 'cite')
+            great_person_who_said_this = self._get_attribute(call, 'cite')
 
             html = '<div class="row">'
             html += '<blockquote class="blockquote mt-3 col-md-12 border-0">'
@@ -854,7 +854,7 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, html)
 
-            self.__update_report(shortcode_name)
+            self._update_report(shortcode_name)
 
         return content
 
@@ -867,7 +867,7 @@ class Shortcodes():
         shortcode_name = 'su_list'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
+        calls = self._get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
             list_content = self.__get_content(call)
@@ -877,7 +877,7 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, html)
 
-            self.__update_report(shortcode_name)
+            self._update_report(shortcode_name)
 
         return content
 
@@ -890,7 +890,7 @@ class Shortcodes():
         shortcode_name = 'su_heading'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
+        calls = self._get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
             heading_text = self.__get_content(call)
@@ -900,7 +900,7 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, html)
 
-            self.__update_report(shortcode_name)
+            self._update_report(shortcode_name)
 
         return content
 
@@ -914,7 +914,7 @@ class Shortcodes():
         shortcode_name = 'su_highlight'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
+        calls = self._get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
             heading_text = self.__get_content(call)
@@ -924,7 +924,7 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, html)
 
-            self.__update_report(shortcode_name)
+            self._update_report(shortcode_name)
 
         return content
 
@@ -938,7 +938,7 @@ class Shortcodes():
         shortcode_name = 'su_note'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
+        calls = self._get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
             note = self.__get_content(call)
@@ -953,7 +953,7 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, html)
 
-            self.__update_report(shortcode_name)
+            self._update_report(shortcode_name)
 
         return content
 
@@ -963,7 +963,7 @@ class Shortcodes():
         :return:
         """
         shortcode_name = 'su_spacer'
-        self.__update_report(shortcode_name)
+        self._update_report(shortcode_name)
         return self.__remove_shortcode(content, shortcode_name)
 
     def _fix_epfl_twitter(self, content):
@@ -980,7 +980,7 @@ class Shortcodes():
 
         content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
 
-        self.__update_report(old_shortcode)
+        self._update_report(old_shortcode)
 
         return content
 
@@ -998,7 +998,7 @@ class Shortcodes():
 
         content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
 
-        self.__update_report(old_shortcode)
+        self._update_report(old_shortcode)
 
         return content
 
@@ -1019,16 +1019,16 @@ class Shortcodes():
         """
         shortcode_name = "epfl_card"
 
-        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
+        calls = self._get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
 
             # urlencode content
             box_content = quote_plus(self.__get_content(call))
 
-            title = self.__get_attribute(call, 'title')
-            link = self.__get_attribute(call, 'link')
-            image = self.__get_attribute(call, 'image')
+            title = self._get_attribute(call, 'title')
+            link = self._get_attribute(call, 'link')
+            image = self._get_attribute(call, 'image')
 
             new_call = '[{0} content1="{1}" title1="{2}" link1="{3}" image1="{4}" /]'.format(
                 shortcode_name,
@@ -1038,7 +1038,7 @@ class Shortcodes():
                 image
             )
 
-            self.__update_report(shortcode_name)
+            self._update_report(shortcode_name)
 
             content = content.replace(call, new_call)
 
@@ -1065,7 +1065,7 @@ class Shortcodes():
         old_shortcode = 'epfl_toggle_2018'
         new_shortcode = 'epfl_toggle'
 
-        calls = self.__get_all_shortcode_calls(content, old_shortcode)
+        calls = self._get_all_shortcode_calls(content, old_shortcode)
 
         for call in calls:
 
@@ -1073,13 +1073,13 @@ class Shortcodes():
 
             for i in range(10):
 
-                title = self.__get_attribute(call, 'label{}'.format(i))
+                title = self._get_attribute(call, 'label{}'.format(i))
 
                 if not title:
                     continue
 
-                desc = unquote(self.__get_attribute(call, 'desc{}'.format(i)))
-                state = self.__get_attribute(call, 'state{}'.format(i))
+                desc = unquote(self._get_attribute(call, 'desc{}'.format(i)))
+                state = self._get_attribute(call, 'state{}'.format(i))
 
                 new_call = '[{0} title="{1}" state="{2}"]{3}[/{0}]'.format(new_shortcode,
                                                                            title,
@@ -1087,7 +1087,7 @@ class Shortcodes():
                                                                            desc)
                 new_calls.append(new_call)
 
-                self.__update_report(old_shortcode)
+                self._update_report(old_shortcode)
 
             content = content.replace(call, '\n'.join(new_calls))
 
