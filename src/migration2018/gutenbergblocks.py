@@ -96,8 +96,8 @@ class GutenbergBlocks(Shortcodes):
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(new_shortcode, json.dumps(attributes))
 
-            print("Before: {}".format(call))
-            print("After: {}".format(new_call))
+            logging.info("Before: %s", call)
+            logging.info("After: %s", new_call)
 
             # Replacing in global content
             content = content.replace(call, new_call)
@@ -149,8 +149,8 @@ class GutenbergBlocks(Shortcodes):
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(new_shortcode, json.dumps(attributes))
 
-            print("Before: {}".format(call))
-            print("After: {}".format(new_call))
+            logging.info("Before: %s", call)
+            logging.info("After: %s", new_call)
 
             # Replacing in global content
             content = content.replace(call, new_call)
