@@ -51,13 +51,23 @@ class GutenbergBlocks(Shortcodes):
 
         return self.memento_mapping[memento]
 
+
+    def __add_optional_attribute(self, call, attributes, shortcode_attribute, block_attribute=None):
+
+        value = self._get_attribute(call, shortcode_attribute)
+        if value:
+            if block_attribute is None:
+                block_attribute = shortcode_attribute
+            attributes[block_attribute] = value
+
+
     def _fix_epfl_news_2018(self, content):
         """
         Transforms EPFL news 2018 shortcode to Gutenberg block
 
         """
-        old_shortcode = 'epfl_news_2018'
-        new_shortcode = 'epfl/news'
+        shortcode = 'epfl_news_2018'
+        block = 'epfl/news'
 
         templates_mapping = {'1': 'listing',
                              '2': 'highlighted_with_3_news',
@@ -67,7 +77,7 @@ class GutenbergBlocks(Shortcodes):
                              '6': 'card_with_3_news'}
 
         # Looking for all calls to modify them one by one
-        calls = self._get_all_shortcode_calls(content, old_shortcode)
+        calls = self._get_all_shortcode_calls(content, shortcode)
 
         for call in calls:
 
@@ -79,7 +89,7 @@ class GutenbergBlocks(Shortcodes):
 
             template = self._get_attribute(call, 'template')
             if template not in templates_mapping:
-                raise "Undefined {} template! {}".format(old_shortcode, template)
+                raise "Undefined {} template! {}".format(shortcode, template)
             attributes['template'] = templates_mapping[template]
 
             if template == '1':
@@ -94,7 +104,7 @@ class GutenbergBlocks(Shortcodes):
             logging.warning("Handle 'themes' attribute !!")
 
             # We generate new shortcode from scratch
-            new_call = '<!-- wp:{} {} /-->'.format(new_shortcode, json.dumps(attributes))
+            new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
 
             logging.info("Before: %s", call)
             logging.info("After: %s", new_call)
@@ -102,7 +112,7 @@ class GutenbergBlocks(Shortcodes):
             # Replacing in global content
             content = content.replace(call, new_call)
 
-            self._update_report(old_shortcode)
+            self._update_report(shortcode)
 
         return content
 
@@ -112,18 +122,16 @@ class GutenbergBlocks(Shortcodes):
         Transforms EPFL news 2018 shortcode to Gutenberg block
 
         """
-        old_shortcode = 'epfl_memento_2018'
-        new_shortcode = 'epfl/memento'
+        shortcode = 'epfl_memento_2018'
+        block = 'epfl/memento'
 
         templates_mapping = {'1': 'slider_with_the_first_highlighted_event',
                              '2': 'slider_without_the_first_highlighted_event',
                              '3': 'listing_with_the_first_highlighted_event',
                              '4': 'listing_without_the_first_highlighted_event'}
 
-        
-        
         # Looking for all calls to modify them one by one
-        calls = self._get_all_shortcode_calls(content, old_shortcode)
+        calls = self._get_all_shortcode_calls(content, shortcode)
 
         for call in calls:
 
@@ -135,7 +143,7 @@ class GutenbergBlocks(Shortcodes):
 
             template = self._get_attribute(call, 'template')
             if template not in templates_mapping:
-                raise "Undefined {} template! {}".format(old_shortcode, template)
+                raise "Undefined {} template! {}".format(shortcode, template)
             attributes['template'] = templates_mapping[template]
 
             attributes['lang'] = self._get_attribute(call, 'lang')
@@ -147,7 +155,7 @@ class GutenbergBlocks(Shortcodes):
             attributes['nbEvents'] = 3
 
             # We generate new shortcode from scratch
-            new_call = '<!-- wp:{} {} /-->'.format(new_shortcode, json.dumps(attributes))
+            new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
 
             logging.info("Before: %s", call)
             logging.info("After: %s", new_call)
@@ -155,6 +163,43 @@ class GutenbergBlocks(Shortcodes):
             # Replacing in global content
             content = content.replace(call, new_call)
             
-            self._update_report(old_shortcode)
+            self._update_report(shortcode)
+
+        return content
+
+
+    def _fix_epfl_people_2018(self, content):
+        """
+        Transforms EPFL people 2018 shortcode to Gutenberg block
+
+        """
+        shortcode = 'epfl_people_2018'
+        block = 'epfl/people'
+
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_shortcode_calls(content, shortcode)
+
+        for call in calls:
+
+            # To store new attributes
+            attributes = {}
+
+            self.__add_optional_attribute(call, attributes, 'units')
+            self.__add_optional_attribute(call, attributes, 'scipers')
+            self.__add_optional_attribute(call, attributes, 'doctoral_program', 'doctoralProgram')
+            self.__add_optional_attribute(call, attributes, 'function')
+
+            attributes['columns'] = self._get_attribute(call, 'columns')
+
+            # We generate new shortcode from scratch
+            new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
+
+            logging.info("Before: %s", call)
+            logging.info("After: %s", new_call)
+
+            # Replacing in global content
+            content = content.replace(call, new_call)
+            
+            self._update_report(shortcode)
 
         return content
