@@ -62,6 +62,8 @@ class GutenbergBlocks(Shortcodes):
             attributes['displayLinkAllNews'] = self._get_attribute(call, 'all_news_link').lower() == 'true'
             attributes['category'] = self._get_attribute(call, 'category')
 
+            # FIXME: also handle 'themes' attribute, which is not correctly documented on Confluence... 
+            logging.warning("Handle 'themes' attribute !!")
 
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(new_shortcode, json.dumps(attributes))
@@ -70,5 +72,5 @@ class GutenbergBlocks(Shortcodes):
             content = content.replace(call, new_call)
 
             self._update_report(old_shortcode)
-            
+
         return content
