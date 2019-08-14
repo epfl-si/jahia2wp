@@ -30,7 +30,7 @@ class GutenbergBlocks(Shortcodes):
         self.memento_mapping = {}
 
 
-    def __get_memento_id(self, memento):
+    def _get_memento_id(self, memento):
         """
         Returns EPFL Memento ID from name
 
@@ -54,52 +54,98 @@ class GutenbergBlocks(Shortcodes):
         return self.memento_mapping[memento]
 
 
-    def __add_optional_attributes(self, call, attributes, shortcode_attributes):
+    def __add_attributes(self, call, attributes, attributes_desc):
         """
-        Updates 'attributes' parameter (dict) with correct value if exists.
+        Updates 'attributes' parameter (dict) with correct value depending on each attribute description
+        contained in 'attributes_desc' parameter.
+        If value is not found in shortcode call, it won't be added in Gutenberg block
 
         :param call: String with shortcode call
         :param attributes: dict in which we will add attribute value if exists
-        :param shortcode_attributes: List with either attributes names (string) or dict with shortcode attribute
-                name as key an as value, the attribute name we have to use for Gutenberg Block. If string, we
-                assume that Gutenberg attribute is the same as the one in the shortcode.
+        :param shortcode_attributes: List with either attributes names (string) or dict with information to
+                    get correct value. Informations can be:
+                    'shortcode' -> (mandatory if 'default' or 'use_content' key are not present) attribute name in shortcode call
+                    'block'     -> (mandatory) attribute name in Gutenberg block 
+
+                    ** Only one of the following optional key can be present in the same time **
+                    'bool'      -> (optional) to tell if value has to be transformed to a bool value (string to bool)
+                    'map'       -> (optional) dict to map shortcode call attribute value to a new value.
+                                    An exception is raised if no mapping is found.
+                    'map_func'  -> (optional) function name to call (with shortcode call attribute value) to get
+                                    value to use for Gutenberg block
+                    'use_content'-> (optional) True|False to tell to use shortcode call content for Gutenberg attribute
+                                    value. (default=False)
+                                    If True, ensure that 'call' parameter also contains shortcode content. See 
+                                    _get_all_shortcode_calls function parameters for more information.
+                                    If given, we don't hvae to give a value for 'shortcode' key
+                    'default'   -> (optional) default value to use for Gutenberg block attribute. If given, we don't 
+                                    have to give a value for 'shortcode' key.
+
+                    ** The two next keys are working together so either no one is present, either both are present **
+                    'if_attr_name'  -> (optional) name of attribute to use for condition
+                    'if_attr_is'    -> (optional) if 'if_attr_name' value is equal to 'if_attr_is', we will add attribute
+                                        to Gutenberg block (by using options previously explained to define value).
         """
-        for attr in shortcode_attributes:
+
+        for attr_desc in attributes_desc:
 
             # If it's a dictionnary, we have to recover shortcode attribute name and block attribute name
-            if isinstance(attr, dict):
-                shortcode_attr = list(attr)[0]
-                block_attr = attr[shortcode_attr]
-            else:
-                shortcode_attr = block_attr = attr
+            if isinstance(attr_desc, dict):
 
+                block_attr = attr_desc['block']
+
+                # if we have condition for attribute presence
+                if 'if_attr_name' in attr_desc and 'if_attr_is' in attr_desc:
+                    # if attribute we have to look for is not present
+                    if attr_desc['if_attr_name'] not in attributes:
+                        raise "Referenced attribute '{}' is not present in attribute list (maybe not encountered yet)".format(attr_desc['if_attr_name'])
+                    
+                    # If referenced attribute isn't equal to conditional value, we skip current attribute
+                    if attributes[attr_desc['if_attr_name']] != attr_desc['if_attr_is']:
+                        continue
+
+                # If we have to use a default value, 
+                if 'default' in attr_desc:
+                    attributes[block_attr] = attr_desc['default']
+                    # We can continue to next attribute
+                    continue
+                
+                # We have to use content as value
+                if 'use_content' in attr_desc and attr_desc['use_content']:
+                    attributes[block_attr] = self._get_content(call)
+                    continue
+
+                shortcode_attr = attr_desc['shortcode']
+                
+            else:
+                shortcode_attr = block_attr = attr_desc
+
+            # Recovering source value
             value = self._get_attribute(call, shortcode_attr)
+            # If value is found
             if value:
-                attributes[block_attr] = value
+                # We need to transform string to bool
+                if 'bool' in attr_desc and attr_desc['bool']:
+                     final_value = value.lower() == 'true'
+                
+                # Value has to be mapped to another using dict
+                elif 'map' in attr_desc:
+                    # If there's no mapping, we raise an exception.
+                    if value not in attr_desc['map']:
+                        raise "No mapping found for attribute '{}' and value '{}'. Shortcode call: {}".format(shortcode_attr, value, call)
+                    final_value = attr_desc['map'][value]
+                
+                # Correct value has to be recovered using a func
+                elif 'map_func' in attr_desc:
+                    map_func = getattr(self, attr_desc['map_func'])
+                    final_value = map_func(value)
 
+                # Simply take the value as it is...
+                else:
+                    final_value = value
 
-    def __add_one_to_one_attributes(self, call, attributes, shortcode_attributes):
-        """
-        Update 'attributes' parameter (dict) for parameters we can simply recover value from shortcode call
-
-        :param call: String with shortcode call
-        :param attributes: Dict in which we will add values
-        :param shortcode_attributes: List with either attributes names (string) or dict with shortcode attribute
-                name as key an as value, the attribute name we have to use for Gutenberg Block. If string, we
-                assume that Gutenberg attribute is the same as the one in the shortcode.
-        :return:
-        """
-
-        for attr in shortcode_attributes:
-            
-            # If it's a dictionnary, we have to recover shortcode attribute name and block attribute name
-            if isinstance(attr, dict):
-                shortcode_attr = list(attr)[0]
-                block_attr = attr[shortcode_attr]
-            else:
-                shortcode_attr = block_attr = attr
-
-            attributes[block_attr] = self._get_attribute(call, shortcode_attr)
+                # TODO: Encode value to unicode
+                attributes[block_attr] = final_value
 
 
     def _fix_epfl_news_2018(self, content):
@@ -121,34 +167,37 @@ class GutenbergBlocks(Shortcodes):
         # Looking for all calls to modify them one by one
         calls = self._get_all_shortcode_calls(content, shortcode)
 
-        # For attributes we simply need to recover
-        one_to_one_recover = ['channel', 
-                              'lang', 
-                              'category']
+        # Attribute description to recover correct value from each shortcode calls
+        attributes_desc = [ 'channel',
+                            'lang', 
+                            'category',
+                            {
+                                'shortcode': 'all_news_link',
+                                'block': 'displayLinkAllNews',
+                                'bool': True
+                            },
+                            {
+                                'shortcode': 'template',
+                                'block': 'template',
+                                'map': templates_mapping
+                            },
+                            {
+                                'shortcode': 'nb_news',
+                                'block': 'nbNews',
+                                'if_attr_name': 'template',
+                                'if_attr_is': 'listing'
+                            }]
 
         for call in calls:
 
             # To store new attributes
             attributes = {}
 
-            # Generating new attributes
-            
-            template = self._get_attribute(call, 'template')
-            if template not in templates_mapping:
-                raise "Undefined {} template! {}".format(shortcode, template)
-            attributes['template'] = templates_mapping[template]
-
-            if template == '1':
-                one_to_one_recover.append({'nb_news': 'nbNews'})
-                
-            attributes['displayLinkAllNews'] = self._get_attribute(call, 'all_news_link').lower() == 'true'
-
             # Recovering attributes from shortcode
-            self.__add_one_to_one_attributes(call, attributes, one_to_one_recover)
-
+            self.__add_attributes(call, attributes, attributes_desc)
 
             # TODO: also handle 'themes' attribute, which is not correctly documented on Confluence... 
-            logging.warning("Handle 'themes' attribute !!")
+            logging.warning("EPFL News 2018 - Handle 'themes' attribute !!")
 
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
@@ -181,30 +230,33 @@ class GutenbergBlocks(Shortcodes):
         # Looking for all calls to modify them one by one
         calls = self._get_all_shortcode_calls(content, shortcode)
 
-        # For attributes we simply need to recover
-        one_to_one_recover = ['lang', 
-                              'category', 
-                              'period', 
-                              'keyword']
+        # Attribute description to recover correct value from each shortcode calls
+        attributes_desc = [ 'lang', 
+                            'category', 
+                            'period', 
+                            'keyword',
+                            {
+                                'shortcode': 'memento',
+                                'block': 'memento',
+                                'map_func': '_get_memento_id'
+                            },
+                            {
+                                'shortcode': 'template',
+                                'block': 'template',
+                                'map': templates_mapping
+                            },
+                            {
+                                'block': 'nbEvents',
+                                'default': 3
+                            }]
 
         for call in calls:
 
             # To store new attributes
             attributes = {}
 
-            # Generating new attributes
-            attributes['memento'] = self.__get_memento_id(self._get_attribute(call, 'memento'))
-
-            template = self._get_attribute(call, 'template')
-            if template not in templates_mapping:
-                raise "Undefined {} template! {}".format(shortcode, template)
-            attributes['template'] = templates_mapping[template]
-
             # Recovering attributes from shortcode
-            self.__add_one_to_one_attributes(call, attributes, one_to_one_recover)
-
-            # Add new attributes
-            attributes['nbEvents'] = 3
+            self.__add_attributes(call, attributes, attributes_desc)
 
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
@@ -232,23 +284,24 @@ class GutenbergBlocks(Shortcodes):
         # Looking for all calls to modify them one by one
         calls = self._get_all_shortcode_calls(content, shortcode)
 
-        # For attributes we simply need to recover
-        one_to_one_recover = ['columns']
-        # For optional attributes 
-        optional_attributes = ['units', 
-                               'scipers', 
-                               'function', 
-                               {'doctoral_program': 'doctoralProgram'}]
+        # Attribute description to recover correct value from each shortcode calls
+        attributes_desc = [ 'columns',
+                            'units',
+                            'scipers', 
+                            'function',
+                            {
+                                'shortcode': 'doctoral_program',
+                                'block': 'doctoralProgram'
+                            }]
+        
 
         for call in calls:
 
             # To store new attributes
             attributes = {}
 
-            self.__add_optional_attributes(call, attributes, optional_attributes)
-            
             # Recovering attributes from shortcode
-            self.__add_one_to_one_attributes(call, attributes, one_to_one_recover)
+            self.__add_attributes(call, attributes, attributes_desc)
 
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
@@ -277,33 +330,46 @@ class GutenbergBlocks(Shortcodes):
         # Looking for all calls to modify them one by one
         calls = self._get_all_shortcode_calls(content, shortcode, with_content=True)
 
-        # For attributes we simply need to recover
-        one_to_one_recover = ['pattern',
-                              'limit', 
-                              'sort', 
-                              'collection', 
-                              'pattern2', 
-                              'field2', 
-                              {'field': 'fieldRestriction'}, 
-                              'operator2', 
-                              'pattern3', 
-                              'field3', 
-                              'operator3', 
-                              'format']
+        # Attribute description to recover correct value from each shortcode calls
+        attributes_desc = [ 'pattern',
+                            'limit', 
+                            'sort', 
+                            'collection', 
+                            'pattern2', 
+                            'field2', 
+                            'operator2', 
+                            'pattern3', 
+                            'field3', 
+                            'operator3', 
+                            'format',
+                            {
+                                'shortcode': 'field',
+                                'block': 'fieldRestriction'
+                            }, 
+                            {
+                                'shortcode': 'summary',
+                                'block': 'summary',
+                                'bool': True
+                            },
+                            {
+                                'shortcode': 'thumbnail',
+                                'block': 'thumbnail',
+                                'bool': True
+                            },
+                            {
+                                'block': 'url',
+                                'use_content': True
+                            }
+                            ]
 
         for call in calls:
 
             # To store new attributes
             attributes = {}
-
-            attributes['url'] = self._get_content(call)
-
-            # Recovering attributes from shortcode
-            self.__add_one_to_one_attributes(call, attributes, one_to_one_recover)
-
-            attributes['summary'] = self._get_attribute(call, 'summary').lower() == 'true'
-            attributes['thumbnail'] = self._get_attribute(call, 'thumbnail').lower() == 'true'
             
+            # Recovering attributes from shortcode
+            self.__add_attributes(call, attributes, attributes_desc)
+
             # Handling 'groupBy' speciality
             group_by = self._get_attribute(call, 'group_by')
             group_by2 = self._get_attribute(call, 'group_by2')
