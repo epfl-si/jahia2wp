@@ -401,3 +401,57 @@ class GutenbergBlocks(Shortcodes):
             self._update_report(shortcode)
 
         return content
+
+
+    def _fix_epfl_card(self, content):
+        """
+        Transforms EPFL card shortcode to Gutenberg block
+        https://github.com/epfl-idevelop/wp-theme-2018/blob/dev/wp-theme-2018/shortcodes/epfl_card/view.php
+        https://github.com/epfl-idevelop/wp-gutenberg-epfl/blob/master/src/epfl-card/index.js
+
+        :param content: String with page content to update
+        """
+        shortcode = 'epfl_card'
+        block = 'epfl/card'
+
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_shortcode_calls(content, shortcode)
+
+        # Attribute description to recover correct value from each shortcode calls
+        attributes_desc = ['gray_wrapper']
+
+        multiple_attr = ['title', 
+                         'link', 
+                         'content']
+
+        # We add multiple attributes
+        for i in range(1, 5):
+            for attr in multiple_attr:
+                attributes_desc.append('{}{}'.format(attr, i))
+            
+            attributes_desc.append({
+                'shortcode': 'image{}'.format(i),
+                'block': 'imageId{}'.format(i)
+            })
+
+
+        for call in calls:
+
+            # To store new attributes
+            attributes = {}
+
+            # Recovering attributes from shortcode
+            self.__add_attributes(call, attributes, attributes_desc)
+
+            # We generate new shortcode from scratch
+            new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
+
+            logging.info("Before: %s", call)
+            logging.info("After: %s", new_call)
+
+            # Replacing in global content
+            content = content.replace(call, new_call)
+            
+            self._update_report(shortcode)
+
+        return content
