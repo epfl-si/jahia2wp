@@ -2,6 +2,7 @@
 from urllib.parse import quote_plus, unquote
 
 import settings
+import datetime
 import logging
 import time
 import re
@@ -29,6 +30,7 @@ class GutenbergBlocks(Shortcodes):
         # To store mapping "Name" to "ID" for Memento
         self.memento_mapping = {}
 
+        self.log_file = None
 
     def _get_memento_id(self, memento):
         """
@@ -62,6 +64,20 @@ class GutenbergBlocks(Shortcodes):
         """   
         
         return self.wp_config.run_wp_cli('post get {} --field=guid'.format(image_id))
+
+
+    def _log_to_file(self, message, display=False):
+        """
+        Log a message into a file
+
+        :param message: Message to log in file
+        :param display: (optional) True|False to tell if we have to display message in console or not.
+        """
+        now = datetime.datetime.now()
+        self.log_file.write("[{}]: {}\n".format(now.strftime("%Y-%m-%d %H:%M:%S"), message).encode())
+
+        if display:
+            logging.info(message)
 
 
     def __add_attributes(self, call, attributes, attributes_desc):
@@ -212,8 +228,8 @@ class GutenbergBlocks(Shortcodes):
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
 
-            logging.info("Before: %s", call)
-            logging.info("After: %s", new_call)
+            self._log_to_file("Before: {}".format(call))
+            self._log_to_file("After: {}".format(new_call))
 
             # Replacing in global content
             content = content.replace(call, new_call)
@@ -271,8 +287,8 @@ class GutenbergBlocks(Shortcodes):
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
 
-            logging.info("Before: %s", call)
-            logging.info("After: %s", new_call)
+            self._log_to_file("Before: {}".format(call))
+            self._log_to_file("After: {}".format(new_call))
 
             # Replacing in global content
             content = content.replace(call, new_call)
@@ -316,8 +332,8 @@ class GutenbergBlocks(Shortcodes):
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
 
-            logging.info("Before: %s", call)
-            logging.info("After: %s", new_call)
+            self._log_to_file("Before: {}".format(call))
+            self._log_to_file("After: {}".format(new_call))
 
             # Replacing in global content
             content = content.replace(call, new_call)
@@ -402,8 +418,8 @@ class GutenbergBlocks(Shortcodes):
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
 
-            logging.info("Before: %s", call)
-            logging.info("After: %s", new_call)
+            self._log_to_file("Before: {}".format(call))
+            self._log_to_file("After: {}".format(new_call))
 
             # Replacing in global content
             content = content.replace(call, new_call)
@@ -467,8 +483,8 @@ class GutenbergBlocks(Shortcodes):
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
 
-            logging.info("Before: %s", call)
-            logging.info("After: %s", new_call)
+            self._log_to_file("Before: {}".format(call))
+            self._log_to_file("After: {}".format(new_call))
 
             # Replacing in global content
             content = content.replace(call, new_call)
@@ -524,8 +540,8 @@ class GutenbergBlocks(Shortcodes):
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
 
-            logging.info("Before: %s", call)
-            logging.info("After: %s", new_call)
+            self._log_to_file("Before: {}".format(call))
+            self._log_to_file("After: {}".format(new_call))
 
             # Replacing in global content
             content = content.replace(call, new_call)
@@ -533,3 +549,25 @@ class GutenbergBlocks(Shortcodes):
             self._update_report(shortcode)
 
         return content
+
+
+    def fix_site(self, openshift_env, wp_site_url, shortcode_name=None):
+        """
+        Fix shortocdes in WP site
+        :param openshift_env: openshift environment name
+        :param wp_site_url: URL to website to fix.
+        :param shortcode_name: fix site for this shortcode only
+        :return: dictionnary with report.
+        """
+
+        log_filename = os.path.join(settings.MIGRATION_LOG_PATH, wp_site_url.replace(":", "_").replace("/", "_"))
+
+        self.log_file = open(log_filename, mode='ab')
+
+        logging.info("Log file can be found here: %s", log_filename)
+
+        super().fix_site(openshift_env, wp_site_url, shortcode_name)
+
+        self.log_file.close()
+        
+

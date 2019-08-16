@@ -19,6 +19,7 @@ DATA_PATH = os.path.abspath(os.path.sep.join([SRC_DIR_PATH, '..', 'data']))
 PLUGIN_ZIP_PATH = os.path.abspath(os.path.sep.join([DATA_PATH, 'plugins-zip']))
 EXPORTER_DATA_PATH = os.path.join(DATA_PATH, 'exporter')
 WP_FILES_PATH = os.path.join(DATA_PATH, 'wp')
+MIGRATION_LOG_PATH = os.path.abspath(os.path.sep.join([SRC_DIR_PATH, 'migration2018', 'logs']))
 
 HTTPD_CONTAINER_NAME = "jahia2wp-httpd"
 
