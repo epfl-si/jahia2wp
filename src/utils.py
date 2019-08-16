@@ -464,12 +464,14 @@ class Utils(object):
         """
         Returns True if content is an integer
         """
-        if not content:
+        # If it is a boolean, it's not an integer. We have to check this because doing "int(content)" with
+        # a boolean won't raise an exception... 
+        if isinstance(content, bool):
             return False
         try: 
             int(content)
             return True
-        except ValueError:
+        except:
             return False
 
     @staticmethod

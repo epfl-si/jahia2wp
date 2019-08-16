@@ -107,11 +107,15 @@ class GutenbergBlocks(Shortcodes):
                                     If given, we don't hvae to give a value for 'shortcode' key
                     'default'   -> (optional) default value to use for Gutenberg block attribute. If given, we don't 
                                     have to give a value for 'shortcode' key.
+                    
 
                     ** The two next keys are working together so either no one is present, either both are present **
                     'if_attr_name'  -> (optional) name of attribute to use for condition
                     'if_attr_is'    -> (optional) if 'if_attr_name' value is equal to 'if_attr_is', we will add attribute
                                         to Gutenberg block (by using options previously explained to define value).
+
+                    ** The next key can be used with others keys because it will be taken in account only if value is NULL (None) **
+                    'if_null'   -> (optional) value to use if content of shortcode value is equal to NULL (or is not present)    
         """
 
         for attr_desc in attributes_desc:
@@ -175,6 +179,12 @@ class GutenbergBlocks(Shortcodes):
                     # Simply take the value as it is...
                     else:
                         final_value = value
+
+                else: # No value was found 
+
+                    # If we have a value to set if null,
+                    if 'if_null' in attr_desc:
+                        final_value = attr_desc['if_null']
 
             if Utils.is_int(final_value):
                 final_value = int(final_value)
@@ -505,6 +515,7 @@ class GutenbergBlocks(Shortcodes):
     def _fix_epfl_faculties(self, content):
         """
         Transforms EPFL faculties (Schools) shortcode to Gutenberg block
+        https://github.com/epfl-idevelop/wp-theme-2018/blob/dev/wp-theme-2018/shortcodes/schools/view.php
 
         :param content: String with page content to update
         """
@@ -562,6 +573,7 @@ class GutenbergBlocks(Shortcodes):
     def _fix_epfl_contact(self, content):
         """
         Transforms EPFL people 2018 shortcode to Gutenberg block
+        https://github.com/epfl-idevelop/wp-theme-2018/blob/dev/wp-theme-2018/shortcodes/epfl_contact/view.php
 
         :param content: String with page content to update
         """
@@ -612,6 +624,63 @@ class GutenbergBlocks(Shortcodes):
 
         return content
 
+
+    def _fix_epfl_definition_list(self, content):
+        """
+        Transforms EPFL definition list shortcode to Gutenberg block
+        https://github.com/epfl-idevelop/wp-theme-2018/blob/dev/wp-theme-2018/shortcodes/definition_list/view.php
+
+        :param content: String with page content to update
+        """
+        shortcode = 'epfl_definition_list'
+        block = 'epfl/definition-list'
+
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_shortcode_calls(content, shortcode)
+
+        # Attribute description to recover correct value from each shortcode calls
+        attributes_desc = [ {
+                                'shortcode': 'tabledisplay',
+                                'block': 'tableDisplay',
+                                'bool': True,
+                                'if_null': False
+                            },
+                            {
+                                'shortcode': 'largedisplay',
+                                'block': 'largeDisplay',
+                                'bool': True,
+                                'if_null': False
+                            }]
+        
+
+        multiple_attr = ['label', 
+                         'desc']
+
+        # We add multiple attributes
+        for i in range(1, 11):
+            for attr in multiple_attr:
+                attributes_desc.append('{}{}'.format(attr, i))
+
+        for call in calls:
+
+            # To store new attributes
+            attributes = {}
+
+            # Recovering attributes from shortcode
+            self.__add_attributes(call, attributes, attributes_desc)
+
+            # We generate new shortcode from scratch
+            new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
+
+            self._log_to_file("Before: {}".format(call))
+            self._log_to_file("After: {}".format(new_call))
+
+            # Replacing in global content
+            content = content.replace(call, new_call)
+            
+            self._update_report(shortcode)
+
+        return content
 
     def fix_site(self, openshift_env, wp_site_url, shortcode_name=None):
         """
