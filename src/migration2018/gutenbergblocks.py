@@ -185,6 +185,10 @@ class GutenbergBlocks(Shortcodes):
                     # If we have a value to set if null,
                     if 'if_null' in attr_desc:
                         final_value = attr_desc['if_null']
+                    
+                    # We don't display value in block
+                    else:
+                        continue
 
             if Utils.is_int(final_value):
                 final_value = int(final_value)
@@ -594,14 +598,12 @@ class GutenbergBlocks(Shortcodes):
                                 'block': 'grayWrapper'
                             }]
         
-
-        multiple_attr = ['timetable', 
-                         'information']
-
         # We add multiple attributes
         for i in range(1, 5):
-            for attr in multiple_attr:
-                attributes_desc.append('{}{}'.format(attr, i))
+            attributes_desc.append('timetable{}'.format(i))
+
+        for i in range(1, 4):
+            attributes_desc.append('information{}'.format(i))
 
         for call in calls:
 
@@ -697,8 +699,10 @@ class GutenbergBlocks(Shortcodes):
 
         logging.info("Log file can be found here: %s", log_filename)
 
-        super().fix_site(openshift_env, wp_site_url, shortcode_name)
+        report = super().fix_site(openshift_env, wp_site_url, shortcode_name)
 
         self.log_file.close()
+
+        return report
         
 
