@@ -460,6 +460,18 @@ class Utils(object):
         """
         return bool(BeautifulSoup(content, "html.parser").find())
 
+    def is_int(content):
+        """
+        Returns True if content is an integer
+        """
+        if not content:
+            return False
+        try: 
+            int(content)
+            return True
+        except ValueError:
+            return False
+
     @staticmethod
     def get_redirected_url(url):
         """

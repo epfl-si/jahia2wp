@@ -84,7 +84,8 @@ class GutenbergBlocks(Shortcodes):
         """
         Updates 'attributes' parameter (dict) with correct value depending on each attribute description
         contained in 'attributes_desc' parameter.
-        If value is not found in shortcode call, it won't be added in Gutenberg block
+        If value is not found in shortcode call, it won't be added in Gutenberg block.
+        If value is an integer, it will be set as an integer and not a string
 
         :param call: String with shortcode call
         :param attributes: dict in which we will add attribute value if exists
@@ -115,6 +116,8 @@ class GutenbergBlocks(Shortcodes):
 
         for attr_desc in attributes_desc:
 
+            final_value = None
+
             # If it's a dictionnary, we have to recover shortcode attribute name and block attribute name
             if isinstance(attr_desc, dict):
 
@@ -132,46 +135,51 @@ class GutenbergBlocks(Shortcodes):
 
                 # If we have to use a default value, 
                 if 'default' in attr_desc:
-                    attributes[block_attr] = attr_desc['default']
+                    final_value = attr_desc['default']
                     # We can continue to next attribute
-                    continue
+                    
                 
                 # We have to use content as value
                 if 'use_content' in attr_desc and attr_desc['use_content']:
-                    attributes[block_attr] = self._get_content(call)
-                    continue
-
-                shortcode_attr = attr_desc['shortcode']
+                    final_value = self._get_content(call)
+                    
+                # If code above didn't found the value,    
+                if not final_value:
+                    shortcode_attr = attr_desc['shortcode']
                 
             else:
                 shortcode_attr = block_attr = attr_desc
 
-            # Recovering source value
-            value = self._get_attribute(call, shortcode_attr)
-            # If value is found
-            if value:
-                # We need to transform string to bool
-                if 'bool' in attr_desc and attr_desc['bool']:
-                     final_value = value.lower() == 'true'
-                
-                # Value has to be mapped to another using dict
-                elif 'map' in attr_desc:
-                    # If there's no mapping, we raise an exception.
-                    if value not in attr_desc['map']:
-                        raise "No mapping found for attribute '{}' and value '{}'. Shortcode call: {}".format(shortcode_attr, value, call)
-                    final_value = attr_desc['map'][value]
-                
-                # Correct value has to be recovered using a func
-                elif 'map_func' in attr_desc:
-                    map_func = getattr(self, attr_desc['map_func'])
-                    final_value = map_func(value)
+            # If code above didn't found the value,
+            if not final_value:
+                # Recovering source value
+                value = self._get_attribute(call, shortcode_attr)
+                # If value is found
+                if value:
+                    # We need to transform string to bool
+                    if 'bool' in attr_desc and attr_desc['bool']:
+                        final_value = value.lower() == 'true'
+                    
+                    # Value has to be mapped to another using dict
+                    elif 'map' in attr_desc:
+                        # If there's no mapping, we raise an exception.
+                        if value not in attr_desc['map']:
+                            raise "No mapping found for attribute '{}' and value '{}'. Shortcode call: {}".format(shortcode_attr, value, call)
+                        final_value = attr_desc['map'][value]
+                    
+                    # Correct value has to be recovered using a func
+                    elif 'map_func' in attr_desc:
+                        map_func = getattr(self, attr_desc['map_func'])
+                        final_value = map_func(value)
 
-                # Simply take the value as it is...
-                else:
-                    final_value = value
+                    # Simply take the value as it is...
+                    else:
+                        final_value = value
 
-                # TODO: Encode value to unicode
-                attributes[block_attr] = final_value
+            if Utils.is_int(final_value):
+                final_value = int(final_value)
+
+            attributes[block_attr] = final_value
 
 
     def _fix_epfl_news_2018(self, content):
@@ -551,6 +559,60 @@ class GutenbergBlocks(Shortcodes):
         return content
 
 
+    def _fix_epfl_contact(self, content):
+        """
+        Transforms EPFL people 2018 shortcode to Gutenberg block
+
+        :param content: String with page content to update
+        """
+        shortcode = 'epfl_contact'
+        block = 'epfl/contact'
+
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_shortcode_calls(content, shortcode)
+
+        # Attribute description to recover correct value from each shortcode calls
+        attributes_desc = [ 'introduction',
+                            {
+                                'shortcode': 'map_query',
+                                'block': 'mapQuery'
+                            },
+                            {
+                                'shortcode': 'gray_wrapper',
+                                'block': 'grayWrapper'
+                            }]
+        
+
+        multiple_attr = ['timetable', 
+                         'information']
+
+        # We add multiple attributes
+        for i in range(1, 5):
+            for attr in multiple_attr:
+                attributes_desc.append('{}{}'.format(attr, i))
+
+        for call in calls:
+
+            # To store new attributes
+            attributes = {}
+
+            # Recovering attributes from shortcode
+            self.__add_attributes(call, attributes, attributes_desc)
+
+            # We generate new shortcode from scratch
+            new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
+
+            self._log_to_file("Before: {}".format(call))
+            self._log_to_file("After: {}".format(new_call))
+
+            # Replacing in global content
+            content = content.replace(call, new_call)
+            
+            self._update_report(shortcode)
+
+        return content
+
+
     def fix_site(self, openshift_env, wp_site_url, shortcode_name=None):
         """
         Fix shortocdes in WP site
@@ -560,7 +622,7 @@ class GutenbergBlocks(Shortcodes):
         :return: dictionnary with report.
         """
 
-        log_filename = os.path.join(settings.MIGRATION_LOG_PATH, wp_site_url.replace(":", "_").replace("/", "_"))
+        log_filename = os.path.join(settings.MIGRATION_LOG_PATH, "{}.log".format(wp_site_url.replace(":", "_").replace("/", "_")))
 
         self.log_file = open(log_filename, mode='ab')
 
