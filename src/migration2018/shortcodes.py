@@ -13,11 +13,15 @@ from bs4 import BeautifulSoup
 
 class Shortcodes():
     """ Shortcodes helpers """
-
+ 
     def __init__(self):
         self.list = {}
         self.report = {}
         self.regex = r'\[([a-z0-9_-]+)'
+
+        # Will be initialized later
+        self.wp_site = None
+        self.wp_config = None
 
     def _get_site_registered_shortcodes(self, site_path):
         """
@@ -299,7 +303,7 @@ class Shortcodes():
         # We remove surrounding " if exists.
         return value[0].strip('"') if value else None
 
-    def __get_content(self, shortcode_call):
+    def _get_content(self, shortcode_call):
         """
         Return content (or None if not found) for a given shortcode call. This also works for nested shortcodes
         :param shortcode_call: String with shortcode call: [my_shortcode attr="1"]content[/my_shortcode]
@@ -561,7 +565,7 @@ class Shortcodes():
 
         for call in calls:
             # getting future toggle content
-            toggle_content = self.__get_content(call)
+            toggle_content = self._get_content(call)
 
             title = self._get_attribute(call, 'more_text')
 
@@ -605,7 +609,7 @@ class Shortcodes():
 
         for call in calls:
             # getting future toggle content
-            toggle_content = self.__get_content(call)
+            toggle_content = self._get_content(call)
 
             # Replacing in global content. In fact, we just remove surrounding shortcode
             content = content.replace(call, toggle_content)
@@ -629,7 +633,7 @@ class Shortcodes():
 
         for call in calls:
             # getting future toggle content
-            toggle_content = self.__get_content(call)
+            toggle_content = self._get_content(call)
 
             title = self._get_attribute(call, 'title')
             is_open = self._get_attribute(call, 'open')
@@ -657,7 +661,7 @@ class Shortcodes():
         calls = self._get_all_shortcode_calls(content, old_shortcode, with_content=True)
 
         for call in calls:
-            text = self.__get_content(call)
+            text = self._get_content(call)
             url = self._get_attribute(call, 'url')
             target = self._get_attribute(call, 'target')
 
@@ -731,7 +735,7 @@ class Shortcodes():
 
         for call in calls:
 
-            row_content = self.__get_content(call)
+            row_content = self._get_content(call)
 
             html = '<table><tr>{}</tr></table>'.format(row_content)
 
@@ -753,7 +757,7 @@ class Shortcodes():
         calls = self._get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
-            col_content = self.__get_content(call)
+            col_content = self._get_content(call)
 
             html = '<td>{}</td>'.format(col_content)
 
@@ -778,7 +782,7 @@ class Shortcodes():
 
         for call in calls:
 
-            box_content = self.__get_content(call)
+            box_content = self._get_content(call)
 
             title = self._get_attribute(call, 'title')
 
@@ -806,7 +810,7 @@ class Shortcodes():
         for call in calls:
 
             # urlencode content
-            box_content = quote_plus(self.__get_content(call))
+            box_content = quote_plus(self._get_content(call))
 
             title = self._get_attribute(call, 'title')
             link = self._get_attribute(call, 'url')
@@ -841,7 +845,7 @@ class Shortcodes():
         calls = self._get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
-            philosophical_thing = self.__get_content(call)
+            philosophical_thing = self._get_content(call)
             great_person_who_said_this = self._get_attribute(call, 'cite')
 
             html = '<div class="row">'
@@ -870,7 +874,7 @@ class Shortcodes():
         calls = self._get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
-            list_content = self.__get_content(call)
+            list_content = self._get_content(call)
 
             html = '{}<br>'.format(list_content)
 
@@ -893,7 +897,7 @@ class Shortcodes():
         calls = self._get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
-            heading_text = self.__get_content(call)
+            heading_text = self._get_content(call)
 
             html = '<h2>{}</h2>'.format(heading_text)
 
@@ -917,7 +921,7 @@ class Shortcodes():
         calls = self._get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
-            heading_text = self.__get_content(call)
+            heading_text = self._get_content(call)
 
             html = '<mark>{}</mark>'.format(heading_text)
 
@@ -941,7 +945,7 @@ class Shortcodes():
         calls = self._get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
-            note = self.__get_content(call)
+            note = self._get_content(call)
 
             html = '<a href="#" class="trapeze-vertical-container">'
             html += '<div class="card">'
@@ -1024,7 +1028,7 @@ class Shortcodes():
         for call in calls:
 
             # urlencode content
-            box_content = quote_plus(self.__get_content(call))
+            box_content = quote_plus(self._get_content(call))
 
             title = self._get_attribute(call, 'title')
             link = self._get_attribute(call, 'link')
@@ -1104,17 +1108,17 @@ class Shortcodes():
 
         content_filename = Utils.generate_name(15, '/tmp/')
 
-        wp_site = WPSite(openshift_env, wp_site_url)
-        wp_config = WPConfig(wp_site)
+        self.wp_site = WPSite(openshift_env, wp_site_url)
+        self.wp_config = WPConfig(self.wp_site)
 
-        if not wp_config.is_installed:
+        if not self.wp_config.is_installed:
             logging.info("No WP site found at given URL (%s)", wp_site_url)
             return self.report
 
-        logging.info("Fixing %s...", wp_site.path)
+        logging.info("Fixing %s...", self.wp_site.path)
 
         # Getting site posts
-        post_ids = wp_config.run_wp_cli("post list --post_type=page --skip-plugins --skip-themes "
+        post_ids = self.wp_config.run_wp_cli("post list --post_type=page --skip-plugins --skip-themes "
                                         "--format=csv --fields=ID")
 
         # Nothing to fix
@@ -1127,7 +1131,7 @@ class Shortcodes():
         # Looping through posts
         for post_id in post_ids:
             logging.info("Fixing page ID %s...", post_id)
-            content = wp_config.run_wp_cli("post get {} --skip-plugins --skip-themes "
+            content = self.wp_config.run_wp_cli("post get {} --skip-plugins --skip-themes "
                                            "--field=post_content".format(post_id))
             original_content = content
 
@@ -1174,7 +1178,7 @@ class Shortcodes():
                         # quotes and content size
                         with open(content_filename, 'wb') as content_file:
                             content_file.write(content.encode())
-                        wp_config.run_wp_cli("post update {} --skip-plugins --skip-themes {} ".format(
+                        self.wp_config.run_wp_cli("post update {} --skip-plugins --skip-themes {} ".format(
                             post_id, content_filename))
 
                     except Exception as e:

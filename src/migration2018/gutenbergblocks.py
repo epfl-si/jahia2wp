@@ -54,6 +54,16 @@ class GutenbergBlocks(Shortcodes):
         return self.memento_mapping[memento]
 
 
+    def _get_image_url(self, image_id):
+        """
+        Returns Image URL based on its ID
+
+        :param image_id: Id of image we want full URL
+        """   
+        
+        return self.wp_config.run_wp_cli('post get {} --field=guid'.format(image_id))
+
+
     def __add_attributes(self, call, attributes, attributes_desc):
         """
         Updates 'attributes' parameter (dict) with correct value depending on each attribute description
@@ -418,7 +428,12 @@ class GutenbergBlocks(Shortcodes):
         calls = self._get_all_shortcode_calls(content, shortcode)
 
         # Attribute description to recover correct value from each shortcode calls
-        attributes_desc = ['gray_wrapper']
+        attributes_desc = [
+            {
+                'shortcode': 'gray_wrapper',
+                'block': 'grayWrapper'
+            }
+            ]
 
         multiple_attr = ['title', 
                          'link', 
@@ -432,6 +447,12 @@ class GutenbergBlocks(Shortcodes):
             attributes_desc.append({
                 'shortcode': 'image{}'.format(i),
                 'block': 'imageId{}'.format(i)
+            })
+
+            attributes_desc.append({
+                'shortcode': 'image{}'.format(i),
+                'block': 'imageUrl{}'.format(i),
+                'map_func': '_get_image_url'
             })
 
 
@@ -455,3 +476,4 @@ class GutenbergBlocks(Shortcodes):
             self._update_report(shortcode)
 
         return content
+
