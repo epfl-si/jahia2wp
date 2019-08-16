@@ -26,22 +26,38 @@ function process_shortcode($atts) {
 
     $atts = shortcode_atts( array(
         'category' => '',
-        'subcategory' => ''
+        'subcategory' => '',
+        'search' => ''
     ), $atts );
+
+    // search can come from the url
+    if (isset($_GET['search'])) {
+        $atts['search'] = $_GET['search'];
+    }
+
+    // search can come from the url
+    if (isset($_GET['category'])) {
+        $atts['category'] = $_GET['category'];
+    }
+
+    // search can come from the url
+    if (isset($_GET['subcategory'])) {
+        $atts['subcategory'] = $_GET['subcategory'];
+    }
 
     // sanitize what we get
     $category = sanitize_text_field($atts["category"]);
     $subcategory = sanitize_text_field($atts["subcategory"]);
+    $search = sanitize_text_field($atts["search"]);
 
-    # by default get all sites with at least a tag
-    $url = LEX_INFO_PROVIDER_URL . 'sites?tagged=true';
     # TODO:
+    #$url = LEX_INFO_PROVIDER_URL;
     #$lexes = \Utils::get_items($url);
     $lexes = get_fixtures();
 
     ob_start();
     try {
-       do_action("epfl_lexes_search_action", $lexes, $category, $subcategory);
+       do_action("epfl_lexes_search_action", $lexes, $category, $subcategory, $search);
        return ob_get_contents();
     } finally {
         ob_end_clean();
