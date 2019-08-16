@@ -32,6 +32,7 @@ class GutenbergBlocks(Shortcodes):
 
         self.log_file = None
 
+
     def _get_memento_id(self, memento):
         """
         Returns EPFL Memento ID from name
@@ -380,14 +381,14 @@ class GutenbergBlocks(Shortcodes):
 
         # Attribute description to recover correct value from each shortcode calls
         attributes_desc = [ 'pattern',
+                            'pattern2', 
+                            'pattern3', 
                             'limit', 
                             'sort', 
                             'collection', 
-                            'pattern2', 
                             'field2', 
-                            'operator2', 
-                            'pattern3', 
                             'field3', 
+                            'operator2', 
                             'operator3', 
                             'format',
                             {
@@ -684,6 +685,7 @@ class GutenbergBlocks(Shortcodes):
 
         return content
 
+
     def fix_site(self, openshift_env, wp_site_url, shortcode_name=None):
         """
         Fix shortocdes in WP site
@@ -704,5 +706,3 @@ class GutenbergBlocks(Shortcodes):
         self.log_file.close()
 
         return report
-        
-
