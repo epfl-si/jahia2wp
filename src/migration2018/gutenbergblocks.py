@@ -686,6 +686,79 @@ class GutenbergBlocks(Shortcodes):
         return content
 
 
+    def _fix_epfl_custom_teasers(self, content):
+        """
+        Transforms EPFL custom teaser shortcode to Gutenberg block
+        
+        :param content: String with page content to update
+        """
+        shortcode = 'epfl_custom_teasers'
+        block = 'epfl/custom-teaser'
+
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_shortcode_calls(content, shortcode)
+
+        # Attribute description to recover correct value from each shortcode calls
+        attributes_desc = [ {
+                                'shortcode': 'titlesection',
+                                'block': 'titleSection'
+                            },
+                            {
+                                'shortcode': 'graybackground',
+                                'block': 'grayBackground',
+                                'bool': True,
+                                'if_null': False
+                            }]
+        
+
+        multiple_attr = ['title',
+                         'url',
+                         'excerpt']
+                         
+
+        # We add multiple attributes
+        for i in range(1, 4):
+            for attr in multiple_attr:
+                attributes_desc.append('{}{}'.format(attr, i))
+            
+            attributes_desc.append({
+                'shortcode': 'image{}'.format(i),
+                'block': 'imageId{}'.format(i)
+            })
+
+            attributes_desc.append({
+                'shortcode': 'image{}'.format(i),
+                'block': 'image{}'.format(i),
+                'map_func': '_get_image_url'
+            })
+
+            attributes_desc.append({
+                'shortcode': 'buttonlabel{}'.format(i),
+                'block': 'buttonLabel{}'.format(i)
+            })
+
+        for call in calls:
+
+            # To store new attributes
+            attributes = {}
+
+            # Recovering attributes from shortcode
+            self.__add_attributes(call, attributes, attributes_desc)
+
+            # We generate new shortcode from scratch
+            new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
+
+            self._log_to_file("Before: {}".format(call))
+            self._log_to_file("After: {}".format(new_call))
+
+            # Replacing in global content
+            content = content.replace(call, new_call)
+            
+            self._update_report(shortcode)
+
+        return content
+
+
     def fix_site(self, openshift_env, wp_site_url, shortcode_name=None):
         """
         Fix shortocdes in WP site
