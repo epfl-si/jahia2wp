@@ -759,6 +759,59 @@ class GutenbergBlocks(Shortcodes):
         return content
 
 
+    def _fix_epfl_links_group(self, content):
+        """
+        Transforms EPFL links group shortcode to Gutenberg block
+        
+        :param content: String with page content to update
+        """
+        shortcode = 'epfl_links_group'
+        block = 'epfl/links-group'
+
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_shortcode_calls(content, shortcode)
+
+        # Attribute description to recover correct value from each shortcode calls
+        attributes_desc = ['title',
+                            {
+                                'shortcode': 'main_url',
+                                'block': 'mainUrl'
+                            }]
+        
+        # We add multiple attributes. 
+        # For those ones, we have to increment by 1 the index used at the end.
+        for i in range(0, 10):
+            attributes_desc.append({
+                'shortcode': 'label{}'.format(i),
+                'block': 'label{}'.format(i+1)
+            })
+            attributes_desc.append({
+                'shortcode': 'url{}'.format(i),
+                'block': 'url{}'.format(i+1)
+            })
+
+        for call in calls:
+
+            # To store new attributes
+            attributes = {}
+
+            # Recovering attributes from shortcode
+            self.__add_attributes(call, attributes, attributes_desc)
+
+            # We generate new shortcode from scratch
+            new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
+
+            self._log_to_file("Before: {}".format(call))
+            self._log_to_file("After: {}".format(new_call))
+
+            # Replacing in global content
+            content = content.replace(call, new_call)
+            
+            self._update_report(shortcode)
+
+        return content
+
+
     def fix_site(self, openshift_env, wp_site_url, shortcode_name=None):
         """
         Fix shortocdes in WP site
