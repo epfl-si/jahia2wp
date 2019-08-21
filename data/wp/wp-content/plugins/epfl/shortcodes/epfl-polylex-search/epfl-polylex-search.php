@@ -1,8 +1,8 @@
 <?php
 /**
-* Plugin Name: EPFL labs
-* Description: Provide a way to search information about labs and their tags
-* @version: 0.1
+* Plugin Name: EPFL polylex
+* Description: Provide a way to search information about EPFL lexes
+* @version: 1.0
 * @copyright: Copyright (c) 2019 Ecole Polytechnique Federale de Lausanne, Switzerland
 */
 
@@ -35,12 +35,12 @@ function process_shortcode($atts) {
         $atts['search'] = $_GET['search'];
     }
 
-    // search can come from the url
+    // category can come from the url
     if (isset($_GET['category'])) {
         $atts['category'] = $_GET['category'];
     }
 
-    // search can come from the url
+    // subcategory can come from the url
     if (isset($_GET['subcategory'])) {
         $atts['subcategory'] = $_GET['subcategory'];
     }
