@@ -51,7 +51,9 @@ Usage:
   jahia2wp.py shortcode-fix         <wp_env> <wp_url> [<shortcode_name>] [--debug | --quiet]
   jahia2wp.py shortcode-fix-many    <csv_file> [<shortcode_name>]   [--debug | --quiet]
   jahia2wp.py shortcode-to-block        <wp_env> <wp_url> [<shortcode_name>] [--debug | --quiet]
+    [--simulation]
   jahia2wp.py shortcode-to-block-many   <csv_file> [<shortcode_name>]   [--debug | --quiet]
+    [--simulation]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
     [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
@@ -1024,19 +1026,24 @@ def shortcode_fix_many(csv_file, shortcode_name=None, **kwargs):
 
 
 @dispatch.on('shortcode-to-block')
-def shortcode_to_block(wp_env, wp_url, shortcode_name=None, **kwargs):
+def shortcode_to_block(wp_env, wp_url, shortcode_name=None, simulation=False, **kwargs):
+    logging.info("Migrating shortcodes to blocks for %s", wp_url)
+    if simulation:
+        logging.info("== SIMULATION EXECUTION ==")
     blocks = GutenbergBlocks()
-    report = blocks.fix_site(wp_env, wp_url, shortcode_name)
+    report = blocks.fix_site(wp_env, wp_url, shortcode_name=shortcode_name, simulation=simulation)
+    if simulation:
+        logging.info("This was a simulation, nothing was changed in database")
     logging.info("Fix report:\n%s", str(report))
 
 
 @dispatch.on('shortcode-to-block-many')
-def shortcode_to_block_many(csv_file, shortcode_name=None, **kwargs):
+def shortcode_to_block_many(csv_file, shortcode_name=None, simulation=False, **kwargs):
     rows = Utils.csv_filepath_to_dict(csv_file)
     print("\nShortcode will now be fixed on websites...")
     for index, row in enumerate(rows):
         print("\nIndex #{}:\n---".format(index))
-        shortcode_to_block(row['openshift_env'], row['wp_site_url'], shortcode_name)
+        shortcode_to_block(row['openshift_env'], row['wp_site_url'], shortcode_name=shortcode_name, simulation=drysimulation_run)
     logging.info("All shortcodes for all sites fixed !")
 
 

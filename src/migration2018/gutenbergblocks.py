@@ -812,7 +812,7 @@ class GutenbergBlocks(Shortcodes):
         return content
 
 
-    def fix_site(self, openshift_env, wp_site_url, shortcode_name=None):
+    def fix_site(self, openshift_env, wp_site_url, shortcode_name=None, simulation=False):
         """
         Fix shortocdes in WP site
         :param openshift_env: openshift environment name
@@ -824,6 +824,10 @@ class GutenbergBlocks(Shortcodes):
         log_filename = os.path.join(settings.MIGRATION_LOG_PATH, "{}.log".format(wp_site_url.replace(":", "_").replace("/", "_")))
 
         self.log_file = open(log_filename, mode='ab')
+
+        exec_infos = "!! {} !!\n".format("Simulation" if simulation else "Normal execution")
+
+        self.log_file.write(exec_infos.encode())
 
         logging.info("Log file can be found here: %s", log_filename)
 
