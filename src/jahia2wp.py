@@ -309,7 +309,7 @@ def _get_shortcode_to_csv_time_log_filename():
     Returns log filename to use when transforming shortcode to blocks
     """
     now = datetime.now()
-    return os.path.join(settings.MIGRATION_LOG_PATH, "time_{}.csv".format(now.strftime("%Y-%m-%d_%H:%M:%S")))
+    return os.path.join(settings.MIGRATION_LOG_PATH, "time_{}.csv".format(now.strftime("%Y-%m-%d_%H-%M-%S")))
 
 
 @dispatch.on('download')
