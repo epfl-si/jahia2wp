@@ -1097,13 +1097,13 @@ class Shortcodes():
 
         return content
 
-    def fix_site(self, openshift_env, wp_site_url, shortcode_name=None, dry_run=False):
+    def fix_site(self, openshift_env, wp_site_url, shortcode_name=None, simulation=False):
         """
         Fix shortocdes in WP site
         :param openshift_env: openshift environment name
         :param wp_site_url: URL to website to fix.
         :param shortcode_name: fix site for this shortcode only
-        :param dry_run: to tell if we have to only perform a dry run => no DB update
+        :param simulation: to tell if we have to only perform a dry run => no DB update
         :return: dictionnary with report.
         """
 
@@ -1169,7 +1169,7 @@ class Shortcodes():
             content = str(soup.body)
 
             # If content changed for current page and we're not performing a dry run
-            if content != original_content and not dry_run:
+            if content != original_content and not simulation:
 
                 logging.debug("Content fixed, updating page...")
 

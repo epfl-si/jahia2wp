@@ -54,6 +54,8 @@ Usage:
     [--simulation]
   jahia2wp.py shortcode-to-block-many   <csv_file> [<shortcode_name>]   [--debug | --quiet]
     [--simulation]
+  jahia2wp.py shortcode-to-block-inventory   <path> [<shortcode_name>]  [--debug | --quiet]
+    [--simulation]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
     [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
@@ -1043,8 +1045,25 @@ def shortcode_to_block_many(csv_file, shortcode_name=None, simulation=False, **k
     print("\nShortcode will now be fixed on websites...")
     for index, row in enumerate(rows):
         print("\nIndex #{}:\n---".format(index))
-        shortcode_to_block(row['openshift_env'], row['wp_site_url'], shortcode_name=shortcode_name, simulation=drysimulation_run)
+        shortcode_to_block(row['openshift_env'], row['wp_site_url'], shortcode_name=shortcode_name, simulation=simulation)
     logging.info("All shortcodes for all sites fixed !")
+
+
+@dispatch.on('shortcode-to-block-inventory')
+def shortcode_to_block_inventory(path, shortcode_name=None, simulation=False, **kwargs):
+    logging.info("Shortcodes to block from inventory...")
+    nb_sites = 0
+    for site_details in WPConfig.inventory(path, skip_users=True):
+        if site_details.valid == settings.WP_SITE_INSTALL_OK:
+            try:
+                shortcode_to_block(WPSite.openshift_env_from_path(site_details.path), 
+                                    site_details.url, 
+                                    shortcode_name=shortcode_name, 
+                                    simulation=simulation)
+                nb_sites += 1
+            except:
+                logging.error("Site %s - Error %s", site_details.url, sys.exc_info())
+    logging.info("%s sites processed for path: %s", nb_sites, path)
 
 
 @dispatch.on('inventory')

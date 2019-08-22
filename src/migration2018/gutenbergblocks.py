@@ -831,7 +831,9 @@ class GutenbergBlocks(Shortcodes):
 
         logging.info("Log file can be found here: %s", log_filename)
 
-        report = super().fix_site(openshift_env, wp_site_url, shortcode_name)
+        report = super().fix_site(openshift_env, wp_site_url, shortcode_name=shortcode_name, simulation=simulation)
+
+        self.log_file.write(("Report: \n{}\n".format((json.dumps(report)))).encode())
 
         self.log_file.close()
 
