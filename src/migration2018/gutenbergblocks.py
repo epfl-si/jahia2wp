@@ -29,6 +29,8 @@ class GutenbergBlocks(Shortcodes):
         super().__init__()
         # To store mapping "Name" to "ID" for Memento
         self.memento_mapping = {}
+        # To store mapping between images ID and their URL
+        self.image_mapping = {}
 
         self.log_file = None
 
@@ -63,8 +65,13 @@ class GutenbergBlocks(Shortcodes):
 
         :param image_id: Id of image we want full URL
         """   
-        
-        return self.wp_config.run_wp_cli('post get {} --field=guid'.format(image_id))
+
+        # If we don't have information yet        
+        if image_id not in self.image_mapping:
+
+            self.image_mapping[image_id] = self.wp_config.run_wp_cli('post get {} --field=guid'.format(image_id))
+
+        return self.image_mapping[image_id]
 
 
     def _log_to_file(self, message, display=False):
