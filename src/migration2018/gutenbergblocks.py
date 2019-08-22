@@ -834,13 +834,13 @@ class GutenbergBlocks(Shortcodes):
 
         exec_infos = "!! {} !!\n".format("Simulation" if simulation else "Normal execution")
 
-        self.log_file.write(exec_infos.encode())
+        self._log_to_file(exec_infos)
 
         logging.info("Log file can be found here: %s", log_filename)
 
         report = super().fix_site(openshift_env, wp_site_url, shortcode_name=shortcode_name, simulation=simulation)
 
-        self.log_file.write(("Report: \n{}\n".format((json.dumps(report)))).encode())
+        self._log_to_file("Report: \n{}\n".format((json.dumps(report))))
 
         self.log_file.close()
 
