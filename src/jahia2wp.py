@@ -53,9 +53,9 @@ Usage:
   jahia2wp.py shortcode-to-block        <wp_env> <wp_url> [<shortcode_name>] [--debug | --quiet]
     [--simulation]
   jahia2wp.py shortcode-to-block-many   <csv_file> [<shortcode_name>]   [--debug | --quiet]
-    [--simulation]
+    [--simulation [--log-time-csv]]
   jahia2wp.py shortcode-to-block-inventory   <path> [<shortcode_name>]  [--debug | --quiet]
-    [--simulation]
+    [--simulation [--log-time-csv]]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
     [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
@@ -80,6 +80,7 @@ Options:
   --quiet                   Set log level to WARNING [default: INFO]
 """
 import csv
+import time
 import getpass
 import json
 import logging
@@ -301,6 +302,14 @@ def _generate_csv_line(wp_generator):
 
     logging.info("Here is the line with up-to-date information to add in source of truth:\n")
     logging.info('"%s"', '","'.join(csv_columns.values()))
+
+
+def _get_shortcode_to_csv_time_log_filename():
+    """
+    Returns log filename to use when transforming shortcode to blocks
+    """
+    now = datetime.now()
+    return os.path.join(settings.MIGRATION_LOG_PATH, "time_{}.csv".format(now.strftime("%Y-%m-%d_%H:%M:%S")))
 
 
 @dispatch.on('download')
@@ -1028,38 +1037,66 @@ def shortcode_fix_many(csv_file, shortcode_name=None, **kwargs):
 
 
 @dispatch.on('shortcode-to-block')
-def shortcode_to_block(wp_env, wp_url, shortcode_name=None, simulation=False, **kwargs):
+def shortcode_to_block(wp_env, wp_url, shortcode_name=None, simulation=False, csv_time_log=None, **kwargs):
     logging.info("Migrating shortcodes to blocks for %s", wp_url)
     if simulation:
         logging.info("== SIMULATION EXECUTION ==")
+
+    # We have to log duration in CSV file
+    if csv_time_log:
+        time_log_file = open(csv_time_log, mode='a')
+        start_time = time.time()
+
     blocks = GutenbergBlocks()
     report = blocks.fix_site(wp_env, wp_url, shortcode_name=shortcode_name, simulation=simulation)
     if simulation:
         logging.info("This was a simulation, nothing was changed in database")
+    
+    if csv_time_log:
+        time_log_file.write("{};{}\n".format(wp_url, time.time()-start_time))
+        time_log_file.close()
+
     logging.info("Fix report:\n%s", str(report))
 
 
 @dispatch.on('shortcode-to-block-many')
-def shortcode_to_block_many(csv_file, shortcode_name=None, simulation=False, **kwargs):
+def shortcode_to_block_many(csv_file, shortcode_name=None, simulation=False, log_time_csv=False, **kwargs):
     rows = Utils.csv_filepath_to_dict(csv_file)
+
+    csv_time_log = _get_shortcode_to_csv_time_log_filename() if log_time_csv else None
+
+    if log_time_csv:
+        logging.info("Logging time in CSV file: %s", csv_time_log)
+
     print("\nShortcode will now be fixed on websites...")
     for index, row in enumerate(rows):
         print("\nIndex #{}:\n---".format(index))
-        shortcode_to_block(row['openshift_env'], row['wp_site_url'], shortcode_name=shortcode_name, simulation=simulation)
+        shortcode_to_block(row['openshift_env'], 
+                           row['wp_site_url'], 
+                           shortcode_name=shortcode_name, 
+                           simulation=simulation,
+                           csv_time_log=csv_time_log)
     logging.info("All shortcodes for all sites fixed !")
 
 
 @dispatch.on('shortcode-to-block-inventory')
-def shortcode_to_block_inventory(path, shortcode_name=None, simulation=False, **kwargs):
+def shortcode_to_block_inventory(path, shortcode_name=None, simulation=False, log_time_csv=False, **kwargs):
     logging.info("Shortcodes to block from inventory...")
     nb_sites = 0
+
+    csv_time_log = _get_shortcode_to_csv_time_log_filename() if log_time_csv else None
+
+    if log_time_csv:
+        logging.info("Logging time in CSV file: %s", csv_time_log)
+
     for site_details in WPConfig.inventory(path, skip_users=True):
         if site_details.valid == settings.WP_SITE_INSTALL_OK:
             try:
                 shortcode_to_block(WPSite.openshift_env_from_path(site_details.path), 
                                     site_details.url, 
                                     shortcode_name=shortcode_name, 
-                                    simulation=simulation)
+                                    simulation=simulation,
+                                    csv_time_log=csv_time_log)
                 nb_sites += 1
             except:
                 logging.error("Site %s - Error %s", site_details.url, sys.exc_info())
