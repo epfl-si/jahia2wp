@@ -31,15 +31,17 @@ class GutenbergBlocks(Shortcodes):
         self.memento_mapping = {}
         # To store mapping between images ID and their URL
         self.image_mapping = {}
-
+        # To store incorrect images 
+        self.incorrect_images = {}
         self.log_file = None
 
 
-    def _get_memento_id(self, memento):
+    def _get_memento_id(self, memento, page_id):
         """
         Returns EPFL Memento ID from name
 
         :param memento: memento name
+        :param page_id: Page ID
         """
 
         # If we don't have information yet
@@ -59,17 +61,30 @@ class GutenbergBlocks(Shortcodes):
         return self.memento_mapping[memento]
 
 
-    def _get_image_url(self, image_id):
+    def _get_image_url(self, image_id, page_id):
         """
         Returns Image URL based on its ID
 
         :param image_id: Id of image we want full URL
+        :param page_id: Page ID
         """   
 
         # If we don't have information yet        
         if image_id not in self.image_mapping:
 
-            self.image_mapping[image_id] = self.wp_config.run_wp_cli('post get {} --field=guid'.format(image_id))
+            image_url = self.wp_config.run_wp_cli('post get {} --field=guid'.format(image_id))
+
+            if not image_url:
+
+                if page_id not in self.incorrect_images:
+                    self.incorrect_images[page_id] = []
+                
+                self.incorrect_images[page_id].append(image_id)
+
+                self.image_mapping[image_id] = image_id
+            else:
+
+                self.image_mapping[image_id] = image_url
 
         return self.image_mapping[image_id]
 
@@ -88,7 +103,7 @@ class GutenbergBlocks(Shortcodes):
             logging.info(message)
 
 
-    def __add_attributes(self, call, attributes, attributes_desc):
+    def __add_attributes(self, call, attributes, attributes_desc, page_id):
         """
         Updates 'attributes' parameter (dict) with correct value depending on each attribute description
         contained in 'attributes_desc' parameter.
@@ -123,7 +138,9 @@ class GutenbergBlocks(Shortcodes):
                                         to Gutenberg block (by using options previously explained to define value).
 
                     ** The next key can be used with others keys because it will be taken in account only if value is NULL (None) **
-                    'if_null'   -> (optional) value to use if content of shortcode value is equal to NULL (or is not present)    
+                    'if_null'   -> (optional) value to use if content of shortcode value is equal to NULL (or is not present)   
+        :param attributes_desc: Dictionnary describing shortcode attributes and how to translate them to a Gutenberg block
+        :param page_id: Id of page on which we currently are
         """
 
         for attr_desc in attributes_desc:
@@ -182,7 +199,7 @@ class GutenbergBlocks(Shortcodes):
                     # Correct value has to be recovered using a func
                     elif 'map_func' in attr_desc:
                         map_func = getattr(self, attr_desc['map_func'])
-                        final_value = map_func(value)
+                        final_value = map_func(value, page_id)
 
                     # Simply take the value as it is...
                     else:
@@ -204,11 +221,12 @@ class GutenbergBlocks(Shortcodes):
             attributes[block_attr] = final_value
 
 
-    def _fix_epfl_news_2018(self, content):
+    def _fix_epfl_news_2018(self, content, page_id):
         """
         Transforms EPFL news 2018 shortcode to Gutenberg block
 
-        :param content: String with page content to update
+        :param content: content to update
+        :param page_id: Id of page containing content
         """
         shortcode = 'epfl_news_2018'
         block = 'epfl/news'
@@ -250,7 +268,7 @@ class GutenbergBlocks(Shortcodes):
             attributes = {}
 
             # Recovering attributes from shortcode
-            self.__add_attributes(call, attributes, attributes_desc)
+            self.__add_attributes(call, attributes, attributes_desc, page_id)
 
             # TODO: also handle 'themes' attribute, which is not correctly documented on Confluence... 
             logging.warning("EPFL News 2018 - Handle 'themes' attribute !!")
@@ -269,11 +287,12 @@ class GutenbergBlocks(Shortcodes):
         return content
 
 
-    def _fix_epfl_memento_2018(self, content):
+    def _fix_epfl_memento_2018(self, content, page_id):
         """
         Transforms EPFL news 2018 shortcode to Gutenberg block
 
-        :param content: String with page content to update
+        :param content: content to update
+        :param page_id: Id of page containing content
         """
         shortcode = 'epfl_memento_2018'
         block = 'epfl/memento'
@@ -312,7 +331,7 @@ class GutenbergBlocks(Shortcodes):
             attributes = {}
 
             # Recovering attributes from shortcode
-            self.__add_attributes(call, attributes, attributes_desc)
+            self.__add_attributes(call, attributes, attributes_desc, page_id)
 
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
@@ -328,11 +347,12 @@ class GutenbergBlocks(Shortcodes):
         return content
 
 
-    def _fix_epfl_people_2018(self, content):
+    def _fix_epfl_people_2018(self, content, page_id):
         """
         Transforms EPFL people 2018 shortcode to Gutenberg block
 
-        :param content: String with page content to update
+        :param content: content to update
+        :param page_id: Id of page containing content
         """
         shortcode = 'epfl_people_2018'
         block = 'epfl/people'
@@ -357,7 +377,7 @@ class GutenbergBlocks(Shortcodes):
             attributes = {}
 
             # Recovering attributes from shortcode
-            self.__add_attributes(call, attributes, attributes_desc)
+            self.__add_attributes(call, attributes, attributes_desc, page_id)
 
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
@@ -373,12 +393,13 @@ class GutenbergBlocks(Shortcodes):
         return content
 
 
-    def _fix_epfl_infoscience_search(self, content):
+    def _fix_epfl_infoscience_search(self, content, page_id):
         """
         Transforms EPFL Infoscience Search shortcode to Gutenberg block
         https://github.com/epfl-idevelop/jahia2wp/blob/release2018/data/wp/wp-content/plugins/epfl/shortcodes/epfl-infoscience-search/epfl-infoscience-search.php
 
-        :param content: String with page content to update
+        :param content: content to update
+        :param page_id: Id of page containing content
         """
         shortcode = 'epfl_infoscience_search'
         block = 'epfl/infoscience-search'
@@ -424,7 +445,7 @@ class GutenbergBlocks(Shortcodes):
             attributes = {}
             
             # Recovering attributes from shortcode
-            self.__add_attributes(call, attributes, attributes_desc)
+            self.__add_attributes(call, attributes, attributes_desc, page_id)
 
             # Handling 'groupBy' speciality
             group_by = self._get_attribute(call, 'group_by')
@@ -459,13 +480,14 @@ class GutenbergBlocks(Shortcodes):
         return content
 
 
-    def _fix_epfl_card(self, content):
+    def _fix_epfl_card(self, content, page_id):
         """
         Transforms EPFL card shortcode to Gutenberg block
         https://github.com/epfl-idevelop/wp-theme-2018/blob/dev/wp-theme-2018/shortcodes/epfl_card/view.php
         https://github.com/epfl-idevelop/wp-gutenberg-epfl/blob/master/src/epfl-card/index.js
 
-        :param content: String with page content to update
+        :param content: content to update
+        :param page_id: Id of page containing content
         """
         shortcode = 'epfl_card'
         block = 'epfl/card'
@@ -508,7 +530,7 @@ class GutenbergBlocks(Shortcodes):
             attributes = {}
 
             # Recovering attributes from shortcode
-            self.__add_attributes(call, attributes, attributes_desc)
+            self.__add_attributes(call, attributes, attributes_desc, page_id)
 
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
@@ -524,12 +546,13 @@ class GutenbergBlocks(Shortcodes):
         return content
 
 
-    def _fix_epfl_faculties(self, content):
+    def _fix_epfl_faculties(self, content, page_id):
         """
         Transforms EPFL faculties (Schools) shortcode to Gutenberg block
         https://github.com/epfl-idevelop/wp-theme-2018/blob/dev/wp-theme-2018/shortcodes/schools/view.php
 
-        :param content: String with page content to update
+        :param content: content to update
+        :param page_id: Id of page containing content
         """
         shortcode = 'epfl_faculties'
         block = 'epfl/caption-cards'
@@ -566,7 +589,7 @@ class GutenbergBlocks(Shortcodes):
             attributes = {}
 
             # Recovering attributes from shortcode
-            self.__add_attributes(call, attributes, attributes_desc)
+            self.__add_attributes(call, attributes, attributes_desc, page_id)
 
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
@@ -582,12 +605,13 @@ class GutenbergBlocks(Shortcodes):
         return content
 
 
-    def _fix_epfl_contact(self, content):
+    def _fix_epfl_contact(self, content, page_id):
         """
         Transforms EPFL people 2018 shortcode to Gutenberg block
         https://github.com/epfl-idevelop/wp-theme-2018/blob/dev/wp-theme-2018/shortcodes/epfl_contact/view.php
 
-        :param content: String with page content to update
+        :param content: content to update
+        :param page_id: Id of page containing content
         """
         shortcode = 'epfl_contact'
         block = 'epfl/contact'
@@ -619,7 +643,7 @@ class GutenbergBlocks(Shortcodes):
             attributes = {}
 
             # Recovering attributes from shortcode
-            self.__add_attributes(call, attributes, attributes_desc)
+            self.__add_attributes(call, attributes, attributes_desc, page_id)
 
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
@@ -635,12 +659,13 @@ class GutenbergBlocks(Shortcodes):
         return content
 
 
-    def _fix_epfl_definition_list(self, content):
+    def _fix_epfl_definition_list(self, content, page_id):
         """
         Transforms EPFL definition list shortcode to Gutenberg block
         https://github.com/epfl-idevelop/wp-theme-2018/blob/dev/wp-theme-2018/shortcodes/definition_list/view.php
 
-        :param content: String with page content to update
+        :param content: content to update
+        :param page_id: Id of page containing content
         """
         shortcode = 'epfl_definition_list'
         block = 'epfl/definition-list'
@@ -677,7 +702,7 @@ class GutenbergBlocks(Shortcodes):
             attributes = {}
 
             # Recovering attributes from shortcode
-            self.__add_attributes(call, attributes, attributes_desc)
+            self.__add_attributes(call, attributes, attributes_desc, page_id)
 
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
@@ -693,11 +718,12 @@ class GutenbergBlocks(Shortcodes):
         return content
 
 
-    def _fix_epfl_custom_teasers(self, content):
+    def _fix_epfl_custom_teasers(self, content, page_id):
         """
         Transforms EPFL custom teaser shortcode to Gutenberg block
         
-        :param content: String with page content to update
+        :param content: content to update
+        :param page_id: Id of page containing content
         """
         shortcode = 'epfl_custom_teasers'
         block = 'epfl/custom-teaser'
@@ -750,7 +776,7 @@ class GutenbergBlocks(Shortcodes):
             attributes = {}
 
             # Recovering attributes from shortcode
-            self.__add_attributes(call, attributes, attributes_desc)
+            self.__add_attributes(call, attributes, attributes_desc, page_id)
 
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
@@ -766,11 +792,12 @@ class GutenbergBlocks(Shortcodes):
         return content
 
 
-    def _fix_epfl_links_group(self, content):
+    def _fix_epfl_links_group(self, content, page_id):
         """
         Transforms EPFL links group shortcode to Gutenberg block
         
-        :param content: String with page content to update
+        :param content: content to update
+        :param page_id: Id of page containing content
         """
         shortcode = 'epfl_links_group'
         block = 'epfl/links-group'
@@ -803,7 +830,7 @@ class GutenbergBlocks(Shortcodes):
             attributes = {}
 
             # Recovering attributes from shortcode
-            self.__add_attributes(call, attributes, attributes_desc)
+            self.__add_attributes(call, attributes, attributes_desc, page_id)
 
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
@@ -840,6 +867,8 @@ class GutenbergBlocks(Shortcodes):
 
         report = super().fix_site(openshift_env, wp_site_url, shortcode_name=shortcode_name, simulation=simulation)
 
+        self._log_to_file("Pages incorrect images: \n{}\n".format((json.dumps(self.incorrect_images))))
+        
         self._log_to_file("Report: \n{}\n".format((json.dumps(report))))
 
         self.log_file.close()

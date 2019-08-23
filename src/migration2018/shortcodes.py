@@ -16,8 +16,9 @@ class Shortcodes():
  
     def __init__(self):
         self.list = {}
-        self.report = {}
+        self.report = {'_nb_pages':0, '_nb_pages_updated':0}
         self.regex = r'\[([a-z0-9_-]+)'
+
 
         # Will be initialized later
         self.wp_site = None
@@ -367,34 +368,38 @@ class Shortcodes():
         self._update_report(old_shortcode)
         return content
 
-    def _fix_su_vimeo(self, content):
+    def _fix_su_vimeo(self, content, page_id):
         """
         Fix "su_vimeo" from Shortcode ultimate plugin
-        :param content:
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         return self.__fix_to_epfl_video(content, 'su_vimeo')
 
-    def _fix_su_youtube(self, content):
+    def _fix_su_youtube(self, content, page_id):
         """
         Fix "su_youtube" from Shortcode ultimate plugin
-        :param content:
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         return self.__fix_to_epfl_video(content, 'su_youtube')
 
-    def _fix_su_youtube_advanced(self, content):
+    def _fix_su_youtube_advanced(self, content, page_id):
         """
         Fix "su_youtube_advanced" from Shortcode ultimate plugin
-        :param content:
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         return self.__fix_to_epfl_video(content, 'su_youtube_advanced')
 
-    def _fix_epfl_people(self, content):
+    def _fix_epfl_people(self, content, page_id):
         """
         Fix all epfl_people shortcodes in content
-        :param content:
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
 
@@ -429,10 +434,11 @@ class Shortcodes():
 
         return content
 
-    def _fix_epfl_news(self, content):
+    def _fix_epfl_news(self, content, page_id):
         """
         Fix all epfl_news shortcodes in content
-        :param content:
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
 
@@ -528,26 +534,29 @@ class Shortcodes():
 
         return content
 
-    def _fix_su_carousel(self, content):
+    def _fix_su_carousel(self, content, page_id):
         """
         Fix all su_custom_gallery shortcodes in content
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         return self._fix_to_gallery(content, 'su_carousel')
 
-    def _fix_su_custom_gallery(self, content):
+    def _fix_su_custom_gallery(self, content, page_id):
         """
         Fix all su_custom_gallery shortcodes in content
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         return self._fix_to_gallery(content, 'su_custom_gallery')
 
-    def _fix_su_slider(self, content):
+    def _fix_su_slider(self, content, page_id):
         """
         Fix all su_slider shortcodes in content
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         return self._fix_to_gallery(content, 'su_slider')
@@ -579,27 +588,30 @@ class Shortcodes():
 
         return content
 
-    def _fix_su_expand(self, content):
+    def _fix_su_expand(self, content, page_id):
         """
         Fix "su_expand" from Shortcode ultimate plugin
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         return self.__fix_to_epfl_toggle(content, 'su_expand')
 
-    def _fix_my_buttonexpand(self, content):
+    def _fix_my_buttonexpand(self, content, page_id):
         """
         Fix "my_buttonexpand" (renamed su_expand) from Shortcode ultimate plugin
         This plugin name is only used on UC website...
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         return self.__fix_to_epfl_toggle(content, 'my_buttonexpand')
 
-    def _fix_su_accordion(self, content):
+    def _fix_su_accordion(self, content, page_id):
         """
         Fix "su_accordion" from Shortcode ultimate plugin. This shortcode is a container for "su_spoiler" elements
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         old_shortcode = 'su_accordion'
@@ -618,11 +630,12 @@ class Shortcodes():
 
         return content
 
-    def _fix_su_spoiler(self, content):
+    def _fix_su_spoiler(self, content, page_id):
         """
         Fix "su_spoiler" from Shortcode Ultimate plugin. This shortcode is surrouned by "su_accordion" shortcode and
         is just translated to "epfl_toggle"
-        :param content:
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         old_shortcode = 'su_spoiler'
@@ -684,28 +697,31 @@ class Shortcodes():
 
         return content
 
-    def _fix_su_button(self, content):
+    def _fix_su_button(self, content, page_id):
         """
         Fix "su_button" from Shortcode Ultimate plugin.
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         return self.__fix_to_atom_button(content, 'su_button')
 
-    def _fix_my_buttonbutton(self, content):
+    def _fix_my_buttonbutton(self, content, page_id):
         """
         Fix "my_buttonbutton" (renamed su_button) from Shortcode ultimate plugin
         This plugin name is only used on UC website...
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         return self.__fix_to_atom_button(content, 'my_buttonbutton')
 
-    def _fix_su_divider(self, content):
+    def _fix_su_divider(self, content, page_id):
         """
         Fix "su_divider" from Shortcode Ultimate. We replace it with HTML code, not with another shortcode.
         https://epfl-idevelop.github.io/elements/#/atoms/separator
-        :param content: String in which to fix.
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         shortcode_name = 'su_divider'
@@ -723,9 +739,11 @@ class Shortcodes():
 
         return content
 
-    def _fix_su_row(self, content):
+    def _fix_su_row(self, content, page_id):
         """
         Fix "su_row" from Shortcode Ultimate.
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         shortcode_name = 'su_row'
@@ -746,9 +764,11 @@ class Shortcodes():
 
         return content
 
-    def _fix_su_column(self, content):
+    def _fix_su_column(self, content, page_id):
         """
         Fix "su_column" from Shortcode Ultimate.
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         shortcode_name = 'su_column'
@@ -768,10 +788,11 @@ class Shortcodes():
 
         return content
 
-    def _fix_su_box(self, content):
+    def _fix_su_box(self, content, page_id):
         """
         Fix "su_box" from Shortcode Ultimate. We replace it with epfl_card
-        :param content: String in which to fix.
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         old_shortcode = 'su_box'
@@ -795,10 +816,11 @@ class Shortcodes():
 
         return content
 
-    def _fix_epfl_snippets(self, content):
+    def _fix_epfl_snippets(self, content, page_id):
         """
         Fix "epfl_snippets" shortcode and transform it into epfl_card
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         old_shortcode = 'epfl_snippets'
@@ -831,12 +853,13 @@ class Shortcodes():
 
         return content
 
-    def _fix_su_quote(self, content):
+    def _fix_su_quote(self, content, page_id):
         """
         Return HTML code to display quote according 2018 styleguide (but without an image and using "col-md-12" instead
         of "col-md-10" for the width):
         https://epfl-idevelop.github.io/elements/#/molecules/quote
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         shortcode_name = 'su_quote'
@@ -862,10 +885,11 @@ class Shortcodes():
 
         return content
 
-    def _fix_su_list(self, content):
+    def _fix_su_list(self, content, page_id):
         """
         Return HTML code to display information correctly. We remove surrounding shortcode and add a <br> at the end.
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         shortcode_name = 'su_list'
@@ -885,10 +909,11 @@ class Shortcodes():
 
         return content
 
-    def _fix_su_heading(self, content):
+    def _fix_su_heading(self, content, page_id):
         """
         Fix "su_heading" shortcode from shortcode ultimate. Just transform it into <h2> element.
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         shortcode_name = 'su_heading'
@@ -908,11 +933,12 @@ class Shortcodes():
 
         return content
 
-    def _fix_su_highlight(self, content):
+    def _fix_su_highlight(self, content, page_id):
         """
         Fix "su_highlight" shortcode from shortcode ultimate. Just transform it into <mark> element as defined
         in the styleguide: https://epfl-idevelop.github.io/elements/#/doc/design--typography.html
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         shortcode_name = 'su_highlight'
@@ -932,11 +958,12 @@ class Shortcodes():
 
         return content
 
-    def _fix_su_note(self, content):
+    def _fix_su_note(self, content, page_id):
         """
         Fix "su_note" de Shortcode Ultimate afin de mettre le code HTML d'un trapèze:
         https://epfl-idevelop.github.io/elements/#/atoms/trapeze
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         shortcode_name = 'su_note'
@@ -961,19 +988,22 @@ class Shortcodes():
 
         return content
 
-    def _fix_su_spacer(self, content):
+    def _fix_su_spacer(self, content, page_id):
         """
         Remove "su_spacer"
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         shortcode_name = 'su_spacer'
         self._update_report(shortcode_name)
         return self.__remove_shortcode(content, shortcode_name)
 
-    def _fix_epfl_twitter(self, content):
+    def _fix_epfl_twitter(self, content, page_id):
         """
         Fix "epfl_twitter" shortcode
-        :param content:
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         old_shortcode = 'epfl_twitter'
@@ -988,10 +1018,11 @@ class Shortcodes():
 
         return content
 
-    def _fix_epfl_memento(self, content):
+    def _fix_epfl_memento(self, content, page_id):
         """
         Fix "epfl_memento" shortcode
-        :param content:
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         old_shortcode = 'epfl_memento'
@@ -1006,7 +1037,7 @@ class Shortcodes():
 
         return content
 
-    def _fix_epfl_card_new_version(self, content):
+    def _fix_epfl_card_new_version(self, content, page_id):
         """
         Fix "epfl_card" shortcode in the new version.
 
@@ -1016,6 +1047,9 @@ class Shortcodes():
         python jahia2wp shortcode-fix <wp_env> <wp_url> epfl_card_new_version
 
         Note: This method name is suffix by '_new_version' to prevent its automatic use.
+
+        :param content: content to update
+        :param page_id: Id of page containing content
 
         example:
         input: [epfl_card title="toto titre" link="toto lien" image="29"]toto text[/epfl_card]
@@ -1048,7 +1082,7 @@ class Shortcodes():
 
         return content
 
-    def _fix_epfl_toggle_2018_new_version(self, content):
+    def _fix_epfl_toggle_2018_new_version(self, content, page_id):
         """
         Fix "epfl_toggle_2018" shortcode in the new version.
 
@@ -1059,6 +1093,9 @@ class Shortcodes():
         python jahia2wp shortcode-fix <wp_env> <wp_url> epfl_toggle_2018_new_version
 
         Note: This method name is suffix by '_new_version' to prevent its automatic use.
+
+        :param content: content to update
+        :param page_id: Id of page containing content
 
         example:
         input: [epfl_toggle_2018 label0=”IOS” desc0=”<desc0>” state0=”close” label1="Android" desc1="<desc1>" ...
@@ -1158,7 +1195,7 @@ class Shortcodes():
                         continue
 
                     logging.debug("Fixing shortcode %s...", shortcode)
-                    content = fix_func(content)
+                    content = fix_func(content, post_id)
 
             # Step 2: Removing <div class="textbox"> to avoid display issues on 2018 theme
             soup = BeautifulSoup(content, 'html5lib')
