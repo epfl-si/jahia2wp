@@ -304,12 +304,18 @@ def _generate_csv_line(wp_generator):
     logging.info('"%s"', '","'.join(csv_columns.values()))
 
 
-def _get_shortcode_to_csv_time_log_filename():
+def _init_shortcode_to_csv_time_log():
     """
     Returns log filename to use when transforming shortcode to blocks
     """
     now = datetime.now()
-    return os.path.join(settings.MIGRATION_LOG_PATH, "time_{}.csv".format(now.strftime("%Y-%m-%d_%H-%M-%S")))
+    filename = os.path.join(settings.MIGRATION_LOG_PATH, "time_{}.csv".format(now.strftime("%Y-%m-%d_%H-%M-%S")))
+
+    # We just create file with header columns
+    with open(filename, 'w') as l:
+        l.write("URL;Nb page;Nb pages updated;Duration [s]")
+
+    return filename
 
 
 @dispatch.on('download')
@@ -1053,7 +1059,7 @@ def shortcode_to_block(wp_env, wp_url, shortcode_name=None, simulation=False, cs
         logging.info("This was a simulation, nothing was changed in database")
     
     if csv_time_log:
-        time_log_file.write("{};{}\n".format(wp_url, time.time()-start_time))
+        time_log_file.write("{};{};{};{}\n".format(wp_url, report['_nb_pages'], report['_nb_pages_updated'], time.time()-start_time))
         time_log_file.close()
 
     logging.info("Fix report:\n%s", str(report))
@@ -1063,7 +1069,7 @@ def shortcode_to_block(wp_env, wp_url, shortcode_name=None, simulation=False, cs
 def shortcode_to_block_many(csv_file, shortcode_name=None, simulation=False, log_time_csv=False, **kwargs):
     rows = Utils.csv_filepath_to_dict(csv_file)
 
-    csv_time_log = _get_shortcode_to_csv_time_log_filename() if log_time_csv else None
+    csv_time_log = _init_shortcode_to_csv_time_log() if log_time_csv else None
 
     if log_time_csv:
         logging.info("Logging time in CSV file: %s", csv_time_log)
@@ -1084,7 +1090,7 @@ def shortcode_to_block_inventory(path, shortcode_name=None, simulation=False, lo
     logging.info("Shortcodes to block from inventory...")
     nb_sites = 0
 
-    csv_time_log = _get_shortcode_to_csv_time_log_filename() if log_time_csv else None
+    csv_time_log = _init_shortcode_to_csv_time_log() if log_time_csv else None
 
     if log_time_csv:
         logging.info("Logging time in CSV file: %s", csv_time_log)
