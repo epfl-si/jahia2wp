@@ -1131,6 +1131,9 @@ class Shortcodes():
 
         # Looping through posts
         for post_id in post_ids:
+
+            self._update_report('_nb_pages')
+
             logging.info("Fixing page ID %s...", post_id)
             content = self.wp_config.run_wp_cli("post get {} --skip-plugins --skip-themes "
                                            "--field=post_content".format(post_id))
@@ -1168,27 +1171,31 @@ class Shortcodes():
 
             content = str(soup.body)
 
-            # If content changed for current page and we're not performing a dry run
-            if content != original_content and not simulation:
+            # If content changed for current page 
+            if content != original_content:
+                self._update_report('_nb_pages_updated')
 
-                logging.debug("Content fixed, updating page...")
+                # If  we're not performing a simulation
+                if not simulation:
 
-                for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
-                    try:
-                        # We use a temporary file to store page content to avoid to have problems with simple/double
-                        # quotes and content size
-                        with open(content_filename, 'wb') as content_file:
-                            content_file.write(content.encode())
-                        self.wp_config.run_wp_cli("post update {} --skip-plugins --skip-themes {} ".format(
-                            post_id, content_filename))
+                    logging.debug("Content fixed, updating page...")
 
-                    except Exception as e:
-                        if try_no < settings.WP_CLI_AND_API_NB_TRIES - 1:
-                            logging.error("fix_site() error. Retry %s in %s sec...",
-                                          try_no + 1,
-                                          settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
-                            time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
-                            pass
+                    for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
+                        try:
+                            # We use a temporary file to store page content to avoid to have problems with simple/double
+                            # quotes and content size
+                            with open(content_filename, 'wb') as content_file:
+                                content_file.write(content.encode())
+                            self.wp_config.run_wp_cli("post update {} --skip-plugins --skip-themes {} ".format(
+                                post_id, content_filename))
+
+                        except Exception as e:
+                            if try_no < settings.WP_CLI_AND_API_NB_TRIES - 1:
+                                logging.error("fix_site() error. Retry %s in %s sec...",
+                                            try_no + 1,
+                                            settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                                time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                                pass
 
         # Cleaning
         if os.path.exists(content_filename):
