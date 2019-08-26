@@ -313,7 +313,7 @@ def _init_shortcode_to_csv_time_log():
 
     # We just create file with header columns
     with open(filename, 'w') as l:
-        l.write("URL;Nb page;Nb pages updated;Duration [s]")
+        l.write("URL;Nb page;Nb pages updated;Duration [s]\n")
 
     return filename
 
