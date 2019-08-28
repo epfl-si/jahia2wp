@@ -8,19 +8,11 @@
         "urlEn": "http://www.admin.ch/opc/en/classified-compilation/19910256/index.html",
         "descriptionFr": "La loi sur les EPF fixe tant les missions que l’organisation et l’autonomie des différentes Institutions du Domaine des EPF. Elle fonde notamment l’existence des 4 corps à savoir le corps enseignant les assistants-doctorants et collaborateurs scientifiques les étudiants et le corps administratif et technique.",
         "descriptionEn": "The FIT Act determines the missions and organisation and hence the autonomy of the different institutions of the EPF Domain. It establishes in particular the existence of the four bodies namely teaching staff doctoral assistants and scientific staff students and administrative and technical staff.",
-        "publicationDateFr": "4 octobre 1991",
-        "publicationDateEn": "4 October 1991",
+        "publicationDate": "10/4/1991",
+        "revisionDate": "5/1/2017",
         "category": "Gouvernance",
         "subcategory": "Domaine des EPF",
-        "authors": [
-            {
-                "_id": "itK7rtczN6NwC6kQz",
-                "lastName": "chardonnens",
-                "firstName": "françoise",
-                "urlFr": "https://people.epfl.ch/francoise.chardonnens",
-                "urlEn": "https://people.epfl.ch/francoise.chardonnens?lang=fr"
-            }
-        ]
+        "responsible": "Françoise Chardonnens"
     },
     {
         "_id": "vhvxEfLxhc5G4QkzG",
@@ -31,19 +23,11 @@
         "urlEn": "http://www.admin.ch/ch/f/rs/c414_110_3.html",
         "descriptionFr": "Cette ordonnance règle les détails d’application en lien direct avec la Loi sur les EPF.",
         "descriptionEn": "This ordinance determines the details concerning application directly linked with the FIT Act.",
-        "publicationDateFr": "19 novembre 2003",
-        "publicationDateEn": "19 November 2003",
+        "publicationDate": "10/4/1991",
+        "revisionDate": "5/1/2017",
         "category": "Gouvernance",
         "subcategory": "Domaine des EPF",
-        "authors": [
-            {
-                "_id": "itK7rtczN6NwC6kQz",
-                "lastName": "chardonnens",
-                "firstName": "françoise",
-                "urlFr": "https://people.epfl.ch/francoise.chardonnens",
-                "urlEn": "https://people.epfl.ch/francoise.chardonnens?lang=fr"
-            }
-        ]
+        "responsible": "Françoise Chardonnens"
     },
     {
         "_id": "M8pKbSiW5raA7C2Gi",
@@ -54,19 +38,11 @@
         "urlEn": "http://www.admin.ch/ch/f/rs/c414_110_37.html",
         "descriptionFr": "Cette ordonnance règle le mandat et les règles d’organisation de l’EPFZ et de l’EPFL en lien direct avec la Loi sur les EPF.",
         "descriptionEn": "This ordinance determines the mandate and rules concerning the organisation of the EPFZ and EPFL directly linked with the FIT Act.",
-        "publicationDateFr": "13 novembre 2003",
-        "publicationDateEn": "13 November 2003",
+        "publicationDate": "10/4/1991",
+        "revisionDate": "5/1/2017",
         "category": "Gouvernance",
         "subcategory": "Domaine des EPF",
-        "authors": [
-            {
-                "_id": "itK7rtczN6NwC6kQz",
-                "lastName": "chardonnens",
-                "firstName": "françoise",
-                "urlFr": "https://people.epfl.ch/francoise.chardonnens",
-                "urlEn": "https://people.epfl.ch/francoise.chardonnens?lang=fr"
-            }
-        ]
+        "responsible": "Françoise Chardonnens"
     },
     {
         "_id": "ZN9x7W3cNvddG3P2i",
@@ -76,27 +52,41 @@
         "urlFr": "https://polylex.epfl.ch/wp-content/uploads/2019/01/1.1.1_o_organisation_EPFL_fr.pdf",
         "urlEn": "https://polylex.epfl.ch/wp-content/uploads/2019/01/1.1.1_o_organisation_EPFL_an.pdf",
         "descriptionFr": "Cette ordonnance définit la structure de l’Ecole polytechnique fédérale de Lausanne (EPFL) l’organisation et les compétences décisionnelles de sa Direction de ses facultés de ses collèges et de ses organes centraux. Pour une vue synoptique du périmètre de l’EPFL cliquez ici.",
-        "descriptionEn": "This ordinance defines the structure of the Ecole polytechnique féd��rale de Lausanne (EPFL) the organisation and decision-making powers of its Direction Schools Colleges and central services. For a synoptic view of the EPFL perimeter click here.",
-        "publicationDateFr": "1er mars 2004 état au 11 avril 2019",
-        "publicationDateEn": "1st March 2004 Status as at 11th April 2019",
+        "descriptionEn": "This ordinance defines the structure of the Ecole polytechnique fédérale de Lausanne (EPFL) the organisation and decision-making powers of its Direction Schools Colleges and central services. For a synoptic view of the EPFL perimeter click here.",
+        "publicationDate": "10/4/1991",
+        "revisionDate": "5/1/2017",
         "category": "Gouvernance",
         "subcategory": "Organisation",
-        "authors": [
-            {
-                "_id": "itK7rtczN6NwC6kQz",
-                "lastName": "chardonnens",
-                "firstName": "françoise",
-                "urlFr": "https://people.epfl.ch/francoise.chardonnens",
-                "urlEn": "https://people.epfl.ch/francoise.chardonnens?lang=fr"
-            },
-            {
-                "_id": "itK7rtczN6NwC6kQz",
-                "lastName": "Nelson",
-                "firstName": "Maxwell",
-                "urlFr": "https://people.epfl.ch/francoise.chardonnens",
-                "urlEn": "https://people.epfl.ch/francoise.chardonnens?lang=fr"
-            }
-        ]
+        "responsible": "Françoise Chardonnens"
+    },
+    {
+        "_id": "ZN9x7W3cNvddG3P4i",
+        "lex": "6.1.3",
+        "titleFr": "Directive sur l’utilisation du matériel informatique privé à des fins professionnelles",
+        "titleEn": "Directive on the Use of Private Computer Equipment for Professional Purposes",
+        "urlFr": "https://polylex.epfl.ch/wp-content/uploads/2019/01/6.1.3_d_ordinateur_prive_fr.pdf",
+        "urlEn": "https://polylex.epfl.ch/wp-content/uploads/2019/01/6.1.3_d_ordinateur_prive_an.pdf",
+        "descriptionFr": "",
+        "descriptionEn": "",
+        "publicationDate": "5/1/2017",
+        "revisionDate": "",
+        "category": "Systèmes d’information",
+        "subcategory": "Directives d’utilisation",
+        "responsible": "Jean-François Dousson"
+    },
+    {
+        "_id": "ZN9x7W3cNvddG3P3i",
+        "lex": "6.5.1",
+        "titleFr": "Politique de sécurité des systèmes d’information (PSSI)",
+        "titleEn": "Information Systems Security Policy (PSSI)",
+        "urlFr": "https://polylex.epfl.ch/wp-content/uploads/2019/01/6.5.1_Politique_securite_SI_fr.pdf",
+        "urlEn": "https://polylex.epfl.ch/wp-content/uploads/2019/01/6.5.1_Politique_securite_SI_an.pdf",
+        "descriptionFr": "La PSSI insiste sur les responsabilités de chacun dans le bon usage des moyens et informations mises à disposition par l’EPFL. Elle est l’expression de la volonté de la Direction EPFL concernant le domaine de la sécurité de l’information, le guide dans la rédaction de directives relatives à ce domaine, le guide dans l’élaboration de mesures de protection pour les sujets sans directive. La PSSI permettra à terme d’améliorer le niveau de sécurité en impliquant tous les acteurs concernés par les systèmes d’information. La PSSI concerne tous les utilisateurs des systèmes d’information de l’EPFL, quel que soit le moyen de communication employé pour y accéder, ainsi que toutes les informations créées par l’EPFL ou qui lui ont été confiées et qui ont été sorties du périmètre des systèmes d’information. ",
+        "descriptionEn": "The PSSI stresses everyone’s responsibilities in the proper use of resources and information provided by EPFL. The PSSI is the expression of the will of the EPFL Direction in the field of information security provides guidance in drafting related directives provides guidance in developing protective measures for areas not subject to a directive. The PSSI will ultimately enhance the security level by involving all stakeholders in information systems. The PSSI affects all users of EPFL information systems, regardless of the communication channels used, as well as any information created by EPFL or entrusted to it and removed from the scope of information systems.",
+        "publicationDate": "6/2/2014",
+        "revisionDate": "1/1/2017",
+        "category": "Systèmes d’information",
+        "subcategory": "Sécurité des systèmes d’information",
+        "responsible": "Jean-François Dousson"
     }
-
 ]
