@@ -89,6 +89,54 @@ class GutenbergBlocks(Shortcodes):
         return self.image_mapping[image_id]
 
 
+    def _get_news_themes(self, themes, page_id):
+        """
+        Returns encoded list of dict with infos corresponding to given themes.
+
+        :param themes: Themes, separated by a coma
+        :param page_id: Page ID
+        """
+
+        # Theme Id is transformed to a dict
+        theme_mapping = {'1': {'value': 1,
+                               'label': 'Basic Sciences'},
+                         '2': {'value': 2,
+                               'label': 'Health'},
+                         '3': {'value': 3,
+                               'label': 'Computer Science'},
+                         '4': {'value': 4,
+                               'label': 'Engineering'},
+                         '5': {'value': 5,
+                               'label': 'Environment'},
+                         '6': {'value': 6,
+                               'label': 'Buildings'},
+                         '7': {'value': 7,
+                               'label': 'Culture'},
+                         '8': {'value': 8,
+                               'label': 'Economy'},
+                         '9': {'value': 9,
+                               'label': 'Energy'}}
+        
+        res = []
+
+        for theme_id in themes.split(','):
+            theme_id = theme_id.strip()
+
+            if theme_id not in theme_mapping:
+                raise "No mapping found for theme '{}'. Page ID: {}".format(theme_id, page_id)
+
+            res.append(theme_mapping[theme_id])
+
+        # Encoding to JSON
+        res = json.dumps(res, separators=(',', ':'))
+
+        # We manually have to encode quotes and double quotes
+        for to_encode in ['"', "'"]:
+            res = res.replace(to_encode, '\\u00{}'.format(hex(ord(to_encode)).lstrip("0x")))
+
+        return res
+
+
     def _log_to_file(self, message, display=False):
         """
         Log a message into a file
@@ -194,6 +242,7 @@ class GutenbergBlocks(Shortcodes):
                         # If there's no mapping, we raise an exception.
                         if value not in attr_desc['map']:
                             raise "No mapping found for attribute '{}' and value '{}'. Shortcode call: {}".format(shortcode_attr, value, call)
+                        
                         final_value = attr_desc['map'][value]
                     
                     # Correct value has to be recovered using a func
@@ -256,6 +305,11 @@ class GutenbergBlocks(Shortcodes):
                                 'map': templates_mapping
                             },
                             {
+                                'shortcode': 'themes',
+                                'block': 'themes',
+                                'map_func': '_get_news_themes',
+                            },
+                            {
                                 'shortcode': 'nb_news',
                                 'block': 'nbNews',
                                 'if_attr_name': 'template',
@@ -269,9 +323,6 @@ class GutenbergBlocks(Shortcodes):
 
             # Recovering attributes from shortcode
             self.__add_attributes(call, attributes, attributes_desc, page_id)
-
-            # TODO: also handle 'themes' attribute, which is not correctly documented on Confluence... 
-            logging.warning("EPFL News 2018 - Handle 'themes' attribute !!")
 
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
