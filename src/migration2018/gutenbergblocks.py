@@ -916,8 +916,11 @@ class GutenbergBlocks(Shortcodes):
         attributes_desc.append({
             'shortcode': 'ids',
             'block': 'ids',
-            #TODO: and respect order
-            'map_func': '_convert_string_list_to_array'
+        })
+
+        attributes_desc.append({
+            'block': 'imageCrop',
+            'default': False
         })
 
         for call in calls:
@@ -928,10 +931,13 @@ class GutenbergBlocks(Shortcodes):
             # Recovering attributes from shortcode
             self.__add_attributes(call, attributes, attributes_desc, page_id)
 
-            # additional attributes no in the shortcode
-            #TODO:
-            attributes['columns'] = len(attributes['ids'])
-            attributes['imageCrop'] = False
+            # ids become an array, no more a string
+            if 'ids' in attributes:
+                attributes['ids'] = attributes['ids'].split(",")
+                # dynamic additional attributes
+                attributes['columns'] = len(attributes['ids'])
+            else:
+                attributes['columns'] = 0
 
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} -->'.format(block, json.dumps(attributes))
@@ -940,8 +946,7 @@ class GutenbergBlocks(Shortcodes):
             # add html code between, for every image
             for image_id in attributes['ids']:
                 # do we want figcaption ?
-                #TODO:
-                image_src = 'todo' # sample https://jahia2wp-httpd/2014/wp-content/uploads/2019/09/image.jpg
+                image_src = _get_image_url(image_id, page_id)
                 new_call += f'''<li class="blocks-gallery-item"><figure><img src="{image_src}" alt="" data-id="{image_id}" data-link="" class="wp-image-{image_id}"/></figure></li>'''
 
             new_call += '</ul>'
