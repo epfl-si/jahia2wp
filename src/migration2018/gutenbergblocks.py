@@ -554,6 +554,8 @@ class GutenbergBlocks(Shortcodes):
             {
                 'shortcode': 'gray_wrapper',
                 'block': 'grayWrapper'
+                'bool': True,
+                'if_null': False
             }
             ]
 
@@ -681,7 +683,9 @@ class GutenbergBlocks(Shortcodes):
                             },
                             {
                                 'shortcode': 'gray_wrapper',
-                                'block': 'grayWrapper'
+                                'block': 'grayWrapper',
+                                'bool': True,
+                                'if_null': False
                             }]
         
         # We add multiple attributes
