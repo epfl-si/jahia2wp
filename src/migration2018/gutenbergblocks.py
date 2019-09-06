@@ -162,31 +162,32 @@ class GutenbergBlocks(Shortcodes):
         :param attributes: dict in which we will add attribute value if exists
         :param shortcode_attributes: List with either attributes names (string) or dict with information to
                     get correct value. Informations can be:
-                    'shortcode' -> (mandatory if 'default' or 'use_content' key are not present) attribute name in shortcode call
-                    'block'     -> (mandatory) attribute name in Gutenberg block 
+                    'shortcode'     -> (mandatory if 'default' or 'use_content' key are not present) attribute name in shortcode call
+                    'block'         -> (mandatory) attribute name in Gutenberg block 
 
                     ** Only one of the following optional key can be present in the same time **
-                    'bool'      -> (optional) to tell if value has to be transformed to a bool value (string to bool)
-                    'map'       -> (optional) dict to map shortcode call attribute value to a new value.
-                                    An exception is raised if no mapping is found.
-                    'map_func'  -> (optional) function name to call (with shortcode call attribute value) to get
-                                    value to use for Gutenberg block
-                    'use_content'-> (optional) True|False to tell to use shortcode call content for Gutenberg attribute
-                                    value. (default=False)
-                                    If True, ensure that 'call' parameter also contains shortcode content. See 
-                                    _get_all_shortcode_calls function parameters for more information.
-                                    If given, we don't hvae to give a value for 'shortcode' key
-                    'default'   -> (optional) default value to use for Gutenberg block attribute. If given, we don't 
-                                    have to give a value for 'shortcode' key.
+                    'bool'          -> (optional) to tell if value has to be transformed to a bool value (string to bool)
+                    'map'           -> (optional) dict to map shortcode call attribute value to a new value.
+                                        An exception is raised if no mapping is found.
+                    'map_func'      -> (optional) function name to call (with shortcode call attribute value) to get
+                                        value to use for Gutenberg block
+                    'use_content'   -> (optional) True|False to tell to use shortcode call content for Gutenberg attribute
+                                        value. (default=False)
+                                        If True, ensure that 'call' parameter also contains shortcode content. See 
+                                    _   get_all_shortcode_calls function parameters for more information.
+                                        If given, we don't hvae to give a value for 'shortcode' key
+                    'default'       -> (optional) default value to use for Gutenberg block attribute. If given, we don't 
+                                        have to give a value for 'shortcode' key.
                     
-
                     ** The two next keys are working together so either no one is present, either both are present **
                     'if_attr_name'  -> (optional) name of attribute to use for condition
                     'if_attr_is'    -> (optional) if 'if_attr_name' value is equal to 'if_attr_is', we will add attribute
                                         to Gutenberg block (by using options previously explained to define value).
 
                     ** The next key can be used with others keys because it will be taken in account only if value is NULL (None) **
-                    'if_null'   -> (optional) value to use if content of shortcode value is equal to NULL (or is not present)   
+                    'if_null'       -> (optional) value to use if content of shortcode value is equal to NULL (or is not present)   
+                    'force_string'  -> (optional) True|False to tell if we have to force to have a string, instead of a potential integer
+
         :param attributes_desc: Dictionnary describing shortcode attributes and how to translate them to a Gutenberg block
         :param page_id: Id of page on which we currently are
         """
@@ -264,7 +265,9 @@ class GutenbergBlocks(Shortcodes):
                     else:
                         continue
 
-            if Utils.is_int(final_value):
+            force_string = False if 'force_string' not in attr_desc else attr_desc['force_string']
+
+            if not force_string and Utils.is_int(final_value):
                 final_value = int(final_value)
 
             attributes[block_attr] = final_value
@@ -412,9 +415,13 @@ class GutenbergBlocks(Shortcodes):
         calls = self._get_all_shortcode_calls(content, shortcode)
 
         # Attribute description to recover correct value from each shortcode calls
-        attributes_desc = [ 'columns',
-                            'units',
+        attributes_desc = [ 'units',
                             'scipers', 
+                            {
+                                'shortcode': 'columns',
+                                'block': 'columns',
+                                'force_string': True
+                            },
                             { 
                                 'shortcode': 'function',
                                 'block': 'fonction'
@@ -553,7 +560,7 @@ class GutenbergBlocks(Shortcodes):
         attributes_desc = [
             {
                 'shortcode': 'gray_wrapper',
-                'block': 'grayWrapper'
+                'block': 'grayWrapper',
                 'bool': True,
                 'if_null': False
             }
