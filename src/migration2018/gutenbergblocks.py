@@ -918,7 +918,7 @@ class GutenbergBlocks(Shortcodes):
         :param page_id: Id of page containing content
         """
         shortcode = 'epfl_hero'
-        block = 'epfl/people'
+        block = 'epfl/hero'
 
         # Looking for all calls to modify them one by one
         calls = self._get_all_shortcode_calls(content, shortcode)
