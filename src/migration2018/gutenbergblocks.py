@@ -222,7 +222,7 @@ class GutenbergBlocks(Shortcodes):
                     final_value = self._get_content(call)
                     
                 # If code above didn't found the value,    
-                if not final_value:
+                if final_value is None:
                     shortcode_attr = attr_desc['shortcode']
                 
             else:
