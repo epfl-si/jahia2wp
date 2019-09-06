@@ -415,7 +415,10 @@ class GutenbergBlocks(Shortcodes):
         attributes_desc = [ 'columns',
                             'units',
                             'scipers', 
-                            'function',
+                            { 
+                                'shortcode': 'function',
+                                'block': 'fonction'
+                            },
                             {
                                 'shortcode': 'doctoral_program',
                                 'block': 'doctoralProgram'
