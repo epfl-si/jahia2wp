@@ -229,7 +229,7 @@ class GutenbergBlocks(Shortcodes):
                 shortcode_attr = block_attr = attr_desc
 
             # If code above didn't found the value,
-            if not final_value:
+            if final_value is None:
                 # Recovering source value
                 value = self._get_attribute(call, shortcode_attr)
                 # If value is found
