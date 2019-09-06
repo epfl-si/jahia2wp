@@ -919,7 +919,7 @@ class GutenbergBlocks(Shortcodes):
         :param page_id: Id of page containing content
         """
         shortcode = 'gallery'
-        block = 'core/gallery'
+        block = 'gallery'
 
         # Looking for all calls to modify them one by one
         calls = self._get_all_shortcode_calls(content, shortcode)
@@ -948,6 +948,9 @@ class GutenbergBlocks(Shortcodes):
             # ids become an array, no more a string
             if 'ids' in attributes:
                 attributes['ids'] = attributes['ids'].split(",")
+                # set value to int
+                attributes['ids'] = [int(i) for i in attributes['ids']]
+
                 # dynamic additional attributes
                 attributes['columns'] = len(attributes['ids'])
             else:
@@ -960,7 +963,7 @@ class GutenbergBlocks(Shortcodes):
             # add html code between, for every image
             for image_id in attributes['ids']:
                 # do we want figcaption ?
-                image_src = _get_image_url(image_id, page_id)
+                image_src = self._get_image_url(image_id, page_id)
                 new_call += '''<li class="blocks-gallery-item"><figure><img src="{1}" alt="" data-id="{0}" data-link="" class="wp-image-{0}"/></figure></li>'''.format(image_id, image_src)
 
             new_call += '</ul>'
