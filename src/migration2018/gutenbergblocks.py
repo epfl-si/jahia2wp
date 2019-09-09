@@ -267,10 +267,6 @@ class GutenbergBlocks(Shortcodes):
             if not force_string and Utils.is_int(final_value):
                 final_value = int(final_value)
 
-            # Finally, we remove html entities from value.
-            if isinstance(final_value, str):
-                final_value = unquote(final_value)
-
             attributes[block_attr] = final_value
 
 
