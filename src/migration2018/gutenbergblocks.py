@@ -1043,7 +1043,11 @@ class GutenbergBlocks(Shortcodes):
 
         logging.info("Log file can be found here: %s", log_filename)
 
-        report = super().fix_site(openshift_env, wp_site_url, shortcode_name=shortcode_name, simulation=simulation)
+        report = super().fix_site(openshift_env,
+                                  wp_site_url,
+                                  shortcode_name=shortcode_name,
+                                  clean_textbox_div=False,
+                                  simulation=simulation)
 
         self._log_to_file("Pages incorrect images: \n{}\n".format((json.dumps(self.incorrect_images))))
 
