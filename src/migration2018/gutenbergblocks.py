@@ -268,7 +268,10 @@ class GutenbergBlocks(Shortcodes):
                 final_value = int(final_value)
 
             # Finally, we remove html entities from value.
-            attributes[block_attr] = unquote(final_value)
+            if isinstance(final_value, str):
+                final_value = unquote(final_value)
+
+            attributes[block_attr] = final_value
 
 
     def _fix_epfl_news_2018(self, content, page_id):
