@@ -1,5 +1,5 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2018"""
-from urllib.parse import quote_plus, unquote
+from urllib.parse import unquote
 
 import settings
 import datetime
@@ -267,7 +267,8 @@ class GutenbergBlocks(Shortcodes):
             if not force_string and Utils.is_int(final_value):
                 final_value = int(final_value)
 
-            attributes[block_attr] = final_value
+            # Finally, we remove html entities from value.
+            attributes[block_attr] = unquote(final_value)
 
 
     def _fix_epfl_news_2018(self, content, page_id):
