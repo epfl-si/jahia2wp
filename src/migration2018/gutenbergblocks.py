@@ -132,7 +132,7 @@ class GutenbergBlocks(Shortcodes):
 
         # We manually have to encode quotes and double quotes
         for to_encode in ['"', "'"]:
-            res = res.replace(to_encode, '\\u00{}'.format(hex(ord(to_encode)).lstrip("0x")))
+            res = res.replace(to_encode, "\\u00{}".format(hex(ord(to_encode)).lstrip("0x")))
 
         return res
 
