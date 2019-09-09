@@ -754,9 +754,12 @@ class GutenbergBlocks(Shortcodes):
                          'desc']
 
         # We add multiple attributes
-        for i in range(1, 11):
+        for i in range(0, 10):
             for attr in multiple_attr:
-                attributes_desc.append('{}{}'.format(attr, i))
+                attributes_desc.append({
+                    'shortcode': '{}{}'.format(attr, i),
+                    'block': '{}{}'.format(attr, i+1)
+                })
 
         for call in calls:
 
