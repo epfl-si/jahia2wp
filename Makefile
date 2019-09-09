@@ -75,6 +75,7 @@ up: build
 		WP_PORT_HTTP=${WP_PORT_HTTP} \
 		WP_PORT_HTTPS=${WP_PORT_HTTPS} \
 		docker-compose up -d
+	$(MAKE) config-debugger
 
 exec: check-env
 	@docker exec --user www-data -it  \

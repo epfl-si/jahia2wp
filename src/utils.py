@@ -460,6 +460,20 @@ class Utils(object):
         """
         return bool(BeautifulSoup(content, "html.parser").find())
 
+    def is_int(content):
+        """
+        Returns True if content is an integer
+        """
+        # If it is a boolean, it's not an integer. We have to check this because doing "int(content)" with
+        # a boolean won't raise an exception... 
+        if isinstance(content, bool):
+            return False
+        try: 
+            int(content)
+            return True
+        except:
+            return False
+
     @staticmethod
     def get_redirected_url(url):
         """
