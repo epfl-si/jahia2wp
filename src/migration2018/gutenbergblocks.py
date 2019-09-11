@@ -1590,6 +1590,57 @@ class GutenbergBlocks(Shortcodes):
             self._update_report(shortcode)
 
         return content
+   
+
+    def _fix_epfl_tableau(self, content, page_id):
+        """
+        Transforms EPFL Tableau shortcode to Gutenberg block
+
+        :param content: content to update
+        :param page_id: Id of page containing content
+        """
+        shortcode = 'epfl_tableau'
+        block = 'epfl/tableau'
+
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_shortcode_calls(content, shortcode)
+
+        # Attribute description to recover correct value from each shortcode calls
+        attributes_desc = [ 'height',
+                            'width',
+                            {
+                                'shortcode': 'embed_code',
+                                'block': 'embedCode',
+                                'if_null': ''
+                            },
+                            {
+                                'shortcode': 'url',
+                                'block': 'tableauName',
+                                'if_null': ''
+                            }]
+        
+
+        for call in calls:
+
+            # To store new attributes
+            attributes = {}
+
+            # Recovering attributes from shortcode
+            self.__add_attributes(call, attributes, attributes_desc, page_id)
+
+            # We generate new shortcode from scratch
+            new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
+
+            self._log_to_file("Before: {}".format(call))
+            self._log_to_file("After: {}".format(new_call))
+
+            # Replacing in global content
+            content = content.replace(call, new_call)
+            
+            self._update_report(shortcode)
+
+        return content
+    
 
 
     def fix_site(self, openshift_env, wp_site_url, shortcode_name=None, simulation=False):
