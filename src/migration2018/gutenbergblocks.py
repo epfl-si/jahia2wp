@@ -31,9 +31,12 @@ class GutenbergBlocks(Shortcodes):
         self.memento_mapping = {}
         # To store mapping between images ID and their URL
         self.image_mapping = {}
+        # To store mapping between posts and their slug
+        self.post_slug_mapping = {}
         # To store incorrect images
         self.incorrect_images = {}
         self.log_file = None
+        
 
 
     def _get_memento_id(self, memento, page_id):
@@ -89,6 +92,25 @@ class GutenbergBlocks(Shortcodes):
         return self.image_mapping[image_id]
 
 
+    def _get_post_with_slug(self, post_id, page_id):
+        """
+        Returns a dict with post id and slug in it.
+
+        :param post_id: Id of post
+        :param page_id: Page ID
+        """
+
+        if post_id not in self.post_slug_mapping:
+
+            self.post_slug_mapping[post_id] = self.wp_config.run_wp_cli('post get {} --field=post_name'.format(post_id))
+
+        res = {'label': self.post_slug_mapping[post_id],
+                'value': post_id}
+
+        # Encoding to JSON
+        return json.dumps(res, separators=(',', ':'))
+
+
     def _get_news_themes(self, themes, page_id):
         """
         Returns encoded list of dict with infos corresponding to given themes.
@@ -128,10 +150,7 @@ class GutenbergBlocks(Shortcodes):
             res.append(theme_mapping[theme_id])
 
         # Encoding to JSON
-        res = json.dumps(res, separators=(',', ':'))
-
-
-        return res
+        return json.dumps(res, separators=(',', ':'))
 
 
     def _log_to_file(self, message, display=False):
@@ -1026,6 +1045,50 @@ class GutenbergBlocks(Shortcodes):
             self._update_report(shortcode)
 
         return content
+
+
+    def _fix_epfl_post_highlight(self, content, page_id):
+        """
+        Transforms EPFL post highlight shortcode to Gutenberg block
+
+        :param content: content to update
+        :param page_id: Id of page containing content
+        """
+        shortcode = 'epfl_post_highlight'
+        block = 'epfl/post-highlight'
+
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_shortcode_calls(content, shortcode)
+
+        # Attribute description to recover correct value from each shortcode calls
+        attributes_desc = [ 'layout',
+                            {
+                                'shortcode': 'post',
+                                'block': 'post',
+                                'map_func': '_get_post_with_slug',
+                            }]
+        
+        for call in calls:
+
+            # To store new attributes
+            attributes = {}
+
+            # Recovering attributes from shortcode
+            self.__add_attributes(call, attributes, attributes_desc, page_id)
+
+            # We generate new shortcode from scratch
+            new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
+
+            self._log_to_file("Before: {}".format(call))
+            self._log_to_file("After: {}".format(new_call))
+
+            # Replacing in global content
+            content = content.replace(call, new_call)
+
+            self._update_report(shortcode)
+
+        return content 
+
 
     def fix_site(self, openshift_env, wp_site_url, shortcode_name=None, simulation=False):
         """
