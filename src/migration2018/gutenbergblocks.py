@@ -1090,6 +1090,56 @@ class GutenbergBlocks(Shortcodes):
         return content 
 
 
+    def _fix_epfl_post_teaser(self, content, page_id):
+        """
+        Transforms EPFL post teaser shortcode to Gutenberg block
+
+        :param content: content to update
+        :param page_id: Id of page containing content
+        """
+        shortcode = 'epfl_post_teaser'
+        block = 'epfl/post-teaser'
+
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_shortcode_calls(content, shortcode)
+
+        # Attribute description to recover correct value from each shortcode calls
+        attributes_desc = [{
+                                'shortcode': 'gray',
+                                'block': 'grayBackground',
+                                'bool': True
+                            }]
+        
+        # For this one, we have to increment by 1 the index used at the end.
+        for i in range(0, 3):
+            attributes_desc.append({
+                'shortcode': 'post{}'.format(i),
+                'block': 'post{}'.format(i+1),
+                'map_func': '_get_post_with_slug'
+            })
+
+        for call in calls:
+
+            # To store new attributes
+            attributes = {}
+
+            # Recovering attributes from shortcode
+            self.__add_attributes(call, attributes, attributes_desc, page_id)
+
+            # We generate new shortcode from scratch
+            new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
+
+            self._log_to_file("Before: {}".format(call))
+            self._log_to_file("After: {}".format(new_call))
+
+            # Replacing in global content
+            content = content.replace(call, new_call)
+
+            self._update_report(shortcode)
+
+        return content 
+
+
     def fix_site(self, openshift_env, wp_site_url, shortcode_name=None, simulation=False):
         """
         Fix shortocdes in WP site
