@@ -33,6 +33,8 @@ class GutenbergBlocks(Shortcodes):
         self.image_mapping = {}
         # To store mapping between posts and their slug
         self.post_slug_mapping = {}
+        # To store mapping between pages and their title
+        self.page_title_mapping = {}
         # To store incorrect images
         self.incorrect_images = {}
         self.log_file = None
@@ -90,6 +92,25 @@ class GutenbergBlocks(Shortcodes):
                 self.image_mapping[image_id] = image_url
 
         return self.image_mapping[image_id]
+
+
+    def _get_page_with_title(self, target_page_id, page_id):
+        """
+        Returns a dict with page id and slug in it.
+
+        :param target_page_id: Id of page pointed
+        :param page_id: Page ID on which is current shortcode call
+        """
+
+        if target_page_id not in self.page_title_mapping:
+
+            self.page_title_mapping[target_page_id] = self.wp_config.run_wp_cli('post get {} --field=post_title'.format(target_page_id))
+
+        res = {'label': self.page_title_mapping[target_page_id],
+                'value': target_page_id}
+
+        # Encoding to JSON
+        return json.dumps(res, separators=(',', ':'))
 
 
     def _get_post_with_slug(self, post_id, page_id):
@@ -1116,6 +1137,56 @@ class GutenbergBlocks(Shortcodes):
                 'shortcode': 'post{}'.format(i),
                 'block': 'post{}'.format(i+1),
                 'map_func': '_get_post_with_slug'
+            })
+
+        for call in calls:
+
+            # To store new attributes
+            attributes = {}
+
+            # Recovering attributes from shortcode
+            self.__add_attributes(call, attributes, attributes_desc, page_id)
+
+            # We generate new shortcode from scratch
+            new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
+
+            self._log_to_file("Before: {}".format(call))
+            self._log_to_file("After: {}".format(new_call))
+
+            # Replacing in global content
+            content = content.replace(call, new_call)
+
+            self._update_report(shortcode)
+
+        return content 
+
+
+    def _fix_epfl_page_teaser(self, content, page_id):
+        """
+        Transforms EPFL page teaser shortcode to Gutenberg block
+
+        :param content: content to update
+        :param page_id: Id of page containing content
+        """
+        shortcode = 'epfl_page_teaser'
+        block = 'epfl/page-teaser'
+
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_shortcode_calls(content, shortcode)
+
+        # Attribute description to recover correct value from each shortcode calls
+        attributes_desc = [{
+                                'shortcode': 'gray',
+                                'block': 'grayBackground',
+                                'bool': True
+                            }]
+        
+        # For this one, we have to increment by 1 the index used at the end.
+        for i in range(0, 3):
+            attributes_desc.append({
+                'shortcode': 'page{}'.format(i),
+                'block': 'page{}'.format(i+1),
+                'map_func': '_get_page_with_title'
             })
 
         for call in calls:
