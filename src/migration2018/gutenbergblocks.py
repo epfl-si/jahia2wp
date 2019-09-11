@@ -1256,7 +1256,7 @@ class GutenbergBlocks(Shortcodes):
 
     def _fix_epfl_cover(self, content, page_id):
         """
-        Transforms EPFL Hero shortcode to Gutenberg block
+        Transforms EPFL Cover shortcode to Gutenberg block
 
         :param content: content to update
         :param page_id: Id of page containing content
@@ -1304,7 +1304,7 @@ class GutenbergBlocks(Shortcodes):
     
     def _fix_epfl_custom_highlight(self, content, page_id):
         """
-        Transforms EPFL Hero shortcode to Gutenberg block
+        Transforms EPFL Custom Highlight shortcode to Gutenberg block
 
         :param content: content to update
         :param page_id: Id of page containing content
@@ -1333,6 +1333,45 @@ class GutenbergBlocks(Shortcodes):
                                 'block': 'imageUrl',
                                 'map_func': '_get_image_url'
                             }]
+        
+
+        for call in calls:
+
+            # To store new attributes
+            attributes = {}
+
+            # Recovering attributes from shortcode
+            self.__add_attributes(call, attributes, attributes_desc, page_id)
+
+            # We generate new shortcode from scratch
+            new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
+
+            self._log_to_file("Before: {}".format(call))
+            self._log_to_file("After: {}".format(new_call))
+
+            # Replacing in global content
+            content = content.replace(call, new_call)
+            
+            self._update_report(shortcode)
+
+        return content
+
+
+    def _fix_epfl_map(self, content, page_id):
+        """
+        Transforms EPFL Map shortcode to Gutenberg block
+
+        :param content: content to update
+        :param page_id: Id of page containing content
+        """
+        shortcode = 'epfl_map'
+        block = 'epfl/map'
+
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_shortcode_calls(content, shortcode)
+
+        # Attribute description to recover correct value from each shortcode calls
+        attributes_desc = [ 'query']
         
 
         for call in calls:
