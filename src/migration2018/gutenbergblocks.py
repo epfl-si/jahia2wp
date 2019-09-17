@@ -75,7 +75,22 @@ class GutenbergBlocks(Shortcodes):
         """
 
         return unquote(url)
+    
+    
+    def _add_paragraph(self, content, page_id):
+        """
+        Put content into a paragraph (<p> if not already into it)
+
+        :param content: content to add into paragraph if needed
+        :param page_id: Page ID
+        """
+
+        if not content.strip().startswith("<p>"):
+
+            content = "<p>{}</p>".format(content)
         
+        return content
+
 
     def _get_image_url(self, image_id, page_id):
         """
@@ -217,13 +232,11 @@ class GutenbergBlocks(Shortcodes):
                     'bool'          -> (optional) to tell if value has to be transformed to a bool value (string to bool)
                     'map'           -> (optional) dict to map shortcode call attribute value to a new value.
                                         An exception is raised if no mapping is found.
-                    'map_func'      -> (optional) function name to call (with shortcode call attribute value) to get
-                                        value to use for Gutenberg block
                     'use_content'   -> (optional) True|False to tell to use shortcode call content for Gutenberg attribute
                                         value. (default=False)
                                         If True, ensure that 'call' parameter also contains shortcode content. See
                                     _   get_all_shortcode_calls function parameters for more information.
-                                        If given, we don't hvae to give a value for 'shortcode' key
+                                        If given, we don't have to give a value for 'shortcode' key
                     'default'       -> (optional) default value to use for Gutenberg block attribute. If given, we don't
                                         have to give a value for 'shortcode' key.
 
@@ -235,6 +248,8 @@ class GutenbergBlocks(Shortcodes):
                     ** The next key can be used with others keys because it will be taken in account only if value is NULL (None) **
                     'if_null'       -> (optional) value to use if content of shortcode value is equal to NULL (or is not present)
                     'force_string'  -> (optional) True|False to tell if we have to force to have a string, instead of a potential integer
+                    'apply_func'    -> (optional) function name to call (with shortcode call attribute value) to get
+                                        value to use for Gutenberg block
 
         :param attributes_desc: Dictionnary describing shortcode attributes and how to translate them to a Gutenberg block
         :param page_id: Id of page on which we currently are
@@ -294,11 +309,6 @@ class GutenbergBlocks(Shortcodes):
 
                         final_value = attr_desc['map'][value]
 
-                    # Correct value has to be recovered using a func
-                    elif 'map_func' in attr_desc:
-                        map_func = getattr(self, attr_desc['map_func'])
-                        final_value = map_func(value, page_id)
-
                     # Simply take the value as it is...
                     else:
                         final_value = value
@@ -312,6 +322,11 @@ class GutenbergBlocks(Shortcodes):
                     # We don't display value in block
                     else:
                         continue
+
+            # Correct value has to be recovered using a func
+            if 'apply_func' in attr_desc:
+                map_func = getattr(self, attr_desc['apply_func'])
+                final_value = map_func(final_value, page_id)
 
             force_string = False if 'force_string' not in attr_desc else attr_desc['force_string']
 
@@ -358,7 +373,7 @@ class GutenbergBlocks(Shortcodes):
                             {
                                 'shortcode': 'themes',
                                 'block': 'themes',
-                                'map_func': '_get_news_themes',
+                                'apply_func': '_get_news_themes',
                             },
                             {
                                 'shortcode': 'nb_news',
@@ -415,7 +430,7 @@ class GutenbergBlocks(Shortcodes):
                             {
                                 'shortcode': 'memento',
                                 'block': 'memento',
-                                'map_func': '_get_memento_id'
+                                'apply_func': '_get_memento_id'
                             },
                             {
                                 'shortcode': 'template',
@@ -631,7 +646,7 @@ class GutenbergBlocks(Shortcodes):
             attributes_desc.append({
                 'shortcode': 'image{}'.format(i),
                 'block': 'imageUrl{}'.format(i),
-                'map_func': '_get_image_url'
+                'apply_func': '_get_image_url'
             })
 
 
@@ -691,7 +706,7 @@ class GutenbergBlocks(Shortcodes):
             attributes_desc.append({
                 'shortcode': 'image{}'.format(i),
                 'block': 'imageUrl{}'.format(i),
-                'map_func': '_get_image_url'
+                'apply_func': '_get_image_url'
             })
 
         for call in calls:
@@ -878,7 +893,7 @@ class GutenbergBlocks(Shortcodes):
             attributes_desc.append({
                 'shortcode': 'image{}'.format(i),
                 'block': 'image{}'.format(i),
-                'map_func': '_get_image_url'
+                'apply_func': '_get_image_url'
             })
 
             attributes_desc.append({
@@ -1053,7 +1068,7 @@ class GutenbergBlocks(Shortcodes):
                             { 
                                 'shortcode': 'image',
                                 'block': 'imageUrl',
-                                'map_func': '_get_image_url'
+                                'apply_func': '_get_image_url'
                             }]
         
 
@@ -1097,7 +1112,7 @@ class GutenbergBlocks(Shortcodes):
                             {
                                 'shortcode': 'post',
                                 'block': 'post',
-                                'map_func': '_get_post_with_slug',
+                                'apply_func': '_get_post_with_slug',
                             }]
         
         for call in calls:
@@ -1147,7 +1162,7 @@ class GutenbergBlocks(Shortcodes):
             attributes_desc.append({
                 'shortcode': 'post{}'.format(i),
                 'block': 'post{}'.format(i+1),
-                'map_func': '_get_post_with_slug'
+                'apply_func': '_get_post_with_slug'
             })
 
         for call in calls:
@@ -1197,7 +1212,7 @@ class GutenbergBlocks(Shortcodes):
             attributes_desc.append({
                 'shortcode': 'page{}'.format(i),
                 'block': 'page{}'.format(i+1),
-                'map_func': '_get_page_with_title'
+                'apply_func': '_get_page_with_title'
             })
 
         for call in calls:
@@ -1240,7 +1255,7 @@ class GutenbergBlocks(Shortcodes):
                             {
                                 'shortcode': 'page',
                                 'block': 'page',
-                                'map_func': '_get_page_with_title',
+                                'apply_func': '_get_page_with_title',
                             }]
         
         for call in calls:
@@ -1287,7 +1302,7 @@ class GutenbergBlocks(Shortcodes):
                             { 
                                 'shortcode': 'image',
                                 'block': 'imageUrl',
-                                'map_func': '_get_image_url'
+                                'apply_func': '_get_image_url'
                             }]
         
 
@@ -1342,7 +1357,7 @@ class GutenbergBlocks(Shortcodes):
                             { 
                                 'shortcode': 'image',
                                 'block': 'imageUrl',
-                                'map_func': '_get_image_url'
+                                'apply_func': '_get_image_url'
                             }]
         
 
@@ -1424,7 +1439,7 @@ class GutenbergBlocks(Shortcodes):
         attributes_desc = [ {
                                 'shortcode': 'data',
                                 'block': 'data',
-                                'map_func': '_decode_url'
+                                'apply_func': '_decode_url'
                             },]
         
 
@@ -1525,7 +1540,7 @@ class GutenbergBlocks(Shortcodes):
                             { 
                                 'shortcode': 'image',
                                 'block': 'imageUrl',
-                                'map_func': '_get_image_url'
+                                'apply_func': '_get_image_url'
                             }]
         
 
@@ -1627,7 +1642,7 @@ class GutenbergBlocks(Shortcodes):
                                 'shortcode': 'embed_code',
                                 'block': 'embedCode',
                                 'if_null': '',
-                                'map_func': '_decode_url'
+                                'apply_func': '_decode_url'
                                 
                             },
                             {
@@ -1657,7 +1672,51 @@ class GutenbergBlocks(Shortcodes):
             self._update_report(shortcode)
 
         return content
+
     
+    def _fix_epfl_toggle(self, content, page_id):
+        """
+        Transforms EPFL Toggle shortcode to Gutenberg block
+
+        :param content: content to update
+        :param page_id: Id of page containing content
+        """
+        shortcode = 'epfl_toggle'
+        block = 'epfl/toggle'
+
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_shortcode_calls(content, shortcode, with_content=True)
+
+        # Attribute description to recover correct value from each shortcode calls
+        attributes_desc = [ 'title',
+                            'state',
+                            {
+                                'block': 'content',
+                                'use_content': True,
+                                'apply_func': '_add_paragraph'
+                            }]
+        
+
+        for call in calls:
+
+            # To store new attributes
+            attributes = {}
+
+            # Recovering attributes from shortcode
+            self.__add_attributes(call, attributes, attributes_desc, page_id)
+
+            # We generate new shortcode from scratch
+            new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
+
+            self._log_to_file("Before: {}".format(call))
+            self._log_to_file("After: {}".format(new_call))
+
+            # Replacing in global content
+            content = content.replace(call, new_call)
+            
+            self._update_report(shortcode)
+
+        return content    
 
 
     def fix_site(self, openshift_env, wp_site_url, shortcode_name=None, simulation=False):
