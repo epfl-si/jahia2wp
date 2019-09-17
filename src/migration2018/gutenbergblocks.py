@@ -66,6 +66,17 @@ class GutenbergBlocks(Shortcodes):
         return self.memento_mapping[memento]
 
 
+    def _decode_url(self, url, page_id):
+        """
+        Decode given URL
+
+        :param url: URL to decode
+        :param page_id: Page ID
+        """
+
+        return unquote(url)
+        
+
     def _get_image_url(self, image_id, page_id):
         """
         Returns Image URL based on its ID
@@ -1611,7 +1622,9 @@ class GutenbergBlocks(Shortcodes):
                             {
                                 'shortcode': 'embed_code',
                                 'block': 'embedCode',
-                                'if_null': ''
+                                'if_null': '',
+                                'map_func': '_decode_url'
+                                
                             },
                             {
                                 'shortcode': 'url',
