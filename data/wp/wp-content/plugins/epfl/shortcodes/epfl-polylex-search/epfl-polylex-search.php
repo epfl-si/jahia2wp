@@ -50,10 +50,12 @@ function process_shortcode($atts) {
     $subcategory = sanitize_text_field($atts["subcategory"]);
     $search = sanitize_text_field($atts["search"]);
 
-    # TODO:
-    #$url = LEX_INFO_PROVIDER_URL;
-    #$lexes = \Utils::get_items($url);
-    $lexes = get_fixtures();
+    
+    $url = LEX_INFO_PROVIDER_URL;
+    $lexes = \Utils::get_items($url);
+
+    // TODO: Delete fixtures call
+    // $lexes = get_fixtures();
 
     ob_start();
     try {
