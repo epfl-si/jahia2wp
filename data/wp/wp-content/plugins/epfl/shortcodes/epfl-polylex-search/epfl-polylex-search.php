@@ -8,7 +8,7 @@
 
 namespace Epfl\Polylex_Search_Plugin;
 
-define("LEX_INFO_PROVIDER_URL", "https://wp-polylex.epfl.ch/api/v1/lexs");
+define("LEX_INFO_PROVIDER_URL", "https://polylex-admin.epfl.ch/api/v1/lexes");
 
 function get_fixtures() {
     $string = file_get_contents(__DIR__  ."/fixture.json");
