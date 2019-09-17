@@ -1421,7 +1421,11 @@ class GutenbergBlocks(Shortcodes):
         calls = self._get_all_shortcode_calls(content, shortcode)
 
         # Attribute description to recover correct value from each shortcode calls
-        attributes_desc = [ 'data']
+        attributes_desc = [ {
+                                'shortcode': 'data',
+                                'block': 'data',
+                                'map_func': '_decode_url'
+                            },]
         
 
         for call in calls:
