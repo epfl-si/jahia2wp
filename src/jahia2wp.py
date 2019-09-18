@@ -41,7 +41,7 @@ Usage:
   jahia2wp.py rotate-backup-inventory   <path>          [--dry-run] [--debug | --quiet]
   jahia2wp.py veritas               <csv_file>                      [--debug | --quiet]
   jahia2wp.py fan-global-sitemap    <csv_file> <wp_path>            [--debug | --quiet]
-  jahia2wp.py inventory             <path>                          [--debug | --quiet]
+  jahia2wp.py inventory             <path> [--skip-users]           [--debug | --quiet]
   jahia2wp.py shortcode-list        <path> [--out-csv=<out_csv>]    [--debug | --quiet]
   jahia2wp.py shortcode-details     <path> <shortcode>              [--debug | --quiet]
     [--out-csv=<out_csv>]
@@ -899,7 +899,7 @@ def backup_inventory(path, dry_run=False, **kwargs):
         logging.info("! DRY RUN !")
     logging.info("Backup from inventory...")
 
-    for site_details in WPConfig.inventory(path):
+    for site_details in WPConfig.inventory(path, skip_users=True):
 
         if site_details.valid == settings.WP_SITE_INSTALL_OK:
 
@@ -1079,10 +1079,10 @@ def shortcode_fix_many(csv_file, shortcode_name=None, **kwargs):
 
 
 @dispatch.on('inventory')
-def inventory(path, **kwargs):
+def inventory(path, skip_users=False, **kwargs):
     logging.info("Building inventory...")
     print(";".join(['path', 'valid', 'url', 'version', 'db_name', 'db_user', 'admins']))
-    for site_details in WPConfig.inventory(path):
+    for site_details in WPConfig.inventory(path, skip_users):
         print(";".join([
             site_details.path,
             site_details.valid,

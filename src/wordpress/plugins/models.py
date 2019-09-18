@@ -369,7 +369,7 @@ class WPPluginConfigInfos:
         os.chdir(path_to_dir)
 
         # Generating ZIP file name
-        zip_name = "{}_{}.zip".format(self.plugin_name, Utils.generate_name(10))
+        zip_name = "{}.{}.zip".format(self.plugin_name, Utils.generate_name(10))
         zip_full_path = os.path.join(settings.PLUGIN_ZIP_PATH, zip_name)
         plugin_zip = zipfile.ZipFile(zip_full_path, 'w', zipfile.ZIP_DEFLATED)
 

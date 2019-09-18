@@ -234,9 +234,10 @@ class WPGenerator:
 
         # install and configure theme (default is settings.DEFAULT_THEME_NAME)
         logging.info("%s - Installing all themes...", repr(self))
-        WPThemeConfig.install_all(self.wp_site)
-        logging.info("%s - Activating theme '%s'...", repr(self), self._site_params['theme'])
         theme = WPThemeConfig(self.wp_site, self._site_params['theme'], self._site_params['theme_faculty'])
+        theme.install_all()
+
+        logging.info("%s - Activating theme '%s'...", repr(self), self._site_params['theme'])
         if not theme.activate():
             logging.error("%s - could not activate theme '%s'", repr(self), self._site_params['theme'])
             return False
@@ -447,8 +448,8 @@ class WPGenerator:
         # TODO: add those plugins into the general list of plugins (with the class WPMuPluginConfig)
         WPMuPluginConfig(self.wp_site, "epfl-functions.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL_custom_editor_menu.php").install()
-        WPMuPluginConfig(self.wp_site, "EPFL_jahia_redirect.php").install()
         WPMuPluginConfig(self.wp_site, "EPFL_quota_loader.php", plugin_folder="epfl-quota").install()
+        WPMuPluginConfig(self.wp_site, "EPFL_stats_loader.php", plugin_folder="epfl-stats").install()
 
         if self.wp_config.installs_locked:
             WPMuPluginConfig(self.wp_site, "EPFL_installs_locked.php").install()
@@ -459,6 +460,11 @@ class WPGenerator:
             WPMuPluginConfig(self.wp_site, "EPFL_enable_updates_automatic.php").install()
         else:
             WPMuPluginConfig(self.wp_site, "EPFL_disable_updates_automatic.php").install()
+
+        # Handling site category
+        if self._site_params['category'] != 'Unmanaged':
+            WPMuPluginConfig(self.wp_site, "EPFL_disable_comments.php").install()
+            WPMuPluginConfig(self.wp_site, "EPFL_jahia_redirect.php").install()
 
     def enable_updates_automatic_if_allowed(self):
         if self.wp_config.updates_automatic:
@@ -546,9 +552,16 @@ class WPGenerator:
                     else:
                         logging.info("%s - Plugins - %s: Already installed!", repr(self), plugin_name)
 
-                # By default, after installation, plugin is deactivated. So if it has to stay deactivated,
-                # we skip the "change state" process
+                # We activate plugin to be able to configure it
+                plugin_config.set_state(forced_state=True)
+
+                # Configure plugin
+                plugin_config.configure(force=force_options)
+
+                # Here, plugin is activated because it was needed to configure it. So if it has to be deactivated,
+                # we skip the "change state" process and force deactivation
                 if deactivated_plugins and plugin_name in deactivated_plugins:
+                    plugin_config.set_state(forced_state=False)
                     logging.info("%s - Plugins - %s: Deactivated state forced...", repr(self), plugin_name)
 
                 else:
@@ -559,9 +572,6 @@ class WPGenerator:
                         logging.info("%s - Plugins - %s: Activated!", repr(self), plugin_name)
                     else:
                         logging.info("%s - Plugins - %s: Deactivated!", repr(self), plugin_name)
-
-                # Configure plugin
-                plugin_config.configure(force=force_options)
 
         if strict_plugin_list:
             installed_plugins = []
@@ -640,13 +650,21 @@ class WPGenerator:
             for dir_path in settings.WP_DIRS:
                 path = os.path.join(self.wp_site.path, dir_path)
                 if os.path.exists(path):
-                    shutil.rmtree(path)
+                    # Directory removal is different if it is symlinked
+                    if os.path.islink(path):
+                        os.unlink(path)
+                    else:
+                        shutil.rmtree(path)
 
             # clean files
             for file_path in settings.WP_FILES:
                 path = os.path.join(self.wp_site.path, file_path)
                 if os.path.exists(path):
-                    os.remove(path)
+                    # File removal is different if it is symlinked
+                    if os.path.islink(path):
+                        os.unlink(path)
+                    else:
+                        os.remove(path)
 
         # handle case where no wp_config found
         except (ValueError, subprocess.CalledProcessError) as err:

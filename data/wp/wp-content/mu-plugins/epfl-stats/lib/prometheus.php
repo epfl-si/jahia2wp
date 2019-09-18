@@ -3,7 +3,7 @@
     /* Exception */
     require_once __DIR__."/Prometheus/Exception/MetricNotFoundException.php";
     require_once __DIR__."/Prometheus/Exception/MetricsRegistrationException.php";
-    require_once __DIR__."/Prometheus/Exception/MetricNotFoundException.php";
+    require_once __DIR__."/Prometheus/Exception/StorageException.php";
 
     /* Storage */
     require_once __DIR__."/Prometheus/Storage/Adapter.php";

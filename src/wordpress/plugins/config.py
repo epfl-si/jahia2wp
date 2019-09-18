@@ -114,20 +114,22 @@ class WPMuPluginConfig(WPConfig):
         self.path = os.path.join(self.dir_path, plugin_name)
 
     def install(self):
-        # copy files from jahia2wp/data/wp/wp-content/mu-plugins into domain/htdocs/folder/wp-content/mu-plugins
         src_path = os.path.sep.join([settings.WP_FILES_PATH, self.PLUGINS_PATH, self.name])
-        shutil.copyfile(src_path, self.path)
+
+        folder_param = ""
 
         # If we also have a folder to copy
         if self.plugin_folder:
-            src_path = os.path.sep.join([settings.WP_FILES_PATH, self.PLUGINS_PATH, self.plugin_folder])
-            target_path = os.path.join(self.dir_path, self.plugin_folder)
-            shutil.copytree(src_path, target_path)
+            folder_param = "--folder={}".format(os.path.sep.join([settings.WP_FILES_PATH,
+                                                                  self.PLUGINS_PATH,
+                                                                  self.plugin_folder]))
 
-        logging.debug("%s - Plugins - %s: Copied file from %s to %s",
-                      repr(self.wp_site),
-                      self.name, src_path,
-                      self.path)
+        # Generating MU-plugin install command.
+        # This command is not standard in WP-CLI, following package as to be installed :
+        # https://github.com/epfl-idevelop/wp-cli
+        self.run_wp_cli("mu-plugin install {} {}".format(src_path, folder_param))
+
+        logging.debug("%s - MU-Plugins - %s: Installed", repr(self.wp_site), self.name)
 
     def uninstall(self):
         if os.path.exists(self.path):

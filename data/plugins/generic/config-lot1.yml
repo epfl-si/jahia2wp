@@ -79,5 +79,6 @@ plugins:
     config: !include cache-control/config-plugin.yml
   - name: epfl-404
     config: !include epfl-404/config-plugin.yml
-  - name: epfl-stats
-    config: !include epfl-stats/config-plugin.yml
+  - name: ewww-image-optimizer
+    config: !include ewww-image-optimizer/config-plugin.yml
+
