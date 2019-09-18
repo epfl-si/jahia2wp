@@ -19,7 +19,6 @@ class Shortcodes():
         self.report = {'_nb_pages':0, '_nb_pages_updated':0}
         self.regex = r'\[([a-z0-9_-]+)'
 
-
         # Will be initialized later
         self.wp_site = None
         self.wp_config = None
@@ -1134,12 +1133,13 @@ class Shortcodes():
 
         return content
 
-    def fix_site(self, openshift_env, wp_site_url, shortcode_name=None, simulation=False):
+    def fix_site(self, openshift_env, wp_site_url, shortcode_name=None, clean_textbox_div=True, simulation=False):
         """
         Fix shortocdes in WP site
         :param openshift_env: openshift environment name
         :param wp_site_url: URL to website to fix.
         :param shortcode_name: fix site for this shortcode only
+        :param clean_textbox_div: to tell if we have to use Beautiful soup to clean 'textBox' divs from Jahia
         :param simulation: to tell if we have to only perform a dry run => no DB update
         :return: dictionnary with report.
         """
@@ -1197,16 +1197,18 @@ class Shortcodes():
                     logging.debug("Fixing shortcode %s...", shortcode)
                     content = fix_func(content, post_id)
 
-            # Step 2: Removing <div class="textbox"> to avoid display issues on 2018 theme
-            soup = BeautifulSoup(content, 'html5lib')
-            soup.body.hidden = True
+            # If cleaning option has been selected
+            if clean_textbox_div:
+                # Step 2: Removing <div class="textbox"> to avoid display issues on 2018 theme
+                soup = BeautifulSoup(content, 'html5lib')
+                soup.body.hidden = True
 
-            # Looking for all DIVs with "textBox" as class
-            for div in soup.find_all('div', {'class': 'textBox'}):
-                # Remove DIV but keep its content
-                div.unwrap()
+                # Looking for all DIVs with "textBox" as class
+                for div in soup.find_all('div', {'class': 'textBox'}):
+                    # Remove DIV but keep its content
+                    div.unwrap()
 
-            content = str(soup.body)
+                content = str(soup.body)
 
             # If content changed for current page 
             if content != original_content:
