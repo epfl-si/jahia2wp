@@ -16,7 +16,7 @@ class Shortcodes():
  
     def __init__(self):
         self.list = {}
-        self.report = {'_nb_pages':0, '_nb_pages_updated':0}
+        self.report = {'_nb_pages':0, '_nb_pages_updated':0, '_nb_shortcodes': 0}
         self.regex = r'\[([a-z0-9_-]+)'
 
         # Will be initialized later
@@ -155,6 +155,8 @@ class Shortcodes():
             self.report[shortcode_name] = 0
 
         self.report[shortcode_name] += 1
+        self.report['_nb_shortcodes'] += 1
+        
 
     def __rename_shortcode(self, content, old_name, new_name):
         """

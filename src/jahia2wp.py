@@ -313,7 +313,7 @@ def _init_shortcode_to_csv_time_log():
 
     # We just create file with header columns
     with open(filename, 'w') as l:
-        l.write("URL;Nb page;Nb pages updated;Duration [s]\n")
+        l.write("URL;Nb page;Nb pages updated;Nb shortcodes;Duration [s]\n")
 
     return filename
 
@@ -1059,7 +1059,11 @@ def shortcode_to_block(wp_env, wp_url, shortcode_name=None, simulation=False, cs
         logging.info("This was a simulation, nothing was changed in database")
     
     if csv_time_log:
-        time_log_file.write("{};{};{};{}\n".format(wp_url, report['_nb_pages'], report['_nb_pages_updated'], time.time()-start_time))
+        time_log_file.write("{};{};{};{};{}\n".format(wp_url, 
+                                                      report['_nb_pages'], 
+                                                      report['_nb_pages_updated'], 
+                                                      report['_nb_shortcodes'],
+                                                      time.time()-start_time))
         time_log_file.close()
 
     logging.info("Fix report:\n%s", str(report))
