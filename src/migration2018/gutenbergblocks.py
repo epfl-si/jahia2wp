@@ -57,10 +57,10 @@ class GutenbergBlocks(Shortcodes):
 
             # Nothing found
             if r.json()['count'] == 0:
-                raise "Memento ID not found for '{}'".format(memento)
+                raise Error("Memento ID not found for '{}'".format(memento))
             # Too much found
             if r.json()['count'] > 1:
-                raise "Too much Memento found for '{}'".format(memento)
+                raise Error("Too much Memento found for '{}'".format(memento))
 
             self.memento_mapping[memento] = r.json()['results'][0]['id']
 
@@ -220,7 +220,7 @@ class GutenbergBlocks(Shortcodes):
             theme_id = theme_id.strip()
 
             if theme_id not in theme_mapping:
-                raise "No mapping found for theme '{}'. Page ID: {}".format(theme_id, page_id)
+                raise Error("No mapping found for theme '{}'. Page ID: {}".format(theme_id, page_id))
 
             res.append(theme_mapping[theme_id])
 
@@ -300,7 +300,7 @@ class GutenbergBlocks(Shortcodes):
                 if 'if_attr_name' in attr_desc and 'if_attr_is' in attr_desc:
                     # if attribute we have to look for is not present
                     if attr_desc['if_attr_name'] not in attributes:
-                        raise "Referenced attribute '{}' is not present in attribute list (maybe not encountered yet)".format(attr_desc['if_attr_name'])
+                        raise Error("Referenced attribute '{}' is not present in attribute list (maybe not encountered yet)".format(attr_desc['if_attr_name']))
 
                     # If referenced attribute isn't equal to conditional value, we skip current attribute
                     if attributes[attr_desc['if_attr_name']] != attr_desc['if_attr_is']:
@@ -337,7 +337,7 @@ class GutenbergBlocks(Shortcodes):
                     elif 'map' in attr_desc:
                         # If there's no mapping, we raise an exception.
                         if value not in attr_desc['map']:
-                            raise "No mapping found for attribute '{}' and value '{}'. Shortcode call: {}".format(shortcode_attr, value, call)
+                            raise Error("No mapping found for attribute '{}' and value '{}'. Shortcode call: {}".format(shortcode_attr, value, call))
 
                         final_value = attr_desc['map'][value]
 
