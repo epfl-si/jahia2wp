@@ -55,14 +55,25 @@ class GutenbergBlocks(Shortcodes):
 
             r = requests.get(url='https://memento.epfl.ch/api/v1/mementos/?search={}'.format(memento))
 
+            
+            json_result = r.json()
             # Nothing found
-            if r.json()['count'] == 0:
+            if json_result['count'] == 0:
                 raise ValueError("Memento ID not found for '{}'".format(memento))
-            # Too much found
-            if r.json()['count'] > 1:
-                raise ValueError("Too much Memento found for '{}'".format(memento))
+            
+            memento_id = None
+            # We have to loop through results because search is done on several fields and not only on "slug", so
+            # multiple results can be returned...
+            for memento_infos in json_result['results']:
 
-            self.memento_mapping[memento] = r.json()['results'][0]['id']
+                if memento_infos['slug'].lower() == memento:
+                    memento_id = memento_infos['id']
+                    break
+            
+            if memento_id is None:
+                raise ValueError("No Memento found in multiple results ({}) returned for '{}'".format(json_result['count'], memento))
+
+            self.memento_mapping[memento] = memento_id
 
         return self.memento_mapping[memento]
 
