@@ -1071,7 +1071,7 @@ class GutenbergBlocks(Shortcodes):
             # add html code between, for every image
             for image_id in attributes['ids']:
                 # do we want figcaption ?
-                image_src = self._get_image_url(image_id, page_id)
+                image_src = self._get_image_url(image_id, page_id, {})
                 new_call += '''<li class="blocks-gallery-item"><figure><img src="{1}" alt="" data-id="{0}" data-link="" class="wp-image-{0}"/></figure></li>'''.format(image_id, image_src)
 
             new_call += '</ul>'
