@@ -16,9 +16,10 @@ source ${CONFIG_FILE}
 
 if [ "$1" == "" ]
 then
-    echo "Site name missing"
+    echo "Create an UN-SYMLINKED site"
+    echo "Usage: ./empty.sh <siteName> [<optionalArgs>]"
     exit 1
 fi
 
-
-python jahia2wp.py generate lchaboudez https://jahia2wp-httpd/${1} --extra-config=/srv/${WP_ENV}/jahia2wp/functional_tests/extra.yaml --nosymlink $2
+# $2 = Optional parameter
+python ${SRC_DIR}jahia2wp.py generate ${WP_ENV} ${SITE_ROOT}${1} --extra-config=${SRC_DIR}../functional_tests/extra.yaml --nosymlink $2
