@@ -6,6 +6,7 @@ CONFIG_FILE="/srv/${WP_ENV}/jahia2wp/src/jahia2wp-utils/config.sh"
 if [ ! -e ${CONFIG_FILE} ]
 then
     echo "Config file (${CONFIG_FILE}) not found!"
+    echo "Please create it from sample file."
     exit 1
 fi
 source ${CONFIG_FILE}
