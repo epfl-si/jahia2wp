@@ -17,6 +17,11 @@ This script is used to clean a site by its name.
 Used to download a ZIP file from Jahia. A prompt to enter Jahia admin password will appears script is executed.
 > ./down.sh \<siteName>
 
+## empty.sh
+Allows to create an unsymlinked website in active WP_ENV
+There's a possibility to give an extra argument (ex: `--debug`) and it will be added to `jahia2wp.py generate` command.
+> ./empty.sh \<sitename> [\<extraArgs]
+
 ## export.sh
 To export only one site using `jahia2wp.py export` command.
 This will be done by default for "idevelop" unit and with `--installs-locked=yes`. 
