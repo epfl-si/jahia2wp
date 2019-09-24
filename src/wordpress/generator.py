@@ -60,6 +60,10 @@ class WPGenerator:
         # set a translation for it.
         if 'wp_site_title' not in self._site_params:
             self._site_params['wp_site_title'] = 'Title'
+        
+        # If not present, we set to None to finally use version given by environment value WP_VERSION
+        if 'wp_version' not in self._site_params:
+            self._site_params['wp_version'] = None
 
         # tagline
         if 'wp_tagline' not in self._site_params:
