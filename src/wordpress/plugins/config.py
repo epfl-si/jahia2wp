@@ -1,6 +1,7 @@
 import os
 import shutil
 import logging
+import json
 
 import settings
 from wordpress import WPConfig
@@ -37,7 +38,8 @@ class WPPluginConfig(WPConfig):
     def is_installed(self):
         command = "plugin list --field=name --format=json"
         command_output = self.run_wp_cli(command)
-        return False if command_output is True else self.name in command_output
+
+        return False if command_output is True else self.name in json.loads(command_output)
 
     @property
     def is_activated(self):
