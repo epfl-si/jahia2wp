@@ -61,10 +61,6 @@ class WPGenerator:
         if 'wp_site_title' not in self._site_params:
             self._site_params['wp_site_title'] = 'Title'
         
-        # If not present, we set to None to finally use version given by environment value WP_VERSION
-        if 'wp_version' not in self._site_params:
-            self._site_params['wp_version'] = None
-
         # tagline
         if 'wp_tagline' not in self._site_params:
             self._site_params['wp_tagline'] = None
@@ -113,6 +109,11 @@ class WPGenerator:
             self._site_params['wp_site_url'],
             wp_site_title=self._site_params['wp_site_title'],
             wp_tagline=self._site_params['wp_tagline'])
+
+        # If not present, we use version given by environment value WP_VERSION. So we ensure we always have a value
+        # for this field
+        if 'wp_version' not in self._site_params or self._site_params['wp_version'] is None:
+            self._site_params['wp_version'] = self.wp_site.WP_VERSION
 
         self.wp_config = WPConfig(
             self.wp_site,
@@ -306,8 +307,7 @@ class WPGenerator:
                         is set to None.
         """
         # install WordPress
-        wp_version = self._site_params['wp_version'] if self._site_params['wp_version'] is not None else self.wp_site.WP_VERSION
-        if not self.run_wp_cli("core download --version={}".format(wp_version)):
+        if not self.run_wp_cli("core download --version={}".format(self._site_params['wp_version'])):
             logging.error("%s - could not download", repr(self))
             return False
 
