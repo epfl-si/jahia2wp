@@ -298,10 +298,12 @@ class WPGenerator:
         Execute WordPress installation
 
         Keyword arguments
-        no_symlink - to say if we can create symlinks or not
+        no_symlink - to say if we can create symlinks or not. If this parameter is True, 'wp_version' in _site_params
+                        is set to None.
         """
         # install WordPress
-        if not self.run_wp_cli("core download --version={}".format(self.wp_site.WP_VERSION)):
+        wp_version = self._site_params['wp_version'] if self._site_params['wp_version'] is not None else self.wp_site.WP_VERSION
+        if not self.run_wp_cli("core download --version={}".format(wp_version)):
             logging.error("%s - could not download", repr(self))
             return False
 
@@ -319,13 +321,18 @@ class WPGenerator:
             logging.error("%s - could not create config", repr(self))
             return False
 
-        no_symlink_option = "--nosymlink" if no_symlink else ""
-
+        # Defining extra intallation arguments
+        extra_install_args = ""
+        if no_symlink:
+            extra_install_args = "--nosymlink"
+        elif self._site_params['wp_version'] is not None:
+            extra_install_args = "--wpversion={}".format(self._site_params['wp_version'])
+            
         # fill out first form in install process (setting admin user and permissions)
         command = "--allow-root core install --url={0.url} --title='{0.wp_site_title}'" \
             " --admin_user={1.username} --admin_password='{1.password}'"\
             " --admin_email='{1.email}' {2}"
-        if not self.run_wp_cli(command.format(self.wp_site, self.wp_admin, no_symlink_option), encoding="utf-8"):
+        if not self.run_wp_cli(command.format(self.wp_site, self.wp_admin, extra_install_args), encoding="utf-8"):
             logging.error("%s - could not setup WP site", repr(self))
             return False
 
@@ -655,7 +662,7 @@ class WPGenerator:
                 logging.error("%s - could not drop DATABASE %s", repr(self), db_name)
 
             if not self.run_mysql('-e "DROP USER {};"'.format(db_user)):
-                logging.error("%s - could not drop USER %s", repr(self), db_name, db_user)
+                logging.error("%s - could not drop USER %s", repr(self), db_user)
 
             # clean directories before files
             logging.info("%s - removing files", repr(self))

@@ -62,7 +62,8 @@ WP_FILES = [
     'wp-settings.php',
     'wp-signup.php',
     'wp-trackback.php',
-    'xmlrpc.php'
+    'xmlrpc.php',
+    'wp'
 ]
 
 WP_CONFIG_KEYS = [
@@ -257,3 +258,6 @@ WP_SITE_INSTALL_KO = 'KO'
 OPTION_WP_SITE_CATEGORY = 'epfl:site_category'
 # Default site category (correspond to generic plugin list)
 DEFAULT_WP_SITE_CATEGORY = 'GeneralPublic'
+
+# WordPress version we will install by default 
+DEFAULT_WP_VERSION = '4'
