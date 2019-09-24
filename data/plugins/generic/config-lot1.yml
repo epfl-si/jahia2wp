@@ -49,3 +49,5 @@ plugins:
     config: !include ewww-image-optimizer/config-plugin.yml
   - name: coming-soon
     config: !include coming-soon/config-plugin.yml
+  - name: wp-gutenberg-epfl
+    config: !include wp-gutenberg-epfl/config-plugin.yml
