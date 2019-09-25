@@ -30,11 +30,11 @@ En fournissant une URL avec le filtre en paramètre.
 
 Exemples :
 
-https://mon-site.com/polylex?category=Gouvernance
+https://mon-site.com/page-avec-le-shortcode?category=Gouvernance
 
-https://mon-site.com/polylex?subcategory=Assistants-%C3%A9tudiants
+https://mon-site.com/page-avec-le-shortcode?subcategory=Assistants-%C3%A9tudiants
 
-https://mon-site.com/polylex?search=Loi%20f%C3%A9d%C3%A9rale%20sur%20les%20%C3%A9coles%20polytechniques%20f%C3%A9d%C3%A9rales
+https://mon-site.com/page-avec-le-shortcode?search=Loi%20f%C3%A9d%C3%A9rale%20sur%20les%20%C3%A9coles%20polytechniques%20f%C3%A9d%C3%A9rales
 
 
 #### par configuration de l'appel au shortcode
