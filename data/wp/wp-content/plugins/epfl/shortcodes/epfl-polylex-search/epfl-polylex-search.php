@@ -10,11 +10,6 @@ namespace Epfl\Polylex_Search_Plugin;
 
 define("LEX_INFO_PROVIDER_URL", "https://polylex-admin.epfl.ch/api/v1/lexes");
 
-function get_fixtures() {
-    $string = file_get_contents(__DIR__  ."/fixture.json");
-    $json_a=json_decode($string);
-    return $json_a;
-}
 
 function process_shortcode($atts) {
 
@@ -50,12 +45,9 @@ function process_shortcode($atts) {
     $subcategory = sanitize_text_field($atts["subcategory"]);
     $search = sanitize_text_field($atts["search"]);
 
-    
+
     $url = LEX_INFO_PROVIDER_URL;
     $lexes = \Utils::get_items($url);
-
-    // TODO: Delete fixtures call
-    // $lexes = get_fixtures();
 
     ob_start();
     try {
