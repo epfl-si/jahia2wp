@@ -38,7 +38,7 @@ class GutenbergBlocks(Shortcodes):
         # To store incorrect images
         self.incorrect_images = {}
         self.log_file = None
-        
+
 
 
     def _get_memento_id(self, memento, page_id, extra_attr):
@@ -55,12 +55,12 @@ class GutenbergBlocks(Shortcodes):
 
             r = requests.get(url='https://memento.epfl.ch/api/v1/mementos/?search={}'.format(memento))
 
-            
+
             json_result = r.json()
             # Nothing found
             if json_result['count'] == 0:
                 raise ValueError("Memento ID not found for '{}'".format(memento))
-            
+
             memento_id = None
             # We have to loop through results because search is done on several fields and not only on "slug", so
             # multiple results can be returned...
@@ -69,7 +69,7 @@ class GutenbergBlocks(Shortcodes):
                 if memento_infos['slug'].lower() == memento:
                     memento_id = memento_infos['id']
                     break
-            
+
             if memento_id is None:
                 raise ValueError("No Memento found in multiple results ({}) returned for '{}'".format(json_result['count'], memento))
 
@@ -88,11 +88,11 @@ class GutenbergBlocks(Shortcodes):
         """
 
         return unquote(url)
-    
+
 
     def _epfl_schedule_datetime(self, date, page_id, extra_attr):
         """
-        Generates a datetime using date information. This will be called with a date and the 
+        Generates a datetime using date information. This will be called with a date and the
         time will be given in extra_attr parameter.
         We will transform:
         2019-09-17 + 00:00:00
@@ -123,7 +123,7 @@ class GutenbergBlocks(Shortcodes):
         if not content.strip().startswith("<p>"):
 
             content = "<p>{}</p>".format(content)
-        
+
         return content
 
 
@@ -582,7 +582,20 @@ class GutenbergBlocks(Shortcodes):
         block = 'epfl/infoscience-search'
 
         # Looking for all calls to modify them one by one
-        calls = self._get_all_shortcode_calls(content, shortcode, with_content=True)
+        # We can not use self._get_all_shortcode_calls here because
+        # we may have the two cases :
+        # [epfl_infoscience_search ... /] or
+        # [epfl_infoscience_search ... ] ... [/epfl_infoscience_search]
+
+        regex_find_call_without_content = '\[epfl_infoscience_search(\s.*?)\/\](?=.*?\[\/epfl_infoscience_search\])'
+        matching_reg = re.compile("({})".format(regex_find_call_without_content), re.DOTALL)
+        calls_without_content = [x[0] for x in matching_reg.findall(content)]
+
+        regex_find_call_with_content = '\[epfl_infoscience_search(\s[^\/]*?)\].*\[\/epfl_infoscience_search\]'
+        matching_reg = re.compile("({})".format(regex_find_call_with_content), re.DOTALL)
+        calls_with_content = [x[0] for x in matching_reg.findall(content)]
+
+        calls = calls_without_content + calls_with_content
 
         # Attribute description to recover correct value from each shortcode calls
         attributes_desc = [ 'pattern',
@@ -611,6 +624,7 @@ class GutenbergBlocks(Shortcodes):
                                 'bool': True
                             },
                             {
+                                'shortcode': 'url',
                                 'block': 'url',
                                 'use_content': True
                             }
@@ -641,7 +655,8 @@ class GutenbergBlocks(Shortcodes):
                 elif group_by2 == 'year':
                     group_by_final = 'doctype_year'
 
-            attributes['groupBy'] = group_by_final
+            if group_by_final:
+                attributes['groupBy'] = group_by_final
 
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
@@ -1113,17 +1128,17 @@ class GutenbergBlocks(Shortcodes):
 
         # Attribute description to recover correct value from each shortcode calls
         attributes_desc = [ 'title',
-                            'text', 
+                            'text',
                             {
                                 'shortcode': 'image',
                                 'block': 'imageId'
                             },
-                            { 
+                            {
                                 'shortcode': 'image',
                                 'block': 'imageUrl',
                                 'apply_func': '_get_image_url'
                             }]
-        
+
 
         for call in calls:
 
@@ -1141,7 +1156,7 @@ class GutenbergBlocks(Shortcodes):
 
             # Replacing in global content
             content = content.replace(call, new_call)
-            
+
             self._update_report(shortcode)
 
         return content
@@ -1167,7 +1182,7 @@ class GutenbergBlocks(Shortcodes):
                                 'block': 'post',
                                 'apply_func': '_get_post_with_slug',
                             }]
-        
+
         for call in calls:
 
             # To store new attributes
@@ -1187,7 +1202,7 @@ class GutenbergBlocks(Shortcodes):
 
             self._update_report(shortcode)
 
-        return content 
+        return content
 
 
     def _fix_epfl_post_teaser(self, content, page_id):
@@ -1209,7 +1224,7 @@ class GutenbergBlocks(Shortcodes):
                                 'block': 'grayBackground',
                                 'bool': True
                             }]
-        
+
         # For this one, we have to increment by 1 the index used at the end.
         for i in range(0, 3):
             attributes_desc.append({
@@ -1237,7 +1252,7 @@ class GutenbergBlocks(Shortcodes):
 
             self._update_report(shortcode)
 
-        return content 
+        return content
 
 
     def _fix_epfl_page_teaser(self, content, page_id):
@@ -1259,7 +1274,7 @@ class GutenbergBlocks(Shortcodes):
                                 'block': 'grayBackground',
                                 'bool': True
                             }]
-        
+
         # For this one, we have to increment by 1 the index used at the end.
         for i in range(0, 3):
             attributes_desc.append({
@@ -1287,7 +1302,7 @@ class GutenbergBlocks(Shortcodes):
 
             self._update_report(shortcode)
 
-        return content 
+        return content
 
 
     def _fix_epfl_page_highlight(self, content, page_id):
@@ -1310,7 +1325,7 @@ class GutenbergBlocks(Shortcodes):
                                 'block': 'page',
                                 'apply_func': '_get_page_with_title',
                             }]
-        
+
         for call in calls:
 
             # To store new attributes
@@ -1330,7 +1345,7 @@ class GutenbergBlocks(Shortcodes):
 
             self._update_report(shortcode)
 
-        return content 
+        return content
 
 
     def _fix_epfl_cover(self, content, page_id):
@@ -1352,12 +1367,12 @@ class GutenbergBlocks(Shortcodes):
                                 'shortcode': 'image',
                                 'block': 'imageId'
                             },
-                            { 
+                            {
                                 'shortcode': 'image',
                                 'block': 'imageUrl',
                                 'apply_func': '_get_image_url'
                             }]
-        
+
 
         for call in calls:
 
@@ -1375,12 +1390,12 @@ class GutenbergBlocks(Shortcodes):
 
             # Replacing in global content
             content = content.replace(call, new_call)
-            
+
             self._update_report(shortcode)
 
         return content
 
-    
+
     def _fix_epfl_custom_highlight(self, content, page_id):
         """
         Transforms EPFL Custom Highlight shortcode to Gutenberg block
@@ -1407,12 +1422,12 @@ class GutenbergBlocks(Shortcodes):
                                 'shortcode': 'image',
                                 'block': 'imageId'
                             },
-                            { 
+                            {
                                 'shortcode': 'image',
                                 'block': 'imageUrl',
                                 'apply_func': '_get_image_url'
                             }]
-        
+
 
         for call in calls:
 
@@ -1430,7 +1445,7 @@ class GutenbergBlocks(Shortcodes):
 
             # Replacing in global content
             content = content.replace(call, new_call)
-            
+
             self._update_report(shortcode)
 
         return content
@@ -1451,7 +1466,7 @@ class GutenbergBlocks(Shortcodes):
 
         # Attribute description to recover correct value from each shortcode calls
         attributes_desc = [ 'query']
-        
+
 
         for call in calls:
 
@@ -1469,12 +1484,12 @@ class GutenbergBlocks(Shortcodes):
 
             # Replacing in global content
             content = content.replace(call, new_call)
-            
+
             self._update_report(shortcode)
 
         return content
 
-    
+
     def _fix_epfl_google_forms(self, content, page_id):
         """
         Transforms EPFL Map shortcode to Gutenberg block
@@ -1494,7 +1509,7 @@ class GutenbergBlocks(Shortcodes):
                                 'block': 'data',
                                 'apply_func': '_decode_url'
                             },]
-        
+
 
         for call in calls:
 
@@ -1512,12 +1527,12 @@ class GutenbergBlocks(Shortcodes):
 
             # Replacing in global content
             content = content.replace(call, new_call)
-            
+
             self._update_report(shortcode)
 
         return content
 
-    
+
     def _fix_epfl_introduction(self, content, page_id):
         """
         Transforms EPFL Map shortcode to Gutenberg block
@@ -1539,7 +1554,7 @@ class GutenbergBlocks(Shortcodes):
                                 'block': 'grayBackground',
                                 'bool': True
                             }]
-        
+
 
         for call in calls:
 
@@ -1557,11 +1572,11 @@ class GutenbergBlocks(Shortcodes):
 
             # Replacing in global content
             content = content.replace(call, new_call)
-            
+
             self._update_report(shortcode)
 
         return content
-    
+
 
     def _fix_epfl_quote(self, content, page_id):
         """
@@ -1590,12 +1605,12 @@ class GutenbergBlocks(Shortcodes):
                                 'shortcode': 'image',
                                 'block': 'imageId'
                             },
-                            { 
+                            {
                                 'shortcode': 'image',
                                 'block': 'imageUrl',
                                 'apply_func': '_get_image_url'
                             }]
-        
+
 
         for call in calls:
 
@@ -1613,11 +1628,11 @@ class GutenbergBlocks(Shortcodes):
 
             # Replacing in global content
             content = content.replace(call, new_call)
-            
+
             self._update_report(shortcode)
 
         return content
-    
+
 
     def _fix_epfl_social_feed(self, content, page_id):
         """
@@ -1647,11 +1662,11 @@ class GutenbergBlocks(Shortcodes):
                                 'shortcode': 'instagram_url',
                                 'block': 'instagramUrl'
                             },
-                            { 
+                            {
                                 'shortcode': 'facebook_url',
                                 'block': 'facebookUrl'
                             }]
-        
+
 
         for call in calls:
 
@@ -1669,11 +1684,11 @@ class GutenbergBlocks(Shortcodes):
 
             # Replacing in global content
             content = content.replace(call, new_call)
-            
+
             self._update_report(shortcode)
 
         return content
-   
+
 
     def _fix_epfl_tableau(self, content, page_id):
         """
@@ -1696,14 +1711,14 @@ class GutenbergBlocks(Shortcodes):
                                 'block': 'embedCode',
                                 'if_null': '',
                                 'apply_func': '_decode_url'
-                                
+
                             },
                             {
                                 'shortcode': 'url',
                                 'block': 'tableauName',
                                 'if_null': ''
                             }]
-        
+
 
         for call in calls:
 
@@ -1721,12 +1736,12 @@ class GutenbergBlocks(Shortcodes):
 
             # Replacing in global content
             content = content.replace(call, new_call)
-            
+
             self._update_report(shortcode)
 
         return content
 
-    
+
     def _fix_epfl_toggle(self, content, page_id):
         """
         Transforms EPFL Toggle shortcode to Gutenberg block
@@ -1748,7 +1763,7 @@ class GutenbergBlocks(Shortcodes):
                                 'use_content': True,
                                 'apply_func': '_add_paragraph'
                             }]
-        
+
 
         for call in calls:
 
@@ -1766,11 +1781,11 @@ class GutenbergBlocks(Shortcodes):
 
             # Replacing in global content
             content = content.replace(call, new_call)
-            
+
             self._update_report(shortcode)
 
-        return content    
-    
+        return content
+
 
     def _fix_epfl_scheduler(self, content, page_id):
         """
@@ -1797,13 +1812,13 @@ class GutenbergBlocks(Shortcodes):
                                 'block': 'endDateTime',
                                 'apply_func': '_epfl_schedule_datetime',
                                 'func_extra_attr': ['end_time']
-                            },                            
+                            },
                             {
                                 'block': 'content',
                                 'use_content': True,
                                 'apply_func': '_add_paragraph'
                             }]
-        
+
 
         for call in calls:
 
@@ -1821,12 +1836,12 @@ class GutenbergBlocks(Shortcodes):
 
             # Replacing in global content
             content = content.replace(call, new_call)
-            
+
             self._update_report(shortcode)
 
-        return content   
+        return content
 
-    
+
     def _fix_epfl_video(self, content, page_id):
         """
         Transforms EPFL Video shortcode to Gutenberg block
@@ -1842,7 +1857,7 @@ class GutenbergBlocks(Shortcodes):
 
         # Attribute description to recover correct value from each shortcode calls
         attributes_desc = ['url']
-        
+
 
         for call in calls:
 
@@ -1860,10 +1875,10 @@ class GutenbergBlocks(Shortcodes):
 
             # Replacing in global content
             content = content.replace(call, new_call)
-            
+
             self._update_report(shortcode)
 
-        return content  
+        return content
 
 
     def fix_site(self, openshift_env, wp_site_url, shortcode_name=None, simulation=False):
