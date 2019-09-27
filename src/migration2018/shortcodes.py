@@ -1229,7 +1229,7 @@ class Shortcodes():
                             
                                 # call autop
                                 php_autop = "{}/call-autop.php".format(os.path.dirname(os.path.realpath(__file__)))
-                                cmd = "wp eval-file {} {} --path={}".format(php_autop, content, self.wp_site.path)
+                                cmd = "wp eval-file {} '{}' --path={}".format(php_autop, content, self.wp_site.path)
                                 logging.debug("COMMAND: {}".format(cmd))
                                 content_with_p = Utils.run_command(cmd)
                                 # logging.debug(content_with_p)
