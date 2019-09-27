@@ -1226,10 +1226,15 @@ class Shortcodes():
                             # We use a temporary file to store page content to avoid to have problems with simple/double
                             # quotes and content size
                             with open(content_filename, 'wb') as content_file:
-                            
+                                logging.debug("content_filename: {}".format(content_filename));
+
+                                logging.debug("CONTENT content: {}".format(content));
+                                logging.debug("CONTENT content.encode: {}".format(content.encode()));
+                                logging.debug("CONTENT content.decode: {}".format(content.decode()));
+
                                 # call autop
                                 php_autop = "{}/call-autop.php".format(os.path.dirname(os.path.realpath(__file__)))
-                                cmd = "wp eval-file {} '{}' --path={}".format(php_autop, content, self.wp_site.path)
+                                cmd = "wp eval-file {} {} --path={}".format(php_autop, content, self.wp_site.path)
                                 logging.debug("COMMAND: {}".format(cmd))
                                 content_with_p = Utils.run_command(cmd)
                                 # logging.debug(content_with_p)
