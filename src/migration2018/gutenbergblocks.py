@@ -592,7 +592,7 @@ class GutenbergBlocks(Shortcodes):
         calls_without_content = [x[0] for x in matching_reg.findall(content)]
 
         regex_find_call_with_content = '\[epfl_infoscience_search(\s[^\/]*?)\].*\[\/epfl_infoscience_search\]'
-        matching_reg = re.compile("({})".format(regex_find_call_with_content), re.DOTALL)
+        matching_reg = re.compile("({})".format(regex_find_call_with_content))
         calls_with_content = [x[0] for x in matching_reg.findall(content)]
 
         calls = calls_without_content + calls_with_content
