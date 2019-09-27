@@ -1227,6 +1227,11 @@ class Shortcodes():
                             # quotes and content size
                             with open(content_filename, 'wb') as content_file:
                                 content_file.write(content.encode())
+                            
+                            # call autop
+                            php_autop = "{}/call-autop.php".format(os.path.dirname(os.path.realpath(__file__)))
+                            content_filename = Utils.run_command("wp eval-file {} {} --path={}".format(php_autop, content_filename, self.wp_site.path))
+
                             self.wp_config.run_wp_cli("post update {} --skip-plugins --skip-themes {} ".format(
                                 post_id, content_filename))
 
