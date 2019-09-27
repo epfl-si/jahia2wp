@@ -2,7 +2,6 @@
 
 $filename = $args[0];
 $content = file_get_contents( $filename );
-//$content = "toto";
 $content = wpautop( $content );
 
 // Soit on save dans le fichier directement 
