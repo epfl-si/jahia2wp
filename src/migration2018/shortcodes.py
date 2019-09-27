@@ -1230,8 +1230,10 @@ class Shortcodes():
                                 # call autop
                                 php_autop = "{}/call-autop.php".format(os.path.dirname(os.path.realpath(__file__)))
                                 content_with_p = Utils.run_command("wp eval-file {} {} --path={}".format(php_autop, content.encode(), self.wp_site.path))
-                                
-                                content_file.write(content_with_p)
+                                logging.debug(content_with_p)
+
+                                # UPDATE THIS LINE with content_with_p                             
+                                content_file.write(content.encode())
                             
                             self.wp_config.run_wp_cli("post update {} --skip-plugins --skip-themes {} ".format(
                                 post_id, content_filename))
