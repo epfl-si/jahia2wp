@@ -1,8 +1,8 @@
 <?php
 
 $filename = $args[0];
-$content = file_get_contents( $filename );
-$content = wpautop( $content );
+//$content = file_get_contents( ' . $filename . ' );
+$content = wpautop( $filename );
 
 // Soit on save dans le fichier directement 
 file_put_contents($filename, $content);
