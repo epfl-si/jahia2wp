@@ -1214,7 +1214,9 @@ class Shortcodes():
                 content = str(soup.body)
 
             # If content changed for current page 
-            if content != original_content:
+            if content == original_content:
+                logging.info("CONTENU IDENTIQUE")
+            else:
                 self._update_report('_nb_pages_updated')
 
                 # If  we're not performing a simulation
