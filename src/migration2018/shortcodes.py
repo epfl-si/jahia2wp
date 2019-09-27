@@ -1239,7 +1239,7 @@ class Shortcodes():
                             cmd = "wp eval-file {} {} --path={}".format(php_autop, content_filename, self.wp_site.path)
                             logging.debug("COMMAND: {}".format(cmd))
                             content_with_p = Utils.run_command(cmd)
-                            # logging.debug(content_with_p)
+                            logging.debug("content_with_p: {} ".format(content_with_p))
                             
                             self.wp_config.run_wp_cli("post update {} --skip-plugins --skip-themes {} ".format(
                                 post_id, content_filename))
