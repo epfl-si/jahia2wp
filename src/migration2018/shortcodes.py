@@ -1147,7 +1147,7 @@ class Shortcodes():
         """
 
         content_filename = Utils.generate_name(15, '/tmp/')
-        logging.info("File tmp {}".format(content_filename))
+        logging.info("File tmp %s", content_filename)
 
         self.wp_site = WPSite(openshift_env, wp_site_url)
         self.wp_config = WPConfig(self.wp_site)
@@ -1227,9 +1227,9 @@ class Shortcodes():
                             # We use a temporary file to store page content to avoid to have problems with simple/double
                             # quotes and content size
                             with open(content_filename, 'wb') as content_file:
-                                logging.debug("content_filename: {}".format(content_filename));
+                                logging.debug("content_filename: %s", content_filename);
 
-                                logging.debug("CONTENT content: {}".format(content));
+                                logging.debug("CONTENT content: %s", content);
                                 #logging.debug("CONTENT content.encode: {}".format(content.encode()));
 
                                 # UPDATE THIS LINE with content_with_p                             
@@ -1238,9 +1238,9 @@ class Shortcodes():
                             # call autop
                             php_autop = "{}/call-autop.php".format(os.path.dirname(os.path.realpath(__file__)))
                             cmd = "wp eval-file {} {} --path={}".format(php_autop, content_filename, self.wp_site.path)
-                            logging.debug("COMMAND: {}".format(cmd))
+                            logging.debug("COMMAND: %s", cmd)
                             # content_with_p = Utils.run_command(cmd)
-                            logging.debug("content_with_p: {} ".format(content_with_p))
+                            logging.debug("content_with_p: %s", content_with_p)
             
                             self.wp_config.run_wp_cli("post update {} --skip-plugins --skip-themes {} ".format(
                                 post_id, content_filename))
