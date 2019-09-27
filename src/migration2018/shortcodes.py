@@ -1238,10 +1238,10 @@ class Shortcodes():
                                 content_file.write(content.encode())
 
                             # call autop
-                            #php_autop = "{}/call-autop.php".format(os.path.dirname(os.path.realpath(__file__)))
-                            #cmd = "wp eval-file {} {} --path={}".format(php_autop, content_filename, self.wp_site.path)
+                            php_autop = "{}/call-autop.php".format(os.path.dirname(os.path.realpath(__file__)))
+                            cmd = "wp eval-file {} {} --path={}".format(php_autop, content_filename, self.wp_site.path)
                             #logging.debug("COMMAND: %s", cmd)
-                            #content_with_p = Utils.run_command(cmd)
+                            content_with_p = Utils.run_command(cmd)
                             #logging.debug("content_with_p: %s", content_with_p)
             
                             self.wp_config.run_wp_cli("post update {} --skip-plugins --skip-themes {} ".format(
