@@ -1147,6 +1147,7 @@ class Shortcodes():
         """
 
         content_filename = Utils.generate_name(15, '/tmp/')
+        logging.info("File tmp {}".format(content_filename))
 
         self.wp_site = WPSite(openshift_env, wp_site_url)
         self.wp_config = WPConfig(self.wp_site)
