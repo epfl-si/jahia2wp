@@ -1229,10 +1229,10 @@ class Shortcodes():
                             # We use a temporary file to store page content to avoid to have problems with simple/double
                             # quotes and content size
                             with open(content_filename, 'wb') as content_file:
-                                logging.debug("content_filename: %s", content_filename);
+                                logging.debug("content_filename: %s", content_filename)
 
-                                logging.debug("CONTENT content: %s", content);
-                                #logging.debug("CONTENT content.encode: {}".format(content.encode()));
+                                logging.debug("CONTENT content: %s", content)
+                                #logging.debug("CONTENT content.encode: {}".format(content.encode()))
 
                                 # UPDATE THIS LINE with content_with_p                             
                                 content_file.write(content.encode())
