@@ -1254,7 +1254,7 @@ class Shortcodes():
                                 pass
 
         # Cleaning
-        if os.path.exists(content_filename):
+        #if os.path.exists(content_filename):
             #os.remove(content_filename)
 
         return self.report
