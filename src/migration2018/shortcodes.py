@@ -1226,20 +1226,20 @@ class Shortcodes():
                             # We use a temporary file to store page content to avoid to have problems with simple/double
                             # quotes and content size
                             with open(content_filename, 'wb') as content_file:
-                                logging.debug("content_filename: {}".format(content_filename));
+                                #logging.debug("content_filename: {}".format(content_filename));
 
-                                logging.debug("CONTENT content: {}".format(content));
-                                logging.debug("CONTENT content.encode: {}".format(content.encode()));
-
-                                # call autop
-                                php_autop = "{}/call-autop.php".format(os.path.dirname(os.path.realpath(__file__)))
-                                cmd = "wp eval-file {} {} --path={}".format(php_autop, content_filename, self.wp_site.path)
-                                logging.debug("COMMAND: {}".format(cmd))
-                                content_with_p = Utils.run_command(cmd)
-                                # logging.debug(content_with_p)
+                                #logging.debug("CONTENT content: {}".format(content));
+                                #logging.debug("CONTENT content.encode: {}".format(content.encode()));
 
                                 # UPDATE THIS LINE with content_with_p                             
                                 content_file.write(content.encode())
+
+                            # call autop
+                            php_autop = "{}/call-autop.php".format(os.path.dirname(os.path.realpath(__file__)))
+                            cmd = "wp eval-file {} {} --path={}".format(php_autop, content_filename, self.wp_site.path)
+                            logging.debug("COMMAND: {}".format(cmd))
+                            content_with_p = Utils.run_command(cmd)
+                            # logging.debug(content_with_p)
                             
                             self.wp_config.run_wp_cli("post update {} --skip-plugins --skip-themes {} ".format(
                                 post_id, content_filename))
