@@ -1230,7 +1230,6 @@ class Shortcodes():
 
                                 logging.debug("CONTENT content: {}".format(content));
                                 logging.debug("CONTENT content.encode: {}".format(content.encode()));
-                                logging.debug("CONTENT content.decode: {}".format(content.decode()));
 
                                 # call autop
                                 php_autop = "{}/call-autop.php".format(os.path.dirname(os.path.realpath(__file__)))
