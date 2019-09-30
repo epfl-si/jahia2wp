@@ -587,11 +587,12 @@ class GutenbergBlocks(Shortcodes):
         # [epfl_infoscience_search ... /] or
         # [epfl_infoscience_search ... ] ... [/epfl_infoscience_search]
 
+        # Case 1
         regex_find_call_without_content = '\[epfl_infoscience_search(\s.*?)?\]'
-        # regex_find_call_without_content = '\[epfl_infoscience_search(\s.*?)\/\(?=.*?\/\])'
         matching_reg = re.compile("({})".format(regex_find_call_without_content), re.DOTALL)
         calls_without_content = [x[0] for x in matching_reg.findall(content)]
 
+        # Case 2
         regex_find_call_with_content = '\[epfl_infoscience_search(\s[^\/]*?)\].*\[\/epfl_infoscience_search\]'
         matching_reg = re.compile("({})".format(regex_find_call_with_content))
         calls_with_content = [x[0] for x in matching_reg.findall(content)]

@@ -1147,7 +1147,6 @@ class Shortcodes():
         """
 
         content_filename = Utils.generate_name(15, '/tmp/')
-        logging.info("File tmp %s", content_filename)
 
         self.wp_site = WPSite(openshift_env, wp_site_url)
         self.wp_config = WPConfig(self.wp_site)
@@ -1214,9 +1213,7 @@ class Shortcodes():
                 content = str(soup.body)
 
             # If content changed for current page 
-            if content == original_content:
-                logging.info("CONTENU IDENTIQUE")
-            else:
+            if content != original_content:
                 self._update_report('_nb_pages_updated')
 
                 # If  we're not performing a simulation
@@ -1229,20 +1226,12 @@ class Shortcodes():
                             # We use a temporary file to store page content to avoid to have problems with simple/double
                             # quotes and content size
                             with open(content_filename, 'wb') as content_file:
-                                #logging.debug("content_filename: %s", content_filename)
-
-                                #logging.debug("CONTENT content: %s", content)
-                                #logging.debug("CONTENT content.encode: {}".format(content.encode()))
-
-                                # UPDATE THIS LINE with content_with_p                             
                                 content_file.write(content.encode())
 
                             # call autop
                             php_autop = "{}/call-autop.php".format(os.path.dirname(os.path.realpath(__file__)))
                             cmd = "wp eval-file {} {} --path={}".format(php_autop, content_filename, self.wp_site.path)
-                            #logging.debug("COMMAND: %s", cmd)
                             content_with_p = Utils.run_command(cmd)
-                            #logging.debug("content_with_p: %s", content_with_p)
             
                             self.wp_config.run_wp_cli("post update {} --skip-plugins --skip-themes {} ".format(
                                 post_id, content_filename))
@@ -1256,7 +1245,7 @@ class Shortcodes():
                                 pass
 
         # Cleaning
-        #if os.path.exists(content_filename):
-            #os.remove(content_filename)
+        if os.path.exists(content_filename):
+            os.remove(content_filename)
 
         return self.report
