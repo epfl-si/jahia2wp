@@ -63,6 +63,12 @@ function my_plugin_allowed_block_types( $allowed_block_types, $post ) {
         'core/paragraph',
         'core/heading',
         'core/gallery',
+        'core/classic',
+        'core/rss',
+        'core/table',
+        'core/spacer',
+        'core/separator',
+        'core/shortcode',
     );
 
     // Add epfl/scienceqa block for WP instance https://www.epfl.ch only
