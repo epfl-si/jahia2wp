@@ -17,8 +17,6 @@ plugins:
     config: !include accred/config-plugin.yml
   - name: cache-control
     config: !include cache-control/config-plugin.yml
-  - name: varnish-http-purge
-    config: !include varnish-http-purge/config-plugin.yml
   - name: EPFL-settings
     config: !include EPFL-settings/config-plugin.yml
   - name: EPFL-Content-Filter
@@ -49,3 +47,5 @@ plugins:
     config: !include ewww-image-optimizer/config-plugin.yml
   - name: coming-soon
     config: !include coming-soon/config-plugin.yml
+  - name: wp-gutenberg-epfl
+    config: !include wp-gutenberg-epfl/config-plugin.yml

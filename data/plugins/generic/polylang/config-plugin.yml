@@ -1,5 +1,6 @@
 src: generic/polylang/polylang.zip
 activate: yes
+no_symlink: yes
 config_class: wordpress.plugins.custom.polylang.WPPolylangConfig
 config_custom:
   lang_list: !from_csv langs

@@ -1,6 +1,7 @@
 import os
 import shutil
 import logging
+import json
 
 import settings
 from wordpress import WPConfig
@@ -37,7 +38,8 @@ class WPPluginConfig(WPConfig):
     def is_installed(self):
         command = "plugin list --field=name --format=json"
         command_output = self.run_wp_cli(command)
-        return False if command_output is True else self.name in command_output
+
+        return False if command_output is True else self.name in json.loads(command_output)
 
     @property
     def is_activated(self):
@@ -51,7 +53,9 @@ class WPPluginConfig(WPConfig):
         else:
             param = self.name
         force_option = "--force" if force_reinstall else ""
-        no_symlink_option = "--nosymlink" if no_symlink else ""
+        # We don't use symlink if it has been specified for whole WordPress install or just 
+        # for current plugin using YAML configuration file.
+        no_symlink_option = "--nosymlink" if no_symlink or self.config.no_symlink else ""
 
         command = "plugin install {} {} {}".format(force_option, no_symlink_option, param)
         self.run_wp_cli(command)

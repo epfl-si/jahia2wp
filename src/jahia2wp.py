@@ -29,7 +29,7 @@ Usage:
     [--theme=<THEME> --theme-faculty=<THEME-FACULTY>]
     [--installs-locked=<BOOLEAN> --automatic-updates=<BOOLEAN>]
     [--extra-config=<YAML_FILE>] [--category=<SITE_CATEGORY>]
-    [--nosymlink]
+    [--nosymlink | --wp-version=<version>]
   jahia2wp.py backup                <wp_env> <wp_url>      [--full] [--debug | --quiet]
   jahia2wp.py version               <wp_env> <wp_url>               [--debug | --quiet]
   jahia2wp.py admins                <wp_env> <wp_url>               [--debug | --quiet]
@@ -108,7 +108,7 @@ from exporter.wp_exporter import WPExporter
 from parser.jahia_site import Site
 from settings import VERSION, FULL_BACKUP_RETENTION_THEME, INCREMENTAL_BACKUP_RETENTION_THEME, \
     DEFAULT_THEME_NAME, BANNER_THEME_NAME, DEFAULT_CONFIG_INSTALLS_LOCKED, DEFAULT_CONFIG_UPDATES_AUTOMATIC, \
-    DEFAULT_WP_SITE_CATEGORY
+    DEFAULT_WP_SITE_CATEGORY, DEFAULT_WP_VERSION
 from tracer.tracer import Tracer
 from unzipper.unzip import unzip_one
 from utils import Utils
@@ -785,7 +785,7 @@ def generate(wp_env, wp_url,
              wp_title=None, wp_tagline=None, admin_password=None,
              theme=None, theme_faculty=None, category=None,
              installs_locked=None, updates_automatic=None,
-             extra_config=None, nosymlink=None, **kwargs):
+             extra_config=None, nosymlink=None, wp_version=None, **kwargs):
     """
     This command may need more params if reference to them are done in YAML file. In this case, you'll see an
     error explaining which params are needed and how they can be added to command line
@@ -806,14 +806,15 @@ def generate(wp_env, wp_url,
     # If nothing specified, we use default
     if category is None:
         category = DEFAULT_WP_SITE_CATEGORY
-
+    
     # FIXME: When we will use 'unit_id' from CSV file, add parameter here OR dynamically get it from AD
     all_params = {'openshift_env': wp_env,
                   'wp_site_url': wp_url,
                   'theme': theme or DEFAULT_THEME_NAME,
                   'installs_locked': installs_locked,
                   'updates_automatic': updates_automatic,
-                  'category': category}
+                  'category': category,
+                  'wp_version': wp_version}
 
     # Adding parameters if given
     if theme_faculty is not None:

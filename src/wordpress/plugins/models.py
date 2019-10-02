@@ -6,6 +6,7 @@ import logging
 import yaml
 import settings
 import shutil
+import re
 from utils import Utils
 from urllib import request
 from wordpress import WPException
@@ -225,14 +226,17 @@ class WPPluginConfigInfos:
         self.plugin_name = plugin_name
         self.zipped_on_the_fly = False
 
-        # Getting value if exists, otherwise set with default
+        # Getting values if exists, otherwise set with default
         self.action = plugin_config['action'] if 'action' in plugin_config else settings.PLUGIN_ACTION_INSTALL
+        self.no_symlink = plugin_config['no_symlink'] if 'no_symlink' in plugin_config else False
 
         # If we have a condition to install plugin and condition is successful
-        if 'install_if' in plugin_config and \
-                plugin_config['install_if']['csv_value'] == plugin_config['install_if']['equals']:
-            # We ensure that plugin is not installed
-            self.action = settings.PLUGIN_ACTION_UNINSTALL
+        if 'install_if' in plugin_config:
+            reg = re.compile(plugin_config['install_if']['match_reg'])
+            
+            if reg.match(str(plugin_config['install_if']['csv_value'])) is None:
+                # We ensure that plugin is not installed
+                self.action = settings.PLUGIN_ACTION_UNINSTALL
 
         # If we have to install plugin (default action), we look for several information
         if self.action == settings.PLUGIN_ACTION_INSTALL:
