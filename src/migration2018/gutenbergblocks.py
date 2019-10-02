@@ -1061,6 +1061,8 @@ class GutenbergBlocks(Shortcodes):
         return content
 
 
+    # -------- This section has been commented because "gallery" block uses a filter called "post_gallery" to render itself
+    # -------- And this filter is not available anymore in Gutenberg: https://github.com/danielbachhuber/gutenberg-migration-guide/blob/master/filter-post-gallery.md
     # def _fix_gallery(self, content, page_id):
     #     """
     #     Transforms gallery shortcode to Gutenberg block
