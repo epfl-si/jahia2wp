@@ -956,8 +956,12 @@ class GutenbergBlocks(Shortcodes):
 
 
         multiple_attr = ['title',
-                         'url',
-                         'excerpt']
+                         'excerpt',
+                         {
+                             'shortcode': 'url',
+                             'block': 'url',
+                             'apply_func': '_unescape_url'
+                         }]
 
 
         # We add multiple attributes
