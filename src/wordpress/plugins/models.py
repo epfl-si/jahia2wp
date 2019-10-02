@@ -226,8 +226,9 @@ class WPPluginConfigInfos:
         self.plugin_name = plugin_name
         self.zipped_on_the_fly = False
 
-        # Getting value if exists, otherwise set with default
+        # Getting values if exists, otherwise set with default
         self.action = plugin_config['action'] if 'action' in plugin_config else settings.PLUGIN_ACTION_INSTALL
+        self.no_symlink = plugin_config['no_symlink'] if 'no_symlink' in plugin_config else False
 
         # If we have a condition to install plugin and condition is successful
         if 'install_if' in plugin_config:
