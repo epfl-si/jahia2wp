@@ -582,94 +582,90 @@ class GutenbergBlocks(Shortcodes):
         block = 'epfl/infoscience-search'
 
         # Looking for all calls to modify them one by one
-        # We can not use self._get_all_shortcode_calls here because
-        # we may have the two cases :
-        # [epfl_infoscience_search ... /] or
+        # we may have the two cases, to check in correct order :
         # [epfl_infoscience_search ... ] ... [/epfl_infoscience_search]
+        # then
+        # [epfl_infoscience_search ... /] 
 
-        # Case 1
-        regex_find_call_without_content = '\[epfl_infoscience_search(\s.*?)?\]'
-        matching_reg = re.compile("({})".format(regex_find_call_without_content), re.DOTALL)
-        calls_without_content = [x[0] for x in matching_reg.findall(content)]
+        with_content_values = [True, False]
 
-        # Case 2
-        regex_find_call_with_content = '\[epfl_infoscience_search(\s[^\/]*?)\].*\[\/epfl_infoscience_search\]'
-        matching_reg = re.compile("({})".format(regex_find_call_with_content))
-        calls_with_content = [x[0] for x in matching_reg.findall(content)]
+        for with_content in with_content_values:
 
-        calls = calls_without_content + calls_with_content
+            calls = self._get_all_shortcode_calls(content, shortcode, with_content=with_content, allow_new_lines=False)
 
-        # Attribute description to recover correct value from each shortcode calls
-        attributes_desc = [ 'pattern',
-                            'pattern2',
-                            'pattern3',
-                            'limit',
-                            'sort',
-                            'collection',
-                            'field2',
-                            'field3',
-                            'operator2',
-                            'operator3',
-                            'format',
-                            {
-                                'shortcode': 'field',
-                                'block': 'fieldRestriction'
-                            },
-                            {
-                                'shortcode': 'summary',
-                                'block': 'summary',
-                                'bool': True
-                            },
-                            {
-                                'shortcode': 'thumbnail',
-                                'block': 'thumbnail',
-                                'bool': True
-                            },
-                            {
-                                'shortcode': 'url',
-                                'block': 'url',
-                                'use_content': True
-                            }
-                            ]
+            # Attribute description to recover correct value from each shortcode calls
+            attributes_desc = [ 'pattern',
+                                'pattern2',
+                                'pattern3',
+                                'limit',
+                                'sort',
+                                'collection',
+                                'field2',
+                                'field3',
+                                'operator2',
+                                'operator3',
+                                'format',
+                                {
+                                    'shortcode': 'field',
+                                    'block': 'fieldRestriction'
+                                },
+                                {
+                                    'shortcode': 'summary',
+                                    'block': 'summary',
+                                    'bool': True
+                                },
+                                {
+                                    'shortcode': 'thumbnail',
+                                    'block': 'thumbnail',
+                                    'bool': True
+                                },
+                                {
+                                    'shortcode': 'url',
+                                    'block': 'url',
+                                    'use_content': with_content
+                                }
+                                ]
 
-        for call in calls:
 
-            # To store new attributes
-            attributes = {}
+            for call in calls:
 
-            # Recovering attributes from shortcode
-            self.__add_attributes(call, attributes, attributes_desc, page_id)
+                # To store new attributes
+                attributes = {}
 
-            # Handling 'groupBy' speciality
-            group_by = self._get_attribute(call, 'group_by')
-            group_by2 = self._get_attribute(call, 'group_by2')
+                # Recovering attributes from shortcode
+                self.__add_attributes(call, attributes, attributes_desc, page_id)
 
-            if not group_by or group_by == '':
-                group_by_final = None
-            elif group_by == 'year':
-                if not group_by2 or group_by2 == '':
-                    group_by_final = 'year'
-                elif group_by2 == 'doctype':
-                    group_by_final = 'year_doctype'
-            elif group_by == 'doctype':
-                if not group_by2 or group_by2 == '':
-                    group_by_final = 'doctype'
-                elif group_by2 == 'year':
-                    group_by_final = 'doctype_year'
+                # Handling 'groupBy' speciality
+                group_by = self._get_attribute(call, 'group_by')
+                group_by2 = self._get_attribute(call, 'group_by2')
 
-            if group_by_final:
-                attributes['groupBy'] = group_by_final
+                if not group_by or group_by == '':
+                    group_by_final = None
+                elif group_by == 'year':
+                    if not group_by2 or group_by2 == '':
+                        group_by_final = 'year'
+                    elif group_by2 == 'doctype':
+                        group_by_final = 'year_doctype'
+                elif group_by == 'doctype':
+                    if not group_by2 or group_by2 == '':
+                        group_by_final = 'doctype'
+                    elif group_by2 == 'year':
+                        group_by_final = 'doctype_year'
 
-            # We generate new shortcode from scratch
-            new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
+                if group_by_final:
+                    attributes['groupBy'] = group_by_final
 
-            self._log_to_file("Before: {}".format(call))
-            self._log_to_file("After: {}".format(new_call))
+                # We generate new shortcode from scratch
+                new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
 
-            # Replacing in global content
-            content = content.replace(call, new_call)
+                self._log_to_file("Before: {}".format(call))
+                self._log_to_file("After: {}".format(new_call))
 
-            self._update_report(shortcode)
+                # Replacing in global content
+                content = content.replace(call, new_call)
+
+                self._update_report(shortcode)
+
 
         return content
 
