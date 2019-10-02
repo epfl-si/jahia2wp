@@ -1,5 +1,6 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2018"""
 from urllib.parse import unquote
+from html import unescape
 
 import settings
 import datetime
@@ -88,6 +89,18 @@ class GutenbergBlocks(Shortcodes):
         """
 
         return unquote(url)
+
+    
+    def _unescape_url(self, url, page_id, extra_attr):
+        """
+        Unescape given URL
+
+        :param url: URL to unescape
+        :param page_id: Page ID
+        :param extra_attr: (optional) dict with extra attributes values needed by func
+        """
+
+        return unescape(url)
 
 
     def _epfl_schedule_datetime(self, date, page_id, extra_attr):
@@ -622,7 +635,8 @@ class GutenbergBlocks(Shortcodes):
                                 {
                                     'shortcode': 'url',
                                     'block': 'url',
-                                    'use_content': with_content
+                                    'use_content': with_content,
+                                    'apply_func': '_unescape_url'
                                 }
                                 ]
 
@@ -942,8 +956,12 @@ class GutenbergBlocks(Shortcodes):
 
 
         multiple_attr = ['title',
-                         'url',
-                         'excerpt']
+                         'excerpt',
+                         {
+                             'shortcode': 'url',
+                             'block': 'url',
+                             'apply_func': '_unescape_url'
+                         }]
 
 
         # We add multiple attributes
