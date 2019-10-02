@@ -329,12 +329,14 @@ class Shortcodes():
 
         return matching_reg.sub(']{}[/'.format(new_content), shortcode_call)
 
-    def _get_all_shortcode_calls(self, content, shortcode_name, with_content=False):
+    def _get_all_shortcode_calls(self, content, shortcode_name, with_content=False, allow_new_lines=True):
         """
         Look for all calls for a given shortcode in given content
         :param content: String in which to look for shortcode calls
         :param shortcode_name: shortcode name to look for
         :param with_content: To tell if we have to return content as well. If given and shortcode doesn't have content,
+        :param allow_new_lines: To tell if new lines are allowed in content. If they are, regex might be very greedy.
+        Set this parameter to False if you have a mix between [shortcode /] and [shortcode]..[/shortcode]
         it won't be returned
         :return:
         """
@@ -342,8 +344,11 @@ class Shortcodes():
         if with_content:
             regex += '.*?\[\/{}\]'.format(shortcode_name)
 
-        # re.DOTALL is to match all characters including \n
-        matching_reg = re.compile("({})".format(regex), re.DOTALL)
+        if allow_new_lines:
+            # re.DOTALL is to match all characters including \n
+            matching_reg = re.compile("({})".format(regex), re.DOTALL)
+        else:
+            matching_reg = re.compile("({})".format(regex))
 
         # Because we have 2 parenthesis groups in regex, we obtain a list of tuples and we just want the first
         # element of each tuple and put it in a list.
