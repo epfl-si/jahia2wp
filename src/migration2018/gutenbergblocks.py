@@ -513,19 +513,24 @@ class GutenbergBlocks(Shortcodes):
             # To store new attributes
             attributes = {}
 
-            # Recovering attributes from shortcode
-            self.__add_attributes(call, attributes, attributes_desc, page_id)
+            try:
 
-            # We generate new shortcode from scratch
-            new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
+                # Recovering attributes from shortcode
+                self.__add_attributes(call, attributes, attributes_desc, page_id)
 
-            self._log_to_file("Before: {}".format(call))
-            self._log_to_file("After: {}".format(new_call))
+                # We generate new shortcode from scratch
+                new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
 
-            # Replacing in global content
-            content = content.replace(call, new_call)
+                self._log_to_file("Before: {}".format(call))
+                self._log_to_file("After: {}".format(new_call))
 
-            self._update_report(shortcode)
+                # Replacing in global content
+                content = content.replace(call, new_call)
+
+                self._update_report(shortcode)
+            except ValueError as e:
+                self._log_to_file("Error: {}\nShortcode: {}\nNo replacement done".format(e, call))
+
 
         return content
 
