@@ -25,7 +25,6 @@ $content = wpautop( $content );
 if ($index_start != FALSE) {
     // Search pattern $substitute
     $index_start = strpos($content, $substitute);
-    $index_end = strpos($content, $substitute) + strlen($substitute);
 
     // Replace $substitute by gallery HTML
     $content = substr_replace($content, $gallery_content, $index_start, strlen($substitute));
