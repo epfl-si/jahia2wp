@@ -28,6 +28,7 @@ class GutenbergBlocks(Shortcodes):
     def __init__(self):
 
         super().__init__()
+        self.report['_errors'] = []
         # To store mapping "Name" to "ID" for Memento
         self.memento_mapping = {}
         # To store mapping between images ID and their URL
@@ -529,7 +530,10 @@ class GutenbergBlocks(Shortcodes):
 
                 self._update_report(shortcode)
             except ValueError as e:
-                self._log_to_file("Error: {}\nShortcode: {}\nNo replacement done".format(e, call))
+                self._log_to_file("Page ID:{} -> Error: {}\nShortcode: {}\nNo replacement done".format(page_id, e, call))
+                self.report['_errors'].append({'page_id': page_id,
+                                               'error': str(e),
+                                               'shortcode': call})
 
 
         return content
