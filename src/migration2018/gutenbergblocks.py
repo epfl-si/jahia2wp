@@ -1068,78 +1068,75 @@ class GutenbergBlocks(Shortcodes):
             self._update_report(shortcode)
 
         return content
+    
+    def _fix_gallery(self, content, page_id):
+        """
+        Transforms gallery shortcode to Gutenberg block
 
+        :param content: content to update
+        :param page_id: Id of page containing content
+        """
 
-    # -------- This section has been commented because "gallery" block uses a filter called "post_gallery" to render itself
-    # -------- And this filter is not available anymore in Gutenberg: https://github.com/danielbachhuber/gutenberg-migration-guide/blob/master/filter-post-gallery.md
-    # def _fix_gallery(self, content, page_id):
-    #     """
-    #     Transforms gallery shortcode to Gutenberg block
+        shortcode = 'gallery'
+        block = 'gallery'
 
-    #     :param content: content to update
-    #     :param page_id: Id of page containing content
-    #     """
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_shortcode_calls(content, shortcode)
 
-    #     shortcode = 'gallery'
-    #     block = 'gallery'
+        # Attribute description to recover correct value from each shortcode calls
+        attributes_desc = []
 
-    #     # Looking for all calls to modify them one by one
-    #     calls = self._get_all_shortcode_calls(content, shortcode)
+        attributes_desc.append({
+            'shortcode': 'ids',
+            'block': 'ids',
+        })
 
-    #     # Attribute description to recover correct value from each shortcode calls
-    #     attributes_desc = []
+        attributes_desc.append({
+            'block': 'imageCrop',
+            'default': False
+        })
 
-    #     attributes_desc.append({
-    #         'shortcode': 'ids',
-    #         'block': 'ids',
-    #     })
+        for call in calls:
 
-    #     attributes_desc.append({
-    #         'block': 'imageCrop',
-    #         'default': False
-    #     })
+            # To store new attributes
+            attributes = {}
 
-    #     for call in calls:
+            # Recovering attributes from shortcode
+            self.__add_attributes(call, attributes, attributes_desc, page_id)
 
-    #         # To store new attributes
-    #         attributes = {}
+            # ids become an array, no more a string
+            if 'ids' in attributes:
+                attributes['ids'] = attributes['ids'].split(",")
+                # set value to int
+                attributes['ids'] = [int(i) for i in attributes['ids']]
 
-    #         # Recovering attributes from shortcode
-    #         self.__add_attributes(call, attributes, attributes_desc, page_id)
+                # dynamic additional attributes
+                attributes['columns'] = len(attributes['ids'])
+            else:
+                attributes['columns'] = 0
 
-    #         # ids become an array, no more a string
-    #         if 'ids' in attributes:
-    #             attributes['ids'] = attributes['ids'].split(",")
-    #             # set value to int
-    #             attributes['ids'] = [int(i) for i in attributes['ids']]
+            # We generate new shortcode from scratch
+            new_call = '<!-- wp:{} {} -->'.format(block, json.dumps(attributes))
+            new_call += '<ul class="wp-block-gallery columns-{} is-cropped">'.format(attributes['columns'])
 
-    #             # dynamic additional attributes
-    #             attributes['columns'] = len(attributes['ids'])
-    #         else:
-    #             attributes['columns'] = 0
+            # add html code between, for every image
+            for image_id in attributes['ids']:
+                # do we want figcaption ?
+                image_src = self._get_image_url(image_id, page_id, {})
+                new_call += '''<li class="blocks-gallery-item"><figure><img src="{1}" alt="" data-id="{0}" data-link="" class="wp-image-{0}"/></figure></li>'''.format(image_id, image_src)
 
-    #         # We generate new shortcode from scratch
-    #         new_call = '<!-- wp:{} {} -->'.format(block, json.dumps(attributes))
-    #         new_call += '<ul class="wp-block-gallery columns-{} is-cropped">'.format(attributes['columns'])
+            new_call += '</ul>'
+            new_call += '<!-- /wp:gallery -->'
 
-    #         # add html code between, for every image
-    #         for image_id in attributes['ids']:
-    #             # do we want figcaption ?
-    #             image_src = self._get_image_url(image_id, page_id, {})
-    #             new_call += '''<li class="blocks-gallery-item"><figure><img src="{1}" alt="" data-id="{0}" data-link="" class="wp-image-{0}"/></figure></li>'''.format(image_id, image_src)
+            self._log_to_file("Before: {}".format(call))
+            self._log_to_file("After: {}".format(new_call))
 
-    #         new_call += '</ul>'
-    #         new_call += '<!-- /wp:gallery -->'
+            # Replacing in global content
+            content = content.replace(call, new_call)
 
-    #         self._log_to_file("Before: {}".format(call))
-    #         self._log_to_file("After: {}".format(new_call))
+            self._update_report(shortcode)
 
-    #         # Replacing in global content
-    #         content = content.replace(call, new_call)
-
-    #         self._update_report(shortcode)
-
-    #     return content
+        return content
 
     def _fix_epfl_hero(self, content, page_id):
         """
