@@ -14,21 +14,21 @@ if ($index_start != FALSE) {
     // Keep gallery HTML
     $gallery_content = substr($content, $index_start, $length_gallery);
 
-    // Replace gallery HTML by pattern $god
-    $god = "######GALLERY#GUTENBERG#BLOCK#############";
-    $content = substr_replace($content, $god, $index_start, strlen($gallery_content));
+    // Replace gallery HTML by pattern $substitute
+    $substitute = "######GALLERY#GUTENBERG#BLOCK#############";
+    $content = substr_replace($content, $substitute, $index_start, strlen($gallery_content));
 }
 
 // Add auto <p>
 $content = wpautop( $content );
 
 if ($index_start != FALSE) {
-    // Search pattern $god
-    $index_start = strpos($content, $god);
-    $index_end = strpos($content, $god) + strlen($god);
+    // Search pattern $substitute
+    $index_start = strpos($content, $substitute);
+    $index_end = strpos($content, $substitute) + strlen($substitute);
 
-    // Replace $god by gallery HTML
-    $content = substr_replace($content, $gallery_content, $index_start, strlen($god));
+    // Replace $substitute by gallery HTML
+    $content = substr_replace($content, $gallery_content, $index_start, strlen($substitute));
 }
 
 // Save the new content inside temporary file
