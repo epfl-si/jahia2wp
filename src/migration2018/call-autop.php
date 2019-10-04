@@ -10,7 +10,7 @@ $index_start = strpos($content, "<!-- wp:gallery");
 $index_end = strpos($content, "<!-- /wp:gallery -->") + strlen("<!-- /wp:gallery -->");
 $length_gallery = $index_end - $index_start;
 
-if ($index_start != FALSE) {
+if ($index_start !== FALSE) {
     // Keep gallery HTML
     $gallery_content = substr($content, $index_start, $length_gallery);
 
@@ -22,7 +22,7 @@ if ($index_start != FALSE) {
 // Add auto <p>
 $content = wpautop( $content );
 
-if ($index_start != FALSE) {
+if ($index_start !== FALSE) {
     // Search pattern $substitute
     $index_start = strpos($content, $substitute);
 
