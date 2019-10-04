@@ -339,7 +339,7 @@ class GutenbergBlocks(Shortcodes):
 
                 # We have to use content as value
                 if 'use_content' in attr_desc and attr_desc['use_content']:
-                    final_value = self._get_content(call)
+                    final_value = self._get_content(call).strip()
 
                 # If code above didn't found the value,
                 if final_value is None:
@@ -554,7 +554,11 @@ class GutenbergBlocks(Shortcodes):
 
         # Attribute description to recover correct value from each shortcode calls
         attributes_desc = [ 'units',
-                            'scipers',
+                            {
+                                'shortcode': 'scipers',
+                                'block': 'scipers',
+                                'force_string': True
+                            },
                             {
                                 'shortcode': 'columns',
                                 'block': 'columns',
