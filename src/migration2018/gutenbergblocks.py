@@ -29,6 +29,7 @@ class GutenbergBlocks(Shortcodes):
 
         super().__init__()
         self.report['_errors'] = []
+        self.report['_nb_nested_shortcodes'] = 0
         # To store mapping "Name" to "ID" for Memento
         self.memento_mapping = {}
         # To store mapping between images ID and their URL
@@ -1791,6 +1792,11 @@ class GutenbergBlocks(Shortcodes):
 
 
         for call in calls:
+
+            # if nested shortcode
+            if re.match(r'\[epfl_', call) is not None:
+                self._log_to_file("Page {}, Nested block detected in {} shortcode : {}".format(page_id, shortcode, call))
+                self.report['_nb_nested_shortcodes'] += 1
 
             # To store new attributes
             attributes = {}
