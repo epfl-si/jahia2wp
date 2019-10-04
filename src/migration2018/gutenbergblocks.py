@@ -135,6 +135,8 @@ class GutenbergBlocks(Shortcodes):
         """
 
         if not content.strip().startswith("<p>"):
+            # We replace new lines with </p><p>
+            content = content.replace("\n", "\\u003c/p\\u003e\\u003cp\\u003e")
             # We add <p> and </p> but encoded with unicode 
             content = '\\u003cp\\u003e{}\\u003c/p\\u003e'.format(content)
 
