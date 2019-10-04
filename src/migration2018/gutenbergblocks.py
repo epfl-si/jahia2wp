@@ -125,7 +125,6 @@ class GutenbergBlocks(Shortcodes):
         return "{}T{}".format(date, time)
 
 
-
     def _add_paragraph(self, content, page_id, extra_attr):
         """
         Put content into a paragraph (<p> if not already into it)
@@ -136,8 +135,8 @@ class GutenbergBlocks(Shortcodes):
         """
 
         if not content.strip().startswith("<p>"):
-
-            content = "<p>{}</p>".format(content)
+            # We add <p> and </p> but encoded with unicode 
+            content = '\\u003cp\\u003e{}\\u003c/p\\u003e'.format(content)
 
         return content
 
