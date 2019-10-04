@@ -1794,7 +1794,7 @@ class GutenbergBlocks(Shortcodes):
         for call in calls:
 
             # if nested shortcode
-            if re.match(r'\[epfl_', call) is not None:
+            if re.match(r'.+\[([a-z0-9_-]+)', call, re.DOTALL) is not None:
                 self._log_to_file("Page {}, Nested block detected in {} shortcode : {}".format(page_id, shortcode, call))
                 self.report['_nb_nested_shortcodes'] += 1
 
