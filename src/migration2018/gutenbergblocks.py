@@ -125,7 +125,6 @@ class GutenbergBlocks(Shortcodes):
         return "{}T{}".format(date, time)
 
 
-
     def _add_paragraph(self, content, page_id, extra_attr):
         """
         Put content into a paragraph (<p> if not already into it)
@@ -136,8 +135,10 @@ class GutenbergBlocks(Shortcodes):
         """
 
         if not content.strip().startswith("<p>"):
-
-            content = "<p>{}</p>".format(content)
+            # We replace new lines with </p><p>
+            content = content.replace("\n", "\\u003c/p\\u003e\\u003cp\\u003e")
+            # We add <p> and </p> but encoded with unicode 
+            content = '\\u003cp\\u003e{}\\u003c/p\\u003e'.format(content)
 
         return content
 
@@ -340,7 +341,7 @@ class GutenbergBlocks(Shortcodes):
 
                 # We have to use content as value
                 if 'use_content' in attr_desc and attr_desc['use_content']:
-                    final_value = self._get_content(call)
+                    final_value = self._get_content(call).strip()
 
                 # If code above didn't found the value,
                 if final_value is None:
@@ -555,7 +556,11 @@ class GutenbergBlocks(Shortcodes):
 
         # Attribute description to recover correct value from each shortcode calls
         attributes_desc = [ 'units',
-                            'scipers',
+                            {
+                                'shortcode': 'scipers',
+                                'block': 'scipers',
+                                'force_string': True
+                            },
                             {
                                 'shortcode': 'columns',
                                 'block': 'columns',

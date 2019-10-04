@@ -1241,6 +1241,8 @@ class Shortcodes():
                             self.wp_config.run_wp_cli("post update {} --skip-plugins --skip-themes {} ".format(
                                 post_id, content_filename))
 
+                            break
+
                         except Exception as e:
                             if try_no < settings.WP_CLI_AND_API_NB_TRIES - 1:
                                 logging.error("fix_site() error. Retry %s in %s sec...",

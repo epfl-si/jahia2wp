@@ -30,6 +30,16 @@ if ($index_start !== FALSE) {
     $content = substr_replace($content, $gallery_content, $index_start, strlen($substitute));
 }
 
+$content = str_replace("<p><!-- ", "<!-- ", $content);
+$content = str_replace("--></p>", "-->", $content);
+
+$content = shortcode_unautop($content);
+
+// Replacement to have "correct" unicode encoded strings
+$content = str_replace("\\\\u003cp\\\\u003e", "\\u003cp\\u003e", $content);
+$content = str_replace("\\\\u003c/p\\\\u003e", "\\u003c/p\\u003e", $content);
+
+
 // Save the new content inside temporary file
 file_put_contents($filename, $content);
 
