@@ -1254,6 +1254,11 @@ class GutenbergBlocks(Shortcodes):
                                 'shortcode': 'gray',
                                 'block': 'grayBackground',
                                 'bool': True
+                            },
+                            {
+                                'shortcode': 'post',
+                                'block': 'post1',
+                                'apply_func': '_get_post_with_slug'
                             }]
 
         # For this one, we have to increment by 1 the index used at the end.
@@ -1304,6 +1309,11 @@ class GutenbergBlocks(Shortcodes):
                                 'shortcode': 'gray',
                                 'block': 'grayBackground',
                                 'bool': True
+                            },
+                            {
+                                'shortcode': 'page',
+                                'block': 'page1',
+                                'apply_func': '_get_page_with_title'
                             }]
 
         # For this one, we have to increment by 1 the index used at the end.
