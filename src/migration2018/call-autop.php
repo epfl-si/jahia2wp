@@ -36,8 +36,8 @@ $content = str_replace("--></p>", "-->", $content);
 $content = shortcode_unautop($content);
 
 // Replacement to have "correct" unicode encoded strings
-$content = str_replace("\\\\u003cp\\\\u003e", "\\u003cp\\u003e", $content);
-$content = str_replace("\\\\u003c/p\\\\u003e", "\\u003c/p\\u003e", $content);
+$content = str_replace("\\\\u003c", "\\u003c", $content);
+$content = str_replace("\\\\u003e", "\\u003e", $content);
 
 
 // Save the new content inside temporary file

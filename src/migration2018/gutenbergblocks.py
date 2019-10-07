@@ -342,6 +342,9 @@ class GutenbergBlocks(Shortcodes):
                 # We have to use content as value
                 if 'use_content' in attr_desc and attr_desc['use_content']:
                     final_value = self._get_content(call).strip()
+                    # Changing < and >
+                    final_value = final_value.replace('<', '\\u003c').replace('>', '\\u003e')
+
 
                 # If code above didn't found the value,
                 if final_value is None:
