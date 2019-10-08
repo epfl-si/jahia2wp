@@ -27,17 +27,17 @@ function process_shortcode($atts) {
 
     // search can come from the url
     if (isset($_GET['search'])) {
-        $atts['search'] = $_GET['search'];
+        $atts['search'] = stripslashes($_GET['search']);
     }
 
     // category can come from the url
     if (isset($_GET['category'])) {
-        $atts['category'] = $_GET['category'];
+        $atts['category'] = stripslashes($_GET['category']);
     }
 
     // subcategory can come from the url
     if (isset($_GET['subcategory'])) {
-        $atts['subcategory'] = $_GET['subcategory'];
+        $atts['subcategory'] = stripslashes($_GET['subcategory']);
     }
 
     // sanitize what we get
