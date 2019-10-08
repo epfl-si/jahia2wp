@@ -299,7 +299,7 @@ class Shortcodes():
         :return:
         """
         matching_reg = re.compile('{}=(".+?"|\S+?)'.format(attr_name),
-                                  re.VERBOSE)
+                                  re.VERBOSE | re.DOTALL)
 
         value = matching_reg.findall(shortcode_call)
         # We remove surrounding " if exists.
