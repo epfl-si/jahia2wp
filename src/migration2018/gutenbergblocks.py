@@ -125,6 +125,19 @@ class GutenbergBlocks(Shortcodes):
         return "{}T{}".format(date, time)
 
 
+    def _handle_html(self, content, page_id, extra_attr):
+        """
+        Encode HTML tags to replace < and > with unicode characters
+
+        :param content: content to add into paragraph if needed
+        :param page_id: Page ID
+        :param extra_attr: (optional) dict with extra attributes values needed by func
+        """
+        # We replace < and > with unicode
+        content = content.replace('<', '\\u003c').replace('>', '\\u003e')
+        return content
+
+
     def _add_paragraph(self, content, page_id, extra_attr):
         """
         Put content into a paragraph (<p> if not already into it)
@@ -137,6 +150,8 @@ class GutenbergBlocks(Shortcodes):
         if not content.strip().startswith("<p>"):
             # We replace new lines with </p><p>
             content = content.replace("\n", "\\u003c/p\\u003e\\u003cp\\u003e")
+            
+            content = self._handle_html(content, page_id, extra_attr)
             # We add <p> and </p> but encoded with unicode 
             content = '\\u003cp\\u003e{}\\u003c/p\\u003e'.format(content)
 
@@ -357,8 +372,10 @@ class GutenbergBlocks(Shortcodes):
             if final_value is None:
                 # Recovering source value
                 value = self._get_attribute(call, shortcode_attr)
+                
                 # If value is found
                 if value:
+                    
                     # We need to transform string to bool
                     if 'bool' in attr_desc and attr_desc['bool']:
                         final_value = value.lower() == 'true'
@@ -373,7 +390,7 @@ class GutenbergBlocks(Shortcodes):
 
                     # Simply take the value as it is...
                     else:
-                        final_value = value
+                        final_value = self._handle_html(value, page_id, {})
 
                 else: # No value was found
 
