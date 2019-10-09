@@ -1134,7 +1134,7 @@ class GutenbergBlocks(Shortcodes):
 
             # ids become an array, no more a string
             if 'ids' in attributes:
-                attributes['ids'] = attributes['ids'].split(",")
+                attributes['ids'] = str(attributes['ids']).split(",")
                 # set value to int
                 attributes['ids'] = [int(i) for i in attributes['ids']]
 
