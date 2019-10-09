@@ -2,4 +2,4 @@ src: ../wp/wp-content/plugins/epfl
 activate: yes
 install_if:
   csv_value: !from_csv wp_version
-  match_reg: '^4\.'
+  match_reg: '^[4,5]\.'
