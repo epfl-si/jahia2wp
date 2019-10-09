@@ -1642,7 +1642,7 @@ class GutenbergBlocks(Shortcodes):
                             {
                                 'shortcode': 'gray',
                                 'block': 'grayBackground',
-                                'bool': True,                                
+                                'bool': True
                             }]
 
 
