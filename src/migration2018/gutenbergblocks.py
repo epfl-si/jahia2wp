@@ -1134,6 +1134,7 @@ class GutenbergBlocks(Shortcodes):
 
             # ids become an array, no more a string
             if 'ids' in attributes:
+                # We change to STR before splitting because it could be an it if a gallery has been created only with ONE element...
                 attributes['ids'] = str(attributes['ids']).split(",")
                 # set value to int
                 attributes['ids'] = [int(i) for i in attributes['ids']]
