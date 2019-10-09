@@ -1,0 +1,54 @@
+#edit-external-menu {
+        background-color: yellow;
+}
+
+.ajax-pending, .ajax-resolved, .ajax-rejected, .ajax-timeout {
+    display: inline-block;
+    height: 16px;
+    width: 16px;
+    margin-left: 0.3em;
+}
+
+.ajax-pending {
+    background-image: url(../../../wp-admin/images/loading.gif);
+    background-repeat: no-repeat;
+    background-position: right center;
+}
+
+.ajax-resolved::after {
+    color: green;
+    content: "✓";
+}
+
+.ajax-rejected::after {
+    color: red;
+    content: "⚠";
+}
+
+.ajax-timeout::after {
+    content: "🕒";
+}
+
+button p.tooltip-error {
+    color: red;
+    display: block;
+    visibility: hidden;
+
+    position: absolute;
+    right: -130%;
+    top: 0px;
+
+    border: 1px solid black;
+    border-radius: 6px;
+    padding: 0px 10px;
+    background-color: #f1f1f1;
+}
+
+button p.tooltip-error::before {
+    color: black;
+    content: "💡 ";
+}
+
+button:hover p.tooltip-error {
+    visibility: visible;
+}
