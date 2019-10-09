@@ -688,9 +688,9 @@ class GutenbergBlocks(Shortcodes):
                 group_by = self._get_attribute(call, 'group_by')
                 group_by2 = self._get_attribute(call, 'group_by2')
 
-                if not group_by or group_by == '':
-                    group_by_final = None
-                elif group_by == 'year':
+                group_by_final = None
+    
+                if group_by == 'year':
                     if not group_by2 or group_by2 == '':
                         group_by_final = 'year'
                     elif group_by2 == 'doctype':
