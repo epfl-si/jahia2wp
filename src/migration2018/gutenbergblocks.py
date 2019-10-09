@@ -141,6 +141,7 @@ class GutenbergBlocks(Shortcodes):
     def _add_paragraph(self, content, page_id, extra_attr):
         """
         Put content into a paragraph (<p> if not already into it)
+        Replace \n with </p><p>
 
         :param content: content to add into paragraph if needed
         :param page_id: Page ID
@@ -150,6 +151,28 @@ class GutenbergBlocks(Shortcodes):
         if not content.strip().startswith("<p>"):
             # We replace new lines with </p><p>
             content = content.replace("\n", "\\u003c/p\\u003e\\u003cp\\u003e")
+            
+            content = self._handle_html(content, page_id, extra_attr)
+            # We add <p> and </p> but encoded with unicode 
+            content = '\\u003cp\\u003e{}\\u003c/p\\u003e'.format(content)
+
+        return content
+
+
+    def _add_paragraph_for_double_n(self, content, page_id, extra_attr):
+        """
+        Put content into a paragraph (<p> if not already into it)
+        Replace \n\n with </p><p>
+
+        :param content: content to add into paragraph if needed
+        :param page_id: Page ID
+        :param extra_attr: (optional) dict with extra attributes values needed by func
+        """
+
+        if not content.strip().startswith("<p>"):
+
+            # We replace new lines with </p><p>
+            content = content.replace("\n\n", "\\u003c/p\\u003e\\u003cp\\u003e")
             
             content = self._handle_html(content, page_id, extra_attr)
             # We add <p> and </p> but encoded with unicode 
@@ -1611,11 +1634,15 @@ class GutenbergBlocks(Shortcodes):
 
         # Attribute description to recover correct value from each shortcode calls
         attributes_desc = [ 'title',
-                            'content',
+                            {
+                                'shortcode': 'content',
+                                'block': 'content',
+                                'apply_func': '_add_paragraph_for_double_n'
+                            },
                             {
                                 'shortcode': 'gray',
                                 'block': 'grayBackground',
-                                'bool': True
+                                'bool': True,                                
                             }]
 
 
