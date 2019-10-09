@@ -1812,8 +1812,8 @@ class _MenusJSApp
      */
     static function load () {
         (new Asset("lib/polyfills.js"))->enqueue_script();
-        (new Asset("menus/epfl-menus-admin.js"))->enqueue_script();
-        (new Asset("menus/epfl-menus-admin.css"))->enqueue_style();
+        (new Asset("epfl-menus-admin.js"))->enqueue_script();
+        (new Asset("epfl-menus-admin.css"))->enqueue_style();
         add_action('admin_print_footer_scripts', function() {
             $screen = array('base' => get_current_screen()->base);
             if (array_key_exists('post_type', $_REQUEST)) {
