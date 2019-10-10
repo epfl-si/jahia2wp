@@ -1,9 +1,17 @@
 <?php
+/*
+ * Plugin Name: EPFL Menus
+ * Description: Stitch menus across sites
+ * Version:     0.1
+ *
+ */
+
+namespace EPFL\Menus;
+
+
 /* Copyright © 2018 École Polytechnique Fédérale de Lausanne, Switzerland */
 /* All Rights Reserved, except as stated in the LICENSE file. */
 /**
- * Stitch menus across sites
- *
  * The EPFL is a pretty big place, and Wordpress' access control is
  * not up to task to its administrative complexity. The solution we
  * came up with is to apportion pages and posts of large Web sites
@@ -13,7 +21,6 @@
  * of tricks and extensions, including this one.
  */
 
-namespace EPFL\Menus;
 
 if (! defined( 'ABSPATH' )) {
     die( 'Access denied.' );
@@ -21,38 +28,39 @@ if (! defined( 'ABSPATH' )) {
 
 require_once(ABSPATH . 'wp-admin/includes/class-walker-nav-menu-edit.php');
 
-require_once(dirname(__DIR__) . '/lib/model.php');
+
+require_once(__DIR__ . '/lib/model.php');
 use \EPFL\Model\TypedPost;
 
-require_once(dirname(__DIR__) . '/lib/results.php');
+require_once(__DIR__ . '/lib/results.php');
 use \EPFL\Results\FindFromAllTrait;
 
-require_once(dirname(__DIR__) . '/lib/rest.php');
+require_once(__DIR__ . '/lib/rest.php');
 use \EPFL\REST\REST_API;
 use \EPFL\REST\RESTClient;
 use \EPFL\REST\RESTClientError;
 use \EPFL\REST\RESTRemoteError;
 use \EPFL\REST\RESTAPIError;
 
-require_once(dirname(__DIR__) . '/lib/admin-controller.php');
+require_once(__DIR__ . '/lib/admin-controller.php');
 use \EPFL\AdminController\TransientErrors;
 use \EPFL\AdminController\CustomPostTypeController;
 
-require_once(dirname(__DIR__) . '/lib/pubsub.php');
+require_once(__DIR__ . '/lib/pubsub.php');
 use \EPFL\Pubsub\PublishController;
 use \EPFL\Pubsub\SubscribeController;
 use \EPFL\Pubsub\TestWebhookFlowException;
 
-require_once(dirname(__DIR__) . '/lib/i18n.php');
+require_once(__DIR__ . '/lib/i18n.php');
 use function EPFL\I18N\___;
 use function EPFL\I18N\__x;
 use function EPFL\I18N\__e;
 use function EPFL\I18N\get_current_language;
 
-require_once(dirname(__DIR__) . '/lib/this-plugin.php');
+require_once(__DIR__ . '/lib/this-plugin.php');
 use EPFL\ThisPlugin\Asset;
 
-require_once(dirname(__DIR__) . '/lib/pod.php');
+require_once(__DIR__ . '/lib/pod.php');
 use EPFL\Pod\Site;
 
 class MenuError extends \Exception {}
@@ -1579,7 +1587,7 @@ class MenuItemController extends CustomPostTypeController
     }
 
     static private function _get_api () {
-        require_once(dirname(__DIR__) . '/lib/wp-admin-api.php');
+        require_once(__DIR__ . '/lib/wp-admin-api.php');
         return new \EPFL\AdminAPI\Endpoint('EPFLMenus');
     }
 
@@ -1718,7 +1726,7 @@ class MenuItemController extends CustomPostTypeController
     }
 
     private static function _auto_fields_controller () {
-        require_once(dirname(__DIR__) . '/lib/auto-fields.php');
+        require_once(__DIR__ . '/lib/auto-fields.php');
         return new \EPFL\AutoFields\AutoFieldsController(
             ExternalMenuItem::class);
     }
@@ -1804,8 +1812,8 @@ class _MenusJSApp
      */
     static function load () {
         (new Asset("lib/polyfills.js"))->enqueue_script();
-        (new Asset("menus/epfl-menus-admin.js"))->enqueue_script();
-        (new Asset("menus/epfl-menus-admin.css"))->enqueue_style();
+        (new Asset("epfl-menus-admin.js"))->enqueue_script();
+        (new Asset("epfl-menus-admin.css"))->enqueue_style();
         add_action('admin_print_footer_scripts', function() {
             $screen = array('base' => get_current_screen()->base);
             if (array_key_exists('post_type', $_REQUEST)) {
@@ -1999,3 +2007,8 @@ class MenuFrontendController
 }
 
 MenuFrontendController::hook();
+
+
+if (class_exists('\WP_CLI')) {
+    require_once __DIR__ . '/wpcli.php';
+}

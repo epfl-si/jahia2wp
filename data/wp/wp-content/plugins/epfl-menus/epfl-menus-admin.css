@@ -10,7 +10,7 @@
 }
 
 .ajax-pending {
-    background-image: url(../../../../wp-admin/images/loading.gif);
+    background-image: url(../../../wp-admin/images/loading.gif);
     background-repeat: no-repeat;
     background-position: right center;
 }

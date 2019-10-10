@@ -49,3 +49,5 @@ plugins:
     config: !include coming-soon/config-plugin.yml
   - name: wp-gutenberg-epfl
     config: !include wp-gutenberg-epfl/config-plugin.yml
+  - name: epfl-menus
+    config: !include epfl-menus/config-plugin.yml

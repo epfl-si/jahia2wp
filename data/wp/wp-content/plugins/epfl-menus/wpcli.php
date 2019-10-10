@@ -9,7 +9,7 @@ if (! defined( 'ABSPATH' )) {
 use \WP_CLI;
 use \WP_CLI_Command;
 
-require_once(dirname(__DIR__) . '/lib/i18n.php');
+require_once(__DIR__ . '/lib/i18n.php');
 use function EPFL\I18N\___;
 
 require_once(__DIR__ . '/epfl-menus.php');
