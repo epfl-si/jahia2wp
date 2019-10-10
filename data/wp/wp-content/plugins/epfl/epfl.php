@@ -2,7 +2,7 @@
 /**
  * Plugin Name: EPFL
  * Description: Provides many epfl shortcodes
- * @version: 1.29
+ * @version: 1.30
  * @copyright: Copyright (c) 2017 Ecole Polytechnique Federale de Lausanne, Switzerland
  */
 
@@ -32,13 +32,8 @@ require_once 'shortcodes/epfl-labs-search/epfl-labs-search.php';
 require_once 'shortcodes/epfl-polylex-search/epfl-polylex-search.php';
 require_once 'shortcodes/epfl-study-plan/epfl-study-plan.php';
 require_once 'shortcodes/epfl-magistrale/epfl-magistrale.php';
-require_once 'menus/epfl-menus.php';
 // Disabled due to 'epfl-intranet' plugin use
 //require_once 'preprod.php';
-
-if (class_exists('\WP_CLI')) {
-    require_once 'menus/wpcli.php';
-}
 
 // load .mo file for translation
 function epfl_load_plugin_textdomain() {
