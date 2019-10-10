@@ -35,10 +35,6 @@ require_once 'shortcodes/epfl-magistrale/epfl-magistrale.php';
 // Disabled due to 'epfl-intranet' plugin use
 //require_once 'preprod.php';
 
-if (class_exists('\WP_CLI')) {
-    require_once 'menus/wpcli.php';
-}
-
 // load .mo file for translation
 function epfl_load_plugin_textdomain() {
     load_plugin_textdomain( 'epfl', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
