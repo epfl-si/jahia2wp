@@ -46,7 +46,7 @@ class GutenbergFixes(GutenbergBlocks):
         return value[0].strip('"') if value else None
 
 
-    def _change_attribute_value(self, content, block_name, attr_name, new_value):
+    def _change_attribute_value(self, content, block_name, attr_name, new_value, between_double_quotes=True):
         """
         Change a block attribute value
 
@@ -68,16 +68,17 @@ class GutenbergFixes(GutenbergBlocks):
         matching_reg = re.compile('(?P<before>\<!--\swp:epfl/{}.+\{{.*?\"{}\":)(\".+?\"|\S+?)(?P<after>,|\}})'.format(block_name, attr_name),
                                   re.VERBOSE)
 
-        return matching_reg.sub(r'\g<before>"{}"\g<after>'.format(new_value), content)
+        double_quotes = '"' if between_double_quotes else ''
+
+        return matching_reg.sub(r'\g<before>{0}{1}{0}\g<after>'.format(double_quotes, new_value), content)
 
 
-    def _get_all_block_calls(self, content, block_name, with_content=False, allow_new_lines=True):
+    def _get_all_block_calls(self, content, block_name, with_content=False):
         """
         Look for all calls for a given block in given content
         :param content: String in which to look for shortcode calls
         :param block_name: Code name to look for
         :param with_content: To tell if we have to return content as well. If given and shortcode doesn't have content,
-        :param allow_new_lines: To tell if new lines are allowed in content. If they are, regex might be very greedy.
         
         :return:
         """
@@ -85,11 +86,7 @@ class GutenbergFixes(GutenbergBlocks):
         if with_content:
             regex += '.*?\<!--\s/wp:epfl/{}\s+/?--\>'.format(block_name)
 
-        if allow_new_lines:
-            # re.DOTALL is to match all characters including \n
-            matching_reg = re.compile("({})".format(regex), re.DOTALL)
-        else:
-            matching_reg = re.compile("({})".format(regex))
+        matching_reg = re.compile("({})".format(regex))
         
         # Because we have 3 parenthesis groups in regex, we obtain a list of tuples and we just want the first
         # element of each tuple and put it in a list.
@@ -159,9 +156,12 @@ class GutenbergFixes(GutenbergBlocks):
 
                 extra_attr = {}
 
+                # Determine if we have to use quotes or not for replacement
+                with_quotes = attr_desc['with_quotes'] if 'with_quotes' in attr_desc else True
+
                 final_value = map_func(final_value, page_id, extra_attr)
 
-            new_call = self._change_attribute_value(new_call, block_name, attr_desc['attr_name'], final_value)
+            new_call = self._change_attribute_value(new_call, block_name, attr_desc['attr_name'], final_value, with_quotes)
         
         return new_call
 
