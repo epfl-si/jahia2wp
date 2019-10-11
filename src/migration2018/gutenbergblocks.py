@@ -317,7 +317,7 @@ class GutenbergBlocks(Shortcodes):
 
         :param call: String with shortcode call
         :param attributes: dict in which we will add attribute value if exists
-        :param shortcode_attributes: List with either attributes names (string) or dict with information to
+        :param attributes_desc: List with either attributes names (string) or dict with information to
                     get correct value. Informations can be:
                     'shortcode'     -> (mandatory if 'default' or 'use_content' key are not present) attribute name in shortcode call
                     'block'         -> (mandatory) attribute name in Gutenberg block
