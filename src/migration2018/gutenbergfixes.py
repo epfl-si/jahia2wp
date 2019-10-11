@@ -96,7 +96,7 @@ class GutenbergFixes(GutenbergBlocks):
         return [x[0] for x in matching_reg.findall(content)]
 
 
-    def _fix_encoded_html(self, html, page_id):
+    def _fix_encoded_html(self, html, page_id, extra_attr):
         """
         Fix an encoded. 
         1. Decode URL
@@ -107,42 +107,63 @@ class GutenbergFixes(GutenbergBlocks):
         fixed_html = self._handle_html(fixed_html, page_id, {})
 
         return fixed_html
+    
 
-
-    def _fix_block_encoded_html(self, content, block_name, attr_list, page_id, add_p=False):
+    def _remove_new_lines(self, html, page_id, extra_attr):
         """
-        Fix an attribute containing encoded HTML
-
-        :param content: content in which doing modifications
-        :param block_name: Block name to look for
-        :param attr_list: Block attributes list names to update
-        :param page_id: Page ID
+        Remove new lines in html
         """
-        # Looking for all calls to modify them one by one
-        calls = self._get_all_block_calls(content, block_name)
+        return html.replace("\n", "")
 
-        for call in calls:
 
-            new_call = call
-            for attr_name in attr_list:
+    def __fix_attributes(self, call, block_name, attributes_desc, page_id):
+        """
+        Updates 'attributes' parameter (dict) with correct value depending on each attribute description
+        contained in 'attributes_desc' parameter.
+        If value is not found in shortcode call, it won't be added in Gutenberg block.
+        If value is an integer, it will be set as an integer and not a string
+        :param call: String with shortcode call
+        :param block_name: Name of block we are handling
+        :param attributes_desc: List with either attributes names (string) or dict with information to
+                    get correct value. Informations can be:
+                    'attr_name'     -> (mandatory) Attribute name
+                    'func_list'     -> (mandatory) List of functions to apply to attribute value
 
-                data = self._get_attribute(new_call, attr_name)
-                if data is not None:
-                    data = self._fix_encoded_html(data, page_id)
+                    ** Only one of the following optional key can be present in the same time **
+                    'with_quotes'   -> (optional) to tell if value has to be stored between quotes
 
-                    if add_p:
-                        data = self._add_paragraph(data, page_id, {})
+        :param attributes_desc: Dictionnary describing shortcode attributes and how to translate them to a Gutenberg block
+        :param page_id: Id of page on which we currently are
 
-                    new_call = self._change_attribute_value(new_call, block_name, attr_name, data)
+        Return: new call value
+        """
+
+        new_call = call
+
+        for attr_desc in attributes_desc:
+
+            # Recovering source value
+            value = self._get_attribute(call, attr_desc['attr_name'])
             
-            self._log_to_file("Before: {}".format(call))
-            self._log_to_file("After: {}".format(new_call))
+            # If no value found
+            if value is None:
+                # we continue to next attribute
+                continue
+            
+            final_value = value
+            # Looping through func to apply
+            for func_name in attr_desc['func_list']:
 
-            self._update_report(block_name)
+                # Looking for function to apply
+                map_func = getattr(self, func_name)
 
-            content = content.replace(call, new_call)
+                extra_attr = {}
+
+                final_value = map_func(final_value, page_id, extra_attr)
+
+            new_call = self._change_attribute_value(new_call, block_name, attr_desc['attr_name'], final_value)
         
-        return content
+        return new_call
 
 
     def _fix_block_google_forms(self, content, page_id):
@@ -153,21 +174,64 @@ class GutenbergFixes(GutenbergBlocks):
         :param page_id: Id of page containing content
         """
         
-        return self._fix_block_encoded_html(content, 'google-forms', ['data'], page_id)
-       
+        block_name = "google-forms"
 
+        attributes_desc = [{
+                            'attr_name': 'data',
+                            'func_list': [ '_fix_encoded_html' ]
+                            }]
+
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_block_calls(content, block_name)
+
+        for call in calls:
+
+            new_call = self.__fix_attributes(call, block_name, attributes_desc, page_id)
+            
+            self._log_to_file("Before: {}".format(call))
+            self._log_to_file("After: {}".format(new_call))
+
+            self._update_report(block_name)
+
+            content = content.replace(call, new_call)
+        
+        return content
+
+       
     def _fix_block_contact(self, content, page_id):
         """
         Fix EPFL Goole Forms URL
-
         :param content: content to update
         :param page_id: Id of page containing content
         """
         
-        attributes = []
-        for i in range(1, 4):
-            attributes.append('information{}'.format(i))
-        for i in range(1, 5):
-            attributes.append('timetable{}'.format(i))
+        block_name = "contact"
 
-        return self._fix_block_encoded_html(content, 'contact', attributes, page_id, add_p=True)
+        attributes_desc = []
+
+        func_list = ['_fix_encoded_html', 
+                    '_remove_new_lines',
+                    '_add_paragraph']
+    
+        for i in range(1, 4):
+            attributes_desc.append({'attr_name': 'information{}'.format(i),
+                                    'func_list': func_list})
+        for i in range(1, 5):
+            attributes_desc.append({'attr_name': 'timetable{}'.format(i),
+                                    'func_list': func_list})
+
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_block_calls(content, block_name)
+
+        for call in calls:
+
+            new_call = self.__fix_attributes(call, block_name, attributes_desc, page_id)
+            
+            self._log_to_file("Before: {}".format(call))
+            self._log_to_file("After: {}".format(new_call))
+
+            self._update_report(block_name)
+
+            content = content.replace(call, new_call)
+        
+        return content
