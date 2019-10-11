@@ -17,7 +17,9 @@ class Shortcodes():
     def __init__(self):
         self.list = {}
         self.report = {'_nb_pages':0, '_nb_pages_updated':0, '_nb_shortcodes': 0}
-        self.regex = r'\[([a-z0-9_-]+)'
+        self.regex_shortcode_names = r'\[([a-z0-9_-]+)'
+        
+        self.fix_func_prefix = "_fix_"
 
         # Will be initialized later
         self.wp_site = None
@@ -137,7 +139,7 @@ class Shortcodes():
                         continue
 
                     # Looking for all shortcodes in current post
-                    for shortcode in re.findall(self.regex, content):
+                    for shortcode in re.findall(self.regex_shortcode_names, content):
 
                         # This is not a registered shortcode
                         if shortcode not in registered_shortcodes:
@@ -220,7 +222,7 @@ class Shortcodes():
 
         return matching_reg.sub(r'\g<before>', content)
 
-    def __change_attribute_value(self, content, shortcode_name, attr_name, new_value):
+    def _change_attribute_value(self, content, shortcode_name, attr_name, new_value):
         """
         Change a shortcode attribute value
 
@@ -1035,7 +1037,7 @@ class Shortcodes():
         new_shortcode = 'epfl_memento_2018'
 
         # a lot of attributes are useless so we try to remove all of them
-        content = self.__change_attribute_value(content, old_shortcode, 'template', '4')
+        content = self._change_attribute_value(content, old_shortcode, 'template', '4')
 
         content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
 
@@ -1185,11 +1187,11 @@ class Shortcodes():
 
             # Step 1 - Fixing shortcodes
             # Looking for all shortcodes in current post
-            for shortcode in re.findall(self.regex, content):
+            for shortcode in re.findall(self.regex_shortcode_names, content):
 
                 if shortcode_name is None or shortcode_name.startswith(shortcode):
 
-                    fix_func_name = "_fix_{}".format(shortcode.replace("-", "_"))
+                    fix_func_name = "{}{}".format(self.fix_func_prefix, shortcode.replace("-", "_"))
 
                     if shortcode_name is not None and shortcode_name.endswith("_new_version"):
                         fix_func_name += "_new_version"
