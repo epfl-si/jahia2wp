@@ -127,14 +127,15 @@ class GutenbergBlocks(Shortcodes):
 
     def _handle_html(self, content, page_id, extra_attr):
         """
-        Encode HTML tags to replace < and > with unicode characters
+        Encode HTML tags to replace <, > and " with unicode characters
 
         :param content: content to add into paragraph if needed
         :param page_id: Page ID
         :param extra_attr: (optional) dict with extra attributes values needed by func
         """
         # We replace < and > with unicode
-        content = content.replace('<', '\\u003c').replace('>', '\\u003e')
+        content = content.replace('<', '\\u003c').replace('>', '\\u003e').replace('"', '\\u0022')
+
         return content
 
 
