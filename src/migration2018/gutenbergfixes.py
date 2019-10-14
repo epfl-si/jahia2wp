@@ -93,6 +93,13 @@ class GutenbergFixes(GutenbergBlocks):
         return [x[0] for x in matching_reg.findall(content)]
 
 
+    def _decode_html(self, html, page_id, extra_attr):
+        """
+        Decode HTML
+        """
+        return unquote(html)
+
+
     def _fix_encoded_html(self, html, page_id, extra_attr):
         """
         Fix an encoded. 
@@ -178,7 +185,10 @@ class GutenbergFixes(GutenbergBlocks):
 
         attributes_desc = [{
                             'attr_name': 'data',
-                            'func_list': [ '_fix_encoded_html' ]
+                            'func_list': [ 
+                                            '_decode_html', 
+                                            '_handle_html' 
+                                         ]
                             }]
 
         # Looking for all calls to modify them one by one
@@ -188,19 +198,20 @@ class GutenbergFixes(GutenbergBlocks):
 
             new_call = self.__fix_attributes(call, block_name, attributes_desc, page_id)
             
-            self._log_to_file("Before: {}".format(call))
-            self._log_to_file("After: {}".format(new_call))
+            if new_call != call:
+                self._log_to_file("Before: {}".format(call))
+                self._log_to_file("After: {}".format(new_call))
 
-            self._update_report(block_name)
+                self._update_report(block_name)
 
-            content = content.replace(call, new_call)
+                content = content.replace(call, new_call)
         
         return content
 
        
     def _fix_block_contact(self, content, page_id):
         """
-        Fix EPFL Goole Forms URL
+        Fix EPFL Contact
         :param content: content to update
         :param page_id: Id of page containing content
         """
@@ -209,9 +220,10 @@ class GutenbergFixes(GutenbergBlocks):
 
         attributes_desc = []
 
-        func_list = ['_fix_encoded_html', 
+        func_list = ['_decode_html', 
                     '_remove_new_lines',
-                    '_add_paragraph']
+                    '_add_paragraph',
+                    '_handle_html']
     
         for i in range(1, 4):
             attributes_desc.append({'attr_name': 'information{}'.format(i),
@@ -227,11 +239,51 @@ class GutenbergFixes(GutenbergBlocks):
 
             new_call = self.__fix_attributes(call, block_name, attributes_desc, page_id)
             
-            self._log_to_file("Before: {}".format(call))
-            self._log_to_file("After: {}".format(new_call))
+            if new_call != call:
+                self._log_to_file("Before: {}".format(call))
+                self._log_to_file("After: {}".format(new_call))
 
-            self._update_report(block_name)
+                self._update_report(block_name)
 
-            content = content.replace(call, new_call)
+                content = content.replace(call, new_call)
+        
+        return content
+
+
+    def _fix_block_card(self, content, page_id):
+        """
+        Fix EPFL Card
+        :param content: content to update
+        :param page_id: Id of page containing content
+        """
+        
+        block_name = "card"
+
+        attributes_desc = []
+
+        func_list = ['_decode_html', 
+                    '_add_paragraph',
+                    '_handle_html',
+                    '_remove_new_lines'
+                    ]
+    
+        for i in range(1, 4):
+            attributes_desc.append({'attr_name': 'content{}'.format(i),
+                                    'func_list': func_list})
+        
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_block_calls(content, block_name)
+
+        for call in calls:
+
+            new_call = self.__fix_attributes(call, block_name, attributes_desc, page_id)
+            
+            if new_call != call:
+                self._log_to_file("Before: {}".format(call))
+                self._log_to_file("After: {}".format(new_call))
+
+                self._update_report(block_name)
+
+                content = content.replace(call, new_call)
         
         return content
