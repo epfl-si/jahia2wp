@@ -149,7 +149,7 @@ class GutenbergBlocks(Shortcodes):
         :param extra_attr: (optional) dict with extra attributes values needed by func
         """
 
-        if not content.strip().startswith("<p>"):
+        if not content.strip().startswith("<p>") and not content.strip().startswith("\\u003cp\\u003e"):
             # We replace new lines with </p><p>
             content = content.replace("\n", "\\u003c/p\\u003e\\u003cp\\u003e")
             
