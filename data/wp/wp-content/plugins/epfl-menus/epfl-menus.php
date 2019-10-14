@@ -8,7 +8,6 @@
 
 namespace EPFL\Menus;
 
-
 /* Copyright © 2018 École Polytechnique Fédérale de Lausanne, Switzerland */
 /* All Rights Reserved, except as stated in the LICENSE file. */
 /**
@@ -2008,7 +2007,7 @@ class MenuFrontendController
 
 MenuFrontendController::hook();
 
-
-if (class_exists('\WP_CLI')) {
+if ( defined( 'WP_CLI' ) && WP_CLI ) 
+{
     require_once __DIR__ . '/wpcli.php';
 }

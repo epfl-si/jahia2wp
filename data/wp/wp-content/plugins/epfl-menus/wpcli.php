@@ -18,7 +18,8 @@ use \EPFL\Menus\ExternalMenuItem;
 class EPFLMenusCLICommand extends WP_CLI_Command
 {
     public static function hook () {
-        WP_CLI::add_command('epfl-menus', get_called_class());
+        WP_CLI::add_command('epfl menus refresh', [get_called_class(), 'refresh' ]);
+        WP_CLI::add_command('epfl menus add-external-menu-item', [get_called_class(), 'add_external_menu_item' ]);
     }
 
     public function refresh () {
@@ -47,7 +48,7 @@ class EPFLMenusCLICommand extends WP_CLI_Command
     }
 
     /**
-     * @example wp epfl-menus add_external_menu_item --menu-location-slug=top urn:epfl:labs "laboratoires"
+     * @example wp epfl menus add-external-menu-item --menu-location-slug=top urn:epfl:labs "laboratoires"
      */
     public function add_external_menu_item ($args, $assoc_args) {
         list($urn, $title) = $args;
