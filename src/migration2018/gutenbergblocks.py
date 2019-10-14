@@ -1,5 +1,5 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2018"""
-from urllib.parse import unquote
+from urllib.parse import unquote_plus
 from html import unescape
 
 import settings
@@ -90,7 +90,7 @@ class GutenbergBlocks(Shortcodes):
         :param extra_attr: (optional) dict with extra attributes values needed by func
         """
 
-        return unquote(url)
+        return unquote_plus(url)
 
     
     def _unescape_url(self, url, page_id, extra_attr):
@@ -149,7 +149,7 @@ class GutenbergBlocks(Shortcodes):
         :param extra_attr: (optional) dict with extra attributes values needed by func
         """
 
-        if not content.strip().startswith("<p>") and not content.strip().startswith("\\u003cp\\u003e"):
+        if not content.strip().startswith("<p") and not content.strip().startswith("\\u003cp"):
             # We replace new lines with </p><p>
             content = content.replace("\n", "\\u003c/p\\u003e\\u003cp\\u003e")
             
