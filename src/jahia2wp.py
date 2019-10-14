@@ -50,6 +50,10 @@ Usage:
     [--out-csv=<out_csv>]
   jahia2wp.py shortcode-fix         <wp_env> <wp_url> [<shortcode_name>] [--debug | --quiet]
   jahia2wp.py shortcode-fix-many    <csv_file> [<shortcode_name>]   [--debug | --quiet]
+  jahia2wp.py block-fix             <wp_env> <wp_url> [<block_name>] [--debug | --quiet]
+    [--simulation]
+  jahia2wp.py block-fix-inventory   <path> [<block_name>]  [--debug | --quiet]
+    [--simulation [--log-time-csv]]
   jahia2wp.py shortcode-to-block        <wp_env> <wp_url> [<shortcode_name>] [--debug | --quiet]
     [--simulation]
   jahia2wp.py shortcode-to-block-many   <csv_file> [<shortcode_name>]   [--debug | --quiet]
@@ -118,6 +122,7 @@ from wordpress import WPSite, WPConfig, WPGenerator, WPBackup, WPPluginConfigExt
 from fan.fan_global_sitemap import FanGlobalSitemap
 from migration2018.shortcodes import Shortcodes
 from migration2018.gutenbergblocks import GutenbergBlocks
+from migration2018.gutenbergfixes import GutenbergFixes
 
 
 def _check_site(wp_env, wp_url, **kwargs):
@@ -1041,6 +1046,56 @@ def shortcode_fix_many(csv_file, shortcode_name=None, **kwargs):
         print("\nIndex #{}:\n---".format(index))
         shortcode_fix(row['openshift_env'], row['wp_site_url'], shortcode_name)
     logging.info("All shortcodes for all sites fixed !")
+
+@dispatch.on('block-fix')
+def block_fix(wp_env, wp_url, block_name=None, simulation=False, csv_time_log=None, **kwargs):
+
+    logging.info("Fixing blocks for %s", wp_url)
+    if simulation:
+        logging.info("== SIMULATION EXECUTION ==")
+
+    # We have to log duration in CSV file
+    if csv_time_log:
+        time_log_file = open(csv_time_log, mode='a')
+        start_time = time.time()
+
+    blocks = GutenbergFixes()
+    report = blocks.fix_site(wp_env, wp_url, shortcode_name=block_name, simulation=simulation)
+    if simulation:
+        logging.info("This was a simulation, nothing was changed in database")
+    
+    if csv_time_log:
+        time_log_file.write("{};{};{};{};{}\n".format(wp_url, 
+                                                      report['_nb_pages'], 
+                                                      report['_nb_pages_updated'], 
+                                                      report['_nb_shortcodes'],
+                                                      time.time()-start_time))
+        time_log_file.close()
+
+    logging.info("Fix report:\n%s", str(report))
+
+@dispatch.on('block-fix-inventory')
+def block_fix_inventory(path, block_name=None, simulation=False, log_time_csv=False, **kwargs):
+    logging.info("Block fix from inventory...")
+    nb_sites = 0
+
+    csv_time_log = _init_shortcode_to_csv_time_log() if log_time_csv else None
+
+    if log_time_csv:
+        logging.info("Logging time in CSV file: %s", csv_time_log)
+
+    for site_details in WPConfig.inventory(path, skip_users=True):
+        if site_details.valid == settings.WP_SITE_INSTALL_OK:
+            try:
+                block_fix(WPSite.openshift_env_from_path(site_details.path), 
+                                    site_details.url, 
+                                    block_name=block_name, 
+                                    simulation=simulation,
+                                    csv_time_log=csv_time_log)
+                nb_sites += 1
+            except:
+                logging.error("Site %s - Error %s", site_details.url, sys.exc_info())
+    logging.info("%s sites processed for path: %s", nb_sites, path)
 
 
 @dispatch.on('shortcode-to-block')
