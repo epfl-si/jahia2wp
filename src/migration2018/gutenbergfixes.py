@@ -97,7 +97,8 @@ class GutenbergFixes(GutenbergBlocks):
         """
         Decode HTML
         """
-        return unquote(html)
+        # We just call parent class func 
+        return self._decode_url(html, page_id, extra_attr)
 
 
     def _fix_encoded_html(self, html, page_id, extra_attr):
@@ -270,6 +271,49 @@ class GutenbergFixes(GutenbergBlocks):
         for i in range(1, 4):
             attributes_desc.append({'attr_name': 'content{}'.format(i),
                                     'func_list': func_list})
+        
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_block_calls(content, block_name)
+
+        for call in calls:
+
+            new_call = self.__fix_attributes(call, block_name, attributes_desc, page_id)
+            
+            if new_call != call:
+                self._log_to_file("Before: {}".format(call))
+                self._log_to_file("After: {}".format(new_call))
+
+                self._update_report(block_name)
+
+                content = content.replace(call, new_call)
+        
+        return content
+
+
+    def _fix_block_card(self, content, page_id):
+        """
+        Fix EPFL Card
+        :param content: content to update
+        :param page_id: Id of page containing content
+        """
+        
+        block_name = "card"
+
+        attributes_desc = []
+
+        # We add multiple attributes
+        for i in range(1, 5):
+            attributes_desc.append({
+                            'attr_name': 'content{}'.format(i),
+                            'func_list': [
+                                            '_decode_html',         
+                                            '_add_paragraph',
+                                            '_handle_html',     
+                                            '_remove_new_lines',
+                                          ]
+                           })
+
+        
         
         # Looking for all calls to modify them one by one
         calls = self._get_all_block_calls(content, block_name)
