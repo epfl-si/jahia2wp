@@ -38,7 +38,7 @@ class GutenbergFixes(GutenbergBlocks):
         :param attr_name: Attribute name for which we want the value
         :return:
         """
-        matching_reg = re.compile('"{}":(".+?"|\S+?),?'.format(attr_name),
+        matching_reg = re.compile('"{}":\s?(".+?"|\S+?),?'.format(attr_name),
                                   re.VERBOSE | re.DOTALL)
 
         value = matching_reg.findall(block_call)
@@ -65,7 +65,7 @@ class GutenbergFixes(GutenbergBlocks):
         # <!-- wp:block_name {"attr_name":"a","two":"b"} /-->  >>> <!-- wp:block_name {"attr_name":"b","two":"b"} /-->
         # <!-- wp:block_name {"attr_name":a,"two":"b"} /-->  >>> <!-- wp:block_name {"attr_name":b,"two":"b"} /-->
         
-        matching_reg = re.compile('(?P<before>\<!--\swp:epfl/{}.+\{{.*?\"{}\":)(\".+?\"|\S+?)(?P<after>,|\}})'.format(block_name, attr_name),
+        matching_reg = re.compile('(?P<before>\<!--\swp:epfl/{}.+\{{.*?\"{}\":\s?)(\".+?\"|\S+?)(?P<after>,|\}})'.format(block_name, attr_name),
                                   re.VERBOSE)
 
         double_quotes = '"' if between_double_quotes else ''
