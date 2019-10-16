@@ -38,7 +38,7 @@ class GutenbergFixes(GutenbergBlocks):
         :param attr_name: Attribute name for which we want the value
         :return:
         """
-        matching_reg = re.compile('"{}":(".+?"|\S+?),?'.format(attr_name),
+        matching_reg = re.compile('"{}":\s?(".+?"|\S+?),?'.format(attr_name),
                                   re.VERBOSE | re.DOTALL)
 
         value = matching_reg.findall(block_call)
@@ -65,7 +65,7 @@ class GutenbergFixes(GutenbergBlocks):
         # <!-- wp:block_name {"attr_name":"a","two":"b"} /-->  >>> <!-- wp:block_name {"attr_name":"b","two":"b"} /-->
         # <!-- wp:block_name {"attr_name":a,"two":"b"} /-->  >>> <!-- wp:block_name {"attr_name":b,"two":"b"} /-->
         
-        matching_reg = re.compile('(?P<before>\<!--\swp:epfl/{}.+\{{.*?\"{}\":)(\".+?\"|\S+?)(?P<after>,|\}})'.format(block_name, attr_name),
+        matching_reg = re.compile('(?P<before>\<!--\swp:epfl/{}.+\{{.*?\"{}\":\s?)(\".+?\"|\S+?)(?P<after>,|\}})'.format(block_name, attr_name),
                                   re.VERBOSE)
 
         double_quotes = '"' if between_double_quotes else ''
@@ -271,6 +271,48 @@ class GutenbergFixes(GutenbergBlocks):
         for i in range(1, 4):
             attributes_desc.append({'attr_name': 'content{}'.format(i),
                                     'func_list': func_list})
+        
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_block_calls(content, block_name)
+
+        for call in calls:
+
+            new_call = self.__fix_attributes(call, block_name, attributes_desc, page_id)
+            
+            if new_call != call:
+                self._log_to_file("Before: {}".format(call))
+                self._log_to_file("After: {}".format(new_call))
+
+                self._update_report(block_name)
+
+                content = content.replace(call, new_call)
+        
+        return content
+    
+
+    def _fix_block_social_feed(self, content, page_id):
+        """
+        Fix EPFL Social Feed
+        :param content: content to update
+        :param page_id: Id of page containing content
+        """
+        
+        block_name = "social-feed"
+
+        func_list = [ '_decode_html' ]
+        attributes_desc = [{
+                            'attr_name': 'twitterUrl',
+                            'func_list': func_list
+                           },
+                           {
+                            'attr_name': 'instagramUrl',
+                            'func_list': func_list
+                           },
+                           {
+                            'attr_name': 'facebookUrl',
+                            'func_list': func_list
+                           }]
+
         
         # Looking for all calls to modify them one by one
         calls = self._get_all_block_calls(content, block_name)
