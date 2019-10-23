@@ -82,9 +82,9 @@ class GutenbergFixes(GutenbergBlocks):
         
         :return:
         """
-        regex = '\<!--\swp:epfl/{}(\s+\{{(.*?)\}})?\s+/?--\>'.format(block_name)
+        regex = '\<!--\swp:epfl/{}(\s+\{{(.*?)\}})?\s+{}--\>'.format(block_name, ("" if with_content else "/"))
         if with_content:
-            regex += '.*?\<!--\s/wp:epfl/{}\s+/?--\>'.format(block_name)
+            regex += '.*?\<!--\s/wp:epfl/{}\s+--\>'.format(block_name)
 
         matching_reg = re.compile("({})".format(regex))
         
@@ -119,6 +119,53 @@ class GutenbergFixes(GutenbergBlocks):
         Remove new lines in html
         """
         return html.replace("\n", "")
+    
+
+    def _transform_to_block_with_content(self, call, block_name, content_attribute):
+        """ 
+        Take a block call <!-- wp:epfl/<block_name> {...} /-->
+        and transforms it to a block call with content.
+
+        <!-- wp:epfl/<block_name> {...} -->
+        <div class="wp-block-epfl-<block_name>"><!-- wp:freeform -->
+        ...
+        <!-- /wp:freeform --></div>
+        <!-- /wp:epfl/<block_name> -->
+        
+        We use "wp:freeform" block to put all HTML. This is a "classic editor" block. If you go
+        to see page code in the editor, you won't see this block because it is automatically 
+        hidden by WordPress and only HTML code is displayed.
+
+        :param call: Block call to modify
+        :param block_name: Name of block 
+        :param content_attribute: name of block attribute containing content to put inside the block
+        """
+        block_content = self._get_attribute(call, content_attribute)
+
+        # If attribute is not set, we set it to empty
+        if block_content is None:
+            block_content = ""
+
+        block_content = self._decode_unicode(block_content)
+
+        call = call.replace("/-->", "-->")
+
+        # We remove \n at beginning and end
+        block_content = block_content.strip("\n")
+        call = call.strip("\n")
+
+        return '{0}\n<div class="wp-block-epfl-{1}"><!-- wp:freeform -->\n{2}\n<!-- /wp:freeform --></div>\n<!-- /wp:epfl/{1} -->'.format(call, block_name, block_content)
+
+
+    def _decode_unicode(self, encoded_html):
+        """
+        Decode HTML tags to replace unicode characters with <, > and "
+
+        :param encoded_html: HTML to decode
+        """
+        encoded_html = encoded_html.replace('\\u003c', '<').replace('\\u003e', '>').replace('\\u0022', '"')
+
+        return encoded_html
 
 
     def __fix_attributes(self, call, block_name, attributes_desc, page_id):
@@ -173,72 +220,22 @@ class GutenbergFixes(GutenbergBlocks):
         
         return new_call
 
-
-    def _fix_block_google_forms(self, content, page_id):
-        """
-        Fix EPFL Goole Forms URL
-
-        :param content: content to update
-        :param page_id: Id of page containing content
-        """
-        
-        block_name = "google-forms"
-
-        attributes_desc = [{
-                            'attr_name': 'data',
-                            'func_list': [ 
-                                            '_decode_html', 
-                                            '_handle_html' 
-                                         ]
-                            }]
-
-        # Looking for all calls to modify them one by one
-        calls = self._get_all_block_calls(content, block_name)
-
-        for call in calls:
-
-            new_call = self.__fix_attributes(call, block_name, attributes_desc, page_id)
-            
-            if new_call != call:
-                self._log_to_file("Before: {}".format(call))
-                self._log_to_file("After: {}".format(new_call))
-
-                self._update_report(block_name)
-
-                content = content.replace(call, new_call)
-        
-        return content
-
        
     def _fix_block_contact(self, content, page_id):
         """
-        Fix EPFL Contact
+        Fix EPFL Contact by putting an attribute content inside the block
         :param content: content to update
         :param page_id: Id of page containing content
         """
         
         block_name = "contact"
 
-        attributes_desc = []
-
-        func_list = ['_decode_html', 
-                    '_remove_new_lines',
-                    '_add_paragraph',
-                    '_handle_html']
-    
-        for i in range(1, 4):
-            attributes_desc.append({'attr_name': 'information{}'.format(i),
-                                    'func_list': func_list})
-        for i in range(1, 5):
-            attributes_desc.append({'attr_name': 'timetable{}'.format(i),
-                                    'func_list': func_list})
-
         # Looking for all calls to modify them one by one
         calls = self._get_all_block_calls(content, block_name)
 
         for call in calls:
 
-            new_call = self.__fix_attributes(call, block_name, attributes_desc, page_id)
+            new_call = self._transform_to_block_with_content(call, block_name, "introduction")
             
             if new_call != call:
                 self._log_to_file("Before: {}".format(call))
@@ -251,33 +248,22 @@ class GutenbergFixes(GutenbergBlocks):
         return content
 
 
-    def _fix_block_card(self, content, page_id):
+    def _fix_block_scheduler(self, content, page_id):
         """
-        Fix EPFL Card
+        Fix EPFL Scheduler by putting an attribute content inside the block
+
         :param content: content to update
         :param page_id: Id of page containing content
         """
         
-        block_name = "card"
+        block_name = "scheduler"
 
-        attributes_desc = []
-
-        func_list = ['_decode_html', 
-                    '_add_paragraph',
-                    '_handle_html',
-                    '_remove_new_lines'
-                    ]
-    
-        for i in range(1, 4):
-            attributes_desc.append({'attr_name': 'content{}'.format(i),
-                                    'func_list': func_list})
-        
         # Looking for all calls to modify them one by one
         calls = self._get_all_block_calls(content, block_name)
 
         for call in calls:
 
-            new_call = self.__fix_attributes(call, block_name, attributes_desc, page_id)
+            new_call = self._transform_to_block_with_content(call, block_name, "content")
             
             if new_call != call:
                 self._log_to_file("Before: {}".format(call))
@@ -290,36 +276,22 @@ class GutenbergFixes(GutenbergBlocks):
         return content
     
 
-    def _fix_block_social_feed(self, content, page_id):
+    def _fix_block_toggle(self, content, page_id):
         """
-        Fix EPFL Social Feed
+        Fix EPFL Toggle by putting an attribute content inside the block
+
         :param content: content to update
         :param page_id: Id of page containing content
         """
         
-        block_name = "social-feed"
+        block_name = "toggle"
 
-        func_list = [ '_decode_html' ]
-        attributes_desc = [{
-                            'attr_name': 'twitterUrl',
-                            'func_list': func_list
-                           },
-                           {
-                            'attr_name': 'instagramUrl',
-                            'func_list': func_list
-                           },
-                           {
-                            'attr_name': 'facebookUrl',
-                            'func_list': func_list
-                           }]
-
-        
         # Looking for all calls to modify them one by one
         calls = self._get_all_block_calls(content, block_name)
 
         for call in calls:
 
-            new_call = self.__fix_attributes(call, block_name, attributes_desc, page_id)
+            new_call = self._transform_to_block_with_content(call, block_name, "content")
             
             if new_call != call:
                 self._log_to_file("Before: {}".format(call))

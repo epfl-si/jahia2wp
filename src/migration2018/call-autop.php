@@ -41,6 +41,6 @@ $content = str_replace("\\\\u003e", "\\u003e", $content);
 
 
 // Save the new content inside temporary file
-file_put_contents($filename, $content);
+file_put_contents($filename, trim($content));
 
 ?>
