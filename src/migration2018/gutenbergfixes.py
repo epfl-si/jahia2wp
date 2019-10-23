@@ -150,8 +150,9 @@ class GutenbergFixes(GutenbergBlocks):
 
         call = call.replace("/-->", "-->")
 
+        # We remove new line characters in code
+        block_content = block_content.replace('\\n', "").replace('\\r', "")
         # We remove \n at beginning and end
-        block_content = block_content.strip("\n")
         call = call.strip("\n")
 
         return '{0}\n<div class="wp-block-epfl-{1}"><!-- wp:freeform -->\n{2}\n<!-- /wp:freeform --></div>\n<!-- /wp:epfl/{1} -->'.format(call, block_name, block_content)
