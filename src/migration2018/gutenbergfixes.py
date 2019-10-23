@@ -142,7 +142,7 @@ class GutenbergFixes(GutenbergBlocks):
         block_content = block_content.strip("\n")
         call = call.strip("\n")
 
-        return '{0}\n<div class="wp-block-epfl-{1}"><!-- wp:html -->\n{2}\n<!-- /wp:html --></div>\n<!-- /wp:epfl/{1} -->'.format(call, block_name, block_content)
+        return '{0}\n<div class="wp-block-epfl-{1}"><!-- wp:freeform -->\n{2}\n<!-- /wp:freeform --></div>\n<!-- /wp:epfl/{1} -->'.format(call, block_name, block_content)
 
 
     def _decode_unicode(self, encoded_html):
