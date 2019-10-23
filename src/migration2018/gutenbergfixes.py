@@ -310,6 +310,34 @@ class GutenbergFixes(GutenbergBlocks):
                 content = content.replace(call, new_call)
         
         return content
+    
+
+    def _fix_block_toggle(self, content, page_id):
+        """
+        Fix EPFL Toggle by putting an attribute content inside the block
+
+        :param content: content to update
+        :param page_id: Id of page containing content
+        """
+        
+        block_name = "toggle"
+
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_block_calls(content, block_name)
+
+        for call in calls:
+
+            new_call = self._transform_to_block_with_content(call, block_name, "content")
+            
+            if new_call != call:
+                self._log_to_file("Before: {}".format(call))
+                self._log_to_file("After: {}".format(new_call))
+
+                self._update_report(block_name)
+
+                content = content.replace(call, new_call)
+        
+        return content
 
 
     def _fix_block_card(self, content, page_id):
