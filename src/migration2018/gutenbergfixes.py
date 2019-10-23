@@ -220,42 +220,6 @@ class GutenbergFixes(GutenbergBlocks):
         
         return new_call
 
-
-    def _fix_block_google_forms(self, content, page_id):
-        """
-        Fix EPFL Goole Forms URL
-
-        :param content: content to update
-        :param page_id: Id of page containing content
-        """
-        
-        block_name = "google-forms"
-
-        attributes_desc = [{
-                            'attr_name': 'data',
-                            'func_list': [ 
-                                            '_decode_html', 
-                                            '_handle_html' 
-                                         ]
-                            }]
-
-        # Looking for all calls to modify them one by one
-        calls = self._get_all_block_calls(content, block_name)
-
-        for call in calls:
-
-            new_call = self.__fix_attributes(call, block_name, attributes_desc, page_id)
-            
-            if new_call != call:
-                self._log_to_file("Before: {}".format(call))
-                self._log_to_file("After: {}".format(new_call))
-
-                self._update_report(block_name)
-
-                content = content.replace(call, new_call)
-        
-        return content
-
        
     def _fix_block_contact(self, content, page_id):
         """
@@ -328,87 +292,6 @@ class GutenbergFixes(GutenbergBlocks):
         for call in calls:
 
             new_call = self._transform_to_block_with_content(call, block_name, "content")
-            
-            if new_call != call:
-                self._log_to_file("Before: {}".format(call))
-                self._log_to_file("After: {}".format(new_call))
-
-                self._update_report(block_name)
-
-                content = content.replace(call, new_call)
-        
-        return content
-
-
-    def _fix_block_card(self, content, page_id):
-        """
-        Fix EPFL Card
-        :param content: content to update
-        :param page_id: Id of page containing content
-        """
-        
-        block_name = "card"
-
-        attributes_desc = []
-
-        func_list = ['_decode_html', 
-                    '_add_paragraph',
-                    '_handle_html',
-                    '_remove_new_lines'
-                    ]
-    
-        for i in range(1, 4):
-            attributes_desc.append({'attr_name': 'content{}'.format(i),
-                                    'func_list': func_list})
-        
-        # Looking for all calls to modify them one by one
-        calls = self._get_all_block_calls(content, block_name)
-
-        for call in calls:
-
-            new_call = self.__fix_attributes(call, block_name, attributes_desc, page_id)
-            
-            if new_call != call:
-                self._log_to_file("Before: {}".format(call))
-                self._log_to_file("After: {}".format(new_call))
-
-                self._update_report(block_name)
-
-                content = content.replace(call, new_call)
-        
-        return content
-    
-
-    def _fix_block_social_feed(self, content, page_id):
-        """
-        Fix EPFL Social Feed
-        :param content: content to update
-        :param page_id: Id of page containing content
-        """
-        
-        block_name = "social-feed"
-
-        func_list = [ '_decode_html' ]
-        attributes_desc = [{
-                            'attr_name': 'twitterUrl',
-                            'func_list': func_list
-                           },
-                           {
-                            'attr_name': 'instagramUrl',
-                            'func_list': func_list
-                           },
-                           {
-                            'attr_name': 'facebookUrl',
-                            'func_list': func_list
-                           }]
-
-        
-        # Looking for all calls to modify them one by one
-        calls = self._get_all_block_calls(content, block_name)
-
-        for call in calls:
-
-            new_call = self.__fix_attributes(call, block_name, attributes_desc, page_id)
             
             if new_call != call:
                 self._log_to_file("Before: {}".format(call))
