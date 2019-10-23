@@ -121,21 +121,33 @@ class GutenbergFixes(GutenbergBlocks):
         return html.replace("\n", "")
     
 
-    def _transform_to_block_with_content(self, call, block_name, block_content):
+    def _transform_to_block_with_content(self, call, block_name, content_attribute):
         """ 
         Take a block call <!-- wp:epfl/<block_name> {...} /-->
-        and transforms it to a block call with content
+        and transforms it to a block call with content.
 
         <!-- wp:epfl/<block_name> {...} -->
-        <div class="wp-block-epfl-<block_name>"><!-- wp:html -->
+        <div class="wp-block-epfl-<block_name>"><!-- wp:freeform -->
         ...
-        <!-- /wp:html --></div>
+        <!-- /wp:freeform --></div>
         <!-- /wp:epfl/<block_name> -->
         
+        We use "wp:freeform" block to put all HTML. This is a "classic editor" block. If you go
+        to see page code in the editor, you won't see this block because it is automatically 
+        hidden by WordPress and only HTML code is displayed.
+
         :param call: Block call to modify
         :param block_name: Name of block 
-        :param content_attribute: content to put in block
+        :param content_attribute: name of block attribute containing content to put inside the block
         """
+        block_content = self._get_attribute(call, content_attribute)
+
+        # If attribute is not set, we set it to empty
+        if block_content is None:
+            block_content = ""
+
+        block_content = self._decode_unicode(block_content)
+
         call = call.replace("/-->", "-->")
 
         # We remove \n at beginning and end
@@ -247,7 +259,7 @@ class GutenbergFixes(GutenbergBlocks):
        
     def _fix_block_contact(self, content, page_id):
         """
-        Fix EPFL Contact
+        Fix EPFL Contact by putting an attribute content inside the block
         :param content: content to update
         :param page_id: Id of page containing content
         """
@@ -259,15 +271,35 @@ class GutenbergFixes(GutenbergBlocks):
 
         for call in calls:
 
-            block_content = self._get_attribute(call, "introduction")
+            new_call = self._transform_to_block_with_content(call, block_name, "introduction")
+            
+            if new_call != call:
+                self._log_to_file("Before: {}".format(call))
+                self._log_to_file("After: {}".format(new_call))
 
-            # If attribute is not set, we set it to empty
-            if block_content is None:
-                block_content = ""
+                self._update_report(block_name)
 
-            block_content = self._decode_unicode(block_content)
+                content = content.replace(call, new_call)
+        
+        return content
 
-            new_call = self._transform_to_block_with_content(call, block_name, block_content)
+
+    def _fix_block_scheduler(self, content, page_id):
+        """
+        Fix EPFL Scheduler by putting an attribute content inside the block
+
+        :param content: content to update
+        :param page_id: Id of page containing content
+        """
+        
+        block_name = "scheduler"
+
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_block_calls(content, block_name)
+
+        for call in calls:
+
+            new_call = self._transform_to_block_with_content(call, block_name, "content")
             
             if new_call != call:
                 self._log_to_file("Before: {}".format(call))
