@@ -109,7 +109,6 @@ class GutenbergFixes(GutenbergBlocks):
             matching_reg = re.compile("({})".format(regex))
 
 
-        ''
         # Because we have 3 parenthesis groups in regex, we obtain a list of tuples and we just want the first
         # element of each tuple and put it in a list.
         return [x[0] for x in matching_reg.findall(content)]
