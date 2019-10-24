@@ -38,12 +38,12 @@ class GutenbergFixes(GutenbergBlocks):
         :param attr_name: Attribute name for which we want the value
         :return:
         """
-        matching_reg = re.compile('"{}":\s?(".+?"|\S+?),?'.format(attr_name),
+        matching_reg = re.compile('"{}":\s?(".+?"|\S+?)(,|\}})'.format(attr_name),
                                   re.VERBOSE | re.DOTALL)
 
         value = matching_reg.findall(block_call)
         # We remove surrounding " if exists.
-        return value[0].strip('"') if value else None
+        return value[0][0].strip('"') if value else None
 
 
     def _change_attribute_value(self, content, block_name, attr_name, new_value, between_double_quotes=True):
@@ -72,6 +72,23 @@ class GutenbergFixes(GutenbergBlocks):
 
         return matching_reg.sub(r'\g<before>{0}{1}{0}\g<after>'.format(double_quotes, new_value), content)
 
+    
+    def _remove_block_call_content(self, block_call, block_name):
+        """
+        Remove content of a block call to transform it back to a "simple" block
+
+        :param block_call: Block call
+        :param block_name: Block name
+        """
+
+        # We look for first part of block
+        block_start_reg = re.compile('(\<!--\swp:epfl/{}(\s+\{{(.*?)\}})?\s+--\>)'.format(block_name))
+
+        # We take result and retransform it to "simple block"
+        all = block_start_reg.findall(block_call)
+
+        return all[0][0].replace("-->", "/-->")
+
 
     def _get_all_block_calls(self, content, block_name, with_content=False):
         """
@@ -85,9 +102,13 @@ class GutenbergFixes(GutenbergBlocks):
         regex = '\<!--\swp:epfl/{}(\s+\{{(.*?)\}})?\s+{}--\>'.format(block_name, ("" if with_content else "/"))
         if with_content:
             regex += '.*?\<!--\s/wp:epfl/{}\s+--\>'.format(block_name)
+            
+            # We have to look through multiple lines so -> re.DOTALL
+            matching_reg = re.compile("({})".format(regex), re.DOTALL)
+        else:
+            matching_reg = re.compile("({})".format(regex))
 
-        matching_reg = re.compile("({})".format(regex))
-        
+
         # Because we have 3 parenthesis groups in regex, we obtain a list of tuples and we just want the first
         # element of each tuple and put it in a list.
         return [x[0] for x in matching_reg.findall(content)]
@@ -151,21 +172,37 @@ class GutenbergFixes(GutenbergBlocks):
         call = call.replace("/-->", "-->")
 
         # We remove new line characters in code
-        block_content = block_content.replace('\\n', "").replace('\\r', "")
+        block_content = block_content.replace('\\n', "").replace('\\r', "").replace("\\t", "")
+        # We unescape double quotes
+        block_content = block_content.replace('\\"', '"')
         # We remove \n at beginning and end
         call = call.strip("\n")
         block_content = block_content.strip("\n")
+
+        # If block is empty, we have to return without wp:freeform otherwise content won't be editable in visual
+        if block_content == "":
+            return '{0}\n<div class="wp-block-epfl-{1}"></div>\n<!-- /wp:epfl/{1} -->'.format(call, block_name)
 
         return '{0}\n<div class="wp-block-epfl-{1}"><!-- wp:freeform -->\n{2}\n<!-- /wp:freeform --></div>\n<!-- /wp:epfl/{1} -->'.format(call, block_name, block_content)
 
 
     def _decode_unicode(self, encoded_html):
         """
-        Decode HTML tags to replace unicode characters with <, > and "
+        Decode HTML tags to replace unicode characters with decoded characters
 
         :param encoded_html: HTML to decode
         """
-        encoded_html = encoded_html.replace('\\u003c', '<').replace('\\u003e', '>').replace('\\u0022', '"')
+
+        unicode_reg = re.compile('\\\\u[\w\d]{4,4}')
+
+        # Searching all unicode characters 
+        for unicode_chr in list(set(unicode_reg.findall(encoded_html))):
+            # Findind decoded character: \\u00e9 -> 00e9
+            decoded_chr = unicode_chr.replace('\\u', '')
+            # 00e9 -> hex to int -> to char
+            decoded_chr = chr(int(decoded_chr, 16))
+            # Replacing in string
+            encoded_html = encoded_html.replace(unicode_chr, decoded_chr)
 
         return encoded_html
 
@@ -233,11 +270,13 @@ class GutenbergFixes(GutenbergBlocks):
         block_name = "contact"
 
         # Looking for all calls to modify them one by one
-        calls = self._get_all_block_calls(content, block_name)
+        calls = self._get_all_block_calls(content, block_name, with_content=True)
 
         for call in calls:
 
-            new_call = self._transform_to_block_with_content(call, block_name, "introduction")
+            new_call = self._remove_block_call_content(call, block_name)
+
+            new_call = self._transform_to_block_with_content(new_call, block_name, "introduction")
             
             if new_call != call:
                 self._log_to_file("Before: {}".format(call))
@@ -261,11 +300,13 @@ class GutenbergFixes(GutenbergBlocks):
         block_name = "scheduler"
 
         # Looking for all calls to modify them one by one
-        calls = self._get_all_block_calls(content, block_name)
+        calls = self._get_all_block_calls(content, block_name, with_content=True)
 
         for call in calls:
 
-            new_call = self._transform_to_block_with_content(call, block_name, "content")
+            new_call = self._remove_block_call_content(call, block_name)
+
+            new_call = self._transform_to_block_with_content(new_call, block_name, "content")
             
             if new_call != call:
                 self._log_to_file("Before: {}".format(call))
@@ -289,11 +330,13 @@ class GutenbergFixes(GutenbergBlocks):
         block_name = "toggle"
 
         # Looking for all calls to modify them one by one
-        calls = self._get_all_block_calls(content, block_name)
+        calls = self._get_all_block_calls(content, block_name, with_content=True)
 
         for call in calls:
 
-            new_call = self._transform_to_block_with_content(call, block_name, "content")
+            new_call = self._remove_block_call_content(call, block_name)
+
+            new_call = self._transform_to_block_with_content(new_call, block_name, "content")
             
             if new_call != call:
                 self._log_to_file("Before: {}".format(call))
