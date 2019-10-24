@@ -197,8 +197,9 @@ class GutenbergFixes(GutenbergBlocks):
 
         # Searching all unicode characters 
         for unicode_chr in list(set(unicode_reg.findall(encoded_html))):
-            # Findind decoded character
+            # Findind decoded character: \\u00e9 -> 00e9
             decoded_chr = unicode_chr.replace('\\u', '')
+            # 00e9 -> hex to int -> to char
             decoded_chr = chr(int(decoded_chr, 16))
             # Replacing in string
             encoded_html = encoded_html.replace(unicode_chr, decoded_chr)
