@@ -84,9 +84,6 @@ class GutenbergFixes(GutenbergBlocks):
         # We look for first part of block
         block_start_reg = re.compile('(\<!--\swp:epfl/{}(\s+\{{(.*?)\}})?\s+--\>)'.format(block_name))
 
-        matching_reg = re.compile('(?P<before>\<!--\swp:epfl/{0}(\s+\{{(.*?)\}})?\s+--\>)(.*?)(?P<after>\<!--\s/wp:epfl/{0} --\>)'.format(block_name),
-                                  re.VERBOSE | re.DOTALL)
-
         # We take result and retransform it to "simple block"
         all = block_start_reg.findall(block_call)
 
