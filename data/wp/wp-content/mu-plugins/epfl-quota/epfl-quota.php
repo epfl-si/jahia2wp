@@ -302,7 +302,7 @@ class EPFLQuota
 
     ?>
     <div class="notice notice-info">
-        <img src="<?php echo plugins_url( 'img/gauge.svg', __FILE__ ); ?>" style="height:32px; width:32px; float:left; margin:3px 15px 3px 0px;">
+        <img src="<?php echo WPMU_PLUGIN_URL.'/'.basename(dirname(__FILE__)).'/img/gauge.svg'; ?>" style="height:32px; width:32px; float:left; margin:3px 15px 3px 0px;">
         <p><?php echo $quota_status; ?></p>
     </div>
     <?php
