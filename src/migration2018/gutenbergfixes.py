@@ -183,7 +183,7 @@ class GutenbergFixes(GutenbergBlocks):
         if block_content == "":
             return '{0}\n<div class="wp-block-epfl-{1}"></div>\n<!-- /wp:epfl/{1} -->'.format(call, block_name)
 
-        return '{0}\n<div class="wp-block-epfl-{1}"><!-- wp:freeform -->\n{2}\n<!-- /wp:freeform --></div>\n<!-- /wp:epfl/{1} -->'.format(call, block_name, block_content)
+        return '{0}\n<div class="wp-block-epfl-{1}"><!-- wp:tadv/classic-paragraph -->\n{2}\n<!-- /wp:tadv/classic-paragraph --></div>\n<!-- /wp:epfl/{1} -->'.format(call, block_name, block_content)
 
 
     def _decode_unicode(self, encoded_html):
