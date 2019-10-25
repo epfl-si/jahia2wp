@@ -73,6 +73,7 @@ function my_plugin_allowed_block_types( $allowed_block_types, $post ) {
         'core/list',
         'core/image',
         'core/file',
+        'tadv/classic-paragraph',
     );
 
     // Add epfl/scienceqa block for WP instance https://www.epfl.ch only
