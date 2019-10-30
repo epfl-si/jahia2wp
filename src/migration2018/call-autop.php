@@ -1,5 +1,4 @@
 <?php
-return;
 $filename = $args[0];
 
 // Get the content of the temporary file
