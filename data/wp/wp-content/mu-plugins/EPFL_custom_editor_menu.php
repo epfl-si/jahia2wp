@@ -3,7 +3,7 @@
 * Plugin Name: EPFL custom editor role menu
 * Plugin URI:
 * Description: Must-use plugin for the EPFL website.
-* Version: 1.0.1
+* Version: 1.0.2
 * Author: wwp-admin@epfl.ch
  */
 
@@ -57,7 +57,7 @@ function my_plugin_allowed_block_types( $allowed_block_types, $post ) {
         'epfl/social-feed',
         'epfl/contact',
         'epfl/caption-cards',
-        'epfl/card',
+        'epfl/card-deck',
         'epfl/definition-list',
         'epfl/links-group',
         'core/paragraph',
