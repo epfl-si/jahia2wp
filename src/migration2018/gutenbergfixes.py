@@ -321,7 +321,7 @@ class GutenbergFixes(GutenbergBlocks):
             new_call = new_call.strip('\n')
             new_call = new_call.replace('/-->', '-->').replace('wp:epfl/card', 'wp:epfl/card-deck')
 
-            new_call = '{}\n{}\n<!-- /wp:epfl/card-deck -->'.format(new_call, '\n\n'.join(block_contents))
+            new_call = '{}\n{}\n<!-- /wp:epfl/card-deck -->'.format(new_call, '\n'.join(block_contents))
 
             
             if new_call != call:
