@@ -257,7 +257,7 @@ class GutenbergBlocks(Shortcodes):
 
         :param attachment_url: URL of attachment for which we want ID
         """
-        att_list = json.loads(self.wp_config.run_wp_cli('post list --post_type=attachment --fields=ID,guid --format=json'))
+        att_list = json.loads(self.wp_config.run_wp_cli('post list --post_type=attachment --fields=ID,guid --format=json --skip-plugins --skip-themes'))
 
         for att in att_list:
 
