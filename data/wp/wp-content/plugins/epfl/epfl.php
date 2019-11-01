@@ -37,7 +37,7 @@ require_once 'menus/epfl-menus.php';
 //require_once 'preprod.php';
 
 if (class_exists('\WP_CLI')) {
-  require_once 'menus/wpcli.php';
+    require_once 'menus/wpcli.php';
 }
 
 // load .mo file for translation
