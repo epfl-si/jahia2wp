@@ -300,12 +300,12 @@ class Shortcodes():
         :param attr_name: Attribute name for which we want the value
         :return:
         """
-        matching_reg = re.compile('{}=(".+?"|\S+?)'.format(attr_name),
+        matching_reg = re.compile('{}=(".+?"|.+?\s)'.format(attr_name),
                                   re.VERBOSE | re.DOTALL)
 
         value = matching_reg.findall(shortcode_call)
         # We remove surrounding " if exists.
-        return value[0].strip('"') if value else None
+        return value[0].strip().strip('"') if value else None
 
     def _get_content(self, shortcode_call):
         """
