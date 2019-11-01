@@ -2016,7 +2016,7 @@ class GutenbergBlocks(Shortcodes):
 
             id = self._get_attachment_id(url)
 
-            if id is None:
+            if not id:
                 self._log_to_file("Page {}, No attachement ID found for shortcode call: {}".format(page_id, call))
                 continue
             
