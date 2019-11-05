@@ -57,7 +57,7 @@ function my_plugin_allowed_block_types( $allowed_block_types, $post ) {
         'epfl/social-feed',
         'epfl/contact',
         'epfl/caption-cards',
-        'epfl/card',
+        'epfl/card-deck',
         'epfl/definition-list',
         'epfl/links-group',
         'core/paragraph',

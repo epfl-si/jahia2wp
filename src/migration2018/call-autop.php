@@ -1,5 +1,4 @@
 <?php
-
 $filename = $args[0];
 
 // Get the content of the temporary file
@@ -20,7 +19,7 @@ if ($index_start !== FALSE) {
 }
 
 // Add auto <p>
-$content = wpautop( $content );
+$content = wpautop( $content, false );
 
 if ($index_start !== FALSE) {
     // Search pattern $substitute
