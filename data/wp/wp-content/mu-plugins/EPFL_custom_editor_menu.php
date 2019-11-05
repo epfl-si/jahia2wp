@@ -34,23 +34,16 @@ function add_gutenberg_custom_editor_menu() {
 function my_plugin_allowed_block_types( $allowed_block_types, $post ) {
 
     /* Recovering white list from option */
-    $white_list = get_option('epfl:gutenberg:allowed-blocks', '');
+    $generic_blocks = get_option('epfl:gutenberg:generic-blocks', '');
+    $generic_blocks = (trim($generic_blocks) == '')? array() : explode(",", $generic_blocks);
 
-    /* If no limitation */
-    if(trim($white_list) == '')
-    {
-        return True;
-    }
+    $specific_blocks = get_option('epfl:gutenberg:specific-blocks', '');
+    $specific_blocks = (trim($specific_blocks) == '')? array() : explode(",", $specific_blocks);
 
-    /* Creating array from string */
-    $blocks = explode(",", $white_list);
+    /* Merging generic and specific and removing duplicates if any */
+    $blocks = array_unique( array_merge($generic_blocks, $specific_blocks));
 
-    // Add epfl/scienceqa block for WP instance https://www.epfl.ch only
-    if (get_option('blogname') == 'EPFL') {
-        array_push($blocks, 'epfl/scienceqa');
-    }
-
-  	return $blocks;
+  	return (sizeof($blocks)==0)? True : $blocks;
     // return True; // if you want all natifs blocks.
 }
 
