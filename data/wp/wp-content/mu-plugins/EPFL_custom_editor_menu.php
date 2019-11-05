@@ -3,7 +3,7 @@
 * Plugin Name: EPFL custom editor role menu
 * Plugin URI:
 * Description: Must-use plugin for the EPFL website.
-* Version: 1.0.2
+* Version: 1.0.3
 * Author: wwp-admin@epfl.ch
  */
 
@@ -32,50 +32,18 @@ function add_gutenberg_custom_editor_menu() {
 }
 
 function my_plugin_allowed_block_types( $allowed_block_types, $post ) {
-    $blocks = array(
-        'epfl/news',
-        'epfl/memento',
-        'epfl/cover',
-        'epfl/cover-dynamic',
-        'epfl/toggle',
-        'epfl/quote',
-        'epfl/people',
-        'epfl/map',
-        'epfl/introduction',
-        'epfl/hero',
-        'epfl/google-forms',
-        'epfl/video',
-        'epfl/scheduler',
-        'epfl/tableau',
-        'epfl/page-teaser',
-        'epfl/custom-teaser',
-        'epfl/custom-highlight',
-        'epfl/page-highlight',
-        'epfl/post-teaser',
-        'epfl/post-highlight',
-        'epfl/infoscience-search',
-        'epfl/social-feed',
-        'epfl/contact',
-        'epfl/caption-cards',
-        'epfl/card',
-        'epfl/definition-list',
-        'epfl/links-group',
-        'core/paragraph',
-        'core/heading',
-        'core/gallery',
-        'core/classic',
-        'core/rss',
-        'core/table',
-        'core/spacer',
-        'core/separator',
-        'core/shortcode',
-        'core/freeform',
-        'core/list',
-        'core/image',
-        'core/file',
-        'tadv/classic-paragraph',
-        'pdf-viewer-block/standard',
-    );
+
+    /* Recovering white list from option */
+    $white_list = get_option('epfl:gutenberg:allowed-blocks', '');
+
+    /* If no limitation */
+    if(trim($white_list) == '')
+    {
+        return True;
+    }
+
+    /* Creating array from string */
+    $blocks = explode(",", $white_list);
 
     // Add epfl/scienceqa block for WP instance https://www.epfl.ch only
     if (get_option('blogname') == 'EPFL') {
