@@ -2009,6 +2009,7 @@ class GutenbergBlocks(Shortcodes):
         for call in calls:
 
             url = self._get_attribute(call, 'url')
+            url = self._decode_url(url, page_id, None)
             viewer_width = self._get_attribute(call, 'viewer_width')
             viewer_height = self._get_attribute(call, 'viewer_height')
             
