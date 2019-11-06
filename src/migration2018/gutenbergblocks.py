@@ -1,5 +1,5 @@
 """(c) All rights reserved. ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE, Switzerland, VPSI, 2018"""
-from urllib.parse import unquote
+from urllib.parse import unquote_plus
 from html import unescape
 
 import settings
@@ -90,7 +90,7 @@ class GutenbergBlocks(Shortcodes):
         :param extra_attr: (optional) dict with extra attributes values needed by func
         """
 
-        return unquote(url)
+        return unquote_plus(url)
 
     
     def _unescape_url(self, url, page_id, extra_attr):
@@ -149,7 +149,7 @@ class GutenbergBlocks(Shortcodes):
         :param extra_attr: (optional) dict with extra attributes values needed by func
         """
 
-        if not content.strip().startswith("<p>"):
+        if not content.strip().startswith("<p") and not content.strip().startswith("\\u003cp"):
             # We replace new lines with </p><p>
             content = content.replace("\n", "\\u003c/p\\u003e\\u003cp\\u003e")
             
@@ -249,6 +249,23 @@ class GutenbergBlocks(Shortcodes):
 
         # Encoding to JSON
         return json.dumps(res, separators=(',', ':'))
+
+
+    def _get_attachment_id(self, attachment_url):
+        """
+        Returns attachment id from an attachment URL
+
+        :param attachment_url: URL of attachment for which we want ID
+        """
+        att_list = json.loads(self.wp_config.run_wp_cli('post list --post_type=attachment --fields=ID,guid --format=json --skip-plugins --skip-themes'))
+
+        for att in att_list:
+
+            if att['guid'] == attachment_url:
+                return att['ID']
+            
+        # If nothing found
+        return None
 
 
     def _get_news_themes(self, themes, page_id, extra_attr):
@@ -1954,7 +1971,6 @@ class GutenbergBlocks(Shortcodes):
         # Attribute description to recover correct value from each shortcode calls
         attributes_desc = ['url']
 
-
         for call in calls:
 
             # To store new attributes
@@ -1965,6 +1981,50 @@ class GutenbergBlocks(Shortcodes):
 
             # We generate new shortcode from scratch
             new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
+
+            self._log_to_file("Before: {}".format(call))
+            self._log_to_file("After: {}".format(new_call))
+
+            # Replacing in global content
+            content = content.replace(call, new_call)
+
+            self._update_report(shortcode)
+
+        return content
+
+    
+    def _fix_pdfjs_viewer(self, content, page_id):
+        """
+        Transforms PDFJS Viewer shortcode to Gutenberg block
+
+        :param content: content to update
+        :param page_id: Id of page containing content
+        """
+        shortcode = 'pdfjs-viewer'
+        block = 'pdf-viewer-block/standard'
+
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_shortcode_calls(content, shortcode)
+
+        for call in calls:
+
+            url = self._get_attribute(call, 'url')
+            url = self._decode_url(url, page_id, None)
+            viewer_width = self._get_attribute(call, 'viewer_width')
+            viewer_height = self._get_attribute(call, 'viewer_height')
+            
+            attributes = {}
+
+            id = self._get_attachment_id(url)
+
+            if not id:
+                self._log_to_file("Page {}, No attachement ID found for shortcode call: {}".format(page_id, call))
+                continue
+            
+            attributes = {'mediaID': id}
+
+            # We generate new shortcode from scratch
+            new_call = '<!-- wp:{0} {1} -->\n<div class="wp-block-pdf-viewer-block-standard" style="text-align:left"><div class="uploaded-pdf"><a href="{2}" data-width="{3}" data-height="{4}"></a></div></div>\n<!-- /wp:{0} -->'.format(block, json.dumps(attributes), url, viewer_width, viewer_height)
 
             self._log_to_file("Before: {}".format(call))
             self._log_to_file("After: {}".format(new_call))

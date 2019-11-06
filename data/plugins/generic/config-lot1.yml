@@ -25,8 +25,8 @@ plugins:
     config: !include svg-support/config-plugin.yml
   - name: feedzy-rss-feeds
     config: !include feedzy-rss-feeds/config-plugin.yml
-#  - name: enlighter
-#    config: !include enlighter/config-plugin.yml
+  - name: pdf-viewer-block
+    config: !include pdf-viewer-block/config-plugin.yml
   - name: remote-content-shortcode
     config: !include remote-content-shortcode/config-plugin.yml
   - name: shortcode-ui
@@ -35,8 +35,6 @@ plugins:
     config: !include shortcode-ui-richtext/config-plugin.yml
   - name: wp-media-folder
     config: !include wp-media-folder/config-plugin.yml
-  - name: pdfjs-viewer-shortcode
-    config: !include pdfjs-viewer-shortcode/config-plugin.yml
   - name: very-simple-meta-description
     config: !include very-simple-meta-description/config-plugin.yml
   - name: epfl-404
