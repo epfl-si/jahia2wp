@@ -1,11 +1,10 @@
 <?php
 /*
  * Plugin Name: EPFL Functions
- * Plugin URI: 
+ * Plugin URI:
  * Description: Must-use plugin for the EPFL website.
- * Version: 0.0.10
- * Author: Aline Keller
- * Author URI: http://www.alinekeller.ch
+ * Version: 1.0.0
+ * Author: wwp-admin@epfl.ch
  */
 
 
@@ -482,5 +481,44 @@ function epfl_deregister_visitor_styles()
     }
 }
 add_action( 'wp_enqueue_scripts', 'epfl_deregister_visitor_styles', 100 );
+
+/*--------------------------------------------------------------
+
+ # Optimize REST pages crawling
+
+--------------------------------------------------------------*/
+
+/**
+ * This class unallow fetching all pages (per_page = 100) with the content field,
+ * as it is too intensive for most cases.
+ * The main initiator of this need was to fixes the loading of the combox Parent Page in Gutenberg
+ * See https://github.com/WordPress/gutenberg/issues/13991
+ */
+class WP_REST_Posts_Controller_Limiter extends \WP_REST_Posts_Controller {
+    public function get_fields_for_response( $request ) {
+        $fields = parent::get_fields_for_response( $request);
+
+        if (isset($request['context']) && isset($request['per_page']) &&
+            $request['context'] == 'edit' && $request['per_page'] >= 100) {
+            # Don't generate content when we are listing a lot of pages
+            if (($key = array_search('content', $fields)) !== false) {
+                unset($fields[$key]);
+            }
+        }
+
+        return $fields;
+    }
+}
+
+function no_content_for_all_pages_crawling_trough_api($args, $post_type){
+    # set our custom class for pages
+    if ($post_type == 'page'){
+        $args['rest_controller_class'] = __NAMESPACE__ . '\WP_REST_Posts_Controller_Limiter';
+    }
+
+    return $args;
+}
+
+add_filter('register_post_type_args', __NAMESPACE__ . '\no_content_for_all_pages_crawling_trough_api', 10, 2);
 
 ?>
