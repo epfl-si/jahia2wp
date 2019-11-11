@@ -271,7 +271,7 @@ class GutenbergFixes(GutenbergBlocks):
         block_name = "card-panel"
 
         # Looking for all calls to modify them one by one
-        calls = self._get_all_block_calls(content, block_name)
+        calls = self._get_all_block_calls(content, block_name, with_content=True)
 
         for call in calls:
 
