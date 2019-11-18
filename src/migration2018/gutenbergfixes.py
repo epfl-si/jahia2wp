@@ -38,7 +38,7 @@ class GutenbergFixes(GutenbergBlocks):
         :param attr_name: Attribute name for which we want the value
         :return:
         """
-        matching_reg = re.compile('"{}":\s?(".+?"|\S+?)(,|\}})'.format(attr_name),
+        matching_reg = re.compile('"{}":\s?(".*?"|\S+?)(,|\}})'.format(attr_name),
                                   re.VERBOSE | re.DOTALL)
 
         value = matching_reg.findall(block_call)
@@ -296,3 +296,28 @@ class GutenbergFixes(GutenbergBlocks):
         
         return content
     
+
+    def _fix_block_toggle(self, content, page_id):
+        """
+        Scan EPFL-Toggle to find empty titles
+
+        :param content: content to update
+        :param page_id: Id of page containing content
+        """
+        
+        block_name = "toggle"
+
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_block_calls(content, block_name, with_content=True)
+
+        for call in calls:
+            
+            title = self._get_attribute(call, "title")
+
+            if title is None or title == "":
+
+                self._log_to_file("Page {}: empty or missing title found: {}".format(page_id, call))
+                
+                self._update_report(block_name)
+        
+        return content

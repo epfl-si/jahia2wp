@@ -1186,8 +1186,10 @@ class Shortcodes():
             original_content = content
 
             # Step 1 - Fixing shortcodes
-            # Looking for all shortcodes in current post
-            for shortcode in re.findall(self.regex_shortcode_names, content):
+            # Looking for all shortcodes in current post (and we get "unique" values to avoid to do the job X times, even
+            # if nothing will be modified after... but we still execute code for nothing)
+            shortcode_list = list(set(re.findall(self.regex_shortcode_names, content)))
+            for shortcode in shortcode_list:
 
                 if shortcode_name is None or shortcode_name.startswith(shortcode):
 
