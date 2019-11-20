@@ -3,7 +3,7 @@
 * Plugin Name: EPFL custom editor role menu
 * Plugin URI:
 * Description: Must-use plugin for the EPFL website.
-* Version: 1.0.3
+* Version: 1.0.4
 * Author: wwp-admin@epfl.ch
  */
 
