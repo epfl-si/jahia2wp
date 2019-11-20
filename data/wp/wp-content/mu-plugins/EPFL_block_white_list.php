@@ -3,7 +3,7 @@
 * Plugin Name: EPFL block white list
 * Plugin URI:
 * Description: Must-use plugin for the EPFL website to define allowed blocks
-* Version: 1.0.0
+* Version: 1.0.1
 * Author: wwp-admin@epfl.ch
  */
 
@@ -36,6 +36,7 @@ function epfl_allowed_block_types( $allowed_block_types, $post ) {
         'epfl/card',
         'epfl/definition-list',
         'epfl/links-group',
+        'epfl/table-filter',
         'core/paragraph',
         'core/heading',
         'core/gallery',
