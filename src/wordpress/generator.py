@@ -484,6 +484,7 @@ class WPGenerator:
         if self._site_params['category'] != 'Unmanaged':
             WPMuPluginConfig(self.wp_site, "EPFL_disable_comments.php").install(no_symlink=no_symlink)
             WPMuPluginConfig(self.wp_site, "EPFL_jahia_redirect.php").install(no_symlink=no_symlink)
+            WPMuPluginConfig(self.wp_site, "EPFL_block_white_list.php").install(no_symlink=no_symlink)
 
     def enable_updates_automatic_if_allowed(self):
         if self.wp_config.updates_automatic:
