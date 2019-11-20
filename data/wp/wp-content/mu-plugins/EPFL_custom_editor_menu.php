@@ -3,7 +3,7 @@
 * Plugin Name: EPFL custom editor role menu
 * Plugin URI:
 * Description: Must-use plugin for the EPFL website.
-* Version: 1.0.3
+* Version: 1.0.4
 * Author: wwp-admin@epfl.ch
  */
 
@@ -31,26 +31,9 @@ function add_gutenberg_custom_editor_menu() {
 	);
 }
 
-function my_plugin_allowed_block_types( $allowed_block_types, $post ) {
-
-    /* Recovering white list from option */
-    $generic_blocks = get_option('epfl:gutenberg:generic-blocks', '');
-    $generic_blocks = (trim($generic_blocks) == '')? array() : explode(",", $generic_blocks);
-
-    $specific_blocks = get_option('epfl:gutenberg:specific-blocks', '');
-    $specific_blocks = (trim($specific_blocks) == '')? array() : explode(",", $specific_blocks);
-
-    /* Merging generic and specific and removing duplicates if any */
-    $blocks = array_unique( array_merge($generic_blocks, $specific_blocks));
-
-  	return (sizeof($blocks)==0)? True : $blocks;
-    // return True; // if you want all natifs blocks.
-}
-
 // Gutenberg is on ?
 if (function_exists( 'register_block_type' ) ) {
 	add_action( 'enqueue_block_editor_assets', 'add_gutenberg_custom_editor_menu' );
-	add_filter( 'allowed_block_types', 'my_plugin_allowed_block_types', 10, 2 );
 }
 
 ?>
