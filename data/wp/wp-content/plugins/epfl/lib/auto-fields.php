@@ -201,7 +201,7 @@ class AutoFieldsController {
         $this->render_meta_field_td($value);
         if (NULL !== json_decode($value)) {
             $button_id = "autofields_json_button" . static::$_json_button_count++;
-            echo "<td><button id=\"$button_id\">" . ___("<code>console.log()</code> it"). "</button></td>\n";
+            echo "<td><button id=\"$button_id\">" . ___("<code>console.log()</code> it"). "</button></td>\n";
 ?>
 <script>
 jQuery(function($) {

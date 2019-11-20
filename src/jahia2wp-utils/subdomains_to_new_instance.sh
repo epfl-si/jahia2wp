@@ -57,7 +57,7 @@ then
 	wp theme activate wp-theme-2018 --path=/srv/www/www.epfl.ch/htdocs/${dest}
 	
 	#Rafraichir les externals menus
-	wp epfl-menus refresh --path=/srv/www/www.epfl.ch/htdocs/${dest}
+	wp epfl menus refresh --path=/srv/www/www.epfl.ch/htdocs/${dest}
 
 	#Desintallations et desactivations des plugins 2010
 	wp plugin uninstall --deactivate enlighter --path=/srv/www/www.epfl.ch/htdocs/${dest}
