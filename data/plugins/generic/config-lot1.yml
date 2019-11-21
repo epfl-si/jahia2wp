@@ -46,4 +46,4 @@ plugins:
   - name: wp-gutenberg-epfl
     config: !include wp-gutenberg-epfl/config-plugin.yml
   - name: epfl-menus
-     config: !include epfl-menus/config-plugin.yml
+    config: !include epfl-menus/config-plugin.yml
