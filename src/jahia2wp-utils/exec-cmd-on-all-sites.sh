@@ -27,7 +27,7 @@ CURDIR=`pwd`
 
 echo "Executing command on each site..."
 
-nbSites=`wc -l ${OUTFILE}`
+nbSites=`wc -l ${OUTFILE} | awk '{print $1}'`
 siteNo=1
 
 while read s
