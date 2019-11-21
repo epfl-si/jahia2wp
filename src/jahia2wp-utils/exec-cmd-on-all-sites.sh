@@ -27,11 +27,16 @@ CURDIR=`pwd`
 
 echo "Executing command on each site..."
 
+nbSites=`wc -l ${OUTFILE}`
+siteNo=1
+
 while read s
 do
-  echo "${s}..."
+  echo "[${siteNo}/${nbSites}] ${s}..."
   cd ${s}
   eval "${CMD_TO_EXEC}"
+
+  let siteNo=siteNo+1
 done < ${OUTFILE}
 
 cd ${CURDIR}
