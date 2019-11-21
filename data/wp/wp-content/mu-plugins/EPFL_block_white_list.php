@@ -2,41 +2,14 @@
 /*
 * Plugin Name: EPFL block white list
 * Plugin URI:
-* Description: Must-use plugin for the EPFL website to define allowed blocks
-* Version: 1.0.1
+* Description: Must-use plugin for the EPFL website to define allowed blocks coming from Gutenberg or installed plugins.
+* Version: 1.0.2
 * Author: wwp-admin@epfl.ch
  */
 
 function epfl_allowed_block_types( $allowed_block_types, $post ) {
-    $blocks = array(
-        'epfl/news',
-        'epfl/memento',
-        'epfl/cover',
-        'epfl/cover-dynamic',
-        'epfl/toggle',
-        'epfl/quote',
-        'epfl/people',
-        'epfl/map',
-        'epfl/introduction',
-        'epfl/hero',
-        'epfl/google-forms',
-        'epfl/video',
-        'epfl/scheduler',
-        'epfl/tableau',
-        'epfl/page-teaser',
-        'epfl/custom-teaser',
-        'epfl/custom-highlight',
-        'epfl/page-highlight',
-        'epfl/post-teaser',
-        'epfl/post-highlight',
-        'epfl/infoscience-search',
-        'epfl/social-feed',
-        'epfl/contact',
-        'epfl/caption-cards',
-        'epfl/card',
-        'epfl/definition-list',
-        'epfl/links-group',
-        'epfl/table-filter',
+
+    $blocks_to_add = array(
         'core/paragraph',
         'core/heading',
         'core/gallery',
@@ -54,11 +27,19 @@ function epfl_allowed_block_types( $allowed_block_types, $post ) {
         'pdf-viewer-block/standard',
     );
 
-  	return $blocks;
+    foreach($blocks_to_add as $block_name)
+    {
+        $allowed_block_types[] = $block_name;
+    }
+
+
+  	return $allowed_block_types;
     // return True; // if you want all natifs blocks.
 }
 
 // Gutenberg is on ?
 if (function_exists( 'register_block_type' ) ) {
-	add_filter( 'allowed_block_types', 'epfl_allowed_block_types', 10, 2 );
+    // We register this filter with priority 99 to ensure it will be called after the one (if present) added in Gutenberg plugin to
+    // register epfl blocks
+	add_filter( 'allowed_block_types', 'epfl_allowed_block_types', 99, 2 );
 }
