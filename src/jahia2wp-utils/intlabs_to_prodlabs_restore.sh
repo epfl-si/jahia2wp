@@ -37,7 +37,7 @@ then
 	execCmd "wp plugin activate mainwp-child --path=/srv/labs/www.epfl.ch/htdocs/labs/${site}"
 
 	#Rafraichir les externals menus
-	execCmd "wp epfl-menus refresh --path=/srv/labs/www.epfl.ch/htdocs/labs/${site}"
+	execCmd "wp epfl menus refresh --path=/srv/labs/www.epfl.ch/htdocs/labs/${site}"
 	
 	#Activer tous les plugins
 	execCmd "wp plugin activate --all --path=/srv/labs/www.epfl.ch/htdocs/labs/${site}"
