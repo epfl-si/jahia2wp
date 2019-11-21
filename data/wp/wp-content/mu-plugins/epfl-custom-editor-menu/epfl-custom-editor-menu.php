@@ -1,12 +1,4 @@
 <?php
-/*
-* Plugin Name: EPFL custom editor role menu
-* Plugin URI:
-* Description: Must-use plugin for the EPFL website.
-* Version: 1.0.4
-* Author: wwp-admin@epfl.ch
- */
-
 
 // Allow editors to see Appearance menu
 $role_object = get_role( 'editor' );
@@ -26,7 +18,7 @@ add_action('admin_head', 'hide_menu');
 function add_gutenberg_custom_editor_menu() {
 	wp_enqueue_script(
 		'wp-gutenberg-epfl-custom-editor-menu',
-		content_url() . '/mu-plugins/EPFL_gutenberg_custom_editor.js',
+		content_url() . '/mu-plugins/epfl-custom-editor-menu/epfl-custom-editor-menu.js',
 		array( 'wp-editor', 'wp-blocks', 'wp-i18n', 'wp-element' )
 	);
 }
