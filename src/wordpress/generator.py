@@ -465,7 +465,6 @@ class WPGenerator:
     def generate_mu_plugins(self, no_symlink=False):
         # TODO: add those plugins into the general list of plugins (with the class WPMuPluginConfig)
         WPMuPluginConfig(self.wp_site, "epfl-functions.php").install(no_symlink=no_symlink)
-        WPMuPluginConfig(self.wp_site, "EPFL_custom_editor_menu_loader.php", plugin_folder="epfl-custom-editor-menu").install(no_symlink=no_symlink)
         WPMuPluginConfig(self.wp_site, "EPFL_google_analytics_hook.php").install(no_symlink=no_symlink)
         WPMuPluginConfig(self.wp_site, "EPFL_quota_loader.php", plugin_folder="epfl-quota").install(no_symlink=no_symlink)
         WPMuPluginConfig(self.wp_site, "EPFL_stats_loader.php", plugin_folder="epfl-stats").install(no_symlink=no_symlink)
@@ -485,6 +484,7 @@ class WPGenerator:
             WPMuPluginConfig(self.wp_site, "EPFL_disable_comments.php").install(no_symlink=no_symlink)
             WPMuPluginConfig(self.wp_site, "EPFL_jahia_redirect.php").install(no_symlink=no_symlink)
             WPMuPluginConfig(self.wp_site, "EPFL_block_white_list.php").install(no_symlink=no_symlink)
+            WPMuPluginConfig(self.wp_site, "EPFL_custom_editor_menu_loader.php", plugin_folder="epfl-custom-editor-menu").install(no_symlink=no_symlink)
 
     def enable_updates_automatic_if_allowed(self):
         if self.wp_config.updates_automatic:
