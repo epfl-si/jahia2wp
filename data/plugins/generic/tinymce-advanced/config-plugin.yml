@@ -1,2 +1,3 @@
 src: generic/tinymce-advanced/tinymce-advanced.5.2.1.zip
 activate: yes
+no_symlink: yes
