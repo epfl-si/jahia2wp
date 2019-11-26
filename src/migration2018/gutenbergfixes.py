@@ -44,6 +44,32 @@ class GutenbergFixes(GutenbergBlocks):
         value = matching_reg.findall(block_call)
         # We remove surrounding " if exists.
         return value[0][0].strip('"') if value else None
+    
+
+    def _get_all_attributes(self, block_call, return_dict=False):
+        """
+        Returns attributes in a string or in a dict
+
+        :param block_call: String with block call call
+        :param return_dict: to tell if we have to return a dict instead of a string
+        """
+        matching_reg = re.compile('\{.*?\}', re.DOTALL)
+
+        value = matching_reg.findall(block_call)
+
+        return json.loads(value[0]) if return_dict else value[0]
+
+
+    def _replace_all_attributes(self, block_call, new_attributes):
+        """
+        Replace all attributes in a block call
+
+        :param block_call: String with block call call
+        :param new_attributes: Dict with new attributes
+        """
+
+        return block_call.replace(self._get_all_attributes(block_call),
+                                  json.dumps(new_attributes, separators=(',', ':')))
 
 
     def _change_attribute_value(self, content, block_name, attr_name, new_value, between_double_quotes=True):
@@ -258,33 +284,34 @@ class GutenbergFixes(GutenbergBlocks):
             new_call = self._change_attribute_value(new_call, block_name, attr_desc['attr_name'], final_value, with_quotes)
         
         return new_call
+    
 
 
-    def _fix_block_card_panel(self, content, page_id):
+
+    def _fix_block_video(self, content, page_id):
         """
-        Fix EPFL Card-Panel 
+        Fix EPFL Video
 
         :param content: content to update
         :param page_id: Id of page containing content
         """
         
-        block_name = "card-panel"
+        block_name = "video"
 
         # Looking for all calls to modify them one by one
-        calls = self._get_all_block_calls(content, block_name, with_content=True)
+        calls = self._get_all_block_calls(content, block_name)
 
         for call in calls:
 
             new_call = call
-            
-            title = self._get_attribute(new_call, "title")
-            if title is None:
-                continue
-            # We replace \\u with \u
-            title_decoded = title.replace('\\\\u', '\\u')
 
+            attributes = self._get_all_attributes(call, return_dict=True)
+            
+            if 'largeDisplay' not in attributes:
+                attributes['largeDisplay'] = True
+            
             # We replace value
-            new_call = new_call.replace(title, title_decoded)
+            new_call = self._replace_all_attributes(new_call, attributes)
             
             if new_call != call:
                 self._log_to_file("Before: {}".format(call))
@@ -296,28 +323,3 @@ class GutenbergFixes(GutenbergBlocks):
         
         return content
     
-
-    def _fix_block_toggle(self, content, page_id):
-        """
-        Scan EPFL-Toggle to find empty titles
-
-        :param content: content to update
-        :param page_id: Id of page containing content
-        """
-        
-        block_name = "toggle"
-
-        # Looking for all calls to modify them one by one
-        calls = self._get_all_block_calls(content, block_name, with_content=True)
-
-        for call in calls:
-            
-            title = self._get_attribute(call, "title")
-
-            if title is None or title == "":
-
-                self._log_to_file("Page {}: empty or missing title found: {}".format(page_id, call))
-                
-                self._update_report(block_name)
-        
-        return content
