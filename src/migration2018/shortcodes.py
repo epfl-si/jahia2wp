@@ -1142,7 +1142,7 @@ class Shortcodes():
 
         return content
 
-    def fix_site(self, openshift_env, wp_site_url, shortcode_name=None, clean_textbox_div=True, simulation=False):
+    def fix_site(self, openshift_env, wp_site_url, shortcode_name=None, clean_textbox_div=True, simulation=False, elem_type="page"):
         """
         Fix shortocdes in WP site
         :param openshift_env: openshift environment name
@@ -1165,8 +1165,8 @@ class Shortcodes():
         logging.info("Fixing %s...", self.wp_site.path)
 
         # Getting site posts
-        post_ids = self.wp_config.run_wp_cli("post list --post_type=page --skip-plugins --skip-themes "
-                                        "--format=csv --fields=ID")
+        post_ids = self.wp_config.run_wp_cli("post list --post_type={} --skip-plugins --skip-themes "
+                                        "--format=csv --fields=ID".format(elem_type))
 
         # Nothing to fix
         if not post_ids:

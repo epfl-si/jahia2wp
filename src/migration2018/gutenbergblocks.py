@@ -2037,7 +2037,7 @@ class GutenbergBlocks(Shortcodes):
         return content
 
 
-    def fix_site(self, openshift_env, wp_site_url, shortcode_name=None, simulation=False):
+    def fix_site(self, openshift_env, wp_site_url, shortcode_name=None, simulation=False, elem_type="page"):
         """
         Fix shortocdes in WP site
         :param openshift_env: openshift environment name
@@ -2060,7 +2060,8 @@ class GutenbergBlocks(Shortcodes):
                                   wp_site_url,
                                   shortcode_name=shortcode_name,
                                   clean_textbox_div=False,
-                                  simulation=simulation)
+                                  simulation=simulation,
+                                  elem_type=elem_type)
 
         self._log_to_file("Pages incorrect images: \n{}\n".format((json.dumps(self.incorrect_images))))
 

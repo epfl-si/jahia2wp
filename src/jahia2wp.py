@@ -55,11 +55,11 @@ Usage:
   jahia2wp.py block-fix-inventory   <path> [<block_name>]  [--debug | --quiet]
     [--simulation [--log-time-csv]]
   jahia2wp.py shortcode-to-block        <wp_env> <wp_url> [<shortcode_name>] [--debug | --quiet]
-    [--simulation]
+    [--simulation] [--posts]
   jahia2wp.py shortcode-to-block-many   <csv_file> [<shortcode_name>]   [--debug | --quiet]
-    [--simulation [--log-time-csv]]
+    [--simulation [--log-time-csv]] [--posts]
   jahia2wp.py shortcode-to-block-inventory   <path> [<shortcode_name>]  [--debug | --quiet]
-    [--simulation [--log-time-csv]]
+    [--simulation [--log-time-csv]] [--posts]
   jahia2wp.py extract-plugin-config <wp_env> <wp_url> <output_file> [--debug | --quiet]
   jahia2wp.py list-plugins          <wp_env> <wp_url>               [--debug | --quiet]
     [--config [--plugin=<PLUGIN_NAME>]] [--extra-config=<YAML_FILE>]
@@ -1099,7 +1099,7 @@ def block_fix_inventory(path, block_name=None, simulation=False, log_time_csv=Fa
 
 
 @dispatch.on('shortcode-to-block')
-def shortcode_to_block(wp_env, wp_url, shortcode_name=None, simulation=False, csv_time_log=None, **kwargs):
+def shortcode_to_block(wp_env, wp_url, shortcode_name=None, simulation=False, csv_time_log=None, posts=False, **kwargs):
     logging.info("Migrating shortcodes to blocks for %s", wp_url)
     if simulation:
         logging.info("== SIMULATION EXECUTION ==")
@@ -1109,8 +1109,9 @@ def shortcode_to_block(wp_env, wp_url, shortcode_name=None, simulation=False, cs
         time_log_file = open(csv_time_log, mode='a')
         start_time = time.time()
 
+    page_or_post = 'post' if posts else 'page'
     blocks = GutenbergBlocks()
-    report = blocks.fix_site(wp_env, wp_url, shortcode_name=shortcode_name, simulation=simulation)
+    report = blocks.fix_site(wp_env, wp_url, shortcode_name=shortcode_name, simulation=simulation, elem_type=page_or_post)
     if simulation:
         logging.info("This was a simulation, nothing was changed in database")
     
@@ -1126,7 +1127,7 @@ def shortcode_to_block(wp_env, wp_url, shortcode_name=None, simulation=False, cs
 
 
 @dispatch.on('shortcode-to-block-many')
-def shortcode_to_block_many(csv_file, shortcode_name=None, simulation=False, log_time_csv=False, **kwargs):
+def shortcode_to_block_many(csv_file, shortcode_name=None, simulation=False, log_time_csv=False, posts=False, **kwargs):
     rows = Utils.csv_filepath_to_dict(csv_file)
 
     csv_time_log = _init_shortcode_to_csv_time_log() if log_time_csv else None
@@ -1141,12 +1142,13 @@ def shortcode_to_block_many(csv_file, shortcode_name=None, simulation=False, log
                            row['wp_site_url'], 
                            shortcode_name=shortcode_name, 
                            simulation=simulation,
-                           csv_time_log=csv_time_log)
+                           csv_time_log=csv_time_log,
+                           posts=posts)
     logging.info("All shortcodes for all sites fixed !")
 
 
 @dispatch.on('shortcode-to-block-inventory')
-def shortcode_to_block_inventory(path, shortcode_name=None, simulation=False, log_time_csv=False, **kwargs):
+def shortcode_to_block_inventory(path, shortcode_name=None, simulation=False, log_time_csv=False, posts=False, **kwargs):
     logging.info("Shortcodes to block from inventory...")
     nb_sites = 0
 
@@ -1162,7 +1164,8 @@ def shortcode_to_block_inventory(path, shortcode_name=None, simulation=False, lo
                                     site_details.url, 
                                     shortcode_name=shortcode_name, 
                                     simulation=simulation,
-                                    csv_time_log=csv_time_log)
+                                    csv_time_log=csv_time_log,
+                                    posts=posts)
                 nb_sites += 1
             except:
                 logging.error("Site %s - Error %s", site_details.url, sys.exc_info())
