@@ -12,3 +12,6 @@ wp search-replace www.epfl.ch/labs/${site} ${site}.epfl.ch --path=/srv/subdomain
 #Editer le fichier .htacess
 sed -i "s|RewriteBase /labs/${site}/|RewriteBase /|g" /srv/subdomains/${site}.epfl.ch/htdocs/.htaccess
 sed -i "s|RewriteRule . /labs/${site}/index.php|RewriteRule . /index.php|g" /srv/subdomains/${site}.epfl.ch/htdocs/.htaccess
+
+#Editer le fichier wp-config.php 
+sed -i "s|define('WP_CONTENT_DIR', '/srv/labs/www.epfl.ch/htdocs/labs/${site}/wp-content');|define('WP_CONTENT_DIR', '/srv/subdomains/${site}.epfl.ch/htdocs/wp-content');|g" /srv/subdomains/${site}.epfl.ch/htdocs/wp-config.php
