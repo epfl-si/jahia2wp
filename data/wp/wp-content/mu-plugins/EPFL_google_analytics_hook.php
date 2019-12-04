@@ -13,6 +13,7 @@
  */
 
 function google_analytics_connector_render() {
+    $additional_id = get_option('epfl_google_analytics_id');
 ?>
 
 <!-- Global Site Tag (gtag.js) - Google Analytics -->
@@ -22,6 +23,7 @@ function google_analytics_connector_render() {
     function gtag(){dataLayer.push(arguments);}
     gtag("js", new Date());
     gtag("config", "UA-4833294-1", { "anonymize_ip": true });
+    <?php if (!empty($additional_id)): ?>gtag("config", "<?php echo $additional_id; ?>", { "anonymize_ip": true });<?php endif; ?>
 </script>
 
 <?php
