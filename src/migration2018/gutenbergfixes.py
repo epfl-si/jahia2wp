@@ -318,7 +318,7 @@ class GutenbergFixes(GutenbergBlocks):
                     if value is not None:
                         if attr_name == 'imageId':
                             value = int(value)
-                        else if attr_name == 'title':
+                        elif attr_name == 'title':
                             value = value.replace('\\\\u', '\\u')
 
                         card_deck_attributes[attr_name] = value
