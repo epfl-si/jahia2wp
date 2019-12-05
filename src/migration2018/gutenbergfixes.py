@@ -286,32 +286,70 @@ class GutenbergFixes(GutenbergBlocks):
         return new_call
     
 
-
-
-    def _fix_block_video(self, content, page_id):
+    def _fix_block_card(self, content, page_id):
         """
-        Fix EPFL Video
-
+        Fix EPFL Card by putting an attribute content inside the block
         :param content: content to update
         :param page_id: Id of page containing content
         """
         
-        block_name = "video"
+        block_name = "card"
 
         # Looking for all calls to modify them one by one
         calls = self._get_all_block_calls(content, block_name)
 
+        json_separators =  (',', ':')
+
         for call in calls:
 
             new_call = call
+            block_contents = []
 
-            attributes = self._get_all_attributes(call, return_dict=True)
-            
-            if 'largeDisplay' not in attributes:
-                attributes['largeDisplay'] = True
-            
-            # We replace value
-            new_call = self._replace_all_attributes(new_call, attributes)
+            # We loop through inside elements
+            for i in range(1,4):
+
+                card_deck_attributes = {}
+                attributes = ['title', 'link', 'imageId', 'imageUrl']
+
+                for attr_name in attributes:
+
+                    value = self._get_attribute(new_call, "{}{}".format(attr_name, i))
+
+                    if value is not None:
+                        if attr_name == 'imageId':
+                            value = int(value)
+                        else if attr_name == 'title':
+                            value = value.replace('\\\\u', '\\u')
+
+                        card_deck_attributes[attr_name] = value
+                
+                block_content = self._get_attribute(new_call, "content{}".format(i))
+
+                if block_content is None:
+                    block_content = ""
+                block_content = self._decode_unicode(block_content)
+      
+                # We remove new line characters in code
+                block_content = block_content.replace('\\n', "").replace('\\r', "").replace("\\t", "")
+                # We unescape double quotes
+                block_content = block_content.replace('\\"', '"')
+                
+                block_content = block_content.strip("\n")
+
+                json_code = "" if len(card_deck_attributes) == 0 else "{} ".format(json.dumps(card_deck_attributes, separators=json_separators))
+
+                # If block is empty, we have to return without wp:freeform otherwise content won't be editable in visual
+                if block_content == "":
+                    block_contents.append('<!-- wp:epfl/card-panel {}/-->'.format(json_code))
+                else:
+                    block_contents.append('<!-- wp:epfl/card-panel {}-->\n<!-- wp:tadv/classic-paragraph -->\n{}\n<!-- /wp:tadv/classic-paragraph -->\n<!-- /wp:epfl/card-panel -->'.format(json_code, block_content))
+
+            # We remove \n at beginning and end
+            new_call = new_call.strip('\n')
+            new_call = new_call.replace('/-->', '-->').replace('wp:epfl/card', 'wp:epfl/card-deck')
+
+            new_call = '{}\n{}\n<!-- /wp:epfl/card-deck -->'.format(new_call, '\n'.join(block_contents))
+
             
             if new_call != call:
                 self._log_to_file("Before: {}".format(call))
