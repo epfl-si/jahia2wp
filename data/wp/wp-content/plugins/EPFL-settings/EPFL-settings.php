@@ -2,7 +2,7 @@
 /*
  * Plugin Name: EPFL General settings
  * Description: General settings for allow users
- * Version:     0.6
+ * Version:     0.7
  * Author:      <a href="mailto:wwp-admin@epfl.ch">wwp-admin@epfl.ch</a>
  * Text Domain: EPFL-settings
  */
@@ -21,6 +21,7 @@ function EPFL_settings_register_settings() {
    register_setting( 'EPFL_settings_options_group', 'blogname' );
    register_setting( 'EPFL_settings_options_group', 'blogdescription' );
    register_setting( 'EPFL_settings_options_group', 'WPLANG' );
+   register_setting( 'EPFL_settings_options_group', 'epfl_google_analytics_id' );
 }
 add_action( 'admin_init', 'EPFL_settings_register_settings' );
 
@@ -59,10 +60,17 @@ function EPFL_settings_options_page()
       <th scope="row"><label for="WPLANG"><?php echo __ ("Site administration Language", 'EPFL-settings'    );?></label></th>
       <td><?php wp_dropdown_languages(array('name' => 'WPLANG', 'id' => 'site-language', 'selected' => $lang, 'languages' => $languages, 'show_available_translations' => false)); ?></td>
     </tr>
-        <tr>
+    <tr>
       <th scope="row"><label for="plugin:epfl_accred:unit"><?php echo __ ("Accred Unit", 'EPFL-settings');?></label></th>
       <td><label for="plugin:epfl_accred:unit"><?php echo get_option('plugin:epfl_accred:unit'); ?></label></th>
       <p class="description" id="tagline-description"><?php echo __ ("Accred unit allowed to manage this Wordpress site", 'EPFL-settings');?></p>
+      </td>
+    </tr>
+    <tr>
+      <th scope="row"><label for="epfl_google_analytics_id"><?php echo __ ("Additional Google Analytics ID", 'EPFL-settings');?></label></th>
+      <td>
+        <input type="text" id="epfl_google_analytics_id" name="epfl_google_analytics_id" value="<?php echo get_option('epfl_google_analytics_id'); ?>" />
+        <p class="description" id="tagline-description"><?php echo __ ("Set an additionnal Google Analytics for custom tracking (ex: UA-4833294-1)", 'EPFL-settings');?></p>
       </td>
     </tr>
   </table>
