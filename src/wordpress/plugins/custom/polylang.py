@@ -60,18 +60,20 @@ class WPPolylangConfig(WPPluginConfig):
         # Listing post associated to Polylang translations
         post_ids = self.run_wp_cli("post list --post_type=polylang_mo --field=ID --format=csv")
 
-        # Looping through post IDs to update string translations. We have to sort the list to loop correctly through
-        # languages. First one is the default and others are following. Sorting the list ensure that we update options
-        # in the correct order
-        for post_id in sorted(post_ids.split('\n')):
+        # If we have a result
+        if post_ids is not True:
+            # Looping through post IDs to update string translations. We have to sort the list to loop correctly through
+            # languages. First one is the default and others are following. Sorting the list ensure that we update options
+            # in the correct order
+            for post_id in sorted(post_ids.split('\n')):
 
-            cmd = "post meta update {} _pll_strings_translations --format=json".format(post_id)
-            # Getting next option
-            option = options.pop(0)
+                cmd = "post meta update {} _pll_strings_translations --format=json".format(post_id)
+                # Getting next option
+                option = options.pop(0)
 
-            if not self.run_wp_cli(cmd, pipe_input=json.dumps(option)):
-                logging.warning("{} - Polylang - Cannot add string translation for post {}".format(self.wp_site,
-                                                                                                   post_id))
+                if not self.run_wp_cli(cmd, pipe_input=json.dumps(option)):
+                    logging.warning("{} - Polylang - Cannot add string translation for post {}".format(self.wp_site,
+                                                                                                    post_id))
 
     def _language_exists(self, locale):
         """
