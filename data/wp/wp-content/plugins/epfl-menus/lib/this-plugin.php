@@ -15,7 +15,7 @@ function topdir () {
 }
 
 /**
- * @return The top-level PHP file of this plugin (wanted by e.g. @link plugins_url)
+ * @return String The top-level PHP file of this plugin (wanted by e.g. @link plugins_url)
  */
 function entry_point () {
     return topdir() . "/epfl-menus.php";

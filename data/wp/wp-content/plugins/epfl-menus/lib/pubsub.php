@@ -141,7 +141,7 @@ class SubscribeController
     }
 
     /**
-     * @return A string uniquely identifying this Web site, so as to
+     * @return String A string uniquely identifying this Web site, so as to
      *         detect and prevent causality loops.
      */
     private function _get_received_marker () {
@@ -585,7 +585,7 @@ class Causality
     }
 
     /**
-     * @return A new Causality instance with $via_subscriber_id
+     * @return Causality A new Causality instance with $via_subscriber_id
      *         appended to the path
      */
     function received ($via_subscriber_id) {

@@ -126,7 +126,7 @@ abstract class Post
     /**
      * Wrap one WP_Post in a Post instance
      *
-     * @return an instance of this class or null
+     * @return (Post|null) an instance of this class or null
      */
     static function get ($post_or_post_id)
     {
@@ -356,7 +356,7 @@ class _PostMeta {
 abstract class TypedPost extends Post
 {
     /**
-     * @return the post_type slug for instances of this class
+     * @return String the post_type slug for instances of this class
      */
     static abstract function get_post_type ();
 
@@ -406,6 +406,7 @@ abstract class TypedPost extends Post
     }
 
     static private function _inserted_or_deleted () {
+        $thisclass = get_called_class();
         unset(TypedPost::$all[$thisclass]);
     }
 }
@@ -523,7 +524,7 @@ abstract class UniqueKeyTypedPost extends TypedPost
     function get_unique_keys () {
         $unique_keys = array();
         foreach (static::_get_primary_key_names() as $k) {
-            $unique_keys[$k] = get_post_meta($this->ID, $meta_name, true);
+            $unique_keys[$k] = get_post_meta($this->ID, "", true);
         }
     }
 }

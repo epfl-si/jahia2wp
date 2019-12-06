@@ -2,7 +2,7 @@
 /*
  * Plugin Name: EPFL Menus
  * Description: Stitch menus across sites
- * Version:     0.1
+ * Version:     0.2
  *
  */
 
@@ -42,7 +42,7 @@ use \EPFL\REST\RESTRemoteError;
 use \EPFL\REST\RESTAPIError;
 
 require_once(__DIR__ . '/lib/admin-controller.php');
-use \EPFL\AdminController\TransientErrors;
+use \EPFL\AdminController\TransientError;
 use \EPFL\AdminController\CustomPostTypeController;
 
 require_once(__DIR__ . '/lib/pubsub.php');
@@ -189,7 +189,7 @@ class MenuItemBag
     private function _copy_attributes ($another_menu, $attributes) {
         $thisclass = get_called_class();
         if ($another_menu instanceof $thisclass) {
-            $src_items = $another_menu_tree->items;
+            $src_items = $another_menu->items;
         } else {
             $src_items = array();
             foreach ($another_menu as $item) {
@@ -337,7 +337,7 @@ class MenuItemBag
      *        if indeed $callable_predicate was called at all for them
      *        which is left unspecified)
      *
-     * @return A pair of the form array($pruned_tree, $removed) where
+     * @return Array A pair of the form array($pruned_tree, $removed) where
      *         $pruned_tree is a newly created copy of the pruned tree
      *         (or $this if $callable_predicate never returned true),
      *         and $removed is the list of items for which
@@ -390,7 +390,7 @@ class MenuItemBag
      *        parameter, and returns either a menu item (with a type
      *        and structure similar to $item) or NULL
      *
-     * @return A new MenuItemBag made out of all the non-NULL values
+     * @return MenuItemBag A new MenuItemBag made out of all the non-NULL values
      *         returned by $func
      */
     function map ($func) {
@@ -406,7 +406,7 @@ class MenuItemBag
     }
 
     /**
-     * @return A copy of $this without the ExternalMenuItem nodes
+     * @return MenuItemBag A copy of $this without the ExternalMenuItem nodes
      *
      * Parent nodes of ExternalMenuItem nodes are decorated with
      * an additional attribute 'epfl_external_menu_children_count'
@@ -432,7 +432,7 @@ class MenuItemBag
     }
 
     /**
-     * @return A copy of $this with ExternalMenuItem entries annotated
+     * @return MenuItemBag A copy of $this with ExternalMenuItem entries annotated
      *         with their ->rest_url, and stripped from other
      *         irrelevant (internal-only) metadata
      */
@@ -531,7 +531,7 @@ class MenuItemBag
      * $inner (the former, because it shares them into the return
      * value). Again, caller should ->copy() as appropriate.
      *
-     * @return A new instance of the class.
+     * @return MenuItemBag A new instance of the class.
      */
 
     private static function _MUTATE_graft ($at_id, $outer, $inner) {
@@ -578,7 +578,7 @@ class MenuItemBag
      *                         mutated (and passed-out) as the ID of the
      *                         same item after renumbering
      *
-     * @return A new instance of this class, fully unshared from both
+     * @return MenuItemBag A new instance of this class, fully unshared from both
      *         $this and $other_bag
      */
     protected function _renumber ($other_bag, &$follow_this_id = NULL) {
@@ -663,7 +663,7 @@ class Menu
     }
 
     /**
-     * @return A list of all instances used anywhere in the theme's menus,
+     * @return Array A list of all instances used anywhere in the theme's menus,
      *         according to @link MenuMapEntry
      */
     static function all_mapped () {
@@ -678,7 +678,7 @@ class Menu
     }
 
     /**
-     * @return A site-wide unique integer ID for this Menu
+     * @return Integer A site-wide unique integer ID for this Menu
      */
     function get_term_id () {
         return (int)$this->term_id;
@@ -694,7 +694,7 @@ class Menu
     }
 
     /**
-     * @return A @link MenuItemBag instance
+     * @return MenuItemBag A @link MenuItemBag instance
      */
     private function _get_local_tree () {
         $items = wp_get_nav_menu_items($this->term_id);
@@ -742,7 +742,7 @@ class Menu
      * Keep our own nodes (the ones we have authority for) with
      * positive IDs and renumber all grafted nodes with negative IDs.
      *
-     * @return A @link MenuItemBag instance, in which the
+     * @return MenuItemBag A @link MenuItemBag instance, in which the
      *         authoritative menu entries (the ones retrieved from the
      *         local database) have positive IDs, while the remote
      *         IDs are negative
@@ -785,7 +785,7 @@ class Menu
      * @param $mme A @link MenuMapEntry instance representing the menu
      *             being rendered.
      *
-     * @return A @link MenuItemBag instance, in which the
+     * @return MenuItemBag A @link MenuItemBag instance, in which the
      *         authoritative menu entries (the ones retrieved from the
      *         local database) have positive IDs, while the remote
      *         IDs are negative
@@ -870,7 +870,7 @@ class Menu
      * Only called for the main ("top") menu
      * @param $item An item out of a @link MenuItemBag
      *
-     * @return True iff $item designates us - That is, it came from
+     * @return Bool True iff $item designates us - That is, it came from
      *         the JSON representation of some ExternalMenuItem in
      *         another WordPress in the same pod, that points to this
      *         Menu instance.
@@ -910,7 +910,7 @@ class Menu
      *
      * @param $emi An @link ExternalMenuItem instance
      *
-     * @return false if no change in $emi could possibly make "us"
+     * @return Bool false if no change in $emi could possibly make "us"
      *         change (in the sense of @link get_stitched_down_tree,
      *         i.e. the part that we are authoritative for - Not the
      *         parts "above us" created with @link
@@ -928,7 +928,7 @@ class Menu
     /**
      * Take into account a (possible) change in $emi
      *
-     * @return false if we can conservatively ascertain that the
+     * @return Bool false if we can conservatively ascertain that the
      *         change in $emi had no effect on "our" tree (in the
      *         sense of @link get_stitched_down_tree, i.e. the part
      *         that we are authoritative for); true otherwise
@@ -996,7 +996,7 @@ class MenuMapEntry
      * this entry appears under; also used as a portion of the URL
      * ("slug") by API consumers (see @link ExternalMenuItem).
      *
-     * @return A string designating the menu position, e.g. "primary"
+     * @return String A string designating the menu position, e.g. "primary"
      *         or "footer"
      */
     function get_theme_location () {
@@ -1017,7 +1017,7 @@ class MenuMapEntry
     }
 
     /**
-     * @return A list of instances across all languages
+     * @return Array A list of instances across all languages
      */
     static function all () {
         if ($all_from_polylang = static::_all_from_polylang()) {
@@ -1030,7 +1030,7 @@ class MenuMapEntry
     use FindFromAllTrait;
 
     /**
-     * @return An list of MenuMapEntry instances in the current language.
+     * @return Array A list of MenuMapEntry instances in the current language.
      */
     static function all_in_current_language () {
         $thisclass = get_called_class();
@@ -1084,7 +1084,7 @@ class MenuMapEntry
     }
 
     /**
-     * @return The menu map entry associated with $theme_location in
+     * @return MenuMapEntry The menu map entry associated with $theme_location in
      *         the current language.
      *
      * Note that when Polylang is in play, the result depends on the
@@ -1143,7 +1143,7 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
     }
 
     /**
-     * @return The URL of the local WordPress site that this
+     * @return String The URL of the local WordPress site that this
      *         ExternalMenuItem comes from, or NULL if this
      *         ExternalMenuItem doesn't live in this pod.
      */
@@ -1154,7 +1154,7 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
     }
 
     /**
-     * @return The URL that this ExternalMenuItem obtains the remote
+     * @return String The URL that this ExternalMenuItem obtains the remote
      *         menu from (in JSON form), or NULL if there is none (eg. labs)
      */
     function get_rest_url () {
@@ -1246,7 +1246,7 @@ class ExternalMenuItem extends \EPFL\Model\UniqueKeyTypedPost
     }
 
     /**
-     * @return An array of instances of this class
+     * @return Array An array of instances of this class
      */
     static function load_from_wp_site_url ($site_url) {
         $instances = array();
@@ -1945,7 +1945,7 @@ class MenuFrontendController
     }
 
     /**
-     * @return The @link MenuMapEntry instance we are rendering the
+     * @return MenuMapEntry The @link MenuMapEntry instance we are rendering the
      *         menu for.
      */
     static function _guess_menu_entry_from_menu_term ($menu) {
@@ -1973,7 +1973,7 @@ class MenuFrontendController
     }
 
     /**
-     * @return True iff the root menu is correctly stitched
+     * @return Bool True iff the root menu is correctly stitched
      */
     public static function filter_epfl_root_menu_ready ($ready_orig, $theme_location) {
         # main root site is always correct, as this is the main ref.

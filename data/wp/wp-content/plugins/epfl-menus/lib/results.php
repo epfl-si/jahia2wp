@@ -16,7 +16,7 @@ namespace EPFL\Results;
 trait FindFromAllTrait
 {
     /**
-     * @return A ResultSet instance
+     * @return ResultSet A ResultSet instance
      */
     function find ($criteria_array) {
         $found = array();
