@@ -2005,25 +2005,65 @@ class GutenbergBlocks(Shortcodes):
         # Looking for all calls to modify them one by one
         calls = self._get_all_shortcode_calls(content, shortcode, with_content=True)
 
+        for call in calls:
+
+            # # Recovering attributes from shortcode
+            call_content = self._get_content(call).strip()
+
+            # # We generate new shortcode from scratch
+            new_call = '<!-- wp:{0} -->\n{1}\n<!-- /wp:{0} -->'.format(block, call_content)
+
+            self._log_to_file("Before: {}".format(call))
+            self._log_to_file("After: {}".format(new_call))
+
+            # # Replacing in global content
+            content = content.replace(call, new_call)
+
+            self._update_report(shortcode)
+
+        return content
+
+
+    def _fix_epfl_faqitem(self, content, page_id):
+        """
+        Transforms EPFL FAQ shortcode to Gutenberg block
+
+        :param content: content to update
+        :param page_id: Id of page containing content
+        """
+        shortcode = 'epfl_faqItem'
+        block = 'epfl/faq-item'
+
+        # Looking for all calls to modify them one by one
+        calls = self._get_all_shortcode_calls(content, shortcode, with_content=True)
+
         # Attribute description to recover correct value from each shortcode calls
-        attributes_desc = ['url']
+        attributes_desc = [
+                            {
+                                'shortcode': 'question',
+                                'block': 'question',
+                                'apply_func': '_handle_html',
+                            },
+                        ]
 
         for call in calls:
 
             # To store new attributes
             attributes = {}
 
-            # # Recovering attributes from shortcode
-            # self.__add_attributes(call, attributes, attributes_desc, page_id)
+            # Recovering attributes from shortcode
+            self.__add_attributes(call, attributes, attributes_desc, page_id)
+            call_content = self._get_content(call)
 
-            # # We generate new shortcode from scratch
-            # new_call = '<!-- wp:{} {} /-->'.format(block, json.dumps(attributes))
-
+            # We generate new shortcode from scratch
+            new_call = '<!-- wp:{0} {1} -->\n<!-- wp:tadv/classic-paragraph -->\n{2}\n<!-- /wp:tadv/classic-paragraph -->\n<!-- /wp:{0} -->\n'.format(block,
+                                                                                                                                                      json.dumps(attributes),
+                                                                                                                                                      call_content)
             self._log_to_file("Before: {}".format(call))
-            # self._log_to_file("After: {}".format(new_call))
+            self._log_to_file("After: {}".format(new_call))
 
-            # # Replacing in global content
-            # content = content.replace(call, new_call)
+            # Replacing in global content
+            content = content.replace(call, new_call)
 
             self._update_report(shortcode)
 
