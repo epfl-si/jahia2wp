@@ -68,7 +68,7 @@ class Site {
     }
 
     /**
-     * @return A list of two elements, where the first is the absolute path
+     * @return Array A list of two elements, where the first is the absolute path
      *         to the htdocs directory and the second is the relative path
      *         from the htdocs directory to the directory containing
      *         wp-config.php
@@ -207,14 +207,17 @@ class Site {
         $ini_path = static::_get_wp_site_config_path();
         if ($ini_path) {
             $ini_array = parse_ini_file($ini_path);
-            if (!empty($key)) {
-                if (array_key_exists($key, $ini_array)){
-                    return $ini_array[$key];
+            if(is_array($ini_array)){
+                if (!empty($key)) {
+                    if (array_key_exists($key, $ini_array)){
+                        return $ini_array[$key];
+                    }
+                } else {
+                    return $ini_array;
                 }
-            } else {
-                return $ini_array;
             }
         }
+        return false;
     }
 
     static $_wp_site_config_path_cache = FALSE;

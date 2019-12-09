@@ -185,7 +185,7 @@ class REST_API {
     }
 
     /**
-     * @return Whether the current query is for one of the REST handlers
+     * @return Bool Whether the current query is for one of the REST handlers
      *         registered with this class.
      */
     static function _doing_rest_request () {
@@ -526,7 +526,7 @@ class HALJSON
     }
 
     /**
-     * @return An URL or NULL
+     * @return (String|null) An URL or NULL
      */
     function get_link ($rel) {
         $links = $this->_links->$rel;

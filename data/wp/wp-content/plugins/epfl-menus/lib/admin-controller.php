@@ -157,7 +157,7 @@ abstract class Controller
     }
 
     /**
-     * @return true iff the current page pertains to this controller.
+     * @return Bool true iff the current page pertains to this controller.
      */
     static abstract protected function is_active ();
 }
@@ -173,7 +173,7 @@ abstract class Controller
 abstract class CustomPostTypeController extends Controller
 {
     /**
-     * @return The model class for this controller
+     * @return Class The model class for this controller
      */
     abstract static function get_model_class ();
 
