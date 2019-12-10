@@ -17,7 +17,7 @@ class Shortcodes():
     def __init__(self):
         self.list = {}
         self.report = {'_nb_pages':0, '_nb_pages_updated':0, '_nb_shortcodes': 0}
-        self.regex_shortcode_names = r'\[([a-z0-9_-]+)'
+        self.regex_shortcode_names = r'\[([a-zA-Z0-9_-]+)'
         
         self.fix_func_prefix = "_fix_"
 
@@ -1193,7 +1193,7 @@ class Shortcodes():
 
                 if shortcode_name is None or shortcode_name.startswith(shortcode):
 
-                    fix_func_name = "{}{}".format(self.fix_func_prefix, shortcode.replace("-", "_"))
+                    fix_func_name = "{}{}".format(self.fix_func_prefix, shortcode.replace("-", "_").lower())
 
                     if shortcode_name is not None and shortcode_name.endswith("_new_version"):
                         fix_func_name += "_new_version"
