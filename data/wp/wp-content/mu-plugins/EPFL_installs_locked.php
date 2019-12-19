@@ -3,7 +3,7 @@
  * Plugin Name: EPFL lock plugin and theme install and configuration
  * Plugin URI: 
  * Description: Must-use plugin for the EPFL website.
- * Version: 0.0.5
+ * Version: 0.0.6
  * Author: wwp-admin@epfl.ch
  * */
 
@@ -63,9 +63,10 @@ function my_custom_bulk_actions($actions){
  * Add capabilites to editor to manage options and export
  */
 function EPFL_add_editor_caps() {
-		$role = get_role( 'editor' );
-			$role->add_cap( 'manage_options' ); 
-			$role->add_cap( 'export' ); 
+	$role = get_role( 'editor' );
+	$role->add_cap( 'manage_options' ); 
+   $role->add_cap( 'export' ); 
+   $role->add_cap( 'edit_theme_options' );
 }
 add_action( 'admin_init', 'EPFL_add_editor_caps');
 
