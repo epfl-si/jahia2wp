@@ -156,8 +156,8 @@ class MenuItemBag
             $current_ancestors_next = array();
             foreach ($current_ancestors as $current_ancestor) {
                 $current_ancestor_id = $this->_get_parent_id($current_ancestor);
-                if (! ($current_ancestor =
-                       $this->items[$current_ancestor_id])) continue;
+                if(!array_key_exists($current_ancestor_id, $this->items))continue;
+                $current_ancestor = $this->items[$current_ancestor_id];
                 $current_ancestors_next[$current_ancestor_id] = $current_ancestor;
                 $this->_MUTATE_make_ancestor_of_current($current_ancestor);
             }
