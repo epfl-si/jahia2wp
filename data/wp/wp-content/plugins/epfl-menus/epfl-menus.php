@@ -2,7 +2,7 @@
 /*
  * Plugin Name: EPFL Menus
  * Description: Stitch menus across sites
- * Version:     0.2
+ * Version:     0.3
  *
  */
 
@@ -156,8 +156,8 @@ class MenuItemBag
             $current_ancestors_next = array();
             foreach ($current_ancestors as $current_ancestor) {
                 $current_ancestor_id = $this->_get_parent_id($current_ancestor);
-                if (! ($current_ancestor =
-                       $this->items[$current_ancestor_id])) continue;
+                if(!array_key_exists($current_ancestor_id, $this->items))continue;
+                $current_ancestor = $this->items[$current_ancestor_id];
                 $current_ancestors_next[$current_ancestor_id] = $current_ancestor;
                 $this->_MUTATE_make_ancestor_of_current($current_ancestor);
             }
@@ -1067,7 +1067,7 @@ class MenuMapEntry
         $registered = get_registered_nav_menus();
 
         $all = array();
-        $poly_nav_menus = $poly_options['nav_menus'][get_stylesheet()];
+        $poly_nav_menus = (array_key_exists('nav_menus', $poly_options))? $poly_options['nav_menus'][get_stylesheet()]: false;
         if ($poly_nav_menus) {
             foreach ($poly_nav_menus as $theme_location => $menus) {
                 if (! array_key_exists($theme_location, $registered)) continue;
