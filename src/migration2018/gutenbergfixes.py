@@ -303,7 +303,7 @@ class GutenbergFixes(GutenbergBlocks):
             url = self._get_attribute(call, 'url')
 
             new_url = url.replace('\/', '/')
-            new_url = new_url.replace('&amp;', '&')
+            new_url = new_url.replace('\\u0026amp;', '\\u0026')
             new_call = call.replace(url, new_url)
             
             if new_call != call:
