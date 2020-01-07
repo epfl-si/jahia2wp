@@ -302,7 +302,9 @@ class GutenbergFixes(GutenbergBlocks):
 
             url = self._get_attribute(call, 'url')
 
-            new_call = call.replace(url, url.replace('\/', '/'))
+            new_url = url.replace('\/', '/')
+            new_url = new_url.replace('&amp;', '&')
+            new_call = call.replace(url, new_url)
             
             if new_call != call:
                 self._log_to_file("Before: {}".format(call))
