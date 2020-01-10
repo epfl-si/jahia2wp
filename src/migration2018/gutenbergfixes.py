@@ -355,7 +355,7 @@ class GutenbergFixes(GutenbergBlocks):
                                 # Value can be equal to "null" or can have others incorrect values so... instead
                                 # of handling all specific errors, we use "try except" statement..
                                 value = int(value)
-                            except ValueError e:
+                            except ValueError as e:
                                 value = None
 
                         elif attr_name == 'title':
