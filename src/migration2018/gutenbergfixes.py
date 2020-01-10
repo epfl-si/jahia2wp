@@ -351,10 +351,13 @@ class GutenbergFixes(GutenbergBlocks):
 
                     if value is not None:
                         if attr_name == 'imageId':
-                            if value == 'null':
-                                value = None
-                            else:
+                            try:
+                                # Value can be equal to "null" or can have others incorrect values so... instead
+                                # of handling all specific errors, we use "try except" statement..
                                 value = int(value)
+                            except ValueError e:
+                                value = None
+
                         elif attr_name == 'title':
                             value = value.replace('\\\\u', '\\u')
 
