@@ -302,6 +302,9 @@ class GutenbergFixes(GutenbergBlocks):
 
             url = self._get_attribute(call, 'url')
 
+            if url is None: 
+                continue
+
             new_url = url.replace('\/', '/')
             new_url = new_url.replace('\\u0026amp;', '\\u0026')
             new_call = call.replace(url, new_url)
