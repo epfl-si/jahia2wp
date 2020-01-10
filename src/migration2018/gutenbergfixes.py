@@ -351,7 +351,9 @@ class GutenbergFixes(GutenbergBlocks):
 
                     if value is not None:
                         if attr_name == 'imageId':
-                            if value != 'null':
+                            if value == 'null':
+                                value = None
+                            else:
                                 value = int(value)
                         elif attr_name == 'title':
                             value = value.replace('\\\\u', '\\u')
