@@ -36,23 +36,6 @@ class RESTAPIError extends \Exception {
 }
 
 /**
- * Ancillary class used by @link REST_API::hook_polylang_lang_query_param
- *
- * An instance is constructed iff the normal Polylang construction process
- * *doesn't* complete the way we would want it to. The job is thereafter
- * to fix things up.
- */
-class _ForcedPolylangChooser extends \PLL_Choose_Lang {
-    function __construct() {
-        global $polylang;
-        parent::__construct($polylang);
-        // Ensure that nav menus are diverted like they would be in
-        // a frontend page:
-        new \PLL_Frontend_Nav_Menu($polylang);
-     }
-}
-
-/**
  * Static-only class for registering REST API endpoints
  */
 class REST_API {
@@ -159,8 +142,9 @@ class REST_API {
     /**
      * Have Polylang set the current language from the ?lang=XX query parameter.
      *
-     * If the current query is not a wp-json query, do nothing. Otherwise,
-     * get Polylang to use $_REQUEST['lang'] by hook or by crook.
+     * If the current query is not a wp-json query, do nothing.
+     * Otherwise, get Polylang to use $_REQUEST['lang'] by hook or by
+     * crook (including enabling it in menus).
      */
     static function hook_polylang_lang_query_param () {
         if (! static::_doing_rest_request()) return;
@@ -172,15 +156,20 @@ class REST_API {
         // AJAX-on-front requests.
         add_filter('pll_is_ajax_on_front', function($isit) { return true; });
 
-        // The hard way: there is some code in PLL_Frontend::init() to
-        // short-circuit language detection entirely (regardless of
-        // Languages -> Settings -> URL modifications) if /wp-json/ is
-        // detected at the start of the URL. Ironically, the test is
-        // sort of buggy (only works on the root site). We can force
-        // the issue like this:
+        // The hard way: take the matter into our own hands if we are
+        // in the wrong "if" branch of PLL_Frontend::init() (the one
+        // that bears a comment to the tune of, "Don't set any
+        // language for REST requests when Polylang Pro is not active"
+        // #groan)
         add_action('pll_no_language_defined', function() {
-            $chooser = new _ForcedPolylangChooser();
+            require(__DIR__ . '/polylang.php');
+            global $polylang;
+
+            $chooser = new \EPFL\Polylang\PLL_Choose_Lang($polylang);
             $chooser->init();
+            // Also enable the Polylang menu overrides (as would also
+            // be done in the other "if" branch):
+            new \PLL_Frontend_Nav_Menu($polylang);
         });
     }
 
