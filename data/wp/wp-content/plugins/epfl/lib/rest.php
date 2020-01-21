@@ -189,8 +189,8 @@ class REST_API {
      *         registered with this class.
      */
     static function _doing_rest_request () {
-        return (false !== strpos($_SERVER['REQUEST_URI'],
-                                 '/wp-json/' . _API_EPFL_PATH));
+        $epfl_wpjson_prefix = '/' . rest_get_url_prefix() . '/' . _API_EPFL_PATH;
+        return (false !== strpos($_SERVER['REQUEST_URI'], $epfl_wpjson_prefix));
     }
 
     /**
@@ -213,7 +213,8 @@ class REST_API {
         if (! (preg_match('#/$#', $base))) {
             $base = "$base/";
         }
-        return sprintf('%swp-json/%s/%s', $base,
+        return sprintf('%s%s/%s/%s', $base,
+                       rest_get_url_prefix(),
                        _API_EPFL_PATH, $relative_path);
     }
 }
