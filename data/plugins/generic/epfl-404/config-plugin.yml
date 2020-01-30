@@ -1,2 +1,2 @@
-src: ../wp/wp-content/plugins/epfl-404
+src: https://github.com/epfl-idevelop/wp-plugin-epfl-404/archive/master.zip
 activate: yes
