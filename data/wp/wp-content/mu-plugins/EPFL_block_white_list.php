@@ -3,7 +3,7 @@
 * Plugin Name: EPFL block white list
 * Plugin URI:
 * Description: Must-use plugin for the EPFL website to define allowed blocks coming from Gutenberg or installed plugins.
-* Version: 1.0.2
+* Version: 1.0.3
 * Author: wwp-admin@epfl.ch
  */
 
@@ -27,11 +27,7 @@ function epfl_allowed_block_types( $allowed_block_types, $post ) {
         'pdf-viewer-block/standard',
     );
 
-    foreach($blocks_to_add as $block_name)
-    {
-        $allowed_block_types[] = $block_name;
-    }
-
+    $allowed_block_types =  array_merge($allowed_block_types, $blocks_to_add);
 
   	return $allowed_block_types;
     // return True; // if you want all natifs blocks.
