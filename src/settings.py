@@ -28,7 +28,7 @@ FULL_BACKUP_RETENTION_THEME = {
     'hourly': 0,
     'daily': 0,
     'weekly': 8,
-    'monthly': 24,
+    'monthly': 12,
     'yearly': 'always',
 }
 
