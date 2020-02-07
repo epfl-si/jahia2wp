@@ -345,7 +345,7 @@ class Utils(object):
         # To list all files/dirs/symlinks starting with "<tar_file_path>/wp" (this will exclude non-WordPress subfolder,
         # which will be very useful when backuping multiple WordPress in a subfolder hierarchy
         # We also remove debug.log to spare some place
-        cmd_all_others = 'find {0} -print | egrep "^{0}/wp" | egrep -v debug.log'.format(source_path)
+        cmd_all_others = 'find {0} -print | egrep "^{0}/wp" | grep -v "debug.log"'.format(source_path)
 
         # --auto-compress is used to automatically detect wished file compression depending on given file extension
         command = "{{ {} ; {}; }} | tar --auto-compress --create --no-check-device --file={} " \
