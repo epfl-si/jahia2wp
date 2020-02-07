@@ -1,6 +1,6 @@
 src: web
 # For 2018 websites, plugin is deactivated by default
-activate: no
+activate: yes
 config_class: wordpress.plugins.custom.comingsoon.WPComingSoonConfig
 # Only one option is set here. The other on needs to be specifically configured so it is done in a dedicated Python Class (specified above)
 tables:
