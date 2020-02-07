@@ -347,8 +347,9 @@ class Utils(object):
         cmd_all_others = 'find {0} -print | egrep "^{0}/wp"'.format(source_path)
 
         # --auto-compress is used to automatically detect wished file compression depending on given file extension
+        # We also remove debug.log to spare some place
         command = "{{ {} ; {}; }} | tar --auto-compress --create --no-check-device --file={} " \
-                  "--listed-incremental={} -T -".format(cmd_first_level_files,
+                  "--listed-incremental={} --exclude=debug.log -T -".format(cmd_first_level_files,
                                                         cmd_all_others,
                                                         tar_file_path,
                                                         tar_listed_inc_file_path)
