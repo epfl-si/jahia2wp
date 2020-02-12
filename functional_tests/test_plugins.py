@@ -8,7 +8,7 @@ from wordpress.generator import MockedWPGenerator
 TEST_SITE = 'unittest'
 SITE_URL_GENERIC = "http://localhost/"
 SITE_URL_SPECIFIC = "http://localhost/{}".format(TEST_SITE)
-UNIT_NAME = 'idevelop'
+UNIT_NAME = 'idev'
 
 """
 Load fake environment variables for every test

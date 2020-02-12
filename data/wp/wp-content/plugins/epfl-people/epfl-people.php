@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name: EPFL People shortcode
- * Plugin URI: https://github.com/epfl-idevelop/EPFL-WP-SC-People
+ * Plugin URI: https://github.com/epfl-si/EPFL-WP-SC-People
  * Description: provides a shortcode to display results from People
  * Version: 1.5
  * Author: Emmanuel JAEP

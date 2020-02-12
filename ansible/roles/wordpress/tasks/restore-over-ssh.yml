@@ -42,7 +42,7 @@
       {{ backup_prod_shell_untar }} --wildcards --wildcards-match-slash */wp-content/uploads
 
 # Temporary kludge for incremental backups that span across directory
-# rename operations such as https://github.com/epfl-idevelop/jahia2wp/pull/452
+# rename operations such as https://github.com/epfl-si/jahia2wp/pull/452
 - name: Remove duplicate plugins (temporary kludge)
   shell:
     cmd: |

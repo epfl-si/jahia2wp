@@ -13,11 +13,17 @@ from bs4 import BeautifulSoup
 
 class Shortcodes():
     """ Shortcodes helpers """
-
+ 
     def __init__(self):
         self.list = {}
-        self.report = {}
-        self.regex = r'\[([a-z0-9_-]+)'
+        self.report = {'_nb_pages':0, '_nb_pages_updated':0, '_nb_shortcodes': 0}
+        self.regex_shortcode_names = r'\[([a-z0-9_-]+)'
+        
+        self.fix_func_prefix = "_fix_"
+
+        # Will be initialized later
+        self.wp_site = None
+        self.wp_config = None
 
     def _get_site_registered_shortcodes(self, site_path):
         """
@@ -133,7 +139,7 @@ class Shortcodes():
                         continue
 
                     # Looking for all shortcodes in current post
-                    for shortcode in re.findall(self.regex, content):
+                    for shortcode in re.findall(self.regex_shortcode_names, content):
 
                         # This is not a registered shortcode
                         if shortcode not in registered_shortcodes:
@@ -145,12 +151,14 @@ class Shortcodes():
                         if site_details.path not in self.list[shortcode]:
                             self.list[shortcode].append(site_details.path)
 
-    def __update_report(self, shortcode_name):
+    def _update_report(self, shortcode_name):
         # Building report
         if shortcode_name not in self.report:
             self.report[shortcode_name] = 0
 
         self.report[shortcode_name] += 1
+        self.report['_nb_shortcodes'] += 1
+        
 
     def __rename_shortcode(self, content, old_name, new_name):
         """
@@ -214,7 +222,7 @@ class Shortcodes():
 
         return matching_reg.sub(r'\g<before>', content)
 
-    def __change_attribute_value(self, content, shortcode_name, attr_name, new_value):
+    def _change_attribute_value(self, content, shortcode_name, attr_name, new_value):
         """
         Change a shortcode attribute value
 
@@ -285,7 +293,7 @@ class Shortcodes():
 
         return content
 
-    def __get_attribute(self, shortcode_call, attr_name):
+    def _get_attribute(self, shortcode_call, attr_name):
         """
         Return attribute value (or None if not found) for a given shortcode call
         :param shortcode_call: String with shortcode call: [my_shortcode attr="1"]
@@ -293,13 +301,13 @@ class Shortcodes():
         :return:
         """
         matching_reg = re.compile('{}=(".+?"|\S+?)'.format(attr_name),
-                                  re.VERBOSE)
+                                  re.VERBOSE | re.DOTALL)
 
         value = matching_reg.findall(shortcode_call)
         # We remove surrounding " if exists.
         return value[0].strip('"') if value else None
 
-    def __get_content(self, shortcode_call):
+    def _get_content(self, shortcode_call):
         """
         Return content (or None if not found) for a given shortcode call. This also works for nested shortcodes
         :param shortcode_call: String with shortcode call: [my_shortcode attr="1"]content[/my_shortcode]
@@ -323,12 +331,14 @@ class Shortcodes():
 
         return matching_reg.sub(']{}[/'.format(new_content), shortcode_call)
 
-    def __get_all_shortcode_calls(self, content, shortcode_name, with_content=False):
+    def _get_all_shortcode_calls(self, content, shortcode_name, with_content=False, allow_new_lines=True):
         """
         Look for all calls for a given shortcode in given content
         :param content: String in which to look for shortcode calls
         :param shortcode_name: shortcode name to look for
         :param with_content: To tell if we have to return content as well. If given and shortcode doesn't have content,
+        :param allow_new_lines: To tell if new lines are allowed in content. If they are, regex might be very greedy.
+        Set this parameter to False if you have a mix between [shortcode /] and [shortcode]..[/shortcode]
         it won't be returned
         :return:
         """
@@ -336,8 +346,11 @@ class Shortcodes():
         if with_content:
             regex += '.*?\[\/{}\]'.format(shortcode_name)
 
-        # re.DOTALL is to match all characters including \n
-        matching_reg = re.compile("({})".format(regex), re.DOTALL)
+        if allow_new_lines:
+            # re.DOTALL is to match all characters including \n
+            matching_reg = re.compile("({})".format(regex), re.DOTALL)
+        else:
+            matching_reg = re.compile("({})".format(regex))
 
         # Because we have 2 parenthesis groups in regex, we obtain a list of tuples and we just want the first
         # element of each tuple and put it in a list.
@@ -360,37 +373,41 @@ class Shortcodes():
 
         content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
 
-        self.__update_report(old_shortcode)
+        self._update_report(old_shortcode)
         return content
 
-    def _fix_su_vimeo(self, content):
+    def _fix_su_vimeo(self, content, page_id):
         """
         Fix "su_vimeo" from Shortcode ultimate plugin
-        :param content:
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         return self.__fix_to_epfl_video(content, 'su_vimeo')
 
-    def _fix_su_youtube(self, content):
+    def _fix_su_youtube(self, content, page_id):
         """
         Fix "su_youtube" from Shortcode ultimate plugin
-        :param content:
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         return self.__fix_to_epfl_video(content, 'su_youtube')
 
-    def _fix_su_youtube_advanced(self, content):
+    def _fix_su_youtube_advanced(self, content, page_id):
         """
         Fix "su_youtube_advanced" from Shortcode ultimate plugin
-        :param content:
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         return self.__fix_to_epfl_video(content, 'su_youtube_advanced')
 
-    def _fix_epfl_people(self, content):
+    def _fix_epfl_people(self, content, page_id):
         """
         Fix all epfl_people shortcodes in content
-        :param content:
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
 
@@ -398,14 +415,14 @@ class Shortcodes():
         new_shortcode = 'epfl_people_2018'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, old_shortcode)
+        calls = self._get_all_shortcode_calls(content, old_shortcode)
 
         for call in calls:
             # We generate new shortcode from scratch
             new_call = '[{}]'.format(new_shortcode)
 
             # Extracing URL in which parameters we are looking for are
-            api_url = self.__get_attribute(call, 'url')
+            api_url = self._get_attribute(call, 'url')
 
             # Trying to find a 'scipers' parameter
             scipers = Utils.get_parameter_from_url(api_url, 'scipers')
@@ -421,14 +438,15 @@ class Shortcodes():
 
             # Replacing in global content
             content = content.replace(call, new_call)
-            self.__update_report(old_shortcode)
+            self._update_report(old_shortcode)
 
         return content
 
-    def _fix_epfl_news(self, content):
+    def _fix_epfl_news(self, content, page_id):
         """
         Fix all epfl_news shortcodes in content
-        :param content:
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
 
@@ -436,7 +454,7 @@ class Shortcodes():
         new_shortcode = 'epfl_news_2018'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, old_shortcode)
+        calls = self._get_all_shortcode_calls(content, old_shortcode)
 
         nb_news_from_template = {'4': '3',
                                  '8': '5',
@@ -450,7 +468,7 @@ class Shortcodes():
         for call in calls:
             new_call = '[{}]'.format(new_shortcode)
 
-            template = self.__get_attribute(call, 'template')
+            template = self._get_attribute(call, 'template')
 
             # New template is always the same
             new_call = self.__add_attribute(new_call, new_shortcode, 'template', '1')
@@ -465,7 +483,7 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, new_call)
 
-            self.__update_report(old_shortcode)
+            self._update_report(old_shortcode)
 
         return content
 
@@ -480,14 +498,14 @@ class Shortcodes():
         new_shortcode = 'gallery'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, old_shortcode)
+        calls = self._get_all_shortcode_calls(content, old_shortcode)
 
         for call in calls:
             # We generate new shortcode from scratch
             new_call = '[{}]'.format(new_shortcode)
 
             # SOURCE -> IDS
-            source = self.__get_attribute(call, 'source')
+            source = self._get_attribute(call, 'source')
 
             # If not images, it is not supported, we skip it
             if not source.startswith('media:'):
@@ -500,7 +518,7 @@ class Shortcodes():
                 new_call = self.__add_attribute(new_call, new_shortcode, 'ids', ids)
 
                 # LINK
-                link = self.__get_attribute(call, 'link')
+                link = self._get_attribute(call, 'link')
                 # 'image' is for su_slider, su_custom_gallery and su_carousel
                 # 'lightbox' is for su_custom_gallery and su_carousel
                 if link == 'image' or link == 'lightbox':
@@ -520,30 +538,33 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, new_call)
 
-            self.__update_report(old_shortcode)
+            self._update_report(old_shortcode)
 
         return content
 
-    def _fix_su_carousel(self, content):
+    def _fix_su_carousel(self, content, page_id):
         """
         Fix all su_custom_gallery shortcodes in content
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         return self._fix_to_gallery(content, 'su_carousel')
 
-    def _fix_su_custom_gallery(self, content):
+    def _fix_su_custom_gallery(self, content, page_id):
         """
         Fix all su_custom_gallery shortcodes in content
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         return self._fix_to_gallery(content, 'su_custom_gallery')
 
-    def _fix_su_slider(self, content):
+    def _fix_su_slider(self, content, page_id):
         """
         Fix all su_slider shortcodes in content
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         return self._fix_to_gallery(content, 'su_slider')
@@ -557,13 +578,13 @@ class Shortcodes():
         new_shortcode = 'epfl_toggle'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, old_shortcode, with_content=True)
+        calls = self._get_all_shortcode_calls(content, old_shortcode, with_content=True)
 
         for call in calls:
             # getting future toggle content
-            toggle_content = self.__get_content(call)
+            toggle_content = self._get_content(call)
 
-            title = self.__get_attribute(call, 'more_text')
+            title = self._get_attribute(call, 'more_text')
 
             # We generate new shortcode from scratch
             new_call = '[{0} title="{1}" state="close"]{2}[/{0}]'.format(new_shortcode, title, toggle_content)
@@ -571,68 +592,72 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, new_call)
 
-            self.__update_report(old_shortcode)
+            self._update_report(old_shortcode)
 
         return content
 
-    def _fix_su_expand(self, content):
+    def _fix_su_expand(self, content, page_id):
         """
         Fix "su_expand" from Shortcode ultimate plugin
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         return self.__fix_to_epfl_toggle(content, 'su_expand')
 
-    def _fix_my_buttonexpand(self, content):
+    def _fix_my_buttonexpand(self, content, page_id):
         """
         Fix "my_buttonexpand" (renamed su_expand) from Shortcode ultimate plugin
         This plugin name is only used on UC website...
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         return self.__fix_to_epfl_toggle(content, 'my_buttonexpand')
 
-    def _fix_su_accordion(self, content):
+    def _fix_su_accordion(self, content, page_id):
         """
         Fix "su_accordion" from Shortcode ultimate plugin. This shortcode is a container for "su_spoiler" elements
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         old_shortcode = 'su_accordion'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, old_shortcode, with_content=True)
+        calls = self._get_all_shortcode_calls(content, old_shortcode, with_content=True)
 
         for call in calls:
             # getting future toggle content
-            toggle_content = self.__get_content(call)
+            toggle_content = self._get_content(call)
 
             # Replacing in global content. In fact, we just remove surrounding shortcode
             content = content.replace(call, toggle_content)
 
-            self.__update_report(old_shortcode)
+            self._update_report(old_shortcode)
 
         return content
 
-    def _fix_su_spoiler(self, content):
+    def _fix_su_spoiler(self, content, page_id):
         """
         Fix "su_spoiler" from Shortcode Ultimate plugin. This shortcode is surrouned by "su_accordion" shortcode and
         is just translated to "epfl_toggle"
-        :param content:
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         old_shortcode = 'su_spoiler'
         new_shortcode = 'epfl_toggle'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, old_shortcode, with_content=True)
+        calls = self._get_all_shortcode_calls(content, old_shortcode, with_content=True)
 
         for call in calls:
             # getting future toggle content
-            toggle_content = self.__get_content(call)
+            toggle_content = self._get_content(call)
 
-            title = self.__get_attribute(call, 'title')
-            is_open = self.__get_attribute(call, 'open')
+            title = self._get_attribute(call, 'title')
+            is_open = self._get_attribute(call, 'open')
 
             state = 'close' if not is_open or is_open == 'no' else 'open'
 
@@ -642,24 +667,24 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, new_call)
 
-            self.__update_report(old_shortcode)
+            self._update_report(old_shortcode)
 
         return content
 
     def __fix_to_atom_button(self, content, old_shortcode):
         """
         Return HTML code to display button according 2018 styleguide:
-        https://epfl-idevelop.github.io/elements/#/atoms/button
+        https://epfl-si.github.io/elements/#/atoms/button
         :param content: String in which to fix
         :return:
         """
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, old_shortcode, with_content=True)
+        calls = self._get_all_shortcode_calls(content, old_shortcode, with_content=True)
 
         for call in calls:
-            text = self.__get_content(call)
-            url = self.__get_attribute(call, 'url')
-            target = self.__get_attribute(call, 'target')
+            text = self._get_content(call)
+            url = self._get_attribute(call, 'url')
+            target = self._get_attribute(call, 'target')
 
             html = ''
 
@@ -676,38 +701,41 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, html)
 
-            self.__update_report(old_shortcode)
+            self._update_report(old_shortcode)
 
         return content
 
-    def _fix_su_button(self, content):
+    def _fix_su_button(self, content, page_id):
         """
         Fix "su_button" from Shortcode Ultimate plugin.
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         return self.__fix_to_atom_button(content, 'su_button')
 
-    def _fix_my_buttonbutton(self, content):
+    def _fix_my_buttonbutton(self, content, page_id):
         """
         Fix "my_buttonbutton" (renamed su_button) from Shortcode ultimate plugin
         This plugin name is only used on UC website...
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         return self.__fix_to_atom_button(content, 'my_buttonbutton')
 
-    def _fix_su_divider(self, content):
+    def _fix_su_divider(self, content, page_id):
         """
         Fix "su_divider" from Shortcode Ultimate. We replace it with HTML code, not with another shortcode.
-        https://epfl-idevelop.github.io/elements/#/atoms/separator
-        :param content: String in which to fix.
+        https://epfl-si.github.io/elements/#/atoms/separator
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         shortcode_name = 'su_divider'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, shortcode_name)
+        calls = self._get_all_shortcode_calls(content, shortcode_name)
 
         for call in calls:
             html = '<hr class="bold">'
@@ -715,102 +743,108 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, html)
 
-            self.__update_report(shortcode_name)
+            self._update_report(shortcode_name)
 
         return content
 
-    def _fix_su_row(self, content):
+    def _fix_su_row(self, content, page_id):
         """
         Fix "su_row" from Shortcode Ultimate.
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         shortcode_name = 'su_row'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
+        calls = self._get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
 
-            row_content = self.__get_content(call)
+            row_content = self._get_content(call)
 
             html = '<table><tr>{}</tr></table>'.format(row_content)
 
             # Replacing in global content
             content = content.replace(call, html)
 
-            self.__update_report(shortcode_name)
+            self._update_report(shortcode_name)
 
         return content
 
-    def _fix_su_column(self, content):
+    def _fix_su_column(self, content, page_id):
         """
         Fix "su_column" from Shortcode Ultimate.
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         shortcode_name = 'su_column'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
+        calls = self._get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
-            col_content = self.__get_content(call)
+            col_content = self._get_content(call)
 
             html = '<td>{}</td>'.format(col_content)
 
             # Replacing in global content
             content = content.replace(call, html)
 
-            self.__update_report(shortcode_name)
+            self._update_report(shortcode_name)
 
         return content
 
-    def _fix_su_box(self, content):
+    def _fix_su_box(self, content, page_id):
         """
         Fix "su_box" from Shortcode Ultimate. We replace it with epfl_card
-        :param content: String in which to fix.
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         old_shortcode = 'su_box'
         new_shortcode = 'epfl_card'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, old_shortcode, with_content=True)
+        calls = self._get_all_shortcode_calls(content, old_shortcode, with_content=True)
 
         for call in calls:
 
-            box_content = self.__get_content(call)
+            box_content = self._get_content(call)
 
-            title = self.__get_attribute(call, 'title')
+            title = self._get_attribute(call, 'title')
 
             new_call = '[{0} title1="{1}"]{2}[/{0}]'.format(new_shortcode, title, box_content)
 
             # Replacing in global content
             content = content.replace(call, new_call)
 
-            self.__update_report(old_shortcode)
+            self._update_report(old_shortcode)
 
         return content
 
-    def _fix_epfl_snippets(self, content):
+    def _fix_epfl_snippets(self, content, page_id):
         """
         Fix "epfl_snippets" shortcode and transform it into epfl_card
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         old_shortcode = 'epfl_snippets'
         new_shortcode = 'epfl_card'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, old_shortcode, with_content=True)
+        calls = self._get_all_shortcode_calls(content, old_shortcode, with_content=True)
 
         for call in calls:
 
             # urlencode content
-            box_content = quote_plus(self.__get_content(call))
+            box_content = quote_plus(self._get_content(call))
 
-            title = self.__get_attribute(call, 'title')
-            link = self.__get_attribute(call, 'url')
-            image = self.__get_attribute(call, 'image')
+            title = self._get_attribute(call, 'title')
+            link = self._get_attribute(call, 'url')
+            image = self._get_attribute(call, 'image')
 
             new_call = '[{0} content1="{1}" title1="{2}" link1="{3}" image1="{4}" /]'.format(
                 new_shortcode,
@@ -823,26 +857,27 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, new_call)
 
-            self.__update_report(old_shortcode)
+            self._update_report(old_shortcode)
 
         return content
 
-    def _fix_su_quote(self, content):
+    def _fix_su_quote(self, content, page_id):
         """
         Return HTML code to display quote according 2018 styleguide (but without an image and using "col-md-12" instead
         of "col-md-10" for the width):
-        https://epfl-idevelop.github.io/elements/#/molecules/quote
-        :param content: String in which to fix
+        https://epfl-si.github.io/elements/#/molecules/quote
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         shortcode_name = 'su_quote'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
+        calls = self._get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
-            philosophical_thing = self.__get_content(call)
-            great_person_who_said_this = self.__get_attribute(call, 'cite')
+            philosophical_thing = self._get_content(call)
+            great_person_who_said_this = self._get_attribute(call, 'cite')
 
             html = '<div class="row">'
             html += '<blockquote class="blockquote mt-3 col-md-12 border-0">'
@@ -854,94 +889,98 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, html)
 
-            self.__update_report(shortcode_name)
+            self._update_report(shortcode_name)
 
         return content
 
-    def _fix_su_list(self, content):
+    def _fix_su_list(self, content, page_id):
         """
         Return HTML code to display information correctly. We remove surrounding shortcode and add a <br> at the end.
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         shortcode_name = 'su_list'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
+        calls = self._get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
-            list_content = self.__get_content(call)
+            list_content = self._get_content(call)
 
             html = '{}<br>'.format(list_content)
 
             # Replacing in global content
             content = content.replace(call, html)
 
-            self.__update_report(shortcode_name)
+            self._update_report(shortcode_name)
 
         return content
 
-    def _fix_su_heading(self, content):
+    def _fix_su_heading(self, content, page_id):
         """
         Fix "su_heading" shortcode from shortcode ultimate. Just transform it into <h2> element.
-        :param content: String in which to fix
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         shortcode_name = 'su_heading'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
+        calls = self._get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
-            heading_text = self.__get_content(call)
+            heading_text = self._get_content(call)
 
             html = '<h2>{}</h2>'.format(heading_text)
 
             # Replacing in global content
             content = content.replace(call, html)
 
-            self.__update_report(shortcode_name)
+            self._update_report(shortcode_name)
 
         return content
 
-    def _fix_su_highlight(self, content):
+    def _fix_su_highlight(self, content, page_id):
         """
         Fix "su_highlight" shortcode from shortcode ultimate. Just transform it into <mark> element as defined
-        in the styleguide: https://epfl-idevelop.github.io/elements/#/doc/design--typography.html
-        :param content: String in which to fix
+        in the styleguide: https://epfl-si.github.io/elements/#/doc/design--typography.html
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         shortcode_name = 'su_highlight'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
+        calls = self._get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
-            heading_text = self.__get_content(call)
+            heading_text = self._get_content(call)
 
             html = '<mark>{}</mark>'.format(heading_text)
 
             # Replacing in global content
             content = content.replace(call, html)
 
-            self.__update_report(shortcode_name)
+            self._update_report(shortcode_name)
 
         return content
 
-    def _fix_su_note(self, content):
+    def _fix_su_note(self, content, page_id):
         """
         Fix "su_note" de Shortcode Ultimate afin de mettre le code HTML d'un trapèze:
-        https://epfl-idevelop.github.io/elements/#/atoms/trapeze
-        :param content: String in which to fix
+        https://epfl-si.github.io/elements/#/atoms/trapeze
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         shortcode_name = 'su_note'
 
         # Looking for all calls to modify them one by one
-        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
+        calls = self._get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
-            note = self.__get_content(call)
+            note = self._get_content(call)
 
             html = '<a href="#" class="trapeze-vertical-container">'
             html += '<div class="card">'
@@ -953,23 +992,26 @@ class Shortcodes():
             # Replacing in global content
             content = content.replace(call, html)
 
-            self.__update_report(shortcode_name)
+            self._update_report(shortcode_name)
 
         return content
 
-    def _fix_su_spacer(self, content):
+    def _fix_su_spacer(self, content, page_id):
         """
         Remove "su_spacer"
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         shortcode_name = 'su_spacer'
-        self.__update_report(shortcode_name)
+        self._update_report(shortcode_name)
         return self.__remove_shortcode(content, shortcode_name)
 
-    def _fix_epfl_twitter(self, content):
+    def _fix_epfl_twitter(self, content, page_id):
         """
         Fix "epfl_twitter" shortcode
-        :param content:
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         old_shortcode = 'epfl_twitter'
@@ -980,29 +1022,30 @@ class Shortcodes():
 
         content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
 
-        self.__update_report(old_shortcode)
+        self._update_report(old_shortcode)
 
         return content
 
-    def _fix_epfl_memento(self, content):
+    def _fix_epfl_memento(self, content, page_id):
         """
         Fix "epfl_memento" shortcode
-        :param content:
+        :param content: content to update
+        :param page_id: Id of page containing content
         :return:
         """
         old_shortcode = 'epfl_memento'
         new_shortcode = 'epfl_memento_2018'
 
         # a lot of attributes are useless so we try to remove all of them
-        content = self.__change_attribute_value(content, old_shortcode, 'template', '4')
+        content = self._change_attribute_value(content, old_shortcode, 'template', '4')
 
         content = self.__rename_shortcode(content, old_shortcode, new_shortcode)
 
-        self.__update_report(old_shortcode)
+        self._update_report(old_shortcode)
 
         return content
 
-    def _fix_epfl_card_new_version(self, content):
+    def _fix_epfl_card_new_version(self, content, page_id):
         """
         Fix "epfl_card" shortcode in the new version.
 
@@ -1013,22 +1056,25 @@ class Shortcodes():
 
         Note: This method name is suffix by '_new_version' to prevent its automatic use.
 
+        :param content: content to update
+        :param page_id: Id of page containing content
+
         example:
         input: [epfl_card title="toto titre" link="toto lien" image="29"]toto text[/epfl_card]
         output [epfl_card title1="toto titre" link1="toto lien" image1="29" content1="%3Cp%3Etoto%20text%3C%2Fp%3E" /]
         """
         shortcode_name = "epfl_card"
 
-        calls = self.__get_all_shortcode_calls(content, shortcode_name, with_content=True)
+        calls = self._get_all_shortcode_calls(content, shortcode_name, with_content=True)
 
         for call in calls:
 
             # urlencode content
-            box_content = quote_plus(self.__get_content(call))
+            box_content = quote_plus(self._get_content(call))
 
-            title = self.__get_attribute(call, 'title')
-            link = self.__get_attribute(call, 'link')
-            image = self.__get_attribute(call, 'image')
+            title = self._get_attribute(call, 'title')
+            link = self._get_attribute(call, 'link')
+            image = self._get_attribute(call, 'image')
 
             new_call = '[{0} content1="{1}" title1="{2}" link1="{3}" image1="{4}" /]'.format(
                 shortcode_name,
@@ -1038,13 +1084,13 @@ class Shortcodes():
                 image
             )
 
-            self.__update_report(shortcode_name)
+            self._update_report(shortcode_name)
 
             content = content.replace(call, new_call)
 
         return content
 
-    def _fix_epfl_toggle_2018_new_version(self, content):
+    def _fix_epfl_toggle_2018_new_version(self, content, page_id):
         """
         Fix "epfl_toggle_2018" shortcode in the new version.
 
@@ -1056,6 +1102,9 @@ class Shortcodes():
 
         Note: This method name is suffix by '_new_version' to prevent its automatic use.
 
+        :param content: content to update
+        :param page_id: Id of page containing content
+
         example:
         input: [epfl_toggle_2018 label0=”IOS” desc0=”<desc0>” state0=”close” label1="Android" desc1="<desc1>" ...
         output
@@ -1065,7 +1114,7 @@ class Shortcodes():
         old_shortcode = 'epfl_toggle_2018'
         new_shortcode = 'epfl_toggle'
 
-        calls = self.__get_all_shortcode_calls(content, old_shortcode)
+        calls = self._get_all_shortcode_calls(content, old_shortcode)
 
         for call in calls:
 
@@ -1073,13 +1122,13 @@ class Shortcodes():
 
             for i in range(10):
 
-                title = self.__get_attribute(call, 'label{}'.format(i))
+                title = self._get_attribute(call, 'label{}'.format(i))
 
                 if not title:
                     continue
 
-                desc = unquote(self.__get_attribute(call, 'desc{}'.format(i)))
-                state = self.__get_attribute(call, 'state{}'.format(i))
+                desc = unquote(self._get_attribute(call, 'desc{}'.format(i)))
+                state = self._get_attribute(call, 'state{}'.format(i))
 
                 new_call = '[{0} title="{1}" state="{2}"]{3}[/{0}]'.format(new_shortcode,
                                                                            title,
@@ -1087,34 +1136,36 @@ class Shortcodes():
                                                                            desc)
                 new_calls.append(new_call)
 
-                self.__update_report(old_shortcode)
+                self._update_report(old_shortcode)
 
             content = content.replace(call, '\n'.join(new_calls))
 
         return content
 
-    def fix_site(self, openshift_env, wp_site_url, shortcode_name=None):
+    def fix_site(self, openshift_env, wp_site_url, shortcode_name=None, clean_textbox_div=True, simulation=False):
         """
         Fix shortocdes in WP site
         :param openshift_env: openshift environment name
         :param wp_site_url: URL to website to fix.
         :param shortcode_name: fix site for this shortcode only
+        :param clean_textbox_div: to tell if we have to use Beautiful soup to clean 'textBox' divs from Jahia
+        :param simulation: to tell if we have to only perform a dry run => no DB update
         :return: dictionnary with report.
         """
 
         content_filename = Utils.generate_name(15, '/tmp/')
 
-        wp_site = WPSite(openshift_env, wp_site_url)
-        wp_config = WPConfig(wp_site)
+        self.wp_site = WPSite(openshift_env, wp_site_url)
+        self.wp_config = WPConfig(self.wp_site)
 
-        if not wp_config.is_installed:
+        if not self.wp_config.is_installed:
             logging.info("No WP site found at given URL (%s)", wp_site_url)
             return self.report
 
-        logging.info("Fixing %s...", wp_site.path)
+        logging.info("Fixing %s...", self.wp_site.path)
 
         # Getting site posts
-        post_ids = wp_config.run_wp_cli("post list --post_type=page --skip-plugins --skip-themes "
+        post_ids = self.wp_config.run_wp_cli("post list --post_type=page --skip-plugins --skip-themes "
                                         "--format=csv --fields=ID")
 
         # Nothing to fix
@@ -1126,18 +1177,21 @@ class Shortcodes():
 
         # Looping through posts
         for post_id in post_ids:
+
+            self._update_report('_nb_pages')
+
             logging.info("Fixing page ID %s...", post_id)
-            content = wp_config.run_wp_cli("post get {} --skip-plugins --skip-themes "
+            content = self.wp_config.run_wp_cli("post get {} --skip-plugins --skip-themes "
                                            "--field=post_content".format(post_id))
             original_content = content
 
             # Step 1 - Fixing shortcodes
             # Looking for all shortcodes in current post
-            for shortcode in list(set(re.findall(self.regex, content))):
+            for shortcode in re.findall(self.regex_shortcode_names, content):
 
                 if shortcode_name is None or shortcode_name.startswith(shortcode):
 
-                    fix_func_name = "_fix_{}".format(shortcode.replace("-", "_"))
+                    fix_func_name = "{}{}".format(self.fix_func_prefix, shortcode.replace("-", "_"))
 
                     if shortcode_name is not None and shortcode_name.endswith("_new_version"):
                         fix_func_name += "_new_version"
@@ -1150,40 +1204,54 @@ class Shortcodes():
                         continue
 
                     logging.debug("Fixing shortcode %s...", shortcode)
-                    content = fix_func(content)
+                    content = fix_func(content, post_id)
 
-            # Step 2: Removing <div class="textbox"> to avoid display issues on 2018 theme
-            soup = BeautifulSoup(content, 'html5lib')
-            soup.body.hidden = True
+            # If cleaning option has been selected
+            if clean_textbox_div:
+                # Step 2: Removing <div class="textbox"> to avoid display issues on 2018 theme
+                soup = BeautifulSoup(content, 'html5lib')
+                soup.body.hidden = True
 
-            # Looking for all DIVs with "textBox" as class
-            for div in soup.find_all('div', {'class': 'textBox'}):
-                # Remove DIV but keep its content
-                div.unwrap()
+                # Looking for all DIVs with "textBox" as class
+                for div in soup.find_all('div', {'class': 'textBox'}):
+                    # Remove DIV but keep its content
+                    div.unwrap()
 
-            content = str(soup.body)
+                content = str(soup.body)
 
-            # If content changed for current page,
+            # If content changed for current page 
             if content != original_content:
+                self._update_report('_nb_pages_updated')
 
-                logging.debug("Content fixed, updating page...")
+                # If  we're not performing a simulation
+                if not simulation:
 
-                for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
-                    try:
-                        # We use a temporary file to store page content to avoid to have problems with simple/double
-                        # quotes and content size
-                        with open(content_filename, 'wb') as content_file:
-                            content_file.write(content.encode())
-                        wp_config.run_wp_cli("post update {} --skip-plugins --skip-themes {} ".format(
-                            post_id, content_filename))
+                    logging.debug("Content fixed, updating page...")
 
-                    except Exception as e:
-                        if try_no < settings.WP_CLI_AND_API_NB_TRIES - 1:
-                            logging.error("fix_site() error. Retry %s in %s sec...",
-                                          try_no + 1,
-                                          settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
-                            time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
-                            pass
+                    for try_no in range(settings.WP_CLI_AND_API_NB_TRIES):
+                        try:
+                            # We use a temporary file to store page content to avoid to have problems with simple/double
+                            # quotes and content size
+                            with open(content_filename, 'wb') as content_file:
+                                content_file.write(content.encode())
+
+                            # call autop
+                            php_autop = "{}/call-autop.php".format(os.path.dirname(os.path.realpath(__file__)))
+                            cmd = "wp eval-file {} {} --path={}".format(php_autop, content_filename, self.wp_site.path)
+                            content_with_p = Utils.run_command(cmd)
+            
+                            self.wp_config.run_wp_cli("post update {} --skip-plugins --skip-themes {} ".format(
+                                post_id, content_filename))
+
+                            break
+
+                        except Exception as e:
+                            if try_no < settings.WP_CLI_AND_API_NB_TRIES - 1:
+                                logging.error("fix_site() error. Retry %s in %s sec...",
+                                            try_no + 1,
+                                            settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                                time.sleep(settings.WP_CLI_AND_API_NB_SEC_BETWEEN_TRIES)
+                                pass
 
         # Cleaning
         if os.path.exists(content_filename):

@@ -19,7 +19,7 @@ Used to download a ZIP file from Jahia. A prompt to enter Jahia admin password w
 
 ## export.sh
 To export only one site using `jahia2wp.py export` command.
-This will be done by default for "idevelop" unit and with `--installs-locked=yes`. 
+This will be done by default for "idev" unit and with `--installs-locked=yes`. 
 There's a possibility to give an extra argument (ex: `--debug`) and it will be added to `jahia2wp.py export` command.
 > ./export.sh \<siteName> [\<extraArg>]
 

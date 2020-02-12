@@ -77,7 +77,7 @@ class TestWPGenerator:
              'wp_site_url': "http://localhost/folder",
              'wp_site_title': 'DM',
              'wp_tagline': self.TAGLINE_WITH_ACCENT,
-             'unit_name': 'idevelop',
+             'unit_name': 'idev',
              'langs': 'en',
              'updates_automatic': False})
         generator.clean()
