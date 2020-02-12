@@ -1,4 +1,4 @@
-src: ../wp/wp-content/plugins/enlighter
+src: ../wp/wp-content/plugins/enlighter.zip
 activate: yes
 tables:
     options:
