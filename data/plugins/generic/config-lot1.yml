@@ -47,3 +47,5 @@ plugins:
     config: !include wp-gutenberg-epfl/config-plugin.yml
   - name: epfl-menus
     config: !include epfl-menus/config-plugin.yml
+  - name: enlighter
+    config: !include enlighter/config-plugin.yml

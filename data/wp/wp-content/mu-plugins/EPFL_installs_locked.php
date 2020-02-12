@@ -1,7 +1,7 @@
 <?php
 /*
  * Plugin Name: EPFL lock plugin and theme install and configuration
- * Plugin URI: 
+ * Plugin URI:
  * Description: Must-use plugin for the EPFL website.
  * Version: 0.0.6
  * Author: wwp-admin@epfl.ch
@@ -27,9 +27,9 @@ function disable_plugin_deactivation( $actions, $plugin_file, $plugin_data, $con
    //if ( array_key_exists( 'deactivate', $actions ) && in_array( $plugin_file, array(
    //      'mainwp-child/mainwp-child.php' ,'miniorange-saml-20-single-sign-on/login.php'
    //      )))
-   
+
    // Remove deactivate link for crucial plugins
-   if ( array_key_exists( 'deactivate', $actions ) ) 
+   if ( array_key_exists( 'deactivate', $actions ) )
    unset( $actions['deactivate'] );
    return $actions;
 }
@@ -43,7 +43,7 @@ function EPFL_remove_menu_pages() {
 }
 /* Hide apparence editor menu
  *
- 
+
 function EPFL_remove_menu_editor() {
    remove_action('admin_menu', '_add_themes_utility_last', 101);
 }
@@ -64,17 +64,17 @@ function my_custom_bulk_actions($actions){
  */
 function EPFL_add_editor_caps() {
 	$role = get_role( 'editor' );
-	$role->add_cap( 'manage_options' ); 
-   $role->add_cap( 'export' ); 
+	$role->add_cap( 'manage_options' );
+   $role->add_cap( 'export' );
    $role->add_cap( 'edit_theme_options' );
 }
 add_action( 'admin_init', 'EPFL_add_editor_caps');
 
 /* Hide apparence backround and header menu
- * 
+ *
  */
 add_action( 'after_setup_theme','EPFL_remove_background_header_options', 100 );
-function EPFL_remove_background_header_options() {    
+function EPFL_remove_background_header_options() {
    remove_theme_support( 'custom-header');
    remove_theme_support( 'custom-background');
 }
@@ -101,6 +101,8 @@ function EPFL_remove_admin_submenus() {
 
    remove_submenu_page( 'themes.php', 'themes.php' );
 
+   remove_menu_page('enlighter-appearance');
+
 	// Hide customize page (there is no other way to do it)
 	global $submenu;
 	if ( isset( $submenu[ 'themes.php' ] ) ) {
@@ -115,9 +117,9 @@ function EPFL_remove_admin_submenus() {
 
 
 /* Hide customize menu in admin bar
- * 
+ *
  */
-add_action( 'wp_before_admin_bar_render', 'EPFL_remove_customize_admin_bar_render' ); 
+add_action( 'wp_before_admin_bar_render', 'EPFL_remove_customize_admin_bar_render' );
 function EPFL_remove_customize_admin_bar_render()
 {
     global $wp_admin_bar;
