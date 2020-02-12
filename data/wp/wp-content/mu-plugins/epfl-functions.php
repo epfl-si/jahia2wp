@@ -369,7 +369,7 @@ add_filter('tiny_mce_before_init', 'allow_svg_in_tinymce');
 
 
 /*
-    Add tags present in HTML styleguide (https://epfl-idevelop.github.io/elements/#/) to allow users to use them directly
+    Add tags present in HTML styleguide (https://epfl-si.github.io/elements/#/) to allow users to use them directly
     in "Text Editor"
 */
 function epfl_2018_add_allowed_tags($tags)

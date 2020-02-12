@@ -85,7 +85,7 @@ class WPThemeConfig(WPConfig):
         symlink if needed so we need to use WP-CLI command to install themes to make this work.
         But this code will still work, even if we don't have a modified WP-CLI version.
         """
-        zip_url = "https://github.com/epfl-idevelop/wp-theme-2018/archive/master.zip"
+        zip_url = "https://github.com/epfl-si/wp-theme-2018/archive/master.zip"
         zip_base_name = 'wp-theme-2018-master/'
 
         logging.debug("Downloading themes package...")

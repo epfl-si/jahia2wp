@@ -24,7 +24,7 @@ Class ShortCakeLinksGroupConfig
             'label'       => '<h3>' . esc_html__('Title', 'epfl') . '</h3>',
             'attr'        => 'title',
             'type'        => 'text',
-            'description' => '<a target="_blank" href="https://epfl-idevelop.github.io/elements/#/molecules/links-group">Documentation</a>'
+            'description' => '<a target="_blank" href="https://epfl-si.github.io/elements/#/molecules/links-group">Documentation</a>'
         ]);
 
         array_push($fields, [

@@ -13,23 +13,23 @@
 </h4>
 
 <p align="center">
-  <a href="https://github.com/epfl-idevelop/jahia2wp/blob/master/docs/CHANGELOG.md">
-    <img src="https://img.shields.io/github/release/epfl-idevelop/jahia2wp.svg"
+  <a href="https://github.com/epfl-si/jahia2wp/blob/master/docs/CHANGELOG.md">
+    <img src="https://img.shields.io/github/release/epfl-si/jahia2wp.svg"
          alt="Changelog">
   </a>
   <a href="http://jahia2wp.readthedocs.io">
     <img src="https://img.shields.io/readthedocs/jahia2wp.svg"
          alt="RDT">
   </a>
-  <a href="https://travis-ci.org/epfl-idevelop/jahia2wp">
-    <img src="https://travis-ci.org/epfl-idevelop/jahia2wp.svg?branch=master"
+  <a href="https://travis-ci.org/epfl-si/jahia2wp">
+    <img src="https://travis-ci.org/epfl-si/jahia2wp.svg?branch=master"
          alt="Travis">
   </a>
-  <a href="https://codecov.io/gh/epfl-idevelop/jahia2wp">
-    <img src="https://codecov.io/gh/epfl-idevelop/jahia2wp/branch/master/graph/badge.svg"
+  <a href="https://codecov.io/gh/epfl-si/jahia2wp">
+    <img src="https://codecov.io/gh/epfl-si/jahia2wp/branch/master/graph/badge.svg"
          alt="Codecov" />
   </a>
-  <a href="https://github.com/epfl-idevelop/jahia2wp/blob/master/LICENSE">
+  <a href="https://github.com/epfl-si/jahia2wp/blob/master/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg"
          alt="License" />
   </a>
@@ -44,7 +44,7 @@ Head to the [documentation](http://jahia2wp.readthedocs.io/en/master/) for next 
 
 ### 30/11/2017, Naked WordPress : Went Live :airplane:
 
-We spent [6 sprints](https://github.com/epfl-idevelop/jahia2wp/projects/1?) to focus on automation and maintenance, with the objective of driving all the creation process from one shared spreadsheet (aka configuration source).
+We spent [6 sprints](https://github.com/epfl-si/jahia2wp/projects/1?) to focus on automation and maintenance, with the objective of driving all the creation process from one shared spreadsheet (aka configuration source).
 
 1. :balloon: installing a functional WordPress to any given URL
 
