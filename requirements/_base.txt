@@ -3,7 +3,7 @@ docopt-dispatch==0.0.2
 epfl-ldap==0.0.6
 django==1.11.5
 clint==0.5.1
-PyYAML==3.12
+PyYAML==5.1
 PyMySQL==0.7.11
 git+https://github.com/epfl-si/python-rotate-backups.git
 simplejson==3.11.1
