@@ -1,4 +1,4 @@
-src: ../wp/wp-content/plugins/epfl-intranet
+src: https://github.com/epfl-idevelop/wp-plugin-epfl-intranet/archive/master.zip
 activate: yes
 tables:
   options:
