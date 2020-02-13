@@ -8,10 +8,10 @@
  */
 
 function epfl_allowed_block_types( $allowed_block_types, $post ) {
-    
+
     /* List of blocks allowed only in Posts
-    NOTES: 
-    - A block cannot be in both list at the same time. 
+    NOTES:
+    - A block cannot be in both list at the same time.
     - For EPFL blocks allowed in Posts, please have a look a wp-epfl-gutenberg plugin (plugin.php) file*/
     $post_only_blocks = array('core/gallery',
         'core/heading',
@@ -30,6 +30,7 @@ function epfl_allowed_block_types( $allowed_block_types, $post ) {
         'core/table',
         'core/shortcode',
         'core/freeform',
+        'enlighter/codeblock'
     );
 
     // In all cases post only blocks are allowed
