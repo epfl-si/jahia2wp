@@ -674,7 +674,7 @@ class Shortcodes():
     def __fix_to_atom_button(self, content, old_shortcode):
         """
         Return HTML code to display button according 2018 styleguide:
-        https://epfl-idevelop.github.io/elements/#/atoms/button
+        https://epfl-si.github.io/elements/#/atoms/button
         :param content: String in which to fix
         :return:
         """
@@ -727,7 +727,7 @@ class Shortcodes():
     def _fix_su_divider(self, content, page_id):
         """
         Fix "su_divider" from Shortcode Ultimate. We replace it with HTML code, not with another shortcode.
-        https://epfl-idevelop.github.io/elements/#/atoms/separator
+        https://epfl-si.github.io/elements/#/atoms/separator
         :param content: content to update
         :param page_id: Id of page containing content
         :return:
@@ -865,7 +865,7 @@ class Shortcodes():
         """
         Return HTML code to display quote according 2018 styleguide (but without an image and using "col-md-12" instead
         of "col-md-10" for the width):
-        https://epfl-idevelop.github.io/elements/#/molecules/quote
+        https://epfl-si.github.io/elements/#/molecules/quote
         :param content: content to update
         :param page_id: Id of page containing content
         :return:
@@ -944,7 +944,7 @@ class Shortcodes():
     def _fix_su_highlight(self, content, page_id):
         """
         Fix "su_highlight" shortcode from shortcode ultimate. Just transform it into <mark> element as defined
-        in the styleguide: https://epfl-idevelop.github.io/elements/#/doc/design--typography.html
+        in the styleguide: https://epfl-si.github.io/elements/#/doc/design--typography.html
         :param content: content to update
         :param page_id: Id of page containing content
         :return:
@@ -969,7 +969,7 @@ class Shortcodes():
     def _fix_su_note(self, content, page_id):
         """
         Fix "su_note" de Shortcode Ultimate afin de mettre le code HTML d'un trapèze:
-        https://epfl-idevelop.github.io/elements/#/atoms/trapeze
+        https://epfl-si.github.io/elements/#/atoms/trapeze
         :param content: content to update
         :param page_id: Id of page containing content
         :return:

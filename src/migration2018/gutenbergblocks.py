@@ -662,7 +662,7 @@ class GutenbergBlocks(Shortcodes):
     def _fix_epfl_infoscience_search(self, content, page_id):
         """
         Transforms EPFL Infoscience Search shortcode to Gutenberg block
-        https://github.com/epfl-idevelop/jahia2wp/blob/release2018/data/wp/wp-content/plugins/epfl/shortcodes/epfl-infoscience-search/epfl-infoscience-search.php
+        https://github.com/epfl-si/jahia2wp/blob/release2018/data/wp/wp-content/plugins/epfl/shortcodes/epfl-infoscience-search/epfl-infoscience-search.php
 
         :param content: content to update
         :param page_id: Id of page containing content
@@ -763,8 +763,8 @@ class GutenbergBlocks(Shortcodes):
     def _fix_epfl_card(self, content, page_id):
         """
         Transforms EPFL card shortcode to Gutenberg block
-        https://github.com/epfl-idevelop/wp-theme-2018/blob/dev/wp-theme-2018/shortcodes/epfl_card/view.php
-        https://github.com/epfl-idevelop/wp-gutenberg-epfl/blob/master/src/epfl-card/index.js
+        https://github.com/epfl-si/wp-theme-2018/blob/dev/wp-theme-2018/shortcodes/epfl_card/view.php
+        https://github.com/epfl-si/wp-gutenberg-epfl/blob/master/src/epfl-card/index.js
 
         :param content: content to update
         :param page_id: Id of page containing content
@@ -831,7 +831,7 @@ class GutenbergBlocks(Shortcodes):
     def _fix_epfl_faculties(self, content, page_id):
         """
         Transforms EPFL faculties (Schools) shortcode to Gutenberg block
-        https://github.com/epfl-idevelop/wp-theme-2018/blob/dev/wp-theme-2018/shortcodes/schools/view.php
+        https://github.com/epfl-si/wp-theme-2018/blob/dev/wp-theme-2018/shortcodes/schools/view.php
 
         :param content: content to update
         :param page_id: Id of page containing content
@@ -890,7 +890,7 @@ class GutenbergBlocks(Shortcodes):
     def _fix_epfl_contact(self, content, page_id):
         """
         Transforms EPFL people 2018 shortcode to Gutenberg block
-        https://github.com/epfl-idevelop/wp-theme-2018/blob/dev/wp-theme-2018/shortcodes/epfl_contact/view.php
+        https://github.com/epfl-si/wp-theme-2018/blob/dev/wp-theme-2018/shortcodes/epfl_contact/view.php
 
         :param content: content to update
         :param page_id: Id of page containing content
@@ -946,7 +946,7 @@ class GutenbergBlocks(Shortcodes):
     def _fix_epfl_definition_list(self, content, page_id):
         """
         Transforms EPFL definition list shortcode to Gutenberg block
-        https://github.com/epfl-idevelop/wp-theme-2018/blob/dev/wp-theme-2018/shortcodes/definition_list/view.php
+        https://github.com/epfl-si/wp-theme-2018/blob/dev/wp-theme-2018/shortcodes/definition_list/view.php
 
         :param content: content to update
         :param page_id: Id of page containing content

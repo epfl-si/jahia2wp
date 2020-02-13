@@ -1,6 +1,6 @@
 # Shortcode Polylex
 
-Ce shortcode permet un interfaçage avec l'application [wp-polylex](https://github.com/epfl-idevelop/wp-polylex).
+Ce shortcode permet un interfaçage avec l'application [wp-polylex](https://github.com/epfl-si/wp-polylex).
 
 Fonctionnalités :
 - UI permettant

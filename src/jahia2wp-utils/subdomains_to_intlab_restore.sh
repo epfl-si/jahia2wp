@@ -48,13 +48,13 @@ then
 	#Mettre le nouveau theme 2018
 	mkdir /tmp/theme_2018
 	
-	curl -o /tmp/theme_2018/theme_2018.py https://raw.githubusercontent.com/epfl-idevelop/wp-ops/master/docker/wp-base/install-plugins-and-themes.py
+	curl -o /tmp/theme_2018/theme_2018.py https://raw.githubusercontent.com/epfl-si/wp-ops/master/docker/wp-base/install-plugins-and-themes.py
 	
 	(cd /tmp/theme_2018/
 	chmod +x theme_2018.py)
 
 	(cd /srv/int/migration-wp.epfl.ch/htdocs/labs/$site/wp-content/themes
-	python /tmp/theme_2018/theme_2018.py wp-theme-2018 https://github.com/epfl-idevelop/wp-theme-2018/tree/dev/wp-theme-2018)
+	python /tmp/theme_2018/theme_2018.py wp-theme-2018 https://github.com/epfl-si/wp-theme-2018/tree/dev/wp-theme-2018)
 
 	#Activer le theme 2018
 	execCmd "wp theme activate wp-theme-2018 --path=/srv/int/migration-wp.epfl.ch/htdocs/labs/$site"

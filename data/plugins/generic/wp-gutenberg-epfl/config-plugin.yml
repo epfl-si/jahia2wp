@@ -1,4 +1,4 @@
-src: https://github.com/epfl-idevelop/wp-gutenberg-epfl/archive/master.zip
+src: https://github.com/epfl-si/wp-gutenberg-epfl/archive/master.zip
 activate: yes
 install_if:
   csv_value: !from_csv wp_version
