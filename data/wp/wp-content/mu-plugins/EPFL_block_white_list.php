@@ -3,7 +3,7 @@
 * Plugin Name: EPFL block white list
 * Plugin URI:
 * Description: Must-use plugin for the EPFL website to define allowed blocks coming from Gutenberg or installed plugins.
-* Version: 1.0.4
+* Version: 1.0.5
 * Author: wwp-admin@epfl.ch
  */
 
@@ -42,8 +42,10 @@ function epfl_allowed_block_types( $allowed_block_types, $post ) {
         $allowed_block_types = array_merge($allowed_block_types, $rest_of_allowed_blocks);
     }
 
-    // We ensure there's no duplicate
-  	return array_unique($allowed_block_types);
+    /* NOTE: Don't do an "array_unique()" to avoid duplicates. For an unknown reason, even if the array content seems to be correctly
+        filtered, the result will be that all blocks will be allowed, but ONLY on pages... not on posts... it's like the return of
+        "array_unique" function is "different" when the number of elements in the array is more than X ... */
+    return $allowed_block_types;
     // return True; // if you want all natifs blocks.
 }
 
