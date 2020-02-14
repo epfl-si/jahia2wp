@@ -344,18 +344,16 @@ class Utils(object):
 
         # To list all files/symlinks starting with "<tar_file_path>/wp" (this will exclude non-WordPress subfolder,
         # which will be very useful when backuping multiple WordPress in a subfolder hierarchy
-        # NOTE: We explicitly list FOLDERS and SYMLINKS only because if we list everything, some things will be duplicated
+        # NOTE: We explicitly list FOLDERS only because if we list everything, some things will be duplicated
         # in the backup. In fact, if we give a folder to 'tar' command, it will backup folder and all its content. So if we
-        # list everything (files and folder), files will be backuped a second time because explicitly given...
+        # list everything (files, folder and symlinks), files and symlinks will be backuped a second time because explicitly given...
         cmd_all_folders = 'find {0} -type d -print | egrep "^{0}/wp"'.format(source_path)
-        cmd_all_symlinks = 'find {0} -type l -print | egrep "^{0}/wp"'.format(source_path)
-
+        
         # --auto-compress is used to automatically detect wished file compression depending on given file extension
         # We also remove debug.log to spare some place
-        command = "{{ {} ; {}; {}; }} | tar --auto-compress --create --no-check-device --file={} " \
+        command = "{{ {} ; {};  }} | tar --auto-compress --create --no-check-device --file={} " \
                   "--listed-incremental={} --exclude=debug.log -T -".format(cmd_first_level_files,
                                                         cmd_all_folders,
-                                                        cmd_all_symlinks,
                                                         tar_file_path,
                                                         tar_listed_inc_file_path)
         return Utils.run_command(command)
