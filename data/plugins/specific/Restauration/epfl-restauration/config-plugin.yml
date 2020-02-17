@@ -1,2 +1,2 @@
-src: ../wp/wp-content/plugins/epfl-restauration
+src: https://github.com/epfl-si/wp-plugin-epfl-restauration/archive/master.zip
 activate: yes
