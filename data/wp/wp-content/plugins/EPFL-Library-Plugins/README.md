@@ -1,0 +1,1 @@
+New repository: https://github.com/epfl-si/wp-plugin-epfl-library
