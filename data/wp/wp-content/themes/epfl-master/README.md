@@ -2,11 +2,11 @@
 Epfl theme (Wordpress)
 ===
  * Based on [*_s* theme (underscores)](https://underscores.me/)
- * Implements the [elements](https://github.com/epfl-idevelop/elements) styleguide
+ * Implements the [elements](https://github.com/epfl-si/elements) styleguide
  * Uses shortcodes to display special content served by EPFL APIs.
 
 ## Requirements
-  * production build of [elements](https://github.com/epfl-idevelop/elements) located in `/assets`
+  * production build of [elements](https://github.com/epfl-si/elements) located in `/assets`
   * composer
 
 ## Setup
@@ -14,7 +14,7 @@ Epfl theme (Wordpress)
   2. Nothing more, you're ready to go! 🚀
 
 ## Recovering the last version of the styleguide
-  1. head towards [https://github.com/epfl-idevelop/elements](https://github.com/epfl-idevelop/elements)
+  1. head towards [https://github.com/epfl-si/elements](https://github.com/epfl-si/elements)
   2. clone the repo locally
   3. install the project locally (see elements documentation)
   4. launch `$ yarn && yarn build` or `$ docker-compose up builder`

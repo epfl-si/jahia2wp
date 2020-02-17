@@ -134,7 +134,7 @@ class WPMuPluginConfig(WPConfig):
 
         # Generating MU-plugin install command.
         # This command is not standard in WP-CLI, following package as to be installed :
-        # https://github.com/epfl-idevelop/wp-cli
+        # https://github.com/epfl-si/wp-cli
         self.run_wp_cli("mu-plugin install {} {} {}".format(src_path, folder_param, no_symlink_option))
 
         logging.debug("%s - MU-Plugins - %s: Installed", repr(self.wp_site), self.name)

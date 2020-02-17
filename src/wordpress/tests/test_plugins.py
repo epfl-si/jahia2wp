@@ -8,7 +8,7 @@ from wordpress import WPPluginList
 TEST_SITE = 'unittest'
 SITE_URL_GENERIC = "http://localhost/"
 SITE_URL_SPECIFIC = "http://localhost/{}".format(TEST_SITE)
-UNIT_NAME = 'idevelop'
+UNIT_NAME = 'idev'
 os.environ["PLUGINS_CONFIG_BASE_PATH"] = "wordpress/tests/plugins"
 reload(settings)
 

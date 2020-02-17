@@ -1,6 +1,6 @@
 <!-- markdownlint-disable -->
 <h1 align="center" style="margin:1em">
-  <a href="https://github.com/epfl-idevelop/jahia2wp">
+  <a href="https://github.com/epfl-si/jahia2wp">
     <img src="./static/jahia2wp.png"
          alt="jahia2wp"
          width="200"></a>
@@ -13,23 +13,23 @@
 </h4>
 
 <p align="center">
-  <a href="https://github.com/epfl-idevelop/jahia2wp/blob/master/docs/CHANGELOG.md">
-    <img src="https://img.shields.io/github/release/epfl-idevelop/jahia2wp.svg"
+  <a href="https://github.com/epfl-si/jahia2wp/blob/master/docs/CHANGELOG.md">
+    <img src="https://img.shields.io/github/release/epfl-si/jahia2wp.svg"
          alt="Changelog">
   </a>
   <a href="http://jahia2wp.readthedocs.io">
     <img src="https://img.shields.io/readthedocs/jahia2wp.svg"
          alt="RDT">
   </a>
-  <a href="https://travis-ci.org/epfl-idevelop/jahia2wp">
-    <img src="https://travis-ci.org/epfl-idevelop/jahia2wp.svg?branch=master"
+  <a href="https://travis-ci.org/epfl-si/jahia2wp">
+    <img src="https://travis-ci.org/epfl-si/jahia2wp.svg?branch=master"
          alt="Travis">
   </a>
-  <a href="https://codecov.io/gh/epfl-idevelop/jahia2wp">
-    <img src="https://codecov.io/gh/epfl-idevelop/jahia2wp/branch/master/graph/badge.svg"
+  <a href="https://codecov.io/gh/epfl-si/jahia2wp">
+    <img src="https://codecov.io/gh/epfl-si/jahia2wp/branch/master/graph/badge.svg"
          alt="Codecov" />
   </a>
-  <a href="https://github.com/epfl-idevelop/jahia2wp/blob/master/LICENSE">
+  <a href="https://github.com/epfl-si/jahia2wp/blob/master/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg"
          alt="License" />
   </a>
@@ -86,7 +86,7 @@ In the process, not only shall you **not** loose your data, but you shall also b
 
 We will first focus on automation and maintenance, with the objective of driving all the creation process from one shared spreadsheet (aka configuration source).
 
-This phase ended on the 30th of November, with the [release 0.3.0](https://github.com/epfl-idevelop/jahia2wp/releases/tag/0.3.0)
+This phase ended on the 30th of November, with the [release 0.3.0](https://github.com/epfl-si/jahia2wp/releases/tag/0.3.0)
 
 We will secondly add support for migration of a simple site:
 
@@ -131,11 +131,11 @@ Note that python is not in the requirements. You do not necessarily need it on y
 
 As some commands require `sudo`, you will be asked for your system password. The process will add a line in your `.bashrc` (again: head to [INSTALL_TOOLS.md](./INSTALL_TOOLS.md) to get more details):
 
-    you@host:~$ git clone git@github.com:epfl-idevelop/jahia2wp.git
-    you@host:~$ git clone git@github.com:epfl-idevelop/wp-ops.git
+    you@host:~$ git clone git@github.com:epfl-si/jahia2wp.git
+    you@host:~$ git clone git@github.com:epfl-si/wp-ops.git
     # or, would you rather use https instead of SSH
-    # you@host:~$ git clone https://github.com/epfl-idevelop/jahia2wp.git 
-    # you@host:~$ git clone https://github.com/epfl-idevelop/wp-ops.git 
+    # you@host:~$ git clone https://github.com/epfl-si/jahia2wp.git 
+    # you@host:~$ git clone https://github.com/epfl-si/wp-ops.git 
     you@host:~$ cd jahia2wp
     you@host:jahia2wp$ make bootstrap-local (add ENV=your-env if you use a C2C environment name here if you have one)
     ...
@@ -158,7 +158,7 @@ You will also need to know what environment (pod) you wish to connect into (and 
 
     you@host:~$ WP_ENV=c2c-env && ssh -A -o SendEnv=WP_ENV www-data@ssh-wwp.epfl.ch -p 32222
     
-    www-data@mgmt-x-xxx:/srv/c2c-env$ git clone git@github.com:epfl-idevelop/jahia2wp.git
+    www-data@mgmt-x-xxx:/srv/c2c-env$ git clone git@github.com:epfl-si/jahia2wp.git
     www-data@mgmt-x-xxx:/srv/c2c-env$ cd jahia2wp
     www-data@mgmt-x-xxx:/srv/c2c-env/jahia2wp$ cp /srv/.config/.env . (<- that will set the correct DB credentials for you)
     www-data@mgmt-x-xxx:/srv/c2c-env/jahia2wp$ make -f Makefile.c2c
@@ -294,7 +294,7 @@ A phpMyAdmin is available locally at [localhost:8080](http://localhost:8080), wi
 
 There are a few ways where you can help out:
 
-1. Submit [GitHub issues](https://github.com/epfl-idevelop/jahia2wp/issues) for any feature enhancements, bugs or documentation problems.
+1. Submit [GitHub issues](https://github.com/epfl-si/jahia2wp/issues) for any feature enhancements, bugs or documentation problems.
 1. Fix open issues by sending PRs (please make sure you respect [flake8](http://flake8.pycqa.org/en/latest/) conventions and that all tests pass (see below)
 1. Add documentation (written in [markdown](https://daringfireball.net/projects/markdown/))
 

@@ -1,1 +1,1 @@
-Please head for the open [issues on GitHub](https://github.com/epfl-idevelop/jahia2wp/issues), and feel free to submit a new one if necessary
+Please head for the open [issues on GitHub](https://github.com/epfl-si/jahia2wp/issues), and feel free to submit a new one if necessary

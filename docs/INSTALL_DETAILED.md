@@ -19,7 +19,7 @@ Table of contents
 
 Github is currently the only way to leverage this project (and its awesome features).
 
-    you@host:~$ git clone git@github.com:epfl-idevelop/jahia2wp.git
+    you@host:~$ git clone git@github.com:epfl-si/jahia2wp.git
     you@host:~$ cd jahia2wp
 
 ## Initial setup (details of `make bootstrap-local`)
@@ -132,7 +132,7 @@ Login to the management container (within VPN) and go to your environment:
 
 Clone the project:
 
-    www-data@mgmt-x-xxx:/srv/your-env$ git clone git@github.com:epfl-idevelop/jahia2wp.git
+    www-data@mgmt-x-xxx:/srv/your-env$ git clone git@github.com:epfl-si/jahia2wp.git
     www-data@mgmt-x-xxx:/srv/your-env$ cd jahia2wp
     www-data@mgmt-x-xxx:/srv/your-env/jahia2wp$ cp /srv/.config/.env .env
 
