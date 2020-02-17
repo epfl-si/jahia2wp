@@ -65,7 +65,7 @@ vars: check-env
 	@echo '  JAHIA_HOST=${JAHIA_HOST}'
 
 build: check-env
-	docker build --build-arg GITHUB_API_TOKEN=${GITHUB_API_TOKEN} --build-arg GITHUB_API_USER=${GITHUB_API_USER} -t epflsi/os-wp-base ../wp-ops/docker/wp-base
+	docker build -t epflsi/os-wp-base ../wp-ops/docker/wp-base
 	docker-compose build
 
 up: build
