@@ -1,4 +1,4 @@
-src: ../wp/wp-content/plugins/enlighter.zip
+src: https://github.com/epfl-si/wp-plugin-enlighter
 activate: yes
 tables:
     options:
