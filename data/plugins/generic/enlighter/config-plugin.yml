@@ -1,4 +1,4 @@
-src: https://github.com/epfl-si/wp-plugin-enlighter
+src: https://github.com/epfl-si/wp-plugin-enlighter/archive/master.zip
 activate: yes
 tables:
     options:
