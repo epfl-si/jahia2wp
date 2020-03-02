@@ -53,7 +53,7 @@ class WPPluginConfig(WPConfig):
         else:
             param = self.name
         force_option = "--force" if force_reinstall else ""
-        # We don't use symlink if it has been specified for whole WordPress install or just 
+        # We don't use symlink if it has been specified for whole WordPress install or just
         # for current plugin using YAML configuration file.
         no_symlink_option = "--nosymlink" if no_symlink or self.config.no_symlink else ""
 
@@ -102,12 +102,13 @@ class WPMuPluginConfig(WPConfig):
 
     PLUGINS_PATH = os.path.join('wp-content', 'mu-plugins')
 
-    def __init__(self, wp_site, plugin_name, plugin_folder=None):
+    def __init__(self, wp_site, from_mu_plugin_path, plugin_name, plugin_folder=None):
         """
         Constructor
 
         Keyword arguments:
         wp_site -- Instance of class WPSite
+        from_mu_plugin_path -- the base path to a folder where we can find the mu-plugins to install
         plugin_name -- Plugin file name
         plugin_folder -- Folder containing plugin files (if exists, 'plugin_name' is probably just a loader for
                          files in folder)
@@ -115,12 +116,13 @@ class WPMuPluginConfig(WPConfig):
         super(WPMuPluginConfig, self).__init__(wp_site)
         self.plugin_folder = plugin_folder
         self.name = plugin_name
+        self.from_mu_plugin_path = from_mu_plugin_path
 
         # set full path, down to file
         self.path = os.path.join(self.dir_path, plugin_name)
 
     def install(self, no_symlink=False):
-        src_path = os.path.sep.join([settings.WP_FILES_PATH, self.PLUGINS_PATH, self.name])
+        src_path = self.from_mu_plugin_path
 
         folder_param = ""
 
@@ -128,8 +130,7 @@ class WPMuPluginConfig(WPConfig):
 
         # If we also have a folder to copy
         if self.plugin_folder:
-            folder_param = "--folder={}".format(os.path.sep.join([settings.WP_FILES_PATH,
-                                                                  self.PLUGINS_PATH,
+            folder_param = "--folder={}".format(os.path.sep.join([src_path,
                                                                   self.plugin_folder]))
 
         # Generating MU-plugin install command.
