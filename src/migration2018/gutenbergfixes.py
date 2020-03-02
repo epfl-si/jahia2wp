@@ -310,9 +310,6 @@ class GutenbergFixes(GutenbergBlocks):
 
             data = self._decode_unicode(data)
 
-            with open('lulu', 'wb')as f:
-                f.write(data.encode())
-
             values = src_regex.findall(data)
             src = values[0].replace('\\/', '/')
 
