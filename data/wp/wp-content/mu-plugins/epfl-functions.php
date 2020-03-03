@@ -521,4 +521,10 @@ function no_content_for_all_pages_crawling_trough_api($args, $post_type){
 
 add_filter('register_post_type_args', __NAMESPACE__ . '\no_content_for_all_pages_crawling_trough_api', 10, 2);
 
+# Enlighter plugin show is "About page" everytime an update is done
+# this fix this information that we don't want to show to the user
+add_action('admin_init', function () {
+  delete_option('enlighter-activation-redirect');
+}, 1);
+
 ?>
