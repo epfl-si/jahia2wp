@@ -122,7 +122,7 @@ class WPMuPluginConfig(WPConfig):
         self.path = os.path.join(self.dir_path, plugin_name)
 
     def install(self, no_symlink=False):
-        src_path = self.from_mu_plugin_path
+        src_path = os.path.sep.join([self.from_mu_plugin_path, self.name])
 
         folder_param = ""
 
