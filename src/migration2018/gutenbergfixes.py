@@ -286,28 +286,37 @@ class GutenbergFixes(GutenbergBlocks):
         return new_call
     
 
-    def _fix_block_infoscience_search(self, content, page_id):
+    def _fix_block_google_forms(self, content, page_id):
         """
-        Fix EPFL Infoscience URL
+        Fix EPFL Google Forms
         :param content: content to update
         :param page_id: Id of page containing content
         """
         
-        block_name = "infoscience-search"
+        block_name = "google-forms"
 
         # Looking for all calls to modify them one by one
         calls = self._get_all_block_calls(content, block_name)
 
+        src_regex = re.compile('src=\"(.*?)\"', re.VERBOSE)
+        height_regex = re.compile('height=\"(.*?)\"', re.VERBOSE)
+
         for call in calls:
 
-            url = self._get_attribute(call, 'url')
+            data = self._get_attribute(call, 'data')
 
-            if url is None: 
+            if data is None: 
                 continue
 
-            new_url = url.replace('\/', '/')
-            new_url = new_url.replace('\\u0026amp;', '\\u0026')
-            new_call = call.replace(url, new_url)
+            data = self._decode_unicode(data)
+
+            values = src_regex.findall(data)
+            src = values[0].replace('\\/', '/')
+
+            values = height_regex.findall(data)
+            height = values[0]
+            
+            new_call = '<!-- wp:epfl/google-forms {{"data":"","url":"{}","height":{}}} /-->'.format(src, height)
             
             if new_call != call:
                 self._log_to_file("Before: {}".format(call))
@@ -319,84 +328,3 @@ class GutenbergFixes(GutenbergBlocks):
         
         return content
     
-
-    def _fix_block_card(self, content, page_id):
-        """
-        Fix EPFL Card by putting an attribute content inside the block
-        :param content: content to update
-        :param page_id: Id of page containing content
-        """
-        
-        block_name = "card"
-
-        # Looking for all calls to modify them one by one
-        calls = self._get_all_block_calls(content, block_name)
-
-        json_separators =  (',', ':')
-
-        for call in calls:
-
-            new_call = call
-            block_contents = []
-
-            # We loop through inside elements
-            for i in range(1,4):
-
-                card_deck_attributes = {}
-                attributes = ['title', 'link', 'imageId', 'imageUrl']
-
-                for attr_name in attributes:
-
-                    value = self._get_attribute(new_call, "{}{}".format(attr_name, i))
-
-                    if value is not None:
-                        if attr_name == 'imageId':
-                            try:
-                                # Value can be equal to "null" or can have others incorrect values so... instead
-                                # of handling all specific errors, we use "try except" statement..
-                                value = int(value)
-                            except ValueError as e:
-                                value = None
-
-                        elif attr_name == 'title':
-                            value = value.replace('\\\\u', '\\u')
-
-                        card_deck_attributes[attr_name] = value
-                
-                block_content = self._get_attribute(new_call, "content{}".format(i))
-
-                if block_content is None:
-                    block_content = ""
-                block_content = self._decode_unicode(block_content)
-      
-                # We remove new line characters in code
-                block_content = block_content.replace('\\n', "").replace('\\r', "").replace("\\t", "")
-                # We unescape double quotes
-                block_content = block_content.replace('\\"', '"')
-                
-                block_content = block_content.strip("\n")
-
-                json_code = "" if len(card_deck_attributes) == 0 else "{} ".format(json.dumps(card_deck_attributes, separators=json_separators))
-
-                # If block is empty, we have to return without wp:freeform otherwise content won't be editable in visual
-                if block_content == "":
-                    block_contents.append('<!-- wp:epfl/card-panel {}/-->'.format(json_code))
-                else:
-                    block_contents.append('<!-- wp:epfl/card-panel {}-->\n<!-- wp:tadv/classic-paragraph -->\n{}\n<!-- /wp:tadv/classic-paragraph -->\n<!-- /wp:epfl/card-panel -->'.format(json_code, block_content))
-
-            # We remove \n at beginning and end
-            new_call = new_call.strip('\n')
-            new_call = new_call.replace('/-->', '-->').replace('wp:epfl/card', 'wp:epfl/card-deck')
-
-            new_call = '{}\n{}\n<!-- /wp:epfl/card-deck -->'.format(new_call, '\n'.join(block_contents))
-
-            
-            if new_call != call:
-                self._log_to_file("Before: {}".format(call))
-                self._log_to_file("After: {}".format(new_call))
-
-                self._update_report(block_name)
-
-                content = content.replace(call, new_call)
-        
-        return content
