@@ -2,9 +2,12 @@
 import logging
 import subprocess
 import sys
-
 import os
 import shutil
+
+from io import BytesIO
+from zipfile import ZipFile
+from urllib.request import urlopen
 from django.core.validators import URLValidator
 from epflldap.ldap_search import get_unit_id
 
@@ -60,7 +63,7 @@ class WPGenerator:
         # set a translation for it.
         if 'wp_site_title' not in self._site_params:
             self._site_params['wp_site_title'] = 'Title'
-        
+
         # tagline
         if 'wp_tagline' not in self._site_params:
             self._site_params['wp_tagline'] = None
@@ -331,7 +334,7 @@ class WPGenerator:
             extra_install_args = "--nosymlink"
         elif self._site_params['wp_version'] is not None:
             extra_install_args = "--wpversion={}".format(self._site_params['wp_version'])
-            
+
         # fill out first form in install process (setting admin user and permissions)
         command = "--allow-root core install --url={0.url} --title='{0.wp_site_title}'" \
             " --admin_user={1.username} --admin_password='{1.password}'"\
@@ -462,35 +465,57 @@ class WPGenerator:
         cmd = "post list --post_type=page --fields=ID --format=csv"
         return len(self.run_wp_cli(cmd).split("\n")[1:])
 
+    def fetch_and_unzip_mu_plugins(self):
+        zip_url = "https://github.com/epfl-si/wp-mu-plugins/archive/master.zip"
+        temp_path = os.path.join(self.wp_site.path, "wp-content")
+
+        # unzip in memory, but extract in a specific temp folder
+        resp = urlopen(zip_url)
+        with ZipFile(BytesIO(resp.read())) as zipObj:
+            zipObj.extractall(path=temp_path)
+
+        temp_path = os.path.join(temp_path, "wp-mu-plugins-master")
+        return temp_path
+
+    def remove_temp_folder_for_mu_plugins(self, path):
+        # remove temp folder
+        shutil.rmtree(path)
+
     def generate_mu_plugins(self, no_symlink=False):
-        # TODO: add those plugins into the general list of plugins (with the class WPMuPluginConfig)
-        WPMuPluginConfig(self.wp_site, "epfl-functions.php").install(no_symlink=no_symlink)
-        WPMuPluginConfig(self.wp_site, "EPFL_google_analytics_hook.php").install(no_symlink=no_symlink)
-        WPMuPluginConfig(self.wp_site, "EPFL_quota_loader.php", plugin_folder="epfl-quota").install(no_symlink=no_symlink)
-        WPMuPluginConfig(self.wp_site, "EPFL_stats_loader.php", plugin_folder="epfl-stats").install(no_symlink=no_symlink)
+        temp_path = self.fetch_and_unzip_mu_plugins()
+
+        WPMuPluginConfig(self.wp_site, temp_path, "epfl-functions.php").install(no_symlink=no_symlink)
+        WPMuPluginConfig(self.wp_site, temp_path, "EPFL_google_analytics_hook.php").install(no_symlink=no_symlink)
+        WPMuPluginConfig(self.wp_site, temp_path, "EPFL_quota_loader.php", plugin_folder="epfl-quota").install(no_symlink=no_symlink)
+        WPMuPluginConfig(self.wp_site, temp_path, "EPFL_stats_loader.php", plugin_folder="epfl-stats").install(no_symlink=no_symlink)
 
         if self.wp_config.installs_locked:
-            WPMuPluginConfig(self.wp_site, "EPFL_installs_locked.php").install(no_symlink=no_symlink)
+            WPMuPluginConfig(self.wp_site, temp_path, "EPFL_installs_locked.php").install(no_symlink=no_symlink)
 
         # If the site is created from a jahia export, the automatic update is disabled and will be re-enabled
         # after the export process is done.
         if self.wp_config.updates_automatic and not self.wp_config.from_export:
-            WPMuPluginConfig(self.wp_site, "EPFL_enable_updates_automatic.php").install(no_symlink=no_symlink)
+            WPMuPluginConfig(self.wp_site, temp_path, "EPFL_enable_updates_automatic.php").install(no_symlink=no_symlink)
         else:
-            WPMuPluginConfig(self.wp_site, "EPFL_disable_updates_automatic.php").install(no_symlink=no_symlink)
+            WPMuPluginConfig(self.wp_site, temp_path, "EPFL_disable_updates_automatic.php").install(no_symlink=no_symlink)
 
         # Handling site category
         if self._site_params['category'] != 'Unmanaged':
-            WPMuPluginConfig(self.wp_site, "EPFL_disable_comments.php").install(no_symlink=no_symlink)
-            WPMuPluginConfig(self.wp_site, "EPFL_jahia_redirect.php").install(no_symlink=no_symlink)
-            WPMuPluginConfig(self.wp_site, "EPFL_block_white_list.php").install(no_symlink=no_symlink)
-            WPMuPluginConfig(self.wp_site, "EPFL_custom_editor_menu_loader.php", plugin_folder="epfl-custom-editor-menu").install(no_symlink=no_symlink)
+            WPMuPluginConfig(self.wp_site, temp_path, "EPFL_disable_comments.php").install(no_symlink=no_symlink)
+            WPMuPluginConfig(self.wp_site, temp_path, "EPFL_jahia_redirect.php").install(no_symlink=no_symlink)
+            WPMuPluginConfig(self.wp_site, temp_path, "EPFL_block_white_list.php").install(no_symlink=no_symlink)
+            WPMuPluginConfig(self.wp_site, temp_path, "EPFL_custom_editor_menu_loader.php", plugin_folder="epfl-custom-editor-menu").install(no_symlink=no_symlink)
+
+        # clean temp files
+        self.remove_temp_folder_for_mu_plugins(temp_path)
 
     def enable_updates_automatic_if_allowed(self):
         if self.wp_config.updates_automatic:
-            WPMuPluginConfig(self.wp_site, "EPFL_enable_updates_automatic.php").install(no_symlink=no_symlink)
+            temp_path = self.fetch_and_unzip_mu_plugins()
+            WPMuPluginConfig(self.wp_site, temp_path, "EPFL_enable_updates_automatic.php").install(no_symlink=no_symlink)
             # We also uninstall the plugin which disable auto-updates otherwise we will have both...
-            WPMuPluginConfig(self.wp_site, "EPFL_disable_updates_automatic.php").uninstall()
+            WPMuPluginConfig(self.wp_site, temp_path, "EPFL_disable_updates_automatic.php").uninstall()
+            self.remove_temp_folder_for_mu_plugins(temp_path)
 
     def generate_plugins(self,
                          only_one=None,
@@ -638,7 +663,7 @@ class WPGenerator:
         :param strict_plugin_list: True|False
                             - if True, all plugin not present in YAML file will be uninstalled
         :param no_symlink: True|False
-                            - if True, plugins won't be symlinked    
+                            - if True, plugins won't be symlinked
         """
         # check we have a clean place first
         if not self.wp_config.is_installed:
