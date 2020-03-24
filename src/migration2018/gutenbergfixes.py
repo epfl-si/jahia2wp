@@ -21,11 +21,23 @@ class GutenbergFixes(GutenbergBlocks):
     Provides a bunch of functions to fix some things in already migrated blocks
     """
 
-    def __init__(self):
+    def __init__(self, block_category):
+        """
+        Class constructor
 
+        :param block_cagetory: Block category in which we have to look for blocks. This can be 'epfl' or 'core' if we want
+                               to look for WordPress core blocks
+        """
         super().__init__()
-        # Update Regex to be able to find block names instead of shortcodes (we don't take the "epfl/" in the block name)
-        self.regex_shortcode_names = r'\<!--\swp:epfl/([a-z0-9_-]+)'
+
+        # if we have to look for core blocks,
+        if block_category == 'core':
+            self.regex_shortcode_names = r'\<!--\swp:([a-z0-9_-]+)'
+
+        # Other block category given
+        else:
+            self.regex_shortcode_names = r'\<!--\swp:{}/([a-z0-9_-]+)'.format(block_category)
+            
 
         # We change fix function prefix to avoid conflicts
         self.fix_func_prefix = "_fix_block_"
@@ -57,7 +69,11 @@ class GutenbergFixes(GutenbergBlocks):
 
         value = matching_reg.findall(block_call)
 
-        return json.loads(value[0]) if return_dict else value[0]
+        if value:
+
+            return json.loads(value[0]) if return_dict else value[0]
+        else:
+            return {} if return_dict else ''
 
 
     def _replace_all_attributes(self, block_call, new_attributes):
@@ -68,11 +84,23 @@ class GutenbergFixes(GutenbergBlocks):
         :param new_attributes: Dict with new attributes
         """
 
-        return block_call.replace(self._get_all_attributes(block_call),
-                                  json.dumps(new_attributes, separators=(',', ':')))
+        current_attributes = self._get_all_attributes(block_call)
+        replace_with = json.dumps(new_attributes, separators=(',', ':'))
+
+        if current_attributes != '':
+            return block_call.replace(current_attributes, replace_with)
+
+        # There is currently no attribute in block
+        else:
+            # RegEx to extract substrings. <!-- wp:epfl/table --> becomes:
+            # <before>= '<!-- wp:epfl/table '
+            # <after>= '-->'
+            insert_reg = re.compile('(?P<before>\<!--\swp:.*)(?P<after>-->)', re.VERBOSE)
+            # We now insert attributes between 2 extracted strings
+            return insert_reg.sub(r'\g<before>{} \g<after>'.format(replace_with), block_call)
 
 
-    def _change_attribute_value(self, content, block_name, attr_name, new_value, between_double_quotes=True):
+    def _change_attribute_value(self, content, block_name, attr_name, new_value, between_double_quotes=True, block_category='epfl'):
         """
         Change a block attribute value
 
@@ -87,11 +115,13 @@ class GutenbergFixes(GutenbergBlocks):
         if not in double quotes before. So this could be a problem in some cases
         """
 
+        block_prefix = '{}/'.format(block_category) if block_category else ''
+
         # Transforms the following:
         # <!-- wp:block_name {"attr_name":"a","two":"b"} /-->  >>> <!-- wp:block_name {"attr_name":"b","two":"b"} /-->
         # <!-- wp:block_name {"attr_name":a,"two":"b"} /-->  >>> <!-- wp:block_name {"attr_name":b,"two":"b"} /-->
         
-        matching_reg = re.compile('(?P<before>\<!--\swp:epfl/{}.+\{{.*?\"{}\":\s?)(\".+?\"|\S+?)(?P<after>,|\}})'.format(block_name, attr_name),
+        matching_reg = re.compile('(?P<before>\<!--\swp:{}{}.+\{{.*?\"{}\":\s?)(\".+?\"|\S+?)(?P<after>,|\}})'.format(block_prefix, block_name, attr_name),
                                   re.VERBOSE)
 
         double_quotes = '"' if between_double_quotes else ''
@@ -99,16 +129,17 @@ class GutenbergFixes(GutenbergBlocks):
         return matching_reg.sub(r'\g<before>{0}{1}{0}\g<after>'.format(double_quotes, new_value), content)
 
     
-    def _remove_block_call_content(self, block_call, block_name):
+    def _remove_block_call_content(self, block_call, block_name, block_category='epfl'):
         """
         Remove content of a block call to transform it back to a "simple" block
 
         :param block_call: Block call
         :param block_name: Block name
         """
+        block_prefix = '{}/'.format(block_category) if block_category else ''
 
         # We look for first part of block
-        block_start_reg = re.compile('(\<!--\swp:epfl/{}(\s+\{{(.*?)\}})?\s+--\>)'.format(block_name))
+        block_start_reg = re.compile('(\<!--\swp:{}{}(\s+\{{(.*?)\}})?\s+--\>)'.format(block_prefix, block_name))
 
         # We take result and retransform it to "simple block"
         all = block_start_reg.findall(block_call)
@@ -116,7 +147,7 @@ class GutenbergFixes(GutenbergBlocks):
         return all[0][0].replace("-->", "/-->")
 
 
-    def _get_all_block_calls(self, content, block_name, with_content=False):
+    def _get_all_block_calls(self, content, block_name, with_content=False, block_category='epfl'):
         """
         Look for all calls for a given block in given content
         :param content: String in which to look for shortcode calls
@@ -125,9 +156,11 @@ class GutenbergFixes(GutenbergBlocks):
         
         :return:
         """
-        regex = '\<!--\swp:epfl/{}(\s+\{{(.*?)\}})?\s+{}--\>'.format(block_name, ("" if with_content else "/"))
+        block_prefix = '{}/'.format(block_category) if block_category else ''
+
+        regex = '\<!--\swp:{}{}(\s+\{{(.*?)\}})?\s+{}--\>'.format(block_prefix, block_name, ("" if with_content else "/"))
         if with_content:
-            regex += '.*?\<!--\s/wp:epfl/{}\s+--\>'.format(block_name)
+            regex += '.*?\<!--\s/wp:{}{}\s+--\>'.format(block_prefix, block_name)
             
             # We have to look through multiple lines so -> re.DOTALL
             matching_reg = re.compile("({})".format(regex), re.DOTALL)
@@ -286,38 +319,35 @@ class GutenbergFixes(GutenbergBlocks):
         return new_call
     
 
-    def _fix_block_google_forms(self, content, page_id):
+    def _fix_block_table(self, content, page_id):
         """
-        Fix EPFL Google Forms
+        Fix core table block (native WP block)
         :param content: content to update
         :param page_id: Id of page containing content
         """
         
-        block_name = "google-forms"
+        block_name = "table"
 
         # Looking for all calls to modify them one by one
-        calls = self._get_all_block_calls(content, block_name)
+        calls = self._get_all_block_calls(content, block_name, with_content=True, block_category=None)
 
-        src_regex = re.compile('src=\"(.*?)\"', re.VERBOSE)
-        height_regex = re.compile('height=\"(.*?)\"', re.VERBOSE)
 
         for call in calls:
 
-            data = self._get_attribute(call, 'data')
+            all_attr = self._get_all_attributes(call, return_dict=True)
+    
+            new_call = call
 
-            if data is None: 
-                continue
-
-            data = self._decode_unicode(data)
-
-            values = src_regex.findall(data)
-            src = values[0].replace('\\/', '/')
-
-            values = height_regex.findall(data)
-            height = values[0]
+            # To ensure correct display, we check if the option is enabled
+            if 'hasFixedLayout' not in all_attr or not all_attr['hasFixedLayout']:
             
-            new_call = '<!-- wp:epfl/google-forms {{"data":"","url":"{}","height":{}}} /-->'.format(src, height)
-            
+                all_attr['hasFixedLayout'] = True
+                
+                # We add new needed class to <table> element
+                new_call = new_call.replace('<table class="wp-block-table', '<table class="wp-block-table has-fixed-layout')
+                
+            new_call = '<!-- wp:epfl/table -->\n{}\n<!-- /wp:epfl/table -->'.format(self._replace_all_attributes(new_call, all_attr))
+
             if new_call != call:
                 self._log_to_file("Before: {}".format(call))
                 self._log_to_file("After: {}".format(new_call))
