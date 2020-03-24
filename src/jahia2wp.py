@@ -93,7 +93,7 @@ import subprocess
 from collections import OrderedDict
 from datetime import datetime, date
 from pprint import pprint
-
+import re
 import os
 import shutil
 
@@ -1059,7 +1059,20 @@ def block_fix(wp_env, wp_url, block_name=None, simulation=False, csv_time_log=No
         time_log_file = open(csv_time_log, mode='a')
         start_time = time.time()
 
-    blocks = GutenbergFixes()
+    block_category = 'epfl'
+
+    # If a block name was given,
+    if block_name:
+        # we look for a full block name (with category, ie: epfl/google-forms)
+        values = re.findall(r'(.+)\/(.+)', block_name)
+
+        # If block name have a category
+        if values:
+            # We extract infos, category and 'short' block name
+            block_category = values[0][0]
+            block_name = values[0][1]
+
+    blocks = GutenbergFixes(block_category=block_category)
     report = blocks.fix_site(wp_env, wp_url, shortcode_name=block_name, simulation=simulation)
     if simulation:
         logging.info("This was a simulation, nothing was changed in database")
