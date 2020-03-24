@@ -153,7 +153,8 @@ class GutenbergFixes(GutenbergBlocks):
         :param content: String in which to look for shortcode calls
         :param block_name: Code name to look for
         :param with_content: To tell if we have to return content as well. If given and shortcode doesn't have content,
-        
+        :param block_category: Block category. Pass None if block is core block
+
         :return:
         """
         block_prefix = '{}/'.format(block_category) if block_category else ''
