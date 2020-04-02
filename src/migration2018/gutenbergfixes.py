@@ -147,16 +147,37 @@ class GutenbergFixes(GutenbergBlocks):
         return all[0][0].replace("-->", "/-->")
 
 
-    def _get_all_block_calls(self, content, block_name, with_content=False, block_category='epfl'):
+    def _get_all_block_calls(self, content, block_name, with_content=False, block_category='epfl', ignore_if_in_blocks=None):
         """
         Look for all calls for a given block in given content
         :param content: String in which to look for shortcode calls
         :param block_name: Code name to look for
         :param with_content: To tell if we have to return content as well. If given and shortcode doesn't have content,
         :param block_category: Block category. Pass None if block is core block
+        :param ignore_if_in_category_and_block: To tell if we have to ignore some result because it is surrouned by another block/category.
+                                                List with block and its category to ignore, ex: ['epfl/table-filter']
 
         :return:
         """
+        surrounding_blocks = []
+
+        if ignore_if_in_blocks:
+            for ignore_block_and_category in ignore_if_in_blocks:
+                
+                extracted_block_and_category = ignore_block_and_category.split('/')
+
+                # If no category provided (if core block like 'table')
+                if len(extracted_block_and_category) == 1:
+                    ignore_category = None
+                    ignore_block = extracted_block_and_category
+                else:    
+                    ignore_category = extracted_block_and_category[0]
+                    ignore_block = extracted_block_and_category[1]
+                
+                # We add surrounding blocks
+                surrounding_blocks += self._get_all_block_calls(content, ignore_block, with_content=True, block_category=ignore_category)
+            
+
         block_prefix = '{}/'.format(block_category) if block_category else ''
 
         regex = '\<!--\swp:{}{}(\s+\{{(.*?)\}})?\s+{}--\>'.format(block_prefix, block_name, ("" if with_content else "/"))
@@ -171,7 +192,33 @@ class GutenbergFixes(GutenbergBlocks):
 
         # Because we have 3 parenthesis groups in regex, we obtain a list of tuples and we just want the first
         # element of each tuple and put it in a list.
-        return [x[0] for x in matching_reg.findall(content)]
+        block_list = [x[0] for x in matching_reg.findall(content)]
+
+        if surrounding_blocks:
+            final_block_list = []
+
+            # looping through block we've found
+            for block_call in block_list:
+
+                is_surrounded = False
+                # Looping through surrounding blocks
+                for surrounding_block in surrounding_blocks:
+
+                    # Extracting surrounding block content, that could match current block call
+                    surrounding_block_content = self._get_content(surrounding_block)
+
+                    # If surrounding block content is matching current call
+                    if surrounding_block_content.strip() == block_call.strip():
+                        is_surrounded = True
+                        break
+                
+                if not is_surrounded:
+                    final_block_list.append(block_call)
+
+            return final_block_list
+
+        else:
+            return block_list
 
 
     def _decode_html(self, html, page_id, extra_attr):
@@ -201,6 +248,21 @@ class GutenbergFixes(GutenbergBlocks):
         """
         return html.replace("\n", "")
     
+
+    def _get_content(self, block_call):
+        """
+        Return content (or None if not found) for a given block call. This also works for nested blocks
+
+        :param block_call: String with shortcode call: <!-- wp:epfl/block attr -->content <!-- /wp:epfl/block -->
+        :return:
+        """
+        # re.DOTALL is to match all characters including \n
+        matching_reg = re.compile('-->(.*)<!--', re.DOTALL)
+
+        value = matching_reg.findall(block_call)
+        # We remove surrounding " if exists.
+        return value[0] if value else None
+
 
     def _transform_to_block_with_content(self, call, block_name, content_attribute):
         """ 
@@ -330,7 +392,7 @@ class GutenbergFixes(GutenbergBlocks):
         block_name = "table"
 
         # Looking for all calls to modify them one by one
-        calls = self._get_all_block_calls(content, block_name, with_content=True, block_category=None)
+        calls = self._get_all_block_calls(content, block_name, with_content=True, block_category=None, ignore_if_in_blocks=['epfl/table-filter'])
 
 
         for call in calls:
