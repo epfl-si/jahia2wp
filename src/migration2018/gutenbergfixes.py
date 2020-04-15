@@ -382,34 +382,21 @@ class GutenbergFixes(GutenbergBlocks):
         return new_call
     
 
-    def _fix_block_table(self, content, page_id):
+    def _fix_block_gallery(self, content, page_id):
         """
-        Fix core table block (native WP block)
+        Fix core gallery block (native WP block)
         :param content: content to update
         :param page_id: Id of page containing content
         """
         
-        block_name = "table"
+        block_name = "gallery"
 
         # Looking for all calls to modify them one by one
-        calls = self._get_all_block_calls(content, block_name, with_content=True, block_category=None, ignore_if_in_blocks=['epfl/table-filter'])
-
+        calls = self._get_all_block_calls(content, block_name, with_content=True, block_category=None, ignore_if_in_blocks=['epfl/gallery'])
 
         for call in calls:
 
-            all_attr = self._get_all_attributes(call, return_dict=True)
-    
-            new_call = call
-
-            # To ensure correct display, we check if the option is enabled
-            if 'hasFixedLayout' not in all_attr or not all_attr['hasFixedLayout']:
-            
-                all_attr['hasFixedLayout'] = True
-                
-                # We add new needed class to <table> element
-                new_call = new_call.replace('<table class="wp-block-table', '<table class="wp-block-table has-fixed-layout')
-                
-            new_call = '<!-- wp:epfl/table -->\n{}\n<!-- /wp:epfl/table -->'.format(self._replace_all_attributes(new_call, all_attr))
+            new_call = '<!-- wp:epfl/gallery {{"largeDisplay":false,"navigationThumbnails":true}} -->\n{}\n<!-- /wp:epfl/gallery -->'.format(call)
 
             if new_call != call:
                 self._log_to_file("Before: {}".format(call))
