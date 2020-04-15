@@ -340,7 +340,10 @@ class Utils(object):
         """
 
         # To list root FILES and not starting with "wp"
-        cmd_first_level_files = 'find {0} -maxdepth 1 -type f -print | egrep -v "^{0}/wp"'.format(source_path)
+        cmd_first_level_files = 'find {} -maxdepth 1 -type f -print'.format(source_path)
+
+        # Root level symlinks (the ones for plugins, themes, etc will be backuped when we will backup the entire directory)
+        cmd_first_level_symlinks = 'find {} -maxdepth 1 -type l -print'.format(source_path)
 
         # To list all files/symlinks starting with "<tar_file_path>/wp" (this will exclude non-WordPress subfolder,
         # which will be very useful when backuping multiple WordPress in a subfolder hierarchy
@@ -351,8 +354,9 @@ class Utils(object):
         
         # --auto-compress is used to automatically detect wished file compression depending on given file extension
         # We also remove debug.log to spare some place
-        command = "{{ {} ; {};  }} | tar --auto-compress --create --no-check-device --file={} " \
+        command = "{{ {} ; {}; {};  }} | tar --auto-compress --create --no-check-device --file={} " \
                   "--listed-incremental={} --exclude=debug.log -T -".format(cmd_first_level_files,
+                                                        cmd_first_level_symlinks,
                                                         cmd_all_folders,
                                                         tar_file_path,
                                                         tar_listed_inc_file_path)
