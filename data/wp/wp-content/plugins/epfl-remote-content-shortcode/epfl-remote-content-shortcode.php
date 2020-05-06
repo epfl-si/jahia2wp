@@ -1,12 +1,9 @@
 <?php
 /*
-Plugin Name: Remote Content Shortcode
-Plugin URI: http://www.doublesharp.com
+Plugin Name: EPFL Remote Content Shortcode
 Description: Embed remote content with a shortcode
-Author: Justin Silver
-Version: 1.4.3
-Author URI: http://doublesharp.com
-License: GPL2
+Author: EPFL SI (originally Justin Silver)
+Version: 1.0.0
 */
 
 if ( ! class_exists( 'RemoteContentShortcode' ) ):

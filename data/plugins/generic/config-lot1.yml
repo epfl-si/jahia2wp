@@ -15,8 +15,8 @@ plugins:
     config: !include tequila/config-plugin.yml
   - name: accred
     config: !include accred/config-plugin.yml
-  - name: cache-control
-    config: !include cache-control/config-plugin.yml
+  - name: epfl-cache-control
+    config: !include epfl-cache-control/config-plugin.yml
   - name: EPFL-settings
     config: !include EPFL-settings/config-plugin.yml
   - name: EPFL-Content-Filter
@@ -27,8 +27,8 @@ plugins:
     config: !include feedzy-rss-feeds/config-plugin.yml
   - name: pdf-viewer-block
     config: !include pdf-viewer-block/config-plugin.yml
-  - name: remote-content-shortcode
-    config: !include remote-content-shortcode/config-plugin.yml
+  - name: epfl-remote-content-shortcode
+    config: !include epfl-remote-content-shortcode/config-plugin.yml
   - name: shortcode-ui
     config: !include shortcode-ui/config-plugin.yml
   - name: shortcode-ui-richtext
