@@ -1,4 +1,4 @@
-src: ../wp/wp-content/plugins/cache-control
+src: ../wp/wp-content/plugins/epfl-cache-control
 activate: yes
 tables:
   options:
