@@ -382,21 +382,27 @@ class GutenbergFixes(GutenbergBlocks):
         return new_call
     
 
-    def _fix_block_gallery(self, content, page_id):
+    def _fix_block_standard(self, content, page_id):
         """
+        
         Fix core gallery block (native WP block)
         :param content: content to update
         :param page_id: Id of page containing content
         """
         
-        block_name = "gallery"
+        block_name = "standard"
 
         # Looking for all calls to modify them one by one
-        calls = self._get_all_block_calls(content, block_name, with_content=True, block_category=None, ignore_if_in_blocks=['epfl/gallery'])
+        calls = self._get_all_block_calls(content, block_name, with_content=True, block_category='pdf-viewer-block')
 
         for call in calls:
 
+            pdfId = self._get_attribute(call, 'mediaID')
+            pdfUrl = self._get_image_url(pdfId, page_id, None)
+
+
             new_call = '<!-- wp:epfl/gallery {{"largeDisplay":false,"navigationThumbnails":true}} -->\n{}\n<!-- /wp:epfl/gallery -->'.format(call)
+            new_call = '<!-- wp:epfl/pdf-flipbook {{"pdfId":{},"pdfUrl":"{}"}} /-->'.format(pdfId, pdfUrl)
 
             if new_call != call:
                 self._log_to_file("Before: {}".format(call))
