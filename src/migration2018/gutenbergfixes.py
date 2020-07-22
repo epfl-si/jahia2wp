@@ -400,8 +400,9 @@ class GutenbergFixes(GutenbergBlocks):
             pdfId = self._get_attribute(call, 'mediaID')
             pdfUrl = self._get_image_url(pdfId, page_id, None)
 
+            page_url = "[PDF]{}/wp-admin/post.php?post={}&action=edit".format(self.wp_site.url, page_id)
+            self._log_to_file(page_url)
 
-            new_call = '<!-- wp:epfl/gallery {{"largeDisplay":false,"navigationThumbnails":true}} -->\n{}\n<!-- /wp:epfl/gallery -->'.format(call)
             new_call = '<!-- wp:epfl/pdf-flipbook {{"pdfId":{},"pdfUrl":"{}"}} /-->'.format(pdfId, pdfUrl)
 
             if new_call != call:
