@@ -51,9 +51,9 @@ Usage:
   jahia2wp.py shortcode-fix         <wp_env> <wp_url> [<shortcode_name>] [--debug | --quiet]
   jahia2wp.py shortcode-fix-many    <csv_file> [<shortcode_name>]   [--debug | --quiet]
   jahia2wp.py block-fix             <wp_env> <wp_url> [<block_name>] [--debug | --quiet]
-    [--simulation]
+    [--simulation] [--posts]
   jahia2wp.py block-fix-inventory   <path> [<block_name>]  [--debug | --quiet]
-    [--simulation [--log-time-csv]]
+    [--simulation [--log-time-csv]] [--posts]
   jahia2wp.py shortcode-to-block        <wp_env> <wp_url> [<shortcode_name>] [--debug | --quiet]
     [--simulation] [--posts]
   jahia2wp.py shortcode-to-block-many   <csv_file> [<shortcode_name>]   [--debug | --quiet]
@@ -1048,7 +1048,7 @@ def shortcode_fix_many(csv_file, shortcode_name=None, **kwargs):
     logging.info("All shortcodes for all sites fixed !")
 
 @dispatch.on('block-fix')
-def block_fix(wp_env, wp_url, block_name=None, simulation=False, csv_time_log=None, **kwargs):
+def block_fix(wp_env, wp_url, block_name=None, simulation=False, posts=False, csv_time_log=None, **kwargs):
 
     logging.info("Fixing blocks for %s", wp_url)
     if simulation:
@@ -1058,6 +1058,8 @@ def block_fix(wp_env, wp_url, block_name=None, simulation=False, csv_time_log=No
     if csv_time_log:
         time_log_file = open(csv_time_log, mode='a')
         start_time = time.time()
+
+    page_or_post = 'post' if posts else 'page'
 
     block_category = 'epfl'
 
@@ -1073,7 +1075,7 @@ def block_fix(wp_env, wp_url, block_name=None, simulation=False, csv_time_log=No
             block_name = values[0][1]
 
     blocks = GutenbergFixes(block_category=block_category)
-    report = blocks.fix_site(wp_env, wp_url, shortcode_name=block_name, simulation=simulation)
+    report = blocks.fix_site(wp_env, wp_url, shortcode_name=block_name, simulation=simulation, elem_type=page_or_post)
     if simulation:
         logging.info("This was a simulation, nothing was changed in database")
     
@@ -1088,7 +1090,7 @@ def block_fix(wp_env, wp_url, block_name=None, simulation=False, csv_time_log=No
     logging.info("Fix report:\n%s", str(report))
 
 @dispatch.on('block-fix-inventory')
-def block_fix_inventory(path, block_name=None, simulation=False, log_time_csv=False, **kwargs):
+def block_fix_inventory(path, block_name=None, simulation=False, log_time_csv=False, posts=False, **kwargs):
     logging.info("Block fix from inventory...")
     nb_sites = 0
 
@@ -1104,7 +1106,8 @@ def block_fix_inventory(path, block_name=None, simulation=False, log_time_csv=Fa
                                     site_details.url, 
                                     block_name=block_name, 
                                     simulation=simulation,
-                                    csv_time_log=csv_time_log)
+                                    csv_time_log=csv_time_log,
+                                    posts=posts)
                 nb_sites += 1
             except:
                 logging.error("Site %s - Error %s", site_details.url, sys.exc_info())
